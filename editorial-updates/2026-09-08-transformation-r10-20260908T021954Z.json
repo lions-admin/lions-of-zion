@@ -1,0 +1,126 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r10-20260908T021954Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T02:19:54.030748Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "deemphasize-cb3o1",
+      "target": {
+        "publicId": "ben-gurion-university-aerogel-can-absorb-100-tim-cb3o1"
+      },
+      "publication": {
+        "title": "Earlier BGU aerogel report: university claim and laboratory limits",
+        "summary": "This earlier report is retained for its publication history. The linked research-based account distinguishes the university’s approximately 100-times claim from the paper’s 78 g/g laboratory result.",
+        "body": "This earlier report is retained for its publication history. The linked research-based account distinguishes the university’s approximately 100-times claim from the paper’s 78 g/g laboratory result. The retained record is linked in Public sources.\n\nOriginal dated account follows.\n\nResearchers at Ben-Gurion University of the Negev have developed a cellulose-based aerogel designed to both capture oil pollution and help microorganisms break it down. In laboratory experiments reported by the university, the material adsorbed roughly 100 times its own weight in crude oil, fuel and other hydrocarbons.\n\nThe system combines two functions that are often separated in spill remediation. Its porous structure rapidly adsorbs hydrocarbons, while nitrogen and phosphorus embedded in the material support local oil-degrading bacteria. The aerogel gives those bacteria a surface on which to form colonies directly beside the trapped pollutants.\n\nThe researchers say the cellulose-based material itself may ultimately biodegrade, potentially reducing the need to retrieve and dispose of contaminated sorbent after cleanup. The work was published in Chemical Engineering Journal Advances and patent protection is being pursued through BGN Technologies, the university's commercialization company.\n\nThe result is promising but remains a laboratory-stage technology rather than a proven field-scale oil-spill system. Important next questions include performance in open-water conditions, durability, retrieval and containment requirements, ecological effects, manufacturing cost and whether the biodegradation rate remains effective outside controlled experiments.\n\nThe project is a useful example of Israeli environmental biotechnology combining materials science and microbial ecology to solve a practical pollution problem. It also illustrates why early scientific reporting should distinguish demonstrated laboratory performance from future commercial or environmental impact.",
+        "changeSummary": "Duplicate-family review: identify this as earlier or duplicate coverage, link the retained record and preserve the original dated account. This is not a new event or independent corroboration."
+      },
+      "sources": [
+        {
+          "url": "https://lionsofzion.io/articles/ben-gurion-university-team-develops-aerogel-that-0y2we",
+          "title": "Retained Lions record for this subject",
+          "publisher": "Lions of Zion"
+        }
+      ]
+    },
+    {
+      "key": "deemphasize-anmgp",
+      "target": {
+        "publicId": "iran-says-it-struck-a-u-s-unmanned-vessel-washin-anmgp"
+      },
+      "publication": {
+        "title": "Earlier report: Iran’s disputed claim of a strike on a U.S. unmanned vessel",
+        "summary": "This earlier account covers the same September 6 claim and U.S. denial as the linked developing record. It is not an additional independent confirmation of a strike.",
+        "body": "This earlier account covers the same September 6 claim and U.S. denial as the linked developing record. It is not an additional independent confirmation of a strike. The retained record is linked in Public sources.\n\nOriginal dated account follows.\n\nIranian authorities said on September 6 that they had struck an unmanned U.S. military vessel in the Strait of Hormuz. The U.S. military publicly rejected the assertion, calling it false. At the time of this update, the competing claims should not be collapsed into a verified event: the existence of an Iranian claim and an American denial is established, but the strike itself remains disputed in the public record.\n\nAssociated Press reported both the Iranian assertion and the U.S. denial while also describing Tehran's plan to announce an exclusion zone near the Strait. Source: https://apnews.com/article/mideast-iran-us-hormuz-lebanon-israel-b4f64c7492d8c5b9ff71794cc152186d\n\nWhy this matters for information warfare: fast-moving military claims often acquire certainty through repetition. Screenshots, clipped statements and partisan reposts can strip away attribution, turning ‘Iran says’ into ‘Iran struck’ or turning a denial into proof that no incident occurred. Neither move is justified without additional evidence.\n\nWhat readers should check: preserve the original attribution; distinguish an official claim from independently verified fact; look for imagery, telemetry, named vessel information or corroborating military reporting; and watch for later corrections. The correct current label is disputed, not confirmed.\n\nThe broader context is a renewed period of U.S.-Iran confrontation around the Strait of Hormuz, a strategic waterway for global energy shipping. That context raises the consequence of false certainty: an unverified tactical claim can be used to signal deterrence, demonstrate supposed battlefield success or shape perceptions of escalation.\n\nThis article will require updating if either side releases verifiable evidence or credible independent reporting resolves the dispute.",
+        "changeSummary": "Duplicate-family review: identify this as earlier or duplicate coverage, link the retained record and preserve the original dated account. This is not a new event or independent corroboration."
+      },
+      "sources": [
+        {
+          "url": "https://lionsofzion.io/articles/iran-says-it-struck-an-unmanned-u-s-vessel-centc-8m6cq",
+          "title": "Retained Lions record for this subject",
+          "publisher": "Lions of Zion"
+        }
+      ]
+    },
+    {
+      "key": "deemphasize-skxk2",
+      "target": {
+        "publicId": "us-house-passes-bill-targeting-university-boycot-skxk2"
+      },
+      "publication": {
+        "title": "Earlier report: U.S. House vote on university boycotts of Israel",
+        "summary": "This earlier report duplicates the House-vote event covered in the linked retained record. The original publication is preserved; the duplicate is not another source confirming the vote.",
+        "body": "This earlier report duplicates the House-vote event covered in the linked retained record. The original publication is preserved; the duplicate is not another source confirming the vote. The retained record is linked in Public sources.\n\nOriginal dated account follows.\n\nReuters reports that the U.S. House passed the Protect Economic and Academic Freedom Act by 237-169, advancing a federal response to institution-level university boycotts of Israel.\n\nThe measure remains unresolved because Senate approval is still required; its supporters emphasize anti-discrimination, while opponents cited in the report raise free-expression concerns.",
+        "changeSummary": "Duplicate-family review: identify this as earlier or duplicate coverage, link the retained record and preserve the original dated account. This is not a new event or independent corroboration."
+      },
+      "sources": [
+        {
+          "url": "https://lionsofzion.io/articles/us-house-passes-bill-targeting-university-boycot-lhl1q",
+          "title": "Retained Lions record for this subject",
+          "publisher": "Lions of Zion"
+        }
+      ]
+    },
+    {
+      "key": "deemphasize-mv6ck",
+      "target": {
+        "publicId": "israel-s-open-civil-defence-data-initiative-cont-mv6ck"
+      },
+      "publication": {
+        "title": "Duplicate retained: civil-defence data report",
+        "summary": "This record duplicates the linked civil-defence report and is retained for provenance. Its source links and claimed nationwide expansion still require verification; duplicate publication adds no corroboration.",
+        "body": "This record duplicates the linked civil-defence report and is retained for provenance. Its source links and claimed nationwide expansion still require verification; duplicate publication adds no corroboration. The retained record is linked in Public sources.\n\nOriginal dated account follows.\n\n## Situation\n\nIsrael's open-data portal continues to serve as the national repository for civil-defence and shelter datasets, with municipalities contributing updated records as part of ongoing home-front readiness reporting.\n\n## Key Events\n\nJerusalem Post reporting corroborates that the transparency initiative around civil-defence data has continued expanding, with additional municipalities contributing datasets this year.\n\n## Watch Points\n\nThe government's open-data portal is expected to continue expanding its civil-defence dataset coverage as more municipalities participate in the national transparency initiative.",
+        "changeSummary": "Duplicate-family review: identify this as earlier or duplicate coverage, link the retained record and preserve the original dated account. This is not a new event or independent corroboration."
+      },
+      "sources": [
+        {
+          "url": "https://lionsofzion.io/articles/israel-s-open-civil-defence-data-initiative-cont-fgpr4",
+          "title": "Retained Lions record for this subject",
+          "publisher": "Lions of Zion"
+        }
+      ]
+    }
+  ],
+  "homepage": {
+    "people": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "publicId": "ben-gurion-university-team-develops-aerogel-that-0y2we"
+        }
+      }
+    }
+  },
+  "research": [
+    {
+      "topic": "Run 10 — duplicate-family consolidation",
+      "sourcesReviewed": [
+        "https://lionsofzion.io/articles/ben-gurion-university-aerogel-can-absorb-100-tim-cb3o1",
+        "https://lionsofzion.io/articles/ben-gurion-university-team-develops-aerogel-that-0y2we",
+        "https://lionsofzion.io/articles/iran-says-it-struck-a-u-s-unmanned-vessel-washin-anmgp",
+        "https://lionsofzion.io/articles/iran-says-it-struck-an-unmanned-u-s-vessel-centc-8m6cq",
+        "https://lionsofzion.io/articles/us-house-passes-bill-targeting-university-boycot-skxk2",
+        "https://lionsofzion.io/articles/us-house-passes-bill-targeting-university-boycot-lhl1q",
+        "https://lionsofzion.io/articles/israel-s-open-civil-defence-data-initiative-cont-mv6ck",
+        "https://lionsofzion.io/articles/israel-s-open-civil-defence-data-initiative-cont-fgpr4",
+        "https://lionsofzion.io/articles/netanyahu-orders-removal-of-unauthorized-west-ba-ugzzx",
+        "https://lionsofzion.io/articles/netanyahu-orders-unauthorized-west-bank-outposts-kb1l1",
+        "https://lionsofzion.io/articles/lebanese-detainee-returned-through-icrc-channel-68if2",
+        "https://lionsofzion.io/articles/idf-clears-hezbollah-tunnels-under-ali-al-taher--ak2iu",
+        "https://lionsofzion.io/articles/idf-clears-ali-al-taher-tunnels-as-gaza-yellow-l-98jch",
+        "https://lionsofzion.io/articles/ali-al-taher-remains-an-active-israel-hezbollah--hkoun",
+        "https://lionsofzion.io/articles/ali-al-taher-ridge-remains-a-verified-israel-hez-mwq1v",
+        "https://cris.bgu.ac.il/en/publications/nutrient-supplemented-carbonized-aerogels-for-integrated-oil-adso/"
+      ],
+      "conclusion": "Retain BGU 0y2we because it already distinguishes paper measurements and cites the research; move its duplicate out of lead prominence. USV 8m6cq retains the event; anmgp becomes earlier coverage. Legislative lhl1q retained, skxk2 duplicate labeled. Civil-defence fgpr4/mv6ck are same-source duplicates; labeling does not validate underlying source claims. Outpost kb1l1 and early Ali al-Taher hkoun/mwq1v were already historical, so no repeat revision. ak2iu is a distinct operational report; t5n3b a claim analysis; 98jch a multi-topic historical edition. Preserve overlapping briefs for their dated edition context. Detainee 68if2 remains established canonical; no second currently live detainee record found in fresh public inventory.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 10 PARTIAL: Reversible archival and automatic duplicate-exclusion outside the two homepage positions are unavailable through this package. Four duplicates remain accessible and may remain in hub lists. No redirect, record merge, source removal or archival is claimed. Acceptance for later implementation: retain canonical record and original provenance; suppress duplicate prominence throughout hubs without deleting history.",
+    "RUN 10 LEGACY PASSAGES: skxk2 and mv6ck display stored passages ahead of body fallback. Their duplicate labels are placed in rendered title/summary and retained-record sources. The new body preface may not render there; do not count it as a passage correction.",
+    "RUN 10 SOURCE LIMIT: civil-defence source validity and nationwide-expansion claim remain unverified, reserved for the data-guide stage. BGU research abstract supports 78 g/g; full paper experimental reconciliation remains for the science stage. No blanket factual endorsement of retained records."
+  ]
+}

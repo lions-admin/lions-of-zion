@@ -1,0 +1,108 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r43-media-recovery-20260908T111117Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T11:11:17.296600Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "bab-al-mandeb-cleared-locator-map-recovery",
+      "target": {
+        "publicId": "bab-al-mandeb-and-hormuz-why-yemen-s-fighting-pu-ws71p"
+      },
+      "publication": {
+        "body": "The fighting in Yemen threatens more than a distant coastal route. Bab al-Mandeb connects the Red Sea to the Gulf of Aden, and it also serves some Saudi oil shipments rerouted away from the Strait of Hormuz. Pressure on both waterways can therefore reduce the usefulness of one route as a substitute for the other. That is a geographic and logistical exposure, not proof that either passage is completely closed today.\n\nThis explainer accompanies Lions of Zion’s western Yemen fighting report. Its focus is the connection between terrain, shipping and energy flows. It does not replace that report with a second casualty tally or claim to map a newly verified frontline.\n\nThe locator map added in this revision shows the strait's physical position between Yemen, Djibouti and Eritrea. It is geographic context, not a live traffic display or a map of the current front. Read it from south to north. Ships entering the Red Sea from the Gulf of Aden pass between Yemen and the Horn of Africa at Bab al-Mandeb. From there the sea route continues toward the Suez Canal and Mediterranean. A vessel rerouted around southern Africa avoids that passage but travels a different, longer route. The EIA’s geographic reference explains the link; its older traffic figures should not be mistaken for current volumes.\n\nThe western Yemen front matters because fighting around the Taiz and Hodeidah approaches can affect access to coastal terrain and routes. But a claim to have taken a hill or road is not a verified ability to stop all vessels at sea. Ground control, access to launch positions, successful attacks and sustained maritime interdiction require different evidence. A military objective to reach a chokepoint is not the same as having achieved it.\n\nThe actors have both local and regional interests. The Houthis, also known as Ansar Allah, face forces aligned with Yemen’s internationally recognized government and backed by Saudi Arabia. The UN Panel of Experts’ 2024 report describes Iranian, Hezbollah and Iraqi assistance to Houthi capabilities, alongside the movement’s local sources of money and power. These relationships help explain capacity; they do not establish who ordered any particular operation in the current fighting. Government-aligned forces should likewise be identified by the unit and source concerned, rather than treated as one undifferentiated force.\n\nWhat changed in the reported escalation. AP’s September 8 dispatch reports 73 people wounded and fires at Saudi oil facilities and utilities, attributing the accounts to Saudi authorities. These are reported consequences of attacks in Saudi Arabia, separate from deaths in ground fighting inside Yemen. They do not establish a verified net loss of oil exports or a closure of Bab al-Mandeb.\n\nKeep the casualty records separate. AP’s September 7 report relays a Houthi-run health ministry claim that a strike on a prison in Hazm, Jawf province, killed seven, including a child. The attribution and location matter: this is a distinct alleged incident in northern Yemen. It cannot simply be added to older western-front totals without checking overlapping dates, victims and definitions. This review has not obtained an independently reconciled casualty register.\n\nThe oil-route connection is measurable, but dated. In its August 11 outlook, the EIA estimated Bab al-Mandeb petroleum-liquid flows at 8.1 million barrels a day in the second quarter of 2026, compared with 5.4 million in the final quarter of 2025. It connected the increase to Saudi rerouting through the East-West pipeline and Yanbu on the Red Sea. These are quarterly estimates, not a September 8 vessel count.\n\nThe same EIA outlook describes alternatives through Suez and Egypt’s SUMED pipeline, with limits on capacity, time and cost. The implication is that avoiding one threatened passage does not eliminate logistical constraints. The report’s estimates and forecasts use assumptions made before the latest fighting; they should inform the exposure analysis without being presented as measurements of today’s disruption.\n\nWhy this reaches beyond energy. A maritime chokepoint channels cargo along a constrained route. The consequences of an attack depend on which ships and destinations are exposed, how carriers respond and whether alternatives are practical. A threat, a carrier’s precautionary diversion and a physically impassable route are different observations. A dramatic battle report alone cannot tell readers the percentage of global trade currently delayed.\n\nFor Israel, the geographic connection concerns the southern maritime approach through the Red Sea. It does not establish that every Israeli-bound shipment uses this route or that a specific cargo was delayed. A defensible account of direct Israeli effects would need port, carrier and shipment data. This article makes the regional exposure clear while leaving that unmeasured impact unquantified.\n\nThe humanitarian stakes extend beyond ships. The UN envoy’s September 7 statement describes widening clashes and reports of civilian harm, displacement and infrastructure damage. The statement is a warning from the mediation effort, not a verified casualty register. Civilian protection and access to essentials remain distinct concerns even when a military development has no measurable effect on international trade.\n\nWhat to watch next. A substantive update would connect a named and verified ground change to maritime evidence: an authenticated incident notice, documented vessel damage, port disruption or a dated change in traffic. It would identify the reporting period and source rather than substitute a forecast for observation. Until those links are established, the supported conclusion is growing exposure across connected routes, not a proven complete blockade.",
+        "changeSummary": "Recover the failed map fetch with the verified Wikimedia file URL and add a summary that explains what the locator map contributes. The map is geographic context, not current traffic or battlefield evidence.",
+        "summary": "A licensed locator map now shows why fighting in western Yemen matters to the Red Sea route. Dated flow estimates explain the exposure; the evidence does not establish a complete current blockade or live vessel disruption."
+      },
+      "media": {
+        "inputUrl": "https://upload.wikimedia.org/wikipedia/commons/b/be/Map_of_Bab-el-Mandeb.png",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Map_of_Bab-el-Mandeb.png",
+        "alt": "Map locating the Bab el-Mandeb strait between Yemen and the Horn of Africa, linking the Red Sea with the Gulf of Aden.",
+        "caption": "Bab el-Mandeb connects the Red Sea and Gulf of Aden between Yemen and the Horn of Africa. Locator map; it does not show current vessel traffic or front lines.",
+        "credit": "Archer90; map data © OpenStreetMap contributors",
+        "disclosure": "Locator map — geographic context, not current traffic or battlefield evidence",
+        "role": "archival-context",
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "cleared",
+          "basis": "CC BY-SA 3.0; underlying OpenStreetMap data under ODbL",
+          "reference": "https://commons.wikimedia.org/wiki/File:Map_of_Bab-el-Mandeb.png",
+          "clearedAt": "2026-09-08",
+          "surfaces": [
+            "article",
+            "homepage"
+          ]
+        },
+        "generated": false
+      },
+      "sources": [
+        {
+          "url": "https://www.eia.gov/outlooks/steo/archives/aug26.pdf",
+          "title": "August 2026 Short-Term Energy Outlook: dated oil-flow estimates and route alternatives",
+          "publisher": "U.S. Energy Information Administration",
+          "official": true
+        },
+        {
+          "url": "https://www.eia.gov/todayinenergy/detail.php?id=41073",
+          "title": "Bab al-Mandeb geographic reference, August 27, 2019",
+          "publisher": "U.S. Energy Information Administration",
+          "official": true
+        },
+        {
+          "url": "https://apnews.com/article/4ad9446f0bb8c096750c84b6e1ba86b8",
+          "title": "September 8: Saudi authorities report injuries and oil-facility fires",
+          "publisher": "Associated Press"
+        },
+        {
+          "url": "https://apnews.com/article/e6d1e1d84c943d2fb1ce186a1e5bd3f8",
+          "title": "September 7: Houthi allegation concerning the Jawf prison strike",
+          "publisher": "Associated Press"
+        },
+        {
+          "url": "https://osesgy.unmissions.org/en/news/statement-by-the-un-special-envoy-for-yemen-on-recent-escalation",
+          "title": "UN Special Envoy statement on escalation, September 7, 2026",
+          "publisher": "OSESGY",
+          "official": true
+        },
+        {
+          "url": "https://documents.un.org/api/symbol/access?l=en&s=S%2F2024%2F731&t=pdf",
+          "title": "UN Yemen Panel of Experts 2024 report — background on support and local resources",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://lionsofzion.io/articles/civilians-among-at-least-60-killed-in-yemen-as-g-wzukq",
+          "title": "Related original western Yemen fighting report",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Map_of_Bab-el-Mandeb.png",
+          "title": "Locator map of Bab el-Mandeb, with authorship and license record",
+          "publisher": "Wikimedia Commons / Archer90 / OpenStreetMap",
+          "official": false
+        }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 43 media recovery — verified file location",
+      "sourcesReviewed": [
+        "https://commons.wikimedia.org/wiki/File:Map_of_Bab-el-Mandeb.png",
+        "https://upload.wikimedia.org/wikipedia/commons/b/be/Map_of_Bab-el-Mandeb.png"
+      ],
+      "conclusion": "The original media fetch used an incorrect Wikimedia content path and the durable run reported hasMedia=false. The Commons API resolved the current original file under /b/be/. Rights, attribution and disclosure are unchanged; the corrected file URL returns the licensed map bytes.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 43 DATA VISUALIZATION: build source-bound chart support for tabular evidence without embedding unsupported Markdown. Acceptance: a future waiting-time or shelter map carries retrieval date, denominator, definitions, accessible alt text and a direct source link, and is labeled as analysis rather than event evidence."
+  ]
+}

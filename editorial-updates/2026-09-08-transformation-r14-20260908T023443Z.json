@@ -1,0 +1,78 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r14-20260908T023443Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T02:34:43.252885Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "outposts-implementation-evidence-tracker",
+      "target": {
+        "publicId": "netanyahu-orders-removal-of-unauthorized-west-ba-ugzzx"
+      },
+      "publication": {
+        "title": "West Bank outposts: the reported removal instruction and the evidence still needed",
+        "summary": "The reported scope ranges from roughly 100 sites to a narrower focus on Areas A and B. Track the instruction, legal orders, scheduling, action and completed removals separately; this review has not established a verified removal total.",
+        "body": "The reported instruction to remove unauthorized West Bank outposts has not yet been matched, in the material reviewed for this article, with a verified list of completed removals. The scope is also disputed. A reported government instruction, a site-specific enforcement instrument and an actual evacuation are different stages.\n\nThe September 6 Reuters report attributed the instruction to two people familiar with the matter. Its roughly 100 figure came from Ynet reporting, rather than a published government inventory. The Times of Israel subsequently reported Bezalel Smotrich’s narrower description: sites in Areas A and B. Its account also cited an earlier April decision, raising a question about how much of the instruction was new. These accounts should not be combined into a confirmed 100-site operation. Repetition of the Reuters and Ynet accounts is not additional independent confirmation of their sources.\n\nWhat the terms mean. A settlement is an Israeli civilian community in the occupied West Bank. In the administrative distinction relevant here, an outpost is a site lacking the required Israeli approvals; some later receive formal recognition. Authorization addresses domestic planning and administrative requirements. It does not, by itself, determine land ownership, resolve a court challenge or settle international legality. The exact permits and land record matter more than the label attached to a site.\n\nThe international legal question has a concrete source. In its July 19, 2024 advisory opinion, the International Court of Justice concluded that Israeli settlements in the West Bank and East Jerusalem, and the associated regime, violate international law. It treated the settlement–outpost distinction as immaterial to that assessment and said new settlement activity must cease. Israel rejects the opinion. This is a separate legal framework from whether a particular site has Israeli administrative approval; a domestic authorization is not an answer to the Court’s conclusion.\n\nWhy the map matters. The 1995 Interim Agreement allocated differing civil and security responsibilities in Areas A, B and C. Area A involved Palestinian civil and internal-security responsibility; Area B combined Palestinian civil responsibility with divided security responsibilities, including Israel’s overriding responsibility for Israeli security. Israel retained territorial administrative powers in Area C pending further transfers. These were interim arrangements, not a final sovereignty settlement. Israel’s Foreign Ministry describes planning and zoning as Palestinian responsibilities in A and B and Israeli responsibilities in C. Smotrich’s reported reference to A and B therefore changes the potential scope substantially.\n\nWho enforces. The Civil Administration’s own description assigns its Central Supervision Unit planning and construction enforcement in Area C, covering both Israeli and Palestinian construction. That institutional remit does not identify who has been tasked with every site in this reported operation. A reliable site record needs the responsible authority, the legal instrument, the land and planning basis, and any challenge or stay.\n\nImplementation tracker — reported instruction: supported by the September reporting and Smotrich’s attributed acknowledgment. Its full terms and date remain unresolved. A political instruction is the starting point of this tracker, not a completed enforcement result.\n\nImplementation tracker — legally ordered: no authenticated, site-by-site enforcement instruments for the reported operation were retrieved in this review. This is an evidence gap, not a finding that no instruments exist. A general statement cannot substitute for the order applicable to a named location.\n\nImplementation tracker — scheduled: no verified site list with execution dates was retrieved. An announced intention to act is not a schedule. Any subsequently issued timetable would need checking for postponement or a judicial stay.\n\nImplementation tracker — begun: no independently verified operation at a named site was established as implementation of this instruction. Images would need a location, date and connection to the relevant order; an older demolition would not establish that link.\n\nImplementation tracker — removed or completed: no verified total is available from this review. Recording a physical removal would still leave questions about which structures were removed, whether residents returned and whether the stated enforcement objective was completed. An unknown total is not zero.\n\nCourt proceedings require their own identity. The Times of Israel reported a separate High Court decision concerning displaced Palestinian residents of Jalud and protection for their return. That case is relevant to enforcement and settler violence, but it does not authenticate a nationwide list of outpost removals. Its reporting is not a substitute for the full court file; no case-specific legal clearance is inferred here.\n\nThis revision adds the primary legal and administrative references and makes the five implementation stages explicit. It preserves the earlier finding that the instruction’s scope and execution were unverified. The next substantive change should be supported by a named order, an authenticated court record or documented action at a named site, rather than another repetition of the announcement.",
+        "changeSummary": "Source upgrade and clarification: add the ICJ, Interim Agreement and Civil Administration references; distinguish five implementation stages and a separate Jalud court case. No verified removal total or final site list is asserted."
+      },
+      "sources": [
+        {
+          "url": "https://www.timesofisrael.com/netanyahu-orders-some-west-bank-outposts-removed-amid-us-pressure-over-settler-attacks/",
+          "title": "September 7 reporting: scope dispute and separate Jalud court case",
+          "publisher": "The Times of Israel"
+        },
+        {
+          "url": "https://www.un.org/unispal/wp-content/uploads/2024/07/186-20240719-sum-01-00-en.pdf",
+          "title": "Summary of the ICJ advisory opinion of July 19, 2024",
+          "publisher": "International Court of Justice / United Nations",
+          "official": true
+        },
+        {
+          "url": "https://www.gov.il/en/pages/oslo06082023",
+          "title": "Israeli Foreign Ministry account of Oslo jurisdiction and planning responsibilities",
+          "publisher": "Israel Ministry of Foreign Affairs",
+          "official": true
+        },
+        {
+          "url": "https://www.gov.il/en/departments/Units/supervision_unit",
+          "title": "Civil Administration Central Supervision Unit remit",
+          "publisher": "COGAT",
+          "official": true
+        },
+        {
+          "url": "https://www.refworld.org/sites/default/files/legacy-pdf/en/1995-9/3de5ebbc0.pdf",
+          "title": "1995 Israeli-Palestinian Interim Agreement",
+          "publisher": "UNHCR Refworld document archive",
+          "official": true
+        },
+        {
+          "url": "https://www.axios.com/2024/07/19/icj-rules-israeli-settlements-illegal-annexation",
+          "title": "July 19, 2024 report including Israeli Foreign Ministry rejection of the opinion",
+          "publisher": "Axios"
+        }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 14 — outpost definitions and implementation",
+      "sourcesReviewed": [
+        "https://www.timesofisrael.com/netanyahu-orders-some-west-bank-outposts-removed-amid-us-pressure-over-settler-attacks/",
+        "https://www.un.org/unispal/wp-content/uploads/2024/07/186-20240719-sum-01-00-en.pdf",
+        "https://www.gov.il/en/pages/oslo06082023",
+        "https://www.gov.il/en/departments/Units/supervision_unit",
+        "https://www.refworld.org/sites/default/files/legacy-pdf/en/1995-9/3de5ebbc0.pdf",
+        "https://www.axios.com/2024/07/19/icj-rules-israeli-settlements-illegal-annexation",
+        "https://www.reuters.com/world/middle-east/israels-netanyahu-orders-west-bank-settler-outposts-be-removed-sources-say-2026-09-06/"
+      ],
+      "conclusion": "Retain canonical ugzzx and earlier duplicate label. Primary sources establish differing legal/administrative frameworks. Current reporting leaves scope and execution unresolved; sourced five-stage tracker describes evidence status rather than invented implementation. ICJ original host failed, UN-hosted summary downloaded and extracted successfully.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 14 LIMITS: No authenticated full instruction, final inventory, site-specific orders, execution schedule, complete court file or verified removals retrieved. Unknown is not zero. Duplicate kb1l1 remains accessible as historical coverage; no archive/redirect capability used. The page is an evidence tracker, not a completed implementation audit."
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r06-20260908T005313Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T00:53:13.432689Z",
+  "creates": [
+    {
+      "key": "correction-revision-reader-record",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "news",
+        "canonicalStoryId": "lions-corrections-research-revisions-reader-record",
+        "title": "What changed: corrections, research revisions and the gaps in our public record",
+        "summary": "An error, a stronger source and a later event require different explanations. Existing research revisions show why an empty central corrections list cannot establish an error-free record.",
+        "body": "A correction repairs an error in the earlier record. An update explains what happened next. Readers need to know which occurred, because a new date alone cannot tell them whether yesterday’s finding remains reliable. This note sets out the distinctions used in this editorial transformation and records examples that already appear on Lions of Zion. It is a companion to the central Corrections page, not a claim that its list has been repaired.\n\nCorrection. A factual or materially misleading contextual statement was wrong. The note should identify the earlier statement, supply the corrected account and explain which conclusion changes. Calling a changed conclusion an update does not make the original error disappear.\n\nClarification. The underlying finding stands, but its wording, scope or meaning needs to be made clearer. If the original wording materially misled readers, the change is also a correction. A clarification should not be used to avoid acknowledging that consequence.\n\nResearch revision. Reanalysis, a larger sample or a better method changes the strength or scope of a finding. Preserve the earlier method and explain why the new result differs. A research revision can also correct an error; the two labels describe different aspects of the same change.\n\nWithdrawn finding. The publication no longer endorses a specific conclusion. Identify that conclusion and explain why its support failed. Withdrawing one finding does not necessarily withdraw the entire article, and retaining an article does not revive the withdrawn finding.\n\nDeveloping-story update. A subsequent event changes the situation: a release occurs, a proposal passes another legislative stage or an announced action is implemented. Keep the original publication date and distinguish the later event from an error in the earlier account.\n\nSource upgrade. A stronger or more direct source improves the evidence for a claim. Explain what it establishes and whether it changes the conclusion. Several copies of the same report do not become independent corroboration simply because the source list is longer.\n\nAdded context. New background helps readers interpret a finding without changing it. If the omitted context made the original account materially misleading, the addition must also acknowledge that correction.\n\nTechnical migration. The record’s storage, formatting or route changes without a substantive editorial change. It should not manufacture the appearance of fresh reporting or erase the original date and revision history.\n\nExisting example: the Hinkle case’s sample estimate. Its visible research-revision section says an earlier estimate of roughly seven in ten sampled posts was replaced by approximately 36 percent after a larger sample was examined. It attributes the earlier result to a single unpaginated page. That is a substantive change in the reported measurement, not merely added context. This note records what the case’s own revision history says; it does not independently reproduce the collection or calculation, and it does not endorse separate coordination or account-ownership allegations.\n\nExisting example: missing evidence in the influencer case. Its revision section says an initial search that found no Community Notes was superseded by a broader corpus search that found notes. The lesson is about the original search’s coverage: absence in a small sample was not evidence of absence across the larger corpus. The existence of a note does not, by itself, establish its accuracy or its helpfulness status. This is an account of a documented research revision, not a new finding against the people named in that case.\n\nNewly published correction context: Israel’s Story. The September 8 companion identifies the omitted Lebanese participation in the 1948 account, the incorrect description of Iraq as a neighboring state and the blanket historical description of the Abraham Accords countries. It supplies a sourced replacement framing. The original static chapters have not been rewritten by that companion, so their correction remains incomplete.\n\nThe central list is not a complete ledger. At this review, the Corrections page still displays an empty list and states that no publication has needed a correction. The visible examples above make that inference untenable. The current central list does not collect all article and static-page revision histories. Its empty state should describe that coverage limitation instead of asserting a clean error record.\n\nThese examples are a selected record of changes, not a site-wide correction count. Their inclusion here does not supply missing review approval, resolve the publication status of the static investigations or alter original testimony. The remaining work is to connect each substantive change to its original publication, preserve the superseded finding with a clear label, and make the central list accurately reflect its coverage.",
+        "language": "en",
+        "editorialTopic": "Corrections and research revisions",
+        "topicTags": [
+          "corrections",
+          "research-revisions",
+          "editorial-transparency"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://lionsofzion.io/corrections",
+          "title": "Corrections — current policy and empty-list claim",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/methodology",
+          "title": "Methodology — distinctions between changes",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/fake-resistance/cases/hinkle-machine",
+          "title": "Hinkle case — existing research revisions, not independent verification",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/fake-resistance/cases/muslim-palestinian-influencers",
+          "title": "Influencer case — existing research revisions, not independent verification",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/articles/1948-and-the-abraham-accords-correcting-two-shor-m7t36",
+          "title": "Israel’s Story correction companion, September 8, 2026",
+          "publisher": "Lions of Zion"
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 06 — corrections and revision terminology",
+      "sourcesReviewed": [
+        "https://lionsofzion.io/corrections",
+        "https://lionsofzion.io/methodology",
+        "https://lionsofzion.io/fake-resistance/cases/hinkle-machine",
+        "https://lionsofzion.io/fake-resistance/cases/muslim-palestinian-influencers",
+        "https://lionsofzion.io/articles/1948-and-the-abraham-accords-correcting-two-shor-m7t36"
+      ],
+      "conclusion": "Live case histories confirm substantive measurement and sampling revisions. Published selected reader-facing examples, without inflating a correction count or independently endorsing allegations. Static central ledger remains unintegrated and original pages remain unchanged.",
+      "outcome": "published"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 06 PARTIAL: /corrections and /methodology must stop inferring no errors from an empty list. Integrate article revision history and separately curated static-page correction records; retain original dates, superseded findings, reasons and links. Label corrections, clarifications, research revisions, withdrawals, later events, source upgrades, added context and technical migrations accurately. Acceptance: known examples are reachable from the central list, no false total, no migration presented as new reporting.",
+    "RUN 06 STATIC CASES: Preserve the Hinkle and influencer revisions in their original cases, with consequential retractions next to current findings. This companion records existing revision disclosures; it neither rewrites those cases nor establishes missing review clearance. Full corpus recalculation was not undertaken."
+  ]
+}

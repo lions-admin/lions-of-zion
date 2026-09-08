@@ -1,0 +1,136 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r19-20260908T085104Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T08:51:04.025229Z",
+  "creates": [
+    {
+      "key": "shelter-data-practical-guide",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "news",
+        "canonicalStoryId": "israel-municipal-shelter-open-data-practical-guide",
+        "title": "Using municipal shelter data: what the records show, and what residents must confirm",
+        "summary": "Two inspected datasets offer locations or address associations, with very different update histories. They support mapping, not a live guarantee of shelter access or readiness. The earlier nationwide-expansion claim has been withdrawn.",
+        "body": "A shelter dataset can help locate recorded facilities or study geographic coverage. It cannot, by itself, tell a resident whether a door is open, a route is accessible or a protected space is currently usable. For immediate instructions, use Home Front Command and the relevant municipality’s current information. This guide explains what two inspected municipal datasets contain and where their usefulness ends.\n\nA correction comes first. Earlier Lions of Zion reports claimed a nationwide expansion of civil-defence data corroborated by the Jerusalem Post. The two source URLs returned 404 in the September 8 check, and the quoted dataset identifier was not found through the government catalog. The expansion claim has been withdrawn. A broken link does not prove that a page never existed, but the evidence retrieved here does not support the assertion. Real municipal datasets do not retroactively validate that alleged report.\n\nBe’er Sheva — useful for mapping recorded points. The city’s government-catalog entry describes shelter locations and codes. It offers spreadsheet, CSV and geographic formats. The inspected CSV DataStore returned 262 rows, with shelter-name/code and latitude/longitude fields. That is a row count in this resource, not a verified count of currently open, accessible shelters. The resource metadata showed July 28, 2026 as its last modification date. The public catalog did not state a fixed refresh schedule; the underlying metadata describes automated updating without a constant interval.\n\nMa’ale Adumim — useful for reading address associations. The municipal catalog describes a shelter list. Its inspected DataStore returned 528 rows with neighborhood, shelter-address and associated-address fields. The resource’s last-modified timestamp was February 9, 2023; catalog metadata changed in March 2023. Although the metadata describes manual annual updates, that label does not establish that a new file was actually supplied every year. Nor does a row establish the facility’s present access arrangements or distinguish every form of public and private protection.\n\nThe two counts should not be compared as readiness scores. Different schemas, geographic coverage, definitions and update histories can produce different row totals. One file emphasizes coordinates and shelter codes; the other includes address associations. Neither inspected schema supplies a live opening-status field, a current inspection certificate or a complete accessibility assessment. A larger number of rows is not evidence that residents are better protected.\n\nFor residents, start with the municipality’s current shelter information and confirm the practical details there. Tel Aviv–Yafo’s municipal shelter page, for example, directs inquiries to its 106+ service. Its interactive listing was not fully exposed in the text retrieval used for this review, so this guide does not certify each entry in that list. The IDF’s information directory identifies Home Front Command’s 104 line for protection policy and instructions. The Home Front Command website itself returned an access restriction during this check; no current alert instructions have been copied or inferred from that failed retrieval.\n\nFor researchers, preserve the dataset name, publisher, resource format and retrieval date alongside the downloaded file. Record the resource timestamp separately from the date the catalog page changed. Check field definitions, duplicate rows and missing values before counting facilities or combining cities. For geographic analysis, verify the coordinate reference system of the specific export before plotting it. Keep the original data so later corrections can be traced.\n\nRefresh labels need evidence. “Automatic” describes a mechanism, not a guarantee of freshness. “Annual” describes an intended interval, not proof of delivery. The practical check is whether the actual resource changed and whether the publisher explains what changed. A recent catalog timestamp could reflect a description edit rather than a new inspection of every shelter.\n\nCoverage is also limited by what was published. These two resources do not establish a complete national inventory of public shelters, private shared shelters, residential protected rooms or institutional protected spaces. Absence from a dataset is not proof that a location has no protection. Presence is not a substitute for a current condition check. Reporting national coverage would require defined categories, comparable municipal submissions and a documented accounting of missing areas.\n\nThe useful distinction is between a reference layer and operational information. Open data supports mapping and scrutiny; current official and municipal channels support decisions about access and instructions. This guide keeps those roles separate and identifies the records actually inspected, rather than promising nationwide completeness or live readiness.",
+        "language": "en",
+        "editorialTopic": "Municipal shelter data and source verification",
+        "topicTags": [
+          "civil-defence",
+          "shelters",
+          "open-data",
+          "municipalities"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://data.gov.il/he/datasets/beer-sheva/shelters-br7",
+          "title": "Be’er Sheva shelter catalog: formats, description and update metadata",
+          "publisher": "Government Open Data Portal / Be’er Sheva Municipality",
+          "official": true
+        },
+        {
+          "url": "https://data.gov.il/api/3/action/package_show?id=sheltersmaaleadumim",
+          "title": "Ma’ale Adumim shelter catalog metadata and resource links",
+          "publisher": "Government Open Data Portal / Ma’ale Adumim Municipality",
+          "official": true
+        },
+        {
+          "url": "https://data.gov.il/api/3/action/datastore_search?resource_id=e191d913-11e4-4d87-a4b2-91587aab6611&limit=2",
+          "title": "Be’er Sheva resource schema and row-count check, September 8",
+          "publisher": "Government Open Data Portal",
+          "official": true
+        },
+        {
+          "url": "https://data.gov.il/api/3/action/datastore_search?resource_id=d35945fa-eb3c-4802-a956-73b6273017f6&limit=2",
+          "title": "Ma’ale Adumim resource schema and row-count check, September 8",
+          "publisher": "Government Open Data Portal",
+          "official": true
+        },
+        {
+          "url": "https://www.tel-aviv.gov.il/About/Pages/AccessibleShelters.aspx",
+          "title": "Tel Aviv–Yafo municipal shelter information and 106+ inquiries",
+          "publisher": "Tel Aviv–Yafo Municipality",
+          "official": true
+        },
+        {
+          "url": "https://www.idf.il/136040",
+          "title": "IDF information directory: Home Front Command 104",
+          "publisher": "Israel Defense Forces",
+          "official": true
+        },
+        {
+          "url": "https://www.oref.org.il/heb",
+          "title": "Home Front Command — direct retrieval restricted in this review",
+          "publisher": "Home Front Command",
+          "official": true
+        },
+        {
+          "url": "https://lionsofzion.io/articles/israel-s-open-civil-defence-data-initiative-cont-fgpr4",
+          "title": "Corrected earlier nationwide-expansion report",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://data.gov.il/api/3/action/package_show?id=shelters-br7",
+          "title": "Be’er Sheva resource timestamps and refresh metadata",
+          "publisher": "Government Open Data Portal",
+          "official": true
+        }
+      ]
+    }
+  ],
+  "updates": [
+    {
+      "key": "withdraw-unsupported-expansion-fgpr4",
+      "target": {
+        "publicId": "israel-s-open-civil-defence-data-initiative-cont-fgpr4"
+      },
+      "publication": {
+        "title": "Correction: nationwide shelter-data expansion was not substantiated",
+        "summary": "Correction: we withdraw the earlier claim that a Jerusalem Post report corroborated nationwide expansion of a civil-defence data initiative. Both cited URLs returned 404 on September 8, and the cited dataset identifier was not found. This review did not substantiate that expansion. The old passages below are preserved as the unsubstantiated earlier account, not current findings or operational shelter guidance.",
+        "body": "Correction: we withdraw the earlier claim that a Jerusalem Post report corroborated nationwide expansion of a civil-defence data initiative. Both cited URLs returned 404 on September 8, and the cited dataset identifier was not found. This review did not substantiate that expansion. The old passages below are preserved as the unsubstantiated earlier account, not current findings or operational shelter guidance.\n\nOriginal account retained for provenance:\n\n## Situation\n\nIsrael's open-data portal continues to serve as the national repository for civil-defence and shelter datasets, with municipalities contributing updated records as part of ongoing home-front readiness reporting.\n\n## Key Events\n\nJerusalem Post reporting corroborates that the transparency initiative around civil-defence data has continued expanding, with additional municipalities contributing datasets this year.\n\n## Watch Points\n\nThe government's open-data portal is expected to continue expanding its civil-defence dataset coverage as more municipalities participate in the national transparency initiative.",
+        "changeSummary": "Correction: withdraw the unsupported nationwide-expansion claim and its claimed Jerusalem Post corroboration. Both cited URLs returned 404 and the dataset identifier was not found. Preserve the old passages as the earlier, unsubstantiated account."
+      },
+      "sources": []
+    },
+    {
+      "key": "withdraw-unsupported-expansion-mv6ck",
+      "target": {
+        "publicId": "israel-s-open-civil-defence-data-initiative-cont-mv6ck"
+      },
+      "publication": {
+        "title": "Corrected duplicate: unsupported shelter-data expansion claim",
+        "summary": "Correction: we withdraw the earlier claim that a Jerusalem Post report corroborated nationwide expansion of a civil-defence data initiative. Both cited URLs returned 404 on September 8, and the cited dataset identifier was not found. This review did not substantiate that expansion. The old passages below are preserved as the unsubstantiated earlier account, not current findings or operational shelter guidance.",
+        "body": "Correction: we withdraw the earlier claim that a Jerusalem Post report corroborated nationwide expansion of a civil-defence data initiative. Both cited URLs returned 404 on September 8, and the cited dataset identifier was not found. This review did not substantiate that expansion. The old passages below are preserved as the unsubstantiated earlier account, not current findings or operational shelter guidance.\n\nOriginal account retained for provenance:\n\nThis record duplicates the linked civil-defence report and is retained for provenance. Its source links and claimed nationwide expansion still require verification; duplicate publication adds no corroboration. The retained record is linked in Public sources.\n\nOriginal dated account follows.\n\n## Situation\n\nIsrael's open-data portal continues to serve as the national repository for civil-defence and shelter datasets, with municipalities contributing updated records as part of ongoing home-front readiness reporting.\n\n## Key Events\n\nJerusalem Post reporting corroborates that the transparency initiative around civil-defence data has continued expanding, with additional municipalities contributing datasets this year.\n\n## Watch Points\n\nThe government's open-data portal is expected to continue expanding its civil-defence dataset coverage as more municipalities participate in the national transparency initiative.",
+        "changeSummary": "Correction: withdraw the unsupported nationwide-expansion claim and its claimed Jerusalem Post corroboration. Both cited URLs returned 404 and the dataset identifier was not found. Preserve the old passages as the earlier, unsubstantiated account."
+      },
+      "sources": []
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 19 — civil-defence source correction and practical data guide",
+      "sourcesReviewed": [
+        "https://data.gov.il/he/datasets/beer-sheva/shelters-br7",
+        "https://data.gov.il/api/3/action/package_show?id=sheltersmaaleadumim",
+        "https://data.gov.il/api/3/action/datastore_search?resource_id=e191d913-11e4-4d87-a4b2-91587aab6611&limit=2",
+        "https://data.gov.il/api/3/action/datastore_search?resource_id=d35945fa-eb3c-4802-a956-73b6273017f6&limit=2",
+        "https://www.tel-aviv.gov.il/About/Pages/AccessibleShelters.aspx",
+        "https://www.idf.il/136040",
+        "https://www.oref.org.il/heb",
+        "https://lionsofzion.io/articles/israel-s-open-civil-defence-data-initiative-cont-fgpr4",
+        "https://data.gov.il/api/3/action/package_show?id=shelters-br7",
+        "https://www.jpost.com/israel-news/civil-defence-data-transparency-review-2026",
+        "https://data.gov.il/dataset/shelters-verification-check-2026-09-02"
+      ],
+      "conclusion": "Two original sources 404; cited dataset package_show also404. Withdraw unsupported expansion/corroboration claim in both records. Real Be’er Sheva and Maale datasets retrieved with schemas and row counts; no blanket national completeness or operational readiness assertion. Distinct evergreen guide created; legacy records retained with prominent correction, not a duplicated event.",
+      "outcome": "published"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 19 PARTIAL: fgpr4 and mv6ck legacy passages still display the old unsupported account; title/summary explicitly withdraw it, and the new guide explains the correction. Supported passage replacement or reversible archival remains required. Acceptance: no unqualified original expansion assertion remains in the rendered body; original provenance remains available in labeled history. Source removal and central corrections-ledger integration unavailable.",
+    "RUN 19 LIMITS: No physical shelter inspection, national completeness audit, current operational certification or full municipal interactive-list inspection performed. Home Front Command fetch restricted. Old nonexistent/unretrieved source records remain attached because removal is unsupported. New guide is a dataset-use explanation, not emergency instructions."
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r12-20260908T022528Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T02:25:28.678739Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "detainees-primary-handover-confirmation",
+      "target": {
+        "publicId": "lebanese-detainee-returned-through-icrc-channel-68if2"
+      },
+      "publication": {
+        "title": "Five detainees returned to Lebanon: ICRC confirms the two-day handover",
+        "summary": "The ICRC confirmed five transfers to Lebanon: one person on September 3 and four on September 4. Its role was humanitarian, and it said access to people still detained in Israel remained unavailable. The original first-handover passages below are preserved as an earlier snapshot; their uncertainty about further releases was resolved by the ICRC’s September 4 statement.",
+        "body": "The International Committee of the Red Cross confirmed the transfer to Lebanon of five people released from Israeli detention: one on September 3, 2026, and four on September 4. The completed two-day operation resolves the first report’s uncertainty about whether four further releases would occur.\n\nThe first person was identified in contemporary reporting as Malek Ghazi. AP described the five released people as civilians and reported that the arrangement was linked to Lebanon’s assistance in the search for missing Lebanese Jewish leaders from the civil-war period. The release total and that reported diplomatic linkage are separate findings: completing the handover does not establish that every missing-person case has been resolved.\n\nThe ICRC described its role as a neutral humanitarian intermediary acting at the parties’ request. In the same statement it said it had not had access to detainees in Israeli places of detention since October 2023, including Lebanese nationals, and called for access and information. Facilitating release should not be confused with having been able to inspect the earlier conditions of detention.\n\nFamilies still waiting for answers remain part of the story. The ICRC said it continued confidential discussions about people detained, deceased or otherwise missing and remained available for future humanitarian operations agreed by the parties. The five transfers are therefore a completed, bounded event within a wider unresolved humanitarian file.\n\nPublication history: the initial account described the first handover while additional releases were still expected. That was the state of reporting on September 3. The ICRC’s September 4 statement establishes what happened next. This update adds that primary statement and makes the completed sequence explicit, while preserving the original publication date and earlier reporting history.",
+        "changeSummary": "Source upgrade and clarification: add the ICRC’s direct confirmation of one transfer on September 3 and four on September 4. Explain that the first-handover passages are historical and that access to remaining detainees is a separate unresolved issue."
+      },
+      "sources": [
+        {
+          "url": "https://www.icrcnewsroom.org/story/en/1225/lebanon-icrc-facilitates-transfer-to-lebanon-of-5-people-detained-by-israel-303107",
+          "title": "ICRC confirms five transfers over September 3–4, 2026",
+          "publisher": "International Committee of the Red Cross",
+          "official": true
+        }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 12 — detainee handover sequence",
+      "sourcesReviewed": [
+        "https://www.icrcnewsroom.org/story/en/1225/lebanon-icrc-facilitates-transfer-to-lebanon-of-5-people-detained-by-israel-303107",
+        "https://apnews.com/article/6702b387d0f9ed129cae9be8b8536b58",
+        "https://www.thenationalnews.com/news/mena/2026/09/04/israel-releases-four-more-detainees-to-lebanon-through-red-cross/"
+      ],
+      "conclusion": "Primary ICRC statement confirms the one-plus-four sequence and its humanitarian role/access limitation. Updated existing canonical record and visible summary; no duplicate article. Existing stored passages cannot be replaced by package body; summary explicitly identifies them as the earlier snapshot so their outdated uncertainty is not presented as current.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 12 PARTIAL: canonical detainee record 68if2 has two legacy passages that override the updated full body. Headline, summary, direct primary source and visible revision can clarify current status, but full-body replacement remains blocked. Acceptance: readers see coherent two-day sequence in the body, with initial uncertainty preserved as labeled history; no stale question about whether the four later transfers happened.",
+    "RUN 12 LIMITS: No complete independently verified name-by-name detention file, conditions assessment or resolution of missing Lebanese Jewish persons is asserted. Five transfers do not imply settlement of the larger detainee file."
+  ]
+}

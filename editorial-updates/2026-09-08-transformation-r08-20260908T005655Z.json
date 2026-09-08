@@ -1,0 +1,35 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r08-20260908T005655Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T00:56:55.116580Z",
+  "creates": [],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 08 — all 521 ticker fragments and renderer",
+      "sourcesReviewed": [
+        "https://lionsofzion.io/matrix/matrix-fragments.en.json",
+        "https://lionsofzion.io/support-us",
+        "https://github.com/lions-admin/lions-of-zion/blob/main/components/sections/ScanBackdrop.tsx",
+        "https://apnews.com/article/israel-hamas-gaza-misinformation-fact-check-e58f9ab8696309305c3ea2bfb269258e",
+        "https://factcheck.afp.com/doc.afp.com.34JA9UM"
+      ],
+      "conclusion": "Fetched production corpus; exact parsed match to repository: 521 fragments, seven catalog sources, no unresolved sourceIds. All entries have text/tone/status/category/sourceIds but no per-item dates or Lions canonical publication IDs. Renderer extracts only text/tone, discarding source/status context. Inventory records each row and missing fields. This is structural/source-mapping inspection, not current factual re-verification of all 521 entries. Currentness, latest assessment and full claim-to-source entailment remain incomplete.",
+      "outcome": "no_action"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "ticker-currentness-unestablished",
+      "candidate": "Treating recurring LIVE/NARRATIVE SPIKE/DETECTED labels as current monitoring results",
+      "reason": "Static corpus and deterministic sampled rendering provide no per-item observation timestamp or current monitoring evidence. Repetition does not establish a new event or current trend. Cannot rewrite ticker via whole-site-update-v2.",
+      "replacement": "Attach dated claim context and an evidence state where supported; record static implementation requirements instead of creating hundreds of low-value companion articles."
+    }
+  ],
+  "siteRecommendations": [
+    "RUN 08 BLOCKED: public/matrix/matrix-fragments.en.json and ScanBackdrop must expose each real-world claim’s source, source date, observation date, canonical Lions record where available and precise evidence state. Renderer currently uses only text/tone. Acceptance: a reader can reach meaningful dated context for every displayed real claim; historical examples do not imply live monitoring; complex propositions are not reduced to a binary color. Neutral visual terms need no fabricated claim record.",
+    "RUN 08 INCOMPLETE RESEARCH: The per-row audit covers all 521 corpus entries and source-ID integrity, but does not establish latest factual assessment of every item. Seven broad catalog references are not sufficient proof of each proposition. Complete claim-level entailment and currentness before presenting the stream as a verified/live source. No ticker code, CSS or schema changed."
+  ]
+}

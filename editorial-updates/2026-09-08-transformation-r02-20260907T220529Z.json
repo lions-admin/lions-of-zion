@@ -1,0 +1,33 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r02-20260907T220529Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-07T22:05:29.454Z",
+  "creates": [],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 02 — Muslim-Palestinian Viral Influencers reader integrity",
+      "sourcesReviewed": [
+        "https://lionsofzion.io/fake-resistance/cases/muslim-palestinian-influencers"
+      ],
+      "focus": "Current public copy, retractions, identity boundaries, coordination wording and internal notes",
+      "conclusion": "HTTP 200 public inspection confirmed preserved withdrawn/narrowed readings and explicit limits on coordination inference. The exact Hinkle publication-clearance warning was not reproduced here; it must not be attributed to this page. Internal budget totals, script paths, phase reports and future research tasks remain visible. The record distinguishes an unresolved account operator and says a proposed account rename is probable, not proven. The static case cannot be edited or withdrawn through whole-site-update-v2. Independent verification of every personal allegation and current review clearance remain unresolved; no fresh allegation or clearance claim is published.",
+      "outcome": "vetoed"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "r02-duplicate-investigation",
+      "candidate": "A duplicate reader edition of the static influencer investigation",
+      "reason": "A new dynamic article would not remove the internal notes from the original case or establish review clearance. Preserve the original correction history without multiplying unresolved allegations.",
+      "sources": [
+        "https://lionsofzion.io/fake-resistance/cases/muslim-palestinian-influencers"
+      ]
+    }
+  ],
+  "siteRecommendations": [
+    "RUN 02 BLOCKED: Edit the static influencer case in a separate development/content change. Convert technical budgets and task instructions into concise sampling limitations; retain withdrawn findings and dated sponsorship changes; distinguish observed amplification, shared ideology, documented relationship, statistical candidate signal and directed coordination. Verify the original case URL, roster and related network/playbook surfaces. No exact publication-clearance warning was found in this inspection."
+  ]
+}

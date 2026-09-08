@@ -1,0 +1,290 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r09-20260908T021601Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T02:16:01.339871Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "scope-86i2j",
+      "target": {
+        "publicId": "israel-launches-fresh-attacks-across-southern-le-86i2j"
+      },
+      "publication": {
+        "narrativeWatchDetails": {
+          "arenas": [
+            "regional media",
+            "Lebanese state media"
+          ],
+          "exactClaim": "Israel carried out new attacks across southern Lebanon, including use of white phosphorus munitions in Nabatieh district towns, violating ceasefire understandings.",
+          "propagators": [
+            "Middle East Eye",
+            "Lebanon’s National News Agency (as cited)"
+          ],
+          "knownUnknowns": [
+            "Independent confirmation of strikes and munition type",
+            "Any Israeli statement accepting or denying the allegation",
+            "On-the-ground verification from neutral monitors"
+          ],
+          "trendDirection": "unclear",
+          "israeliPosition": null,
+          "securityContext": "Monitoring: Middle East Eye cites Lebanon’s National News Agency. The source chain does not independently establish the munition type or the full circumstances of each strike. Those propositions require separate evidence. No measured circulation trend is established.",
+          "verificationState": "unresolved",
+          "supportingEvidenceIds": [
+            "40b366f4-5eda-4ce1-896d-bd814225e742"
+          ],
+          "contradictingEvidenceIds": []
+        },
+        "changeSummary": "Clarification: classify this record as monitoring and remove an unmeasured circulation-trend inference. Explain source ancestry and remaining evidence limits; original dated reporting is retained."
+      },
+      "sources": []
+    },
+    {
+      "key": "scope-dd5w4",
+      "target": {
+        "publicId": "lebanese-child-succumbs-to-wounds-after-reported-dd5w4"
+      },
+      "publication": {
+        "narrativeWatchDetails": {
+          "arenas": [
+            "regional media",
+            "Lebanese state media"
+          ],
+          "exactClaim": "A Lebanese child was killed by a cluster bomb left by Israeli attacks in southern Lebanon; another child injured.",
+          "propagators": [
+            "Middle East Eye",
+            "Lebanon’s National News Agency (as cited)"
+          ],
+          "knownUnknowns": [
+            "Independent forensic confirmation that the munition was a cluster bomb",
+            "Chain of custody and timeline for the incident",
+            "Any Israeli response or investigation"
+          ],
+          "trendDirection": "unclear",
+          "israeliPosition": null,
+          "securityContext": "Monitoring: Middle East Eye attributes the incident to Lebanon’s National News Agency. This is one reported source chain, not two independent confirmations. The cited material does not establish an independent forensic identification of the munition. No measured circulation trend is established.",
+          "verificationState": "unresolved",
+          "supportingEvidenceIds": [
+            "330235c2-6152-463b-a819-562d04c17571"
+          ],
+          "contradictingEvidenceIds": []
+        },
+        "changeSummary": "Clarification: classify this record as monitoring and remove an unmeasured circulation-trend inference. Explain source ancestry and remaining evidence limits; original dated reporting is retained."
+      },
+      "sources": []
+    },
+    {
+      "key": "scope-nos0i",
+      "target": {
+        "publicId": "reported-claim-claims-that-israeli-government-pl-nos0i"
+      },
+      "publication": {
+        "narrativeWatchDetails": {
+          "arenas": [
+            "international media",
+            "diplomatic discourse",
+            "social media"
+          ],
+          "exactClaim": "Senior Israeli ministers are implementing or have a concretely funded, government-approved plan to forcibly transfer the majority of Gaza's Palestinian population over a multi-year programme.",
+          "propagators": [
+            "Middle East Eye",
+            "The Guardian"
+          ],
+          "knownUnknowns": [
+            "Whether a formal government policy or enacted order exists detailing forcible transfer mechanisms and funding.",
+            "Which international states, if any, have formally agreed to accept or facilitate large-scale population movement.",
+            "Operational timelines, legal instruments, and implementation authorities for any such plan."
+          ],
+          "trendDirection": "unclear",
+          "israeliPosition": "Reporting cites statements by Israeli ministers advocating migration policies; no primary government policy document confirming an enacted plan was provided in these sources.",
+          "securityContext": "Developing Claim: Allegations arise amid active conflict and international scrutiny; claims of mass transfer would have major legal and security implications if substantiated. No measured circulation trend is established by the cited source stack.",
+          "verificationState": "unresolved",
+          "supportingEvidenceIds": [
+            "0bac905c-4180-4179-9b99-92e53d16f58c",
+            "34d8da4c-34c3-4424-bd6c-c05033d0b88c"
+          ],
+          "contradictingEvidenceIds": []
+        },
+        "changeSummary": "Clarification: classify this record as developing claim and remove an unmeasured circulation-trend inference. Explain source ancestry and remaining evidence limits; original dated reporting is retained."
+      },
+      "sources": []
+    },
+    {
+      "key": "scope-3y6mg",
+      "target": {
+        "publicId": "reported-claim-guilt-by-association-why-seven-in-3y6mg"
+      },
+      "publication": {
+        "narrativeWatchDetails": {
+          "arenas": [
+            "Gaza",
+            "Humanitarian operations",
+            "International law"
+          ],
+          "exactClaim": "The April 2024 World Central Kitchen strike reflected a broader Israeli military targeting practice that endangered civilians through guilt by association.",
+          "propagators": [
+            "The Guardian investigation",
+            "Critics of IDF targeting practices"
+          ],
+          "knownUnknowns": [
+            "Whether independently examined video, audio and operational records support or narrow the broader targeting-practice allegation.",
+            "How broadly the alleged practice was applied across units and periods.",
+            "What further independent investigation will establish about the disputed account."
+          ],
+          "trendDirection": "unclear",
+          "israeliPosition": "In its April 5, 2024 statement, the IDF acknowledged fatal misidentification and serious procedural failures. Its August 19, 2026 decision said the circumstances did not raise reasonable suspicion warranting a criminal investigation. WCK rejected that account on the same date; the military decision is not a court judgment resolving all disputed facts.",
+          "securityContext": "Investigation candidate: the seven deaths and IDF responsibility are acknowledged in the IDF’s April 5, 2024 statement. The broader targeting-practice allegation remains a separate question. On August 19, 2026 the military prosecutor declined a criminal investigation; WCK disputed the account and renewed its demand for an independent inquiry. These are directly sourced opposing institutional positions, not an independent adjudication. No measured circulation trend is established.",
+          "verificationState": "unresolved",
+          "supportingEvidenceIds": [
+            "002dab2d-e23a-49de-b289-5deb749a063f"
+          ],
+          "contradictingEvidenceIds": [
+            "002dab2d-e23a-49de-b289-5deb749a063f"
+          ]
+        },
+        "changeSummary": "Source upgrade and clarification: add the IDF’s 2024 findings, its August 2026 prosecution decision and WCK’s response. Separate acknowledged deaths from the disputed broader allegation, and remove the unsupported circulation-trend label.",
+        "summary": "The killing of seven WCK workers in April 2024 is acknowledged by the IDF. The Guardian’s broader targeting-practice allegation remains a separate question; WCK disputes the military prosecutor’s August 2026 decision not to open a criminal investigation."
+      },
+      "sources": [
+        {
+          "url": "https://www.idf.il/190614",
+          "title": "IDF investigation conclusion, April 5, 2024",
+          "publisher": "Israel Defense Forces",
+          "official": true
+        },
+        {
+          "url": "https://www.idf.il/en/mini-sites/military-advocate-generals-corps/criminal-investigation-decisions-regarding-5-incidents-examined-by-the-general-staff-fact-finding-and-assessment-mechanism-ffam/",
+          "title": "Military prosecution decisions, August 19, 2026",
+          "publisher": "Israel Defense Forces",
+          "official": true
+        },
+        {
+          "url": "https://wck.org/news/world-central-kitchen-condemns-israeli-account-of-april-1-2024/",
+          "title": "WCK response to the Israeli account, August 19, 2026",
+          "publisher": "World Central Kitchen",
+          "official": true
+        }
+      ]
+    },
+    {
+      "key": "scope-t5n3b",
+      "target": {
+        "publicId": "reported-claim-iran-warned-the-united-states-isr-t5n3b"
+      },
+      "publication": {
+        "narrativeWatchDetails": {
+          "arenas": [
+            "Wire services",
+            "X"
+          ],
+          "exactClaim": "Iran warned the United States that it would respond forcefully to an Israeli offensive on Ali al-Taher, IRGC personnel were holed up there with Hezbollah, and as a result of U.S. pressure Israel had put off storming the ridge.",
+          "propagators": [
+            "Reuters anonymous regional officials",
+            "Hezbollah media office comments to Reuters"
+          ],
+          "knownUnknowns": [
+            "Whether any IRGC personnel were present earlier in the siege",
+            "Exact text of any Iranian message sent via Oman"
+          ],
+          "trendDirection": "unclear",
+          "israeliPosition": "The IDF said it completed clearing Hezbollah underground infrastructure at Ali al-Taher after weeks of operations, that attackers there were eliminated or fled, and that neutralization continues.",
+          "securityContext": "Developing Claim: Ali al-Taher sits in Israel’s self-declared southern Lebanon security zone, about 10 kilometers inside Lebanon on Times of Israel’s description, and was identified as underground infrastructure built over two decades with Iranian planning and funding. No measured circulation trend is established by the cited source stack.",
+          "verificationState": "disputed",
+          "supportingEvidenceIds": [
+            "35f733e8-532c-4836-a3c1-794f986041ac"
+          ],
+          "contradictingEvidenceIds": [
+            "820aebb3-3eec-47e7-a7a8-94c56931e168",
+            "6e25ee4b-68ed-4aea-b1a8-d034c7225f27"
+          ]
+        },
+        "changeSummary": "Clarification: classify this record as developing claim and remove an unmeasured circulation-trend inference. Explain source ancestry and remaining evidence limits; original dated reporting is retained."
+      },
+      "sources": []
+    },
+    {
+      "key": "scope-0k1g2",
+      "target": {
+        "publicId": "reported-claim-us-ambassador-to-israel-says-ther-0k1g2"
+      },
+      "publication": {
+        "narrativeWatchDetails": {
+          "arenas": [
+            "Gaza",
+            "International diplomacy"
+          ],
+          "exactClaim": "Israel and the United States are implementing or backing a plan to forcibly remove Palestinians from Gaza.",
+          "propagators": [
+            "Critics treating Israeli ministerial migration proposals as settled government policy"
+          ],
+          "knownUnknowns": [
+            "Whether a formal Israeli government migration policy will be adopted.",
+            "How any voluntary framework would be implemented in practice."
+          ],
+          "trendDirection": "unclear",
+          "israeliPosition": "Israeli officials distinguish voluntary migration proposals from forced displacement; Huckabee said he knew of no Israeli or American forced-removal plan.",
+          "securityContext": "Developing Claim: The debate concerns postwar Gaza policy and controversial proposals by Israeli ministers for large-scale voluntary migration. No measured circulation trend is established by the cited source stack.",
+          "verificationState": "disputed",
+          "supportingEvidenceIds": [
+            "8dd596fd-8961-48f0-baa8-a8ad5bed6aa8"
+          ],
+          "contradictingEvidenceIds": [
+            "8dd596fd-8961-48f0-baa8-a8ad5bed6aa8"
+          ]
+        },
+        "changeSummary": "Clarification: classify this record as developing claim and remove an unmeasured circulation-trend inference. Explain source ancestry and remaining evidence limits; original dated reporting is retained."
+      },
+      "sources": []
+    },
+    {
+      "key": "scope-p5zzh",
+      "target": {
+        "publicId": "us-accepts-military-sale-of-helicopters-to-iraq--p5zzh"
+      },
+      "publication": {
+        "narrativeWatchDetails": {
+          "arenas": [
+            "regional media"
+          ],
+          "exactClaim": "US approves a large helicopter sale to Iraq, signaling ongoing U.S. military support in region.",
+          "propagators": [
+            "Middle East Eye (reporting US State Department)"
+          ],
+          "knownUnknowns": [
+            "Direct US State Department release text",
+            "Contract timetable and delivery details"
+          ],
+          "trendDirection": "unclear",
+          "israeliPosition": null,
+          "securityContext": "Monitoring: the cited report describes a proposed arms sale, not completed delivery. The public source stack does not yet include the primary U.S. notification. No measured circulation trend is established.",
+          "verificationState": "unresolved",
+          "supportingEvidenceIds": [
+            "bae1e30f-f497-49ae-86e2-211f2643bd0f"
+          ],
+          "contradictingEvidenceIds": []
+        },
+        "changeSummary": "Clarification: classify this record as monitoring and remove an unmeasured circulation-trend inference. Explain source ancestry and remaining evidence limits; original dated reporting is retained."
+      },
+      "sources": []
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 09 — seven live Narrative Watch records",
+      "sourcesReviewed": [
+        "https://lionsofzion.io/fake-resistance",
+        "https://www.idf.il/190614",
+        "https://www.idf.il/en/mini-sites/military-advocate-generals-corps/criminal-investigation-decisions-regarding-5-incidents-examined-by-the-general-staff-fact-finding-and-assessment-mechanism-ffam/",
+        "https://wck.org/news/world-central-kitchen-condemns-israeli-account-of-april-1-2024/"
+      ],
+      "conclusion": "Classified all seven live Narrative Watch records: three Monitoring, three Developing Claim, one Investigation Candidate. No record is newly declared resolved or false. Removed unmeasured trend assertions, clarified upstream source dependence, and added primary WCK/IDF material to the existing record. Legacy passages remain unchanged because the package cannot replace them; no ineffective body-only revision submitted.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 09 PARTIAL: Three legacy monitoring records still render internal packet language in stored passages: p5zzh, dd5w4, 86i2j. Replace those passages through a supported development capability while retaining original provenance and uncertainty. Acceptance: rendered text uses reader-facing source descriptions, not packet or ideological outlet labels. Updated structured context does not itself repair those passages.",
+    "RUN 09: Classification is conveyed through the existing context field; no new schema or UI labels created. Archived/hidden record search and reversible archival capability remain unavailable. Full substantive fact-checks of every underlying allegation are not completed by this classification pass."
+  ]
+}

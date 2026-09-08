@@ -1,0 +1,122 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r25-20260908T092854Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T09:28:54.482667Z",
+  "creates": [
+    {
+      "key": "origins-to-1947-history-sequence",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "history_context",
+        "canonicalStoryId": "israel-palestine-origins-to-1947-history-sequence",
+        "title": "Before partition: Jewish history, Palestinian Arab society and the road to 1947",
+        "summary": "A source-backed sequence from ancient Jewish societies through Roman rule, diaspora, Ottoman Palestine, Zionism, Arab political opposition, the British Mandate, the Holocaust refugee crisis, UNSCOP and Resolution 181. Contested claims are separated from what documents and archaeology establish.",
+        "body": "The history before 1947 is not a contest between one timeless people and another. The land held changing polities, languages, faiths and communities; Jewish attachment, presence and migration developed alongside the long histories of other inhabitants. Modern Zionism and Palestinian Arab nationalism arose in a world of empires, European nationalism, colonial power, persecution and local social change. This chapter follows evidence by period and marks where sources cannot carry later political conclusions.\n\nAncient Israel and Judah. Archaeology, inscriptions and external texts support the existence of Iron Age Israelite societies and the kingdoms conventionally called Israel and Judah. The Hebrew Bible is indispensable evidence for the development of Jewish tradition and ancient memory, but its narratives combine genres, composition layers and theological purposes. Historians compare it with material remains and contemporary inscriptions rather than treating every passage as a direct event record. Debates over chronology, state formation and the scale of early kingdoms are real scholarly disputes; they do not erase the evidence for ancient Israelite and later Judean societies.\n\nConquest and return. Assyrian and Babylonian conquests transformed these societies and displaced populations. Persian-period rule permitted a Judean community centered on Jerusalem and its temple to develop again, while Jewish life also continued outside the land. Diaspora therefore neither began in one moment nor meant total absence from the homeland. Communities abroad and in Judea existed together long before the Roman destruction of Jerusalem in 70 CE.\n\nHellenistic and Roman worlds. Jewish political autonomy re-emerged under the Hasmoneans before Roman domination. The revolts of 66–73 and 132–135 CE brought enormous destruction, death and displacement. Roman rule changed provincial organization and restricted Jewish access to Jerusalem after the Bar Kokhba revolt. It did not remove every Jew from the region. The second-century necropolis at Bet She'arim, its inscriptions and its place in rabbinic culture are material evidence of Jewish communal renewal in Roman Palestine.\n\nContinuity without exclusivity. Archaeology and late-antique texts support continuing Jewish communities, especially in Galilee and other localities, through periods of Roman and Byzantine rule. Later centuries also brought Christian majorities, Islamic conquest, Arabic language and culture, Muslim and Christian communities, Crusader and Mamluk rule, and repeated demographic change. Continuity for one community is not evidence that other communities were temporary or politically irrelevant. Ancient origin is historical context, not a modern property deed.\n\nOttoman Palestine. From 1516 until the First World War, the area formed part of the Ottoman Empire and was administered through changing districts rather than as a sovereign nation-state with today's borders. Arabic-speaking Muslim and Christian communities formed most of the population; Jewish communities lived in Jerusalem, Safed, Tiberias, Hebron and elsewhere. Residents held local, religious, imperial and increasingly national identities in combinations that changed over time.\n\nModern Zionism. Nineteenth-century Jewish national movements emerged amid European nationalism, antisemitism, pogroms and debates over emancipation. Zionism contained secular, religious, socialist, liberal and revisionist currents that disagreed about means and ends. It sought collective Jewish renewal and security in the ancestral homeland. Palestinian Arabs increasingly understood that project through the prospect of immigration, land transfer and political displacement under outside sponsorship. Both descriptions belong in the history.\n\nAliyot and social transformation. Jewish immigration came in several waves rather than one organized movement. Migrants arrived from Eastern and Central Europe, Yemen and other parts of the Middle East and North Africa, carrying different languages, resources and politics. They built agricultural settlements, cities, labor institutions and a revived Hebrew public culture. Land purchases were legal transactions in many cases, yet their local effects could include tenant displacement and sharper separation in labor and settlement. Economic growth and new institutions benefited some residents while deepening political competition.\n\nArab society and politics. Palestinian Arab society included urban notables, villagers, workers, merchants, Muslims and Christians with different regional and family ties. It was not merely a reaction to Zionism, though resistance to Zionist immigration and British policy became central to its politics. Arab newspapers, associations, congresses, strikes and armed organizations developed amid broader Arab nationalism and arguments about local independence, Greater Syria and relations with neighboring states.\n\nBalfour, 1917. The British government declared support for a national home for the Jewish people in Palestine while stating that nothing should prejudice the civil and religious rights of existing non-Jewish communities or the rights and political status of Jews elsewhere. The formula did not name the Arab majority as a political nation and did not define statehood, borders or consent. Its promise was issued by an imperial power before Britain had completed its conquest of the territory.\n\nMandate, 1922. The League of Nations Mandate incorporated the national-home commitment, recognized the historical connection of the Jewish people with Palestine, directed Britain to facilitate Jewish immigration under specified conditions, and required protection of the civil and religious rights of all inhabitants. It also required development of self-governing institutions. The document gave unlike formulations to Jewish national aims and Arab rights; that asymmetry became a central source of conflict. Provisions concerning the Jewish national home were withheld from Transjordan.\n\nBritish rule and contradictory expectations. Britain administered Palestine while trying to reconcile commitments it could not satisfy simultaneously. Jewish institutions developed considerable governing capacity. Palestinian Arab demands for representative government and an end to mass immigration collided with British and Zionist aims. British commissions and policy papers repeatedly changed the proposed balance, producing distrust among both communities.\n\nImmigration, land and violence. Immigration accelerated in the 1920s and especially after Nazi persecution grew in the 1930s. Arab opposition included political protest, strikes and violence against Jewish civilians and British rule; Jewish organizations ranged from defense and restraint policies to reprisals and attacks on Arabs and British targets. The 1936–39 Arab Revolt was also a revolt against colonial rule and was suppressed with extensive British force, leaving Palestinian Arab politics and armed capacity weakened before 1947. Naming Arab violence cannot erase British repression or Jewish militant violence; naming colonial power cannot erase attacks on civilians.\n\nDemographic transformation. Population estimates depend on boundaries, registration and migration assumptions, so precise figures should be tied to a census or report. The broad change is uncontested: both Arab and Jewish populations grew, while the Jewish share rose sharply through immigration. UNSCOP's 1947 report surveyed demographic and economic conditions as part of the conflict. Numbers describe population; they do not by themselves decide sovereignty, minority protection or refugee rights.\n\nThe Holocaust and the refugee crisis. Nazi Germany and its allies murdered six million Jews. The genocide radically changed the stakes of Jewish statelessness, but Zionism predated it by decades. After the war, many Jewish survivors remained in displaced-persons camps and sought routes out of Europe. British restrictions continued to limit entry into Palestine; authorities intercepted ships and interned would-be immigrants, including in Cyprus. The Holocaust explains urgency and international support for refuge. It did not remove the political rights or fears of Palestine's Arab population.\n\nBritain turns to the United Nations. Exhausted by violence and failed proposals, Britain referred the question to the UN in 1947. The United Nations Special Committee on Palestine reviewed conflicting claims and produced both a majority partition proposal with economic union and a minority federal-state proposal. The existence of a minority plan matters: partition was a recommendation after contested deliberation, not the only imaginable legal or political design.\n\nResolution 181. On November 29, 1947, the General Assembly recommended partition into Arab and Jewish states with economic union and a special international regime for Jerusalem. The resolution included minority protections and a proposed transition. Jewish Agency leaders accepted partition despite objections to boundaries; Palestinian Arab leadership and Arab states rejected it as unjust and beyond the Assembly's authority. The vote did not create two functioning states by itself and the Security Council did not implement the plan as written.\n\nWhat 181 set in motion. Intercommunal war escalated after the vote, before the British Mandate ended. The resolution is therefore a decisive diplomatic and chronological marker, but the war, Israel's declaration, intervention by Arab armies, Palestinian displacement and the 1949 armistices belong to the next sequence. Reading the vote backward as either inevitable national redemption or a complete explanation for dispossession strips historical actors of choices and obscures the violence already developing.\n\nContested-history method. For ancient periods, distinguish archaeological layers, inscriptions, later texts and modern reconstruction. For the Mandate, identify whether a claim comes from British administration, Zionist institutions, Palestinian Arab bodies or later scholarship. For demographic claims, give the date, territory and counting method. For political promises, read the actual clause and ask whose national status it recognized. Evidence can establish presence, decisions and consequences without converting history into exclusive moral ownership.\n\nThe central finding. Jewish history in the land, diaspora and renewed immigration are supported by material and documentary evidence. Palestinian Arab society was rooted, diverse and politically consequential. British imperial policy joined a Jewish national commitment to incomplete protections for a non-Jewish majority without securing shared consent. Persecution and refuge, national self-determination, colonial administration and fear of displacement converged by 1947. Any defensible account must hold those facts together.",
+        "language": "en",
+        "editorialTopic": "Origins to 1947",
+        "topicTags": [
+          "ancient-history",
+          "ottoman-palestine",
+          "zionism",
+          "palestinian-history",
+          "british-mandate",
+          "partition"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://www.cambridge.org/core/books/abs/archaeology-of-the-holy-land/introduction/8CC382CA976B1085BABFFB0C878369FE",
+          "title": "Archaeology of the Holy Land — scope, chronology and method",
+          "publisher": "Cambridge University Press"
+        },
+        {
+          "url": "https://whc.unesco.org/en/list/1471/",
+          "title": "Bet She'arim: archaeological evidence of Jewish renewal after 135 CE",
+          "publisher": "UNESCO World Heritage Centre",
+          "official": true
+        },
+        {
+          "url": "https://soas-repository.worktribe.com/output/364106",
+          "title": "Peer-reviewed overview of Jewish daily life in Roman Palestine",
+          "publisher": "SOAS / Oxford Handbook"
+        },
+        {
+          "url": "https://history.state.gov/historicaldocuments/frus1919Parisv12/d380",
+          "title": "1919 King–Crane inquiry record of local positions on Zionism and rule",
+          "publisher": "U.S. Office of the Historian",
+          "official": true
+        },
+        {
+          "url": "https://avalon.law.yale.edu/20th_century/balfour.asp",
+          "title": "Balfour Declaration, November 2, 1917",
+          "publisher": "Yale Law School Avalon Project"
+        },
+        {
+          "url": "https://www.loc.gov/resource/gdcwdl.wdl_11572/?st=gallery",
+          "title": "League of Nations Mandate for Palestine and Transjordan memorandum",
+          "publisher": "Library of Congress",
+          "official": true
+        },
+        {
+          "url": "https://history.state.gov/historicaldocuments/frus1940v03/d767",
+          "title": "Contemporary record of 1939 immigration restrictions and quotas",
+          "publisher": "U.S. Office of the Historian",
+          "official": true
+        },
+        {
+          "url": "https://encyclopedia.ushmm.org/content/en/article/refugees?series=137",
+          "title": "Holocaust survivors, displaced persons and restricted immigration to Palestine",
+          "publisher": "United States Holocaust Memorial Museum",
+          "official": true
+        },
+        {
+          "url": "https://www.un.org/unispal/document/auto-insert-179435/",
+          "title": "UNSCOP report: conflict, majority partition and minority federal proposals",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://www.un.org/unispal/document/auto-insert-185393/",
+          "title": "General Assembly Resolution 181 and Partition Plan",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://www.un.org/unispal/document/auto-insert-184992/",
+          "title": "United Nations Yearbook account of UNSCOP and the 1947 debate",
+          "publisher": "United Nations",
+          "official": true
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 25 — origins to 1947",
+      "sourcesReviewed": [
+        "https://www.cambridge.org/core/books/abs/archaeology-of-the-holy-land/introduction/8CC382CA976B1085BABFFB0C878369FE",
+        "https://whc.unesco.org/en/list/1471/",
+        "https://soas-repository.worktribe.com/output/364106",
+        "https://history.state.gov/historicaldocuments/frus1919Parisv12/d380",
+        "https://avalon.law.yale.edu/20th_century/balfour.asp",
+        "https://www.loc.gov/resource/gdcwdl.wdl_11572/?st=gallery",
+        "https://history.state.gov/historicaldocuments/frus1940v03/d767",
+        "https://encyclopedia.ushmm.org/content/en/article/refugees?series=137",
+        "https://www.un.org/unispal/document/auto-insert-179435/",
+        "https://www.un.org/unispal/document/auto-insert-185393/",
+        "https://www.un.org/unispal/document/auto-insert-184992/"
+      ],
+      "conclusion": "Build one chronological history companion with explicit source-method boundaries. Ancient scripture is treated as a layered historical source rather than direct empirical proof. Jewish continuity is documented without exclusivity; Palestinian Arab society and opposition are described as historical subjects rather than reaction alone. Resolution 181 is accurately framed as a recommendation following majority and minority UNSCOP proposals.",
+      "outcome": "published"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 25 STATIC INTEGRATION GAP: the new sequence is a history_context companion and is not integrated into /israels-story. Acceptance: add an Origins to 1947 route or chapter group that preserves the evidence distinctions, links claim-level sources and exposes contested-history notes without replacing them with partisan conclusions.",
+    "RUN 25 SOURCE LIMIT: online sources provide defensible anchors but do not substitute for a full scholarly bibliography. Acceptance: add peer-reviewed specialist works for Iron Age chronology, Roman demographic change, Ottoman social history, land and tenant effects, the 1936–39 revolt and Mandate demography; record disagreements at the affected claim rather than in one generic disclaimer.",
+    "RUN 25 MEDIA GAP: no ancient or partition map was attached because correct date, boundary, legend and rights provenance were not established for a reusable image in this run. Acceptance: use a dated map tied to its source and state whether it shows an archaeological period, an administrative boundary or a political proposal."
+  ]
+}

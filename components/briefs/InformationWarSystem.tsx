@@ -7,6 +7,8 @@ import { DailyCycle, OutputsFork } from "./information-war/StorySections";
 import { HomeEvidencePipeline } from "@/components/home/HomeEvidencePipeline";
 import styles from "./information-war-system.module.css";
 
+const REPORT_NODES = ["A", "B", "C", "D", "E"].map((letter, index) => ({ letter, x: 46 + index * 92 }));
+
 export function InformationWarSystem() {
   return (
     <EditorialShell routeId="information-war" register="silent" className={styles.page} progressTrackClassName={styles.progressTrack}>
@@ -21,8 +23,20 @@ export function InformationWarSystem() {
           <div className={styles.problem} id="problem">
             <p className={styles.eyebrow}>The problem / Repetition ≠ corroboration</p>
             <figure className={styles.originDiagram}>
-              <div className={styles.reportLabels} aria-hidden="true">{["A", "B", "C", "D", "E"].map((letter) => <span key={letter}>Report {letter}<i /></span>)}</div>
-              <svg viewBox="0 0 460 200" preserveAspectRatio="none" role="img" aria-label="Illustration: five reports can trace back to the same original source.">{[46, 138, 230, 322, 414].map((x) => <path key={x} d={`M${x} 0 C${x} 115 230 70 230 184`} />)}<circle cx="230" cy="186" r="5" /></svg>
+              <svg viewBox="0 0 460 156" role="img" aria-label="Illustration: five reports can trace back to the same original source.">
+                {REPORT_NODES.map(({ letter, x }) => (
+                  <g key={letter}>
+                    <rect className={styles.originNode} x={x - 38} y="1" width="76" height="30" />
+                    <text className={styles.originLabel} x={x} y="20">Report {letter}</text>
+                    <path className={styles.originWire} d={`M${x} 31 V84`} />
+                  </g>
+                ))}
+                <path className={styles.originWire} d="M46 84 H414" />
+                <path className={styles.originTrunk} d="M230 84 V128" />
+                {REPORT_NODES.map(({ letter, x }) => <path key={letter} className={styles.originPacket} d={`M230 138 V84 H${x} V31`} />)}
+                <circle className={styles.originHalo} cx="230" cy="138" r="9" />
+                <circle className={styles.originDot} cx="230" cy="138" r="4" />
+              </svg>
               <div className={styles.originCount}><strong>01</strong><span>original source.<br />Not five confirmations.</span></div>
               <figcaption>Illustrative source relationship — not a measured case.</figcaption>
             </figure>

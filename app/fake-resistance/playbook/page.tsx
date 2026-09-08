@@ -6,6 +6,7 @@ import { getTechniqueExamples } from '@/lib/content/fake-resistance-cases';
 import { getPlaybook } from '@/lib/content/fake-resistance-playbook';
 import { SITE_URL } from '@/lib/site-config';
 import styles from './page.module.css';
+import { publicationHubCrumb } from '@/lib/publication-routing';
 
 const TAGLINE =
   'Nine techniques that make manufactured outrage feel like something you found yourself.';
@@ -48,7 +49,7 @@ export default async function Page() {
       id="fake-resistance"
       accent="ember"
       surface="quiet"
-      breadcrumb={[{ href: '/fake-resistance', label: 'Fake Resistance' }]}
+      breadcrumb={[publicationHubCrumb('fakeResistance')]}
       title="The playbook"
       tagline={TAGLINE}
     >

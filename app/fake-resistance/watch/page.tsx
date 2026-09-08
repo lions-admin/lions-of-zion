@@ -5,6 +5,7 @@ import { NarrativeRecord } from "@/components/briefs/NarrativeRecord";
 import { getNarrativeWatchFeed } from "@/lib/content/fake-resistance-watch";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
+import { publicationHubCrumb } from '@/lib/publication-routing';
 
 const TAGLINE =
   "Published narrative monitoring, claims circulating on X and research into incitement — with source context and assessment status.";
@@ -54,7 +55,7 @@ export default async function Page() {
   return (
     <SectionPage
       id="fake-resistance"
-      breadcrumb={[{ href: "/fake-resistance", label: "Narratives & fact checks" }]}
+      breadcrumb={[publicationHubCrumb('fakeResistance')]}
       accent="ember"
       surface="quiet"
       register="silent"

@@ -6,19 +6,46 @@ import { HubMasthead } from '@/components/site/HubMasthead';
 import { getOurHeroesEdition } from '@/lib/content/our-heroes';
 import { getIsraelsStoryEdition } from '@/lib/content/israels-story';
 import { listPublicPublications } from '@/lib/publications';
-import { publicationHref } from '@/lib/publication-routing';
+import {
+  publicationHref,
+  PUBLICATION_SECTION_LABELS,
+  SECTIONS_BY_HOMEPAGE_SECTION,
+} from '@/lib/publication-routing';
 import { SITE_URL } from '@/lib/site-config';
 import type { PublicPublication } from '@/server/contracts/publication';
 import type { PublicationSection } from '@/server/contracts/enums';
 import styles from './page.module.css';
 
 const DESCRIPTION = 'People, courage, invention and the living record of Israel — with sources, context and a path to explore further.';
-const LABELS: Partial<Record<PublicationSection, string>> = {
-  people: 'People', courage_service: 'Courage & Service', innovation: 'Innovation',
-  technology_ai: 'Technology & AI', science_medicine: 'Science & Medicine', achievement: 'Achievements',
-  international_cooperation: 'International Cooperation', history_context: 'History & Context',
-};
-const ORDER = Object.keys(LABELS) as PublicationSection[];
+/**
+ * The lanes are derived, not written out — VA-57.
+ *
+ * This file used to carry its own `Partial<Record<PublicationSection, string>>`
+ * of eight labels, and it had already drifted from `lib/publication-routing.ts`
+ * in three places: "Achievements" against "Israeli achievement", and
+ * "International Cooperation" against "International cooperation". Being
+ * `Partial` was the worse half — a new `people` section added to `DESTINATIONS`
+ * got no lane here and simply never appeared, which is exactly the failure
+ * `LiveBriefHub` had when it hard-coded `["daily_brief", "israel_update"]` and
+ * left every `news` record rendered by nothing until 2026-09-06.
+ *
+ * `SECTIONS_BY_HOMEPAGE_SECTION.people` is the same derivation the homepage
+ * band uses, so a section reaches this hub and its own card with one label.
+ *
+ * The order is stated because a reading order is an editorial choice that no
+ * map can hold; any section the list forgets is appended rather than dropped,
+ * so forgetting costs a position and never a lane.
+ */
+const LANE_ORDER: readonly PublicationSection[] = [
+  'people', 'courage_service', 'innovation', 'technology_ai',
+  'science_medicine', 'achievement', 'international_cooperation', 'history_context',
+];
+const PEOPLE_SECTIONS = SECTIONS_BY_HOMEPAGE_SECTION.people;
+const ORDER: PublicationSection[] = [
+  ...LANE_ORDER.filter((section) => PEOPLE_SECTIONS.includes(section)),
+  ...PEOPLE_SECTIONS.filter((section) => !LANE_ORDER.includes(section)),
+];
+const LABELS: Record<PublicationSection, string> = PUBLICATION_SECTION_LABELS;
 
 export const metadata: Metadata = {
   title: 'The People of Israel', description: DESCRIPTION,

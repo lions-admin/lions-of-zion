@@ -13,6 +13,7 @@ import { getFakeResistanceEdition } from "@/lib/content/fake-resistance";
 import { SITE_URL } from "@/lib/site-config";
 import type { AssessmentValue } from "@/server/contracts/enums";
 import styles from "./page.module.css";
+import { publicationHubCrumb } from '@/lib/publication-routing';
 
 /** Same wording VerificationBadge uses, so the stamp and the accessible
  *  badge underneath it never disagree. */
@@ -127,7 +128,7 @@ export default async function Page() {
   return (
     <SectionPage
       id="fake-resistance"
-      breadcrumb={[{ href: "/fake-resistance", label: "Fake Resistance" }]}
+      breadcrumb={[publicationHubCrumb('fakeResistance')]}
       accent="ember"
       surface="quiet"
       title="Official narrative engineering"

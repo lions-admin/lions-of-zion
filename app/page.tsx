@@ -101,8 +101,11 @@ export default async function Page() {
                 <JourneyLink href="/geopolitical-brief">Read the latest</JourneyLink>
               </div>
               <div className={styles.secondaryActions}>
+                {/* VA-51. This link said "Why this work matters" while the
+                    chrome called the same destination "How it works" and its
+                    tab called it something else again. One name now. */}
                 <Link className={styles.storyLink} href="/information-war">
-                  Why this work matters
+                  How it works
                 </Link>
               </div>
             </div>

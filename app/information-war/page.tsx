@@ -3,18 +3,11 @@ import { InformationWarSystem } from "@/components/briefs/InformationWarSystem";
 import { SITE_URL } from "@/lib/site-config";
 import { pageMetadata } from "@/lib/page-metadata";
 
-/* The public destination is named “How it works” in navigation and metadata;
-   the page's editorial heading remains “This is an information war.” */
 const TITLE = "How it works";
 const HEADLINE = "This is an information war";
-const DESCRIPTION =
-  "See how Lions of Zion uses AI-scale research, OSINT, source provenance and human governance to investigate claims, trace narrative manipulation and publish a correctable public record.";
+const DESCRIPTION = "See how Lions of Zion uses AI-scale research, OSINT, source provenance and human governance to investigate claims, trace narrative manipulation and publish a correctable public record.";
 
-export const metadata: Metadata = pageMetadata({
-  title: TITLE,
-  description: DESCRIPTION,
-  path: "/information-war",
-});
+export const metadata: Metadata = pageMetadata({ title: TITLE, description: DESCRIPTION, path: "/information-war" });
 
 export default function InformationWarPage() {
   const jsonLd = {
@@ -27,13 +20,5 @@ export default function InformationWarPage() {
     publisher: { "@type": "Organization", name: "Lions of Zion" },
   };
 
-  return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <InformationWarSystem />
-    </>
-  );
+  return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} /><InformationWarSystem /></>;
 }

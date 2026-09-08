@@ -1,0 +1,80 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r21-20260908T085954Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T08:59:54.821609Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "iraq-helicopters-living-claim-source-trail",
+      "target": {
+        "publicId": "us-accepts-military-sale-of-helicopters-to-iraq--p5zzh"
+      },
+      "publication": {
+        "title": "Iraq helicopter proposal: reported U.S. approval does not establish a completed sale",
+        "summary": "Reports trace the August 31 decision to a State Department notification for a possible $800 million Bell helicopter package. The original page was identified but could not be retrieved directly; an accessible reproduction is linked. Aircraft quantities, final contract terms and delivery remain unverified.",
+        "body": "The reported August 31 decision concerns a possible $800 million foreign military sale to Iraq, including Bell 412EPX and Bell 407M helicopters and related equipment and support. It does not establish a completed purchase or delivery.\n\nThe source trail is now clearer. Military Times links the State Department notification, while Deagel reproduces its text. Both identify Bell Textron as the principal contractor. This review could not retrieve the official page directly because it returned HTTP 403. The accessible accounts therefore strengthen the traceability of the original report without becoming multiple independent confirmations of implementation.\n\nThe reviewed notification gives no aircraft quantities. Earlier Iraqi acquisition plans must not be substituted for missing quantities in this proposed package. The estimated value is not a verified final contract price.\n\nThe claim will need reassessment when an accessible official notification, final agreement, contract or delivery record supplies material new evidence. The broad inference about regional policy is analysis; the testable factual question here is what was approved and what, if anything, was subsequently contracted or delivered.",
+        "narrativeWatchDetails": {
+          "arenas": [
+            "regional media"
+          ],
+          "exactClaim": "The U.S. State Department approved a possible $800 million sale of Bell 412EPX and Bell 407M helicopters and related support to Iraq on August 31, 2026.",
+          "propagators": [
+            "Middle East Eye, reporting the State Department",
+            "Military Times, reporting the same notification",
+            "Deagel, reproducing the State Department announcement"
+          ],
+          "knownUnknowns": [
+            "Live official notification text could not be retrieved directly; accessible reproduction is linked.",
+            "The reviewed August 31 announcement does not specify aircraft quantities.",
+            "Final contract value, signature, delivery schedule and completed deliveries remain unverified."
+          ],
+          "trendDirection": "unclear",
+          "israeliPosition": null,
+          "securityContext": "Assessment checked September 8, 2026: the narrower claim concerns approval of a possible sale. Military Times links the August 31 State Department notification, and Deagel reproduces its text. Direct retrieval of the official page returned HTTP 403, so this review does not claim to have read the live official original. These accounts share one government announcement; their agreement is not independent evidence of a signed contract or delivered aircraft. No reviewed evidence contradicts the reported approval. A final agreement, contract or delivery record would be needed to establish implementation and would trigger another assessment.",
+          "verificationState": "unresolved",
+          "supportingEvidenceIds": [
+            "bae1e30f-f497-49ae-86e2-211f2643bd0f"
+          ],
+          "contradictingEvidenceIds": []
+        },
+        "changeSummary": "Trace the report to the August 31 notification and an accessible reproduction; narrow the claim to a possible sale. Disclose blocked access to the official original and distinguish shared sourcing from proof of contract or delivery."
+      },
+      "sources": [
+        {
+          "url": "https://www.state.gov/releases/bureau-of-political-military-affairs/2026/08/iraq-bell-412-and-bell-407m-helicopters/",
+          "title": "August 31 notification — original identified; direct retrieval blocked",
+          "publisher": "U.S. Department of State",
+          "official": true
+        },
+        {
+          "url": "https://www.deagel.com/news/n000028529",
+          "title": "Reproduction of the August 31 State Department helicopter-sale announcement",
+          "publisher": "Deagel"
+        },
+        {
+          "url": "https://www.militarytimes.com/news/your-military/2026/09/01/us-approves-possible-800-million-military-helicopter-sale-to-iraq/",
+          "title": "September 1 report linking the original notification",
+          "publisher": "Military Times"
+        }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 21 — living claim review",
+      "sourcesReviewed": [
+        "https://www.state.gov/releases/bureau-of-political-military-affairs/2026/08/iraq-bell-412-and-bell-407m-helicopters/",
+        "https://www.deagel.com/news/n000028529",
+        "https://www.militarytimes.com/news/your-military/2026/09/01/us-approves-possible-800-million-military-helicopter-sale-to-iraq/"
+      ],
+      "conclusion": "Reviewed p5zzh, dd5w4, 86i2j, t5n3b and 3y6mg. Material source-trail upgrade for Iraq helicopter proposal. Cluster-remnant follow-on reporting still traces to NNA without independent munition examination; white-phosphorus attribution remains unverified. No new decisive evidence located for the Alitaher causal claim or WCK general-practice allegation; preserve earlier contrary evidence and avoid no-op date refreshes. Gaza propositions reserved for run 22.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 21 PARTIAL: verify whether existing passage projections hide the revised Iraq body; structured assessment, headline, summary and source trail are supported improvements. Original State Department text remains inaccessible directly; final contract and delivery are not established. Other reviewed claims retain unresolved questions rather than receiving artificial update dates. Full hidden-record canonical search is unavailable through public inventory."
+  ]
+}

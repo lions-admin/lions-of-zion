@@ -27,7 +27,14 @@ const METHODOLOGY_JSON_LD = {
 
 export default function Page() {
   return (
-    <DocPage register="silent" routeId="methodology" title="Methodology" tagline={TAGLINE} rails="toc">
+    <DocPage
+      /* VA-59. Trust pages state rules; the scan treatment stays deliberately silent here. */
+      register="silent"
+      routeId="methodology"
+      title="Methodology"
+      tagline={TAGLINE}
+      rails="toc"
+    >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(METHODOLOGY_JSON_LD) }}

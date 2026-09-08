@@ -15,12 +15,29 @@ instruction overrides repository notes and historical decisions.
 Lions of Zion is a Next.js public site with an information-model backend under
 `app/api/` and `server/`. The repository is public: a push publishes source.
 
+**Claude Code works on `ai/claude`, always.** That branch is permanent and is
+this AI's identity, not this task's or this session's — a new prompt, a
+restart, a different account or a large task is never a reason to create a
+branch, and a new branch needs an explicit owner request. Its worktree is
+`lions-of-zion-workspaces/claude`, a sibling directory of the repository, so
+Claude's uncommitted files never mix with the other four AIs'. Sub-agents
+inherit that branch and workspace and create no remote branches of their own.
+`npm run sync:start` keeps you there; `npm run main:update` publishes to `main`
+and brings you back. **The full policy — the five identities, the workspace
+layout, identity resolution, and why the editorial delivery branches are not
+stale — is the `# Branches` section of [`AGENTS.md`](AGENTS.md), which this
+file imports. It is not restated here.**
+
 **A push to `main` deploys to Production.** This paragraph claimed the
 opposite until 2026-09-04 — "a separate manual Vercel operation" — and it was
 wrong twice in one session: both pushes were live on `lionsofzion.io` inside
 two minutes. The mechanism is the GitHub integration on the Vercel project,
 whose `productionBranch` is `main`; `vercel.json` disables git deployment for
-exactly one branch (`briefing-packages`) and for nothing else. There are no
+the three editorial delivery branches — `briefing-packages`,
+`editorial-updates` and `chatgpt-editorial-updates` — and for nothing else.
+This sentence claimed "exactly one branch (`briefing-packages`)" until
+2026-09-08, `docs/operations.md` claimed a different single branch and
+`README.md` claimed two; count them in `vercel.json`. There are no
 deploy hooks. Verify with
 `vercel api "/v9/projects/<id>?teamId=<team>"` and read `link.productionBranch`.
 

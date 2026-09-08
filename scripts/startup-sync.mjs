@@ -1,116 +1,324 @@
 #!/usr/bin/env node
 /**
- * Keep every task on the current main branch, then publish a completed round.
+ * One permanent branch and one permanent working tree per AI, and the round
+ * trip that publishes one of them.
  *
- *   npm run sync:start  -> update main when possible and report branch state
- *   npm run main:update -> merge the current branch into main and push it
+ *   npm run sync:start  -> continue on this AI's branch, up to date
+ *   npm run main:update -> publish this AI's branch into main, then return
+ *
+ * ## Why identity, not task
+ *
+ * Two days of agent sessions once left roughly twenty remote branches. Not one
+ * of them existed because two changes genuinely could not share a working
+ * tree; they existed because a different tool, a restarted agent or a new
+ * prompt had begun. So the branch is a property of *who is working*, not of
+ * what they are working on: ten Codex sessions are still `ai/codex`.
+ *
+ * Isolation comes from the working tree instead. Each AI has its own worktree
+ * (see `scripts/workspace.mjs`), so five agents can hold five different sets
+ * of uncommitted files without ever seeing each other's index.
+ *
+ * ## The rule every function here obeys
+ *
+ * **Nothing destructive, ever, automatically.** No `reset --hard`, no force
+ * push, no stash, no rebase, no discarding a modified file, no guess at a
+ * conflict. A dirty tree is preserved and reported. A merge that conflicts is
+ * aborted and reported. Divergence is never "solved" by inventing
+ * `ai/codex-v2`.
  */
 import { execFileSync, spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 
 const root = process.env.CLAUDE_PROJECT_DIR ?? resolve(new URL("..", import.meta.url).pathname);
 
+/** AI identity to permanent branch. The only mapping in the system. */
+export const AI_BRANCHES = {
+  claude: "ai/claude",
+  grok: "ai/grok",
+  codex: "ai/codex",
+  opencode: "ai/opencode",
+  "gemini-agy": "ai/gemini-agy",
+};
+
+export const PRODUCTION_BRANCH = "main";
+
+/**
+ * Branches automatic cleanup must never touch.
+ *
+ * The five AI branches and `main` are the development model. The two editorial
+ * branches are **operational delivery branches, not stale development work**:
+ * orphans that share no history with `main`, never merged into anything, and
+ * not to be tidied. Before this exemption existed, `cleanupMergedBranches()`
+ * spared only `origin/main` — it would have deleted a permanent branch the
+ * first time one merged.
+ */
+export const PERMANENT_BRANCHES = new Set([
+  PRODUCTION_BRANCH,
+  ...Object.values(AI_BRANCHES),
+  "chatgpt-editorial-updates",
+  "editorial-updates",
+]);
+
 function git(args) {
   return execFileSync("git", args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
-}
-
-function cleanTree() {
-  if (git(["status", "--porcelain", "--untracked-files=all"])) {
-    throw new Error("Working tree has changes. Commit or stash them before synchronizing main.");
-  }
 }
 
 function gitStatus(args) {
   return spawnSync("git", args, { cwd: root, stdio: "ignore" }).status === 0;
 }
 
+export const currentBranch = () => git(["branch", "--show-current"]);
+const workingTreeChanges = () => git(["status", "--porcelain", "--untracked-files=all"]);
+const localBranchExists = (b) => gitStatus(["show-ref", "--verify", "--quiet", `refs/heads/${b}`]);
+const remoteBranchExists = (b) => gitStatus(["show-ref", "--verify", "--quiet", `refs/remotes/origin/${b}`]);
+const isMerged = (b) => gitStatus(["merge-base", "--is-ancestor", b, `origin/${PRODUCTION_BRANCH}`]);
+
 function branchNames(ref) {
-  const output = git(["for-each-ref", "--format=%(refname:short)", ref]);
-  return output ? output.split("\n").filter(Boolean) : [];
+  const out = git(["for-each-ref", "--format=%(refname:short)", ref]);
+  return out ? out.split("\n").filter(Boolean) : [];
 }
 
-function isMerged(branch) {
-  return gitStatus(["merge-base", "--is-ancestor", branch, "origin/main"]);
+function divergence(left, right) {
+  const [behind, ahead] = git(["rev-list", "--left-right", "--count", `${right}...${left}`]).split(/\s+/).map(Number);
+  return { ahead, behind };
 }
 
-function cleanupMergedBranches() {
-  const remoteBranches = branchNames("refs/remotes/origin")
-    .filter((branch) => branch.startsWith("origin/"))
-    .filter((branch) => branch !== "origin/HEAD" && branch !== "origin/main");
-  const localBranches = branchNames("refs/heads").filter((branch) => branch !== "main");
+/**
+ * Which AI is this, and therefore which branch?
+ *
+ * Four sources, in order of how much they actually know, and **it never
+ * guesses**: being on an `ai/*` branch already answers the question; an
+ * explicit `LIONS_AI` answers it; a CLI that identifies itself in the
+ * environment answers it; and if none of them do, the caller is told the
+ * mapping and nothing moves. Switching an agent onto another agent's branch
+ * would mix two sets of work, which is worse than doing nothing.
+ */
+export function resolveIdentity(env = process.env, branch = currentBranch()) {
+  /* An explicit declaration outranks everything, including the branch already
+     checked out. The opposite order looks tidier and is wrong: once a tree sat
+     on any `ai/*` branch, `LIONS_AI` could never move it, so a shared checkout
+     could not change hands and the variable would silently do nothing. */
+  const declared = env.LIONS_AI?.trim().toLowerCase();
+  if (declared) {
+    if (!AI_BRANCHES[declared]) {
+      throw new Error(
+        `LIONS_AI is "${declared}", which is not one of: ${Object.keys(AI_BRANCHES).join(", ")}.`,
+      );
+    }
+    return { ai: declared, branch: AI_BRANCHES[declared], source: "LIONS_AI" };
+  }
+
+  /* Nothing declared, so the tree speaks for itself — which is the ordinary
+     case inside a worktree, where no variable needs setting at all. */
+  const byBranch = Object.entries(AI_BRANCHES).find(([, b]) => b === branch);
+  if (byBranch) return { ai: byBranch[0], branch, source: "current branch" };
+
+  /* Only markers a CLI sets for itself. Nothing is inferred from a model name
+     or an account, because neither identifies the environment. */
+  if (env.CLAUDECODE || env.CLAUDE_CODE) return { ai: "claude", branch: AI_BRANCHES.claude, source: "CLAUDECODE" };
+
+  return null;
+}
+
+function identityHelp() {
+  const rows = Object.entries(AI_BRANCHES).map(([ai, branch]) => `  ${ai.padEnd(12)} ${branch}`).join("\n");
+  return [
+    "Could not tell which AI environment this is, so nothing was changed.",
+    "Set LIONS_AI to one of these, or switch to the branch yourself:",
+    rows,
+    "",
+    'Example:  LIONS_AI=codex npm run sync:start',
+  ].join("\n");
+}
+
+/** Create the AI branch if it does not exist yet, locally or on origin. This
+ *  is the only branch this script ever creates, and only the one the resolved
+ *  identity owns. */
+export function ensureBranch(branch) {
+  const local = localBranchExists(branch);
+  const remote = remoteBranchExists(branch);
+  if (!local && remote) {
+    git(["branch", "--track", branch, `origin/${branch}`]);
+    return "tracked";
+  }
+  if (!local && !remote) {
+    git(["branch", branch, `origin/${PRODUCTION_BRANCH}`]);
+    git(["push", "--set-upstream", "origin", branch]);
+    return "created";
+  }
+  if (local && !remote) {
+    git(["push", "--set-upstream", "origin", branch]);
+    return "published";
+  }
+  return "present";
+}
+
+/** Delete merged branches — never a permanent one. */
+export function cleanupMergedBranches() {
   const removed = [];
   const retained = [];
 
-  for (const remoteBranch of remoteBranches) {
+  for (const remoteBranch of branchNames("refs/remotes/origin")) {
+    if (!remoteBranch.startsWith("origin/") || remoteBranch === "origin/HEAD") continue;
     const branch = remoteBranch.slice("origin/".length);
+    if (PERMANENT_BRANCHES.has(branch)) continue;
     if (!isMerged(remoteBranch)) continue;
     git(["push", "origin", "--delete", branch]);
     removed.push(branch);
   }
-
-  for (const branch of localBranches) {
+  for (const branch of branchNames("refs/heads")) {
+    if (PERMANENT_BRANCHES.has(branch)) continue;
     if (!isMerged(branch)) continue;
     if (gitStatus(["branch", "-d", branch])) removed.push(branch);
     else retained.push(branch);
   }
-
   return { removed, retained };
 }
 
-function unmergedRemoteBranches() {
-  return branchNames("refs/remotes/origin")
-    .filter((branch) => branch.startsWith("origin/"))
-    .filter((branch) => branch !== "origin/HEAD" && branch !== "origin/main")
-    .filter((branch) => !isMerged(branch))
-    .map((branch) => branch.slice("origin/".length));
+/**
+ * Bring `main` into an AI branch without losing anything.
+ *
+ * A branch with no unpublished commits simply fast-forwards. A branch that has
+ * real work gets an ordinary merge commit — not a rebase, because these
+ * branches are long-lived and shared with a worktree, and rewriting their
+ * history would be the one thing that could lose an agent's work.
+ */
+function reconcileWithMain(branch, lines) {
+  const { ahead, behind } = divergence(branch, `origin/${PRODUCTION_BRANCH}`);
+  if (behind === 0) {
+    lines.push(`${branch} already carries everything in ${PRODUCTION_BRANCH}${ahead ? `; ${ahead} to publish.` : "."}`);
+    return true;
+  }
+  if (ahead === 0) {
+    if (gitStatus(["merge", "--ff-only", `origin/${PRODUCTION_BRANCH}`])) {
+      lines.push(`${branch} had no unpublished work and fast-forwarded ${behind} commit${behind === 1 ? "" : "s"} onto ${PRODUCTION_BRANCH}.`);
+      return true;
+    }
+  }
+  if (gitStatus(["merge", "--no-edit", `origin/${PRODUCTION_BRANCH}`])) {
+    lines.push(`Merged ${behind} new ${PRODUCTION_BRANCH} commit${behind === 1 ? "" : "s"} into ${branch}; your ${ahead} unpublished commit${ahead === 1 ? " is" : "s are"} intact.`);
+    return true;
+  }
+  git(["merge", "--abort"]);
+  lines.push(
+    `${PRODUCTION_BRANCH} has ${behind} commit${behind === 1 ? "" : "s"} that conflict with ${branch}.`,
+    "The merge was aborted and nothing was changed. Resolve it as part of your task:",
+    `  git merge origin/${PRODUCTION_BRANCH}`,
+    `Do not make another branch for this — ${branch} is where the work belongs.`,
+  );
+  return false;
 }
 
-export function syncStart() {
+export function syncStart(env = process.env) {
   git(["fetch", "--prune", "origin"]);
-  if (git(["status", "--porcelain", "--untracked-files=all"])) {
-    console.warn("Working tree has changes; main was not switched automatically.");
-    return;
+  const identity = resolveIdentity(env);
+  if (!identity) return report([identityHelp()], currentBranch());
+
+  const lines = [`Identity: ${identity.ai} (from ${identity.source}) -> ${identity.branch}`];
+  const existence = ensureBranch(identity.branch);
+  if (existence === "created") lines.push(`Created ${identity.branch} from origin/${PRODUCTION_BRANCH} and published it.`);
+  if (existence === "tracked") lines.push(`Started tracking origin/${identity.branch}.`);
+  if (existence === "published") lines.push(`Published the existing local ${identity.branch} to origin.`);
+
+  const started = currentBranch();
+  const dirty = workingTreeChanges();
+  if (dirty) {
+    const count = dirty.split("\n").length;
+    lines.push(`Working tree has ${count} uncommitted change${count === 1 ? "" : "s"}; they were left exactly as they are.`);
+    if (started !== identity.branch) lines.push(`You are on ${started}, not ${identity.branch}. Commit or set the changes aside yourself, then run sync:start again.`);
+    else lines.push(`Staying on ${identity.branch}; it was not updated while the tree is dirty.`);
+    return report(lines, started);
   }
-  git(["switch", "main"]);
-  git(["merge", "--ff-only", "origin/main"]);
+
+  if (started !== identity.branch) {
+    git(["switch", identity.branch]);
+    lines.push(`Switched from ${started} to ${identity.branch}.`);
+  }
+
+  if (remoteBranchExists(identity.branch) && !gitStatus(["merge", "--ff-only", `origin/${identity.branch}`])) {
+    const { ahead, behind } = divergence(identity.branch, `origin/${identity.branch}`);
+    lines.push(`${identity.branch} and its remote have diverged (${ahead} local, ${behind} remote). Nothing was rebased or reset.`);
+  }
+
+  reconcileWithMain(identity.branch, lines);
+
   const { removed, retained } = cleanupMergedBranches();
-  const unmerged = unmergedRemoteBranches();
-  const head = git(["rev-parse", "--short", "HEAD"]);
-  console.log(`main is current at ${head}`);
-  if (removed.length) console.log(`Removed merged branches: ${removed.join(", ")}`);
-  if (retained.length) console.log(`Merged branches retained because another worktree uses them: ${retained.join(", ")}`);
-  if (unmerged.length) console.warn(`Open branches: ${unmerged.join(", ")}`);
+  if (removed.length) lines.push(`Removed merged branches: ${removed.join(", ")}`);
+  if (retained.length) lines.push(`Merged branches retained because another worktree uses them: ${retained.join(", ")}`);
+  return report(lines, currentBranch());
 }
 
-export function updateMain(sourceBranch) {
-  if (!sourceBranch || sourceBranch === "main") {
-    throw new Error("main:update must start from a completed non-main branch.");
+/**
+ * Publish this AI's branch, and come back ready for the next round.
+ *
+ * The return trip is the half that makes the branch permanent: after `main` is
+ * pushed, the AI branch is levelled with it and published, so the next session
+ * on that same branch starts from Production.
+ */
+export function updateMain(env = process.env) {
+  const branch = currentBranch();
+  if (branch === PRODUCTION_BRANCH) {
+    throw new Error(
+      `main:update publishes an AI branch into ${PRODUCTION_BRANCH}; it cannot publish ${PRODUCTION_BRANCH} into itself.\n${identityHelp()}`,
+    );
   }
-  cleanTree();
-  git(["fetch", "--prune", "origin"]);
-  git(["switch", "main"]);
-  git(["merge", "--ff-only", "origin/main"]);
-  git(["merge", "--no-ff", sourceBranch, "-m", `merge: complete ${sourceBranch}`]);
+  if (workingTreeChanges()) {
+    throw new Error(
+      `Working tree has uncommitted changes. Commit them on ${branch} before publishing.\nNothing was stashed, reset or discarded.`,
+    );
+  }
 
-  git(["push", "origin", "main"]);
-  const { retained } = cleanupMergedBranches();
-  console.log(`Merged ${sourceBranch} and pushed main.`);
-  if (retained.length) console.log(`Merged branches retained because another worktree uses them: ${retained.join(", ")}`);
+  git(["fetch", "--prune", "origin"]);
+  const lines = [];
+  git(["switch", PRODUCTION_BRANCH]);
+  if (!gitStatus(["merge", "--ff-only", `origin/${PRODUCTION_BRANCH}`])) {
+    git(["switch", branch]);
+    throw new Error(
+      `Local ${PRODUCTION_BRANCH} cannot fast-forward to origin/${PRODUCTION_BRANCH}; it has commits of its own.\nNothing was merged or pushed, and you are back on ${branch}.`,
+    );
+  }
+  if (!gitStatus(["merge", "--no-ff", branch, "-m", `merge: publish ${branch}`])) {
+    git(["merge", "--abort"]);
+    git(["switch", branch]);
+    throw new Error(
+      `Merging ${branch} into ${PRODUCTION_BRANCH} conflicts. The merge was aborted, nothing was pushed,\nand you are back on ${branch}. Resolve it there, then publish again.`,
+    );
+  }
+  git(["push", "origin", PRODUCTION_BRANCH]);
+  lines.push(`Merged ${branch} into ${PRODUCTION_BRANCH} and pushed it. Production deploys from here.`);
+
+  git(["switch", branch]);
+  if (gitStatus(["merge", "--ff-only", PRODUCTION_BRANCH])) {
+    if (remoteBranchExists(branch)) git(["push", "origin", branch]);
+    lines.push(`${branch} is level with ${PRODUCTION_BRANCH} and ready for the next session.`);
+  } else {
+    lines.push(`${branch} could not fast-forward onto ${PRODUCTION_BRANCH}. Nothing was rebased or reset.`);
+  }
+
+  const { removed, retained } = cleanupMergedBranches();
+  if (removed.length) lines.push(`Removed merged branches: ${removed.join(", ")}`);
+  if (retained.length) lines.push(`Merged branches retained because another worktree uses them: ${retained.join(", ")}`);
+  lines.push(`${branch} is permanent and was not deleted.`);
+  return report(lines, currentBranch());
+}
+
+function report(lines, branch) {
+  const head = git(["rev-parse", "--short", "HEAD"]);
+  console.log([`On ${branch} at ${head}.`, ...lines].join("\n"));
+  return { branch, head, lines };
 }
 
 function run() {
   const publish = process.argv.includes("--publish");
   const hook = process.argv.includes("--hook");
-  const sourceBranch = git(["branch", "--show-current"]);
-
   try {
-    if (publish) updateMain(sourceBranch);
+    if (publish) updateMain();
     else syncStart();
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     if (hook) {
       process.stdout.write(JSON.stringify({
-        hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: `## Main synchronization\n\n${message}` },
+        hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: `## Branch synchronization\n\n${message}` },
         suppressOutput: true,
       }));
     } else {

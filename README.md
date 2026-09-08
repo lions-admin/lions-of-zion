@@ -161,8 +161,10 @@ public.
 | `npm run verify:full` | Run typecheck, lint, tests, and production build |
 | `npm run db:generate` | Generate a new Drizzle migration |
 | `npm run db:migrate` | Apply database migrations |
-| `npm run sync:start` | Refresh local Git state and report open branches |
-| `npm run main:update` | Merge a completed branch into `main` and publish it |
+| `npm run sync:start` | Continue on this AI's permanent branch and reconcile it with `main` |
+| `npm run main:update` | Publish this AI's branch into `main`, then return to it |
+| `npm run workspace:status` | Show the AI-to-branch mappings, worktrees, and each one's state |
+| `npm run workspace:add -- codex` | Create that AI's worktree |
 | `npm run editorial:publish -- <file> --dry-run` | Validate an editorial package against `whole-site-update-v1` without sending it |
 
 See [`docs/operations.md`](./docs/operations.md) for focused test commands,
@@ -212,9 +214,18 @@ follow. Database migrations required by an application change must be applied
 before that change reaches `main` (`npm run db:migrate` against Preview, then
 Production, then push); and `vercel rollback` is the fast undo.
 
-The `chatgpt-editorial-updates` and `briefing-packages` branches are excluded from
-deployment by `git.deploymentEnabled` in `vercel.json` and by their own
-`vercel.json`, so publishing editorial content never rebuilds the site.
+The `chatgpt-editorial-updates`, `editorial-updates` and `briefing-packages`
+branches are excluded from deployment by `git.deploymentEnabled` in
+`vercel.json` and by their own `vercel.json`, so publishing editorial content
+never rebuilds the site. Count them in `vercel.json` rather than trusting a
+number in prose — this file said two, and `CLAUDE.md` and `docs/operations.md`
+each said a different one, until 2026-09-08.
+
+They are operational delivery branches, not development branches. Development
+happens on one permanent branch per AI identity — `ai/claude`, `ai/grok`,
+`ai/codex`, `ai/opencode`, `ai/gemini-agy` — each in its own git worktree, with
+a new branch created only when the owner asks for one. The policy is
+**Branches** in [`AGENTS.md`](./AGENTS.md).
 
 ## Documentation
 

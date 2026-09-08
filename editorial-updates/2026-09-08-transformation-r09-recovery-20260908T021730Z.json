@@ -1,0 +1,84 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r09-recovery-20260908T021730Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T02:17:30.131401Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "scope-3y6mg",
+      "target": {
+        "publicId": "reported-claim-guilt-by-association-why-seven-in-3y6mg"
+      },
+      "publication": {
+        "narrativeWatchDetails": {
+          "arenas": [
+            "Gaza",
+            "Humanitarian operations",
+            "International law"
+          ],
+          "exactClaim": "The April 2024 World Central Kitchen strike reflected a broader Israeli military targeting practice that endangered civilians through guilt by association.",
+          "propagators": [
+            "The Guardian investigation",
+            "Critics of IDF targeting practices"
+          ],
+          "knownUnknowns": [
+            "Whether independently examined video, audio and operational records support or narrow the broader targeting-practice allegation.",
+            "How broadly the alleged practice was applied across units and periods.",
+            "What further independent investigation will establish about the disputed account."
+          ],
+          "trendDirection": "unclear",
+          "israeliPosition": "In its April 5, 2024 statement, the IDF acknowledged fatal misidentification and serious procedural failures. Its August 19, 2026 decision said the circumstances did not raise reasonable suspicion warranting a criminal investigation. WCK rejected that account on the same date; the military decision is not a court judgment resolving all disputed facts.",
+          "securityContext": "Investigation candidate: the seven deaths and IDF responsibility are acknowledged in the IDF’s April 5, 2024 statement. The broader targeting-practice allegation remains a separate question. On August 19, 2026 the military prosecutor declined a criminal investigation; WCK disputed the account and renewed its demand for an independent inquiry. These are directly sourced opposing institutional positions, not an independent adjudication. No measured circulation trend is established.",
+          "verificationState": "unresolved",
+          "supportingEvidenceIds": [
+            "002dab2d-e23a-49de-b289-5deb749a063f"
+          ],
+          "contradictingEvidenceIds": [
+            "002dab2d-e23a-49de-b289-5deb749a063f"
+          ]
+        },
+        "changeSummary": "Source upgrade and clarification: add the IDF’s 2024 findings, its August 2026 prosecution decision and WCK’s response. Separate acknowledged deaths from the disputed broader allegation, and remove the unsupported circulation-trend label."
+      },
+      "sources": [
+        {
+          "url": "https://www.idf.il/190614",
+          "title": "IDF investigation conclusion, April 5, 2024",
+          "publisher": "Israel Defense Forces",
+          "official": true
+        },
+        {
+          "url": "https://www.idf.il/en/mini-sites/military-advocate-generals-corps/criminal-investigation-decisions-regarding-5-incidents-examined-by-the-general-staff-fact-finding-and-assessment-mechanism-ffam/",
+          "title": "Military prosecution decisions, August 19, 2026",
+          "publisher": "Israel Defense Forces",
+          "official": true
+        },
+        {
+          "url": "https://wck.org/news/world-central-kitchen-condemns-israeli-account-of-april-1-2024/",
+          "title": "WCK response to the Israeli account, August 19, 2026",
+          "publisher": "World Central Kitchen",
+          "official": true
+        }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 09 — seven live Narrative Watch records",
+      "sourcesReviewed": [
+        "https://lionsofzion.io/fake-resistance",
+        "https://www.idf.il/190614",
+        "https://www.idf.il/en/mini-sites/military-advocate-generals-corps/criminal-investigation-decisions-regarding-5-incidents-examined-by-the-general-staff-fact-finding-and-assessment-mechanism-ffam/",
+        "https://wck.org/news/world-central-kitchen-condemns-israeli-account-of-april-1-2024/"
+      ],
+      "conclusion": "Recovery of failed WCK operation from transformation-r09-20260908T021601Z. Revised operation updates only structured context and source stack, preserving existing headline, summary and stored passages. Six completed operations are not replayed.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 09 PARTIAL: Three legacy monitoring records still render internal packet language in stored passages: p5zzh, dd5w4, 86i2j. Replace those passages through a supported development capability while retaining original provenance and uncertainty. Acceptance: rendered text uses reader-facing source descriptions, not packet or ideological outlet labels. Updated structured context does not itself repair those passages.",
+    "RUN 09: Classification is conveyed through the existing context field; no new schema or UI labels created. Archived/hidden record search and reversible archival capability remain unavailable. Full substantive fact-checks of every underlying allegation are not completed by this classification pass."
+  ]
+}

@@ -85,7 +85,7 @@ export function ArchiveShareShowcase({
       <header className={styles.featureHeading}>
         <p className={styles.eyebrow}>{isStory ? "First-person accounts" : "Films & photographs"}</p>
         <h2 id={headingId}>{isStory ? "Survivor stories" : "Documented records"}</h2>
-        <p>{isStory ? "Read their words. Help their stories reach others." : "See what was recorded. Post the original source media with its archive context preserved here."}</p>
+        <p>{isStory ? "Read their words. Help their stories reach others." : "See what was recorded. Share the original source media without handing Lions of Zion access to your social account."}</p>
         <Link className={styles.browseLink} href={archiveHref}>
           Browse all {count} {isStory ? "stories" : "records"} <Icon name="arrow-right" size={18} />
         </Link>
@@ -144,8 +144,8 @@ export function ArchiveShareShowcase({
                 copyVariant="primary"
                 copyLabel={isStory ? "Copy story to share" : "Copy record to share"}
                 actions={sample.xMedia ? <XMediaPostButton {...sample.xMedia} returnTo={sample.href} /> : undefined}
-                targets={[
-                  ...(sample.xMedia ? [] : [{ label: "Share on X", href: sample.xHref }]),
+                targets={sample.xMedia ? [] : [
+                  { label: "Share on X", href: sample.xHref },
                   { label: "Facebook", href: sample.facebookHref },
                 ]}
               />

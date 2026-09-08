@@ -72,6 +72,27 @@ function words(value: string): string {
    publishes, so an edit is live in seconds, not in five minutes. */
 export const revalidate = 300;
 
+/**
+ * Empty on purpose, and the whole reason this route caches at all.
+ *
+ * `revalidate` alone did nothing here, which is the mistake worth recording:
+ * a dynamic segment with no `generateStaticParams` is rendered on demand and
+ * never cached, so the export shipped on 2026-09-08 left the route answering
+ * `cache-control: private, no-store` and `x-vercel-cache: MISS` exactly as
+ * before. Declaring the function — even returning nothing — opts the segment
+ * into static generation, and `dynamicParams` (true by default) then renders
+ * an unknown `publicId` on first request and caches the result. That is ISR.
+ *
+ * It returns `[]` rather than the published ids because listing them would
+ * put a database read in the build: a Neon outage would stop being a
+ * degraded site and start being a failed deploy. Every article is generated
+ * on its first request instead, which costs one render each and nothing at
+ * build time.
+ */
+export function generateStaticParams(): { publicId: string }[] {
+  return [];
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { publicId } = await params;
   try {

@@ -90,6 +90,26 @@ describe("T-9 — the reader audience never receives an unaddressable hit", () =
     expect(result.hits.map((h) => h.publicId)).toEqual(["real-0", "real-1", "real-2", "real-3", "real-4"]);
   });
 
+  it("keeps a record whose page exists but whose stored href is null — the regression", async () => {
+    /* The first version of this filter dropped every hit with `href === null`
+       and hid 42 of 73 published records within minutes of deploying. `href`
+       is written at index time by `destinationFor`, which grants one only for
+       a `briefingRunId` — so a record created by the whole-site *editorial*
+       run is indexed with no href even though /articles/<publicId> serves it.
+       Verified live: the BGU aerogel record answers 200 while its search hit
+       claims nowhere to go.
+
+       Until `destinationFor` is widened and the publications reindexed, such a
+       record must still be *found*. Showing it as an unlinked row is the
+       lesser failure; making it invisible is the worse one. */
+    const editorialRecord = hit("ben-gurion-university-team-develops-aerogel-that-0y2we", null);
+    const service = serviceReturning([editorialRecord, ...DEAD]);
+    const result = await service.search({ q: "aerogel", limit: 25 }, "reader");
+    expect(result.hits.map((h) => h.publicId)).toEqual([
+      "ben-gurion-university-team-develops-aerogel-that-0y2we",
+    ]);
+  });
+
   it("leaves the internal audience untouched, because chat cites by documentId not href", async () => {
     /* Ask the Desk may legitimately ground an answer in a record with no
        public page. Only a reader being offered a row they cannot click is the

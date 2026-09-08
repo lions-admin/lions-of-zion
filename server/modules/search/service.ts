@@ -27,6 +27,21 @@ type Loader = {
   };
 };
 
+/**
+ * The site chrome indexed as publications — `site-war-update`, `site-we-are`
+ * and the eight others. Historic records that share the publications table,
+ * carry neither run id, and have no article to open. They are not in the
+ * published set: measured live 2026-09-08, zero of 73 published records carry
+ * this prefix, which is what makes the prefix safe to match on.
+ *
+ * Deliberately not `href === null` — that also catches editorial-run records
+ * whose page exists, and matching on it hid 42 of 73 records from search. See
+ * `search()` for the full account.
+ */
+function isSiteReference(hit: { publicId: string | null; href: string | null }): boolean {
+  return hit.href === null && (hit.publicId?.startsWith("site-") ?? false);
+}
+
 export function searchService(db: unknown, opts: { embed?: Embedder } = {}) {
   const repo = searchRepo(db);
   const loader = db as Loader;
@@ -55,6 +70,34 @@ export function searchService(db: unknown, opts: { embed?: Embedder } = {}) {
      * `documentId`, never by `href`, so Ask the Desk may legitimately ground an
      * answer in a record with no public page. Only a *reader* being offered a
      * row they cannot open is the defect.
+     *
+     * ## Why this matches on the publicId and not on `href === null`
+     *
+     * The first version of this filter dropped every hit with no `href`, and
+     * that hid **42 of 73 published records** from search within minutes of
+     * deploying — caught by re-measuring Production rather than by any test.
+     *
+     * The reason is that `href` is written into the projection at *index* time
+     * by `destinationFor`, which grants one only to a publication carrying a
+     * `briefingRunId`. Records created by the whole-site **editorial** run
+     * carry an `editorialRunId` instead, so they were indexed with
+     * `href: null` even though `/articles/<publicId>` serves them perfectly
+     * well — verified: the BGU aerogel record answers 200 while its search hit
+     * says it has nowhere to go.
+     *
+     * So `href === null` conflates two different things: "there is no page"
+     * and "this row was indexed before the editorial path existed". Matching
+     * the site-reference prefix separates them, and it is safe to rely on
+     * because those records are not in the published set at all — measured
+     * live, **zero** of the 73 published records carry a `site-` publicId.
+     *
+     * **This is the narrow fix, not the whole one.** The real repair is to
+     * widen `destinationFor` to accept an `editorialRunId` and then reindex
+     * the publications, so the stored projection stops lying about where a
+     * record lives. That needs a reindex pass over live data, which is why it
+     * is not done here. Until it lands, an editorial record still renders as
+     * an "Indexed · no public page" row — visible and honest about being
+     * unlinked, which is the lesser of the two failures.
      */
     async search(query: SearchQuery, audience: "reader" | "internal" = "internal"): Promise<SearchResult> {
       const semantic = await repo.hasSemanticArm();
@@ -69,7 +112,7 @@ export function searchService(db: unknown, opts: { embed?: Embedder } = {}) {
       const window = audience === "reader" ? Math.min(query.limit * 2 + 10, 100) : query.limit;
       const found = await repo.search(query.q, queryEmbedding, window, query.entityType);
       const hits = audience === "reader"
-        ? found.filter((hit) => hit.href !== null).slice(0, query.limit)
+        ? found.filter((hit) => !isSiteReference(hit)).slice(0, query.limit)
         : found;
       return { query: query.q, hits, semantic: semantic && queryEmbedding !== null };
     },

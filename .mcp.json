@@ -8,12 +8,8 @@
       ]
     },
     "neon": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@neondatabase/mcp-server-neon",
-        "start"
-      ]
+      "type": "http",
+      "url": "https://mcp.neon.tech/mcp"
     }
   }
 }

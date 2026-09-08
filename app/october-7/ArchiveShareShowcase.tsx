@@ -145,7 +145,7 @@ export function ArchiveShareShowcase({
                 copyLabel={isStory ? "Copy story to share" : "Copy record to share"}
                 actions={sample.xMedia ? <XMediaPostButton {...sample.xMedia} returnTo={sample.href} /> : undefined}
                 targets={[
-                  ...(sample.xMedia ? [] : [{ label: "Share on X", href: sample.xHref }]),
+                  { label: "Post on X", href: sample.xHref },
                   { label: "Facebook", href: sample.facebookHref },
                 ]}
               />

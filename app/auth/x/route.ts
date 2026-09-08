@@ -13,8 +13,11 @@ export function GET(request: NextRequest): NextResponse {
   if (publicXAvailability(request.headers) !== "ready") return unavailable(request);
 
   const returnTo = request.nextUrl.searchParams.get("return_to") ?? "/account";
-  const mode = request.nextUrl.searchParams.get("intent") === "post" ? "posting" : "identity";
-  const { authorizationUrl, stateCookie } = beginPublicXAuthorization(returnTo, mode);
+
+  // Public X authorization is identity-only. Archive media sharing no longer
+  // requests tweet/media write permission or persistent access to a reader's
+  // account. A stale `intent=post` URL is intentionally ignored.
+  const { authorizationUrl, stateCookie } = beginPublicXAuthorization(returnTo, "identity");
   const response = NextResponse.redirect(authorizationUrl, 302);
   response.cookies.set({
     name: X_OAUTH_STATE_COOKIE,

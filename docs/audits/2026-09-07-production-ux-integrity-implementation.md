@@ -783,8 +783,10 @@ state model*, not a replacement campaign.
       update, and can be born `text_led` on create — but an **existing**
       picture-less record has no path to being *declared* intentionally
       text-only, which is precisely the discriminator 49.2 was built to add.
-      Live: `text_led` 25, `null` 48, and all 14 records that *do* carry media
-      still read `null`.
+      Measured against the table, not the API projection (an earlier figure of
+      "`illustrated` 0" came from the projection and was wrong): **`illustrated`
+      4 · `text_led` 21 · `null` 48**, with **11 of the 15 hero-carrying records
+      reading `null`**.
 
       **Default if unanswered: leave it.** The site already renders text-led
       correctly — the owner ruled 2026-09-07 that a picture is not a gate — so
@@ -1380,11 +1382,15 @@ than a sample.
 
       Two caveats, both recorded rather than fixed, and neither reader-visible:
 
-      - **T-11.a — `mediaDisposition` is `null` on all 14 records that have a
-        picture** (live: `text_led` 25, `null` 48, **`illustrated` 0**). The
-        verification called this "wrong for the entire illustrated corpus" for
-        any consumer branching on `=== "illustrated"`. **Checked: no such
-        consumer exists** — `grep` over `app/`, `components/` and `lib/` finds
+      - **T-11.a — `mediaDisposition` under-reports the illustrated corpus.**
+        The HTTP pass reported "`illustrated` 0, and null on all 14 records that
+        have a picture", and **that was wrong** — it read the public API
+        projection rather than the table. Measured directly against Production
+        on 2026-09-08, after the retirements: **`illustrated` 4 · `text_led` 21
+        · `null` 48**, and of the 15 live records that carry a hero, **11 read
+        `null`**. So the trap is coverage, not emptiness: a consumer branching
+        on `=== "illustrated"` finds 4 of the 15 records that actually have an
+        image, hiding most of them. **Checked: no such consumer exists** — `grep` over `app/`, `components/` and `lib/` finds
         no frontend read of the field at all. So this is **latent, not live**:
         nothing is misrendering today, and the trap is set for whoever writes
         the first consumer. It has the same root as open question 4 — the
@@ -1571,8 +1577,10 @@ would do by default if unanswered.
 4. *(VA-49)* An **existing** picture-less record cannot be declared
    *intentionally* text-only. `mediaDisposition` is derived from whether media
    was supplied, and the update branch writes it only when media arrived or the
-   media stage warned — so 49 records the VA-49.3 proposal judged correctly
-   text-led must stay `null`. Closing the gap means giving the update path an
+   media stage warned — so the records the VA-49.3 proposal judged correctly
+   text-led must stay `null`. Measured on the table 2026-09-08: `illustrated` 4,
+   `text_led` 21, `null` 48, and 11 of the 15 records that carry a hero read
+   `null`. Closing the gap means giving the update path an
    explicit disposition signal, which touches `whole-site-update.ts`, a
    `.strict()` contract deliberately limited to content and placement so the
    run's auto-fix boundary stays structural rather than trusted. **Blocks

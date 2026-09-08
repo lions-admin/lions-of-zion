@@ -3,6 +3,7 @@ import { InformationWarSystem } from "@/components/briefs/InformationWarSystem";
 import { SITE_URL } from "@/lib/site-config";
 import { pageMetadata } from "@/lib/page-metadata";
 
+/* Navigation and metadata call this destination “How it works”; the editorial h1 remains “This is an information war.” */
 const TITLE = "How it works";
 const HEADLINE = "This is an information war";
 const DESCRIPTION = "See how Lions of Zion uses AI-scale research, OSINT, source provenance and human governance to investigate claims, trace narrative manipulation and publish a correctable public record.";

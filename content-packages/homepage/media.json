@@ -696,6 +696,81 @@
           "homepage"
         ]
       }
+    },
+    {
+      "id": "what-changed-ledger",
+      "src": "/images/homepage/what-changed-ledger.webp",
+      "width": 1600,
+      "height": 1000,
+      "alt": "An editorial illustration: two separate stacks of blank cards on a desk, one freshly squared and one older with a translucent sheet laid over it, joined by a single amber thread.",
+      "credit": "Lions of Zion · generated editorial illustration",
+      "caption": "Editorial illustration. New events and better sources for existing stories are recorded separately in this edition.",
+      "role": "editorial-illustration",
+      "focalPoint": {
+        "x": 50,
+        "y": 45
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Commissioned original generated artwork",
+        "reference": "content-packages/homepage/imagegen-manifest.json",
+        "clearedAt": "2026-09-08",
+        "surfaces": [
+          "homepage",
+          "article"
+        ]
+      }
+    },
+    {
+      "id": "weak-claims-reader-guide",
+      "src": "/images/homepage/weak-claims-reader-guide.webp",
+      "width": 1600,
+      "height": 1000,
+      "alt": "An editorial illustration: one blank paper fragment repeating into fainter copies, a heavy unmarked seal casting an oversized shadow, and two parallel threads that never meet.",
+      "credit": "Lions of Zion · generated editorial illustration",
+      "caption": "Editorial illustration of three reasoning traps: repetition, borrowed authority, and association mistaken for proof.",
+      "role": "editorial-illustration",
+      "focalPoint": {
+        "x": 42,
+        "y": 50
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Commissioned original generated artwork",
+        "reference": "content-packages/homepage/imagegen-manifest.json",
+        "clearedAt": "2026-09-08",
+        "surfaces": [
+          "homepage",
+          "article"
+        ]
+      }
+    },
+    {
+      "id": "residency-bottleneck",
+      "src": "/images/homepage/residency-bottleneck.webp",
+      "width": 1600,
+      "height": 1000,
+      "alt": "An editorial illustration: a folded white medical coat, a stethoscope and a closed certificate folder on an empty chair in a narrowing hospital corridor of closed doors.",
+      "credit": "Lions of Zion · generated editorial illustration",
+      "caption": "Editorial illustration. Qualified physicians waiting on residency placement; the size of the backlog has not been published.",
+      "role": "editorial-illustration",
+      "focalPoint": {
+        "x": 50,
+        "y": 55
+      },
+      "sensitivity": "safe",
+      "rights": {
+        "status": "cleared",
+        "basis": "Commissioned original generated artwork",
+        "reference": "content-packages/homepage/imagegen-manifest.json",
+        "clearedAt": "2026-09-08",
+        "surfaces": [
+          "homepage",
+          "article"
+        ]
+      }
     }
   ],
   "mappings": {
@@ -716,6 +791,9 @@
     "archive:october7:we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue": "barricaded-safe-room",
     "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart": "yaffa-adar-safe-cover",
     "case:case_02_manosphere_far_right": "manosphere-cluster-editorial",
-    "publication:us-accepts-military-sale-of-helicopters-to-iraq--p5zzh": "iraq-helicopter-sale-review"
+    "publication:us-accepts-military-sale-of-helicopters-to-iraq--p5zzh": "iraq-helicopter-sale-review",
+    "publication:what-changed-since-september-6-the-september-8-e-2w74s": "what-changed-ledger",
+    "publication:how-weak-claims-look-confirmed-a-reader-s-guide--l09av": "weak-claims-reader-guide",
+    "publication:licensed-but-waiting-arab-physicians-and-israel--3in0j": "residency-bottleneck"
   }
 }

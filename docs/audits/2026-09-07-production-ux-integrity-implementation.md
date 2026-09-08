@@ -1016,7 +1016,50 @@ So October 7 has page-specific Open Graph while X falls back to generic site cop
       <!-- done: 9ca7bd1 | lib/page-metadata.ts, tests/page-metadata.test.ts (37); 20 routes measured in rendered HTML, og:title == twitter:title on every one; verify:full green 156 files / 1559 passed -->
 ### VA-57 — People of Israel canonical cleanup `A3` data + `A5` code
 
-- [ ] **57.1** `A3` Resolve the BGU duplication and sweep the hub for equivalents.
+- [~] **57.1** `A3` Resolve the BGU duplication and sweep the hub for equivalents.
+
+      **The hub sweep is clean.** 20 live People of Israel records, pairwise
+      title overlap at threshold 0.35: exactly one pair surfaced, and it is
+      **not** a duplicate — `nir-oz-location-file-…-xuyhf` against
+      `be-eri-location-file-…-hexu7`, two different kibbutzim with correctly
+      distinct canonical ids (`october7-location-file-nir-oz` /
+      `october7-location-file-beeri`). The overlap is the shared "location
+      file" template vocabulary, the same false positive VA-48.4 recorded for
+      the daily briefs. **Do not merge them.**
+
+      **The BGU pair is real, and it had already been resolved editorially —
+      but only halfway.** The two records are:
+
+      | | Record |
+      | --- | --- |
+      | Superseded | `ben-gurion-university-aerogel-can-absorb-100-tim-cb3o1` · `science_medicine` · canonical `bgu-oil-biodegrading-aerogel-2026` · 3 sources. Body opens "This earlier report is retained for its publication history", then the original dated account with the ~100× claim. |
+      | Survives | `ben-gurion-university-team-develops-aerogel-that-0y2we` · `innovation` · canonical `bgu-oil-spill-aerogel-2026` · 5 sources. The peer-reviewed 78 g/g figure, **and the correction itself**: it states the paper's 78 g/g against the university release's "about 100-fold". |
+
+      Different sections and different canonical ids, which is why the
+      duplicate guard never fired and why a title-similarity sweep does not
+      catch it either — the titles barely overlap.
+
+      **Owner decision, 2026-09-08: retire the superseded record.** Asked
+      whether the earlier record should keep occupying one of only four
+      `science_medicine` hub slots, the owner ruled "אם היא מיותרת אז למחוק" —
+      if it is redundant, remove it. It is redundant, and the reason is
+      specific rather than general: **the surviving record already carries the
+      correction**, so retiring the earlier one removes a duplicate card
+      without removing the correction from the public record.
+
+      Executed as **archive + redirect, not deletion** — the outcome the owner
+      asked for, by the reversible route. Archiving is undoable to draft,
+      deletion is not, and the ops registry substitutes
+      `delete_publication` → `archive_publication` for any unattended caller
+      by design. `…cb3o1`'s URL keeps answering, via 48.6's map, pointing at
+      `…0y2we`. Its original text survives in `entity_version` regardless.
+
+      Queued as pair #9 in `scripts/ops/dedupe-publications.mjs`, with the
+      keep/retire forced rather than inferred, since this pair is decided.
+      <!-- blocked: execution only | needs: CHATGPT_AUTOMATION_SECRET
+           (Production) — same secret as 48.5 -->
+      <!-- partial: the sweep is done and clean; the BGU decision is made and
+           queued. Nothing has been retired yet. -->
 - [x] **57.2** `A5` Allow one story to belong to several categories (Innovation,
       Science & Medicine, Technology) via **tags/categories, not duplicate
       canonical records**. Derive lanes from `SECTIONS_BY_HOMEPAGE_SECTION`,

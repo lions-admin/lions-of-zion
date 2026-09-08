@@ -43,6 +43,33 @@ const PAIRS = [
   { n: 6, confidence: "strong", overlap: 1.0, section: "daily_brief", ids: ["israel-security-diplomacy-and-anti-boycott-brief-4xspk", "israel-security-and-diplomacy-brief-september-3--xgjvx"] },
   { n: 7, confidence: "strong", overlap: 0.67, section: "news", ids: ["netanyahu-orders-unauthorized-west-bank-outposts-kb1l1", "netanyahu-orders-removal-of-unauthorized-west-ba-ugzzx"] },
   { n: 8, confidence: "strong", overlap: 0.62, section: "news", ids: ["israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3", "hezbollah-drones-and-israeli-strikes-drive-a-new-ztjo5"] },
+
+  /**
+   * VA-57.1 — the BGU aerogel pair. Not a title-similarity match; the sweep
+   * would never catch it (different sections, different canonical ids, titles
+   * that barely overlap). It is here by an owner decision of 2026-09-08.
+   *
+   * `…cb3o1` was deliberately kept at its address as a correction trail: its
+   * body opens "This earlier report is retained for its publication history"
+   * and links the research-based account. The reason it is nonetheless
+   * redundant is that the surviving record `…0y2we` **already carries the
+   * correction itself** — it states the paper's 78 g/g against the university
+   * release's "about 100-fold" in its own summary and body. So retiring the
+   * earlier record removes a duplicate card from the People of Israel hub
+   * (one of only four science_medicine slots) without removing the correction
+   * from the public record, and the redirect keeps its URL answering.
+   *
+   * The forced keep/retire below overrides the scoring heuristic: this is a
+   * decided pair, not an inferred one.
+   */
+  {
+    n: 9,
+    confidence: "owner-decision",
+    section: "science_medicine → innovation",
+    ids: ["ben-gurion-university-aerogel-can-absorb-100-tim-cb3o1", "ben-gurion-university-team-develops-aerogel-that-0y2we"],
+    forceKeep: "ben-gurion-university-team-develops-aerogel-that-0y2we",
+    note: "correction trail; the surviving record already carries the 78 g/g vs ~100x correction",
+  },
 ];
 
 function secret() {
@@ -128,7 +155,13 @@ for (const pair of PAIRS) {
       console.log(`${label}\n  SKIP — ${!a ? pair.ids[0] : pair.ids[1]} no longer resolves (already merged, or archived).\n`);
       continue;
     }
-    const { keep, retire, why } = chooseCanonical(a, b);
+    const { keep, retire, why } = pair.forceKeep
+      ? {
+          keep: a.publicId === pair.forceKeep ? a : b,
+          retire: a.publicId === pair.forceKeep ? b : a,
+          why: `decided, not inferred — ${pair.note}`,
+        }
+      : chooseCanonical(a, b);
     console.log(`${label}`);
     console.log(`  keep    ${keep.publicId}  (${why})`);
     console.log(`  retire  ${retire.publicId}`);

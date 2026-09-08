@@ -18,9 +18,17 @@
  *      slow early request can never land after a fast later one and overwrite
  *      it — and the abort never surfaces as an error.
  *
- * The debounce is deliberately short: 120ms is under the ~150ms where a person
- * begins to perceive lag, and the endpoint's own ceiling (120 queries a
- * minute) is generous enough that a fast typist will not reach it.
+ * The debounce is 300ms, up from 120ms (UX-27, 2026-09-08). 120ms was chosen
+ * as "under the ~150ms where a person perceives lag", and for a fast typist it
+ * was: at 30–80ms a key the panel sent one or two requests per query. It was
+ * the *slow* typist it failed. Measured in the browser at 200ms a key — a
+ * phone, or anyone hunting for keys — it sent one request per keystroke,
+ * fifteen for "hezbollah rockets", and the abort below cancels only the
+ * client's wait: the server has already counted the request against the
+ * 120-a-minute ceiling in `SEARCH_QUERIES`. Eight such queries in a minute
+ * was a 429 inside one short session. 300ms is longer than the gap between
+ * two keys of a word being typed at any speed, so a request now means a
+ * pause, and the per-query cache still makes a backspace free.
  *
  * **Everything the panel renders is derived here, not stored.** The status, the
  * hits and the error are all functions of the query, the cache and the last
@@ -78,7 +86,7 @@ export function classifySearchState(
   return answer.semantic ? "results" : "fallback";
 }
 
-const DEBOUNCE_MS = 120;
+const DEBOUNCE_MS = 300;
 const REQUEST_TIMEOUT_MS = 15_000;
 const LIMIT = 25;
 const EMPTY: SearchHit[] = [];

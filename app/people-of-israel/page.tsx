@@ -1,10 +1,13 @@
+import { ActivationBand } from '@/components/content';
+import { SITE_URL } from '@/lib/site-config';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { EditorialShell } from '@/components/site/EditorialShell';
-import { HubMasthead } from '@/components/site/HubMasthead';
-import { getOurHeroesEdition } from '@/lib/content/our-heroes';
+import { HubMasthead, HubUpdated } from '@/components/site/HubMasthead';
+import { getOurHeroesEdition, type HeroProfile } from '@/lib/content/our-heroes';
 import { getIsraelsStoryEdition } from '@/lib/content/israels-story';
+import { homepageMedia } from '@/lib/content/homepage-media';
 import { listPublicPublications } from '@/lib/publications';
 import {
   publicationHref,
@@ -17,9 +20,10 @@ import type { PublicPublication } from '@/server/contracts/publication';
 import type { PublicationSection } from '@/server/contracts/enums';
 import styles from './page.module.css';
 
-const DESCRIPTION = 'People, courage, invention and the living record of Israel — with sources, context and a path to explore further.';
+/* The hub's lede (docs/audits/2026-09-08-copy-table.md, UX-02). */
+const DESCRIPTION = 'The people the narrative leaves out — with the sources, so you can show them.';
 /**
- * The lanes are derived, not written out — VA-57.
+ * The sections are derived, not written out — VA-57.
  *
  * This file used to carry its own `Partial<Record<PublicationSection, string>>`
  * of eight labels, and it had already drifted from `lib/publication-routing.ts`
@@ -32,20 +36,8 @@ const DESCRIPTION = 'People, courage, invention and the living record of Israel 
  *
  * `SECTIONS_BY_HOMEPAGE_SECTION.people` is the same derivation the homepage
  * band uses, so a section reaches this hub and its own card with one label.
- *
- * The order is stated because a reading order is an editorial choice that no
- * map can hold; any section the list forgets is appended rather than dropped,
- * so forgetting costs a position and never a lane.
  */
-const LANE_ORDER: readonly PublicationSection[] = [
-  'people', 'courage_service', 'innovation', 'technology_ai',
-  'science_medicine', 'achievement', 'international_cooperation', 'history_context',
-];
 const PEOPLE_SECTIONS = SECTIONS_BY_HOMEPAGE_SECTION.people;
-const ORDER: PublicationSection[] = [
-  ...LANE_ORDER.filter((section) => PEOPLE_SECTIONS.includes(section)),
-  ...PEOPLE_SECTIONS.filter((section) => !LANE_ORDER.includes(section)),
-];
 const LABELS: Record<PublicationSection, string> = PUBLICATION_SECTION_LABELS;
 
 export const metadata: Metadata = pageMetadata({
@@ -58,17 +50,69 @@ function dateLabel(value: string) {
   return new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeZone: 'Asia/Jerusalem' }).format(new Date(value));
 }
 
-function PublicationCard({ publication }: { publication: PublicPublication }) {
+/**
+ * One record in the merged list, its section as the kicker.
+ *
+ * UX-16: the hub used to render Innovation, Technology & AI and Science &
+ * Medicine as three headed groups of one or two cards each, which told the
+ * reader the section was unfinished. One list, newest first, with the section
+ * named on each entry, carries the same information without the empty rooms.
+ */
+function RecordRow({ publication }: { publication: PublicPublication }) {
   const image = publication.media;
-  return <article className={styles.publication}>
-    {image ? <Link className={styles.image} href={publicationHref(publication.publicId)}>
-      <Image src={image.src} alt={image.alt} width={image.width} height={image.height} sizes="(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 33vw" />
-    </Link> : null}
-    <div className={styles.publicationBody}>
-      <p className={styles.meta}>{dateLabel(publication.publishedAt)} <span aria-hidden="true">·</span> {LABELS[publication.section]}</p>
-      <h3><Link href={publicationHref(publication.publicId)}>{publication.title}</Link></h3>
-      {publication.summary ? <p>{publication.summary}</p> : null}
-      <Link className={styles.read} href={publicationHref(publication.publicId)}>{publicationCta(publication.section)} <span aria-hidden="true">→</span></Link>
+  return <li>
+    <article className={image ? `${styles.record} ${styles.recordWithMedia}` : styles.record}>
+      <div className={styles.recordBody}>
+        <p className={styles.recordMeta}>
+          <span className={styles.kicker}>{LABELS[publication.section]}</span>
+          <time dateTime={publication.publishedAt}>{dateLabel(publication.publishedAt)}</time>
+        </p>
+        <h3><Link href={publicationHref(publication.publicId)}>{publication.title}</Link></h3>
+        {publication.summary ? <p className={styles.recordSummary}>{publication.summary}</p> : null}
+        <Link className={styles.read} href={publicationHref(publication.publicId)}>{publicationCta(publication.section)} <span aria-hidden="true">→</span></Link>
+      </div>
+      {image ? <Link className={styles.recordImage} href={publicationHref(publication.publicId)} tabIndex={-1} aria-hidden="true">
+        <Image src={image.src} alt="" width={image.width} height={image.height} sizes="(max-width: 45rem) 6rem, 9rem" />
+      </Link> : null}
+    </article>
+  </li>;
+}
+
+/**
+ * A hero profile with its portrait — the band that opens this hub.
+ *
+ * The portrait comes from the same registry the homepage uses, keyed the same
+ * way (`hero:<id>`, with the profile's own `mediaRef` winning), so a profile
+ * pictured on the cover is pictured here and a profile without a cleared
+ * portrait is text-led rather than framed around a gap. The record itself —
+ * the summary with its sources beside it — stays at `/our-heroes#<id>`; this
+ * band opens the door and says who is behind it.
+ */
+function Profile({ profile, featured = false }: { profile: HeroProfile; featured?: boolean }) {
+  const media = homepageMedia(`hero:${profile.id}`, profile.mediaRef);
+  const href = `/our-heroes#${profile.id}`;
+  return <article className={styles.profile} data-featured={featured ? '' : undefined}>
+    {media ? <figure className={styles.portrait}>
+      <Image
+        src={media.src}
+        alt={media.alt}
+        width={media.width}
+        height={media.height}
+        loading={featured ? 'eager' : 'lazy'}
+        sizes="(max-width: 45rem) 100vw, (max-width: 64rem) 50vw, 30vw"
+        style={{ objectPosition: `${media.focalPoint.x}% ${media.focalPoint.y}%` }}
+      />
+      <figcaption>
+        {media.disclosure ? <span className={styles.disclosure}>{media.disclosure}</span> : null}
+        <span>{media.credit}</span>
+      </figcaption>
+    </figure> : null}
+    <div className={styles.profileBody}>
+      <p className={styles.kicker}>{profile.role}</p>
+      <h3><Link href={href}>{profile.name}</Link></h3>
+      <p className={styles.profileMeta}>{profile.meta}</p>
+      <p className={styles.profileSummary}>{profile.summary}</p>
+      <Link className={styles.read} href={href}>Read their story <span aria-hidden="true">→</span></Link>
     </div>
   </article>;
 }
@@ -80,50 +124,90 @@ function PublicationCard({ publication }: { publication: PublicPublication }) {
  *  publication on the site. */
 const RECORDS_PER_SECTION = 25;
 
+/** How many merged records the hub lists before pointing at `/updates`. */
+const RECORDS_SHOWN = 24;
+
 export default async function Page() {
   const [sectionResults, heroes, history] = await Promise.all([
-    Promise.all(ORDER.map(section =>
+    Promise.all(PEOPLE_SECTIONS.map(section =>
       listPublicPublications(`?section=${section}&limit=${RECORDS_PER_SECTION}`).catch((): PublicPublication[] => []),
     )),
     getOurHeroesEdition(), getIsraelsStoryEdition(),
   ]);
-  const groups = ORDER.map((section, index) => ({
-    section, label: LABELS[section]!, publications: sectionResults[index] ?? [],
-  })).filter(group => group.publications.length > 0);
-  const publishedRecords = groups.reduce((count, group) => count + group.publications.length, 0);
-  const legacyHeroes = [heroes.featured, ...heroes.profiles];
+  /* One list across every People section, newest first. A record carries
+     exactly one section, so the merge cannot list anything twice. */
+  const records = sectionResults.flat().sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  const shown = records.slice(0, RECORDS_SHOWN);
+  const profiles = [heroes.featured, ...heroes.profiles];
+  /* When this hub last changed: the newest live record, or the preserved
+     collection's own edition when nothing live has been published yet. */
+  const latest = records[0]?.publishedAt ?? heroes.publishedAt;
 
   return <EditorialShell routeId="people-of-israel" register="silent" className={styles.page}>
     <div className={styles.hub}>
       <HubMasthead
-        kicker="A living record"
+        kicker="Who Israel is"
         title={<>The People<br />of Israel</>}
         standfirst={DESCRIPTION}
-        facts={[{ label: 'Published records', value: publishedRecords }, { label: 'Documented hero profiles', value: legacyHeroes.length }]}
+        status={<HubUpdated at={latest} />}
         jumps={[
-          ...(groups.length ? [{ href: '#new-records', label: 'New records' }] : []),
-          { href: '#courage', label: 'Courage & service' }, { href: '#history', label: 'History & context' },
+          { href: '#courage', label: 'Courage & service' },
+          { href: '#new-records', label: 'New records' },
+          { href: '#history', label: 'History & context' },
         ]}
       />
 
-      {groups.length ? <section id="new-records" className={styles.records} aria-labelledby="new-records-title">
-        <div className={styles.sectionHead}><p>Current work</p><h2 id="new-records-title">New records from the desk</h2></div>
-        {groups.map(group => <section key={group.section} className={styles.group} aria-labelledby={`people-${group.section}`}>
-          <h2 id={`people-${group.section}`}>{group.label}</h2>
-          <div className={styles.grid}>{group.publications.map(publication => <PublicationCard key={publication.publicId} publication={publication} />)}</div>
-        </section>)}
-      </section> : null}
-
-      <section id="courage" className={styles.legacy} aria-labelledby="courage-title">
-        <div className={styles.legacyIntro}><p>Preserved collection</p><h2 id="courage-title">Courage &amp; service</h2><p>The existing profiles remain their own cited records. This collection opens a path into them without flattening their individual stories.</p></div>
-        <ol className={styles.peopleList}>{legacyHeroes.map(person => <li key={person.id}><Link href={`/our-heroes#${person.id}`}><span>{person.name}</span><small>{person.role} · {person.meta}</small></Link></li>)}</ol>
-        <Link className={styles.collectionLink} href="/our-heroes">Read all Our Heroes <span aria-hidden="true">→</span></Link>
+      {/* UX-16 — the profiles lead. They are the richest thing this hub holds
+          (portraits, a role, a story with sources behind it), and the DNA
+          wants a reader here excited rather than shown an empty room. */}
+      <section id="courage" className={styles.courage} aria-labelledby="courage-title">
+        <header className={styles.sectionHead}>
+          <div>
+            <p className={styles.kicker}>Our Heroes</p>
+            <h2 id="courage-title">Courage &amp; service</h2>
+          </div>
+          <p className={styles.sectionCount}><span data-numeric="">{profiles.length}</span> {profiles.length === 1 ? 'profile' : 'profiles'}</p>
+          <Link className={styles.sectionLink} href="/our-heroes">All of Our Heroes <span aria-hidden="true">→</span></Link>
+        </header>
+        <div className={styles.profiles}>
+          {profiles.map((profile, index) => <Profile key={profile.id} profile={profile} featured={index === 0} />)}
+        </div>
       </section>
 
-      <section id="history" className={styles.history} aria-labelledby="history-title">
-        <div><p>Preserved collection</p><h2 id="history-title">History &amp; context</h2><p>Context is part of the evidence. The timeline remains accessible at its original address and keeps every cited chapter and anchor intact.</p><Link className={styles.collectionLink} href="/israels-story">Explore Israel’s Story <span aria-hidden="true">→</span></Link></div>
-        <ol>{history.chapters.slice(0, 4).map((chapter, index) => <li key={chapter.id}><Link href={`/israels-story#${chapter.id}`}><span>{String(index + 1).padStart(2, '0')}</span>{chapter.title}</Link></li>)}</ol>
-      </section>
+      <div className={styles.columns}>
+        <section id="new-records" className={styles.records} aria-labelledby="new-records-title">
+          <header className={styles.sectionHead}>
+            <div>
+              <p className={styles.kicker}>Current work</p>
+              <h2 id="new-records-title">New records</h2>
+            </div>
+            {records.length ? <p className={styles.sectionCount}><span data-numeric="">{records.length}</span> {records.length === 1 ? 'record' : 'records'}</p> : null}
+          </header>
+          {shown.length
+            ? <ol className={styles.recordList}>{shown.map(publication => <RecordRow key={publication.publicId} publication={publication} />)}</ol>
+            : <p className={styles.empty}>No records have been published here yet. The profiles above and the story below are the standing collection.</p>}
+          {records.length > shown.length
+            ? <Link className={styles.sectionLink} href="/updates">Everything published, every section <span aria-hidden="true">→</span></Link>
+            : null}
+        </section>
+
+        <section id="history" className={styles.history} aria-labelledby="history-title">
+          <header className={styles.sectionHead}>
+            <div>
+              <p className={styles.kicker}>Preserved collection</p>
+              <h2 id="history-title">History &amp; context</h2>
+            </div>
+          </header>
+          <p className={styles.historyLede}>Context is part of the evidence. The timeline keeps every cited chapter and anchor at its original address.</p>
+          {/* Numbered because a timeline is sequential: the numeral is the
+              chapter's place in the story, not a rank. */}
+          <ol className={styles.chapters}>{history.chapters.slice(0, 4).map((chapter, index) => <li key={chapter.id}><Link href={`/israels-story#${chapter.id}`}><span>{String(index + 1).padStart(2, '0')}</span>{chapter.title}</Link></li>)}</ol>
+          <Link className={styles.sectionLink} href="/israels-story">All of Israel’s Story <span aria-hidden="true">→</span></Link>
+        </section>
+      </div>
+      <ActivationBand
+        share={{ url: `${SITE_URL}/people-of-israel`, text: 'The People of Israel — courage, invention and history, with the sources.' }}
+      />
     </div>
   </EditorialShell>;
 }

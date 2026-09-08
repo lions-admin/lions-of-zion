@@ -153,15 +153,26 @@ export function HomeNarrativesSection({
                     The fallback still distinguishes by kind rather than
                     collapsing to one verb: a snapshot serialized before the
                     field existed carries no `cta`, and turning every
-                    investigation into "Read the record" would lose exactly the
-                    distinction this task exists to make. */}
+                    investigation into one verb would lose exactly the
+                    distinction this task exists to make. The words are the
+                    UX-05 verb table's: an investigation is opened, a claim
+                    record shows its evidence, ordinary reporting filed here
+                    (antisemitism coverage) is read as a story.
+
+                    One honest exception, decided here because the routing
+                    cannot see it: an analysis that cites nothing has no
+                    evidence to see, so it is read as an assessment. The basis
+                    is read `=== "analysis"` — a row predating the field
+                    carries none, and an absent value is the sourced side. */}
                 <JourneyLink href={item.href}>
-                  {item.cta
-                    ?? (item.kind === "case"
-                      ? "Open the investigation"
-                      : item.kind === "watch"
-                        ? "Read the assessment"
-                        : "Read the record")}
+                  {item.kind === "watch" && item.basis === "analysis"
+                    ? "Read the assessment"
+                    : item.cta
+                      ?? (item.kind === "case"
+                        ? "Open the investigation"
+                        : item.kind === "watch"
+                          ? "See the evidence"
+                          : "Read the story")}
                 </JourneyLink>
               </div>
             </article>
@@ -169,8 +180,10 @@ export function HomeNarrativesSection({
         })}
       </div>
       <SectionState section={section} />
-      {/* VA-63. Three sections said "Explore X" and one said "View all X" for the same move — going to the whole desk. One verb: it states what happens, where "Explore" only sets a mood. */}
-      <SectionAction href="/fake-resistance">View all Fake Resistance</SectionAction>
+      {/* UX-05. One form for going to the whole section: "All of <Section>"
+          with the journey arrow. (VA-63 had settled on "View all"; the verb
+          table replaces it everywhere at once.) */}
+      <SectionAction href="/fake-resistance">All of Fake Resistance</SectionAction>
     </section>
   );
 }

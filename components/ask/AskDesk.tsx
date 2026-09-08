@@ -1,13 +1,19 @@
 "use client";
 
 /**
- * The desk: evidence boundary, transcript, the wait, and the box.
+ * The desk: transcript, the wait, and the box — in one of two orders.
  *
- * Layout before a submit (idle / primer): primer examples, evidence-boundary
- * notice, then the composer. The notice used to sit under the box, which meant
- * a reader could send a question without seeing what corpus is searched or
- * what an unsupported answer means. It is now above the composer in every
- * state that still has one.
+ * `layout="dock"` (the default, and what the drawer mounts) is header,
+ * conversation, composer: the box at the foot in every state, the suggested
+ * questions filling the empty transcript above it. `layout="page"` (`/ask`)
+ * is the other way up: the box first, the suggestions as chips under it, the
+ * transcript below. On the page the drawer's order put the box below the fold
+ * at 390px, under a lede and three bordered rows, and the first screen of a
+ * page whose whole job is a question should be the place to type it (UX-24).
+ * The page's one line of provenance promise is its lede — "Every answer shows
+ * what it was built from — or says it found nothing." — so the desk does not
+ * say it a second time 300px lower; in the drawer the same promise is the
+ * dialog's own description.
  *
  * ## The waiting state is where the guarantee gets explained
  *
@@ -63,26 +69,31 @@ import { AnswerRecord } from "./AnswerRecord";
 import { toExchanges } from "./exchanges";
 import { useAskThread } from "./useAskThread";
 import styles from "./ask.module.css";
+import deskStyles from "./ask-desk.module.css";
 
+/* The questions an activist actually arrives with (UX-24, copy table) —
+   a video, a claim, an event — rather than questions about the desk. */
 const EXAMPLES = [
-  "What has been published about the northern border?",
-  "Is there anything here on claims that footage was staged?",
-  "How does this desk decide that something is verified?",
+  "Is this video really from Gaza?",
+  "Who first posted this claim?",
+  "What does the record say about the Nova festival?",
 ];
+
+export type AskDeskLayout = "page" | "dock";
 
 /* The provider is here and not inside `PromptInput` so the input's text can be
    set from outside the box — which is what "take the failed question back into
    the composer and edit it" needs. `PromptInput` is self-managing without it;
    with it, `usePromptInputController` reaches the same state from the desk. */
-export function AskDesk() {
+export function AskDesk({ layout = "dock" }: { layout?: AskDeskLayout }) {
   return (
     <PromptInputProvider>
-      <AskDeskBody />
+      <AskDeskBody layout={layout} />
     </PromptInputProvider>
   );
 }
 
-function AskDeskBody() {
+function AskDeskBody({ layout }: { layout: AskDeskLayout }) {
   const controller = usePromptInputController();
   const { messages, status, problem, pending, elapsed, ask, retry, recall, cancel, lostThread, reset } =
     useAskThread();
@@ -132,8 +143,131 @@ function AskDeskBody() {
             ? "no-answer"
             : "idle";
 
+  const onPage = layout === "page";
+  const showPrimer = count === 0 && status === "idle";
+
+  /* The transcript is AI Elements' `Conversation`, which is the same job
+     the `MessageScroller` here did for an hour and is the one Vercel keeps
+     in step with its own chat SDK. It sticks to the live edge, releases
+     when the reader scrolls away, and offers the button back — all of it
+     without this component owning a ref or reading a motion preference,
+     which is what stood here before it. */
+  const transcript = (
+    <Conversation className={styles.transcriptFrame}>
+      <ConversationContent className={styles.transcript}>
+        {/* In the drawer the primer lives *inside* the transcript, as its
+            empty state: it occupies the space it is explaining, and the
+            moment a question is asked it gives it up. On the page the
+            transcript starts empty and the primer is the chip row under the
+            composer instead. */}
+        {showPrimer && !onPage ? (
+          <ConversationEmptyState className={styles.deskEmpty}>
+            <AskPrimer onPick={ask} disabled={busy} />
+          </ConversationEmptyState>
+        ) : null}
+
+        {exchanges.map((exchange) => (
+          <AnswerRecord key={exchange.key} exchange={exchange} />
+        ))}
+
+        {busy && pending ? (
+          <Waiting
+            question={pending}
+            elapsed={elapsed}
+            phase={status === "submitting" ? "submitting" : "loading"}
+            onStop={cancel}
+          />
+        ) : null}
+
+        {problem && !unavailable ? (
+          <ProblemRecord
+            code={problem.code}
+            status={problem.status}
+            detail={problem.detail}
+            question={pending}
+            onRetry={retry}
+            onEdit={recallIntoComposer}
+          />
+        ) : null}
+      </ConversationContent>
+      <ConversationScrollButton />
+    </Conversation>
+  );
+
+  const composer = unavailable ? (
+    /* StatusState error already uses role="alert" (assertiveLive). */
+    <StatusState
+      status="error"
+      title="This desk's assistant is not connected here."
+      description={`${problem.detail} Everything published here is still searchable.`}
+      actionText="Search the site"
+      actionHref="/search"
+    />
+  ) : (
+    /* One box, which is what a chat input is. `AskComposer` was a labelled
+       form with its own counter and hint rows stacked under it — correct as
+       a form, and a third block of chrome on a panel that already had two.
+       `PromptInput` carries file attachments and a drop target this desk
+       has no use for; they are inert with no `accept` and no menu mounted,
+       and the parts used here are the textarea, the footer and the submit.
+       `status` drives the button's own spinner and stop control, so the
+       cancel path that lived in the composer's chrome is the button.
+       The evidence boundary used to be rendered here as well as in the
+       drawer's own description, which stated the same disclosure twice about
+       200px apart and in two different typographic registers. One statement:
+       the drawer's description, or the page's lede. */
+    <PromptInput
+      className={styles.deskPrompt}
+      onSubmit={(message) => {
+        const question = message.text.trim();
+        if (question) ask(question);
+      }}
+    >
+      <PromptInputBody>
+        <PromptInputTextarea
+          disabled={busy || status === "restoring"}
+          placeholder={hasHistory ? "Ask a follow-up…" : "Ask about a claim, a video, a source…"}
+        />
+      </PromptInputBody>
+      <PromptInputFooter>
+        {hasHistory ? (
+          <Button type="button" variant="ghost" size="sm" onClick={reset}>
+            New conversation
+          </Button>
+        ) : (
+          <span />
+        )}
+        {/* UX-26. The registry's submit is a 32px glyph; `deskStyles.submit`
+            makes it a 44px target and shows the word from 768. `children`
+            replaces the registry's icon outright, so the label is passed
+            only in the state where the button sends: while a turn is in
+            flight it is the registry's spinner and stops the turn, and
+            after a failure it is the registry's mark. The accessible name
+            follows the visible word (WCAG 2.5.3), and the registry's own
+            `aria-label` is spread before this one so it loses. */}
+        <PromptInputSubmit
+          className={`${styles.deskSubmit} ${deskStyles.submit}`}
+          status={busy ? "submitted" : problem ? "error" : undefined}
+          onStop={cancel}
+          aria-label={busy ? "Stop" : "Send"}
+        >
+          {busy || problem ? undefined : (
+            <>
+              <span className={deskStyles.submitLabel}>Send</span>
+              <span aria-hidden="true">↵</span>
+            </>
+          )}
+        </PromptInputSubmit>
+      </PromptInputFooter>
+    </PromptInput>
+  );
+
   return (
-    <div className={styles.desk} data-ask-state={visibleState}>
+    <div
+      className={onPage ? `${styles.desk} ${deskStyles.page}` : styles.desk}
+      data-ask-state={visibleState}
+      data-ask-layout={layout}
+    >
       {lostThread ? (
         <p className={styles.systemNote}>
           An earlier conversation from this browser could not be reopened. A thread is tied to
@@ -148,113 +282,44 @@ function AskDeskBody() {
         </p>
       ) : null}
 
-      {/* The transcript is AI Elements' `Conversation`, which is the same job
-          the `MessageScroller` here did for an hour and is the one Vercel keeps
-          in step with its own chat SDK. It sticks to the live edge, releases
-          when the reader scrolls away, and offers the button back — all of it
-          without this component owning a ref or reading a motion preference,
-          which is what stood here before it. */}
-      <Conversation className={styles.transcriptFrame}>
-        <ConversationContent className={styles.transcript}>
-          {/* The primer and the evidence boundary live *inside* the transcript
-              now, as its empty state, and that is the whole of this change.
-              They were stacked above and below it, so on an empty desk the
-              transcript was a thin strip between two blocks of explanatory
-              prose and the panel did not read as a chat at all. Here they
-              occupy the space they are explaining, and the moment a question is
-              asked they give it up. */}
-          {count === 0 && status === "idle" ? (
-            <ConversationEmptyState className={styles.deskEmpty}>
-              <AskPrimer onPick={ask} disabled={busy} />
-            </ConversationEmptyState>
-          ) : null}
-
-          {exchanges.map((exchange) => (
-            <AnswerRecord key={exchange.key} exchange={exchange} />
-          ))}
-
-          {busy && pending ? (
-            <Waiting
-              question={pending}
-              elapsed={elapsed}
-              phase={status === "submitting" ? "submitting" : "loading"}
-              onStop={cancel}
-            />
-          ) : null}
-
-          {problem && !unavailable ? (
-            <ProblemRecord
-              code={problem.code}
-              detail={problem.detail}
-              question={pending}
-              onRetry={retry}
-              onEdit={recallIntoComposer}
-            />
-          ) : null}
-        </ConversationContent>
-        <ConversationScrollButton />
-      </Conversation>
-
-      {unavailable ? (
-        /* StatusState error already uses role="alert" (assertiveLive). */
-        <StatusState
-          status="error"
-          title="This desk's assistant is not connected here."
-          description={`${problem.detail} The corpus itself is searchable in the meantime.`}
-          actionText="Search the corpus"
-          actionHref="/search"
-        />
-      ) : (
-        /* One box at the foot, which is what a chat input is. `AskComposer`
-            was a labelled form with its own counter and hint rows stacked under
-            it — correct as a form, and a third block of chrome on a panel that
-            already had two.
-            `PromptInput` carries file attachments and a drop target this desk
-            has no use for; they are inert with no `accept` and no menu mounted,
-            and the parts used here are the textarea, the footer and the submit.
-            `status` drives the button's own spinner and stop control, so the
-            cancel path that lived in the composer's chrome is the button. */
+      {onPage ? (
         <>
-        {/* The boundary used to be rendered here as well as in the drawer's
-            own description, which stated the same disclosure twice about
-            200px apart and in two different typographic registers — uppercase
-            chrome at the top, sentence case here. One statement, and it is
-            the header's: that one is pinned, so it survives the transcript
-            filling, and it is the panel's accessible description, which this
-            paragraph never was. */}
-        <PromptInput
-          className={styles.deskPrompt}
-          onSubmit={(message) => {
-            const question = message.text.trim();
-            if (question) ask(question);
-          }}
-        >
-          <PromptInputBody>
-            <PromptInputTextarea
-              disabled={busy || status === "restoring"}
-              placeholder={
-                hasHistory ? "Ask a follow-up…" : "What does the desk hold on…"
-              }
-            />
-          </PromptInputBody>
-          <PromptInputFooter>
-            {hasHistory ? (
-              <Button type="button" variant="ghost" size="sm" onClick={reset}>
-                New conversation
-              </Button>
-            ) : (
-              <span />
-            )}
-            <PromptInputSubmit
-              className={styles.deskSubmit}
-              status={busy ? "submitted" : problem ? "error" : undefined}
-              onStop={cancel}
-            />
-          </PromptInputFooter>
-        </PromptInput>
+          {composer}
+          {showPrimer && !unavailable ? <AskChips onPick={ask} disabled={busy} /> : null}
+          {transcript}
+        </>
+      ) : (
+        <>
+          {transcript}
+          {composer}
         </>
       )}
     </div>
+  );
+}
+
+/* The page's suggested questions: plain chips, no label, no arrow glyph. The
+   drawer's `AskPrimer` below renders the same three as full-width rows with
+   an intro line, which is right for a drawer whose middle would otherwise be
+   empty and wrong under a composer that is already the first thing on the
+   page (UX-24). */
+function AskChips({ onPick, disabled }: { onPick: (q: string) => void; disabled: boolean }) {
+  return (
+    <ul className={deskStyles.chips} aria-label="Suggested questions">
+      {EXAMPLES.map((example) => (
+        <li key={example}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="md"
+            disabled={disabled}
+            onClick={() => onPick(example)}
+          >
+            {example}
+          </Button>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -309,18 +374,24 @@ function Waiting({
 
 function ProblemRecord({
   code,
+  status,
   detail,
   question,
   onRetry,
   onEdit,
 }: {
   code: string;
+  status: number;
   detail: string;
   question: string | null;
   onRetry: () => void;
   onEdit: () => void;
 }) {
-  const rateLimited = code === "RATE_LIMITED";
+  /* The status as well as the code, for the same reason as the search
+     panel's `PanelProblem`: the API nests its body under `error` and the
+     shared `requestJson` reads the top level, so the code can arrive as
+     `UNKNOWN` on a real rate limit. The status cannot. */
+  const rateLimited = code === "RATE_LIMITED" || status === 429;
   return (
     <article className={styles.record} data-tone="alert" {...assertiveLive}>
       {question ? (

@@ -76,9 +76,16 @@
   text-wrap: balance;
 }
 
+/* The same sentence the masthead carries, in the same face and case — see
+   `.brandRole` in `site-header.module.css`. One step larger here, because it
+   sits under a nameplate ten times its size and at 13px it read as a credit
+   line rather than the claim it is. */
 .brandRole {
-  composes: dataLabel from global;
-  letter-spacing: 0.15em;
+  font-family: var(--face-kicker);
+  font-size: var(--t-small);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: 0.01em;
   color: var(--ink-lo);
   transition: color var(--dur-fast) var(--ease-out);
 }
@@ -170,10 +177,8 @@
 }
 
 .filesLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin-bottom: var(--sp-4);
-  font-weight: 400;
-  letter-spacing: 0.14em;
   color: var(--ink-lo);
 }
 
@@ -198,8 +203,11 @@
     border-color var(--dur-fast) var(--ease-out);
 }
 
+/* → and not ↗. Every entry in this index is on this site; ↗ is reserved for
+   the links that leave it — PayPal, the coffee page — so a reader can tell
+   from the glyph alone (UX-09). */
 .fileLink::after {
-  content: "↗︎";
+  content: "→";
   flex: 0 0 auto;
   font-size: var(--t-body);
   color: var(--ink-lo);
@@ -215,7 +223,7 @@
 
 .fileLink:hover::after {
   color: var(--gold);
-  transform: translate(2px, -2px);
+  transform: translateX(2px);
 }
 
 .fileLink[aria-current="page"] {
@@ -250,12 +258,14 @@
   color: var(--ink-lo);
 }
 
+/* A control label, not a machine value: text face, not mono (UX-31). */
 .toTop {
-  composes: dataMeta from global;
   display: inline-flex;
   align-items: center;
   gap: var(--sp-3);
   min-height: var(--control-h);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
   font-weight: 400;
   color: var(--ink-lo);
   text-decoration: none;

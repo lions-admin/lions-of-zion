@@ -82,25 +82,30 @@ const investigation = (label: string, cta = "Open the investigation"): Publicati
   hub: "Fake Resistance", href: "/fake-resistance", homepageSection: "fakeResistance", homepageKind: "watch", label, investigation: true,
   cta,
 });
-const people = (label: string): PublicationDestination => ({
+/* A person is read as a person and everything else on the People desk is a
+   story; the verb table in UX-CONTRACT.md ("Verbs", 2026-09-08) is the source. */
+const people = (label: string, cta = "Read the story"): PublicationDestination => ({
   hub: "The People of Israel", href: "/people-of-israel", homepageSection: "people", homepageKind: "feature", label, investigation: false,
-  cta: "Read the record",
+  cta,
 });
 const DESTINATIONS: Record<PublicationSection, PublicationDestination> = {
   daily_brief: news("Daily Brief"),
   israel_update: news("Israel update"),
   news: news("News & Analysis"),
-  /* A claim assessment is read as an assessment, never as more reporting. */
-  narrative_watch: investigation("Narrative Watch", "Read the assessment"),
+  /* A claim record is read for its evidence, never as more reporting. An
+     analysis that cites nothing is the exception and the card handles it:
+     it says "Read the assessment", because there is no evidence to see. */
+  narrative_watch: investigation("Narrative Watch", "See the evidence"),
   influence_investigation: investigation("Influence investigation"),
-  antisemitism: investigation("Antisemitism", "Read the record"),
+  /* A documented incident is reporting, so it takes the reporting verb. */
+  antisemitism: investigation("Antisemitism", "Read the story"),
   innovation: people("Innovation"),
   science_medicine: people("Science & Medicine"),
   technology_ai: people("Technology & AI"),
   achievement: people("Israeli achievement"),
   international_cooperation: people("International cooperation"),
-  people: people("People"),
-  courage_service: people("Courage & Service"),
+  people: people("People", "Read their story"),
+  courage_service: people("Courage & Service", "Read their story"),
   history_context: people("History & Context"),
 };
 

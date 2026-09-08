@@ -82,9 +82,20 @@ export async function requestJson<T>(input: string, init?: RequestInit): Promise
   let code: ProblemCode = "UNKNOWN";
   let detail = "";
   try {
-    const body = (await response.json()) as { code?: string; detail?: string; title?: string };
-    if (body.code && KNOWN_CODES.has(body.code as ProblemCode)) code = body.code as ProblemCode;
-    detail = body.detail ?? body.title ?? "";
+    /* The API nests its problem under `error` (`problem()` in
+       `server/http/responses.ts`): `{ error: { code, message } }`. This read
+       the flat RFC 9457 shape until 2026-09-09, so every real failure parsed
+       as UNKNOWN with no detail and the RATE_LIMITED / NOT_IMPLEMENTED
+       branches downstream never fired. The flat keys stay as a fallback. */
+    const body = (await response.json()) as {
+      error?: { code?: string; message?: string };
+      code?: string;
+      detail?: string;
+      title?: string;
+    };
+    const raw = body.error?.code ?? body.code;
+    if (raw && KNOWN_CODES.has(raw as ProblemCode)) code = raw as ProblemCode;
+    detail = body.error?.message ?? body.detail ?? body.title ?? "";
   } catch {
     /* A non-JSON body — a gateway timeout page, most likely. The status is
        still the truth, so fall through to it rather than discarding it. */
@@ -96,7 +107,9 @@ export async function requestJson<T>(input: string, init?: RequestInit): Promise
 function fallbackDetail(status: number): string {
   if (status === 504 || status === 408) return "The request took too long and was cut off.";
   if (status >= 500) return "The server could not complete the request.";
-  return `The request failed (HTTP ${status}).`;
+  /* No status code: a reader has nothing to do with one, and the 429 case
+     already carries its own title in `SearchPanel`. */
+  return "Something went wrong on our side. Try again in a moment.";
 }
 
 /** True for the cancellation a new keystroke causes, which must never surface. */

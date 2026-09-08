@@ -266,3 +266,38 @@
     padding: var(--sp-4);
   }
 }
+
+/* ---- read next (UX-11) ----
+   The closing pointers to Corrections and How it works were one sentence of
+   navigation set as inline links, 22px tall. Standalone controls now, on the
+   same floor as `.glanceTerm a`; prose links elsewhere on the page stay
+   inline. */
+
+.readNext {
+  display: flex;
+  flex-direction: column;
+  margin: var(--sp-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.readNext a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--control-h);
+  color: var(--ink-hi);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-decoration-thickness: var(--line-w);
+  text-underline-offset: 0.2em;
+  transition: color var(--dur-fast) var(--ease-out),
+    text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.readNext a:hover,
+.readNext a:focus-visible {
+  color: var(--gold-hi);
+  text-decoration-color: currentColor;
+}

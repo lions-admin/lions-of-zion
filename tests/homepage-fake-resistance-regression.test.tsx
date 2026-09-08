@@ -64,13 +64,13 @@ describe('Fake Resistance homepage regression coverage', () => {
     ]);
     expect(html).toContain('Claim with documentary media');
     expect(html).toContain('Claim without media');
-    /* VA-63. The verb used to vary with `evidenceBasis` — "Read the analysis"
-       for an unsourced record, "Read the assessment" for a sourced one. It is
-       one verb per *content type* now, because the basis is not the type and is
-       already disclosed in its own line directly above the link. Both records
-       are claim assessments, so both are read as assessments; what separates
-       them is still visible, and still exact. */
-    expect(html.match(/Read the assessment/g)).toHaveLength(2);
+    /* VA-63 made the verb one-per-content-type. UX-05 (2026-09-08) keeps
+       that, with one honest exception: a sourced claim record says "See the
+       evidence", and an analysis that cites nothing cannot — it says "Read
+       the assessment", because there is no evidence to see. The basis is
+       still disclosed in its own line directly above the link. */
+    expect(html.match(/See the evidence/g)).toHaveLength(1);
+    expect(html.match(/Read the assessment/g)).toHaveLength(1);
     expect(html).toContain('Lions of Zion editorial analysis');
     expect(html).toContain('No source-backed finding is implied');
     expect(html.match(/data-kind="watch"/g)).toHaveLength(2);
@@ -82,7 +82,7 @@ describe('Fake Resistance homepage regression coverage', () => {
     ]);
     expect(html).toContain('Antisemitism');
     expect(html).toContain('Published summary.');
-    expect(html).toContain('Read the record');
+    expect(html).toContain('Read the story');
     expect(html).not.toContain('Research case');
     expect(html).not.toContain('Research question');
     expect(html).not.toContain('Open the investigation');

@@ -43,9 +43,10 @@
   --font-mono: var(--face-data);
 
   /* --- Type roles (SYS-004) ---
-     display / h2 / figure / h3 / lede / body / small / caption / data.
-     Body is 17px (above the 16px mobile floor). Caption 13px. Data 12px
-     (metadata floor). Headlines wrap at 320 via overflow-wrap on headings. */
+     display / h2 / figure / h3 / lede / body / small / caption / kicker / data.
+     Body is 17px (above the 16px mobile floor). Caption 13px. Kicker 13px.
+     Data 12px (desktop metadata floor; 13px on a phone, see the 48rem block
+     below). Headlines wrap at 320 via overflow-wrap on headings. */
   --t-display: clamp(2.75rem, 1.6rem + 4.1vw, 4.125rem);
   --t-display-lh: 1.06;
   --t-display-weight: 400;
@@ -85,6 +86,21 @@
   --t-data-weight: 500;
   --t-data-tracking: 0.08em;
   --t-data-tracking-tight: 0.04em;
+
+  /* The kicker role (UX-31, 2026-09-08). Section labels, eyebrows and
+     definition terms — the words that *name* a block — used to borrow the
+     mono data role, so a section label, a timestamp and a key hint were one
+     indistinguishable 11–12px tracked stamp, and the site read as a dashboard.
+     Mono is now strictly for machine values (dates, counts, keys, references);
+     a label that a person wrote is set in the text face at the caption size,
+     small-capped by tracking rather than by a synthesized small-caps cut Plex
+     Sans does not carry. 13px is the phone floor for captions and this role
+     never goes below it. Compose `.kickerLabel` below for the whole role. */
+  --face-kicker: var(--face-text);
+  --t-kicker: 0.8125rem;
+  --t-kicker-lh: 1.4;
+  --t-kicker-weight: 500;
+  --t-kicker-tracking: 0.06em;
 
   /* --- Space --- */
   --sp-1: 0.25rem;
@@ -362,19 +378,6 @@
      padding would shrink the visible strip instead of moving it. */
   --header-h: calc(4.8rem + env(safe-area-inset-top, 0px));
 
-  /* How far `AskDock`'s trigger is lifted off the bottom edge.
-   *
-   * Not a decoration margin — it is the height of the chrome the button has to
-   * clear. The home's signal rail is pinned to the hero's floor, so at first
-   * paint it occupies exactly the corner the trigger sits in, and the button
-   * covered the rail's own "all updates" link. Lifting it is the fix; reserving
-   * inline space inside the rail was the other option and it would have put a
-   * hole in the rail on every route that has no dock collision to solve.
-   *
-   * The rail wraps to several rows on a phone and is a single row from 48rem,
-   * which is why this has two values and not one. */
-  --dock-lift: var(--sp-9);
-
   --scan-ground:
     radial-gradient(115% 82% at 50% 26%, rgba(246, 243, 235, 0.055), transparent 68%),
     repeating-linear-gradient(0deg, rgba(228, 224, 215, 0.027) 0 1px, transparent 1px 9px);
@@ -450,6 +453,21 @@
 @media (max-width: 48rem) {
   :root {
     --header-h: calc(3.5rem + env(safe-area-inset-top, 0px));
+  }
+}
+
+/* The phone type floor (UX-10, 2026-09-08). `UX-CONTRACT.md`: on a phone,
+   metadata and captions never below 13px, kickers never below 11px. The data
+   role is 12px at the root — the desktop metadata floor — and every `dt`,
+   date, count and credit that composes it landed at 12px on a 390px screen.
+   Raising the token here lifts all of them at once; a stylesheet that wants a
+   smaller mono on a phone has to say so on purpose, and it may not, because
+   the contract forbids it. Not scoped to `pointer: coarse`: the floor is
+   about a *small screen at reading distance*, and a narrow desktop window
+   deserves the same courtesy. `[data-surface="admin"]` already holds 13px. */
+@media (max-width: 48rem) {
+  :root {
+    --t-data: 0.8125rem;
   }
 }
 
@@ -832,4 +850,20 @@ html:has([data-handoff-blocked]) body {
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
+}
+
+/* The fourth role, and the one that is not data (UX-31). A section label, an
+   eyebrow, a menu group heading, a `dt` — words a person chose to name what
+   follows. Same `composes: kickerLabel from global` contract and the same
+   limits as the three above: type only, and only on a single-class top-level
+   rule. Where `.dataLabel` was composed for a *label*, this is the role it
+   should have been; `.dataLabel` stays for the stamped machine values that
+   really are data. */
+.kickerLabel {
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
+  text-transform: uppercase;
 }

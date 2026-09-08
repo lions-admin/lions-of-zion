@@ -152,7 +152,7 @@ const TIMELINE: TimelineEntry[] = [
     assessment: VERIFIED,
     title: 'A ceasefire is implemented',
     sources: [PMO_FIRST_HOSTAGES_2025],
-    body: 'Superseded later the same year — see War Update for the ceasefire process that has been in effect since October 2025.',
+    body: 'Superseded later the same year by the ceasefire process in effect since October 2025, which News & Analysis follows.',
   },
   {
     id: 'final-hostages',
@@ -161,7 +161,7 @@ const TIMELINE: TimelineEntry[] = [
     category: 'Hostages',
     assessment: VERIFIED,
     title: 'The final 20 living hostages are released',
-    body: 'All remaining living hostages come home within days, under the ceasefire process — see War Update for how it has held since.',
+    body: 'All remaining living hostages come home within days, under the ceasefire process. How it has held since is followed on News & Analysis.',
     sources: [ICRC_FINAL_TWENTY],
   },
   {

@@ -5,7 +5,6 @@ import { SITE_NAVIGATION } from "@/lib/site-navigation";
 import { JourneyLink } from "@/components/home/HomeJourneyPrimitives";
 import { HeroVideo } from "@/components/sections/HeroVideo";
 import { HomepageJourney } from "@/components/home/HomepageJourney";
-import { HeroSupportStrip } from "@/components/home/HeroSupportStrip";
 import { getHomepageEdition } from "@/lib/homepage";
 import { pageMetadata } from "@/lib/page-metadata";
 import { SITE_DESCRIPTION } from "@/lib/site-config";
@@ -98,9 +97,14 @@ export default async function Page() {
                 <span className={styles.wordmarkOf}>OF</span>{" "}ZION
               </span>
             </h1>
+            {/* UX-01. The one positioning line, and the title finally on the
+                page: `pageMetadata` has called every page "Truth Has a
+                Signal" since VA-62 while the cover said something else. The
+                two spans keep the break the composer chose — claim, then the
+                three verbs — where the measure is too narrow for one line. */}
             <p className={styles.standfirst}>
-              <span>Powered by evidence,</span>{" "}
-              <span>not narratives.</span>
+              <span>Truth has a signal.</span>{" "}
+              <span>Find it, check it, share it.</span>
             </p>
 
             {/* The two reading paths, on one row wherever the measure allows
@@ -127,11 +131,12 @@ export default async function Page() {
                 a reader no longer has to scroll to learn what happened today.
                 Date, the lead's status, its headline and the way in — the
                 lion is now a threshold into an edition rather than the whole
-                first screen. It sits above the support chips on purpose: the
-                reporting is read before the ask (VA-10; the chips themselves
-                stay where the owner put them). Every field is prerendered and
-                the headline reserves two lines whatever its length, so the
-                band owns its height at first paint and shifts nothing. */}
+                first screen. It is the last thing on the cover: the support
+                chips that sat under it until UX-13 now close the first band
+                (`HeroSupportStrip`, placed by `HomepageJourney`), so the
+                reporting is read before the ask. Every field is prerendered
+                and the headline reserves two lines whatever its length, so
+                the band owns its height at first paint and shifts nothing. */}
             <div className={styles.editionRail}>
               <p className={styles.editionRailMeta}>
                 <span>{editionDateLabel(edition.editionDate)}</span>
@@ -166,12 +171,6 @@ export default async function Page() {
                 </Link>
               )}
             </div>
-            {/* The ask, on the cover, by owner ruling (2026-09-07): the two
-                donation channels as compact chips under the reading paths.
-                They arrive after the cover has been read and then hold still
-                — `HeroSupportStrip` carries the reasoning. They take no arrow;
-                the external glyph is the chrome's own mark for leaving. */}
-            <HeroSupportStrip />
           </div>
 
         </section>

@@ -1,39 +1,434 @@
+/* The People of Israel · the hub.
+ *
+ * UX-16. It was a single column a third of the measure wide with the rest of
+ * the viewport empty, a blank band under the jump row, and three thinly
+ * populated headed groups. Now: the profiles as the opening band, three
+ * across with their portraits; then a two-column editorial grid at 64rem and
+ * up — the merged record list on the left, the history rail on the right —
+ * and one column below that.
+ *
+ * Two type roles, kept apart (UX-31): a kicker or section label is sans caps
+ * at `--t-kicker`; a date or a count is the mono face at `--t-data`. */
+
 .page { color: var(--ink); }
-.hub { width: min(100%, 100rem); margin: 0 auto; padding: var(--sp-4) clamp(var(--sp-4), 4vw, var(--sp-8)) var(--sp-9); }
-.records, .legacy, .history { margin-top: var(--sp-8); padding-top: var(--sp-6); border-top: var(--line-w) solid var(--line-strong); }
-.sectionHead { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: var(--sp-5); align-items: end; }
-.sectionHead > p, .legacyIntro > p:first-child, .history > div > p:first-child { color: var(--gold-hi); font: var(--t-data-weight) var(--t-data)/var(--t-data-lh) var(--face-data); letter-spacing: var(--t-data-tracking); text-transform: uppercase; }
-.sectionHead h2, .group h2, .legacy h2, .history h2 { color: var(--ink-hi); font: 400 var(--t-h2)/var(--t-h2-lh) var(--face-display); letter-spacing: var(--t-h2-tracking); text-wrap: balance; }
-.group { margin-top: var(--sp-8); }
-.group > h2 { margin-bottom: var(--sp-5); font-size: clamp(1.75rem, 1.35rem + 1.4vw, 2.6rem); }
-.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-5); }
-.publication { display: grid; min-width: 0; border-top: var(--line-w) solid var(--line); }
-.image { aspect-ratio: 4 / 3; overflow: hidden; background: var(--surface-1); }
-.image img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform var(--dur-slow) var(--ease-out); }
-.publication:hover .image img { transform: scale(1.025); }
-.publicationBody { display: grid; align-content: start; gap: var(--sp-3); padding-top: var(--sp-4); }
-.meta { color: var(--ink-lo); font: var(--t-data-weight) var(--t-data)/var(--t-data-lh) var(--face-data); letter-spacing: var(--t-data-tracking-tight); text-transform: uppercase; }
-.publication h3 { color: var(--ink-hi); font: 400 var(--t-figure)/var(--t-figure-lh) var(--face-display); letter-spacing: -0.015em; text-wrap: balance; }
-.publication h3 a { color: inherit; text-decoration: none; }
-.publicationBody > p:not(.meta) { color: var(--ink); font-size: var(--t-small); line-height: var(--t-small-lh); }
-.read, .collectionLink { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: var(--control-h); width: fit-content; color: var(--ink-hi); font-size: var(--t-small); text-decoration: none; box-shadow: inset 0 calc(-1 * var(--line-w)) 0 var(--gold-line-strong); }
-.read span, .collectionLink span { transition: transform var(--dur-base) var(--ease-out); }
-.read:hover span, .collectionLink:hover span { transform: translateX(.25em); }
-.legacy { display: grid; grid-template-columns: minmax(16rem, 1fr) minmax(0, 1.7fr); gap: var(--sp-8); align-items: start; }
-.legacyIntro, .history > div { display: grid; gap: var(--sp-4); }
-.legacyIntro > p:last-of-type, .history > div > p:nth-of-type(2) { max-width: 42ch; color: var(--ink); font-size: var(--t-lede); line-height: var(--t-lede-lh); }
-.peopleList { border-top: var(--line-w) solid var(--line); list-style: none; }
-.peopleList li { border-bottom: var(--line-w) solid var(--line); }
-.peopleList a { display: grid; grid-template-columns: minmax(0, 1fr) minmax(12rem, .8fr); gap: var(--sp-4); padding: var(--sp-4) 0; color: var(--ink-hi); text-decoration: none; }
-.peopleList span { font: 400 var(--t-figure)/var(--t-figure-lh) var(--face-display); }
-.peopleList small { align-self: center; color: var(--ink-lo); font: var(--t-data-weight) var(--t-data)/var(--t-data-lh) var(--face-data); letter-spacing: var(--t-data-tracking-tight); }
-.legacy .collectionLink { grid-column: 1; }
-.history { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--sp-8); }
-.history ol { list-style: none; border-top: var(--line-w) solid var(--line); }
-.history li { border-bottom: var(--line-w) solid var(--line); }
-.history li a { display: grid; grid-template-columns: 3rem 1fr; gap: var(--sp-3); padding: var(--sp-4) 0; color: var(--ink-hi); font: 400 var(--t-figure)/var(--t-figure-lh) var(--face-display); text-decoration: none; }
-.history li span { color: var(--gold-hi); font: var(--t-data-weight) var(--t-data)/var(--t-data-lh) var(--face-data); letter-spacing: var(--t-data-tracking); }
-.hub a:focus-visible { outline: var(--focus-outline); outline-offset: var(--focus-offset); }
+
+.hub {
+  --hub-gutter: clamp(var(--sp-4), 4vw, var(--sp-8));
+  width: min(100%, calc(100rem + (var(--hub-gutter) * 2)));
+  margin: 0 auto;
+  padding: var(--sp-4) var(--hub-gutter) var(--sp-9);
+}
+
+/* ── Shared: kicker, section head, links ───────────────────────────────── */
+
+.kicker {
+  margin: 0;
+  color: var(--gold-hi);
+  font-family: var(--face-navigation);
+  font-size: var(--t-kicker, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Kicker over heading on the left, the count beside them, the door to
+   everything at the far edge so the first two read as one phrase. */
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2) var(--sp-5);
+  margin-bottom: var(--sp-5);
+}
+
+.sectionHead > div {
+  display: grid;
+  gap: var(--sp-2);
+}
+
+.sectionHead h2 {
+  max-width: none;
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
+  text-wrap: balance;
+}
+
+.sectionCount {
+  margin: 0;
+  color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+.sectionCount > [data-numeric] {
+  color: var(--ink);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  font-variant-numeric: tabular-nums;
+}
+
+.sectionHead > .sectionLink { margin-inline-start: auto; }
+
+.read,
+.sectionLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  width: fit-content;
+  min-height: var(--control-h);
+  color: var(--ink-hi);
+  font-size: var(--t-small);
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  box-shadow: inset 0 calc(-1 * var(--line-w)) 0 var(--gold-line-strong);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.sectionLink {
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  box-shadow: none;
+}
+
+.read > span,
+.sectionLink > span {
+  display: inline-block;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.read:hover { box-shadow: inset 0 calc(-1 * var(--line-w)) 0 currentColor; }
+.read:hover > span,
+.sectionLink:hover > span { transform: translateX(0.25em); }
+
 .hub a:hover { color: var(--gold-hi); }
-@media (max-width: 70rem) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 46rem) { .sectionHead, .legacy, .history { grid-template-columns: 1fr; gap: var(--sp-5); } .grid { grid-template-columns: 1fr; } .peopleList a { grid-template-columns: 1fr; gap: var(--sp-2); } .legacy .collectionLink { grid-column: auto; } }
+.hub a:focus-visible { outline: var(--focus-outline); outline-offset: var(--focus-offset); }
+.hub a:active { color: var(--gold); }
+
+.hub h2 a,
+.hub h3 a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+/* ── The opening band: profiles ────────────────────────────────────────── */
+
+.courage {
+  padding-block: var(--sp-7) var(--sp-8);
+}
+
+.profiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-6);
+  align-items: start;
+}
+
+.profile {
+  display: grid;
+  gap: var(--sp-4);
+  align-content: start;
+  min-width: 0;
+  padding-top: var(--sp-4);
+  border-top: var(--line-w) solid var(--line);
+}
+
+/* The featured record is distinguished by one step of type and nothing else
+   — the same rule `/our-heroes` keeps — because the page's subject is people
+   and a box around one of them would make the hierarchy a matter of
+   packaging. */
+.profile[data-featured] h3 { font-size: clamp(1.75rem, 1.3rem + 1.4vw, 2.375rem); }
+
+.portrait {
+  display: grid;
+  gap: var(--sp-2);
+  min-width: 0;
+  margin: 0;
+}
+
+.portrait img {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: var(--radius-2);
+  border: var(--line-w) solid var(--line);
+}
+
+/* The credit is a machine value under a picture; the disclosure, when there
+   is one, is the first line and reads as a label. */
+.portrait figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-3);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  overflow-wrap: anywhere;
+}
+
+.disclosure {
+  flex-basis: 100%;
+  color: var(--gold-hi);
+  font-family: var(--face-navigation);
+  font-size: var(--t-kicker, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.profileBody {
+  display: grid;
+  gap: var(--sp-2);
+  align-content: start;
+}
+
+.profile h3 a {
+  /* UX-11: the name is the profile's one link; padding, not height, so a
+     long name still wraps. */
+  display: inline-block;
+  padding-block: 0.5rem;
+  margin-block: -0.5rem;
+}
+
+.profile h3 {
+  max-width: none;
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 1.875rem);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.profileMeta {
+  margin: 0;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking-tight);
+}
+
+.profileSummary {
+  max-width: 48ch;
+  margin: var(--sp-1) 0 var(--sp-2);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+/* ── The editorial grid: records + history ─────────────────────────────── */
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--sp-8) clamp(var(--sp-7), 5vw, var(--sp-9));
+  padding-top: var(--sp-7);
+  border-top: var(--line-w) solid var(--line-strong);
+}
+
+.records,
+.history { min-width: 0; }
+
+.history {
+  padding-inline-start: clamp(var(--sp-6), 4vw, var(--sp-8));
+  border-inline-start: var(--line-w) solid var(--line);
+}
+
+.recordList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--line-w) solid var(--line);
+}
+
+.record {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-5);
+  padding-block: var(--sp-5);
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+/* The row is one column until a picture arrives; a list that reserves space
+   for an image it has not got reads as a broken layout rather than a plain
+   one. */
+.recordWithMedia { grid-template-columns: minmax(0, 1fr) auto; }
+
+.recordBody {
+  display: grid;
+  gap: var(--sp-2);
+  align-content: start;
+  min-width: 0;
+}
+
+.recordMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-3);
+  margin: 0;
+}
+
+.recordMeta time {
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.record h3 {
+  max-width: 28ch;
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: clamp(1.375rem, 1.1rem + 0.9vw, 1.75rem);
+  font-weight: 400;
+  line-height: 1.18;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.recordSummary {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+.record .read { margin-top: var(--sp-1); }
+
+.recordImage {
+  align-self: start;
+  inline-size: 9rem;
+  overflow: hidden;
+  border-radius: var(--radius-1);
+  border: var(--line-w) solid var(--line);
+  background: var(--surface-1);
+}
+
+.recordImage img {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.empty {
+  max-width: 52ch;
+  margin: 0;
+  padding-block: var(--sp-5);
+  border-top: var(--line-w) solid var(--line);
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.records > .sectionLink { margin-top: var(--sp-4); }
+
+.historyLede {
+  max-width: 36ch;
+  margin: 0 0 var(--sp-5);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+.chapters {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--line-w) solid var(--line);
+}
+
+.chapters li { border-bottom: var(--line-w) solid var(--line); }
+
+.chapters a {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: var(--sp-3);
+  align-items: baseline;
+  min-height: var(--control-h);
+  padding-block: var(--sp-3);
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-figure);
+  font-weight: 400;
+  line-height: var(--t-figure-lh);
+  text-decoration: none;
+}
+
+.chapters span {
+  color: var(--gold-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  font-variant-numeric: tabular-nums;
+}
+
+.history > .sectionLink { margin-top: var(--sp-5); }
+
+/* ── Seams ─────────────────────────────────────────────────────────────── */
+
+@media (max-width: 63.99rem) {
+  .columns { grid-template-columns: minmax(0, 1fr); gap: var(--sp-8); }
+  .history {
+    padding-inline-start: 0;
+    padding-top: var(--sp-7);
+    border-inline-start: 0;
+    border-top: var(--line-w) solid var(--line-strong);
+  }
+  .profiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .profile[data-featured] { grid-column: 1 / -1; }
+}
+
+@media (max-width: 45rem) {
+  .hub { padding-inline: var(--sp-4); }
+  .courage { padding-block: var(--sp-6) var(--sp-7); }
+  .profiles { grid-template-columns: minmax(0, 1fr); gap: var(--sp-5); }
+  .profile[data-featured] { grid-column: auto; }
+  .sectionHead { gap: var(--sp-2) var(--sp-4); }
+  .sectionHead > .sectionLink { margin-inline-start: 0; flex-basis: 100%; }
+  .recordWithMedia { grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-4); }
+  .recordImage { inline-size: 6rem; }
+  .record h3 { max-width: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .read,
+  .read > span,
+  .sectionLink > span,
+  .hub h2 a,
+  .hub h3 a { transition: none; }
+  .read:hover > span,
+  .sectionLink:hover > span { transform: none; }
+}

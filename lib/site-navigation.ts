@@ -17,6 +17,13 @@ export interface SiteNavigationItem {
   tone: "signal" | "archive" | "ember" | "action";
 }
 
+/**
+ * The descriptions are the decided words of
+ * `docs/audits/2026-09-08-copy-table.md` (UX-02): second person, one verb the
+ * reader performs, one thing they get. Until 2026-09-08 News promised "war
+ * updates" three days after the section was removed, and Fake Resistance a
+ * "daily X review" that no route, section or component was ever called.
+ */
 export const SITE_NAVIGATION: readonly SiteNavigationItem[] = [
   {
     id: "geopolitical-brief",
@@ -24,7 +31,7 @@ export const SITE_NAVIGATION: readonly SiteNavigationItem[] = [
     displayName: "News & Analysis",
     href: "/geopolitical-brief",
     description:
-      "News, war updates and deeper analysis — the developments, their context and the sources behind them.",
+      "What happened, with the sources behind every line.",
     emblem: "/emblems/geopolitical-brief.svg",
     tone: "signal",
   },
@@ -34,7 +41,7 @@ export const SITE_NAVIGATION: readonly SiteNavigationItem[] = [
     displayName: "We Are",
     href: "/we-are",
     description:
-      "The network behind the desk: how a claim gets checked, who checks it, and the rules that bind them.",
+      "Who checks what, and the rules that bind them.",
     emblem: "/emblems/we-are.svg",
     tone: "action",
   },
@@ -44,7 +51,7 @@ export const SITE_NAVIGATION: readonly SiteNavigationItem[] = [
     displayName: "October 7",
     href: "/october-7",
     description:
-      "Help the record travel. Find testimony and documentation to share with their original context.",
+      "Testimony and documentation, with their original context, ready to share.",
     emblem: "/emblems/october-7.svg",
     tone: "archive",
   },
@@ -54,7 +61,7 @@ export const SITE_NAVIGATION: readonly SiteNavigationItem[] = [
     displayName: "The People of Israel",
     href: "/people-of-israel",
     description:
-      "People, courage, invention and history — with cited records that remain available at their original addresses.",
+      "Courage, invention and history — the people the narrative leaves out, with sources.",
     emblem: "/emblems/our-heroes.svg",
     tone: "archive",
   },
@@ -64,7 +71,7 @@ export const SITE_NAVIGATION: readonly SiteNavigationItem[] = [
     displayName: "Fake Resistance",
     href: "/fake-resistance",
     description:
-      "False narratives, incitement and the daily X review — follow the claims, their sources and the findings.",
+      "The claims in circulation, what they were built from, and the sourced version to carry back.",
     emblem: "/emblems/fake-resistance.svg",
     tone: "ember",
   },
@@ -73,7 +80,7 @@ export const SITE_NAVIGATION: readonly SiteNavigationItem[] = [
     label: "SUPPORT US",
     displayName: "Support Us",
     href: "/support-us",
-    description: "Report a claim for checking, offer the desk a skill it needs, or help sustain the work.",
+    description: "Report a claim, lend a skill, or fund the work.",
     emblem: "/emblems/support-us.svg",
     tone: "action",
   },

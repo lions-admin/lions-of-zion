@@ -16,7 +16,6 @@ import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site-config";
    entirely — see the note at the top of `app/tailwind.css`. */
 import "./tailwind.css";
 import "./globals.css";
-import { PublicAskDock } from "@/components/ask/PublicAskDock";
 import { PublicSessionProvider } from "@/components/auth/PublicSessionProvider";
 import { Analytics } from "@vercel/analytics/next";
 
@@ -165,13 +164,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             still rendered on the server — it arrives here as a prop, so this
             client boundary does not pull the pages into the client bundle. */}
         <PublicSessionProvider>{children}</PublicSessionProvider>
-        {/* Mounted here rather than in `SiteHeader` because it is fixed to the
-            viewport, not to the chrome: a reader four paragraphs into an
-            article can ask about what is in front of them without losing their
-            place. The header's link to `/ask` was removed when this arrived —
-            two controls to the same desk, one of which cost the reader their
-            scroll position, was the worse of the pair to keep. */}
-        <PublicAskDock />
+        {/* The Ask launcher used to be mounted here as a viewport-fixed pill,
+            on the argument that a reader four paragraphs into an article
+            could ask without losing their place. It covered content on every
+            audited route (UX-07) and gave the cover a different bar from every
+            other page (UX-08). It lives in `SiteHeader` now — the bar is fixed
+            too, so the argument still holds, and there is nothing left to
+            cover the footer with. */}
         <Analytics />
       </body>
     </html>

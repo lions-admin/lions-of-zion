@@ -171,6 +171,12 @@
 
 .sourceLabel,
 .sourceBody a {
+  /* UX-11: the source link is the record's proof; it gets a 44px target
+     without a 44px row (negative block margin returns the line). */
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--control-h);
+  margin-block: calc((var(--control-h) - 1.5em) / -2);
   width: fit-content;
   max-width: 100%;
   color: var(--ink-hi);

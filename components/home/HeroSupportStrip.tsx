@@ -1,16 +1,29 @@
 import { DONATION_CHANNELS, type DonationChannelId } from "@/lib/donation-channels";
-import styles from "@/app/home.module.css";
+import styles from "./homepage-journey.module.css";
 
 const COMPACT_LABEL: Record<DonationChannelId, string> = {
   paypal: "PayPal",
   buymeacoffee: "Buy a coffee",
 };
 
-/** Direct provider links, grouped as one quiet support invitation on the cover. */
+/**
+ * Direct provider links as one slim, one-line rail at the close of the first
+ * band — after the news, before the narratives.
+ *
+ * It was the cover's last block (owner ruling, 2026-09-07) and it cost the
+ * phone cover 44px plus its margin before a single story had been read. The
+ * owner's amendment to UX-13 moved it rather than removing it: the reader has
+ * seen the lead and its companion by the time this rail arrives, which is
+ * what "after the reader has seen what it pays for" asks. The links stay
+ * plain provider URLs, take no arrow of their own — the external glyph is the
+ * chrome's mark for leaving — and load no script; `lib/donation-channels.ts`
+ * carries that reasoning. `HomeSupportSection` is still the edition's close
+ * and the header's *Support Us* is still the way in from anywhere.
+ */
 export function HeroSupportStrip() {
   return (
-    <nav className={styles.supportStrip} aria-label="Sustain the work">
-      <span className={styles.supportLabel}>Support the desk</span>
+    <nav className={styles.supportStrip} aria-label="Support the work">
+      <span className={styles.supportLabel}>Support the work</span>
       <ul className={styles.supportList}>
         {DONATION_CHANNELS.map((channel) => (
           <li key={channel.id}>

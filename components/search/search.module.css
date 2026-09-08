@@ -72,6 +72,16 @@
    system, which is how a second one starts. */
 .panel[data-variant="page"] {
   inline-size: 100%;
+
+  /* An opaque plate on the page's own ground colour, so a scan row ends at
+     the panel's edge instead of passing under a result (UX-25). The overlay
+     has `--surface-1` for this; the page had nothing. Padding and a matching
+     negative margin bleed the plate past the text without moving the text —
+     every child of the page variant keeps `padding-inline: 0` below, so the
+     column still lines up with the title above it. */
+  background-color: var(--ground);
+  padding-inline: var(--sp-4);
+  margin-inline: calc(var(--sp-4) * -1);
 }
 
 /* ── The query row ────────────────────────────────────────────────────── */
@@ -450,7 +460,10 @@
 
 /* ── Footer ───────────────────────────────────────────────────────────── */
 
-/* The keyboard grammar, and since VA-17 nothing else. */
+/* The keyboard grammar, and since VA-17 nothing else. `--t-caption` (13px),
+   not the data face's 12px step: it is a legend a reader is meant to read,
+   and 13px is the floor UX-CONTRACT sets for metadata below the desktop
+   breakpoint (UX-28). */
 .foot {
   display: flex;
   align-items: center;
@@ -460,8 +473,8 @@
   padding: var(--sp-3) var(--sp-5);
   border-top: var(--line-w) solid var(--line-soft);
   font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
   color: var(--ink-lo);
 }
 
@@ -575,9 +588,9 @@
 /* The labelled FieldShell stays in the page so a no-JS reader can see the
    control and the noscript index together. Chips, the pulse, and the key
    hints do nothing without a script, so they go — the whole footer now, since
-   the hints are all it holds. `.resultStatus` stays: with no script it states
-   which matcher the deployment has, which is exactly the sentence the footer
-   used to carry here. */
+   the hints are all it holds. `.resultStatus` renders nothing in the idle
+   state since UX-28, so there is nothing of it to hide; the page's own
+   `<noscript>` block says why the field will not query. */
 @media (scripting: none) {
   .suggestions,
   .pulse,

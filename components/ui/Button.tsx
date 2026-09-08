@@ -3,9 +3,25 @@ import Link from "next/link";
 import styles from "./button.module.css";
 
 /**
- * Product control. Documented variants: primary, secondary, ghost, text,
- * danger. `solid`, `toolbar`, and `filter` remain as mapped aliases so
- * existing callers typecheck.
+ * Product control.
+ *
+ * One hierarchy, decided once (UX-32, 2026-09-08) and read on every surface:
+ *
+ *   `primary`    solid — the single primary action on a task surface: the
+ *                Ask send, a support card's action, a share sheet's first
+ *                button. One per surface; a second solid button is a second
+ *                primary action, which is a design error rather than a style.
+ *   `secondary`  outline — the secondary action beside it. Alias: `outline`.
+ *   `text`       link — navigation and quiet in-flow actions, set as an
+ *                underlined link. Alias: `link`.
+ *   `ghost`      chrome — toolbar and masthead controls that borrow the
+ *                surface they sit on.
+ *   `danger`     destructive, always outlined in the danger hue and never
+ *                the only cue.
+ *
+ * `solid`, `toolbar` and `filter` remain as mapped aliases so existing
+ * callers typecheck; `outline` and `link` are the hierarchy's own names for
+ * `secondary` and `text`, added so a caller can say what it means.
  */
 export type ButtonVariant =
   | "primary"
@@ -13,6 +29,8 @@ export type ButtonVariant =
   | "ghost"
   | "text"
   | "danger"
+  | "outline"
+  | "link"
   | "solid"
   | "toolbar"
   | "filter";
@@ -33,6 +51,13 @@ const VARIANT_CLASS: Record<ButtonVariant, string> = {
   ghost: styles.ghost,
   text: styles.text,
   danger: styles.danger,
+  outline: styles.secondary,
+  link: styles.text,
+  /* `solid` predates the hierarchy and was mapped to the *secondary* plate,
+     which is the opposite of what the word says today. It keeps that mapping
+     on purpose: the callers that wrote it were asking for a neutral plate,
+     not for the one primary action, and re-reading them as primary would put
+     several solid buttons on one surface. New code says `primary`. */
   solid: styles.secondary,
   toolbar: styles.toolbar,
   filter: styles.filter,
@@ -132,6 +157,45 @@ function ariaPressedFor(
   return Boolean(props.isActive);
 }
 
+/**
+ * The inside of a button, shared by both elements.
+ *
+ * A busy control keeps its width. The label and the icons stay in the flow
+ * and are hidden by the stylesheet (`visibility`, not `display`), and the
+ * spinner is laid over the centre — so "Send" does not narrow to a 1em dot
+ * and back while the request is out, which is the layout shift §11 forbids.
+ * Until 2026-09-08 the spinner *replaced* the left icon, which changed the
+ * width of every busy button that had no icon to replace.
+ */
+function ButtonBody({
+  isLoading,
+  leftIcon,
+  rightIcon,
+  children,
+}: Pick<CommonButtonProps, "isLoading" | "leftIcon" | "rightIcon" | "children">) {
+  return (
+    <>
+      {leftIcon ? (
+        <span className={styles.icon} aria-hidden="true">
+          {leftIcon}
+        </span>
+      ) : null}
+      <span className={styles.content}>{children}</span>
+      {rightIcon ? (
+        <span className={styles.icon} aria-hidden="true">
+          {rightIcon}
+        </span>
+      ) : null}
+      {isLoading ? (
+        <>
+          <span className={styles.spinner} aria-hidden="true" />
+          <span className={styles.srOnly}>Loading</span>
+        </>
+      ) : null}
+    </>
+  );
+}
+
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   function Button(props, ref) {
     const {
@@ -166,20 +230,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         {...rest}
       >
-        {isLoading ? (
-          <span className={styles.spinner} aria-hidden="true" />
-        ) : leftIcon ? (
-          <span className={styles.icon} aria-hidden="true">
-            {leftIcon}
-          </span>
-        ) : null}
-        {isLoading ? <span className={styles.srOnly}>Loading</span> : null}
-        <span className={styles.content}>{children}</span>
-        {!isLoading && rightIcon ? (
-          <span className={styles.icon} aria-hidden="true">
-            {rightIcon}
-          </span>
-        ) : null}
+        <ButtonBody isLoading={isLoading} leftIcon={leftIcon} rightIcon={rightIcon}>
+          {children}
+        </ButtonBody>
       </button>
     );
   },
@@ -212,22 +265,9 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
     );
 
     const body = (
-      <>
-        {isLoading ? (
-          <span className={styles.spinner} aria-hidden="true" />
-        ) : leftIcon ? (
-          <span className={styles.icon} aria-hidden="true">
-            {leftIcon}
-          </span>
-        ) : null}
-        {isLoading ? <span className={styles.srOnly}>Loading</span> : null}
-        <span className={styles.content}>{children}</span>
-        {!isLoading && rightIcon ? (
-          <span className={styles.icon} aria-hidden="true">
-            {rightIcon}
-          </span>
-        ) : null}
-      </>
+      <ButtonBody isLoading={isLoading} leftIcon={leftIcon} rightIcon={rightIcon}>
+        {children}
+      </ButtonBody>
     );
 
     const shared = {

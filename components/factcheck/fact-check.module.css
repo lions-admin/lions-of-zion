@@ -200,6 +200,12 @@
 }
 
 .entryLink a {
+  /* UX-11: a 44px target inside a short line — padding is the hit area,
+     the negative block margin gives the line back. */
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--control-h);
+  margin-block: calc((var(--control-h) - 1.5em) / -2);
   color: var(--ink-hi);
   text-decoration: none;
 }
@@ -216,6 +222,12 @@
 }
 
 .permalink a {
+  /* UX-11: a 44px target inside a short line — padding is the hit area,
+     the negative block margin gives the line back. */
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--control-h);
+  margin-block: calc((var(--control-h) - 1.5em) / -2);
   color: var(--ink-hi);
   text-decoration: underline;
   text-decoration-color: var(--line-strong);

@@ -231,6 +231,14 @@
   color: var(--ink-lo);
 }
 
+.title a {
+  /* UX-11: a title link is a standalone control; padding, not height, so
+     a two-line title still wraps naturally. */
+  display: inline-block;
+  padding-block: 0.5rem;
+  margin-block: -0.5rem;
+}
+
 .title {
   font-family: var(--face-display);
   font-optical-sizing: auto;

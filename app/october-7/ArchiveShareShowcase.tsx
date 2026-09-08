@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { useId, useState } from "react";
 import { XMediaPostButton } from "@/components/archive/XMediaPostButton";
-import { ShareControls } from "@/components/support/ShareControls";
+import { ShareSheet } from "@/components/content/ShareSheet";
+import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import styles from "./page.module.css";
 
@@ -31,15 +32,18 @@ export type ArchiveShareSample = {
   } | null;
 };
 
-function subscribeMotion(update: () => void) {
-  const query = window.matchMedia("(prefers-reduced-motion: reduce)");
-  query.addEventListener("change", update);
-  return () => query.removeEventListener("change", update);
-}
-const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const serverMotion = () => true;
-const ROTATION_MS = 12000;
-
+/**
+ * One featured record from an archive, and the one way to share it (UX-22).
+ *
+ * Until 2026-09-08 this rotated on a twelve-second clock and laid five share
+ * controls under each card — ten solid and outlined buttons on the memorial
+ * destination, and an auto-advancing carousel of testimonies, which is the
+ * wrong motion for the subject. The clock is gone, not paused: the arrows are
+ * the only way the selection changes, so a reader is never moved off an
+ * account they are still reading. Sharing is one control that opens the
+ * app-owned sheet with every target inside it — copy, the system sheet, X,
+ * Facebook, and the original file where the archive holds one.
+ */
 export function ArchiveShareShowcase({
   kind, samples, count, detail,
 }: {
@@ -49,45 +53,28 @@ export function ArchiveShareShowcase({
   detail: string;
 }) {
   const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [visible, setVisible] = useState(false);
-  const reduced = useSyncExternalStore(subscribeMotion, prefersReducedMotion, serverMotion);
-  const root = useRef<HTMLElement>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const slideId = useId();
   const isStory = kind === "testimony";
-  const label = isStory ? "story" : "record";
-  const running = !paused && !reduced && visible && samples.length > 1;
+  const label = isStory ? "testimony" : "record";
   const sample = samples[index];
   const headingId = isStory ? "featured-survivor-story" : "featured-documented-record";
   const archiveHref = isStory ? "/october-7/testimonies" : "/october-7/documentation";
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: 0.25 });
-    if (root.current) observer.observe(root.current);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!running) return;
-    const timer = window.setInterval(() => {
-      if (!document.hidden) setIndex((current) => (current + 1) % samples.length);
-    }, ROTATION_MS);
-    return () => window.clearInterval(timer);
-  }, [running, samples.length]);
-
   function move(direction: number) {
-    setPaused(true);
     setIndex((current) => (current + direction + samples.length) % samples.length);
   }
 
   return (
-    <section ref={root} className={styles.archiveFeature} data-kind={kind} aria-labelledby={headingId}>
+    <section className={styles.archiveFeature} data-kind={kind} aria-labelledby={headingId}>
       <header className={styles.featureHeading}>
         <p className={styles.eyebrow}>{isStory ? "Featured testimony" : "Featured source record"}</p>
         <h2 id={headingId}>{isStory ? "Featured survivor story" : "Featured documented record"}</h2>
         <p>{isStory ? "A first-person account selected from the testimony archive." : "A preserved record selected from the documentation archive."}</p>
-        <Link className={styles.browseLink} href={archiveHref}>
-          Browse all {count} {isStory ? "stories" : "records"} <Icon name="arrow-right" size={18} />
+        {/* UX-05 / UX-23. The verb table's hub link. The count it used to
+            carry is printed once, on the collection card above. */}
+        <Link className={styles.browseLink} href={archiveHref} aria-label={`All ${count} ${isStory ? "survivor stories" : "documented records"}`}>
+          All {isStory ? "survivor stories" : "documented records"} <Icon name="arrow-right" size={18} />
         </Link>
         <span className={styles.archiveDetail}>{detail}</span>
       </header>
@@ -100,31 +87,17 @@ export function ArchiveShareShowcase({
                 <button type="button" onClick={() => move(-1)} aria-label={`Previous ${label}`} aria-controls={slideId}>
                   <Icon name="arrow-right" size={17} className={styles.previousIcon} />
                 </button>
-                {/* VA-55. Under reduced motion this was a permanently disabled
-                    button reading "Manual" — a word describing the system's mode
-                    rather than the reader's, on a control that cannot be
-                    pressed. A disabled button is still a target someone reaches
-                    for, so there is no button here at all now: the state is
-                    stated once, and the arrows either side stay live. Nothing
-                    re-enables rotation for a reader who asked for less of it. */}
-                {reduced ? (
-                  <span className={styles.rotationState}>Rotation off</span>
-                ) : (
-                  <button type="button" className={styles.pauseButton}
-                    onClick={() => setPaused((value) => !value)}
-                    aria-label={paused ? `Resume automatic ${label} rotation` : `Pause automatic ${label} rotation`}>
-                    {paused ? "Resume" : "Pause"}
-                  </button>
-                )}
-                <button type="button" onClick={() => move(1)} aria-label={`Next ${label}`} aria-controls={slideId}>
-                  <Icon name="arrow-right" size={17} />
+                <button type="button" className={styles.nextButton} onClick={() => move(1)} aria-controls={slideId}>
+                  {isStory ? "More testimony" : "More records"} <Icon name="arrow-right" size={17} />
                 </button>
               </div>
             )}
           </div>
-          <div id={slideId} className={styles.sample} onFocusCapture={() => setPaused(true)}
-            onPointerEnter={() => setPaused(true)} onPointerDown={() => setPaused(true)}>
-            <div className={styles.sampleReading} aria-live={running ? "off" : "polite"} aria-atomic="true">
+          {/* Polite, because every change here is the reader's own: the
+              region announces the account they just asked for, and nothing
+              else ever changes it. */}
+          <div id={slideId} className={styles.sample}>
+            <div className={styles.sampleReading} aria-live="polite" aria-atomic="true">
               <div className={styles.sampleType}>
                 <Icon name={isStory ? "actor" : sample.medium === "video" ? "film" : sample.medium === "image" ? "photo" : "document"} size={22} />
                 <span>{isStory ? sample.witness ?? "First-person testimony" : sample.medium === "video" ? "Video record" : sample.medium === "image" ? "Photographic record" : "Archive record"}</span>
@@ -143,17 +116,33 @@ export function ArchiveShareShowcase({
               </p>
             </div>
             <Link className={styles.readLink} href={sample.href}>
-              {isStory ? "Read the full story" : "Open record with a warning"} <Icon name="arrow-right" size={18} />
+              {isStory ? "Read the testimony" : "Open with a content warning"} <Icon name="arrow-right" size={18} />
             </Link>
             <div className={styles.shareSample}>
-              <p className={styles.shareLabel}>{isStory ? "Share this survivor’s story" : "Share this documented record"}</p>
-              <ShareControls
+              {/* The one solid fill on this page. */}
+              <Button
+                type="button"
+                variant="primary"
+                size="md"
+                leftIcon={<Icon name="share" size={16} />}
+                aria-haspopup="dialog"
+                aria-expanded={sheetOpen}
+                onClick={() => setSheetOpen(true)}
+              >
+                {isStory ? "Share this testimony" : "Share this record"}
+              </Button>
+              <ShareSheet
                 key={sample.id}
+                open={sheetOpen}
+                onClose={() => setSheetOpen(false)}
+                title={isStory ? "Share this testimony" : "Share this record"}
+                description={isStory
+                  ? "The link carries the account, its source and its date. Footage stays covered until it is opened."
+                  : "The link carries the record, its source and its date. Graphic media stays behind the warning."}
                 url={sample.url}
-                title={sample.title}
+                shareTitle={sample.title}
                 text={sample.shareText}
-                copyVariant="primary"
-                copyLabel={isStory ? "Copy story to share" : "Copy record to share"}
+                copyLabel={isStory ? "Copy the testimony to share" : "Copy the record to share"}
                 actions={sample.xMedia ? <XMediaPostButton {...sample.xMedia} returnTo={sample.href} /> : undefined}
                 targets={[
                   { label: "Post on X", href: sample.xHref },
@@ -162,9 +151,6 @@ export function ArchiveShareShowcase({
               />
             </div>
           </div>
-          <p className={styles.rotationNote}>
-            {reduced ? "Use the arrows to explore more." : paused ? "Paused while you explore. Resume when you’re ready." : "A new selection every 12 seconds. Pause to take your time."}
-          </p>
         </>
       ) : (
         <p className={styles.emptySample}>No preview is available. <Link href={archiveHref}>Browse the archive</Link>.</p>

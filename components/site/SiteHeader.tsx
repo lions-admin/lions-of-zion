@@ -144,10 +144,10 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
    * `known` is true only when the server actually answered. While the check is
    * in flight, and after one that failed, the identities are null — and reading
    * that as "signed out" would greet a signed-in reader with an invitation to
-   * sign in because a request timed out. So "Sign in" is spoken only on
-   * `known`, and every other state falls back to the neutral sentence that is
-   * true in all of them: `Account`, linking to the page that owns recovery.
-   * No error text and no retry button live up here; the bar stays quiet.
+   * sign in because a request timed out. So the identities are read only on
+   * `known`, and the word is the neutral sentence that is true in every state:
+   * `Account`, linking to the page that owns sign-in and recovery. No error
+   * text and no retry button live up here; the bar stays quiet.
    *
    * Google wins over X when both are signed in. The two are separate accounts
    * and are not merged — the account page shows them side by side — but this
@@ -161,14 +161,25 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
   const identity = session.known ? (session.google ?? session.x) : null;
   const initials = publicInitials(identity);
   const signedInAs = publicDisplayName(identity);
-  const accountLabel = session.known && !identity ? "Sign in" : ACCOUNT_LINK.label;
+  /* Always `Account`, in every state — including `known` and signed out.
+     Until 2026-09-08 the label became "Sign in" once the check answered, and
+     because the server render cannot know, that was a word changing in the
+     chrome about a second after paint on every signed-out page load (UX-03).
+     The neutral sentence is true in all four states, the account page says
+     the rest, and `ACCOUNT_LINK.description` already says what signing in is
+     for. `known` still decides whether the mark may show initials. */
+  const accountLabel = ACCOUNT_LINK.label;
 
   const renderMenuLink = (link: ChromeLink, primary = false) => (
     <Link key={link.href} href={link.href}
       className={primary ? styles.primaryMenuLink : styles.secondaryMenuLink}
       aria-current={current(link.href) ? "page" : undefined} onClick={closePanels}>
       <span className={styles.menuLinkTitle}>{link.label}</span>
-      <span className={styles.menuLinkArrow} aria-hidden="true">↗︎</span>
+      {/* → and not ↗: every destination here is on this site. ↗ is the
+          glyph readers know as "leaves the site" and the footer's PayPal and
+          coffee links use it that way; it was on every internal link too until
+          2026-09-08 (UX-09). */}
+      <span className={styles.menuLinkArrow} aria-hidden="true">→</span>
       <span className={styles.menuLinkDescription}>{link.description}</span>
     </Link>
   );
@@ -194,11 +205,11 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
         </nav>
         <nav className={styles.menuTools} aria-label="Search and conversation">
           <Link href="/search" onClick={closePanels}>Search</Link>
-          <Link href="/ask" onClick={closePanels}>Ask the desk <span aria-hidden="true">↗︎</span></Link>
+          <Link href="/ask" onClick={closePanels}>Ask the desk</Link>
         </nav>
       </div>
       <Link href={SUPPORT_LINK.href} className={styles.menuSupport} onClick={closePanels}>
-        Support the work <span aria-hidden="true">↗︎</span>
+        Support the work <span aria-hidden="true">→</span>
       </Link>
     </div>
   );
@@ -213,7 +224,7 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
       <div className={styles.bar}>
         <Link href="/" className={styles.brand} onClick={closePanels}>
           <span className={styles.brandName}>Lions of Zion</span>
-          <span className={styles.brandRole}>Evidence desk</span>
+          <span className={styles.brandRole}>Evidence, not narratives</span>
         </Link>
 
         <nav className={styles.barNav} aria-label="Sections">
@@ -231,8 +242,11 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
         </nav>
 
         <div className={styles.utility}>
+          {/* The two tools, on every route. Ask was in this slot on the cover
+              only and a viewport-fixed pill everywhere else until 2026-09-08;
+              see `AskDock` for why one home won (UX-07, UX-08). */}
           <div className={styles.deskActions}>
-            {home && <AskDock home />}
+            <AskDock current={activeSection === "ask"} />
             <SearchLauncher variant="icon" className={styles.deskSearch} />
           </div>
           <Button

@@ -172,7 +172,9 @@ describe("influence investigations", () => {
     listPublicPublications.mockRejectedValue(new Error("no database"));
     const markup = await render(await HubPage());
     expect(markup).toContain("Influence investigations are temporarily unavailable");
-    expect(markup).toMatch(/Influence investigations<\/dt><dd>Unavailable</);
+    /* UX-15 moved the count from the masthead rail into the section head. A
+       failed read prints no count there at all — never a `0`. */
+    expect(markup).not.toMatch(/Influence operations<\/h2><p[^>]*><span[^>]*>\d+<\/span> (?:<!-- -->)?investigation/);
   });
 });
 
@@ -181,11 +183,12 @@ describe("/fake-resistance hub — the live branch card", () => {
     listPublicPublications.mockResolvedValue([]);
     listBriefingPublications.mockResolvedValue([sourcedWatch, analysisWatch]);
     const markup = await render(await HubPage());
-    /* The hub states the live count in its masthead facts and links onward to
-       the archive. It must read the live projection, never the hand-reviewed
-       case files — conflating the two is the upgrade this desk does not do. */
+    /* The hub states the live count beside the section head (UX-15 moved it
+       out of the masthead rail) and links onward to the archive. It must read
+       the live projection, never the hand-reviewed case files — conflating
+       the two is the upgrade this desk does not do. */
     expect(markup).toContain("On the watch");
-    expect(markup).toMatch(/On the watch<\/dt><dd>2</);
+    expect(markup).toMatch(/On the watch<\/h2><p[^>]*><span[^>]*>2<\/span> (?:<!-- -->)?records/);
     expect(markup).toContain("/fake-resistance/watch");
     expect(markup).toContain("Published monitoring. Not a live scan.");
   });
@@ -199,7 +202,6 @@ describe("/fake-resistance hub — the live branch card", () => {
        reads settle to `[]` on failure, so an unguarded `items.length` would
        state "0" as fact beside a body that says the feed is unavailable. */
     expect(markup).toContain("Monitoring is temporarily unavailable");
-    expect(markup).toMatch(/On the watch<\/dt><dd>Unavailable</);
-    expect(markup).not.toMatch(/On the watch<\/dt><dd>0</);
+    expect(markup).not.toMatch(/On the watch<\/h2><p[^>]*><span[^>]*>\d+<\/span> (?:<!-- -->)?record/);
   });
 });

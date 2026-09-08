@@ -212,7 +212,7 @@ export function SearchPanel({
       return <p className={styles.notice}>Type at least two characters to search.</p>;
     }
     if (state === "loading" && !hits.length) {
-      return <p className={styles.notice}>Searching the index…</p>;
+      return <p className={styles.notice}>Searching…</p>;
     }
     if (state === "no-results") {
       return <PanelEmpty query={answered} semantic={semantic} />;
@@ -230,12 +230,12 @@ export function SearchPanel({
 
   /* The count and the matcher, rendered above the list — see `resultStatus`
      in `vocabulary.ts` for why they are not in the footer any more. */
-  const status = resultStatus(state, hits.length, answered, semantic);
+  const status = resultStatus(state, hits.length, answered);
 
   return (
     <div className={styles.panel} data-variant={variant} data-search-state={state}>
       <div className={styles.queryRow}>
-        <FieldShell fieldId={inputId} label="Search the corpus" className={styles.queryField}>
+        <FieldShell fieldId={inputId} label="Search the site" className={styles.queryField}>
           <div className={styles.queryControl}>
             <input
               ref={inputRef}
@@ -262,7 +262,6 @@ export function SearchPanel({
               <Button
                 type="button"
                 variant="ghost"
-                size="sm"
                 iconOnly
                 aria-label="Clear search"
                 onClick={() => {
@@ -356,8 +355,8 @@ function PanelPrimer({ recents, onPick }: { recents: string[]; onPick: (query: s
   return (
     <div className={styles.primer}>
       <p>
-        This searches what the desk has published — briefs, analyses and updates — and the
-        claims behind them. Names and transliterations match even when spelled differently.
+        Stories, investigations, claims and the sources behind them. Names and
+        transliterations match even when spelled differently.
       </p>
       {recents.length > 0 ? (
         <SuggestionChips
@@ -408,35 +407,46 @@ function SuggestionChips({
   );
 }
 
+/* The one place the matcher is described (UX-28). A reader who got nothing
+   can act on "a paraphrase will miss"; a reader looking at eight results, or
+   at "Searching…", could not, so the sentence is not rendered there. */
 function PanelEmpty({ query, semantic }: { query: string; semantic: boolean }) {
   return (
     <StatusState
       status="empty"
       className={styles.status}
       eyebrow="SEARCH"
-      title={`Nothing in the index matches “${query}”.`}
+      title={`No matches for “${query}”.`}
       description={
         semantic
-          ? "Try fewer words, or the name of a person or place."
-          : "This deployment matches words and names rather than meaning, so a paraphrase will miss. Try the words as they would appear in the text, or a name."
+          ? "Try a name, a place or a claim."
+          : "Try a name, a place or a claim. This deployment matches words and names rather than meaning, so a paraphrase will miss."
       }
     />
   );
 }
 
+/* A 429 shows two sentences of its own and nothing from the response. The
+   API's `detail` names the ceiling and the window — an operator's sentence,
+   and the audit (UX-27) found it rendered under this title with an HTTP
+   status in it. A reader has one thing to do with a rate limit, and it is
+   in the body; `useSearch` keeps the typed query, so nothing is lost. Every
+   other failure keeps the API's `detail`, which is written for a person and
+   carries no status code (`fallbackDetail` in `http.ts`).
+   The status is read as well as the code: the API nests its body under
+   `error` (`server/http/responses.ts`) while `requestJson` reads the code
+   from the top level, so a real 429 arrived here as `UNKNOWN` and took the
+   generic branch — which is how the audit saw an HTTP line under a search
+   box. The status is the one fact that survives any parse. */
 function PanelProblem({ problem, onRetry }: { problem: ApiProblem; onRetry: () => void }) {
-  const limited = problem.code === "RATE_LIMITED";
+  const limited = problem.code === "RATE_LIMITED" || problem.status === 429;
   return (
     <StatusState
       status="error"
       className={styles.status}
       eyebrow="SEARCH"
       title={limited ? "Too many searches, too fast." : "The search failed."}
-      description={
-        limited
-          ? `${problem.detail} Wait a moment and search again — nothing is lost.`
-          : problem.detail
-      }
+      description={limited ? "Wait a few seconds and search again." : problem.detail}
       actionText={limited ? undefined : "Try again"}
       onAction={limited ? undefined : onRetry}
     />

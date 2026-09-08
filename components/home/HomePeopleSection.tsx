@@ -15,10 +15,10 @@ export function HomePeopleSection({ people, heroes, history }: {
     <div className={styles.peopleStack}>
     {live.length ? <div className={styles.featureSpread}>{live.map((item, index) => <article key={item.key} data-rank={rankOf(index)}>
       <HomeMedia media={item.media} portrait={item.category === 'People' || item.category === 'Courage & Service'} />
-      <div><p className={styles.kicker}>{item.category}</p><h3>{item.title}</h3><p className={styles.summary}><PreviewText text={item.summary} budget={PREVIEW_BUDGET[rankOf(index)]} /></p><HomeSources sources={item.sources} /><JourneyLink href={item.href}>Read the record</JourneyLink></div>
+      <div><p className={styles.kicker}>{item.category}</p><h3>{item.title}</h3><p className={styles.summary}><PreviewText text={item.summary} budget={PREVIEW_BUDGET[rankOf(index)]} /></p><HomeSources sources={item.sources} />{/* UX-05: the verb is derived from the record's section (`cta`); a snapshot serialized before the field existed reads it as the story it is. */}<JourneyLink href={item.href}>{item.cta ?? "Read the story"}</JourneyLink></div>
     </article>)}</div> : null}
     {heroes.items.length ? <div className={styles.legacyPeople}><p className={styles.kicker}>Courage &amp; service</p><div className={styles.peopleSpread}>{heroes.items.map((item, index) => <article key={item.key} data-rank={rankOf(index)}>
-      <HomeMedia media={item.media} portrait /><div className={styles.personIntro}><p className={styles.kicker}>{item.role}</p><h3>{item.title}</h3><p className={styles.meta}>{item.meta}</p></div><p className={styles.summary}><PreviewText text={item.summary} budget={PREVIEW_BUDGET[rankOf(index)]} /></p><HomeSources sources={item.sources} /><JourneyLink href={item.href}>Read the full story</JourneyLink>
+      <HomeMedia media={item.media} portrait /><div className={styles.personIntro}><p className={styles.kicker}>{item.role}</p><h3>{item.title}</h3><p className={styles.meta}>{item.meta}</p></div><p className={styles.summary}><PreviewText text={item.summary} budget={PREVIEW_BUDGET[rankOf(index)]} /></p><HomeSources sources={item.sources} />{/* UX-05: a person profile — "Read their story". */}<JourneyLink href={item.href}>Read their story</JourneyLink>
     </article>)}</div></div> : null}
     {history.items.length ? <div className={styles.contextShelf}><div><p className={styles.kicker}>History &amp; context</p><h3>Beyond the current headline</h3><p>Context remains part of the record. These chapters preserve their sources and their original addresses.</p></div><ol>{history.items.map(item => <li key={item.key}>
       <div><JourneyLink href={item.href}>{item.title}</JourneyLink>{item.contested ? <p className={styles.verdict} data-tone="warn"><span className={styles.verdictLabel}>Contested</span><span className={styles.verdictMeaning}>The chapter records disagreement; it does not settle it.</span></p> : null}</div>
@@ -26,7 +26,7 @@ export function HomePeopleSection({ people, heroes, history }: {
     </li>)}</ol></div> : null}
     {!live.length && !hasLegacy && people ? <SectionState section={people} /> : null}
     </div>
-    {/* VA-63. Three sections said "Explore X" and one said "View all X" for the same move — going to the whole desk. One verb: it states what happens, where "Explore" only sets a mood. */}
-      <SectionAction href="/people-of-israel">View all The People of Israel</SectionAction>
+    {/* UX-05. One form for going to the whole section: "All of <Section>" with the journey arrow. */}
+      <SectionAction href="/people-of-israel">All of The People of Israel</SectionAction>
   </section>;
 }

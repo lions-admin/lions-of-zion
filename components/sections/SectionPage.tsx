@@ -40,6 +40,8 @@ export interface SectionPageProps {
   title: string;
   /** Defaults to the node's `description`, the same sentence the hover card shows. */
   tagline?: string;
+  /** The journey step above the title — "The record" on October 7 (UX-02). */
+  kicker?: string;
   /** `muted`: the backdrop nearly holds its breath (October 7). */
   register?: 'default' | 'muted' | 'silent';
   /** `ember`: data accents take the hostile-stream ramp (Fake Resistance). */
@@ -73,6 +75,7 @@ export function SectionPage({
   id,
   title,
   tagline,
+  kicker,
   register = 'default',
   accent = 'gold',
   surface = 'default',
@@ -132,6 +135,7 @@ export function SectionPage({
 
         <article className={styles.panel} id="page-content">
           <header>
+            {kicker ? <p className={styles.kicker}>{kicker}</p> : null}
             <h1 className={styles.title}>{title}</h1>
             <p className={styles.lede}>{lede}</p>
             <div className={styles.ledeRule} aria-hidden="true" />

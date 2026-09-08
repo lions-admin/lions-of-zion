@@ -1,22 +1,8 @@
 /* October 7 is a hub before it is an explainer: archive entry comes first. */
-.archiveScale {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 10px;
-  margin: 0 0 clamp(32px, 5vw, 52px);
-  color: var(--ink-lo);
-  font: 400 12px/1.6 var(--face-data);
-  letter-spacing: .02em;
-}
-.archiveScale strong {
-  color: var(--ink-hi);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
 .eyebrow {
   margin: 0;
   color: var(--gold);
-  font: 400 11px/1.6 var(--face-data);
+  font: 400 13px/1.6 var(--face-data);
   letter-spacing: .09em;
   text-transform: uppercase;
 }
@@ -96,7 +82,7 @@
 }
 .entryKind {
   color: var(--gold);
-  font: 400 10px/1.5 var(--face-data);
+  font: 400 13px/1.5 var(--face-data);
   letter-spacing: .1em;
   text-transform: uppercase;
 }
@@ -114,7 +100,7 @@
 }
 .entryCount {
   color: var(--ink-lo);
-  font: 400 11px/1.6 var(--face-data);
+  font: 400 13px/1.6 var(--face-data);
   letter-spacing: .04em;
   text-transform: uppercase;
   font-variant-numeric: tabular-nums;
@@ -192,7 +178,7 @@
 .archiveDetail {
   display: block;
   color: var(--ink-lo);
-  font: 400 12px/1.6 var(--face-data);
+  font: 400 13px/1.6 var(--face-data);
   margin-bottom: 24px;
 }
 .rotationControls {
@@ -210,6 +196,7 @@
   font: 400 11px/1.4 var(--face-data);
 }
 .sampleCount {
+  font-size: 13px;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
@@ -229,21 +216,13 @@
   background: transparent;
   cursor: pointer;
 }
-.rotationControls .pauseButton {
-  width: 62px;
-  font: 500 12px/1.4 var(--face-text);
-}
-/* VA-55. The reduced-motion state, where the pause button used to sit. It is
-   text rather than a control because there is nothing to press: rotation is off
-   and stays off. Sized to the button it replaces so the arrows either side do
-   not shift when a reader's motion preference changes. */
-.rotationControls .rotationState {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 62px;
-  min-block-size: 44px;
-  color: var(--ink-lo);
+/* UX-22. The forward arrow carries the verb — "More testimony" — because it
+   is now the only thing that changes the selection; there is no clock and no
+   pause control for it to sit between. */
+.rotationControls .nextButton {
+  width: auto;
+  gap: 8px;
+  padding-inline: 12px 6px;
   font: 500 12px/1.4 var(--face-text);
 }
 
@@ -339,18 +318,6 @@
   padding-block: 10px;
 }
 .shareSample { padding-top: 2px; }
-.shareLabel {
-  margin: 0 0 12px;
-  color: var(--ink-hi);
-  font: 500 15px/1.5 var(--face-text);
-}
-.rotationNote {
-  margin: 4px 0 0;
-  max-width: 42ch;
-  color: var(--ink-lo);
-  font-size: 12px;
-  line-height: 1.5;
-}
 .emptySample {
   padding-block: 24px;
   font-size: 15px;
@@ -368,10 +335,6 @@
   border-top: 1px solid var(--line);
   color: var(--ink-lo);
   font: 400 12px/1.65 var(--face-text);
-}
-.sharingNote strong {
-  color: var(--ink);
-  font-weight: 500;
 }
 .categoryBrowser {
   margin-top: 18px;
@@ -473,10 +436,6 @@
 .record ol > li:last-child { padding-bottom: 4px; }
 
 @media (max-width: 760px) {
-  .archiveScale {
-    gap: 4px 8px;
-    margin-bottom: 32px;
-  }
   .archiveEntries {
     grid-template-columns: 1fr;
   }
@@ -519,12 +478,6 @@
 }
 
 @media (max-width: 480px) {
-  .archiveScale span[aria-hidden="true"] {
-    display: none;
-  }
-  .archiveScale > span:not([aria-hidden="true"]) {
-    width: 100%;
-  }
   .explorerHeading h2 { font-size: 32px; }
   .featureHeading h2 { font-size: 31px; }
   .categoryBrowser summary > span {
@@ -554,9 +507,10 @@
   .archiveEntry:active { transform: none; }
 }
 
+/* With scripting off the arrows and the share control do nothing; the
+   share sheet prints its intent links in a <noscript> beside the control. */
 @media (scripting: none) {
   .rotationControls,
-  .rotationNote,
   .shareSample :global(button) {
     display: none;
   }

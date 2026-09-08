@@ -114,7 +114,7 @@ const GROUND_PEAK = composite([246, 243, 235], 0.055, GROUND_EDGE);
 
 /* ------------------------------------------- the numbers, read from source */
 
-/** `opacity: calc(0.1 * var(--register, 1) * var(--scan-intensity, 1))`. */
+/** `opacity: calc(0.2 * var(--register, 1) * var(--scan-intensity, 1))`. */
 const ROW_OPACITY_CEILING = (() => {
   const m = sections.match(/opacity:\s*calc\(([\d.]+)\s*\*\s*var\(--register/);
   if (!m) throw new Error("no row opacity ceiling in sections.module.css");
@@ -306,10 +306,16 @@ describe("reduced motion composes a frame instead of freezing one", () => {
 
 describe("composited contrast — the scan against real content, not the hero title", () => {
   it("reads its constants out of the stylesheet rather than restating them", () => {
-    expect(ROW_OPACITY_CEILING).toBeCloseTo(0.1, 5);
+    /* 0.2, 0.85 and 0.75 since UX-25 (2026-09-08); they were 0.1, 0.7 and
+       0.45. Under the old three a muted desk page composited its rows at
+       0.0225 unmasked, which at 1440 read as a grey smear at the page edges
+       rather than as a line of text. The AA cases below are what bound the
+       new numbers from above; this pin is what stops them drifting quietly
+       in either direction. */
+    expect(ROW_OPACITY_CEILING).toBeCloseTo(0.2, 5);
     expect(MASK_DIM).toBeCloseTo(0.25, 5);
-    expect(registerMultiplier("surfaceQuiet")).toBeCloseTo(0.7, 5);
-    expect(registerMultiplier("registerMuted")).toBeCloseTo(0.45, 5);
+    expect(registerMultiplier("surfaceQuiet")).toBeCloseTo(0.85, 5);
+    expect(registerMultiplier("registerMuted")).toBeCloseTo(0.75, 5);
     /* The brightest thing the backdrop paints is a loud verified row, in
        `--ink`. Every threshold below is computed against that row. */
     expect(sections).toMatch(/\.rowLoud\.rowVerified \{ color: var\(--ink\); \}/);
@@ -384,8 +390,9 @@ describe("composited contrast — the scan against real content, not the hero ti
 
   /**
    * The floor of the range, recorded rather than enforced. A muted
-   * institution page composites at 0.0135 unmasked and 0.0034 through the mask —
-   * deliberately subdued to keep reading surfaces quiet.
+   * institution page composites at 0.045 unmasked and 0.0113 through the mask —
+   * subdued to keep reading surfaces quiet, but no longer below the point
+   * where a row stops reading as text (UX-25: it was 0.0135 and 0.0034).
    * This pins that it is the faintest combination the map can produce, so a
    * future edit that makes something quieter still has to say so here.
    */
@@ -396,7 +403,7 @@ describe("composited contrast — the scan against real content, not the hero ti
       masked: false,
       ground: GROUND_EDGE,
     });
-    expect(faintest.alpha).toBeCloseTo(0.0135, 4);
+    expect(faintest.alpha).toBeCloseTo(0.045, 4);
     for (const profile of [...Object.values(FAMILY_SCAN_PROFILES), HOME_SCAN_PROFILE]) {
       expect(profile.intensity).toBeGreaterThanOrEqual(
         FAMILY_SCAN_PROFILES.institution.intensity,

@@ -46,7 +46,7 @@ export function AskComposer({
   disabled,
   hint,
   label = "Your question",
-  placeholder = "What does the desk hold on…",
+  placeholder = "Ask about a claim, a video, a source…",
   seed,
 }: AskComposerProps) {
   const [value, setValue] = useState("");

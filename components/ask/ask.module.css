@@ -756,32 +756,40 @@
   }
 }
 
-/* Compact article launcher; the homepage uses its header entry instead. */
+/* ---- The launcher, in the masthead ----
+ *
+ * One control in one place: the utility cluster of `SiteHeader`, on every
+ * route and at every width. This rule was `position: fixed` bottom-right on
+ * every non-home page until 2026-09-08, with a second, differently-shaped
+ * `.homeDockTrigger` for the cover's bar; the fixed pill covered the footer's
+ * "Back to the top", a lead headline and an article's hero at 390px (UX-07),
+ * and the two shapes gave the site two headers (UX-08). Both are this rule
+ * now. It speaks the bar's grammar — a 44px transparent control, no plate —
+ * and the gold ring on the glyph is the one thing that says "this is the
+ * desk's tool, not another page".
+ *
+ * The label shows only where the bar has room for it. Below 80rem the
+ * masthead is already carrying four destination names, Search, Menu, Support
+ * and Account, and a fifth word does not fit beside them; the label goes
+ * screen-reader-only and the glyph carries the control, the same contract
+ * `SearchLauncher`'s icon variant and the phone's Menu trigger use. */
 .dockTrigger {
-  position: fixed;
-  z-index: var(--z-sticky);
-  inset-block-end: calc(var(--dock-lift) + env(safe-area-inset-bottom, 0px));
-  inset-inline-end: calc(var(--sp-5) + env(safe-area-inset-right, 0px));
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  inline-size: max-content;
-  min-block-size: 44px;
-  padding: 0 14px;
-  gap: 8px;
-  border: var(--line-w) solid var(--control-line);
-  border-radius: var(--radius-home-chrome);
-  background: var(--ground);
-  box-shadow: var(--shadow-2);
+  gap: var(--sp-2);
+  min-inline-size: var(--control-h);
+  min-block-size: var(--control-h);
+  padding: 0 var(--sp-2);
+  border: 0;
+  border-radius: var(--radius-2);
+  background: transparent;
   color: var(--ink-hi);
   font: 500 13px/1 var(--face-navigation);
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .dockGlyph {
@@ -789,9 +797,15 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  inline-size: 20px;
-  block-size: 20px;
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  padding: 0.25rem;
+  border: var(--line-w) solid var(--gold-dim);
+  border-radius: var(--radius-pill);
   color: var(--gold);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
 
 .dockGlyph svg {
@@ -805,75 +819,51 @@
   line-height: 1;
 }
 
-.dockTrigger:hover:not(:disabled),
-.dockTrigger:focus-visible:not(:disabled) {
-  border-color: var(--gold);
-  background: var(--surface-3);
+.dockTrigger:hover,
+.dockTrigger[aria-expanded="true"] {
   color: var(--gold-hi);
 }
 
-.dockTrigger:focus-visible {
-  outline: var(--line-w-thick) solid var(--gold-hi);
-  outline-offset: var(--sp-1);
+.dockTrigger:hover .dockGlyph,
+.dockTrigger[aria-expanded="true"] .dockGlyph {
+  border-color: var(--gold);
 }
 
-.dockTrigger:active:not(:disabled) {
-  background: var(--gold);
+/* On `/ask` the control is the page it is on: current, and quiet. */
+.dockTrigger[aria-current="page"] {
+  cursor: default;
+}
+
+.dockTrigger[aria-current="page"] .dockGlyph {
   border-color: var(--gold);
+  background: var(--gold-wash);
+}
+
+.dockTrigger:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
+}
+
+.dockTrigger:active .dockGlyph {
+  background: var(--gold);
   color: var(--ground);
 }
 
-.dockTrigger:active:not(:disabled) .dockGlyph {
-  color: inherit;
-}
+@media (max-width: 80rem) {
+  .dockLabel {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
 
-@media (min-width: 48rem) {
-  .dockTrigger { inset-block-end: calc(var(--sp-7) + env(safe-area-inset-bottom, 0px)); }
-}
-/* Static HTML can precede pathname hydration: never show a second homepage launcher. */
-html:has([id="home-wordmark"]) .dockTrigger { display: none; }
-
-/* Header slot on the homepage: the lens stays available without covering content. */
-.homeDockTrigger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  min-width: 44px;
-  height: 44px;
-  padding: 0 8px;
-  border: 0;
-  background: transparent;
-  color: var(--ink-hi);
-  font: 500 12px/1 var(--face-text);
-  text-decoration: none;
-  cursor: pointer;
-}
-.homeDockTrigger .dockGlyph {
-  width: 26px;
-  height: 26px;
-  border: 1px solid var(--gold-dim);
-  border-radius: 50%;
-  padding: 4px;
-}
-.homeDockTrigger .dockLabel { letter-spacing: 0; padding: 0; white-space: nowrap; }
-.homeDockTrigger:hover { color: var(--gold); }
-.homeDockTrigger:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-@media (max-width: 48rem) {
-  .homeDockTrigger { padding: 0 6px; gap: 5px; }
-  .homeDockTrigger .dockGlyph { width: 23px; height: 23px; }
-}
-@media (max-width: 380px) {
-  .homeDockTrigger { flex-direction: column; gap: 3px; padding: 0 5px; font-size: 11px; }
-  .homeDockTrigger .dockGlyph { width: 20px; height: 20px; padding: 2px; border: 0; }
-}
-/* The architecture diagram retains its unobscured, in-flow launcher. */
-@media (max-width: 1100px) {
-  html:has([id="war-heading"]) .dockTrigger {
-    position: relative;
-    inset: auto;
-    display: flex;
-    margin: 0 var(--sp-5) calc(var(--sp-5) + env(safe-area-inset-bottom, 0px)) auto;
+  .dockTrigger {
+    padding: 0;
   }
 }
 

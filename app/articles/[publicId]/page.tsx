@@ -10,7 +10,6 @@ import {
   publicationHomepageSection,
   publicationHubCrumb,
   publicationParentCrumb,
-  publicationSectionLabel,
   publicationSupportsInvestigationExplorer,
   routePublication,
   SECTIONS_BY_HOMEPAGE_SECTION,
@@ -32,7 +31,9 @@ import {
   VERIFICATION_STATES,
 } from "@/components/live/publication-labels";
 import {
+  ActivationBand,
   CorrectionHistory,
+  hasSubstantiveCorrections,
   KnownUnknownPanel,
   PublicationMeta,
   SourceList,
@@ -47,7 +48,6 @@ import { EditorialShell } from "@/components/site/EditorialShell";
 import { Badge, type BadgeStatus, BADGE_GRAMMAR } from "@/components/ui/Badge";
 import { Breadcrumb } from "@/components/site/Breadcrumb";
 import { InvestigationExplorer } from "@/components/evidence/InvestigationExplorer";
-import { ShareControls } from "@/components/support/ShareControls";
 import { Card, CardDescription, CardEyebrow, CardTitle } from "@/components/ui/Card";
 import styles from "./article.module.css";
 
@@ -223,6 +223,17 @@ export default async function ArticlePage({ params }: Props) {
       }));
   const articleUrl = `${SITE_URL}/articles/${article.publicId}`;
   const shareText = article.summary ?? article.title;
+  /* Day precision: the version number tells two same-day entries apart, and
+     the copy table's line is "Illustration attached · {date}", not a clock. */
+  const correctionEntries = article.corrections.map((correction) => ({
+    date: formatDay(correction.changedAt),
+    note: correction.summary,
+    version: `v${correction.version}`,
+  }));
+  const substantiveCorrections = hasSubstantiveCorrections(correctionEntries);
+  const kickerFacets = [article.arena, article.primaryActor]
+    .filter((facet): facet is string => Boolean(facet))
+    .map(words);
   /* Whether this record may be staged as an investigation is derived from its
      section in `lib/publication-routing.ts` — the same place hub, route,
      homepage band and label come from. There is deliberately no section list
@@ -317,6 +328,14 @@ export default async function ArticlePage({ params }: Props) {
             {article.featuredIsraelStory ? (
               <Badge variant="gold">Featured Israel story</Badge>
             ) : null}
+            {/* UX-21. Arena and actor were two of seven mono labels in a grid
+                above the fold; here they read as the story's dateline — "West
+                Bank · Benjamin Netanyahu" — beside the section. The editorial
+                topic is a machine facet ("defense policy and programs") and is
+                dropped from the reader's view rather than relabelled. */}
+            {kickerFacets.length ? (
+              <span className={styles.kickerFacets}>{kickerFacets.join(" · ")}</span>
+            ) : null}
           </div>
           <h1>{article.title}</h1>
           {article.summary ? <p className={styles.summary}>{article.summary}</p> : null}
@@ -330,42 +349,6 @@ export default async function ArticlePage({ params }: Props) {
             updatedAt={article.updatedAt !== article.publishedAt ? formatDate(article.updatedAt) : undefined}
             authorship={PUBLICATION_PROVENANCE[publicationProvenance(article)].label}
             sourceCount={sourceState === "listed" || sourceState === "unsourced" ? article.sources.length : undefined}
-          />
-          {article.editorialTopic || article.primaryActor || article.arena ? (
-            <dl className={styles.factsExtra}>
-              {article.editorialTopic ? (
-                <div>
-                  <dt>Topic</dt>
-                  <dd>{words(article.editorialTopic)}</dd>
-                </div>
-              ) : null}
-              {article.primaryActor ? (
-                <div>
-                  <dt>Primary actor</dt>
-                  <dd>{words(article.primaryActor)}</dd>
-                </div>
-              ) : null}
-              {article.arena ? (
-                <div>
-                  <dt>Arena</dt>
-                  <dd>{words(article.arena)}</dd>
-                </div>
-              ) : null}
-            </dl>
-          ) : null}
-        </section>
-
-        <section className={styles.share} aria-label="Share this record">
-          <ShareControls
-            url={articleUrl}
-            title={article.title}
-            text={shareText}
-            lead="Share the sourced record, including its date and context."
-            copyLabel="Copy the sourced record"
-            targets={[
-              { label: "Share on X", href: xIntentUrl(shareText, articleUrl) },
-              { label: "Facebook", href: facebookShareUrl(articleUrl) },
-            ]}
           />
         </section>
 
@@ -466,7 +449,7 @@ export default async function ArticlePage({ params }: Props) {
             is the disclosure, not a gap in the page. If such a record ever does
             carry sources, they are shown normally rather than denied. */}
         {sourceState === "analysis" ? (
-          <section className={styles.sources}>
+          <section className={styles.sources} id="sources">
             <h2>Why this record cites no source</h2>
             <p>
               This is Lions of Zion&rsquo;s own assessment, published deliberately without a
@@ -475,7 +458,7 @@ export default async function ArticlePage({ params }: Props) {
             </p>
           </section>
         ) : (
-          <section className={styles.sources}>
+          <section className={styles.sources} id="sources">
             <h2>Public sources</h2>
             {sourceState === "listed" ? (
               <ol className={styles.sourceStack}>
@@ -525,6 +508,44 @@ export default async function ArticlePage({ params }: Props) {
           </section>
         ) : null}
 
+        {/* UX-06 / UX-20. The ending, in order: the proof above, then what to
+            do with it, then what changed, then where to read next. The share
+            bar that sat between the dossier and the first paragraph until
+            2026-09-08 lives inside this band now, behind one control. An
+            analysis record has no source list to trace, so the band opens
+            with sharing instead. */}
+        <ActivationBand
+          className={styles.activation}
+          sourcesHref={sourceState === "listed" ? "#sources" : undefined}
+          share={{
+            url: articleUrl,
+            title: article.title,
+            text: shareText,
+            targets: [
+              { label: "Share on X", href: xIntentUrl(shareText, articleUrl) },
+              { label: "Facebook", href: facebookShareUrl(articleUrl) },
+            ],
+          }}
+        />
+
+        {article.corrections.length ? (
+          /* UX-04. A substantive correction gets the heading; a history that
+             is only attachments — the audited record's three versions all
+             attached an illustration or a source stack and said so — is one
+             quiet line each, with every note kept verbatim behind the
+             disclosure. The classification is `classifyCorrection`'s. */
+          <section
+            className={styles.corrections}
+            aria-label={substantiveCorrections ? undefined : "Version history"}
+          >
+            {substantiveCorrections ? <h2>Corrections and updates</h2> : null}
+            <CorrectionHistory
+              variant="record"
+              corrections={correctionEntries}
+            />
+          </section>
+        ) : null}
+
         {/* VA-50. "Related coverage" was fed by `publication_related`, which
             `linkRelated` writes for the siblings of a batch — the other records
             of the same daily edition. That is a fact about how a record was
@@ -532,7 +553,7 @@ export default async function ArticlePage({ params }: Props) {
             an actual field with this record, and says which one; when nothing
             does, the reader is sent to the desk rather than shown filler. */}
         <section className={styles.related}>
-          <h2>Continue the record</h2>
+          <h2>Keep reading</h2>
           {continuations.length ? (
             <ul className={styles.relatedList}>
               {continuations.map((next) => (
@@ -546,23 +567,15 @@ export default async function ArticlePage({ params }: Props) {
               ))}
             </ul>
           ) : null}
+          {/* UX-05 / UX-11. The verb table's hub link, on a target that clears
+              44px: it was a bare 22px line at the foot of every article. */}
           <p className={styles.relatedSubhead}>
-            <Link href={desk.href}>Everything on {desk.label}</Link>
+            <Link className={styles.deskLink} href={desk.href}>
+              All of {desk.label} <span aria-hidden="true">→</span>
+            </Link>
           </p>
         </section>
 
-        {article.corrections.length ? (
-          <section className={styles.corrections}>
-            <h2>Corrections and updates</h2>
-            <CorrectionHistory
-              corrections={article.corrections.map((correction) => ({
-                date: formatDate(correction.changedAt),
-                note: correction.summary,
-                version: `v${correction.version}`,
-              }))}
-            />
-          </section>
-        ) : null}
       </article>
     </EditorialShell>
   );
@@ -672,6 +685,10 @@ function wordSimilarity(first: string, second: string): number {
 
 function formatSourceDate(value: string): string {
   return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(value));
+}
+
+function formatDay(value: string): string {
+  return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "Asia/Jerusalem" }).format(new Date(value));
 }
 
 function formatDate(value: string): string {

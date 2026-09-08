@@ -18,7 +18,9 @@
 /* Contents connects the cover to the first record. */
 .edition { display: grid; grid-template-columns: 1fr auto; gap: 14px 32px; align-items: baseline; padding-block: 18px 0; }
 .editionLine { margin: 0; font: 400 clamp(24px, 2.4vw, 35px)/1.15 var(--face-display); letter-spacing: -.025em; }
-.editionDate { color: var(--ink-lo); font: 400 12px/1.6 var(--face-data); text-align: end; }
+/* 13px, not 12px: a date is metadata, and the contract floors metadata at
+   13px on a phone. No phone override shrinks it again (UX-10). */
+.editionDate { color: var(--ink-lo); font: 400 13px/1.6 var(--face-data); text-align: end; }
 .contents { grid-column: 1/-1; display: flex; flex-wrap: wrap; align-items: center; gap: 0 clamp(16px, 2vw, 30px); padding-block: 7px; border-bottom: 1px solid var(--journey-rule); }
 .contents a { display: inline-flex; align-items: center; min-height: 44px; font-size: 13px; line-height: 1.3; text-decoration: none; }
 .contents a:hover { color: var(--gold); }
@@ -32,7 +34,10 @@
 .editorial { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "head action" "intro intro" "spread spread" "state state"; column-gap: 24px; align-items: end; }
 .sectionHead { grid-area: head; margin-bottom: 24px; }
 .sectionHead h2 { font-size: var(--journey-title); line-height: 1.03; margin: 8px 0 0; }
-.kicker { margin: 0 0 10px; color: var(--ink-lo); font: 400 13px/1.6 var(--face-text); letter-spacing: .015em; }
+/* Section labels take the site's kicker size (`--t-kicker`, UX-31); the
+   fallback is the same 13px they were set at, so nothing depends on the token
+   landing first. */
+.kicker { margin: 0 0 10px; color: var(--ink-lo); font: 400 var(--t-kicker, 0.8125rem)/1.6 var(--face-text); letter-spacing: .015em; }
 .editorial > .sectionAction { grid-area: action; justify-self: end; margin: 0 0 24px; }
 .editorial > .sectionIntro { grid-area: intro; }
 .editorial > :is(.newsSpread, .narrativeSpread, .archiveSpread, .peopleSpread, .historySpread, .peopleStack) { grid-area: spread; }
@@ -47,7 +52,7 @@
 .link:active { color: var(--gold-hi); }
 .sectionAction .link { font-size: 14px; border-bottom-color: transparent; }
 .sectionAction .link:hover { border-bottom-color: currentColor; }
-.meta { font: 400 12px/1.6 var(--face-data); color: var(--ink-lo); }
+.meta { font: 400 13px/1.6 var(--face-data); color: var(--ink-lo); }
 .byline { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin: 0 0 10px; }
 .byline > span { font-size: 13px; font-weight: 500; color: var(--gold); }
 .summary { max-width: 60ch; margin: 12px 0 0; color: var(--ink); font-size: 16px; line-height: 1.65; }
@@ -55,24 +60,45 @@
 .summary, .finding p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; }
 .context { max-width: 64ch; margin: 16px 0 0; color: var(--ink); font-size: 14px; line-height: 1.65; }
 .context { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; }
-.contextLabel, .finding > span { display: block; margin-bottom: 6px; color: var(--ink-lo); font: 500 12px/1.6 var(--face-text); }
-.sources { margin: 14px 0 6px; max-width: 72ch; color: var(--ink-lo); font-size: 13px; line-height: 1.55; overflow-wrap: anywhere; }
-.sources a { text-decoration-color: var(--journey-rule); text-underline-offset: 3px; }
+.contextLabel, .finding > span { display: block; margin-bottom: 6px; color: var(--ink-lo); font: 500 13px/1.6 var(--face-text); }
+/* UX-11. The source label is a standalone link in a 13px line, so its hit
+   area is padded to 44px — on the link, which an inline element takes without
+   changing its line box, and on the paragraph, which gives the padding back in
+   margin so the text does not move and the phone's clamp box (overflow:
+   hidden) still contains the padded target. */
+.sources { margin: 0 0 -8px; padding-block: 14px; max-width: 72ch; color: var(--ink-lo); font-size: 13px; line-height: 1.55; overflow-wrap: anywhere; }
+.sources a { padding-block: 14px; text-decoration-color: var(--journey-rule); text-underline-offset: 3px; }
 .sources a:hover { color: var(--ink-hi); }
 .availability { margin: 16px 0 0; max-width: 60ch; color: var(--ink-lo); font-size: 14px; line-height: 1.6; }
 
 /* The disclosure stays visible. Secondary provenance expands in place. */
 .figure { margin: 0 0 16px; }
-.figure img { display: block; width: 100%; height: auto; aspect-ratio: 16/10; object-fit: cover; background: var(--surface-1); }
-.figure figcaption { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 14px; margin-top: 8px; color: var(--ink-lo); font-size: 12px; line-height: 1.5; }
-.disclosure { color: var(--ink); font: 500 12px/1.6 var(--face-text); }
+/* UX-12. A lazy tile used to paint as a flat lighter rectangle until its
+   bytes arrived, which on this site reads as a broken image. The frame now
+   carries a tonal ground and, under the picture, the same disclosure the
+   caption prints — the image sits above both and simply covers them when it
+   lands (`next/image` keeps a pending `img` transparent, alt text included).
+   No JavaScript decides the swap and the geometry is the image's own
+   `aspect-ratio`, so nothing moves: CLS stays at 0. */
+.frame { position: relative; display: block; overflow: hidden; background: linear-gradient(160deg, var(--surface-2), var(--surface-0)); }
+.frame img { position: relative; z-index: 1; }
+.framePlaceholder { position: absolute; inset: auto 12px 10px; z-index: 0; color: var(--ink-lo); font: 500 13px/1.4 var(--face-text); }
+.figure img { display: block; width: 100%; height: auto; aspect-ratio: 16/10; object-fit: cover; }
+/* 13px, not 12px: the caption and its disclosure are the contract's own
+   example of a phone floor (UX-10). */
+.figure figcaption { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 14px; margin-top: 8px; color: var(--ink-lo); font-size: 13px; line-height: 1.5; }
+.disclosure { color: var(--ink); font: 500 13px/1.6 var(--face-text); }
 .captionText { display: block; max-width: 75ch; }
 .provenance { min-width: 0; }
-.provenance summary { width: fit-content; padding-block: 4px; cursor: pointer; text-decoration: underline; text-decoration-color: var(--journey-rule); text-underline-offset: 3px; }
+/* UX-11. The disclosure toggle and the credit links ("Image source", the
+   licence) are controls, so each takes a 44px hit area the same way `.sources`
+   does: padding on the control, the same amount given back in margin, so the
+   caption's rhythm is unchanged. */
+.provenance summary { width: fit-content; padding-block: 13px; margin-block: -9px; cursor: pointer; text-decoration: underline; text-decoration-color: var(--journey-rule); text-underline-offset: 3px; }
 .provenance[open] { flex-basis: 100%; }
-.provenance[open] summary { margin-bottom: 6px; }
-.credit { display: block; margin-top: 4px; }
-.credit a { text-underline-offset: 3px; text-decoration-color: var(--journey-rule); }
+.provenance[open] summary { margin-bottom: -3px; }
+.credit { display: block; padding-block: 14px; margin: -10px 0 -14px; }
+.credit a { padding-block: 14px; text-underline-offset: 3px; text-decoration-color: var(--journey-rule); }
 .figure[data-media-role="safe-cover"] .captionText { flex-basis: 100%; }
 
 /* Reporting: an open lead and a quieter companion column. */
@@ -86,6 +112,23 @@
 .newsSpread[data-count="1"] > article { display: grid; grid-template-columns: 1fr 1fr; gap: var(--journey-gap); }
 .newsBody { min-width: 0; }
 .newsBody h3 a { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; }
+
+/* The support rail (UX-13, owner-amended): one line between the news band's
+   close and the narratives' opening rule, so the ask comes after the first
+   value and before the second. The links stay direct and keep full touch
+   targets; there is no entrance motion, because a control that arrives
+   after the page is a control the reader saw appear. */
+.supportStrip { display: flex; align-items: center; flex-wrap: wrap; gap: 0 16px; min-height: 48px; padding-block: 2px; border-top: 1px solid var(--journey-rule); }
+.supportLabel { color: var(--ink-lo); font: italic 15px/1.3 var(--face-navigation-display); }
+.supportList { display: flex; align-items: center; margin: 0; padding: 0; list-style: none; }
+.supportList > li + li { position: relative; margin-left: 5px; padding-left: 6px; }
+.supportList > li + li::before { content: ""; position: absolute; left: 0; top: 16px; height: 12px; width: 1px; background: var(--line-strong); }
+.supportChip { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; padding-inline: 6px; border-radius: var(--radius-home-chrome); color: var(--gold); font: 500 13px/1 var(--face-navigation); text-decoration: none; white-space: nowrap; transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
+.supportChip > span:first-child { text-decoration: underline; text-decoration-color: var(--gold-line); text-underline-offset: 4px; }
+.supportChipArrow { font-size: 11px; }
+.supportChip:hover { background: var(--gold-wash); color: var(--gold-hi); }
+.supportChip:hover > span:first-child { text-decoration-color: currentColor; }
+.supportChip:active { background: color-mix(in srgb, var(--gold) 16%, transparent); }
 
 /* Research: status precedes the image and question. */
 .investigations { border-top: 1px solid var(--journey-rule); }
@@ -161,7 +204,7 @@
 .contextShelf ol { display: grid; align-content: start; margin: 0; padding: 0; border-top: 1px solid var(--journey-rule); list-style: none; }
 .contextShelf li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--sp-4); min-height: 54px; border-bottom: 1px solid var(--journey-rule); }
 .contextShelf .link { font-size: clamp(18px, 2vw, 25px); }
-.contextShelf li > span { color: var(--ink-lo); font: 400 10px/1.4 var(--face-data); letter-spacing: .06em; }
+.contextShelf li > span { color: var(--ink-lo); font: 400 13px/1.4 var(--face-data); letter-spacing: .06em; }
 
 /* One proof of method: the source-counting test, its one interaction, and the
    two doors out. The five-stage walkthrough, the two branch explanations and
@@ -181,15 +224,18 @@
 .echoSequence { position: relative; list-style: none; margin: 0; padding: 0; }
 .echoSequence::before { content: ""; position: absolute; top: 38px; bottom: 56px; left: 13px; width: 1px; background: var(--journey-rule); transition: background-color 300ms; }
 .echoSequence li { position: relative; padding: 20px 0 18px 48px; }
-.echoSequence header { display: flex; align-items: center; min-height: 24px; color: var(--ink-lo); font: 400 11px/1.5 var(--face-data); text-transform: uppercase; letter-spacing: .08em; }
+.echoSequence header { display: flex; align-items: center; min-height: 24px; color: var(--ink-lo); font: 400 13px/1.5 var(--face-data); text-transform: uppercase; letter-spacing: .08em; }
 .echoStep { position: absolute; left: 0; top: 28px; display: grid; place-items: center; width: 27px; height: 24px; background: var(--ground); color: var(--ink-lo); letter-spacing: 0; transition: color 300ms; }
 .echoSequence blockquote { margin: 14px 0 12px; max-width: 26ch; color: var(--ink-hi); font: 400 clamp(24px, 2.4vw, 35px)/1.25 var(--face-text); letter-spacing: -.025em; }
 .echoSequence mark { background: transparent; color: inherit; text-decoration: underline; text-decoration-color: var(--gold-dim); text-decoration-thickness: 1px; text-underline-offset: 5px; transition: color 300ms; }
 .echoSequence .echoHeadline blockquote { font-family: var(--face-display); font-size: clamp(30px, 3.1vw, 45px); line-height: 1.1; }
 .echoAnnotation { min-height: 3.2em; margin: 0; max-width: 48ch; color: var(--ink-lo); font-size: 13px; line-height: 1.6; }
 .echoReading { align-self: stretch; margin-top: 20px; padding-left: var(--journey-gap); border-left: 1px solid var(--journey-rule); }
-.echoResult { min-height: 376px; }
-.echoNumeral { display: block; margin: -10px 0 12px -5px; color: var(--ink-hi); font: 400 clamp(100px, 12vw, 172px)/1 var(--face-display); letter-spacing: -.07em; transition: color 300ms; }
+/* The reservation is what stops the trace toggle shifting the page. It is
+   measured against the taller of the two readings — 174px at 1440 in both
+   states, 150px at 390 in the traced one — now that UX-14 has removed the
+   display numeral that sat above them and said the count a second time. */
+.echoResult { min-height: 184px; }
 .echoReading h4 { margin: 0 0 18px; font: 400 clamp(25px, 2.5vw, 36px)/1.1 var(--face-display); letter-spacing: -.025em; }
 .echoResult > p { max-width: 36ch; margin: 0; color: var(--ink); font-size: 15px; line-height: 1.7; }
 .echoTraceButton { display: inline-flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 48px; width: 100%; margin-top: 18px; padding: 12px 16px; border: 1px solid var(--gold-dim); background: transparent; color: var(--gold); font: 500 14px/1.4 var(--face-text); text-align: start; cursor: pointer; transition: background-color 180ms, border-color 180ms; }
@@ -199,7 +245,7 @@
 /* 13px, not the 12px it was, and no phone override under it: this is the
    band's caption line now, and the contract's floor for a caption is 13px. */
 .echoPrinciple { margin: 20px 0 0; color: var(--ink-lo); font: 400 13px/1.7 var(--face-data); }
-.amplification[data-traced="true"] .echoNumeral, .amplification[data-traced="true"] .echoStep { color: var(--gold); }
+.amplification[data-traced="true"] .echoStep { color: var(--gold); }
 .amplification[data-traced="true"] .echoSequence::before { background: var(--gold-dim); }
 .amplification[data-traced="true"] mark { color: var(--gold); }
 .amplification[data-traced="true"] .echoAnnotation { color: var(--ink); }
@@ -265,7 +311,7 @@
 @media (max-width: 759px) {
   .journey { --journey-inset: clamp(20px, 5vw, 32px); --journey-story: clamp(26px, 6.5vw, 34px); }
   .edition { grid-template-columns: 1fr; gap: 5px; padding-top: 12px; }
-  .editionDate { text-align: start; font-size: 11px; }
+  .editionDate { text-align: start; }
   .contents { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 14px; margin-top: 8px; padding-block: 6px; }
   .contents a { font-size: 13px; }
   .section { padding-block: 30px; }
@@ -274,8 +320,7 @@
   .sectionIntro { font-size: 15px; margin-bottom: 18px; }
   .summary { font-size: 16px; line-height: 1.6; }
   .context { font-size: 14px; margin-top: 14px; }
-  .sources { margin-top: 12px; }
-  .meta { font-size: 11px; }
+  .sources { margin-top: -2px; }
   .figure { margin-bottom: 14px; }
   .newsSpread > article, .newsSpread[data-count="1"] > article { display: block; }
   .newsSpread h3 { font-size: clamp(27px, 6.8vw, 35px); line-height: 1.15; }
@@ -301,8 +346,6 @@
   .peopleSpread article { column-gap: 20px; }
   .contextShelf { gap: var(--sp-5); }
   .personIntro h3 { font-size: clamp(27px, 6.5vw, 35px); }
-  .personIntro .kicker { font-size: 12px; }
-  .personIntro .meta { font-size: 12px; }
   .peopleSpread article + article { border-top: 1px solid var(--journey-rule); padding-top: 22px; }
   .historySpread { grid-template-columns: 1fr; gap: 26px; }
   .historySpread article + article { border-top: 1px solid var(--journey-rule); padding-top: 20px; }
@@ -325,8 +368,7 @@
      line length rather than the desktop's. */
   .echoAnnotation { min-height: 3.4em; }
   .echoReading { margin: 0; padding: 14px 0 0; border-left: 0; border-top: 1px solid var(--journey-rule); }
-  .echoResult { display: grid; grid-template-columns: 72px minmax(0, 1fr); column-gap: 22px; min-height: 176px; }
-  .echoNumeral { grid-row: span 2; margin: -6px 0 0; font-size: 92px; }
+  .echoResult { min-height: 156px; }
   .echoReading h4 { font-size: 29px; margin-bottom: 10px; }
   .echoResult > p { max-width: 48ch; }
   .echoTraceButton { margin-top: 12px; }
@@ -351,4 +393,5 @@
 @media (prefers-reduced-motion: reduce) {
   .journey *, .journey *::before, .journey *::after { animation: none !important; transition: none; scroll-behavior: auto; }
   .supportChannel:hover .supportChannelArrow { transform: none; }
+  .supportChip, .supportChipArrow { transition: none; }
 }

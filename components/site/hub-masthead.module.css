@@ -1,14 +1,15 @@
 /* Hub masthead · shared by the front routes.
  *
- * Grid: the headline block on the left, the edition facts on the right, and
- * a row of in-page jumps along the foot, closed by a strong rule. The rule is
- * the seam between "what this front is" and "what it holds today". */
+ * Grid: the headline block on the left, the status sentence at the right
+ * foot, and a row of in-page jumps along the foot, closed by a strong rule.
+ * The rule is the seam between "what this front is" and "what it holds
+ * today". */
 
 .masthead {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
   grid-template-areas:
-    "headline facts"
+    "headline status"
     "jumps jumps";
   align-items: end;
   gap: var(--sp-5) var(--sp-7);
@@ -27,11 +28,20 @@
 }
 
 .kicker {
-  composes: dataLabel from global;
+  /* A section label, not a machine value: sans caps at the kicker size, with
+     mono kept for dates and counts (UX-31). `--t-kicker` is defined in
+     `app/globals.css`; the fallback holds the size if the token is absent. */
   display: inline-flex;
   align-items: center;
   gap: var(--sp-3);
+  margin: 0;
   color: var(--gold);
+  font-family: var(--face-navigation);
+  font-size: var(--t-kicker, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .kicker::before {
@@ -65,45 +75,32 @@
   text-wrap: pretty;
 }
 
-/* ── Facts ─────────────────────────────────────────────────────────────── */
+/* ── Status ────────────────────────────────────────────────────────────── */
 
-.facts {
-  grid-area: facts;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: var(--sp-4) var(--sp-6);
+/* One sentence in the lede's voice, sitting on the same baseline as the
+   standfirst's last line. The instant inside it is a machine value and keeps
+   the data face; the words around it do not. */
+.status {
+  grid-area: status;
+  justify-self: end;
+  max-width: 28ch;
   margin: 0;
   padding-bottom: var(--sp-2);
+  color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-align: end;
+  text-wrap: pretty;
 }
 
-.fact {
-  display: grid;
-  gap: var(--sp-1);
-  min-width: 0;
-}
-
-.fact dt {
+.status time {
+  color: var(--ink);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  color: var(--ink-lo);
-}
-
-.fact dd {
-  margin: 0;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
+  letter-spacing: var(--t-data-tracking-tight);
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 
 /* ── Jumps ─────────────────────────────────────────────────────────────── */
@@ -157,15 +154,17 @@
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "headline"
-      "facts"
+      "status"
       "jumps";
     align-items: start;
     gap: var(--sp-5);
   }
 
-  .facts {
-    justify-content: flex-start;
+  .status {
+    justify-self: start;
+    max-width: none;
     padding-bottom: 0;
+    text-align: start;
   }
 }
 

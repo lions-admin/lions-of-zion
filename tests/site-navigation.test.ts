@@ -24,8 +24,8 @@ describe("purpose-led site navigation", () => {
   it("gives news, narrative work and the archive clear entry points", () => {
     expect(REPORTING_LINKS.map((item) => item.href)).toEqual(["/geopolitical-brief", "/fake-resistance", "/october-7"]);
     expect(REPORTING_LINKS[0].label).toBe("News & Analysis");
-    expect(REPORTING_LINKS[1].description).toContain("incitement");
-    expect(REPORTING_LINKS[1].description).toContain("X review");
+    expect(REPORTING_LINKS[1].description).toContain("claims in circulation");
+    expect(REPORTING_LINKS[1].description).not.toContain("X review");
     expect(REPORTING_LINKS[2].description).toContain("share");
   });
 

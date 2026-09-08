@@ -13,8 +13,7 @@ import flowStyles from "@/components/support/support-flows.module.css";
 import styles from "./page.module.css";
 import { pageMetadata } from "@/lib/page-metadata";
 
-const TAGLINE =
-  "Ways to join the effort: amplify verified truth, contribute skills, sustain the work.";
+const TAGLINE = "Three ways to act: report a claim, lend a skill, fund the work.";
 const PAGE_URL = `${SITE_URL}/support-us`;
 
 export const metadata: Metadata = pageMetadata({
@@ -40,7 +39,7 @@ const SUPPORT_US_JSON_LD = {
    server, which is what makes them work with scripting off. */
 const SHARE_URL = `${SITE_URL}/geopolitical-brief`;
 const SHARE_TEXT =
-  "News & Analysis from Lions of Zion — reporting, war updates and the sources behind them.";
+  "News & Analysis from Lions of Zion — what happened, with the sources behind every line.";
 const SHARE_TITLE = "Lions of Zion — News & Analysis";
 
 /**
@@ -64,12 +63,12 @@ const FLOWS: SupportFlow[] = [
     emphasis: "primary",
     icon: "warning",
     summary:
-      "Send a link or a description of something that needs checking. The desk reviews it.",
+      "Send a link or a description of something that needs checking. We review it.",
     panel: (
       <>
         <p className={flowStyles.flowLede}>
           Seen a claim that needs checking? Send a link or a short description —
-          reports are reviewed by the desk, not published automatically. Nothing
+          reports are reviewed, not published automatically. Nothing
           you submit is echoed back or shared publicly without that review, and
           giving an email is entirely optional.
         </p>
@@ -82,7 +81,7 @@ const FLOWS: SupportFlow[] = [
     label: "Volunteer a skill",
     icon: "actor",
     summary:
-      "Investigation, languages, design and development. Tell the desk what you can do.",
+      "Investigation, languages, design and development. Tell us what you can do.",
     panel: (
       <>
         <p className={flowStyles.flowLede}>
@@ -129,8 +128,8 @@ const FLOWS: SupportFlow[] = [
           title={SHARE_TITLE}
           text={SHARE_TEXT}
           copyVariant="primary"
-          copyLabel="Copy the news desk link"
-          lead="Share the news desk: reporting, updates and source context in one place."
+          copyLabel="Copy the News & Analysis link"
+          lead="Share News & Analysis: reporting, updates and source context in one place."
           targets={[
             { label: "Share on X", href: xIntentUrl(SHARE_TEXT, SHARE_URL) },
             { label: "Share on Facebook", href: facebookShareUrl(SHARE_URL) },
@@ -175,9 +174,7 @@ export default function Page() {
       />
       <SectionBlock heading="Choose how to help">
         <p className={styles.chooserLede}>
-          Four ways to act, and one of them is enough. Pick one — the other
-          three stay a single step away, and nothing you have already typed is
-          lost by looking.
+          Pick one. Nothing you type is lost if you change your mind.
         </p>
         <SupportFlowSwitch flows={FLOWS} />
       </SectionBlock>

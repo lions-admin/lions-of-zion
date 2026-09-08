@@ -25,7 +25,7 @@ const pages = [
   ["we-are", "We Are", "Who Lions of Zion are, why this network exists, and how it works."],
   ["methodology", "Methodology", "How claims are sourced, labeled, and corrected across every desk."],
   ["corrections", "Corrections", "The policy for handling errors, and the public record of every correction made."],
-  ["support-us", "Support Us", "Ways to join the effort: amplify verified truth, contribute skills, sustain the work."],
+  ["support-us", "Support Us", "Three ways to act: report a claim, lend a skill, fund the work."],
 ] as const;
 
 async function main() {

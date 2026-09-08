@@ -21,6 +21,15 @@ import type { Evidence, InformationItem } from "@/server/db/schema";
 /** What Phase 6 will supply: text in, one vector out. */
 export type Embedder = (text: string) => Promise<number[]>;
 
+/** The query path's tolerant call: no vector is `null`, never a thrown search. */
+async function embedForQuery(embed: Embedder, text: string): Promise<number[] | null> {
+  try {
+    return await embed(text);
+  } catch {
+    return null;
+  }
+}
+
 type Loader = {
   select: (f?: unknown) => {
     from: (t: unknown) => { where: (w: unknown) => { limit: (n: number) => Promise<unknown[]> } };
@@ -156,8 +165,15 @@ export function searchService(db: unknown, opts: { embed?: Embedder } = {}) {
 
       /* An embedding is only computed when both halves are actually present:
          a database that can store it and an embedder that can produce it.
-         Otherwise the query runs lexical-only against the identical function. */
-      const queryEmbedding = semantic && opts.embed ? await opts.embed(query.q) : null;
+         Otherwise the query runs lexical-only against the identical function.
+
+         A query-time embedder failure degrades the same way. The embedder is
+         gated by the AI budget (`assertWithinBudget` in the gateway), and on
+         2026-09-08 an exhausted Preview budget made *every* reader search a
+         429 — a broken search, where a lexical answer marked `semantic: false`
+         is a partial, honest one. Reindexing below stays strict: a backlog
+         that cannot embed must say so, not silently store nothing. */
+      const queryEmbedding = semantic && opts.embed ? await embedForQuery(opts.embed, query.q) : null;
 
       /* Over-fetch before dropping the unaddressable, or a page of results
          could come back short simply because dead rows occupied the window. */

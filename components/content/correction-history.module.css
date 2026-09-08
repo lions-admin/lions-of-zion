@@ -1,0 +1,87 @@
+/* Correction history, record variant (UX-04). The open list and the kicker
+   keep their rules in `content.module.css`; these are only the two shapes
+   that variant adds — the one-line attachment entries and the collapsed
+   version-history disclosure. Both sit at the data step: they are the
+   record's apparatus, not its prose. */
+
+.attachmentLines {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.attachmentLines > li {
+  padding: var(--sp-3) 0;
+  border-bottom: var(--line-w) solid var(--line);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--content-data-tracking, var(--t-data-tracking));
+  font-variant-numeric: tabular-nums;
+}
+
+.attachmentLines > li > span:first-child {
+  color: var(--ink);
+}
+
+.versionHistory {
+  margin: 0;
+}
+
+/* The disclosure is a control, so it keeps the coarse-target floor and a
+   visible focus ring; the marker is the platform's, which is fine here. */
+.versionHistory > summary {
+  display: flex;
+  align-items: center;
+  min-block-size: var(--control-h);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--content-data-tracking, var(--t-data-tracking));
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.versionHistory > summary::before {
+  content: '';
+  display: inline-block;
+  width: 0.4em;
+  height: 0.4em;
+  margin-inline-end: var(--sp-2);
+  border-right: var(--line-w) solid currentColor;
+  border-bottom: var(--line-w) solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.versionHistory[open] > summary::before {
+  transform: rotate(45deg);
+}
+
+.versionHistory > summary::-webkit-details-marker {
+  display: none;
+}
+
+.versionHistory > summary {
+  list-style: none;
+}
+
+.versionHistory > summary:hover,
+.versionHistory > summary:focus-visible {
+  color: var(--gold-hi);
+}
+
+.versionHistory > summary:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .versionHistory > summary::before {
+    transition: none;
+  }
+}

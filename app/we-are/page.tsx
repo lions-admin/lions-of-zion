@@ -113,6 +113,7 @@ const FAQ: { q: string; a: React.ReactNode }[] = [
 ];
 
 export default function Page() {
+  /* VA-59. Trust pages state the rules; the scan treatment stays deliberately silent here. */
   return (
     <SectionPage id="we-are" register="silent" surface="quiet" title="We Are" tagline={TAGLINE}>
       <script

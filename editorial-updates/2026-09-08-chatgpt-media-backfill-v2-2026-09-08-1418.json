@@ -1,0 +1,94 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-media-backfill-2026-09-08-1418-v2",
+  "composer": "ChatGPT editorial media backfill",
+  "createdAt": "2026-09-08T11:18:30.000Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "uk-settlement-trade-ban-media-backfill-v2",
+      "target": { "publicId": "uk-confirms-settlement-goods-trade-ban-is-coming-zweiy" },
+      "publication": {
+        "canonicalStoryId": "uk-israeli-settlement-trade-ban-2026-09-08",
+        "changeSummary": "Media backfill retry after the prior generated-media URL returned 404; attached the canonical content-addressed editorial illustration. Article text, headline, sourcing and classification are unchanged."
+      },
+      "media": {
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/fd23fd9aad29c0e72d30a62e682e2f01b852a608bf642b1051cae60015229645.jpg",
+        "sourceUrl": null,
+        "alt": "Conceptual editorial illustration of British trade regulation with Westminster, cargo, a globe and a judge's gavel.",
+        "caption": "Editorial illustration — not documentary evidence",
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "role": "editorial-illustration",
+        "focalPoint": { "x": 57, "y": 55 },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "cleared",
+          "basis": "Generated in-house",
+          "reference": "ChatGPT generated file sediment://file_000000000dc881f8badb5387be07b469; run chatgpt-media-backfill-20260908-v2; operation uk-settlement-goods-trade-ban-hero-v2; stored 2026-09-08T11:08:37.717Z; sha256 fd23fd9aad29c0e72d30a62e682e2f01b852a608bf642b1051cae60015229645",
+          "clearedAt": "2026-09-08",
+          "surfaces": ["article", "homepage"]
+        },
+        "generated": true
+      }
+    },
+    {
+      "key": "israel-biotech-center-media-backfill-v2",
+      "target": { "publicId": "israel-s-new-biotech-center-aims-to-turn-lab-dis-s90zi" },
+      "publication": {
+        "canonicalStoryId": "israel-national-biotech-innovation-center-2026",
+        "changeSummary": "Media backfill retry after the prior generated-media URL returned 404; attached the canonical content-addressed editorial illustration. Article text, headline, sourcing and classification are unchanged."
+      },
+      "media": {
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/2340e73f74dc9cc93c25431fdaf4011d8fd3dff7d09d0f94db55835c6f84fea5.jpg",
+        "sourceUrl": null,
+        "alt": "Conceptual editorial illustration of Israeli translational biotech with laboratory glassware, microscopy and a sculpted therapeutic-protein form.",
+        "caption": "Editorial illustration — not documentary evidence",
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "role": "editorial-illustration",
+        "focalPoint": { "x": 54, "y": 53 },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "cleared",
+          "basis": "Generated in-house",
+          "reference": "ChatGPT generated file sediment://file_0000000078888210828340c4c85b5ddf; run chatgpt-media-backfill-20260908-v2; operation israel-biotech-center-hero-v2; stored 2026-09-08T11:17:33.798Z; sha256 2340e73f74dc9cc93c25431fdaf4011d8fd3dff7d09d0f94db55835c6f84fea5",
+          "clearedAt": "2026-09-08",
+          "surfaces": ["article", "homepage"]
+        },
+        "generated": true
+      }
+    },
+    {
+      "key": "charlie-kirk-conspiracy-media-backfill-v2",
+      "target": { "publicId": "how-the-israel-killed-charlie-kirk-theory-surviv-sl3l9" },
+      "publication": {
+        "canonicalStoryId": "charlie-kirk-israel-conspiracy-2026",
+        "changeSummary": "Media backfill retry after the prior generated-media URL returned 404; attached the canonical content-addressed editorial illustration. Article text, headline, sourcing and classification are unchanged."
+      },
+      "media": {
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/dcf85aaeb84c61a0e4ed4c764ceb767c2f23444f12b898308cae239162c04ac3.jpg",
+        "sourceUrl": null,
+        "alt": "Abstract editorial illustration of rumor propagation being examined through a magnifying lens, with fragmented signals resolving into a structured verification network.",
+        "caption": "Editorial illustration — not documentary evidence",
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "role": "editorial-illustration",
+        "focalPoint": { "x": 69, "y": 48 },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "cleared",
+          "basis": "Generated in-house",
+          "reference": "ChatGPT generated file sediment://file_00000000e1a481f489d959fd7e6fc882; run chatgpt-media-backfill-20260908-v2; operation charlie-kirk-conspiracy-investigation-hero-v2; stored 2026-09-08T11:17:51.176Z; sha256 dcf85aaeb84c61a0e4ed4c764ceb767c2f23444f12b898308cae239162c04ac3",
+          "clearedAt": "2026-09-08",
+          "surfaces": ["article", "homepage"]
+        },
+        "generated": true
+      }
+    }
+  ],
+  "homepage": {},
+  "siteRecommendations": [],
+  "research": [],
+  "vetoes": []
+}

@@ -28,16 +28,7 @@ type LedgerState = { kind: "ready"; entries: Correction[] } | { kind: "unavailab
 async function readLedger(): Promise<LedgerState> {
   try {
     const log = await getCorrectionsLog();
-    return {
-      kind: "ready",
-      entries: log.map((entry) => ({
-        date: entry.date,
-        note: entry.note,
-        version: entry.version,
-        href: entry.slug.startsWith("/") ? entry.slug : undefined,
-        context: entry.page || undefined,
-      })),
-    };
+    return { kind: "ready", entries: log.map((entry) => ({ date: entry.date, note: entry.note, version: entry.version, href: entry.slug.startsWith("/") ? entry.slug : undefined, context: entry.page || undefined })) };
   } catch {
     return { kind: "unavailable" };
   }
@@ -75,10 +66,7 @@ export default async function Page() {
       <SectionBlock heading="Correction log">
         <p>The central ledger below is one public view of corrections recorded by this site. Publication-level version histories and explicit correction notes may also preserve changes on the records themselves. An empty central ledger must not be read as a claim that no error has ever occurred or that every automated publication was correct.</p>
         <div className={styles.ledger}>
-          <div className={styles.ledgerHead}>
-            <span className={styles.ledgerKicker}>Public ledger</span>
-            <span className={styles.ledgerCount}>{count === null ? "Entries unavailable" : count === 1 ? "1 entry" : `${count} entries`}</span>
-          </div>
+          <div className={styles.ledgerHead}><span className={styles.ledgerKicker}>Public ledger</span><span className={styles.ledgerCount}>{count === null ? "Entries unavailable" : count === 1 ? "1 entry" : `${count} entries`}</span></div>
           {ledger.kind === "unavailable" ? (
             <StatusState className={styles.ledgerState} status="error" eyebrow="Ledger unavailable" title="The correction log could not be loaded" description="This is a failure to read the central ledger, not a statement that no corrections exist. Reload the page; if the problem continues, report it." actionText="Report the problem" actionHref="/support-us#report" />
           ) : count === 0 ? (

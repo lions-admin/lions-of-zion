@@ -13,7 +13,6 @@ import {
 import { emit, TOPICS } from "@/server/core/outbox";
 import { db } from "@/server/db/client";
 import { sendWorkspaceEmail } from "@/server/core/email";
-import { israelLocalDate } from "./service";
 
 type Candidate = { kind: string; severity: "warning" | "critical"; message: string; details: Record<string, unknown> };
 type Database = ReturnType<typeof db>;
@@ -45,7 +44,6 @@ const pgArray = (values: string[]) => `{${values.map((value) => `"${value.replac
  * seconds of each other, and the second one must see the first one's rows.
  */
 export async function evaluateAndQueueBriefingAlerts(database: Database = db(), now = new Date()) {
-  const localDate = israelLocalDate(now);
   const [metrics, connections] = await Promise.all([
     database.execute<{
       failedRuns: number | string; quarantinedJobs: number | string; staleSources: number | string;

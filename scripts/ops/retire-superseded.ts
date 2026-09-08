@@ -56,16 +56,15 @@ const RETIREMENTS: { retire: string; keep: string; why: string }[] = [
   { retire: "3-said-killed-in-idf-strikes-in-lebanon-after-he-v8bvd", keep: "israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3", why: '"Historical report:" — names 0jqg3. This is VA-46.6\'s Lebanon record, which has been superseded since that step was closed.' },
   { retire: "israel-s-open-civil-defence-data-initiative-cont-mv6ck", keep: "israel-s-open-civil-defence-data-initiative-cont-fgpr4", why: 'Its own title is "Corrected duplicate". The scoring heuristic had this backwards — it is longer and better-sourced than the correction it duplicates.' },
   { retire: "ben-gurion-university-aerogel-can-absorb-100-tim-cb3o1", keep: "ben-gurion-university-team-develops-aerogel-that-0y2we", why: "Owner decision 2026-09-08: redundant, because the surviving record already carries the 78 g/g vs ~100x correction itself." },
+  { retire: "israel-security-and-diplomacy-brief-september-3--xgjvx", keep: "israel-security-diplomacy-and-anti-boycott-brief-4xspk", why: "Owner decision 2026-09-08. Two rewrites of the same September 3 edition, identical section for section. The kept one was published 2h38m later and attributes better (naming the ICRC, Lebanese officials via the Times of Israel, and both sides of the House vote). It is NOT a strict superset: the retired record carried a defence-cooperation thread the later rewrite dropped. That loss is accepted and recorded rather than hidden — the record is archived, not deleted, and its URL redirects." },
 ];
 
 /**
- * Deliberately absent: `israel-security-diplomacy-and-anti-boycott-brief-4xspk`
- * against `israel-security-and-diplomacy-brief-september-3--xgjvx`.
- *
- * Both are September 3 editions, both open on the Ali al-Taher ridge, and
- * **neither declares itself superseded**. Archiving one would delete a daily
- * edition on a similarity score alone, which is exactly what §48.5 forbids.
- * It needs a human decision and does not have one yet.
+ * The September 3 pair was held back until a human decided it, because unlike
+ * every other row here neither record declares itself superseded — archiving
+ * one on a similarity score is exactly what §48.5 forbids. The owner ruled on
+ * 2026-09-08 after both bodies were read in full; the reasoning and the
+ * accepted content loss are on the entry itself.
  */
 
 const APPLY = process.argv.includes("--apply");

@@ -15,12 +15,12 @@
  * rule — historical URLs are preserved — is kept in the only way that survives
  * a merge.
  *
- * **This map is deliberately empty until a merge is actually performed.** The
- * mechanism ships before the data: an entry may only be added when the
- * corresponding record has really been archived, or the redirect would shadow
- * a live record. The article page consults this map *after* a lookup has
- * already failed, so even a stale entry can never hide a publication that is
- * still published — the record wins, the map is only a rescue.
+ * **An entry may only be added once the record it retires has really been
+ * archived**, or the redirect would shadow a live record. The map shipped empty
+ * on 2026-09-08 and was filled the same day, once the archives had actually
+ * run. The article page consults it *after* a lookup has already failed, so
+ * even a stale entry can never hide a publication that is still published —
+ * the record wins, the map is only a rescue.
  *
  * Adding an entry, in order:
  *   1. Archive the duplicate via the ops path, never by editing the database.
@@ -39,8 +39,10 @@
  *
  * **None of these targets was inferred.** Each retired record names its own
  * successor in its published summary ("Historical report: … For the current
- * verified account and later developments, read: …"), or, for the last two,
- * says in its own title what it is. That mattered: a scoring heuristic written
+ * verified account and later developments, read: …"), or says in its own title
+ * what it is. The single exception is the September 3 pair at the bottom, which
+ * declared nothing and was therefore held back for a human decision. That
+ * distinction mattered: a scoring heuristic written
  * before this data was read would have archived the civil-defence *correction*
  * and kept the record that calls itself "Corrected duplicate", because the
  * duplicate is longer and better-sourced than the correction.
@@ -75,19 +77,16 @@ export const SUPERSEDED_PUBLICATIONS: Readonly<Record<string, string>> = Object.
   /* VA-57.1, owner decision 2026-09-08: redundant because the surviving record
      already carries the 78 g/g against ~100× correction itself. */
   "ben-gurion-university-aerogel-can-absorb-100-tim-cb3o1": "ben-gurion-university-team-develops-aerogel-that-0y2we",
-});
 
-/**
- * **Deliberately absent**, and it must stay that way without a human decision:
- * `israel-security-diplomacy-and-anti-boycott-brief-4xspk` against
- * `israel-security-and-diplomacy-brief-september-3--xgjvx`.
- *
- * VA-48.4's sweep scored them 1.00 and called them both the September 3
- * edition. Read in full they are two daily briefs of the same date opening on
- * the same lead, and **neither declares itself superseded** — unlike every
- * entry above. Archiving one would delete a daily edition on a similarity
- * score, which §48.5 forbids in as many words.
- */
+  /* The one entry here that no record declared for itself. Two rewrites of the
+     same September 3 edition, identical section for section; the kept one was
+     published 2h38m later and attributes better. Owner decision 2026-09-08,
+     taken after both bodies were read in full — and **not a strict
+     improvement**: the retired record carried a defence-cooperation thread the
+     rewrite dropped. Recorded because a later reader comparing the two will
+     notice, and should find the loss acknowledged rather than discover it. */
+  "israel-security-and-diplomacy-brief-september-3--xgjvx": "israel-security-diplomacy-and-anti-boycott-brief-4xspk",
+});
 
 /**
  * The canonical address for a retired publicId, or null if this id was never

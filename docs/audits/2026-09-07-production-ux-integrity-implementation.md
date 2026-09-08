@@ -736,7 +736,7 @@ state model*, not a replacement campaign.
 
       | Verdict | Count |
       | --- | ---: |
-      | `illustrated`, candidate proposed, licence verified | 7 (6 fully verified, 1 needing an editorial not rights call) |
+      | `illustrated`, candidate proposed, licence verified | **6** — was 7; the Nir Oz candidate was **rejected by the owner on 2026-09-08** and that record is now `text_led`. It was a 2017 pre-attack photograph, defensible only if a dated caption and disclosure line were guaranteed on every surface including the homepage card, and that cannot be guaranteed from the media contract alone |
       | `media_unavailable` — the right image is identifiable but rights or resolution block it | 3 |
       | **`text_led` — intentionally, correctly** | **49** |
 

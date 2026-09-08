@@ -38,7 +38,7 @@ Of the 59 records carrying no media:
 
 | Verdict | count | meaning |
 | --- | ---: | --- |
-| `illustrated` — candidate proposed | **7** | a genuinely appropriate image exists and its licence is verified |
+| `illustrated` — candidate proposed | **6** (was 7; Nir Oz rejected by the owner 2026-09-08) | a genuinely appropriate image exists and its licence is verified |
 | `media_unavailable` | **3** | the *right* image is identifiable but rights or resolution block it |
 | `text_led` — intentional | **49** | no image belongs on this record; a picture would decorate or mislead |
 | **total** | **59** | |
@@ -47,7 +47,15 @@ Licence confidence on the 7 candidates:
 
 - **6 fully verified** — machine-readable CC/CC0/PD tag, attribution string
   captured, no restrictions flag.
-- **1 needs a human editorial call, not a rights call** — `nir-oz-…-xuyhf`
+- **1 needed a human editorial call, not a rights call** — `nir-oz-…-xuyhf`.
+  **Decided 2026-09-08: rejected.** The owner ruled the candidate out rather
+  than accept the conditional. It is the right call on the terms the proposal
+  itself set: the image was only ever defensible if a dated caption and a
+  `disclosure` line were guaranteed on *every* surface including the homepage
+  card, and that guarantee cannot be made from the media contract alone. A
+  2017 picnic photograph on an attack dossier, stripped of its date by any one
+  surface that renders a bare hero, reads as the day itself. This record is
+  now `text_led`. Original assessment follows —
   (see below); the licence is verified CC BY-SA 4.0, the *judgement* is whether
   a 2017 pre-attack photograph belongs on an attack dossier.
 - The 3 `media_unavailable` records are where a human **rights** call is
@@ -109,7 +117,7 @@ dossier names, dated.
 evidence of commemoration, not of the attack. Filing it as `documentation`
 would be exactly the overstatement this dossier's own text warns against.
 
-### 3. `nir-oz-location-file-mass-abduction-delayed-resp-xuyhf`
+### 3. `nir-oz-location-file-mass-abduction-delayed-resp-xuyhf` — **REJECTED 2026-09-08, now `text_led`**
 
 - **section** `history_context` · "Nir Oz location file: mass abduction, delayed response and an incomplete inquiry record"
 - **verdict** `illustrated` · **priority rung 3 — relevant location photography** · **needs an editorial call before applying**

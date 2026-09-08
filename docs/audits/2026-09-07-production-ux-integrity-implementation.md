@@ -1394,27 +1394,48 @@ related-content selection; content-type presentation logic.
 
 ## 12. DEFINITION OF DONE
 
-- [ ] **D-1** Developing stories cannot publish internally inconsistent versions.
-- [ ] **D-2** Public review/automation language matches the actual system.
-- [ ] **D-3** Known duplicate canonical stories are resolved safely.
-- [ ] **D-4** Duplicate-publication prevention exists for future updates.
-- [ ] **D-5** Claim, incident and investigation states are semantically clear.
-- [ ] **D-6** Featured/homepage stories no longer fall into undefined missing-media states.
-- [ ] **D-7** Generated illustrations stay explicitly differentiated from documentary imagery.
-- [ ] **D-8** Raw source dumps are not duplicated where structured sources exist.
-- [ ] **D-9** Articles provide a meaningful continuation path when relevant material exists.
-- [ ] **D-10** Navigation terminology is understandable and consistent.
-- [ ] **D-11** Homepage hierarchy has one clear editorial priority.
-- [ ] **D-12** Search and Ask serve clearly different jobs.
-- [ ] **D-13** People of Israel does not use duplicate stories to fill lanes.
-- [ ] **D-14** Long investigations offer an accessible first-read layer without removing evidence.
-- [ ] **D-15** October 7 safety and reduced-motion behaviour remain correct.
-- [ ] **D-16** Decorative signal effects are used intentionally, not universally.
-- [ ] **D-17** Social metadata is page-specific where appropriate.
-- [ ] **D-18** CTA vocabulary is consistent by content type.
-- [ ] **D-19** Transparency language is accurate and supportable.
-- [ ] **D-20** Desktop, tablet and mobile visual QA passes on the representative surfaces.
-- [ ] **D-21** Existing working behaviour has no material regressions.
+- [x] **D-1** Developing stories cannot publish internally inconsistent versions.
+      <!-- done: VA-46 closed. The coherence rule sits at the one seam where the applied field set and the claimed `changeSummary` are both in scope, on both update paths; 17 tests. 46.4 additionally proved homepage and detail read one version. -->
+- [x] **D-2** Public review/automation language matches the actual system.
+      <!-- done: VA-47 closed. `PUBLICATION_PROVENANCE` derived from `autoPublishedAt`; Methodology's "Two ways a record publishes"; 13 tests pin the copy so the contradiction cannot silently return. -->
+- [~] **D-3** Known duplicate canonical stories are resolved safely.
+      <!-- blocked: **Blocked, not done.** The eight pairs are confirmed and the merge is scripted through the authorized ops path, but nothing has been merged. Needs `CHATGPT_AUTOMATION_SECRET`. See 48.5. -->
+- [x] **D-4** Duplicate-publication prevention exists for future updates.
+      <!-- done: VA-48.1/48.2. The guard reaches both auto-publish paths; the two draft paths are exempt by design because nothing they write is public until a human transitions it. The override is deliberate and recorded. -->
+- [x] **D-5** Claim, incident and investigation states are semantically clear.
+      <!-- done: VA-52 closed — three types, one map, incident language separated from claim language, 12 tests. T-7 confirmed no doubled `narrativeWatchTitle()` prefix across all 14 Fake Resistance records. -->
+- [x] **D-6** Featured/homepage stories no longer fall into undefined missing-media states.
+      <!-- done: T-11 measured it rather than assuming: **zero** pages anywhere contain `src=""`, `src="undefined"`, `>undefined<` or an empty `<figure>`; the 57 picture-less pages render a designed text-led state with breadcrumb, label, h1, dek and JSON-LD. -->
+- [x] **D-7** Generated illustrations stay explicitly differentiated from documentary imagery.
+      <!-- done: The mechanism is enforced by `externalMediaSchema` — `generated` and `disclosure` are first-class fields and `role` is a closed enum. Worth stating plainly: **no generated imagery is in the corpus today**, so this is a guarantee about what can be added, not a claim about what was cleaned up. -->
+- [x] **D-8** Raw source dumps are not duplicated where structured sources exist.
+      <!-- done: VA-56, and T-7 swept all 73 records live: **zero** raw `Sources:` blocks and zero bare-URL lines, with the structured stack rendering 1–23 links per record. -->
+- [x] **D-9** Articles provide a meaningful continuation path when relevant material exists.
+      <!-- done: VA-50, verified live on 73/73: 66 carry four destinations and the four thin records fall back to their hub exactly as the ladder specifies — not filler. -->
+- [x] **D-10** Navigation terminology is understandable and consistent.
+      <!-- done: VA-51 closed including 51.1's job-of-each-destination table for all eleven live destinations; the `/ask` naming default is applied and verified live. -->
+- [x] **D-11** Homepage hierarchy has one clear editorial priority.
+      <!-- done: VA-53; T-8 re-verified at six viewports — lead leads at every width, bands render real records identically, zero empty states and zero giant cards. -->
+- [x] **D-12** Search and Ask serve clearly different jobs.
+      <!-- done: VA-58, and T-9's fix sharpened it further: Search now returns nothing when nothing matches instead of ten unopenable rows, which is what let the two jobs blur. -->
+- [~] **D-13** People of Israel does not use duplicate stories to fill lanes.
+      <!-- blocked: **Blocked, not done.** The hub sweep is clean and the BGU pair is decided, but the retirement has not run. Same secret as D-3. See 57.1. -->
+- [x] **D-14** Long investigations offer an accessible first-read layer without removing evidence.
+      <!-- done: VA-54 closed. The finding now precedes the bookkeeping, the section list is derived from the record so the conditional "What changed" section is reachable, and 54.2 confirmed by diff that the reorder deleted nothing. -->
+- [x] **D-15** October 7 safety and reduced-motion behaviour remain correct.
+      <!-- done: T-13, a controlled comparison: control reads "Rotation off"; no auto-play (7 samples over 12s, 1 distinct state); arrows work under `reduce`; sensitive-content gates untouched. -->
+- [x] **D-16** Decorative signal effects are used intentionally, not universally.
+      <!-- done: VA-59, measured: 16 of 17 ScanBackdrop rows animate under `no-preference` against **0 of 17** under `reduce`, same DOM both ways. The preference is respected and the aesthetic is not deleted. -->
+- [x] **D-17** Social metadata is page-specific where appropriate.
+      <!-- done: VA-62 plus the T-12 repair. Every hub route and article now carries an image and its own title/description; articles carry `og:url` and reference their own generated card. Re-measured live after deploy. -->
+- [x] **D-18** CTA vocabulary is consistent by content type.
+      <!-- done: VA-63 — `publicationCta` derived from `publication.section` through `lib/publication-routing.ts`, not a new model-set field. -->
+- [x] **D-19** Transparency language is accurate and supportable.
+      <!-- done: VA-61 and VA-47. The funding model is published after the owner answered, and the copy claims no quality gate the launch posture does not have. -->
+- [x] **D-20** Desktop, tablet and mobile visual QA passes on the representative surfaces.
+      <!-- done: VA-60 (0 critical / exit 0 across 162 pairs, 90 screenshots) plus T-8 and T-10 re-measured live at six viewports: 0px horizontal overflow every time, by a full edge-crossing scan. -->
+- [x] **D-21** Existing working behaviour has no material regressions.
+      <!-- done: `verify:full` green (163 files / 1620 tests) and the whole corpus re-measured live. **Stated honestly: one regression was introduced and caught the same day** — the first T-9 filter hid 42 of 73 records for about an hour. It was found by re-measuring Production, not by the suite, fixed in `4956733`, and pinned by a test that now encodes the regression itself. Final state verified: 72 of 73 findable. -->
 
 ---
 

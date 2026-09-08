@@ -1,0 +1,265 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r38-20260908T102302Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T10:23:02.678495Z",
+  "creates": [
+    {
+      "key": "october7-location-file-nova",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "history_context",
+        "canonicalStoryId": "october7-location-file-nova",
+        "title": "Nova location file: what the evidence establishes — and what it does not",
+        "summary": "A source-by-source dossier reconstructs the festival attack from testimony, authenticated media, emergency records and independent investigations while identifying shared upstream material and unresolved case-level claims.",
+        "body": "The Nova festival site near Re'im is one of the best documented locations from October 7, but the record is not a single continuous camera view. It combines survivor accounts, emergency communications, footage recorded by attackers and victims, police and military material, later documentaries, and external investigations. Those sources overlap without becoming interchangeable.\n\nThe event. About 3,000 people attended the outdoor festival. The UN Commission of Inquiry reported that 364 people were killed and about 40 were abducted from the festival and its surroundings. Those figures describe the location's scale; they do not show what happened to each person or at every escape route.\n\nTimeline. Rocket fire began shortly after 6:20 a.m. and the music stopped. Police ordered evacuation as the scale of the wider attack was still unclear. Roads and open fields then became escape routes and attack sites. The Commission recorded a first police report of armed attackers at about 7:01 a.m. and reconstructed later phases from multiple forms of evidence.\n\nSurvivor accounts. The archive preserves Gal M.'s account of coming to dance, Danielle S.'s account of hiding under bodies, Liraz U.'s account of encountering bodies, and Ido S.'s account as a security-force member. Each establishes what that person says they perceived and did from a particular position. A testimony cannot by itself establish the full site timeline or independently verify another account merely because both were collected by October7.org.\n\nDocumentary and perpetrator media. The archive's Nova collection includes material described as attacker footage and victim or responder recordings, including the Festival Night collection and records of shooting near portable toilets and movement through the desert. Such footage can establish visible acts, sequence and geography when provenance is authenticated. A caption alone cannot establish who filmed it, when every clip was recorded, or what occurred outside the frame.\n\nLater films. The documentary We Will Dance Again and yes Studios' #NOVA assemble additional survivor and audiovisual material. They are valuable narrative and evidentiary guides, but edited films select and sequence material. Their repeated use of the same clip does not create another independent source.\n\nExternal findings. The UN Commission reviewed testimony, digital material and other records and set out a detailed Nova timeline. Human Rights Watch separately reported reviewing hundreds of videos and interviewing survivors, families and others across the October 7 attack. These investigations provide independent analytical work even when some underlying clips or witnesses overlap.\n\nSexual-violence findings. A UN mission reported reasonable grounds to believe conflict-related sexual violence, including rape and gang rape, occurred at multiple locations including the Nova site and surroundings. It also described access, preservation and verification limits. The finding supports a location-level conclusion; it should not be converted into a claim about a named victim or a specific archived image without case-level evidence.\n\nOfficial inquiry. Israeli military and police accounts add operational timelines and response findings. They are institutional sources with access to communications and personnel, but an operational inquiry is not independent of the institutions whose response it examines. Where later official estimates differ from early counts, the dated estimate should remain visible.\n\nWhat the record establishes. Armed attackers reached the festival area and escape routes, killed hundreds, abducted people, and pursued people across roads and fields. Multiple independent investigations, first-person accounts and authenticated visual records support that core finding.\n\nWhat remains uncertain. The exact route and minute-by-minute experience of many individuals, the provenance of every circulating clip, and some case-specific allegations remain unresolved in the public record. Similar descriptions should be connected only when time, place or source metadata supplies a factual link.\n\nReading rule. Start with the source type and question it can answer: testimony for lived experience, authenticated media for visible events, emergency records for timing, and investigations for synthesis. Several pages copied from one archive or one original clip count as one evidentiary chain, not several corroborations.",
+        "language": "en",
+        "editorialTopic": "October 7 location dossier",
+        "topicTags": [
+          "october-7",
+          "location-dossier",
+          "nova",
+          "reim",
+          "survivor-testimony"
+        ],
+        "primaryActor": "Survivors, attackers and responding security forces",
+        "arena": "Southern Israel"
+      },
+      "sources": [
+        {
+          "url": "https://www.un.org/unispal/document/coi-attacks-7october2023-report-10jun24/",
+          "title": "Detailed findings on the October 7 attacks",
+          "publisher": "United Nations Commission of Inquiry",
+          "official": true
+        },
+        {
+          "url": "https://digitallibrary.un.org/record/4051246/files/A_HRC_56_CRP.3-EN.pdf",
+          "title": "Detailed Commission report and location timelines",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://www.hrw.org/news/2024/07/17/questions-and-answers-hamas-led-armed-groups-october-7-2023-assault-israel",
+          "title": "Method and findings on the Hamas-led assault",
+          "publisher": "Human Rights Watch",
+          "official": false
+        },
+        {
+          "url": "https://www.october7.org/post/we-just-wanted-a-party-we-just-wanted-to-dance",
+          "title": "Gal M. survivor testimony",
+          "publisher": "October7.org",
+          "official": false
+        },
+        {
+          "url": "https://www.october7.org/post/i-held-onto-the-hand-of-the-dead-body-laying-on-top-of-me-and-said-thank-you-for",
+          "title": "Danielle S. survivor testimony",
+          "publisher": "October7.org",
+          "official": false
+        },
+        {
+          "url": "https://www.october7.org/post/it-took-me-a-few-minutes-to-realize-that-they-were-all-dead-bodies",
+          "title": "Liraz U. survivor testimony",
+          "publisher": "October7.org",
+          "official": false
+        },
+        {
+          "url": "https://www.yesstudios.tv/ourcontent/documentaries/nova",
+          "title": "#NOVA documentary description",
+          "publisher": "yes Studios",
+          "official": false
+        },
+        {
+          "url": "https://www.paramountpressexpress.com/paramount-plus/releases/?view=109827-paramount-to-premiere-we-will-dance-again-a-documentary-about-the-october-7th-terror-attack-at-the-nova-music-festival",
+          "title": "We Will Dance Again documentary description",
+          "publisher": "Paramount",
+          "official": false
+        },
+        {
+          "url": "https://www.un.org/sexualviolenceinconflict/press-release/briefing-by-srsg-svc-ms-pramila-patten-to-the-security-council-findings-of-visit-to-israel-and-the-occupied-west-bank-11-march-2024/",
+          "title": "UN mission findings on conflict-related sexual violence",
+          "publisher": "United Nations",
+          "official": true
+        }
+      ]
+    },
+    {
+      "key": "october7-location-file-beeri",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "history_context",
+        "canonicalStoryId": "october7-location-file-beeri",
+        "title": "Be'eri location file: the attack, the failed response and the disputed record",
+        "summary": "Resident testimony, the IDF inquiry and external investigations establish the scale of the attack and severe response failures. The dossier also preserves corrections and uncertainty around individual incidents.",
+        "body": "Kibbutz Be'eri was attacked from several directions on October 7. Its record includes resident communications and testimony, attacker footage, security-force records, an Israeli military operational inquiry, and external investigations. The sources establish a devastating attack and a failed response while leaving consequential disputes that require careful attribution.\n\nThe event. The IDF inquiry reported 101 civilian residents killed, 30 Be'eri residents abducted and two additional people abducted from the kibbutz, and 31 security personnel killed in the battle. These are the inquiry's figures and should be dated to that publication rather than treated as an immutable count detached from definitions.\n\nTimeline. Rocket fire began around 6:30 a.m. Armed attackers entered the community soon afterward. Be'eri's rapid-response team and residents fought while military units arrived in fragments. The IDF inquiry found that forces failed to form an accurate picture until the afternoon and that some forces waited outside or withdrew under command decisions. Operational control was regained only after prolonged combat.\n\nResident testimony. Liat A.M.'s archived account identifies herself as a Be'eri survivor and describes early alerts, community messages and the attack from inside the kibbutz. Her testimony preserves a resident's contemporaneous sequence and the names she chose to memorialize. It does not independently determine force numbers, the conduct of every unit or the outcome at every house.\n\nThe Pessi Cohen house. The hostage incident at this house became a central and disputed part of the public record. The IDF inquiry describes command, negotiations, fire and the decision to use tank fire. An institutional reconstruction can establish its own evidence review and conclusions; it cannot replace a criminal investigation or an independent commission, and uncertainty about individual deaths should remain explicit.\n\nDocumentary media. Attacker recordings, resident messages, body-camera material and images of destruction can help locate events and test timelines. Some archive records and later reports reuse the same original files. Multiple copies, translations or edited excerpts of one recording remain one upstream source.\n\nOfficial inquiry. The IDF said its team used communications, command systems, intelligence, interrogations, aerial material and resident communications provided with consent. It acknowledged that the military was unprepared and failed in its mission to protect the residents. Because the inquiry was conducted by the IDF, its access is a strength and its institutional relationship is a limitation.\n\nExternal review. The UN Commission of Inquiry investigated six attacks in Be'eri and assessed evidence under an external mandate. Human Rights Watch also documented the wider Hamas-led assault through interviews and visual analysis. Their work is analytically independent, although some underlying witnesses and footage may overlap with Israeli records.\n\nCorrection inside the record. A UN mission investigating conflict-related sexual violence found two widely repeated allegations from Be'eri to be unfounded after review. That does not negate its broader findings elsewhere. It demonstrates why a location dossier must retain disconfirming evidence instead of repeating a dramatic claim after its factual basis changes.\n\nWhat the record establishes. Attackers killed and abducted residents, burned and looted homes, and fought local and arriving forces. Residents were left without adequate protection for hours, and the IDF's own inquiry identifies severe failures in preparedness, command and situational awareness.\n\nWhat remains uncertain. Questions about responsibility for particular deaths at the Pessi Cohen house, the complete activity of every armed group and civilian participant, and the evidentiary status of some circulating images cannot be resolved from the public operational inquiry alone.\n\nReading rule. Resident testimony should stay in the witness's own words. Investigative context belongs beside it, labeled by institution and date. Repetition across translations, clips and articles is useful for access, but it is not independent corroboration.",
+        "language": "en",
+        "editorialTopic": "October 7 location dossier",
+        "topicTags": [
+          "october-7",
+          "location-dossier",
+          "beeri",
+          "inquiry",
+          "survivor-testimony"
+        ],
+        "primaryActor": "Survivors, attackers and responding security forces",
+        "arena": "Southern Israel"
+      },
+      "sources": [
+        {
+          "url": "https://www.un.org/unispal/document/coi-attacks-7october2023-report-10jun24/",
+          "title": "Detailed findings on the October 7 attacks",
+          "publisher": "United Nations Commission of Inquiry",
+          "official": true
+        },
+        {
+          "url": "https://digitallibrary.un.org/record/4051246/files/A_HRC_56_CRP.3-EN.pdf",
+          "title": "Detailed Commission report and location timelines",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://www.hrw.org/news/2024/07/17/questions-and-answers-hamas-led-armed-groups-october-7-2023-assault-israel",
+          "title": "Method and findings on the Hamas-led assault",
+          "publisher": "Human Rights Watch",
+          "official": false
+        },
+        {
+          "url": "https://www.idf.il/en/mini-sites/710-the-inquiries/all-of-the-710-inquiries/battle-of-kibbutz-beeri-the-inquiry/",
+          "title": "Battle of Kibbutz Be'eri inquiry",
+          "publisher": "Israel Defense Forces",
+          "official": true
+        },
+        {
+          "url": "https://www.october7.org/post/they-went-from-house-to-house-tormenting-butchering-slaughtering-looting-torching-kidnapping",
+          "title": "Liat A.M. survivor testimony",
+          "publisher": "October7.org",
+          "official": false
+        },
+        {
+          "url": "https://apnews.com/article/ca7905bf9520b1e646f86d72cdf03244",
+          "title": "Review of disputed October 7 sexual-violence allegations",
+          "publisher": "Associated Press",
+          "official": false
+        },
+        {
+          "url": "https://www.un.org/sexualviolenceinconflict/press-release/briefing-by-srsg-svc-ms-pramila-patten-to-the-security-council-findings-of-visit-to-israel-and-the-occupied-west-bank-11-march-2024/",
+          "title": "UN mission findings and corrections",
+          "publisher": "United Nations",
+          "official": true
+        }
+      ]
+    },
+    {
+      "key": "october7-location-file-nir-oz",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "history_context",
+        "canonicalStoryId": "october7-location-file-nir-oz",
+        "title": "Nir Oz location file: mass abduction, delayed response and an incomplete inquiry record",
+        "summary": "Survivor accounts and an external reconstruction establish the attack and delayed response. Conflicting official hostage totals and the absence of a comparable public operational inquiry remain visible limitations.",
+        "body": "Kibbutz Nir Oz suffered an unusually concentrated attack and mass abduction on October 7. The public record combines survivor accounts, community material, attacker footage, hostage records, external investigation and later military statements. It remains less complete than Be'eri's published operational inquiry, and that absence matters.\n\nThe event. The UN Commission of Inquiry investigated eight attacks in Nir Oz. Israeli public records have used different hostage totals over time, including 80 in an earlier location summary and 74 in a January 2025 briefing. The difference may reflect revised identification or who is counted as taken from the kibbutz; without a published reconciliation, the numbers should not be silently merged.\n\nTimeline. Rocket fire began around 6:30 a.m. The Commission reconstructed attackers entering Nir Oz from about 6:49 a.m., moving through homes and taking residents toward Gaza. Its detailed report found that Israeli forces arrived after most attackers had left. Survivor accounts describe hours in safe rooms, houses set on fire and movement through the fields.\n\nSurvivor testimony. Dalit R.A.'s archived testimony explicitly locates her family in Nir Oz and describes warnings, intrusions, fire and the absence of military protection. Neomit D.'s account describes capture, movement toward Gaza, escape and return through the fields. Dorin R.'s account describes armed entry into a home, hours in a safe room and rescue that evening.\n\nWhat those accounts establish. They document each witness's perception, decisions and route. Their details can be compared with the external timeline where place and time align. They do not become three independent confirmations of every proposition: all three were republished by the same October7.org archive, and their original collection and editing histories require separate provenance checks.\n\nHostage record. Later IDF and government notices identify people abducted from Nir Oz, their release or recovery, and in some cases the armed group alleged to have held them. Those dated notices establish the issuing authority's identification and status update. They do not by themselves prove every circumstance of capture or death.\n\nVisual evidence. Security-camera and attacker footage can establish entry, movement, abduction and destruction when a file's time, location and chain of custody are verified. A repost, translation or screenshot from the same video remains the same upstream evidence. Graphic imagery should be used only when it adds facts that text cannot convey.\n\nExternal investigation. The UN Commission's location analysis supplies the strongest publicly accessible external synthesis located for this dossier. Human Rights Watch's broader investigation adds independent legal and visual analysis of the Hamas-led assault. Their findings are independent products, although they may rely on some of the same public footage and testimony.\n\nOfficial-inquiry gap. The IDF has published general accounts and hostage updates concerning Nir Oz, but this review did not locate a public English operational inquiry comparable to the detailed Be'eri page. Later reporting about military findings should be attributed as reporting until the underlying inquiry is publicly available and inspectable.\n\nWhat the record establishes. Armed groups entered the kibbutz, killed residents, abducted dozens and looted and burned homes. The delayed military response is supported by survivor accounts and the UN reconstruction. The concentration of killings and abductions made Nir Oz one of the communities most severely affected.\n\nWhat remains uncertain. The reconciled hostage count, the full membership and command of all participating groups, the sequence at individual homes and responsibility for some individual deaths require case-level records. The absence of a public full operational inquiry limits conclusions about command decisions and force deployment.\n\nReading rule. Use testimony for what a named person experienced, timestamped media for visible movement, and investigative reports for cross-source conclusions. Preserve changes in official counts and mark common ancestry so readers can see both the strength and the boundary of the evidence.",
+        "language": "en",
+        "editorialTopic": "October 7 location dossier",
+        "topicTags": [
+          "october-7",
+          "location-dossier",
+          "nir-oz",
+          "hostages",
+          "survivor-testimony"
+        ],
+        "primaryActor": "Survivors, attackers and responding security forces",
+        "arena": "Southern Israel"
+      },
+      "sources": [
+        {
+          "url": "https://www.un.org/unispal/document/coi-attacks-7october2023-report-10jun24/",
+          "title": "Detailed findings on the October 7 attacks",
+          "publisher": "United Nations Commission of Inquiry",
+          "official": true
+        },
+        {
+          "url": "https://digitallibrary.un.org/record/4051246/files/A_HRC_56_CRP.3-EN.pdf",
+          "title": "Detailed Commission report and location timelines",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://www.hrw.org/news/2024/07/17/questions-and-answers-hamas-led-armed-groups-october-7-2023-assault-israel",
+          "title": "Method and findings on the Hamas-led assault",
+          "publisher": "Human Rights Watch",
+          "official": false
+        },
+        {
+          "url": "https://www.october7.org/post/my-eldest-son-said-to-me-mom-i-don-t-want-to-die-on-my-birthday",
+          "title": "Dalit R.A. survivor testimony",
+          "publisher": "October7.org",
+          "official": false
+        },
+        {
+          "url": "https://www.october7.org/post/i-decided-to-play-dead-and-they-didn-t-take-me-they-ignored-me-they-took-the-three",
+          "title": "Neomit D. survivor testimony",
+          "publisher": "October7.org",
+          "official": false
+        },
+        {
+          "url": "https://www.october7.org/post/he-saw-beloved-friends-of-ours-some-shot-all-over-their-bodies-others-burnt-alive",
+          "title": "Dorin R. survivor testimony",
+          "publisher": "October7.org",
+          "official": false
+        },
+        {
+          "url": "https://www.idf.il/en/mini-sites/remembering-the-october-7-massacre/the-october-7-massacre-explained/",
+          "title": "IDF location summary for Nir Oz",
+          "publisher": "Israel Defense Forces",
+          "official": true
+        },
+        {
+          "url": "https://www.idf.il/en/mini-sites/israel-at-war/briefings-by-idf-spokesperson-bg-effie-defrin/january-25-press-briefings/press-briefing-by-idf-spokesperson-radm-daniel-hagari-january-30-2025/",
+          "title": "January 2025 IDF briefing using a revised Nir Oz hostage figure",
+          "publisher": "Israel Defense Forces",
+          "official": true
+        },
+        {
+          "url": "https://www.idf.il/en/mini-sites/operation-returning-home/all-updates/",
+          "title": "Dated hostage return and recovery record",
+          "publisher": "Israel Defense Forces",
+          "official": true
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 38 — first evidence-rich October 7 location files",
+      "sourcesReviewed": [
+        "https://www.un.org/unispal/document/coi-attacks-7october2023-report-10jun24/",
+        "https://digitallibrary.un.org/record/4051246/files/A_HRC_56_CRP.3-EN.pdf",
+        "https://www.hrw.org/news/2024/07/17/questions-and-answers-hamas-led-armed-groups-october-7-2023-assault-israel",
+        "https://www.october7.org/post/we-just-wanted-a-party-we-just-wanted-to-dance",
+        "https://www.october7.org/post/i-held-onto-the-hand-of-the-dead-body-laying-on-top-of-me-and-said-thank-you-for",
+        "https://www.october7.org/post/it-took-me-a-few-minutes-to-realize-that-they-were-all-dead-bodies",
+        "https://www.yesstudios.tv/ourcontent/documentaries/nova",
+        "https://www.paramountpressexpress.com/paramount-plus/releases/?view=109827-paramount-to-premiere-we-will-dance-again-a-documentary-about-the-october-7th-terror-attack-at-the-nova-music-festival",
+        "https://www.un.org/sexualviolenceinconflict/press-release/briefing-by-srsg-svc-ms-pramila-patten-to-the-security-council-findings-of-visit-to-israel-and-the-occupied-west-bank-11-march-2024/",
+        "https://www.idf.il/en/mini-sites/710-the-inquiries/all-of-the-710-inquiries/battle-of-kibbutz-beeri-the-inquiry/",
+        "https://www.october7.org/post/they-went-from-house-to-house-tormenting-butchering-slaughtering-looting-torching-kidnapping",
+        "https://apnews.com/article/ca7905bf9520b1e646f86d72cdf03244",
+        "https://www.october7.org/post/my-eldest-son-said-to-me-mom-i-don-t-want-to-die-on-my-birthday",
+        "https://www.october7.org/post/i-decided-to-play-dead-and-they-didn-t-take-me-they-ignored-me-they-took-the-three",
+        "https://www.october7.org/post/he-saw-beloved-friends-of-ours-some-shot-all-over-their-bodies-others-burnt-alive",
+        "https://www.idf.il/en/mini-sites/remembering-the-october-7-massacre/the-october-7-massacre-explained/",
+        "https://www.idf.il/en/mini-sites/israel-at-war/briefings-by-idf-spokesperson-bg-effie-defrin/january-25-press-briefings/press-briefing-by-idf-spokesperson-radm-daniel-hagari-january-30-2025/",
+        "https://www.idf.il/en/mini-sites/operation-returning-home/all-updates/"
+      ],
+      "conclusion": "Nova, Be'eri and Nir Oz support publication as the first location batch. Each has named testimony, visual or documentary records and external synthesis. Nova and Be'eri also have substantial institutional findings; Nir Oz has a material public-inquiry gap. Archive translations and repeated clips are explicitly treated as shared upstream chains rather than independent corroboration.",
+      "outcome": "published"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 38 STATIC ARCHIVE INTEGRATION: add stable location identifiers and dossier links to /october-7, testimony and documentation records without changing original testimony. Acceptance: Nova, Be'eri and Nir Oz records expose the relevant dossier and retain original-language and translation metadata.",
+    "RUN 38 EVIDENCE RELATIONSHIPS: store whether a link is independent corroboration, a shared upstream source, a translation, a derivative excerpt or an institutional finding. Acceptance: the UI never counts translations or reposts of one clip as multiple independent confirmations.",
+    "RUN 38 MEDIA PROVENANCE: expose capture date, location basis, original uploader, archive chain and verification status for documentary and perpetrator media. Acceptance: a reader can distinguish authenticated footage from an archive caption and no graphic item autoplays."
+  ]
+}

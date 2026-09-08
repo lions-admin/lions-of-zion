@@ -182,15 +182,32 @@ import {
  * `tests/admin-console-reads.test.ts` pins these against `vercel.json` so the
  * paths and expressions cannot drift; the descriptions are ours.
  */
-export const SCHEDULES = [
-  { path: "/api/internal/cron/ingest", schedule: "0,30 * * * *", description: "איסוף מכל מקור פעיל, בכל חצי שעה." },
-  { path: "/api/internal/cron/embed", schedule: "10,40 * * * *", description: "הטמעת מסמכים חדשים לצורך חיפוש סמנטי." },
-  { path: "/api/internal/cron/outbox-drain", schedule: "*/15 * * * *", description: "מסירת פעולות ממתינות מה-outbox: אינדוקס מחדש וביטול מטמון." },
-  { path: "/api/internal/cron/maintenance", schedule: "20 3 * * *", description: "תחזוקת לילה: שחרור משימות תקועות, גיזום נתונים והתראות." },
-] as const;
+/**
+ * Nothing is scheduled any more.
+ *
+ * The owner removed every cron from `vercel.json` on 2026-09-08. The four
+ * routes still exist and still do exactly what they did — they are simply
+ * invoked by a person now, from this console or from the Operations tick
+ * workflow in GitHub Actions.
+ *
+ * This stays an empty array rather than being deleted because a console that
+ * printed four schedules nobody runs would be worse than one that prints
+ * none: the settings view is where an operator goes to find out what the
+ * system does on its own, and the honest answer is "nothing".
+ * `tests/admin-console-reads.test.ts` pins it against `vercel.json`, so
+ * restoring a cron without restoring this list fails the suite.
+ */
+export type ScheduleEntry = { path: string; schedule: string; description: string };
+export const SCHEDULES: readonly ScheduleEntry[] = [];
 
-/** The schedule whose tick the overview reports as "next run". */
-const COLLECTION_SCHEDULE = SCHEDULES[0];
+/** What an operator can run by hand, and what each one does. Shown by the
+ *  settings view in place of the schedules that used to be there. */
+export const MANUAL_OPERATIONS = [
+  { path: "/api/internal/cron/ingest", description: "איסוף מכל מקור פעיל, שחזור משימות ויישוב התראות." },
+  { path: "/api/internal/cron/embed", description: "הטמעת מסמכים חדשים לצורך חיפוש סמנטי." },
+  { path: "/api/internal/cron/outbox-drain", description: "מסירת פעולות ממתינות מה-outbox: אינדוקס מחדש וביטול מטמון." },
+  { path: "/api/internal/cron/maintenance", description: "תחזוקה: גיזום נתונים, שחזור משימות, אימות מחדש של מקורות והתראות." },
+] as const;
 
 /**
  * The next tick of a fixed-form cron expression, strictly after `from`.
@@ -583,7 +600,11 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
       if (!processing) reasons.push("Editorial processing is disabled for this deployment (BRIEFING_PROCESSING_ENABLED).");
       if (critical > 0) reasons.push(`${critical} critical alert${critical === 1 ? " is" : "s are"} open.`);
       if (stuck > 0) reasons.push(`${stuck} job${stuck === 1 ? " is" : "s are"} stuck with an expired lease.`);
-      const nextTick = nextCronTick(COLLECTION_SCHEDULE.schedule, at);
+      /* No schedule, so no next tick. `nextRun` reports null rather than a
+         guess: the contract allows it, and a date here would tell an operator
+         that collection is coming when nothing will start it. */
+      const collectionSchedule = SCHEDULES.find((entry) => entry.path.endsWith("/ingest"));
+      const nextTick = collectionSchedule ? nextCronTick(collectionSchedule.schedule, at) : null;
       return consoleOverviewSchema.parse({
         generatedAt: at.toISOString(),
         systemActive: reasons.length === 0,
@@ -621,8 +642,8 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
         },
         nextRun: {
           at: nextTick ? nextTick.toISOString() : null,
-          schedule: COLLECTION_SCHEDULE.schedule,
-          path: COLLECTION_SCHEDULE.path,
+          schedule: collectionSchedule?.schedule ?? null,
+          path: collectionSchedule?.path ?? null,
         },
         counts24h: {
           collected: num(row?.collected),
@@ -1282,7 +1303,9 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
         environment: appEnv(),
         region: queueRegion(),
         siteUrl: siteUrl(),
-        schedules: SCHEDULES.map((entry) => ({ ...entry })),
+        /* Manual operations, described as such. `schedule` is the empty string
+           because there is none; the settings contract requires the key. */
+        schedules: MANUAL_OPERATIONS.map((entry) => ({ ...entry, schedule: "" })),
         models: Object.entries(MODEL_PROFILES).map(([profile, slug]) => ({ profile, slug })),
         budgets: costBudgets(),
         sections: [...ARTICLE_SECTIONS],

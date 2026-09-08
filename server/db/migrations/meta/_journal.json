@@ -456,6 +456,13 @@
       "when": 1788816799443,
       "tag": "0064_publication_media_disposition",
       "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "7",
+      "when": 1788878677320,
+      "tag": "0065_briefing_job_discarded_state",
+      "breakpoints": true
     }
   ]
 }

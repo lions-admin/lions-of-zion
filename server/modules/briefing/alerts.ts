@@ -19,6 +19,32 @@ import { israelLocalDate, israelLocalHour } from "./service";
 type Candidate = { kind: string; severity: "warning" | "critical"; message: string; details: Record<string, unknown> };
 type Database = ReturnType<typeof db>;
 
+/** A Postgres array literal, because a JS array bound as a parameter reaches
+ *  the driver as a plain string. Alert kinds and ids never contain quotes. */
+const pgArray = (values: string[]) => `{${values.map((value) => `"${value.replace(/["\\]/g, "")}"`).join(",")}}`;
+
+/**
+ * One reconciliation of the alert table against what is true right now.
+ *
+ * An alert here is the record of a condition, open for exactly as long as the
+ * condition holds. Each evaluation therefore does three things in one
+ * transaction: a kind that is firing keeps (or gets) one open row, a kind
+ * that is not firing has its open rows resolved, and a kind that somehow has
+ * more than one open row keeps only the newest. Only a *newly opened* row is
+ * delivered by email, through the outbox; a refreshed one is not, so a
+ * condition that holds for a week costs one message, not seven.
+ *
+ * That is the behaviour the table always implied and never had. Until
+ * 2026-09-08 the fingerprint was `${kind}:${localDate}`, `resolved_at` was
+ * written by the console's manual action and by nothing else, and evaluation
+ * ran once a day from the maintenance cron — so a condition that held for a
+ * week produced seven open critical rows and a condition that cleared left
+ * every row it had produced open forever. The console counted all of them.
+ *
+ * The advisory lock is what makes "one open row per kind" true without a
+ * unique index: the ingest cron and the maintenance cron can evaluate within
+ * seconds of each other, and the second one must see the first one's rows.
+ */
 export async function evaluateAndQueueBriefingAlerts(database: Database = db(), now = new Date()) {
   const localDate = israelLocalDate(now);
   const [metrics, control, connections] = await Promise.all([
@@ -31,12 +57,21 @@ export async function evaluateAndQueueBriefingAlerts(database: Database = db(), 
       SELECT
         (SELECT count(*) FROM briefing_run WHERE status = 'failed' AND created_at >= now() - interval '24 hours') AS "failedRuns",
         (SELECT count(*) FROM briefing_job WHERE state = 'quarantined') AS "quarantinedJobs",
-        /* Inactive sources are candidates, not incidents. A source may remain
-         * intentionally disabled until a human verifies it; alert only for a
-         * real repeated fetch failure, whether that source has since been
-         * automatically disabled or is still active. */
-        (SELECT count(*) FROM source WHERE consecutive_failures >= 3) AS "staleSources",
-        (SELECT extract(epoch FROM (now() - min(created_at))) / 60 FROM briefing_job WHERE state = 'pending') AS "oldestPendingMinutes",
+        /* A source the scheduler is still fetching and that keeps failing is
+         * an incident. A source the system has already taken out of rotation
+         * — auto-disabled after five failures, or retired from the catalog —
+         * is not: it is visible as such in the sources view, and the daily
+         * re-verification sweep is what brings it back. Counting it here made
+         * three dead feeds a permanent warning nobody could act on. */
+        (SELECT count(*) FROM source
+          WHERE consecutive_failures >= 3
+            AND active
+            AND coalesce(config ->> 'retired', 'false') <> 'true') AS "staleSources",
+        /* Age of the oldest job a worker could actually claim. A row whose
+         * attempt budget is spent is recoverStale's to quarantine, not this
+         * metric's to report as a backlog. */
+        (SELECT extract(epoch FROM (now() - min(created_at))) / 60 FROM briefing_job
+          WHERE state = 'pending' AND attempts < max_attempts) AS "oldestPendingMinutes",
         (SELECT coalesce(sum(cost_usd), 0) FROM ai_run WHERE model_profile IN ('briefing_triage','briefing_draft') AND created_at >= now() - interval '24 hours') AS "dailySpend",
         (SELECT coalesce(sum(cost_usd), 0) FROM ai_run WHERE model_profile IN ('briefing_triage','briefing_draft') AND created_at >= now() - interval '30 days') AS "monthlySpend",
         EXISTS (SELECT 1 FROM briefing_edition WHERE local_date = ${localDate} AND status = 'published') AS "publishedEdition",
@@ -117,9 +152,58 @@ export async function evaluateAndQueueBriefingAlerts(database: Database = db(), 
   });
 
   let created = 0;
+  let refreshed = 0;
+  let resolved = 0;
   await database.transaction(async (tx) => {
+    await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('briefing_alert'))`);
+    const firing = candidates.map((candidate) => candidate.kind);
+
+    /* Conditions that no longer hold: close every open row of that kind. An
+       empty `firing` list means everything open is closed. */
+    const closed = await tx.execute<{ id: string }>(sql`
+      UPDATE briefing_alert
+      SET resolved_at = now(), updated_at = now()
+      WHERE resolved_at IS NULL
+        AND kind <> ALL(${pgArray(firing)}::text[])
+      RETURNING id
+    `);
+    resolved += closed.rows.length;
+
     for (const candidate of candidates) {
-      const fingerprint = `${candidate.kind}:${localDate}`;
+      /* One open row per kind. Older duplicates of a still-firing kind are the
+         per-day rows the previous fingerprint produced; the newest stays open,
+         carrying today's numbers. */
+      const open = await tx.execute<{ id: string }>(sql`
+        SELECT id FROM briefing_alert
+        WHERE kind = ${candidate.kind} AND resolved_at IS NULL
+        ORDER BY created_at DESC
+        FOR UPDATE
+      `);
+      const [keep, ...duplicates] = open.rows;
+      if (duplicates.length) {
+        const closedDuplicates = await tx.execute<{ id: string }>(sql`
+          UPDATE briefing_alert
+          SET resolved_at = now(), updated_at = now()
+          WHERE id = ANY(${pgArray(duplicates.map((row) => row.id))}::uuid[])
+          RETURNING id
+        `);
+        resolved += closedDuplicates.rows.length;
+      }
+      if (keep) {
+        await tx.execute(sql`
+          UPDATE briefing_alert
+          SET severity = ${candidate.severity},
+              message = ${candidate.message},
+              details = ${JSON.stringify(candidate.details)}::jsonb,
+              updated_at = now()
+          WHERE id = ${keep.id}
+        `);
+        refreshed += 1;
+        continue;
+      }
+      /* The fingerprint stays unique per opening rather than per day so a
+         condition that clears and returns inside one day opens again. */
+      const fingerprint = `${candidate.kind}:${now.toISOString()}`;
       const inserted = await tx.execute<{ id: string }>(sql`
         INSERT INTO briefing_alert (fingerprint, kind, severity, message, details)
         VALUES (${fingerprint}, ${candidate.kind}, ${candidate.severity}, ${candidate.message}, ${JSON.stringify(candidate.details)}::jsonb)
@@ -132,7 +216,7 @@ export async function evaluateAndQueueBriefingAlerts(database: Database = db(), 
       await emit(tx as never, TOPICS.briefingAlert, { alertId: id });
     }
   });
-  return { evaluated: candidates.length, created };
+  return { evaluated: candidates.length, created, refreshed, resolved };
 }
 
 export async function deliverBriefingAlert(alertId: string): Promise<void> {

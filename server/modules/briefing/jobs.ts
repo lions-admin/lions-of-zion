@@ -37,7 +37,7 @@ type JobRow = {
   localDate: string;
   sourceId: string | null;
   editionId: string | null;
-  state: "pending" | "running" | "completed" | "quarantined";
+  state: "pending" | "running" | "completed" | "quarantined" | "discarded";
   attempts: number;
   maxAttempts: number;
   checkpoint: unknown;
@@ -220,6 +220,16 @@ export function briefingJobStore(database: unknown) {
       return Number(result.rows[0]?.count ?? 0);
     },
 
+    /**
+     * Two shapes of a job that will never move on its own. A `running` row
+     * whose lease lapsed with no heartbeat is the classic one. The other is a
+     * `pending` row whose attempt budget is already spent: `claim` requires
+     * `attempts < max_attempts`, so nothing can ever take it, and until
+     * 2026-09-08 nothing ever quarantined it either — `publish:2026-09-01:v1`
+     * sat like that for a week and drove `queue_age` past 9,600 minutes.
+     * `fail()` no longer produces that shape; this is the sweep for anything
+     * that already had it.
+     */
     async recoverStale(limit = 100): Promise<JobRow[]> {
       const result = await d.execute<JobRow>(sql`
         UPDATE briefing_job
@@ -232,8 +242,12 @@ export function briefingJobStore(database: unknown) {
         WHERE id IN (
           SELECT id
           FROM briefing_job
-          WHERE stage = 'collect' AND state = 'running' AND lease_until < now()
-          ORDER BY lease_until
+          WHERE stage = 'collect'
+            AND (
+              (state = 'running' AND lease_until < now())
+              OR (state = 'pending' AND attempts >= max_attempts)
+            )
+          ORDER BY lease_until NULLS LAST, available_at
           LIMIT ${limit}
           FOR UPDATE SKIP LOCKED
         )
@@ -261,6 +275,14 @@ export function briefingJobStore(database: unknown) {
      *
      * This deliberately does not revive ordinary source or model failures.
      * The previous failure is retained in the checkpoint for the admin trace.
+     *
+     * "This blob already exists" is on the list for the same reason the
+     * configuration labels are: it was never the source's fault. Until
+     * 2026-09-08 `storeRawBytes` refused a content-addressed path whose
+     * object already existed instead of returning it, and a publisher that
+     * served identical bytes for a few hours quarantined a job per window.
+     * The store now treats that object as the stored result, so one retry
+     * of those jobs is a plain re-collection of a healthy feed.
      */
     async recoverConfigurationFailures(limit = 100): Promise<JobRow[]> {
       const result = await d.execute<JobRow>(sql`
@@ -291,8 +313,62 @@ export function briefingJobStore(database: unknown) {
               OR last_error LIKE 'QUEUE_RESOURCE_ENV must equal production%'
               OR last_error LIKE 'SEARCH_RESOURCE_ENV must equal production%'
               OR last_error LIKE 'Vercel Blob: Access denied%'
+              OR last_error LIKE 'Vercel Blob: This blob already exists%'
             )
           ORDER BY finished_at NULLS LAST, created_at
+          LIMIT ${limit}
+          FOR UPDATE SKIP LOCKED
+        )
+        RETURNING id,
+          job_key AS "jobKey",
+          contract_version AS "contractVersion",
+          stage,
+          local_date AS "localDate",
+          source_id AS "sourceId",
+          edition_id AS "editionId",
+          state,
+          attempts,
+          max_attempts AS "maxAttempts",
+          checkpoint
+      `);
+      return result.rows;
+    },
+
+    /**
+     * The terminal state for work the retired pipeline can never run.
+     *
+     * Every stage but `collect` belonged to the internal briefing initiator,
+     * retired by owner ruling on 2026-09-06. A draft or publish row left
+     * `pending`, `running` or `quarantined` from before that date is not a
+     * job any worker will ever pick up — `handleSourceCollectionDelivery`
+     * refuses the stage outright — yet it reads to the alert evaluator and
+     * the console exactly like live failing work. Three such rows kept
+     * `quarantined_jobs` critical and `queue_age` climbing for a week.
+     *
+     * Nothing is deleted. The row keeps its `last_error`, its checkpoint and
+     * its delivery history; the retirement is recorded beside them. Runs from
+     * the maintenance and ingest crons, so a deploy is all it takes.
+     */
+    async retireLegacyStageJobs(limit = 100): Promise<JobRow[]> {
+      const result = await d.execute<JobRow>(sql`
+        UPDATE briefing_job
+        SET state = 'discarded',
+            lease_until = NULL,
+            finished_at = coalesce(finished_at, now()),
+            checkpoint = coalesce(checkpoint, '{}'::jsonb) || jsonb_build_object(
+              'retired', jsonb_build_object(
+                'previousState', state,
+                'reason', 'The internal briefing initiator was retired on 2026-09-06; this stage has no worker.',
+                'retiredAt', now()
+              )
+            ),
+            updated_at = now()
+        WHERE id IN (
+          SELECT id
+          FROM briefing_job
+          WHERE stage <> 'collect'
+            AND state IN ('pending', 'running', 'quarantined')
+          ORDER BY created_at
           LIMIT ${limit}
           FOR UPDATE SKIP LOCKED
         )
@@ -404,20 +480,29 @@ export function briefingJobStore(database: unknown) {
       `);
     },
 
+    /**
+     * The quarantine decision is made by the database, from the counter
+     * `claim` advanced, never from the row the caller happens to hold. The
+     * in-memory `JobRow` can be older than the claim (a redelivery, a retry
+     * wrapper), and deciding from it once wrote `pending` back onto a job
+     * whose stored `attempts` already equalled `max_attempts` — a row no
+     * `claim` could ever take again and no sweep ever quarantined.
+     */
     async fail(job: JobRow, messageId: string, cause: unknown): Promise<{ quarantined: boolean; retryAfterSeconds: number }> {
       const error = sanitizeError(cause);
-      const quarantined = job.attempts >= job.maxAttempts;
-      const retryAfterSeconds = retryDelay(job.attempts, job.id);
-      await d.execute(sql`
+      const retryAfterSeconds = retryDelay(Math.max(job.attempts, 1), job.id);
+      const result = await d.execute<{ state: string }>(sql`
         UPDATE briefing_job
-        SET state = ${quarantined ? "quarantined" : "pending"},
+        SET state = CASE WHEN attempts >= max_attempts THEN 'quarantined' ELSE 'pending' END,
             available_at = ${new Date(Date.now() + retryAfterSeconds * 1_000)},
             lease_until = NULL,
             last_error = ${error},
-            finished_at = CASE WHEN ${quarantined} THEN now() ELSE finished_at END,
+            finished_at = CASE WHEN attempts >= max_attempts THEN now() ELSE finished_at END,
             updated_at = now()
         WHERE id = ${job.id}
+        RETURNING state
       `);
+      const quarantined = result.rows[0]?.state === "quarantined";
       await d.execute(sql`
         UPDATE briefing_job_delivery
         SET status = ${quarantined ? "quarantined" : "failed"}, finished_at = now()
@@ -479,6 +564,8 @@ export async function recoverAndDispatchSourceCollectionJobs(limit = 100): Promi
   /** Compatibility field for the maintenance response. Legacy editorial
    * processing cannot resume and is always reported as zero. */
   processingResumed: number;
+  /** Rows of a retired stage moved to `discarded` on this tick. */
+  legacyDiscarded: number;
   dispatched: number;
   quarantined: number;
 }> {
@@ -487,6 +574,7 @@ export async function recoverAndDispatchSourceCollectionJobs(limit = 100): Promi
   // Do not revive historical configuration failures until this deployment
   // itself has passed the same isolation gate those jobs originally hit.
   assertBriefingResourceIsolation();
+  const legacyDiscarded = await jobs.retireLegacyStageJobs(limit);
   const configurationRecovered = await jobs.recoverConfigurationFailures(limit);
   const recovered = await jobs.recoverStale(limit);
   const alreadyRecovered = [...configurationRecovered, ...recovered];
@@ -503,6 +591,7 @@ export async function recoverAndDispatchSourceCollectionJobs(limit = 100): Promi
     recovered: recovered.length,
     configurationRecovered: configurationRecovered.length,
     processingResumed: 0,
+    legacyDiscarded: legacyDiscarded.length,
     dispatched,
     quarantined: recovered.filter((job) => job.state === "quarantined").length,
   };

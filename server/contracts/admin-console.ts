@@ -83,7 +83,7 @@ export const PIPELINE_STAGES = ["collect", "enrich", "cluster", "triage", "draft
 export const pipelineStageSchema = z.enum(PIPELINE_STAGES);
 export type PipelineStage = z.infer<typeof pipelineStageSchema>;
 
-export const JOB_STATES = ["pending", "running", "completed", "quarantined"] as const;
+export const JOB_STATES = ["pending", "running", "completed", "quarantined", "discarded"] as const;
 export const jobStateSchema = z.enum(JOB_STATES);
 export type JobState = z.infer<typeof jobStateSchema>;
 

@@ -143,6 +143,7 @@ export function Pill({ tone = "neutral", children }: { tone?: PillTone; children
 export function jobTone(state: string): PillTone {
   if (state === "completed") return "ok";
   if (state === "quarantined") return "danger";
+  if (state === "discarded") return "neutral";
   if (state === "running") return "gold";
   return "neutral";
 }

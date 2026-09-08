@@ -12,6 +12,7 @@ import { publicationService } from '@/server/modules/publications/service';
 import { homepageService } from '@/server/modules/homepage/service';
 import { mayActOnTheWorld } from '@/server/core/config';
 import { sendWorkspaceEmail } from '@/server/core/email';
+import { drainPendingOutbox } from '@/server/core/outbox';
 import { editorialRepo } from './repo';
 import { materializeSources } from './sources';
 
@@ -181,6 +182,39 @@ function failure(stage: EditorialFailure['stage'], operationKey: string | null, 
  * redelivers on the rethrow, so these are redeliveries, not a loop here.
  */
 const MAX_RUN_ATTEMPTS = 3;
+
+/**
+ * Bounded like the ingest route's kick, and for the same reason: the drain
+ * reads oldest-first, so an unusual backlog is the cron's problem, not this
+ * run's.
+ */
+const POST_RUN_KICK_LIMIT = 100;
+
+/**
+ * Hand a finished run's own follow-up messages to the queue now.
+ *
+ * `finish()` and `fail()` emit `editorial.run-report`, and every publication
+ * the run wrote emitted `publication.cache-invalidate` and `search.reindex`,
+ * all inside their transactions. The ingest route kicks the drain when it
+ * accepts a package — which is why `editorial.run-process` leaves within a
+ * second — but nothing kicked it when the run *ended*, so the three messages
+ * that make a run visible sat for the next quarter-hour cron tick. On
+ * 2026-09-08 the homepage-lead media run committed at 14:24:08 and its cache
+ * invalidation was published at 14:30:17: six minutes in which Production
+ * served the previous edition, and the report told the editor "pending".
+ *
+ * Same contract as the route's kick: the rows are already durable, this is
+ * the cron's `send` done earlier, and a failure here is swallowed because the
+ * cron is the safety net and the run must not be marked failed for a slow
+ * queue after its work is committed.
+ */
+export async function kickOutboxAfterRun(drain: typeof drainPendingOutbox = drainPendingOutbox): Promise<void> {
+  try {
+    await drain({ limit: POST_RUN_KICK_LIMIT });
+  } catch {
+    /* The cron drains it on the next tick. */
+  }
+}
 
 /**
  * Executes one durable run. Fetching and Blob writes happen before the short
@@ -376,6 +410,7 @@ export async function processEditorialRun(raw: unknown): Promise<void> {
         research: completedState.request.delivery?.research ?? [],
         vetoes: completedState.request.delivery?.vetoes ?? [],
       });
+      await kickOutboxAfterRun();
     } catch (cause) {
       /* A run-level fault, outside any operation. Whether it ends the run
          depends on whether anything has actually been committed and on how
@@ -398,6 +433,7 @@ export async function processEditorialRun(raw: unknown): Promise<void> {
           });
         } else {
           await store.fail(runId, token, record);
+          await kickOutboxAfterRun();
         }
       } catch {
         /* The lease is gone or the database is unreachable — the same class of

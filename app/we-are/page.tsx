@@ -130,10 +130,10 @@ export default function Page() {
           manipulation and publish material readers can inspect for themselves.
         </p>
         <p>
-          The goal is not to make an algorithm "decide truth." It is to make
-          the information environment easier to examine: where a claim came
-          from, what the source actually shows, what supports it, what
-          contradicts it, how it spread and what remains unknown.
+          The goal is not to make an algorithm decide truth. It is to make the
+          information environment easier to examine: where a claim came from,
+          what the source actually shows, what supports it, what contradicts
+          it, how it spread and what remains unknown.
         </p>
       </SectionBlock>
 

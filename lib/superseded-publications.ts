@@ -29,13 +29,65 @@
  *   3. Confirm the retired URL now 308s to the canonical article.
  */
 
-/** Retired publicId → the canonical publicId that superseded it. */
+/**
+ * Retired publicId → the canonical publicId that superseded it.
+ *
+ * Every pair below was archived on 2026-09-08 by
+ * `scripts/ops/retire-superseded.ts`, through `publications.transition()` —
+ * the same service call the ops route makes — so each has a version row, an
+ * audit row and its outbox emissions.
+ *
+ * **None of these targets was inferred.** Each retired record names its own
+ * successor in its published summary ("Historical report: … For the current
+ * verified account and later developments, read: …"), or, for the last two,
+ * says in its own title what it is. That mattered: a scoring heuristic written
+ * before this data was read would have archived the civil-defence *correction*
+ * and kept the record that calls itself "Corrected duplicate", because the
+ * duplicate is longer and better-sourced than the correction.
+ */
 export const SUPERSEDED_PUBLICATIONS: Readonly<Record<string, string>> = Object.freeze({
-  /* Populated per merge. See VA-48.4's sweep table in
-     docs/audits/2026-09-07-production-ux-integrity-implementation.md for the
-     confirmed pairs awaiting the merge, and the "flagged but NOT duplicates"
-     note directly beneath it for the two pairs that must never appear here. */
+  /* Four records collapsed into one Israel–Lebanon escalation account; each
+     names 0jqg3 in its own summary. `…v8bvd` is the record VA-46.6 examined
+     and found coherent — it has been superseded since that step closed. */
+  "3-said-killed-in-idf-strikes-in-lebanon-after-he-v8bvd": "israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3",
+  "ali-al-taher-remains-an-active-israel-hezbollah--hkoun": "israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3",
+  "ali-al-taher-ridge-remains-a-verified-israel-hez-mwq1v": "israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3",
+  "hezbollah-drones-and-israeli-strikes-drive-a-new-ztjo5": "israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3",
+
+  /* "Earlier report: … duplicates the House-vote event covered in the linked
+     retained record." */
+  "us-house-passes-bill-targeting-university-boycot-skxk2": "us-house-passes-bill-targeting-university-boycot-lhl1q",
+
+  /* "Historical report: Malek Ghazi's initial return through the …" */
+  "lebanese-detainee-returned-through-icrc-channel-bblkt": "lebanese-detainee-returned-through-icrc-channel-68if2",
+
+  /* "Earlier report: … It is not an additional independent confirmation of a
+     strike." */
+  "iran-says-it-struck-a-u-s-unmanned-vessel-washin-anmgp": "iran-says-it-struck-an-unmanned-u-s-vessel-centc-8m6cq",
+
+  /* "Historical report: Netanyahu's reported West Bank outpost-re…" */
+  "netanyahu-orders-unauthorized-west-bank-outposts-kb1l1": "netanyahu-orders-removal-of-unauthorized-west-ba-ugzzx",
+
+  /* Titled "Corrected duplicate: unsupported shelter-data expansion claim",
+     against the correction it duplicates. */
+  "israel-s-open-civil-defence-data-initiative-cont-mv6ck": "israel-s-open-civil-defence-data-initiative-cont-fgpr4",
+
+  /* VA-57.1, owner decision 2026-09-08: redundant because the surviving record
+     already carries the 78 g/g against ~100× correction itself. */
+  "ben-gurion-university-aerogel-can-absorb-100-tim-cb3o1": "ben-gurion-university-team-develops-aerogel-that-0y2we",
 });
+
+/**
+ * **Deliberately absent**, and it must stay that way without a human decision:
+ * `israel-security-diplomacy-and-anti-boycott-brief-4xspk` against
+ * `israel-security-and-diplomacy-brief-september-3--xgjvx`.
+ *
+ * VA-48.4's sweep scored them 1.00 and called them both the September 3
+ * edition. Read in full they are two daily briefs of the same date opening on
+ * the same lead, and **neither declares itself superseded** — unlike every
+ * entry above. Archiving one would delete a daily edition on a similarity
+ * score, which §48.5 forbids in as many words.
+ */
 
 /**
  * The canonical address for a retired publicId, or null if this id was never

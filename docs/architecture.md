@@ -45,7 +45,7 @@ flowchart TB
         Routes["Route handlers<br/>parse → one service → serialize"]
         Modules["Modules<br/>service / repo / rules"]
         Core["Core<br/>versioning, outbox, config, auth"]
-        DB[("Postgres<br/>65 tables, 63 migrations")]
+        DB[("Postgres<br/>65 tables, 65 migrations")]
     end
 
     Home --> Vocab

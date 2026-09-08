@@ -1,8 +1,10 @@
 # Data model
 
-Postgres, via Drizzle. **65 tables, 1 view (`published_item`), 63 numbered
-migrations** — as of 2026-09-06; this header said "59 tables … 48 numbered
-migrations" until then.
+Postgres, via Drizzle. **65 tables, 1 view (`published_item`), 65 numbered
+migrations** (0000–0064) — as of 2026-09-08; this header said "59 tables … 48
+numbered migrations" until 2026-09-06, and "63 numbered migrations" until
+2026-09-08, when `0063` and `0064` had already landed. Count it with
+`ls server/db/migrations/*.sql | wc -l` rather than trusting this line.
 
 Two of those three are mechanically checkable and worth re-deriving rather
 than trusting:

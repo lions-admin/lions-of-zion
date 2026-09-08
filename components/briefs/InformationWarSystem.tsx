@@ -4,6 +4,8 @@ import { EditorialShell } from "@/components/site/EditorialShell";
 import { PipelineTrace } from "./information-war/PipelineTrace";
 import { RecentActivity } from "./information-war/LivePanels";
 import { DailyCycle, OutputsFork } from "./information-war/StorySections";
+/* The worked investigation example belongs here rather than on the homepage:
+   this is the surface where the reader is explicitly asking how the system works. */
 import { HomeEvidencePipeline } from "@/components/home/HomeEvidencePipeline";
 import styles from "./information-war-system.module.css";
 

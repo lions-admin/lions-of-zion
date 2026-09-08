@@ -1,0 +1,40 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-homepage-lead-media-2026-09-08-1421",
+  "composer": "ChatGPT homepage lead media backfill",
+  "createdAt": "2026-09-08T14:21:00.000Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "what-changed-since-september-6-the-september-8-e-2w74s",
+      "target": { "publicId": "what-changed-since-september-6-the-september-8-e-2w74s" },
+      "publication": {
+        "canonicalStoryId": "editorial-delta-edition-2026-09-08",
+        "changeSummary": "Attached a generated editorial illustration to the homepage lead. Article text, headline, sourcing, classification and homepage placement are unchanged."
+      },
+      "media": {
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/9bb516465d11dd13f520394341e69e5a29f943e58e5a0ad0276c8abf70d81d49.png",
+        "sourceUrl": null,
+        "alt": "Abstract editorial collage of layered paper, board, brass markers and muted amber tabs representing revisions and changes across an editorial timeline.",
+        "caption": "Editorial illustration for the September 8 change edition.",
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "role": "editorial-illustration",
+        "focalPoint": { "x": 50, "y": 48 },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "cleared",
+          "basis": "Generated in-house",
+          "reference": "ChatGPT generated file sediment://file_00000000adb481f5892d10f6b0a51b0f; run chatgpt-homepage-media-2026-09-08-0717; operation what-changed-since-september-6-the-september-8-e-2w74s; stored 2026-09-08T14:18:35.395Z; sha256 9bb516465d11dd13f520394341e69e5a29f943e58e5a0ad0276c8abf70d81d49",
+          "clearedAt": "2026-09-08",
+          "surfaces": ["article", "homepage"]
+        },
+        "generated": true
+      }
+    }
+  ],
+  "homepage": {},
+  "siteRecommendations": [],
+  "research": [],
+  "vetoes": []
+}

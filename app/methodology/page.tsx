@@ -14,6 +14,7 @@ export const metadata: Metadata = pageMetadata({ title: "Methodology", descripti
 const METHODOLOGY_JSON_LD = { "@context": "https://schema.org", "@type": "WebPage", name: "Methodology", url: PAGE_URL, description: TAGLINE, isPartOf: { "@type": "WebSite", name: "Lions of Zion", url: SITE_URL } };
 
 export default function Page() {
+  /* VA-59: trust surfaces state the rules; the scan stays silent behind them. */
   return (
     <DocPage register="silent" routeId="methodology" title="Methodology" tagline={TAGLINE} rails="toc">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(METHODOLOGY_JSON_LD) }} />

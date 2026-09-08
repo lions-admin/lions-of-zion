@@ -24,7 +24,11 @@
 .choice { min-width: 0; }
 
 .choiceButton {
-  --choice-rule: var(--line);
+  /* The thick top rule is what marks this as a choice, so it is a control
+     boundary and owes 3:1 like the other three sides. It defaulted to `--line`
+     at 1.36:1, and only the `primary` variant below overrode it — so two of the
+     three cards failed and the one that passed did so by being gold. */
+  --choice-rule: var(--control-line);
   position: relative;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -42,7 +46,11 @@
   cursor: pointer;
   background-color: var(--surface-1);
   background-image: var(--surface-grade);
-  border: var(--line-w) solid var(--line);
+  /* VA-60. `--line` composites to 1.36:1 over `--ground`, and WCAG 1.4.11
+     holds a control's own boundary to 3:1. `--control-line` already existed
+     for exactly this and was only being used on hover — so the button was
+     legible once you found it, and not before. */
+  border: var(--line-w) solid var(--control-line);
   border-top: var(--line-w-thick) solid var(--choice-rule);
   border-radius: var(--radius-3);
   box-shadow: var(--shadow-1);

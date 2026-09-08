@@ -278,7 +278,7 @@ log claiming a change that was not applied. The Lebanon record demonstrated it.
       failure mode. **Apply the identical shape to the second update path at
       `service.ts:763-812`**, which has the same defect. Do not add a new bypass.
       <!-- done: fba1612 | tests/publication-update-coherence.test.ts, tests/publication-duplicate-guard.test.ts; verify:full green 150 files / 1442 passed -->
-- [~] **46.4** Guarantee a re-promoted story references **the same canonical
+- [x] **46.4** Guarantee a re-promoted story references **the same canonical
       version the article page renders**. Homepage projection and article detail
       must read one version, not two.
       <!-- claimed: A1 @ 2026-09-07 -->
@@ -287,6 +287,62 @@ log claiming a change that was not applied. The Lebanon record demonstrated it.
            (tests/publication-update-coherence.test.ts). The projection half is
            NOT verified: nothing yet asserts that the homepage band and the
            article detail read the same version. Left open deliberately. -->
+
+      **Verified correct by construction — no divergence found, nothing
+      fixed.** Traced both read paths from the DOM back to the row:
+
+      - `app/articles/[publicId]/page.tsx` calls `getPublicPublication()`
+        (`lib/publications.ts`) → `getBriefingPublicDetail()` →
+        `repo(db).byPublicId()`.
+      - The real homepage (`/`) does **not** embed content in its persisted
+        daily-edition snapshot. `homeReferenceSchema`
+        (`server/contracts/homepage.ts:7-16`) carries only `key`, `id`, `href`,
+        `version` (an `updatedAt` stamp used solely to change-detect the
+        edition hash) and `mediaId` — no title, no summary, no body. Every
+        item is hydrated live by `resolveHomepageReference()`
+        (`lib/content/homepage-adapters.ts:22`), which calls the **same**
+        `getPublicPublication()` the article page calls. Membership is
+        persisted; content never is.
+      - `components/briefs/LiveBriefHub.tsx` (the `/geopolitical-brief` hub)
+        reads `listBriefingPublications()` → `listBriefingPublic()` →
+        `repo(db).listPublic(filters, true)` — a second query, but of the
+        identical `publications` table row, not a second table or a
+        version-snapshot join. `entity_version.snapshot` is never read by any
+        public projection.
+      - Both `PublicPublication` (list) and `PublicPublicationDetail` (detail,
+        `extend`s it) carry the full `title`/`summary`/`body`/`updatedAt` —
+        detail is a superset, not a different projection of different data.
+      - Caching cannot split them either: `cachedBriefingPublications` and
+        `cachedPublicationDetail` (`lib/publications.ts`) share one
+        `unstable_cache` tag, `"publications"`. `expirePublicPublicationCache()`
+        (`server/core/publication-cache.ts`) is the only place that calls
+        `revalidateTag("publications")`, and it also unconditionally calls
+        `clearPublicReadCache()`, sweeping the *entire* process-local
+        `publicReadCache` map (list keys and detail keys together) in the same
+        synchronous call — not per-key. It fires from exactly one outbox topic,
+        `TOPICS.publicationCacheInvalidate`, emitted inside the same
+        transaction as `recordVersion()` at every write site in
+        `publications/service.ts`. There is no code path that revalidates one
+        cache and not the other.
+      - `recordVersion()` itself never writes publication content columns — the
+        caller's `r.update()` does, in the same transaction, before
+        `recordVersion()` appends the version row and moves
+        `currentVersionId`. So the one `publications` row is the single
+        durable copy of "current"; there is no second copy for a reader to
+        disagree with.
+
+      **This closes as verification-only**, per the task instruction: extended
+      `tests/publication-update-coherence.test.ts` with
+      "46.4 — homepage projection and article detail read the same version" (2
+      tests) — asserts `listBriefingPublic()` and `getBriefingPublicDetail()`
+      return byte-identical `title`/`summary`/`body`/`updatedAt`/
+      `canonicalStoryId` for the same `publicId` after a coherent developing
+      story update, and that a second update supersedes the first in both
+      projections at once. No application code changed — `LiveBriefHub.tsx`
+      lines 383-404 and `app/articles/[publicId]/page.tsx` were read-only.
+      <!-- done: 05b7d5d | tests/publication-update-coherence.test.ts
+           — 2 new tests, 17/17 passing; typecheck clean; lint 0 errors (10
+           pre-existing warnings, none touched) -->
 - [x] **46.5** Consider whether a SQL trigger is the right home for any part of
       this. **Decided: no trigger, and the reason is recorded rather than
       assumed.**
@@ -542,23 +598,28 @@ A disputed claim, a verified antisemitic incident and an influence-network
 investigation are three different objects. The visual language must never make a
 documented real-world incident look like a "fake claim".
 
-- [ ] **52.1** Formalize the content grammar. **Claim / Fact Check:** claim,
+- [x] **52.1** Formalize the content grammar. **Claim / Fact Check:** claim,
       evidence, assessment, confidence, status. **Incident / Watch:** documented
       event, source/provenance, verification status, context.
       **Network / Investigation:** actor/entity, relationships, evidence,
       findings, uncertainty/limits, revisions.
-- [ ] **52.2** Map the grammar onto the existing `PUBLICATION_SECTIONS` values
+      <!-- done: pending-commit | lib/fake-resistance-grammar.ts, tests/fake-resistance-grammar.test.ts (12); verify:full green 159 files / 1596 passed -->
+- [x] **52.2** Map the grammar onto the existing `PUBLICATION_SECTIONS` values
       that Fake Resistance owns (`narrative_watch`, `influence_investigation`,
       `antisemitism`). **`publication.section` remains the only editorial choice**
       and `lib/publication-routing.ts` derives every surface from it — do not add
       a second model-set field.
-- [ ] **52.3** Give each type its labels, filters and visual treatment. **Reuse
+      <!-- done: pending-commit | lib/fake-resistance-grammar.ts, tests/fake-resistance-grammar.test.ts (12); verify:full green 159 files / 1596 passed -->
+- [x] **52.3** Give each type its labels, filters and visual treatment. **Reuse
       existing components and tokens. Do not build three design systems.**
-- [ ] **52.4** Extend the work already shipped in `791439c`…`1203dd3`
+      <!-- done: pending-commit | lib/fake-resistance-grammar.ts, tests/fake-resistance-grammar.test.ts (12); verify:full green 159 files / 1596 passed -->
+- [x] **52.4** Extend the work already shipped in `791439c`…`1203dd3`
       (Fake Resistance editorial-type rendering) rather than replacing it.
-- [ ] **52.5** Test: content-type presentation logic — each type renders its own
+      <!-- done: pending-commit | lib/fake-resistance-grammar.ts, tests/fake-resistance-grammar.test.ts (12); verify:full green 159 files / 1596 passed -->
+- [x] **52.5** Test: content-type presentation logic — each type renders its own
       anatomy, and an incident never renders claim-assessment chrome.
 
+      <!-- done: pending-commit | lib/fake-resistance-grammar.ts, tests/fake-resistance-grammar.test.ts (12); verify:full green 159 files / 1596 passed -->
 ### VA-50 — Continue the Record `A4`
 
 Articles currently end at sources and corrections and stop. Build an
@@ -596,31 +657,91 @@ Machine. VA-04 measured that document at **60,814px** with the finding 2.4
 viewports down and two horizontal scrollers clipped (a 1319px section nav inside
 a 343px box). **Do not remove evidence to shorten the page.**
 
-- [ ] **54.1** Build progressive disclosure. First layer: thesis, current
+- [x] **54.1** Build progressive disclosure. First layer: thesis, current
       assessment, strongest evidence, key caveats, what changed.
-- [ ] **54.2** Deeper layer retains everything: full source stack, entity graph,
+      <!-- done: 39d3576 | the case-file reading order flips so `CaseStoryHeader`
+           (thesis/finding/three facts/update marker) renders before the
+           bookkeeping `dl` face sheet, measured 1,946px down at 859px vs an
+           844px viewport. The figures are unchanged, only reordered. 54.2,
+           54.3 and 54.5 below close out the remaining layer-split, local ToC
+           and dual-journey verification work. -->
+- [x] **54.2** Deeper layer retains everything: full source stack, entity graph,
       findings, connections, methodology, revision history, evidence.
-- [ ] **54.3** Add a local table of contents, stable deep links, collapsible /
+      <!-- done: 3ad61c3 | verification, not a rebuild: `git diff main -- "app/fake-resistance/cases/[slug]/page.tsx"`
+           shows 54.1 was a pure reorder (CaseStoryHeader moved up, `dl.fileFacts`
+           moved down) with zero deletions. Live-rendered the Hinkle Machine case
+           (42 entities, 17 connections, 7 narratives, 14 graded findings, 104
+           sources) at 390px and 1440px: RoleMap's per-role and per-entity native
+           `<details>`, EvidenceLedger's per-finding "Show evidence" disclosure,
+           RelationshipFlow's per-edge evidence, InvestigationTimeline's two-level
+           view, and the full Sources list all render intact and reachable — the
+           layer already reads as a delineated "layer two" (SectionBlock h2s +
+           InvestigationSectionNav + SectionToc + EvidencePath), so no
+           restructuring was needed. -->
+- [x] **54.3** Add a local table of contents, stable deep links, collapsible /
       `<details>` structures, mobile-aware hierarchy.
+      <!-- done: 3ad61c3 | Extended `InvestigationSectionNav` rather than adding a
+           second nav: the mobile/tablet strip's section list was a static
+           nine-entry array in `page.tsx` that never grew a tenth entry for the
+           conditional "What changed" `SectionBlock` (renders only when
+           `record.overturned.length > 0`, true for Hinkle Machine's 8 overturned
+           readings) — a real, anchor-linkable section with a working
+           `#what-changed` link inside `CaseStoryHeader`'s update marker, but no
+           entry in the one local-TOC surface built for exactly that. The
+           ≥1220px `SectionToc` rail never had this gap (it reads live DOM `h2`s).
+           Fix: `BASE_CASE_SECTIONS`/`caseSections()` now live in
+           `components/investigation/labels.tsx` (no `'use client'`, so the
+           server-component page can call it directly — the first attempt, with
+           the helper in the client-directive `InvestigationSectionNav.tsx`,
+           threw "Attempted to call caseSections() from the server" at runtime,
+           caught via the shared dev server's error log) and `page.tsx` now
+           derives its section list from the record instead of a hand-written
+           array. `tests/investigation-case-sections.test.ts` (5 tests) pins the
+           derivation, including against the real Hinkle Machine record. Verified
+           live: mobile strip and desktop rail both list `what-changed` right
+           after `finding`; clicking/reloading directly on `#what-changed` lands
+           correctly (scroll-margin already handled site-wide). Deep links to
+           individual findings/entities/edges/narratives
+           (`#claim_id`/`#entity-id`/`#edge-id`/`#narrative-id`) and collapsible
+           `<details>` (RoleMap groups and profiles, roster fallback,
+           EvidenceLedger/RelationshipFlow per-row disclosures) were already in
+           place and confirmed working, not added. -->
 - [x] **54.4** Fix the clipped horizontal scrollers on mobile.
       <!-- done: 007aaf9 | lib/continue-the-record.ts, tests/continue-the-record.test.ts (21); verify:full green 154 files / 1503 passed -->
-- [ ] **54.5** Serve both the reader who wants the conclusion and the researcher
+- [x] **54.5** Serve both the reader who wants the conclusion and the researcher
       who wants the dossier. Verify both journeys.
+      <!-- done: 3ad61c3 | Verified live in Chrome against the Hinkle Machine case
+           on the dev server. Reader journey at 390×844: title, question and
+           "What survives"/finding excerpt visible with one scroll, mobile strip
+           and update marker ("See what changed") both reachable immediately.
+           Researcher journey at 390×844 and 1440×900: local nav (strip + rail)
+           lists and jumps to all ten sections including "What changed"; Evidence
+           section's per-finding "Show evidence" expands supporting/contradicting
+           sources in place; Who-is-involved's nested `<details>` expand an
+           entity's full profile, connections and cross-links on mobile. Full
+           suite green: `npx vitest run` 160 files / 1603 passed / 1 skipped;
+           `npm run typecheck` clean; `npm run lint` 0 errors (16 pre-existing
+           warnings, none touched by this change). -->
 
 ### VA-55 — October 7 reduced-motion wording `A4`
 
-- [ ] **55.1** Replace system-oriented visible text such as **"Manual"** with
+- [x] **55.1** Replace system-oriented visible text such as **"Manual"** with
       user-facing language ("Rotation off" / "Reduced motion"), or remove the
       redundant visible state if the controls already communicate it.
-- [ ] **55.2** **Do not re-enable automatic motion for users requesting reduced
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **55.2** **Do not re-enable automatic motion for users requesting reduced
       motion.** Current behaviour is correct — preserve it.
-- [ ] **55.3** Previous/next controls remain fully usable.
-- [ ] **55.4** Preserve October 7 sensitive-content and graphic-content warning
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **55.3** Previous/next controls remain fully usable.
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **55.4** Preserve October 7 sensitive-content and graphic-content warning
       behaviour exactly. `tests/*october-7*` asserts the mechanism, not the prose.
-- [ ] **55.5** Test: reduced-motion behaviour regression.
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **55.5** Test: reduced-motion behaviour regression.
 
 ---
 
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
 ## 6. WAVE 3 — INFORMATION ARCHITECTURE & PRESENTATION (A5)
 
 ### VA-51 — Clarify navigation terminology `A5`
@@ -629,8 +750,51 @@ VA-04 found `/fact-check`'s breadcrumb reads `Home / Fake Resistance / …` over
 the same three records the hub lists under "On the watch", with
 `/geopolitical-brief` a third door under a fourth name.
 
-- [ ] **51.1** **Define the job of each destination first.** Do not rename
+- [x] **51.1** **Define the job of each destination first.** Do not rename
       anything before the jobs are written down in this file.
+
+      Eleven destinations are live: the five editorial destinations plus six
+      utility pages. Each row states the job in the reader's terms, then the
+      one distinction that keeps it from collapsing into its nearest neighbor
+      — the three overlaps VA-04 flagged (Fake Resistance vs Narratives & Fact
+      Checks; How It Works vs Methodology vs We Are; Search vs Ask the Desk)
+      are folded in rather than repeated separately.
+
+      | Destination | Route | Job for the reader | Differs from its nearest neighbor |
+      | --- | --- | --- | --- |
+      | News & Analysis | `/geopolitical-brief` | The daily record: what happened, its context, developing-story updates, and same-day analysis, each carrying its sources. | vs. Fake Resistance: its subject is the *event* — even a rebuttal of a hostile claim can live here as analysis. Fake Resistance's subject is the *claim itself* — its truth, its spreader, its pattern. |
+      | Fake Resistance | `/fake-resistance` | The counter-narrative desk: verifies contested claims, documents antisemitic incidents, and investigates the networks spreading them — evidence-cited, or explicitly marked as the desk's own analysis when it cites nothing. | vs. News & Analysis: object of study, not name. `narrative_watch`, `influence_investigation` and `antisemitism` are one hub with one name (`05e6dd8` retired "Narratives & Fact Checks" as a second spelling of the same destination) — the claim/incident/investigation distinction (VA-52) is a content grammar inside this hub, not a second hub. |
+      | The People of Israel | `/people-of-israel` | Profiles of people and communities — courage and service, innovation, science, achievement, international cooperation, history — each a cited record kept at its original address. | vs. News & Analysis: person- and story-led, not event-led; carries no daily developments. |
+      | October 7 | `/october-7` | The static, permanent testimony and documentation archive of that day — a run never writes into it. | vs. People of Israel: a closed historical record with its own sensitivity/graphic-content gates, not a hub that receives new editorial-run stories. |
+      | Behind the Desk / How It Works | `/information-war` | Explains the system itself: how sourcing, research, publishing and preservation work end to end, with an interactive map of the mechanism and its limits. | vs. Methodology: this is the *pipeline* (what happens, in order, and why the work exists at all). vs. We Are: this is not *who* does it or how it is funded. |
+      | Methodology | `/methodology` | The evidentiary rulebook: how a claim is sourced, labeled and corrected, including the human-review/automation provenance classes (`PUBLICATION_PROVENANCE`, VA-47). | vs. How It Works: the *standard* applied inside the pipeline, not the pipeline narrative. vs. We Are: the rules, not the people. |
+      | We Are | `/we-are` | Who is behind the desk: the roles (investigators, verification reviewers, linguists, engineers), the review chain, and the funding/independence disclosure (VA-61). | vs. Methodology/How It Works: answers *who*, not *how* or *what happens*. |
+      | Search | `/search` | Deterministic retrieval: find a specific published record in the corpus by keyword. | vs. Ask the Desk: returns matching records; never synthesizes or answers a question. |
+      | Ask the Desk | `/ask` | Put a question to the desk in natural language; the answer is grounded strictly in what has been published, citing what it used or stating plainly that nothing was found. | vs. Search: conversational synthesis over the corpus, not keyword retrieval — it must not look like a second search box (VA-58, VA-63.4). |
+      | `/our-heroes` (legacy) | `/our-heroes` | Keeps its historical address and shell: a citation collection for the fallen, the fighters and the rescuers. | vs. The People of Israel hub: a fixed historical collection at a preserved URL (`LEGACY_SECTION_PAGES`), not a lane that receives new editorial-run stories. |
+      | `/israels-story` (legacy) | `/israels-story` | Keeps its address: a sourced chronological account of the founding, wars and treaties from 1947 onward. | vs. The People of Israel hub: fixed narrative history at a preserved URL, not a receiving lane. |
+
+      **The `/ask` naming default, applied.** §14's open question 3 recorded a
+      default if the owner did not answer — "keep the chrome label as the
+      canonical name and align the others to it" — and applied it to
+      `/information-war` in `05e6dd8`. Checking it against the shipped work
+      found `/ask` still inconsistent: the chrome's own menu link says "Ask the
+      desk" (`SiteHeader.tsx:197`), but `AskDock` — the floating launcher
+      mounted site-wide and the compact header entry on the homepage — carried
+      a fourth and fifth name, "AI Chat" as its visible label and
+      `aria-label`, and "AI Chat — Ask the desk" as its dialog title on the
+      home variant. Applied the same default here: `AskDock`'s visible label,
+      `aria-label` and dialog title now all read "Ask the desk", matching the
+      chrome, the page title and the page metadata. `tests/ask-launcher.test.ts`
+      updated to pin the new text. Search carried no competing name to begin
+      with — "Search" in the chrome, the dialog title and the page title agree
+      already; "Search the corpus" is a field label inside the panel, not a
+      rival destination name.
+      <!-- done: aa7a68f | the table above; components/ask/AskDock.tsx
+           (aria-label, dockLabel, Dialog title unified to "Ask the desk");
+           tests/ask-launcher.test.ts updated (25 tests across
+           ask-launcher.test.ts + destination-naming.test.ts green);
+           typecheck and lint clean -->
 - [x] **51.2** Resolve the overlaps: Fake Resistance vs Narratives & Fact Checks;
       How It Works vs Methodology vs We Are; Search vs Ask the Desk.
       <!-- done: 05e6dd8 | tests/destination-naming.test.ts (17); breadcrumbs and /information-war title verified rendered; verify:full green 155 files / 1522 passed -->
@@ -650,19 +814,48 @@ the same three records the hub lists under "On the watch", with
 **VA-10 and VA-21 already shipped.** This is a re-check against the current
 build, not a rebuild. **Do not redesign the homepage from scratch.**
 
-- [ ] **53.1** Re-measure the first viewport at 1440/1024/768/390/360 against
+- [x] **53.1** Re-measure the first viewport at 1440/1024/768/390/360 against
       VA-04's numbers (lead headline top was 1176/1239/1317/1004/1174/1338px).
-- [ ] **53.2** Confirm the reader understands within seconds: what matters now,
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **53.2** Confirm the reader understands within seconds: what matters now,
       why, what to inspect next.
-- [ ] **53.3** Reduce competition between lead story, mission messaging, support
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **53.3** Reduce competition between lead story, mission messaging, support
       prompts, Search, Ask/AI Chat, shortcuts and utility navigation. **One
       visually dominant editorial action.**
-- [ ] **53.4** Keep the hero donation chips — removing them contradicts the owner
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **53.4** Keep the hero donation chips — removing them contradicts the owner
       ruling recorded in `.ai/DECISIONS.md`, 2026-09-07 ("the ask is on the cover
       too"), and VA-11 is closed on that basis.
-- [ ] **53.5** No generic SaaS cards, no oversized marketing hero.
-- [ ] **53.6** Re-run the LCP/perf budget afterwards (`npm run build` then
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **53.5** No generic SaaS cards, no oversized marketing hero.
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **53.6** Re-run the LCP/perf budget afterwards (`npm run build` then
       `perf:report`). `cls: 0` must hold.
+      <!-- done: 4a977e9 | npm run build succeeded; npm run perf:runtime -- http://localhost:3919
+           against a `next start` server measured home_cls: 0, reading_cls: 0
+           (/israels-story), archive_cls: 0 (/october-7/testimonies) on two
+           separate runs (home_lcp_ms 204/360, reading_lcp_ms 132/180,
+           archive_lcp_ms 96/116) -- cls: 0 holds. All eight static bundle
+           budgets pass (shared JS 165.8kB/249.3kB, homepage JS
+           265.7kB/310kB, worst route CSS 57.2kB/64.3kB, etc.). One
+           pre-existing, unrelated budget fails: "total CSS emitted" 95.5kB gz
+           vs a 90.3kB budget calibrated 2026-09-03. Isolated by building and
+           running perf:report at c963375 (pre-VA-53-restore) first: it was
+           already 95.2kB gz there, i.e. already over budget before this
+           worktree picked up VA-53's homepage commits -- merging in
+           4a977e9 moved it by only +0.3kB gz, and that diff is 50 lines
+           across app/globals.css, app/october-7/page.module.css,
+           components/ask/ask.module.css, components/content/content.module.css
+           and components/support/support-flows.module.css (VA-55/58/60
+           contrast and reduced-motion-copy fixes), none of them homepage
+           components. Not VA-53's regression and out of this step's scope
+           to fix. Separately, the runtime budgets in
+           scripts/perf-budgets.json are still null/"uncalibrated" (nobody
+           has run --update-budgets since the file was created), so
+           perf:report alone (no origin) cannot check LCP/CLS against a
+           number; perf:runtime -- <origin> is what actually measures them,
+           and did, above. -->
 
 ### VA-58 — Search vs Ask `A5`
 
@@ -670,33 +863,42 @@ build, not a rebuild. **Do not redesign the homepage from scratch.**
 rewrite Search unless a real defect is found.** VA-17 shipped a no-match state;
 VA-04 noted the fallback-index rows beneath it are untested.
 
-- [ ] **58.1** ~~Verify the fallback-index rows beneath the no-match state.~~
+- [x] **58.1** ~~Verify the fallback-index rows beneath the no-match state.~~
       **Verified 2026-09-07: they do not render.** The list is gated on a
       non-empty hit set (`SearchPanel.tsx:310`) and the else branch is an empty
       listbox kept so `aria-controls` resolves (`:324-328`). What VA-04 saw is
       the page-level `noscript` index, invisible with JavaScript on. **There is
       no Search defect. This task is naming and copy only.**
-- [ ] **58.2** State the distinction in product terms: **Search** finds a
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **58.2** State the distinction in product terms: **Search** finds a
       published record; **Ask the Desk** asks a question across what Lions has
       published and researched.
-- [ ] **58.3** Align launcher copy, menu labels, empty states, explanatory text.
-- [ ] **58.4** Ask must not look like a second search box. Search stays
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **58.3** Align launcher copy, menu labels, empty states, explanatory text.
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **58.4** Ask must not look like a second search box. Search stays
       deterministic retrieval, not conversational synthesis.
-- [ ] **58.5** **Do not weaken existing Search keyboard/ARIA behaviour.**
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **58.5** **Do not weaken existing Search keyboard/ARIA behaviour.**
 
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
 ### VA-63 — CTA vocabulary `A5`
 
-- [ ] **63.1** Adopt a systematic semantic model: News → *Read story*;
+- [x] **63.1** Adopt a systematic semantic model: News → *Read story*;
       Investigation → *Open investigation*; Evidence/archive → *Open record* /
       *View evidence*; Testimony → *Read testimony*; Search → *Search the record*;
       AI synthesis → *Ask the desk*. Final wording follows the current Lions
       voice, but it must be systematic.
-- [ ] **63.2** Stop alternating between Open / View / Read / Explore without a
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **63.2** Stop alternating between Open / View / Read / Explore without a
       reason. Sweep every surface.
-- [ ] **63.3** Sensitive archive actions keep communicating their warnings.
-- [ ] **63.4** Derive the CTA from `publication.section` via
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **63.3** Sensitive archive actions keep communicating their warnings.
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **63.4** Derive the CTA from `publication.section` via
       `lib/publication-routing.ts` — **not** from a new model-set field.
 
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
 ### VA-62 — Social metadata `A5`
 
 Confirmed live: ~20 pages export `openGraph`, but `twitter` metadata exists in
@@ -739,49 +941,62 @@ recomputes and asserts the contrast budget per family. **This is tuning inside
 an existing mechanism — do not rebuild it, and do not remove the Lions signal
 aesthetic globally.**
 
-- [ ] **59.1** Keep full strength on Fake Resistance, Information War and
+- [x] **59.1** Keep full strength on Fake Resistance, Information War and
       selected investigations.
-- [ ] **59.2** Reduce or silence it on calmer editorial/trust surfaces: ordinary
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **59.2** Reduce or silence it on calmer editorial/trust surfaces: ordinary
       news articles, People of Israel, Methodology, Corrections, We Are.
-- [ ] **59.3** Content must always visually dominate the effect.
-- [ ] **59.4** Hostile claims shown decoratively must never look like article copy.
-- [ ] **59.5** Respect reduced-motion preferences.
-- [ ] **59.6** Any intensity change must keep `tests/intro-accessibility.test.ts`
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **59.3** Content must always visually dominate the effect.
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **59.4** Hostile claims shown decoratively must never look like article copy.
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **59.5** Respect reduced-motion preferences.
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **59.6** Any intensity change must keep `tests/intro-accessibility.test.ts`
       green — raising a value fails that suite by design.
 
 ---
 
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
 ## 7. WAVE 4 — CERTIFICATION (A6)
 
 ### VA-60 — Final production visual certification `A6`
 
 **Do not rely on code inspection.** Run against the rendered application.
 
-- [ ] **60.1** Fix `ui-audit.mjs`'s `COMPLEX` route list first — 9 of its 24
+- [x] **60.1** Fix `ui-audit.mjs`'s `COMPLEX` route list first — 9 of its 24
       CRITICALs were `HTTP 404` on `/pipeline`, a dev-only route. Do not quote
       that exit code as a quality signal until the list is corrected.
-- [ ] **60.2** Viewports: **1440**, **1024**, **768**, **390**, **360**,
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **60.2** Viewports: **1440**, **1024**, **768**, **390**, **360**,
       **812×375 landscape**.
-- [ ] **60.3** Surfaces: Homepage; News/Analysis; standard article; developing
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **60.3** Surfaces: Homepage; News/Analysis; standard article; developing
       story; Fake Resistance; major investigation (Hinkle); October 7 landing;
       testimony detail; video record; image record; People of Israel; Search;
       How It Works; Methodology; We Are; Corrections.
-- [ ] **60.4** Inspect: first-viewport composition, headline wrapping, image
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **60.4** Inspect: first-viewport composition, headline wrapping, image
       crops, missing/broken media, sticky navigation, overlays, horizontal
       overflow, spacing rhythm, card/content density, reading measure, mobile
       ordering, captions/credits, empty states, focus states, reduced motion,
       warning states, long content, footer transitions.
-- [ ] **60.5** Assert zero of each: unintended horizontal scrolling; clipped
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **60.5** Assert zero of each: unintended horizontal scrolling; clipped
       headlines; overlapping UI; broken image state; clearly bad hero crop;
       accidental giant cards from missing content; inaccessible critical
       controls; mobile ordering that destroys editorial hierarchy.
-- [ ] **60.6** Capture screenshots as QA evidence under
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **60.6** Capture screenshots as QA evidence under
       `docs/reviews/production-ux-integrity/after/`.
-- [ ] **60.7** Fix an issue found here **only if it is clearly inside this
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [x] **60.7** Fix an issue found here **only if it is clearly inside this
       task's scope**, then re-verify it.
 
 ---
 
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
 ## 8. IMPLEMENTATION DISCIPLINE — binding for every agent
 
 - Preserve working functionality. Reuse existing components and tokens.
@@ -845,7 +1060,8 @@ failures, and no dialog failure across 37 dialogs.
 
 Mobile must be intentionally composed, not mechanically stacked desktop columns.
 
-- [ ] **A11Y-1** Re-verify every item above after Waves 1–3.
+- [x] **A11Y-1** Re-verify every item above after Waves 1–3.
+      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
 - [ ] **A11Y-2** Confirm `viewport-fit=cover` (shipped in `52bae19`) still holds
       and that the safe-area rules it revived behave on a physical device.
 
@@ -936,30 +1152,43 @@ Update this table in the **same commit** that changes any box above.
 | Task | Owner | Status | PR | Evidence |
 | --- | --- | --- | --- | --- |
 | P-1 … P-5 | any | ☐ not started | 0 | — |
-| VA-46 | A1 | ◐ in progress | 1 | `fba1612`, `132978e` — rules, both update paths, 15 tests, trace and trigger decision recorded, Lebanon record swept and found already coherent. Open: 46.4 projection half only |
+| VA-46 | A1 | ☑ done | 1 | `fba1612`, `132978e` — rules, both update paths, 15 tests, trace and trigger decision recorded, Lebanon record swept and found already coherent; 46.4 closed verification-only (correct by construction — homepage and detail both read the one `publications` row, snapshot carries no content, both caches share one invalidation call) with 2 more tests, 17 total |
 | VA-48 | A1 | ◐ in progress | 1 | `fba1612`, `132978e` — guard on both auto-publish paths, override documented, 4 tests, live sweep tabulated (3 exact + 7 near pairs). Open: 48.5 merges and 48.6 redirects — both need Production mutation credentials |
 | VA-47 | A2 | ☑ done | 1 | `6295324` — PUBLICATION_PROVENANCE derived from `autoPublishedAt`; Authorship line; Methodology "Two ways a record publishes"; 13 tests |
 | VA-61 | A2 | ☑ done | 1 | `6295324` — funding model published on We Are after the owner answered |
 | VA-49 | A3 | ☑ code done | 2 | `ae18ad2` — migration 0064 applied to Production and its drizzle receipt inserted, both verified 2026-09-08. 49.3/49.4/49.5 remain editorial, need the MCP path |
 | VA-50 | A4 | ☑ done | 2 | `007aaf9` — shared-field ladder, bounded pool, cross-desk eyebrow, 21 tests |
-| VA-54 | A4 | ◐ in progress | 2 | `fa6290f` — 54.4 only (strip scroll legible + follows the reader). Open: 54.1–54.3, 54.5 progressive disclosure and local contents |
+| VA-54 | A4 | ☑ done | 2 | `fa6290f` — 54.4 (strip scroll legible + follows the reader); `39d3576` — 54.1 (finding leads the bookkeeping); 3ad61c3 — 54.2 (verified nothing dropped), 54.3 (`caseSections()` closes the "What changed" nav gap, 5 tests), 54.5 (dual-journey verified live at 390×844 and 1440×900). Full suite 160 files / 1603 passed |
 | VA-56 | A4 | ☑ done | 2 | `ae18ad2` — `lib/source-dump.ts`, body and passages, 16 tests, four live records verified |
-| VA-52 | A5 | ☐ not started | 3 | — |
-| VA-55 | A5 | ☐ not started | 3 | — |
-| VA-59 | A5 | ☐ not started | 3 | — |
-| VA-51 | A6 | ◐ in progress | 4a | `05e6dd8` — /information-war unified, seven breadcrumbs derived, 404 desk fixed. Open: 51.1 the written job of each destination, and the Search/Ask naming |
+| VA-52 | A5 | ☑ done | 3 | `lib/fake-resistance-grammar.ts` — three types, one map, incident language separated from claim language, 12 tests |
+| VA-55 | A5 | ☑ done | 3 | `2c40e63` — the disabled "Manual" button became a stated "Rotation off"; arrows stay live |
+| VA-59 | A5 | ☑ done | 3 | `2c40e63` — distribution was inverted; trust and People surfaces silent, article backdrop derived from the record type |
+| VA-51 | A6 | ☑ done | 4a | `05e6dd8` — /information-war unified, seven breadcrumbs derived, 404 desk fixed. `aa7a68f` — 51.1 job-of-each-destination table (eleven destinations) written into §6; confirmed `/ask`'s naming already carries the chrome's "Ask the desk" (aria-label, dock label, dialog title) via the restored `2c40e63`/`4a977e9` work, with `AskDock`'s own comment and dialog copy additionally covering VA-58.4 (not a second search box) |
 | VA-57 | A6 | ◐ in progress | 4a | `05e6dd8` — lanes and labels derived from routing, drift removed. Open: 57.1 the BGU duplicate itself, which is editorial |
-| VA-63 | A6 | ☐ not started | 4a | — |
-| VA-58 | A6 | ☐ not started | 4a | — |
-| VA-53 | A6 | ☐ not started | 4b | — |
+| VA-63 | A6 | ☑ done | 4a | `7b3213d` — `publicationCta` derived from section; hub actions normalised to "View all" |
+| VA-58 | A6 | ☑ done | 4a | `2c40e63` — five names for Ask collapsed to the menu label; Search states its own job. No Search behaviour touched. `aa7a68f`/51.1 re-confirmed this live and closed 58.3's naming piece from the destination-job table side too |
+| VA-53 | A6 | ☑ done | 4b | `9e279cd` — re-measured at six widths; every one improved, lead headline 1176→512px at 1440. Phone cover behaviour recorded as the owner's design. 53.6: `perf:runtime` measured `home_cls: 0` (also `reading_cls`/`archive_cls: 0`) on two runs; `cls: 0` holds. One pre-existing "total CSS emitted" budget overage found, proven unrelated (already over at pre-restore `c963375`, moved +0.3kB by unrelated VA-55/58/60 CSS, not homepage code) |
 | VA-62 | A6 | ☑ done | 4b | `9ca7bd1` — `pageMetadata` helper, 20 routes converted, 37 tests |
-| VA-60 | A7 | ☐ not started | 5 | — |
-| A11Y-1, A11Y-2 | A7 | ☐ not started | 5 | — |
+| VA-60 | A7 | ☑ done | 5 | `c7b78c9`, `9e279cd` — 20 critical/exit 1 → **0 critical/exit 0**, full coverage; 90 screenshots; harness fixed first |
+| A11Y-1 | A7 | ☑ done | 5 | `c7b78c9` — contrast, no-JS records, accessible names all re-verified |
+| A11Y-2 | A7 | ⛔ blocked | 5 | Needs a physical iOS device; must not be claimed on emulation |
 | T-1 … T-13 | all | ☐ not started | all | — |
 
 Note: VA-56 moved from A1 to A4, because A4 owns the article page where the
 structured source stack renders. VA-52 moved from A4 to A5, because the Fake
 Resistance previews touch nothing the article page touches.
+
+Note: `AskDock`'s "AI Chat" naming was fixed once before, in `2c40e63`
+(recorded there as part of VA-58). That commit reached `main` in PR #59, which
+was merged while its branch was still in progress and then reverted whole
+(`5757712`), taking the Ask fix out with everything else. It came back with
+`4a977e9` ("Restore PR #59 work on a continuation branch"), which is why
+`AskDock.tsx` on this branch already carries the fix, its explanatory comment
+and a fuller not-a-search-box dialog description — 51.1's own attempt to redo
+the same fix (`aa7a68f`, on a branch forked before the restore) was
+superseded by that already-live version during integration and was not
+applied a second time. Worth knowing so nobody reads `aa7a68f` in history and
+assumes it is what shipped.
 
 Status vocabulary: `☐ not started` · `◐ in progress` · `☑ done` · `⛔ blocked`.
 
@@ -977,11 +1206,14 @@ would do by default if unanswered.
    already has a canonical record — the editorial run itself, or only a human
    through the admin console? **Blocks step 48.2.** Default if unanswered:
    human-only through the admin console, since that is the narrower grant.
-3. *(VA-51)* `/information-war` answers to three names — "How it works" in the
-   chrome, "This is an information war" as its own title, "Why this work
-   matters" on the homepage. `/ask` answers to five, including "AI Chat". Which
-   name wins in each case? **Blocks step 51.2.** Default if unanswered: keep the
-   chrome label as the canonical name and align the others to it.
+3. *(VA-51)* ~~`/information-war` answers to three names…~~ **Resolved by the
+   recorded default, no owner answer needed.** `/information-war` was unified
+   to its chrome label "How it works" in `05e6dd8`. `/ask`'s remaining fourth
+   and fifth names ("AI Chat" as `AskDock`'s visible label/`aria-label`, "AI
+   Chat — Ask the desk" as its dialog title) were unified to the chrome's "Ask
+   the desk" while closing 51.1. If the owner later prefers a different
+   canonical name for either destination, that is a one-line rename from here,
+   not a re-open of this question.
 
 ---
 

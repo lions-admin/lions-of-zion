@@ -15,7 +15,7 @@ import {
   RelationshipFlow,
   RoleMap,
   UnknownsPanel,
-  type InvestigationSection,
+  caseSections,
 } from '@/components/investigation';
 import { CadenceFigure, EvidenceStrip, LagFigure, OverturnedList } from '@/components/research';
 import {
@@ -30,24 +30,6 @@ import styles from './page.module.css';
 import { publicationHubCrumb } from '@/lib/publication-routing';
 
 type Params = { params: Promise<{ slug: string }> };
-
-/**
- * The reading order of a case — "follow the thread". A reader can jump
- * between these, but scrolled top to bottom they tell one story: the finding,
- * the people, the ideas, the movement, the time, the evidence, what cuts
- * against it, what is unknown, and where it all came from.
- */
-const SECTIONS: InvestigationSection[] = [
-  { id: 'finding', label: 'Finding' },
-  { id: 'who', label: 'Who is involved' },
-  { id: 'narratives', label: 'Narratives' },
-  { id: 'flows', label: 'How material moved' },
-  { id: 'timeline', label: 'Timeline' },
-  { id: 'evidence', label: 'Evidence' },
-  { id: 'counter', label: 'What cuts against it' },
-  { id: 'unknowns', label: 'Unknowns and limits' },
-  { id: 'sources', label: 'Sources' },
-];
 
 export async function generateStaticParams() {
   return caseParams();
@@ -200,13 +182,27 @@ export default async function Page({ params }: Params) {
         />
 
         {/* Below the rails breakpoint this is the case navigator; above it
-            the shell's own contents rail carries the same nine headings. */}
-        <InvestigationSectionNav sections={SECTIONS} />
+            the shell's own contents rail carries the same headings, read live
+            from the DOM. `caseSections` adds "What changed" only for a case
+            that actually renders that block (VA-54.3), so the two surfaces
+            can never list a different number of sections. */}
+        <InvestigationSectionNav sections={caseSections(record.overturned.length > 0)} />
 
-        {/* The file's face sheet: what this record is, in figures, before any
-            prose — every value is the research's own bookkeeping (`caseId`,
-            `updatedAt`, the counts, the publication record), not a summary
-            written here. */}
+        {/* VA-54. The face sheet used to come first — seven figures before a
+            reader was told what the file found. Measured on a phone, the
+            Finding sat 1,946px down, 2.3 viewports, in a 58,000px document;
+            the comment below claimed this header was "above the fold" while it
+            rendered at 859px against an 844px viewport.
+            The point now precedes the bookkeeping. Nothing is removed: the
+            figures are the research's own and still sit directly beneath, where
+            they read as corroboration of a stated finding rather than as a
+            barrier to reaching one. */}
+        <CaseStoryHeader record={record} model={model} />
+
+        {/* The file's face sheet: what this record is, in figures. Every value
+            is the research's own bookkeeping (`caseId`, `updatedAt`, the
+            counts, the publication record), not a summary written here — which
+            is exactly why it reads better after the finding than before it. */}
         <dl className={styles.fileFacts}>
           <div className={styles.fileFact}>
             <dt>File</dt>
@@ -245,10 +241,6 @@ export default async function Page({ params }: Params) {
             <dd>{record.counts.sources}</dd>
           </div>
         </dl>
-
-        {/* Above the fold: the plain-language finding, three facts, and the
-            update marker. Methodology and figures come later. */}
-        <CaseStoryHeader record={record} model={model} />
 
         {/* The persistent evidence path: what the reader is following. */}
         <EvidencePath />

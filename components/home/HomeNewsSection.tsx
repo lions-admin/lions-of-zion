@@ -68,11 +68,11 @@ export function HomeNewsSection({
               </p>
             )}
             <HomeSources sources={item.sources} />
-            <JourneyLink href={item.href}>
-              {item.category === "Daily Brief"
-                ? "Read the daily brief"
-                : "Read the story"}
-            </JourneyLink>
+            {/* VA-63. This compared the card's *label* to the string "Daily
+                Brief" to pick a verb — a section rename would have silently
+                changed what the link said. The verb is derived from the
+                section now and carried on the preview. */}
+            <JourneyLink href={item.href}>{item.cta ?? "Read the story"}</JourneyLink>
             </div>
           </article>
         ))}

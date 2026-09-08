@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './investigation.module.css';
 
-export type InvestigationSection = { id: string; label: string };
+import type { InvestigationSection } from './labels';
+
+export type { InvestigationSection };
 
 /**
  * The sticky section strip — the case navigator below the rails breakpoint.

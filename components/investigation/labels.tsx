@@ -8,6 +8,64 @@ import styles from './investigation.module.css';
  * a screen reader.
  */
 
+export type InvestigationSection = { id: string; label: string };
+
+/**
+ * The reading order of a case — "follow the thread". A reader can jump
+ * between these, but scrolled top to bottom they tell one story: the finding,
+ * the people, the ideas, the movement, the time, the evidence, what cuts
+ * against it, what is unknown, and where it all came from.
+ *
+ * Declared here rather than in `InvestigationSectionNav.tsx` or the page: this
+ * module carries no `'use client'` directive, so the page (a server
+ * component) can call `caseSections()` directly. Next's RSC compiler treats
+ * every named export of a `'use client'` module as a client reference, even a
+ * plain, side-effect-free function — that first attempt failed at runtime
+ * with "Attempted to call caseSections() from the server but caseSections is
+ * on the client."
+ */
+export const BASE_CASE_SECTIONS: InvestigationSection[] = [
+  { id: 'finding', label: 'Finding' },
+  { id: 'who', label: 'Who is involved' },
+  { id: 'narratives', label: 'Narratives' },
+  { id: 'flows', label: 'How material moved' },
+  { id: 'timeline', label: 'Timeline' },
+  { id: 'evidence', label: 'Evidence' },
+  { id: 'counter', label: 'What cuts against it' },
+  { id: 'unknowns', label: 'Unknowns and limits' },
+  { id: 'sources', label: 'Sources' },
+];
+
+/**
+ * The section list for one case, "What changed" included when the case
+ * actually renders that block.
+ *
+ * VA-54.3: the page's own `SectionBlock id="what-changed"` is conditional on
+ * `record.overturned.length > 0` — it renders only for a case whose newer
+ * data withdrew an earlier reading (Hinkle Machine is one). The nine-section
+ * list above is static and never carried a tenth entry for it, so a reader
+ * of an overturned case had a working `#what-changed` link inside
+ * `CaseStoryHeader`'s update marker that the local table of contents itself
+ * never offered — a real section with no stable, discoverable entry point in
+ * the one navigation surface built for exactly that. The ≥1220px contents
+ * rail (`SectionToc`) never had this gap: it reads live `h2` headings from
+ * the DOM, so it always picked up "What changed" on its own. This strip
+ * built its list by hand instead, and that is what had drifted.
+ *
+ * Inserted directly after "Finding", matching the page's own render order:
+ * the block sits between the Finding `SectionBlock` and "Who is involved".
+ */
+export function caseSections(hasOverturned: boolean): InvestigationSection[] {
+  if (!hasOverturned) return BASE_CASE_SECTIONS;
+  const findingIndex = BASE_CASE_SECTIONS.findIndex((section) => section.id === 'finding');
+  const insertAt = findingIndex + 1;
+  return [
+    ...BASE_CASE_SECTIONS.slice(0, insertAt),
+    { id: 'what-changed', label: 'What changed' },
+    ...BASE_CASE_SECTIONS.slice(insertAt),
+  ];
+}
+
 export const TYPE_LABEL: Record<CaseEntity['type'], string> = {
   person: 'Person',
   organization: 'Organisation',

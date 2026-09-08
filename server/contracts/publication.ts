@@ -239,6 +239,32 @@ export const publicPublicationSchema = z.object({
    * as "deliberately text-led": every row published before migration `0064`
    * carries it, and an absent value falls to the strict side exactly as
    * `evidenceBasis` does.
+   *
+   * **Do not branch on `=== "illustrated"` to mean "this record has a
+   * picture".** The value is *derived* inside `applyEditorial`, never chosen
+   * by a model — `media ? "illustrated" : mediaOutcome === "unavailable" ?
+   * "media_unavailable" : "text_led"` — and the update branch writes it only
+   * when the operation actually re-examined media, so an ordinary typo fix
+   * cannot relabel a picture-less record as deliberate. That restraint is
+   * right, and it is also why the field does not describe the archive.
+   * Measured against Production on 2026-09-08, across the 83 live
+   * (`published` + `updated`) records: `null` 58, `text_led` 21,
+   * `illustrated` 4 — while **18** records carry a hero. Fourteen of those
+   * eighteen read `null`, so the obvious test finds under a quarter of the
+   * pictures on the site. Ask the media relation, or `media`, whether there is
+   * a picture; ask this field only why there is not.
+   *
+   * The gap runs the other way too, and it is the distinction the field was
+   * added for: a record that already existed picture-less has no path to
+   * being declared intentionally text-led. Only a run that re-examines its
+   * media can write the value, and a run that offers none by definition does
+   * not. Closing that would mean giving the update path an explicit
+   * disposition signal, which means a model-set field on
+   * `updatePublicationSchema` and on the `.strict()` whole-site contract —
+   * the two places kept deliberately unable to represent it. Judged not worth
+   * widening while nothing public reads this field. If something starts to,
+   * reopen the decision rather than working around the counts above.
+   * `tests/media-disposition-semantics.test.ts` pins all of it.
    */
   mediaDisposition: z.enum(["illustrated", "text_led", "media_unavailable"]).nullable().default(null),
 });

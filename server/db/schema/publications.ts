@@ -90,6 +90,11 @@ export const publication = pgTable(
      * A *state*, never a gate: the owner ruled on 2026-09-07 that a picture is
      * not a condition of publishing or of a homepage slot. Read `NULL` as "not
      * recorded", never as "deliberate".
+     *
+     * It is also not a reliable answer to "does this record have a picture" —
+     * most heroes on the site sit on rows reading `NULL`. The counts and the
+     * reasoning are on `publicPublicationSchema.mediaDisposition` in
+     * `server/contracts/publication.ts`; read that before consuming this.
      */
     mediaDisposition: text("media_disposition").$type<"illustrated" | "text_led" | "media_unavailable">(),
 

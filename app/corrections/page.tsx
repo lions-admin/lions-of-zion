@@ -9,18 +9,11 @@ import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 import { pageMetadata } from "@/lib/page-metadata";
 
-const TAGLINE =
-  "The policy for handling errors, and the public record of every correction made.";
+const TAGLINE = "How Lions of Zion corrects errors, records significant changes and keeps automated publishing accountable.";
 const PAGE_URL = `${SITE_URL}/corrections`;
 
-export const metadata: Metadata = pageMetadata({
-  title: "Corrections",
-  description: TAGLINE,
-  path: "/corrections",
-});
+export const metadata: Metadata = pageMetadata({ title: "Corrections", description: TAGLINE, path: "/corrections" });
 
-/* A policy page, not an article — WebPage is the correct real schema.org
-   type here. */
 const CORRECTIONS_JSON_LD = {
   "@context": "https://schema.org",
   "@type": "WebPage",
@@ -30,48 +23,12 @@ const CORRECTIONS_JSON_LD = {
   isPartOf: { "@type": "WebSite", name: "Lions of Zion", url: SITE_URL },
 };
 
-/**
- * Three states, and the whole point of CORR-001 is that they are three.
- *
- * A public ledger that has recorded nothing and a ledger that failed to load
- * look identical unless someone makes them different, and the failure is the
- * one a reader must not mistake for a clean record — "no corrections" is a
- * claim about this organisation's accuracy, and it must never be made by a
- * broken fetch.
- */
-type LedgerState =
-  | { kind: "ready"; entries: Correction[] }
-  | { kind: "unavailable" };
+type LedgerState = { kind: "ready"; entries: Correction[] } | { kind: "unavailable" };
 
-/**
- * `getCorrectionsLog()` cannot throw today — it returns a constant empty
- * array. The catch is not defensive clutter: it is the seam the page is
- * *designed against*, so the day the log is backed by the publications module
- * the failure state already exists, is already styled, and is already
- * distinct from the empty one. Building it later means shipping the wrong
- * state first.
- */
 async function readLedger(): Promise<LedgerState> {
   try {
     const log = await getCorrectionsLog();
-    return {
-      kind: "ready",
-      entries: log.map((entry) => ({
-        date: entry.date,
-        note: entry.note,
-        version: entry.version,
-        /* "When data permits", and not one step further. `page` is the human
-           label for the corrected record; `slug` is whatever the seam ends up
-           storing, and the seam is empty, so its shape is not yet decided.
-           A row is only linked when the slug is already a site-relative path
-           — anything else would mean this page inventing a route prefix on
-           the log's behalf, and a "corrected record" link that resolves to
-           nothing costs a ledger more credibility than a plain context line
-           saves it. Everything else degrades to context. */
-        href: entry.slug.startsWith("/") ? entry.slug : undefined,
-        context: entry.page || undefined,
-      })),
-    };
+    return { kind: "ready", entries: log.map((entry) => ({ date: entry.date, note: entry.note, version: entry.version, href: entry.slug.startsWith("/") ? entry.slug : undefined, context: entry.page || undefined })) };
   } catch {
     return { kind: "unavailable" };
   }
@@ -82,92 +39,46 @@ export default async function Page() {
   const count = ledger.kind === "ready" ? ledger.entries.length : null;
 
   return (
-    <DocPage
-      /* VA-59. A trust page states rules; the scan is decoration behind them. */
-      register="silent" routeId="corrections" title="Corrections" tagline={TAGLINE}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(CORRECTIONS_JSON_LD) }}
-      />
+    <DocPage register="silent" routeId="corrections" title="Corrections" tagline={TAGLINE}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(CORRECTIONS_JSON_LD) }} />
+
+      <SectionBlock heading="Accountability does not disappear when AI is used">
+        <p>Lions of Zion uses AI to increase the speed and breadth of research, comparison and editorial production. That makes correction mechanisms more important, not less. Automated assistance is never an excuse to hide an error, erase an earlier version or pretend that a changing evidence record never changed.</p>
+        <p>Human governance remains responsible for the rules around publishing, provenance, escalation and correction. Machine-authored publications can go live through an authorized production path without manual pre-approval of every record; they remain part of the same correctable public record.</p>
+      </SectionBlock>
+
       <SectionBlock heading="Policy">
-        <p>
-          A network that verifies will still sometimes be wrong. When that
-          happens, the correction is made as loud as the original claim: the
-          item is amended in place, marked as corrected, and the change is
-          announced through the same channels that carried the error.
-          Corrected items are never quietly deleted — the record of the
-          correction is part of the record. Full sourcing standards are on
-          the <Link href="/methodology">Methodology</Link> page.
-        </p>
+        <p>When a material factual or contextual error is identified, the public record should be corrected clearly. Significant changes should be transparent, useful historical context should be preserved where it helps readers understand what changed, and uncertainty should be updated when the evidence changes.</p>
+        <p>Corrections are not the same thing as routine story development. The sourcing and evidence standard is explained on the <Link href="/methodology">Methodology</Link> page.</p>
       </SectionBlock>
 
       <SectionBlock heading="What kind of change was made?">
-        <p>
-          Not every revision is a correction. We label changes by what they do,
-          so a reader can tell whether the earlier record was wrong or whether
-          the story simply moved forward.
-        </p>
         <ul>
-          <li><strong>Correction.</strong> Fixes a material factual or contextual error and belongs in the public ledger below.</li>
-          <li><strong>Update.</strong> Adds verified information that emerged after publication.</li>
-          <li><strong>Developing-story revision.</strong> Rewrites the current canonical account as an event changes while preserving the earlier version in its history.</li>
+          <li><strong>Correction.</strong> Fixes a material factual or contextual error and belongs in the public correction record.</li>
+          <li><strong>Update.</strong> Adds information that emerged after publication without implying the earlier record was wrong.</li>
+          <li><strong>Developing-story revision.</strong> Updates the current canonical account as an event changes while preserving version history.</li>
           <li><strong>Added context.</strong> Adds explanation without changing the underlying finding.</li>
-          <li><strong>Source update.</strong> Adds, replaces or clarifies a citation or archive link. If the new source changes a conclusion, the change is also recorded as a correction.</li>
+          <li><strong>Source update.</strong> Adds, replaces or clarifies a citation or archive link. If the new source changes the conclusion, that change also belongs in the correction record.</li>
           <li><strong>Technical migration.</strong> Moves or reformats material without making a new editorial finding or claiming new verification.</li>
         </ul>
       </SectionBlock>
 
       <SectionBlock heading="Correction log">
-        <p>
-          Every correction issued across the site appears here, dated, with
-          what changed and — where the record is reachable — a link to it. If
-          you have found something that belongs here,{" "}
-          <Link href="/support-us#report">report the claim</Link> and it will
-          be checked.
-        </p>
-
+        <p>The central ledger below is one public view of corrections recorded by this site. Publication-level version histories and explicit correction notes may also preserve changes on the records themselves. An empty central ledger must not be read as a claim that no error has ever occurred or that every automated publication was correct.</p>
         <div className={styles.ledger}>
-          <div className={styles.ledgerHead}>
-            <span className={styles.ledgerKicker}>Public ledger</span>
-            <span className={styles.ledgerCount}>
-              {count === null
-                ? "Entries unavailable"
-                : count === 1
-                  ? "1 entry"
-                  : `${count} entries`}
-            </span>
-          </div>
-
+          <div className={styles.ledgerHead}><span className={styles.ledgerKicker}>Public ledger</span><span className={styles.ledgerCount}>{count === null ? "Entries unavailable" : count === 1 ? "1 entry" : `${count} entries`}</span></div>
           {ledger.kind === "unavailable" ? (
-            /* `status="error"` puts this on `role="alert"` and the danger
-               ramp, and the sentence says outright that the absence of
-               entries below is not a claim about the record. */
-            <StatusState
-              className={styles.ledgerState}
-              status="error"
-              eyebrow="Ledger unavailable"
-              title="The correction log could not be loaded"
-              description="This is a failure to read the log, not a statement that no corrections exist. Reload the page; if it keeps failing, report it and it will be looked at."
-              actionText="Report the problem"
-              actionHref="/support-us#report"
-            />
+            <StatusState className={styles.ledgerState} status="error" eyebrow="Ledger unavailable" title="The correction log could not be loaded" description="This is a failure to read the central ledger, not a statement that no corrections exist. Reload the page; if the problem continues, report it." actionText="Report the problem" actionHref="/support-us#report" />
           ) : count === 0 ? (
-            /* Not the same thing, and not styled as though it were: a real
-               record with nothing in it. `/methodology` says the same under
-               Limitations, so an empty log is never read as a boast. */
-            <StatusState
-              className={styles.ledgerState}
-              status="empty"
-              eyebrow="Ledger loaded"
-              title="No corrections recorded"
-              description="The ledger loaded and holds nothing: no published item has needed a correction yet. That is a real record with nothing in it, not a placeholder — and not evidence that the standard has been tested."
-              actionText="Read what this standard cannot do"
-              actionHref="/methodology#limitations"
-            />
+            <StatusState className={styles.ledgerState} status="empty" eyebrow="Ledger loaded" title="No entries in the central ledger" description="The central corrections ledger currently contains no rows. That does not establish an error-free history: publication version histories and correction notes may contain changes that are not yet aggregated here." actionText="Read the methodology" actionHref="/methodology#corrections" />
           ) : (
             <CorrectionHistory corrections={ledger.entries} />
           )}
         </div>
+      </SectionBlock>
+
+      <SectionBlock heading="Report an error">
+        <p>If you find a factual problem, missing context or a source that no longer supports the claim beside it, report it. The question is not whether a person or an AI produced the original record; the question is whether the public record now reflects the best available evidence. Use the <Link href="/support-us#report">report form</Link>.</p>
       </SectionBlock>
     </DocPage>
   );

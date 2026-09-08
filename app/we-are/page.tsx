@@ -1,279 +1,96 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import {
-  Card,
-  CardDescription,
-  CardEyebrow,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/Card";
+import { Card, CardDescription, CardEyebrow, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 import { pageMetadata } from "@/lib/page-metadata";
 
-const TAGLINE =
-  "Who Lions of Zion are, why this network exists, and how it works.";
+const TAGLINE = "Israeli-built technology for the information battlefield — AI-powered, evidence-led and human-governed.";
 const PAGE_URL = `${SITE_URL}/we-are`;
 
-export const metadata: Metadata = pageMetadata({
-  title: "We Are",
-  description: TAGLINE,
-  path: "/we-are",
-});
+export const metadata: Metadata = pageMetadata({ title: "We Are", description: TAGLINE, path: "/we-are" });
 
-/* This page is the site's own "about" page — Organization is the correct
-   real schema.org type here, not Article. */
 const WE_ARE_JSON_LD = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: "Lions of Zion",
   url: PAGE_URL,
-  description:
-    "A network of volunteers — researchers, analysts, translators, designers and developers — using evidence, open-source research and technology to examine organized misinformation about Israel.",
+  description: "An independent Israeli-built editorial and public-information platform combining AI-scale research, OSINT, evidence organization and human editorial governance.",
 };
 
-const METHOD_STEPS: { title: string; icon: IconName; body: string; gate?: boolean }[] = [
-  {
-    title: "Ingest",
-    icon: "intake",
-    body: "A source is fetched and the fetch itself is logged — every attempt, not just the successes — so the record of what was checked is as permanent as the record of what was found.",
-  },
-  {
-    title: "Evidence",
-    icon: "evidence",
-    body: "A claim is linked to evidence with its own type and strength. Evidence only counts toward an assessment once it's confirmed, not the moment it's attached.",
-  },
-  {
-    title: "Assessment",
-    icon: "assessment",
-    body: "Confidence is scored across ten separate dimensions — source independence, media provenance, contradiction level, and more — never collapsed into one number that hides how it was reached.",
-  },
-  {
-    title: "Human review",
-    icon: "review",
-    body: "For an assessment, a second person who did not write it must approve it before it becomes public. That approval capability cannot be held by an automated identity — the system refuses it structurally, not by policy alone.",
-    gate: true,
-  },
-  {
-    title: "Publish & search",
-    icon: "publish",
-    body: "Approved assessments become part of the public, searchable record with their sources. Machine-authored editorial runs carry machine provenance and follow their own server-enforced publishing rules.",
-  },
+const SYSTEM_STEPS: { title: string; icon: IconName; body: string }[] = [
+  { title: "Observe", icon: "intake", body: "AI systems help scan large public information environments, monitor developing stories and surface claims, sources and narrative shifts that deserve attention." },
+  { title: "Research", icon: "evidence", body: "The system compares sources, traces context and source lineage, organizes evidence and keeps uncertainty visible instead of turning repetition into corroboration." },
+  { title: "Assess", icon: "assessment", body: "Claims, evidence, attributed statements, inference and editorial assessment remain different things. Machines can assist analysis; they do not become evidence by producing an answer." },
+  { title: "Govern", icon: "review", body: "People define the mission, source standards, publishing permissions, provenance rules, escalation paths, corrections policy and safety boundaries. Sensitive work can be escalated for human editorial review." },
+  { title: "Publish & correct", icon: "publish", body: "Authorized editorial workflows can create or update canonical publications, attach sources and illustrations, and publish through the controlled production path. The public record remains versioned and correctable." },
 ];
 
-const ROLES = [
-  {
-    eyebrow: "Find",
-    title: "Investigators",
-    body: "Trace a claim to its origin; geolocation, chronolocation and archive work.",
-  },
-  {
-    eyebrow: "Check",
-    title: "Verification reviewers",
-    body: "The second, non-author reviewer a human-written assessment requires before it can publish. Most records on this site take the other route and are published by the editorial system itself.",
-  },
-  {
-    eyebrow: "Read",
-    title: "Linguists & translators",
-    body: "Primary material across the languages of the region and the networks that target it.",
-  },
-  {
-    eyebrow: "Build",
-    title: "Engineers",
-    body: "The tools that make verified material fast to check and easy to carry.",
-  },
+const AI_USES = [
+  { eyebrow: "Scale", title: "Discovery & monitoring", body: "Scan broad, multilingual information environments and identify developments, claims and evidence gaps worth investigating." },
+  { eyebrow: "Compare", title: "Source & context analysis", body: "Compare reporting, primary material and historical context; identify contradictions and avoid treating copies of one source as independent confirmation." },
+  { eyebrow: "Trace", title: "Narrative investigation", body: "Follow how unsupported claims, propaganda, manipulated framing and potentially coordinated amplification evolve across the information environment." },
+  { eyebrow: "Produce", title: "Editorial operations", body: "Assist drafting, canonical-story updates, source organization, homepage composition and clearly disclosed editorial illustrations inside authorized workflows." },
 ];
 
 const FAQ: { q: string; a: React.ReactNode }[] = [
-  {
-    q: "Can AI take part in publishing here?",
-    a: "Yes. AI and automation can assist discovery, comparison, classification, drafting and editorial operations. A machine-authored editorial run is identified through machine provenance and governed by server-enforced rules. AI output is never evidence; readers should inspect the cited sources.",
-  },
-  {
-    q: "Does hosting an archive record mean Lions verified it anew?",
-    a: "No. Imported and archive records retain their own provenance. Lions may preserve, organize and contextualize them, but hosting or machine processing does not by itself establish that every statement in the original record was independently verified.",
-  },
-  {
-    q: "What happens when something published turns out to be wrong?",
-    a: (
-      <>
-        A factual error is corrected in place and marked as corrected, not
-        deleted. New developments, added context, source changes and technical
-        migrations are labeled separately. The full policy and the public log
-        are on the <Link href="/corrections">Corrections page</Link>.
-      </>
-    ),
-  },
-  {
-    q: "Who funds this?",
-    a: (
-      <>
-        Funding sources aren&apos;t published in full yet. What exists today is reader donations, through PayPal and Buy Me a Coffee — both on <Link href="/support-us">Support Us</Link>.
-      </>
-    ),
-  },
-  {
-    q: "Can I help?",
-    a: (
-      <>
-        Yes — <Link href="/support-us">Support Us</Link> has a working way to report a claim for review, and skill areas the network is looking for.
-      </>
-    ),
-  },
+  { q: "Can AI publish on Lions of Zion?", a: "Yes. Authorized machine-authored editorial runs can research, write, update and publish through the Lions of Zion production pipeline. Those records carry machine provenance and server-enforced publishing rules. This is different from saying that AI is evidence, or that it operates without human-defined policy and accountability." },
+  { q: "Does a person manually approve every publication before it goes live?", a: "No. That is not the operating model. Human-written assessed claims have their own non-author review gate, while machine-authored editorial publications follow a separate disclosed path. Human responsibility sits around the system: standards, permissions, escalation, corrections, supervision and the design of the rules themselves." },
+  { q: "Does hosting or processing a source mean Lions verified it independently?", a: "No. A source is evidence material, not an automatic finding. Imported and archive records retain their own provenance. Multiple copies of one original source remain one source family, and machine processing does not upgrade a claim into verified fact." },
+  { q: "Is Lions of Zion affiliated with the Israeli government, military or an intelligence agency?", a: "No. Lions of Zion is an independent Israeli-built technology and editorial platform. It does not claim state affiliation, classified access or intelligence-agency authority." },
+  { q: "What happens when something published turns out to be wrong?", a: <>The record is corrected rather than quietly erased. Significant changes should be visible, and uncertainty should change when the evidence changes. Read the full <Link href="/corrections">Corrections policy</Link>.</> },
 ];
 
 export default function Page() {
-  /* VA-59. This page carried the scan at full family strength while the Fake
-     Resistance hub, where the signal aesthetic belongs, ran silent. A page
-     whose whole job is to be believed should not be the loudest one. */
   return (
     <SectionPage id="we-are" register="silent" surface="quiet" title="We Are" tagline={TAGLINE}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(WE_ARE_JSON_LD) }}
-      />
-      <SectionBlock heading="Who we are">
-        <p>
-          Lions of Zion is a network of volunteers — researchers, analysts,
-          translators, designers, developers — who share one discipline:
-          examine claims against evidence. The network exists because the
-          information war against Israel is organized, funded, and fast,
-          and because the answer to organized falsehood is not louder
-          anger. It is organized evidence.
-        </p>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(WE_ARE_JSON_LD) }} />
+
+      <SectionBlock heading="Technology for the information battlefield">
+        <p>Lions of Zion is an independent Israeli-built editorial and public-information platform for a world in which narratives, algorithms, synthetic media and information operations increasingly shape what people believe. We combine journalism, OSINT, evidence organization and AI-scale research to investigate claims, expose manipulation and publish material readers can inspect for themselves.</p>
+        <p>The goal is not to make an algorithm decide truth. It is to make the information environment easier to examine: where a claim came from, what the source actually shows, what supports it, what contradicts it, how it spread and what remains unknown.</p>
       </SectionBlock>
 
-      <SectionBlock heading="The method">
-        <p>
-          This is the assessment path for human investigations and claims. It
-          is separate from machine-authored editorial runs, which are marked
-          with machine provenance and governed by server-enforced publishing
-          rules. In the assessment path, one stage is a gate: nothing
-          automated can pass it.
-        </p>
-        <div className={styles.pipeline}>
-          {/* The per-stage `Reveal` that used to be here is gone, and the
-              reasoning that kept it does not survive contact with the rest of
-              the system. `SectionBlock` is already this section's entrance,
-              so every stage was blurring pixels the section had just blurred;
-              and a pipeline is a process order, not a chronology — the stages
-              do not *happen* as a reader scrolls, so staging their arrival
-              described something untrue about them. Reveal is for section
-              entrances and real chronological progression (the dated entries
-              on Israel's Story). Removing it also takes the last client
-              boundary off this route: the page is server-rendered whole.
+      <SectionBlock heading="Why this exists">
+        <p>Modern conflicts are fought in physical space and in the information layer around it. Viral media, selective framing, propaganda, synthetic content and repetition can turn uncertainty into apparent certainty before careful reporting catches up. Israel is one of the clearest arenas in which that problem is visible, but the method applies anywhere information manipulation matters.</p>
+        <p>Lions of Zion applies an Israeli culture of technological problem-solving to the integrity of public information: move quickly, inspect deeply, preserve provenance and build systems that can operate at a scale no small newsroom could reach manually.</p>
+      </SectionBlock>
 
-              The same assessment stages and gate are drawn on `/methodology`.
-              */}
+      <SectionBlock heading="AI-powered. Human-governed.">
+        <p>AI is a core capability here, not a decorative assistant and not a secret. It increases speed, breadth, multilingual reach, comparison, monitoring, pattern detection, evidence organization and update frequency. But capability is not authority. People define the rules under which the systems operate and remain accountable for the platform that publishes the result.</p>
+        <div className={styles.pipeline}>
           <ol className={styles.pipelineList}>
-            {METHOD_STEPS.map((step, index) => (
-              <li
-                key={step.title}
-                className={styles.pipelineStage}
-                data-gate={step.gate ? "" : undefined}
-              >
-                <span className={styles.pipelineNode} aria-hidden="true">
-                  <Icon name={step.icon} size={18} />
-                </span>
-                <div className={styles.pipelineContent}>
-                  <div className={styles.pipelineHead}>
-                    <span className={styles.pipelineNumber}>{String(index + 1).padStart(2, "0")}</span>
-                    <h3>{step.title}</h3>
-                  </div>
-                  {step.gate ? (
-                    <span className={styles.gateLabel}>Gate — human only</span>
-                  ) : null}
-                  <p>{step.body}</p>
-                </div>
+            {SYSTEM_STEPS.map((step, index) => (
+              <li key={step.title} className={styles.pipelineStage}>
+                <span className={styles.pipelineNode} aria-hidden="true"><Icon name={step.icon} size={18} /></span>
+                <div className={styles.pipelineContent}><div className={styles.pipelineHead}><span className={styles.pipelineNumber}>{String(index + 1).padStart(2, "0")}</span><h3>{step.title}</h3></div><p>{step.body}</p></div>
               </li>
             ))}
           </ol>
         </div>
-        {/* Proof, not assertion: the stages above are what happens, and the
-            rules they enforce — what counts as a source, how a claim is
-            labeled, what the method cannot support — are written down where a
-            reader can hold this page to them. */}
-        <p>
-          The standard those stages enforce is published in full on the{" "}
-          <Link href="/methodology">Methodology</Link> page, including the
-          things it cannot yet do.
-        </p>
+        <p>The publication routes and their exact provenance rules are described on <Link href="/methodology">Methodology</Link>. The live system map is on <Link href="/information-war">How it works</Link>.</p>
       </SectionBlock>
 
-      <SectionBlock heading="Roles">
-        <p>
-          The network runs on volunteered expertise across a few broad
-          areas — not a fixed org chart, and not names published here.
-        </p>
-        <ul className={styles.roleRoster}>
-          {ROLES.map((role) => (
-            <Card as="li" key={role.title} variant="row">
-              <CardHeader>
-                <CardEyebrow>{role.eyebrow}</CardEyebrow>
-              </CardHeader>
-              <CardTitle>{role.title}</CardTitle>
-              <CardDescription>{role.body}</CardDescription>
-            </Card>
-          ))}
-        </ul>
+      <SectionBlock heading="What the AI is used for">
+        <ul className={styles.roleRoster}>{AI_USES.map((role) => <Card as="li" key={role.title} variant="row"><CardHeader><CardEyebrow>{role.eyebrow}</CardEyebrow></CardHeader><CardTitle>{role.title}</CardTitle><CardDescription>{role.body}</CardDescription></Card>)}</ul>
       </SectionBlock>
 
-      {/* One paragraph carried four separate commitments in a row, separated
-          by colons, which is the shape of a list that has not been written as
-          one — a reader scanning for "what do they promise about funding?"
-          had to read all four to find it. Every clause below is the clause
-          that was in that paragraph; only the structure changed. Each is
-          named, and the two that are enforced rather than promised say which
-          they are. */}
-      <SectionBlock heading="Principles">
+      <SectionBlock heading="The boundaries people set">
         <dl className={styles.principles}>
-          <div>
-            <dt>Independence</dt>
-            <dd>
-              No sponsor gets a say in what gets published or how it&apos;s
-              assessed.
-            </dd>
-          </div>
-          <div>
-            <dt>Funding</dt>
-            <dd>
-              A privately funded independent initiative. Its founder pays for
-              it; there is no institutional, governmental, party or corporate
-              backer, and no sponsor to disclose. Reader donations, through
-              PayPal and Buy Me a Coffee, are on{" "}
-              <Link href="/support-us">Support Us</Link> and go to the same
-              costs.
-            </dd>
-          </div>
-          <div>
-            <dt>Privacy</dt>
-            <dd>
-              A report can be submitted with no name attached, and stays that
-              way unless the reporter chooses otherwise.
-            </dd>
-          </div>
-          <div>
-            <dt>Conflicts of interest</dt>
-            <dd>
-              A reviewer does not approve their own work — that rule is
-              enforced by the system, not just asked for.
-            </dd>
-          </div>
+          <div><dt>Editorial policy</dt><dd>Standards decide what deserves publication. The system can move quickly; it is not entitled to publish every claim it finds.</dd></div>
+          <div><dt>Evidence discipline</dt><dd>Source, claim, evidence, assessment and uncertainty remain separate. Similarity or simultaneous posting is not proof of coordination, and AI output is never documentary evidence.</dd></div>
+          <div><dt>Permissions & provenance</dt><dd>Publishing capabilities are controlled, machine-authored work is identified as such, and generated illustrations are disclosed as illustrations rather than photographs or evidence.</dd></div>
+          <div><dt>Corrections & escalation</dt><dd>Errors can be corrected, significant uncertainty can be updated, and consequential work can be escalated when human editorial judgment is required.</dd></div>
         </dl>
       </SectionBlock>
 
-      <SectionBlock heading="FAQ">
-        <dl className={styles.faq}>
-          {FAQ.map((item) => (
-            <div key={item.q}>
-              <dt>{item.q}</dt>
-              <dd>{item.a}</dd>
-            </div>
-          ))}
-        </dl>
+      <SectionBlock heading="Independent by design">
+        <p>Lions of Zion is built in Israel, but it is not a government, military or intelligence-agency project. It claims no classified access and no institutional authority. Its credibility has to come from transparent sourcing, inspectable reasoning, clear provenance and a record that can be corrected.</p>
       </SectionBlock>
+
+      <SectionBlock heading="FAQ"><dl className={styles.faq}>{FAQ.map((item) => <div key={item.q}><dt>{item.q}</dt><dd>{item.a}</dd></div>)}</dl></SectionBlock>
     </SectionPage>
   );
 }

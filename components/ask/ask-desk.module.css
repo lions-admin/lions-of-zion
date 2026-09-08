@@ -1,0 +1,91 @@
+/* The desk as a page (`/ask`), and the two controls that differ from the drawer.
+ *
+ * `ask.module.css` styles the desk for the drawer, where the order is header,
+ * conversation, composer — the composer at the foot in every state. On the
+ * page that order put the box below the fold at 390px, under a lede, a serif
+ * prompt line, a label and three bordered rows (UX-24). This file is the page
+ * layout only: composer first, the suggested questions as plain chips under
+ * it, and the transcript below. Everything the two layouts share stays in
+ * `ask.module.css`.
+ */
+
+/* ── The page layout ─────────────────────────────────────────────────── */
+
+.page {
+  gap: var(--sp-5);
+
+  /* The scan backdrop drifts behind the page and, at the 25% the reading
+     column's mask leaves it, under this desk. The composer already sat on
+     `--surface-1`; an answer did not, so a corpus row could pass under a
+     sentence of the answer (UX-25). The desk is an opaque plate on the page's
+     own ground colour — invisible as a shape, because it is the colour it
+     sits on, and structural: a row now ends at its edge rather than fading
+     under the text. The bleed is what keeps the plate's edge off the text's
+     edge without moving the text. */
+  background-color: var(--ground);
+  padding: var(--sp-3) var(--sp-4);
+  margin-inline: calc(var(--sp-4) * -1);
+}
+
+/* ── Suggested questions, as chips ───────────────────────────────────── */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chips li {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* The same chip the search panel's primer uses: a ghost control with the
+   control boundary drawn, so it reads as something to take (A11Y-004 — the
+   ghost's own line is transparent). `white-space: normal` because two of the
+   three questions wrap at 390. */
+.chips button {
+  max-width: 100%;
+  height: auto;
+  min-block-size: var(--control-h);
+  padding-block: var(--sp-2);
+  white-space: normal;
+  text-align: start;
+  overflow-wrap: anywhere;
+  border-color: var(--control-line);
+}
+
+/* ── Send ────────────────────────────────────────────────────────────── */
+
+/* UX-26. The registry's `icon-sm` is a 32px square (`size-8`); the floor for
+   a standalone control here is 44 (UX-11), so `min-*` overrides the fixed
+   size in both axes. The word appears from 768: below that the box is a
+   phone keyboard's width and the glyph alone is the convention; above it a
+   glyph-only send button next to a multi-line field is a guess. */
+.submit {
+  min-inline-size: 2.75rem;
+  min-block-size: 2.75rem;
+  gap: var(--sp-2);
+  padding-inline: var(--sp-2);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.submitLabel {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  .submit {
+    padding-inline: var(--sp-3);
+  }
+
+  .submitLabel {
+    display: inline;
+  }
+}

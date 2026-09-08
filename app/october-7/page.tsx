@@ -24,7 +24,8 @@ import { ArchiveShareShowcase, type ArchiveShareSample } from "./ArchiveShareSho
 import styles from "./page.module.css";
 import { pageMetadata } from "@/lib/page-metadata";
 
-const TAGLINE = "Survivor accounts and documented source material preserved with context.";
+/* UX-02. The lede says what the reader gets and what they can do with it. */
+const TAGLINE = "What happened, from the people it happened to. Documented, sourced, and yours to share.";
 const PAGE_URL = `${SITE_URL}/october-7`;
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -162,6 +163,7 @@ export default async function Page() {
 
   return (
     <SectionPage
+      kicker="The record"
       id="october-7"
       register="silent"
       surface="quiet"
@@ -171,14 +173,10 @@ export default async function Page() {
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(october7JsonLd(record)) }} />
 
-      <p className={styles.archiveScale} aria-label={`${storyCount} survivor stories, ${recordCount} documented records, ${languageCount} languages`}>
-        <span><strong>{storyCount}</strong> survivor stories</span>
-        <span aria-hidden="true">·</span>
-        <span><strong>{recordCount}</strong> documented records</span>
-        <span aria-hidden="true">·</span>
-        <span><strong>{languageCount}</strong> languages</span>
-      </p>
-
+      {/* UX-23. The counts used to open the page and then repeat on the two
+          collection cards a viewport later. They print once now, on the cards,
+          next to the collection each one measures; the language count stays
+          on the testimony showcase's detail line. */}
       <section className={styles.archiveExplorer} aria-labelledby="explore-archive">
         <header className={styles.explorerHeading}>
           <p className={styles.eyebrow}>Archive collections</p>
@@ -210,7 +208,7 @@ export default async function Page() {
           detail={`${counts.films} films · ${counts.photographs} photographs`} />
       </div>
 
-      <p className={styles.sharingNote}><strong>Sharing source material.</strong> Preview cards keep graphic media covered. Where original media is held here, X can prepare the archived file for native posting; text-only records keep a link-sharing fallback.</p>
+      <p className={styles.sharingNote}>Graphic media stays covered in previews. Share the record — the original is one click behind the warning.</p>
 
       <details className={styles.categoryBrowser}>
         <summary>Browse documentation by category <span>{groups.length} categories</span></summary>

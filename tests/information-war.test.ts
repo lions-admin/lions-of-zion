@@ -86,8 +86,14 @@ describe("information war surface", () => {
     const css = readFileSync(path.join(ROOT, "components/briefs/information-war-system.module.css"), "utf8");
     expect(css.slice(css.indexOf("prefers-reduced-motion"))).toContain(".packet { display: none; }");
     expect(css).not.toMatch(/position:\s*(sticky|fixed)/);
+    /* The architecture diagram must not be covered by the Ask launcher. That
+       was a per-page exception — `html:has([id="war-heading"]) .dockTrigger`
+       pulled the fixed pill into the flow below 1100px — until 2026-09-08,
+       when the launcher moved into the masthead on every route and stopped
+       being fixed anywhere (UX-07). The invariant is the same; the mechanism
+       is now that there is no floating launcher to make an exception for. */
     const dock = readFileSync(path.join(ROOT, "components/ask/ask.module.css"), "utf8");
-    expect(dock).toContain('html:has([id="war-heading"]) .dockTrigger');
+    expect(dock).not.toMatch(/\.dockTrigger\s*\{[^}]*position:\s*fixed/);
   });
 
   it("keeps real public destinations, with no pretend uptime claim", async () => {

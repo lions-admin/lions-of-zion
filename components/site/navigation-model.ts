@@ -37,12 +37,13 @@ export const BAR_LINKS: readonly ChromeLink[] = [...REPORTING_LINKS, SYSTEM_LINK
  * halves of it were untrue: nothing on this site can be saved, and nothing
  * published here is gated behind an account. What signing in actually buys is
  * continuity between visits, which is what `app/account/page.tsx` already
- * tells the reader in its own lede.
+ * tells the reader in its own lede. "The desk" names the Ask product and
+ * nothing else in reader-facing copy (2026-09-08 copy table), so it is "we".
  */
 export const ACCOUNT_LINK: ChromeLink = {
   label: "Account",
   href: "/account",
-  description: "Sign in so the desk knows you between visits.",
+  description: "Sign in so we know you between visits.",
 };
 
 /**

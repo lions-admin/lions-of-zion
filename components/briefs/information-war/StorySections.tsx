@@ -15,14 +15,14 @@ export function DailyCycle() {
 }
 
 const OUTPUTS = [
-  { href: "/geopolitical-brief", title: "News & Analysis", category: "Understand the developments", text: "News, war updates and daily briefing coverage, with the sources and context behind the reporting." },
+  { href: "/geopolitical-brief", title: "News & Analysis", category: "Understand the developments", text: "What happened, with the sources behind every line — so you can check it before you repeat it." },
   { href: "/fact-check", title: "Claims & findings", category: "Examine the assertion", text: "Read the assessment, the available material, and what has or has not been established." },
   { href: "/october-7", title: "The October 7 archive", category: "Return to the record", text: "Explore documented material in a dedicated archive, separate from the daily news cycle." },
-  { href: "/search", title: "Search the evidence desk", category: "Follow your own question", text: "Find public material. Use Ask for conversation and available citations, not as a substitute for opening the sources." },
+  { href: "/search", title: "Search the evidence", category: "Follow your own question", text: "Find public material. Use Ask for conversation and available citations, not as a substitute for opening the sources." },
 ] as const;
 
 export function OutputsFork() {
   return <nav className={styles.outputMap} aria-label="Explore the public work">{OUTPUTS.map((output, index) =>
-    <Link key={output.href} href={output.href}><span className={styles.outputNumber}>{String(index + 1).padStart(2, "0")}</span><div><span className={styles.eyebrow}>{output.category}</span><h3>{output.title}</h3><p>{output.text}</p></div><span className={styles.outputArrow} aria-hidden="true">↗︎</span></Link>,
+    <Link key={output.href} href={output.href}><span className={styles.outputNumber}>{String(index + 1).padStart(2, "0")}</span><div><span className={styles.eyebrow}>{output.category}</span><h3>{output.title}</h3><p>{output.text}</p></div><span className={styles.outputArrow} aria-hidden="true">→</span></Link>,
   )}</nav>;
 }

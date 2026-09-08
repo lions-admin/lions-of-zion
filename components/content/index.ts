@@ -2,7 +2,14 @@ export { VerificationBadge, type VerificationBadgeProps } from './VerificationBa
 export { SourceList, type SourceListProps, type Source } from './SourceList';
 export { PublicationMeta, type PublicationMetaProps } from './PublicationMeta';
 export { KnownUnknownPanel, type KnownUnknownPanelProps } from './KnownUnknownPanel';
-export { CorrectionHistory, type CorrectionHistoryProps, type Correction } from './CorrectionHistory';
+export {
+  CorrectionHistory,
+  classifyCorrection,
+  hasSubstantiveCorrections,
+  type CorrectionClass,
+  type CorrectionHistoryProps,
+  type Correction,
+} from './CorrectionHistory';
 export { FigureRow, type FigureRowProps, type Figure } from './FigureRow';
 export { Timeline, type TimelineProps, type TimelineEntry, type TimelineVariant } from './Timeline';
 export { ContentCard, type ContentCardProps } from './ContentCard';
@@ -18,3 +25,5 @@ export { ConfidenceChip, EvidenceClassChip } from './EvidenceGrade';
 export { ResearchText } from './ResearchText';
 export { NetworkFigure, type NetworkFigureProps } from './NetworkFigure';
 export { MediaBlock, type MediaBlockProps } from './MediaBlock';
+export { ActivationBand, ACTIVATION_HEADING, ACTIVATION_LEAD, REPORT_HREF, type ActivationBandProps, type ActivationBandShare } from './ActivationBand';
+export { ShareSheet, type ShareSheetProps } from './ShareSheet';

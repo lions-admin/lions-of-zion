@@ -1,0 +1,20 @@
+/* Share sheet — the dialog body is the shared ShareControls; this only lets
+   the row breathe inside a panel and inks the no-script fallback line. */
+
+.controls {
+  padding-block: var(--sp-2) var(--sp-1);
+}
+
+.noScript {
+  margin: var(--sp-2) 0 0;
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.noScript a {
+  display: inline-block;
+  min-block-size: var(--control-h);
+  padding-block: calc((var(--control-h) - var(--t-small-lh)) / 2);
+  color: var(--gold-hi);
+}

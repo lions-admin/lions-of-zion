@@ -1,0 +1,50 @@
+/* Activation band · design V3 (`app/globals.css`).
+
+   A designed ending, not a card: a gold rule, the display face at the h2 step,
+   one sentence, one row of the shared controls. It sits on the page's own
+   ground — the edition is one ground from cover to footer — so the band is
+   marked by its rule and its heading, never by a panel colour. */
+
+.band {
+  margin-top: var(--sp-7);
+  padding-top: var(--sp-5);
+  border-top: 2px solid var(--gold-dim);
+}
+
+.heading {
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
+  text-wrap: balance;
+}
+
+.lead {
+  max-width: var(--measure-narrow);
+  margin: var(--sp-3) 0 0;
+  color: var(--ink);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  text-wrap: pretty;
+}
+
+/* Wraps rather than scrolls: three controls at 44px do not fit 390px in one
+   line, and each keeps its full width on a phone so the row reads as a list
+   of things to do rather than a toolbar. */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  align-items: center;
+  margin-top: var(--sp-5);
+}
+
+@media (max-width: 44.99rem) {
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

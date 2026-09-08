@@ -276,3 +276,38 @@
 .faq dd a:focus-visible {
   text-decoration-color: var(--ink-hi);
 }
+
+/* UX-11. The pointers to Methodology and How it works were a sentence whose
+   only job was navigation, and as inline links they measured 22px tall. They
+   are standalone controls now and take the control floor — `--control-h` is
+   44px, and stays so on a coarse pointer (`app/globals.css`). The FAQ's
+   Corrections link stays inline: it is inside a sentence, and prose links
+   are exempt. */
+.readNext {
+  display: flex;
+  flex-direction: column;
+  margin: var(--sp-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.readNext a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--control-h);
+  color: var(--ink-hi);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-decoration-thickness: var(--line-w);
+  text-underline-offset: 0.2em;
+  transition: color var(--dur-fast) var(--ease-out),
+    text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.readNext a:hover,
+.readNext a:focus-visible {
+  color: var(--gold-hi);
+  text-decoration-color: currentColor;
+}

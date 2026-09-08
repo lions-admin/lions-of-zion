@@ -3,11 +3,11 @@ import Link from "next/link";
 import { DocPage } from "@/components/sections/DocPage";
 import { SearchPageView } from "@/components/search";
 import { SITE_NAVIGATION } from "@/lib/site-navigation";
-import { SITE_URL } from "@/lib/site-config";
 import styles from "@/components/search/search.module.css";
 import { pageMetadata } from "@/lib/page-metadata";
 
-const TAGLINE = "Query the published corpus — briefs, analyses and updates, and the claims behind them.";
+const TAGLINE =
+  "Search everything published here — stories, investigations, claims and the sources behind them.";
 
 export const metadata: Metadata = pageMetadata({
   title: "Search",

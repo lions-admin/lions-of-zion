@@ -91,7 +91,7 @@ export function PublicSessionProvider({ children }: { children: ReactNode }) {
         if (!response.ok) {
           throw new SessionReadProblem(
             response.status >= 500 ? "unavailable" : "error",
-            `The session check failed (HTTP ${response.status}).`,
+            "We could not check whether you are signed in. Reload to try again.",
           );
         }
         return (await response.json()) as PublicSessionResponse;

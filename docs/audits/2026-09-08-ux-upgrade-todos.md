@@ -615,3 +615,55 @@ The palette, the three type families, the amber-scarcity rule, the journey
 order, the section→surface derivation in `lib/publication-routing.ts`, the
 image-honesty labels, the sensitive-media gate, `evidenceBasis` rendering,
 `narrativeWatchTitle()`, and anything under `server/` or `app/api/`.
+
+---
+
+## 13. Execution record — round two, 8–9 September 2026
+
+Owner rulings before work started: **UX-13 relocate, do not remove**;
+**UX-25 keep the backdrop**. Six streams ran on disjoint files; W1 and W4
+completed, W2/W3/W5/W6 were cut off by the account's session limit after
+most of their work had landed, and the lead finished the remainder in the
+main session (owner ruling: no respawn). The decided copy is
+`docs/audits/2026-09-08-copy-table.md`; the register rule and the verb table
+are now in `UX-CONTRACT.md`.
+
+| Task | Result |
+| --- | --- |
+| UX-01 | Done. Cover "Truth has a signal. Find it, check it, share it."; brand role "Evidence, not narratives"; journey head; site description. |
+| UX-02 | Done. Kicker + lede on all four hubs (`SectionPage` gained a `kicker` prop for October 7), Search, Ask, Support; six nav descriptions. |
+| UX-03 | Done. "war updates" / "daily X review" gone (nav, `/geopolitical-brief` metadata, `StorySections`, import script); October 7 timeline no longer points at War Update; the account control no longer flips label after the session check. |
+| UX-04 | Done. Search/session errors carry no status code (and `http.ts` now parses the API's nested `{ error: { code } }`, which is why the `limited` branch never fired before); corrections block classifies notes and collapses attachment versions behind "Version history"; dossier labels Written by / Sources; October 7 explainer; Ask placeholder. |
+| UX-05 | Done. `lib/publication-routing.ts` DESTINATIONS carry the verb table (See the evidence / Read the story / Read their story); an analysis record that cites nothing says "Read the assessment" — there is no evidence to see. |
+| UX-06 | Done. `components/content/ActivationBand.tsx` (+ `ShareSheet`) on the article and the three hubs. |
+| UX-07 / 08 | Done. `PublicAskDock` removed; the Ask control lives in the header row on every page at every width; one header. Sweep at 390 and 1440: no fixed element intersects a link, image or heading. |
+| UX-09 | Done. ↗ only on off-site links. |
+| UX-10 / 31 | Done. `--t-kicker` role + `.kickerLabel`; `--t-data` is 13px under 48rem; 8/9px overrides deleted; hub, narrative-record, October 7, information-war and homepage labels raised. Remaining below 13px on phones, by design: the "01–04" numerals inside the `/information-war` diagram (9–10px, decorative glyphs beside 13px labels) and the `↗︎` icon glyph. |
+| UX-11 | Done for standalone controls (header/footer, breadcrumb, source lists, Ask send 44px, search clear 44px, TOC rails, fact-check permalinks, people names, we-are/methodology "Read next"). Fact-check entry titles measure 39px tall at 390 — block links wrapping two lines; left as is. |
+| UX-12 | Verified: the blank tiles were dev-server compile latency plus lazy decode; the media contract carries no LQIP, so `HomeMedia` now paints the disclosure label on a tonal ground instead of an empty box. |
+| UX-13 | Relocated per owner: `HeroSupportStrip` renders after `HomeNewsSection`, before the Narratives band; cover keeps wordmark, standfirst, "Read the latest", edition rail. |
+| UX-14 | Done (numeral dropped, sequence kept). |
+| UX-15–18 | Done. KPI rail → "Updated 7 September at 4:18 · Jerusalem time"; People hub two-column at ≥64rem with hero profiles promoted and one merged records list; topic chips → one sentence-case kicker; rank numbers gone. |
+| UX-19–23 | Done. Article ends sources → activation band → corrections → "Keep reading"; no auto-rotation on October 7, one primary share per card opening the app-owned sheet; counts once. |
+| UX-24 / 26 / 28 | Done. Composer first, three activist suggestions, 44px Send with a label at ≥768; "Searching…"; matching note only in the empty state. |
+| UX-25 | Kept per owner. Row opacity ceiling 0.1 → 0.2 with the two dimmers re-tuned so a row reads as decoration, not a smear; `tests/scan-register-intent.test.ts` updated to the new ceiling. |
+| UX-27 | Root cause found: `useSearch.ts` debounce was 120 ms, so a slow typist sent one request per keystroke and the server counted every aborted one; now 300 ms. Policy in `server/core/rate-limit.ts` untouched. |
+| UX-29 | Not reproduced: 0 ghosted in-viewport elements 3 s after load on `/support-us` and `/we-are` at 1440×900. The 2026-09-08 sighting was dev-server timing. `Reveal.tsx` unchanged. |
+| UX-30 / 32 | Done. |
+
+**Verification on the integrated tree:** `npm run typecheck` clean; `npm run
+lint` 0 errors (12 pre-existing warnings in files this round did not touch);
+full `vitest run` 1661 passed, 1 skipped, **8 failed in
+`tests/publication-provenance-copy.test.ts` and
+`tests/public-copy-truthfulness.test.ts` — pre-existing**: the phrases they
+assert ("AI output is never evidence", "privately funded independent
+initiative", "Gate — human path only", …) are absent from `/we-are` and
+`/methodology` at `main` `a6e3c3c` as well, so those tests describe a
+trust-page copy task that never landed and are outside this round.
+Playwright sweep at 390×844 and 1440×900 over 13 routes: no horizontal
+overflow, no page errors, no stale strings, no fixed-element overlap.
+Screenshots in the session scratchpad only.
+
+**Not done, deliberately:** a production build was not run here (owner
+publishes with `npm run main:update`, whose CI runs it); real iPhone Safari
+remains the owner's check.

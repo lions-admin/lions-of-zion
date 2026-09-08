@@ -78,8 +78,10 @@ export function HomeNewsSection({
         ))}
       </div>
       <SectionState section={section} />
+      {/* UX-05. The hub "everything" link is "All of <Section>" with the
+          journey arrow, on every band. */}
       <SectionAction href="/geopolitical-brief">
-        View all News & Analysis
+        All of News & Analysis
       </SectionAction>
     </section>
   );

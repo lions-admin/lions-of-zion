@@ -38,8 +38,10 @@ export function AmplificationFigure() {
         </li>
       </ol>
       <div className={styles.echoReading}>
+        {/* UX-14. A display numeral ("3", then "1") used to sit above this
+            heading and say the count the heading already says in words. The
+            01/02/03 steps in the sequence stay: that one is a sequence. */}
         <div className={styles.echoResult} aria-live="polite" aria-atomic="true">
-          <span className={styles.echoNumeral} aria-hidden="true">{traced ? "1" : "3"}</span>
           <h4>{traced ? <>One source.<br />Not three witnesses.</> : <>Three versions.<br />How many sources?</>}</h4>
           <p>{traced
             ? "All three lead back to the same unverified post. The wording became more certain. The evidence did not."

@@ -147,10 +147,13 @@ describe("one verb per kind of record, derived from its section", () => {
     // An investigation is opened — it is a file, and the word promises the
     // apparatus behind it. A claim assessment is never read as more reporting.
     expect(publicationCta("influence_investigation")).toBe("Open the investigation");
-    expect(publicationCta("narrative_watch")).toBe("Read the assessment");
+    expect(publicationCta("narrative_watch")).toBe("See the evidence");
     expect(publicationCta("news")).toBe("Read the story");
     expect(publicationCta("daily_brief")).toBe("Read the story");
-    expect(publicationCta("people")).toBe("Read the record");
+    expect(publicationCta("people")).toBe("Read their story");
+    expect(publicationCta("courage_service")).toBe("Read their story");
+    expect(publicationCta("innovation")).toBe("Read the story");
+    expect(publicationCta("antisemitism")).toBe("Read the story");
   });
 
   it.each([
@@ -180,10 +183,12 @@ describe("going to a whole desk uses one verb", () => {
     ["components/home/HomeNarrativesSection.tsx"],
     ["components/home/HomeArchiveSection.tsx"],
     ["components/home/HomePeopleSection.tsx"],
-  ])("%s says View all, never Explore", (path) => {
+  ])("%s says All of <Section>, never Explore", (path) => {
     const markup = read(path).replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
-    expect(markup).toMatch(/View all/);
-    // "Explore" sets a mood; "View all" states what happens.
+    // UX-05: the hub "everything" link is "All of <Section>" with the journey
+    // arrow. "Explore" sets a mood; "All of" names what is there.
+    expect(markup).toMatch(/All of /);
+    expect(markup).not.toMatch(/View all/);
     expect(markup).not.toMatch(/>Explore /);
   });
 });

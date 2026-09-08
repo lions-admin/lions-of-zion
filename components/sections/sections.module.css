@@ -160,9 +160,20 @@
   white-space: nowrap;
   will-change: transform;
 
-  /* 0.1 is the ceiling. `--register` is the page's own dimmer (muted, quiet,
-     focus-within); `--scan-intensity` is the family's, from the profile. */
-  opacity: calc(0.1 * var(--register, 1) * var(--scan-intensity, 1));
+  /* 0.2 is the ceiling. `--register` is the page's own dimmer (muted, quiet,
+     focus-within); `--scan-intensity` is the family's, from the profile.
+
+     It was 0.1 until UX-25 (2026-09-08). Under the dimmers every reading
+     route actually runs — `.registerMuted` on the desk pages, `.surfaceQuiet`
+     on the institution pages — a row composited at 0.02 to 0.03 alpha at the
+     page edges, which at 1440 is not a faint line of text but a grey smear
+     that reads as a rendering fault. Measured on `/ask`: 0.05 is legible as
+     text, 0.08 is legible as decoration, 0.11 starts to compete with the
+     page. The ceiling and the two dimmers below are set so a muted desk page
+     lands at 0.075 and a quiet institution page at 0.05, and the reading
+     column stays inside the AA budget `tests/intro-accessibility.test.ts`
+     recomputes from these numbers. */
+  opacity: calc(0.2 * var(--register, 1) * var(--scan-intensity, 1));
 
   /* `--dur` is the sampled 45–90s; `--scan-speed` is the profile's tempo and
      `--scan-tempo` the page's. The floor is therefore 45s — nine times the
@@ -205,13 +216,12 @@
 
 
 .surfaceQuiet .row {
-  --register: 0.7;
+  --register: 0.85;
   --scan-tempo: 1.8;
 }
 
 .registerMuted .row {
-
-  --register: 0.45;
+  --register: 0.75;
   --scan-tempo: 3;
 }
 
@@ -280,6 +290,12 @@
 }
 
 
+/* The journey step above the title (UX-02). One class, so it composes. */
+.kicker {
+  composes: kickerLabel from global;
+  color: var(--gold);
+  margin-bottom: var(--sp-3);
+}
 
 .title {
   font-family: var(--face-display);
@@ -679,6 +695,8 @@
 .tocLink,
 .tocLinkActive {
   display: flex;
+  align-items: center;
+  min-block-size: var(--control-h);
   gap: var(--sp-2);
   padding: var(--sp-2) 0 var(--sp-2) var(--sp-3);
   margin-left: calc(-1 * var(--sp-3));

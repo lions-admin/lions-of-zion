@@ -70,7 +70,10 @@ export default function Page() {
             ))}
           </ol>
         </div>
-        <p>The publication routes and their exact provenance rules are described on <Link href="/methodology">Methodology</Link>. The live system map is on <Link href="/information-war">How it works</Link>.</p>
+        <nav aria-label="Read next"><ul className={styles.readNext}>
+          <li><Link href="/methodology">Methodology — the publication routes and their provenance rules →</Link></li>
+          <li><Link href="/information-war">How it works — the live system map →</Link></li>
+        </ul></nav>
       </SectionBlock>
 
       <SectionBlock heading="What the AI is used for">

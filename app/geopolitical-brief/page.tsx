@@ -3,8 +3,11 @@ import { LiveBriefHub } from "@/components/briefs/LiveBriefHub";
 import { SITE_URL } from "@/lib/site-config";
 import { pageMetadata } from "@/lib/page-metadata";
 
+/* The hub's lede (docs/audits/2026-09-08-copy-table.md, UX-02), so the page
+   description and the page say the same thing. "War updates" went with the
+   `war_update` section on 2026-09-05. */
 const TAGLINE =
-  "News, war updates and analysis on Israel and regional developments, with source context and daily briefings.";
+  "What happened today in Israel and the region — every line with its source, so you can check it before you repeat it.";
 const PAGE_URL = `${SITE_URL}/geopolitical-brief`;
 
 export const metadata: Metadata = pageMetadata({
@@ -22,7 +25,7 @@ const jsonLd = {
   url: PAGE_URL,
   about: [
     { "@type": "Thing", name: "Current news" },
-    { "@type": "Thing", name: "War updates and analysis" },
+    { "@type": "Thing", name: "Analysis and daily briefings" },
   ],
 };
 

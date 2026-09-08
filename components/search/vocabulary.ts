@@ -118,13 +118,22 @@ export function groupByEntity<T extends { entityType: EntityType }>(hits: T[]): 
 
 /* ── What the panel says about the answer, above the answer ───────────────
  *
- * Both sentences below used to be rendered in the panel's footer, under the
+ * The count, and — only when the semantic arm did not answer — the sentence
+ * that says so. Both used to be rendered in the panel's footer, under the
  * whole result list. On a phone that is not a footer, it is a deletion: at
  * 375 an eight-result answer put it 2,166px down the document, so the only
  * reader who ever met "semantic matching is unavailable in this deployment"
  * was one who had already scrolled past every result it qualifies. Which
  * matcher answered is a property of the answer, so it is stated with the
  * answer's count and above the list (VA-17).
+ *
+ * What went with UX-28 (2026-09-08) is the *other* matcher sentence.
+ * "Matching on words and names." / "…and meaning." rendered above every
+ * state including the pending one, so the first thing a reader saw after
+ * typing was a capability note nobody had asked for, over "Searching…". A
+ * full search needs no caveat; the fallback still gets its honest one, and
+ * the lexical-only deployment says what a paraphrase will do in the empty
+ * state, where the reader can act on it (`PanelEmpty` in `SearchPanel`).
  *
  * Written here rather than inline in the panel because it is the one part of
  * this that is pure — a function of the state, the count and the query — and
@@ -140,37 +149,25 @@ export interface ResultStatus {
    */
   count: string | null;
   /**
-   * `null` only on a failed request. A search that did not complete has no
-   * matcher to report, and claiming one above "The search failed" would
-   * describe a capability the reader did not get.
+   * The honest half of a partial answer, and nothing else: set only in the
+   * `fallback` state, where the lexical index answered while semantic
+   * matching was unavailable. `null` on a full answer — it needs no caveat —
+   * and on a failed request, where claiming a matcher above "The search
+   * failed" would describe a capability the reader did not get.
    */
   matching: string | null;
 }
 
-const MATCHING_SEMANTIC = "Matching on words, names and meaning.";
-const MATCHING_LEXICAL = "Matching on words and names.";
 const MATCHING_FALLBACK =
   "Showing word-and-name matches. Semantic matching is unavailable in this deployment.";
 
-export function resultStatus(
-  state: SearchState,
-  hitCount: number,
-  answered: string,
-  semantic: boolean,
-): ResultStatus {
+export function resultStatus(state: SearchState, hitCount: number, answered: string): ResultStatus {
   const answering = state === "results" || state === "fallback" || state === "no-results";
   return {
     count:
       answering && hitCount > 0
         ? `${hitCount} ${hitCount === 1 ? "result" : "results"}${answered ? ` for “${answered}”` : ""}`
         : null,
-    matching:
-      state === "error"
-        ? null
-        : state === "fallback"
-          ? MATCHING_FALLBACK
-          : semantic
-            ? MATCHING_SEMANTIC
-            : MATCHING_LEXICAL,
+    matching: state === "fallback" ? MATCHING_FALLBACK : null,
   };
 }

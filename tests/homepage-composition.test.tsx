@@ -27,17 +27,19 @@ describe('homepage editorial composition',()=>{
  expect(html.indexOf('Unresolved')).toBeLessThan(html.indexOf('An unresolved claim'));
  /* The status line says it once; an unresolved record with no finding excerpt carries no finding block repeating it. */
  expect(html.match(/no finding has been reached/gi)).toHaveLength(1);expect(html).not.toContain('Monitoring is not confirmation');
- expect(html).toContain('Lions of Zion editorial analysis');expect(html).toContain('Read the assessment');expect(html).not.toContain('Read the sources');
+ /* UX-05: a sourced claim record says "See the evidence"; this fixture is an analysis that cites nothing, and the card keeps it honest — there is no evidence to see, so it is read as an assessment. */
+ expect(html).toContain('Lions of Zion editorial analysis');expect(html).toContain('Read the assessment');expect(html).not.toContain('See the evidence');expect(html).not.toContain('Read the sources');
  });
  it('names the destinations as the site names them and keeps one action per section after its records',()=>{
  const html=renderToStaticMarkup(<HomepageJourney edition={edition()}/>);
  expect(html).toContain('Fake Resistance');
- /* VA-63: one verb for "go to the whole desk". Three sections said "Explore X"
-    and one said "View all X" for the same move. */
- expect(html).toContain('View all Fake Resistance');expect(html).not.toContain('Explore the investigations');expect(html).not.toContain('Explore Fake Resistance');
+ /* UX-05: one form for "go to the whole section" — "All of <Section>" with
+    the journey arrow. (VA-63 had settled on "View all"; the verb table
+    replaced it, and "Explore" stays retired.) */
+ expect(html).toContain('All of Fake Resistance');expect(html).not.toContain('View all');expect(html).not.toContain('Explore the investigations');expect(html).not.toContain('Explore Fake Resistance');
  const news=html.slice(html.indexOf('data-home-section="news"'),html.indexOf('data-home-section="fakeResistance"'));
- expect(news.indexOf('A full headline')).toBeLessThan(news.indexOf('View all News &amp; Analysis'));
- expect(news.match(/View all News &amp; Analysis/g)).toHaveLength(1);
+ expect(news.indexOf('A full headline')).toBeLessThan(news.indexOf('All of News &amp; Analysis'));
+ expect(news.match(/All of News &amp; Analysis/g)).toHaveLength(1);
  expect(html).toContain('data-rank="lead"');
  });
  it('keeps a record without a picture on the page, text-led, with no empty frame',()=>{

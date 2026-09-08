@@ -34,7 +34,7 @@ export function SiteFooter({ activeSection, home = false }: SiteFooterProps) {
         <div className={styles.identity}>
           <Link href="/" className={styles.brand}>
             <span className={styles.brandName}>Lions of Zion</span>
-            <span className={styles.brandRole}>Evidence desk</span>
+            <span className={styles.brandRole}>Evidence, not narratives</span>
           </Link>
           <p className={styles.statement}>{SITE_DESCRIPTION}</p>
         </div>

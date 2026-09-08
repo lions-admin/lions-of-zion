@@ -60,17 +60,20 @@ export function HomeArchiveSection({
             )}
             <p className={styles.warning}>{item.warning}</p>
             <HomeSources sources={item.sources} />
+            {/* UX-05 verb table: a testimony is read; a documented record
+                behind a warning is opened with that warning named. */}
             <JourneyLink href={item.href}>
               {item.kind === "testimony"
                 ? "Read the testimony"
-                : "Open the record with a content warning"}
+                : "Open with a content warning"}
             </JourneyLink>
           </article>
         ))}
       </div>
       <SectionState section={section} />
-      {/* VA-63. Three sections said "Explore X" and one said "View all X" for the same move — going to the whole desk. One verb: it states what happens, where "Explore" only sets a mood. */}
-      <SectionAction href="/october-7">View all of October 7</SectionAction>
+      {/* UX-05. One form for going to the whole section: "All of <Section>"
+          with the journey arrow. */}
+      <SectionAction href="/october-7">All of October 7</SectionAction>
     </section>
   );
 }

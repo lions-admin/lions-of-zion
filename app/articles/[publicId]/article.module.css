@@ -1,9 +1,10 @@
 /* A published article as a Dossier record: breadcrumb, title/standfirst,
    publication facts, narrative assessment, passages with a citation rail
-   that hangs into the margin above 1220px, then sources, unknowns, related
-   coverage, and corrections. Values answer to the V3 tokens in
-   app/globals.css. The rail is CSS placement of the same nodes — never a
-   second copy. */
+   that hangs into the margin above 1220px, then sources, unknowns, the
+   activation band, corrections, and what to read next (UX-20: proof, then
+   what to do with it, then what changed, then where to go). Values answer
+   to the V3 tokens in app/globals.css. The rail is CSS placement of the same
+   nodes — never a second copy. */
 
 .page {
   --rail-w: clamp(9rem, 14vw, 13rem);
@@ -48,6 +49,7 @@
 .narrativeDetails,
 .unknowns,
 .sources,
+.activation,
 .related,
 .corrections {
   max-width: var(--reading-w);
@@ -59,6 +61,16 @@
   align-items: center;
   gap: var(--sp-2);
   margin-bottom: var(--sp-3);
+}
+
+/* UX-21. The story's dateline — arena and actor — beside the section badge,
+   at the data step and in the low ink so the badge stays the loudest thing
+   in the row. */
+.kickerFacets {
+  composes: dataValue from global;
+  color: var(--ink-lo);
+  text-transform: capitalize;
+  overflow-wrap: anywhere;
 }
 
 .kicker {
@@ -155,42 +167,34 @@
   margin-top: var(--sp-6);
 }
 
-.share {
-  max-width: var(--reading-w);
-  margin-top: var(--sp-5);
+/* UX-21. One metadata line rather than a 3×3 grid of mono labels above the
+   fold: the shared `PublicationMeta` keeps its terms and its rule, and this
+   only re-flows its cells into a row that wraps. Authorship — the honest
+   machine-authorship disclosure — is the widest cell and takes the whole
+   first line on a phone; the dates and the source count share the next. The
+   selector outweighs the module's own `.publicationMeta` by one class. */
+.facts > dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-6);
   padding-top: var(--sp-4);
-  border-top: var(--line-w) solid var(--line);
 }
 
-.factsExtra {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--sp-5);
-  margin: var(--sp-5) 0 0;
+.facts > dl > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-2);
 }
 
-.factsExtra dt {
-  color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+.facts > dl > div > dd {
+  margin: 0;
 }
 
-.factsExtra dd {
-  margin: var(--sp-2) 0 0;
-  color: var(--ink);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-  overflow-wrap: anywhere;
-}
-
-@media (max-width: 44.99rem) {
-  .factsExtra {
-    grid-template-columns: minmax(0, 1fr);
-  }
+/* The authorship cell is a sentence; it gets its own line and the rest
+   share the next. */
+.facts > dl > div:first-child {
+  flex-basis: 100%;
 }
 
 /* ── Body / citation rail ─────────────────────────────────────────────── */
@@ -254,14 +258,28 @@
   border-top: 1px solid var(--line);
 }
 
+/* After the band, which carries its own gold rule, the corrections sit one
+   step closer and without a second rule: the history is the record's
+   apparatus, and it is no longer the page's ending. */
 .corrections {
-  margin-top: var(--sp-7);
+  margin-top: var(--sp-6);
 }
 
 .sourceStack {
   margin: var(--sp-4) 0 0;
   padding: 0;
   list-style: none;
+}
+
+.sourceStack > li > a,
+.sourceStack > li a[href] {
+  /* UX-11: the source link is the proof; a 44px target without a 44px row. */
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--control-h);
+  margin-block: calc((var(--control-h) - 1.5em) / -2);
+  width: fit-content;
+  max-width: 100%;
 }
 
 .sourceStack > li {
@@ -303,7 +321,29 @@
 }
 
 .relatedSubhead {
-  margin-top: var(--sp-6);
+  margin: var(--sp-5) 0 0;
+}
+
+/* UX-11. The hub link is a standalone control, so it clears the coarse
+   target floor on its own — an inline-flex box with the height, not a
+   padded line the eye reads as a paragraph. */
+.deskLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-block-size: var(--control-h);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  font-weight: 600;
+  line-height: var(--t-small-lh);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line);
+  text-underline-offset: 0.18em;
+}
+
+.deskLink:hover,
+.deskLink:focus-visible {
+  text-decoration-color: currentColor;
 }
 
 .narrativeList li {

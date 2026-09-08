@@ -64,14 +64,14 @@ describe("an article's backdrop follows what the record is", () => {
 });
 
 describe("the documented opacity ceiling matches the stylesheet", () => {
-  it("says 0.1, which is what the CSS actually multiplies by", () => {
+  it("says 0.2, which is what the CSS actually multiplies by", () => {
     const css = read("components/sections/sections.module.css");
     const match = css.match(/opacity:\s*calc\(([\d.]+)\s*\*\s*var\(--register/);
-    expect(match?.[1]).toBe("0.1");
+    expect(match?.[1]).toBe("0.2");
 
     // The profile file's own comments claimed 0.34 in two places.
     const profiles = read("components/sections/scanProfiles.ts");
     expect(profiles).not.toContain("0.34");
-    expect(profiles).toContain("(0.1)");
+    expect(profiles).toContain("(0.2)");
   });
 });

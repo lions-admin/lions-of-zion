@@ -155,15 +155,21 @@ describe("donation channels are links to the provider, never embedded widgets", 
     expect(section).not.toContain("use client");
   });
 
-  it("keeps cover support links direct, touch-sized, and free of entrance motion", () => {
-    expect(read("app/page.tsx")).toContain("<HeroSupportStrip />");
+  it("keeps the support rail direct, touch-sized, free of entrance motion, and after the first band", () => {
+    /* UX-13, as amended by the owner: the rail moved off the cover to the
+       close of the first band — after the news, before the narratives — so
+       the ask follows the first value rather than preceding it. */
+    expect(read("app/page.tsx")).not.toContain("<HeroSupportStrip");
+    const journey = read("components/home/HomepageJourney.tsx");
+    expect(journey.indexOf("<HomeNewsSection")).toBeLessThan(journey.indexOf("<HeroSupportStrip />"));
+    expect(journey.indexOf("<HeroSupportStrip />")).toBeLessThan(journey.indexOf("<HomeNarrativesSection"));
     const strip = read("components/home/HeroSupportStrip.tsx");
     expect(strip).toContain("DONATION_CHANNELS");
     expect(strip).toContain('rel="noreferrer"');
     expect(strip).not.toContain("use client");
     expect(strip).not.toContain("<script");
 
-    const css = read("app/home.module.css");
+    const css = read("components/home/homepage-journey.module.css");
     expect(css).not.toContain("@keyframes supportRise");
     expect(css).not.toContain("@keyframes supportSettle");
     expect(css).toMatch(/\.supportChip\s*\{[^}]*min-height: 44px/);

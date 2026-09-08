@@ -1,9 +1,12 @@
-/* Narratives & fact checks · the investigation front.
+/* Fake Resistance · the investigation front.
  *
  * Shares its masthead with the news front (`HubMasthead`). Below it: the
  * latest investigation as the lead, the watch as a rail, further
  * investigations as a three-up, then two raised doors into the network map
- * and the playbook. */
+ * and the playbook.
+ *
+ * Two type roles, kept apart (UX-31): a kicker or section label is sans caps
+ * at `--t-kicker`; a date or a count is the mono face at `--t-data`. */
 
 .page { color: var(--ink); }
 
@@ -40,12 +43,16 @@
 }
 
 .eyebrow > span {
+  font-family: var(--face-navigation);
+  font-size: var(--t-kicker, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
   color: var(--gold-hi);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
 }
 
 .eyebrow > span::before {
@@ -102,11 +109,11 @@
 }
 
 .evidence dt {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-navigation);
+  font-size: var(--t-kicker, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink-lo);
 }
@@ -151,11 +158,31 @@
 
 .monitoring { min-width: 0; }
 
+/* Heading, then the count that describes it, then the door to everything —
+   pushed to the far edge so the first two read as one phrase. */
 .sectionHead {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: var(--sp-4);
+  gap: var(--sp-2) var(--sp-4);
+}
+
+.sectionHead > a { margin-inline-start: auto; }
+
+.sectionCount {
+  margin: 0;
+  color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+.sectionCount > [data-numeric] {
+  color: var(--ink);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  font-variant-numeric: tabular-nums;
 }
 
 .sectionHead h2 {
@@ -180,10 +207,14 @@
   text-decoration: none;
 }
 
+/* A sentence, not a machine value: it reads in the text face. */
 .disclosure {
-  composes: dataMeta from global;
+  max-width: 62ch;
   margin: 0 0 var(--sp-3);
   color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
 }
 
 /* ── Further investigations ────────────────────────────────────────────── */
@@ -295,11 +326,11 @@
 }
 
 .depth a > span:first-child {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-navigation);
+  font-size: var(--t-kicker, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   grid-column: 1 / -1;
   color: var(--ink-lo);

@@ -66,3 +66,37 @@ cover links, warnings or media credits on mobile or enlarged text.
   keyboard focus; it keeps a 44px-or-larger target, its accessible name,
   `aria-expanded`, safe-area offsets and focus restoration. It is never
   hidden from the tab order, and the page reserves no column for it.
+
+## Voice — September 8, 2026
+
+The identity lines, decided in `docs/audits/2026-09-08-copy-table.md` and
+used verbatim wherever they appear:
+
+- Cover standfirst: **Truth has a signal. Find it, check it, share it.**
+- Brand role under the wordmark: **Evidence, not narratives**
+- Homepage journey head: **What happened. What is being said about it. How
+  to check.**
+- Site description (`lib/site-config.ts`): **Open-source evidence on the
+  information war against Israel — sourced so you can check it, trace it and
+  share it.**
+
+Register: second person, one verb the reader performs, one thing they get.
+"The desk" names the Ask product and the machine-authorship disclosure, and
+nothing else; no "corpus", no "record" as a self-description, no "living
+record". Reader-facing errors say what to do, never an HTTP status.
+
+## Verbs — September 8, 2026
+
+One verb per destination, on every card, band and hub. A new surface takes
+its verb from here rather than coining one.
+
+| Destination | Verb |
+| --- | --- |
+| News / Israel-update article | Read the story |
+| Narrative-watch / fact-check record | See the evidence |
+| Investigation case | Open the investigation |
+| Testimony | Read the testimony |
+| Documented record behind a warning | Open with a content warning |
+| Person profile | Read their story |
+| Hub "everything" link | All of *Section* → |
+| Daily briefing | Read the briefing |

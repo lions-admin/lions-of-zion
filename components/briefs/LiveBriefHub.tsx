@@ -1,3 +1,5 @@
+import { ActivationBand } from "@/components/content";
+import { SITE_URL } from "@/lib/site-config";
 import Image from "next/image";
 import Link from "next/link";
 import { listBriefingPublications } from "@/lib/publications";
@@ -5,7 +7,7 @@ import { SECTIONS_BY_HOMEPAGE_SECTION, publicationCta } from "@/lib/publication-
 import { isArticleSafeMedia, type EditorialMedia } from "@/server/contracts/editorial-media";
 import { isAnalysisBasis } from "@/server/contracts/publication";
 import { EditorialShell } from "@/components/site/EditorialShell";
-import { HubMasthead } from "@/components/site/HubMasthead";
+import { HubMasthead, HubUpdated } from "@/components/site/HubMasthead";
 import { SECTION_LABELS, VERIFICATION_STATES } from "@/components/live/publication-labels";
 import { ButtonLink } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -316,13 +318,16 @@ export function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
     >
       <div className={styles.liveLayout}>
         <HubMasthead
-          kicker="The present"
+          kicker="What is happening"
           title={<>News &amp; Analysis</>}
-          standfirst="Reporting on Israel and the region, the daily briefing, and the sources behind every line."
+          standfirst="What happened today in Israel and the region — every line with its source, so you can check it before you repeat it."
           jumps={JUMPS}
         />
 
         <LiveBriefEdition filters={filters} />
+        <ActivationBand
+          share={{ url: `${SITE_URL}/geopolitical-brief`, text: "News & Analysis — what happened, with the sources behind every line." }}
+        />
       </div>
     </EditorialShell>
   );
@@ -368,7 +373,6 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
   const earlierUpdates = updates.slice(5, 11);
   const briefingInSidebar = Boolean(lead) && sidebarUpdates.length === 0 && Boolean(briefing);
   const storyCount = updates.length;
-  const briefingCount = current.filter((item) => item.section === BRIEFING_SECTION).length;
 
   /* The archive's own projection, and nothing else's — see
      `collapseExactDuplicates`. `archive` is the same array as `current` when
@@ -405,36 +409,21 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
 
   return (
     <>
-      {/* The edition's facts: what the read found, in the record's own terms. */}
-      {!currentUnavailable ? (
-        <dl className={styles.editionFacts} aria-label="This edition">
-          <div>
-            <dt>Last published</dt>
-            <dd>
-              {current[0] ? (
-                <time dateTime={current[0].publishedAt}>{formatDateTime(current[0].publishedAt)}</time>
-              ) : "—"}
-            </dd>
-          </div>
-          <div>
-            <dt>Stories on file</dt>
-            <dd data-numeric="">{storyCount}</dd>
-          </div>
-          <div>
-            <dt>Daily briefings</dt>
-            <dd data-numeric="">{briefingCount}</dd>
-          </div>
-          <div>
-            <dt>Times</dt>
-            <dd>Jerusalem</dd>
-          </div>
-        </dl>
+      {/* UX-15 — when the desk last changed, as one sentence rather than a rail
+          of "LAST PUBLISHED · STORIES ON FILE 23 · DAILY BRIEFINGS 8 · TIMES
+          Jerusalem". It renders here and not in the masthead because the shell
+          above is deliberately synchronous and cannot know the read's result.
+          The story count moved into the section head it describes. */}
+      {!currentUnavailable && current[0] ? (
+        <p className={styles.editionStatus}><HubUpdated at={current[0].publishedAt} /></p>
       ) : null}
 
       <section id="latest-news" className={styles.newsOpening} aria-labelledby="latest-news-heading">
         <div className={styles.sectionHeading}>
           <h2 id="latest-news-heading">Latest news</h2>
-          <p>Individual stories, newest first</p>
+          {!currentUnavailable && storyCount ? (
+            <p><span data-numeric="">{storyCount}</span> {storyCount === 1 ? "story" : "stories"}, newest first</p>
+          ) : null}
         </div>
         {currentUnavailable ? (
           <StatusState status={absenceStatus("unavailable")} title="News could not be loaded."
@@ -460,13 +449,10 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
               <aside className={styles.newsSidebar} aria-label="More updates">
                 <h2>More updates</h2>
                 <ol className={styles.newsTimeline}>
-                  {sidebarUpdates.map((item, index) => {
+                  {sidebarUpdates.map((item) => {
                     const media = hubMedia(item);
                     return (
                       <li key={item.publicId} className={media ? styles.timelineWithMedia : undefined}>
-                        <span className={styles.timelineIndex} aria-hidden="true">
-                          {String(index + 2).padStart(2, "0")}
-                        </span>
                         <div>
                           <time dateTime={item.publishedAt}>{formatDateTime(item.publishedAt)}</time>
                           <h3><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h3>
@@ -509,7 +495,7 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
           <p>Circulating claims, their assessment status and disinformation research live on the dedicated narrative desk, kept separate from the news.</p>
         </div>
         <ButtonLink href="/fake-resistance" variant="secondary" size="md" rightIcon={<span aria-hidden="true">↗︎</span>}>
-          Narratives &amp; fact checks
+          Fake Resistance
         </ButtonLink>
       </aside>
 
@@ -628,7 +614,7 @@ function Briefing({ item, headingId }: { item: Publication; headingId?: string }
     <h2 id={headingId}><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h2>
     {item.summary ? <p className={styles.newsSummary}>{item.summary}</p> : null}
     <UpdatedMarker item={item} />
-    <Link className={styles.readLink} href={`/articles/${item.publicId}`}>Read the full briefing <span aria-hidden="true">→</span></Link>
+    <Link className={styles.readLink} href={`/articles/${item.publicId}`}>Read the briefing <span aria-hidden="true">→</span></Link>
   </div>;
 }
 
@@ -764,6 +750,15 @@ function humanize(value: string): string {
   return value.replaceAll("_", " ").replaceAll(",", ", ");
 }
 
+/**
+ * Topic, actor and arena as one plain kicker line — "West Bank settler
+ * outposts · Benjamin Netanyahu · West Bank".
+ *
+ * UX-17: they were three bordered, title-cased chips ("Yemen And Red Sea"),
+ * which tripled the height of every update entry on a phone and were not
+ * links. The values arrive in sentence case from the record and are printed
+ * as they are; the separator is the only thing added.
+ */
 function Metadata({ item, narrative = false }: { item: Publication; narrative?: boolean }) {
   const values = [item.editorialTopic, item.primaryActor, item.arena]
     .filter((value): value is string => Boolean(value))
@@ -771,10 +766,10 @@ function Metadata({ item, narrative = false }: { item: Publication; narrative?: 
   const details = item.narrativeWatchDetails;
   return <>
     {values.length ? (
-      <small className={styles.storyMeta}>
+      <p className={styles.storyMeta}>
         {narrative ? <span className={styles.metaLabel}>Monitored signal</span> : null}
-        {values.map((value) => <span key={value} className={styles.metaFacet}>{value}</span>)}
-      </small>
+        <span className={styles.metaFacets}>{values.join(" · ")}</span>
+      </p>
     ) : null}
     {narrative && details ? (
       <dl className={styles.claimRecord}>

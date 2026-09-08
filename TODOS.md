@@ -8,10 +8,11 @@
 
 ## 0. UI/UX upgrade round — 2026-09-08
 
-- [ ] **Execute the UI/UX upgrade audit (UX-01 … UX-32)**
+- [x] **Execute the UI/UX upgrade audit (UX-01 … UX-32)** — executed 2026-09-09 on `ai/claude`; record in §13 of the audit
   - *Context:* Full public-site + Ask review on 2026-09-08: design, information structure, and a copy pass toward the activist register of `docs/editorial-dna.md` §1. Audit and task list, with severities, file ownership per workstream, and the verification plan: [`docs/audits/2026-09-08-ux-upgrade-todos.md`](docs/audits/2026-09-08-ux-upgrade-todos.md).
   - *Order:* words (UX-01–05, 30) → chrome (UX-07–11) → endings/activation (UX-06, 19–21) → hubs (UX-15–18, 23) → October 7 & Ask (UX-22, 24, 26, 28) → verify-first items (UX-12, 27, 29) → owner decisions (UX-13, 25) → consolidation (UX-31, 32).
-  - *Owner decisions pending:* UX-13 (support chips on the cover) and UX-25 (monitoring-row backdrop behind Ask/Search/Support).
+  - *Owner rulings applied:* UX-13 strip relocated after the News band (not removed); UX-25 backdrop kept, opacity re-tuned.
+  - *Left open:* 8 pre-existing failures in `tests/publication-provenance-copy.test.ts` / `public-copy-truthfulness.test.ts` (trust-page copy that never landed — not this round); fact-check entry titles at 39px on phones; real-device iPhone Safari pass.
 
 ---
 

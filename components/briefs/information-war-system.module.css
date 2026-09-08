@@ -21,7 +21,7 @@
 .progressTrack { --progress-top: var(--header-h); }
 .hero, .section, .support { width: min(var(--war-width), calc(100% - 2 * var(--war-gutter))); margin-inline: auto; }
 .page [id] { scroll-margin-top: calc(var(--header-h) + 28px); }
-.eyebrow { font-family: var(--face-data); font-size: 11px; line-height: 1.6; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-lo); }
+.eyebrow { font-family: var(--face-data); font-size: 13px; line-height: 1.6; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-lo); }
 .hero { padding-top: 38px; }
 .heroTopline { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--war-rule); }
 .heroTopline a { color: var(--ink); font-size: 13px; padding-block: 8px; }
@@ -35,10 +35,10 @@
 .hero .heroStatement { font-size: clamp(17px, 1.6vw, 22px); line-height: 1.55; margin-top: 32px; }
 .heroJump { display: none; }
 .problem { border-left: 1px solid var(--war-rule); padding-left: 10%; }
-.problem > .eyebrow { color: var(--gold); font-size: 10px; }
+.problem > .eyebrow { color: var(--gold); font-size: 13px; }
 .problem > p:last-child { font-size: 15px; line-height: 1.7; margin-top: 28px; max-width: 39ch; }
 .originDiagram { padding-top: 36px; }
-.reportLabels { display: flex; justify-content: space-around; font-family: var(--face-data); color: var(--ink-lo); font-size: 9px; }
+.reportLabels { display: flex; justify-content: space-around; font-family: var(--face-data); color: var(--ink-lo); font-size: 11px; }
 .reportLabels span { text-align: center; }
 .reportLabels i { display: block; width: 6px; height: 6px; margin: 12px auto 0; background: var(--ink); }
 .originDiagram svg { width: 100%; height: 144px; overflow: visible; display: block; }
@@ -47,7 +47,7 @@
 .originCount { display: flex; justify-content: center; align-items: center; gap: 20px; padding-block: 16px; }
 .originCount strong { font: 400 76px/.85 var(--face-system-display); letter-spacing: -.05em; color: var(--ink-hi); }
 .originCount span { font-size: 13px; line-height: 1.6; }
-.originDiagram figcaption { font-size: 10px; color: var(--ink-lo); text-align: center; margin-top: 10px; }
+.originDiagram figcaption { font-size: 13px; color: var(--ink-lo); text-align: center; margin-top: 10px; }
 .chapterNav { display: grid; grid-template-columns: repeat(3,1fr); border-block: 1px solid var(--war-rule); }
 .chapterNav a { color: var(--ink); padding: 22px 20px; display: flex; align-items: center; gap: 18px; font-size: 13px; }
 .chapterNav a:first-child { padding-left: 0; }
@@ -63,7 +63,7 @@
 .trace { border: 1px solid var(--war-rule); background: var(--ground); }
 .traceTopline { display: flex; align-items: center; justify-content: space-between; padding: 20px 28px; gap: 12px; }
 .traceTopline > .eyebrow { color: var(--gold); }
-.diagramLabel { font-size: 11px; color: var(--ink-lo); }
+.diagramLabel { font-size: 13px; color: var(--ink-lo); }
 .traceRoutes { display: flex; flex-wrap: wrap; border-block: 1px solid var(--war-rule); padding-inline: 24px; }
 .traceRoutes button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 58px; padding: 12px; color: var(--ink-lo); background: transparent; border: none; border-bottom: 2px solid transparent; font-size: 12px; white-space: nowrap; }
 .traceRoutes button span { font: 9px var(--face-data); }
@@ -101,7 +101,7 @@
 .inspector dl { border-left: 1px solid var(--war-rule); padding-left: 24px; font-size: 12px; line-height: 1.6; }
 .inspector dt { font: 9px/1.5 var(--face-data); text-transform: uppercase; color: var(--gold); margin-bottom: 5px; }
 .inspector dd + dt { margin-top: 14px; }
-.routeNote { font-size: 11px; line-height: 1.75; padding: 20px 28px; border-top: 1px solid var(--war-rule); color: var(--ink-lo); }
+.routeNote { font-size: 13px; line-height: 1.75; padding: 20px 28px; border-top: 1px solid var(--war-rule); color: var(--ink-lo); }
 .textAlternative { padding: 16px 28px; border-top: 1px solid var(--war-rule); font-size: 12px; }
 .textAlternative summary { cursor: pointer; min-height: 32px; align-content: center; }
 .textAlternative > div { border-top: 1px solid var(--war-rule); padding-block: 20px; }
@@ -132,7 +132,7 @@
 .technicalBody p { font-size: 12px; line-height: 1.8; margin-top: 20px; }
 .jobChain { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 14px 22px; }
 .jobChain li { font: 12px var(--face-data); color: var(--ink-hi); }
-.jobChain span { color: var(--gold); margin-right: 6px; font-size: 9px; }
+.jobChain span { color: var(--gold); margin-right: 6px; font-size: 11px; }
 .schedule { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; }
 .schedule dt { color: var(--ink-hi); }
 .outputMap { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--war-rule); }
@@ -148,7 +148,7 @@
 .recordHeading { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-top: 64px; }
 .recordHeading h3 { font: 400 30px var(--face-system-display); color: var(--ink-hi); }
 .recordHeading a { display: inline-flex; align-items: center; min-height: 44px; font-size: 12px; color: var(--ink); padding-block: 10px; }
-.recordCaption { font-size: 11px; color: var(--ink-lo); padding: 12px 0 24px; }
+.recordCaption { font-size: 13px; color: var(--ink-lo); padding: 12px 0 24px; }
 .activityList { list-style: none; padding: 0; border-top: 1px solid var(--war-rule); }
 .activityList li { display: grid; grid-template-columns: 180px 1fr 20px; align-items: center; gap: 32px; padding-block: 24px; border-bottom: 1px solid var(--war-rule); }
 .activityList time { font: 10px/1.7 var(--face-data); color: var(--ink-lo); }
@@ -171,17 +171,17 @@
   .hero h1 { font-size: 9vw; }
   .problem { padding-left: 8%; }
   .problem > p:last-child { font-size: 13px; }
-  .heroTopline > a { font-size: 11px; }
+  .heroTopline > a { font-size: 13px; }
   .originDiagram svg { height: 112px; }
-  .chapterNav a { font-size: 11px; gap: 12px; padding-inline: 14px; }
+  .chapterNav a { font-size: 13px; gap: 12px; padding-inline: 14px; }
   .sectionHeading { gap: 7%; }
   .sectionHeading > p { font-size: 14px; }
   .systemCanvas { width: calc(100% - 48px); }
   .traceRoutes { padding-inline: 12px; }
-  .traceRoutes button { padding-inline: 9px; gap: 6px; font-size: 11px; }
+  .traceRoutes button { padding-inline: 9px; gap: 6px; font-size: 13px; }
   .mapNode { padding: 10px; }
   .mapNode strong { font-size: 13px; }
-  .mapNode small { font-size: 9px; }
+  .mapNode small { font-size: 11px; }
   .nodeMark { top: 5px; right: 5px; font-size: 8px; }
   .inspector { gap: 24px; grid-template-columns: .9fr 1.5fr; }
   .inspector dl { grid-column: 2; border-left: 0; padding-left: 0; display: grid; grid-template-columns: 75px 1fr; gap: 8px; }
@@ -193,7 +193,7 @@
   .hero { padding-top: 24px; }
   .heroTopline { padding-bottom: 18px; }
   .heroTopline > a { display: none; }
-  .heroTopline .eyebrow { font-size: 9px; }
+  .heroTopline .eyebrow { font-size: 13px; }
   .heroGrid { grid-template-columns: 1fr; padding-block: 44px 36px; gap: 44px; }
   .hero h1 { font-size: clamp(54px, 17vw, 104px); }
   .hero h1 span:first-child { font-size: .4em; margin-bottom: 22px; }
@@ -212,7 +212,7 @@
   .sectionHeading h2 { font-size: clamp(37px, 8.5vw, 52px); }
   .sectionHeading > p { font-size: 14px; max-width: 52ch; }
   .traceTopline { padding: 20px; flex-direction: column; align-items: flex-start; gap: 6px; }
-  .traceTopline .eyebrow { font-size: 10px; }
+  .traceTopline .eyebrow { font-size: 13px; }
   .diagramLabel { font-size: 10px; }
   .traceRoutes { padding: 8px 12px; gap: 0; }
   .traceRoutes button { flex: 1 1 45%; justify-content: flex-start; min-height: 44px; padding: 10px 8px; }

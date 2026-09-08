@@ -2,10 +2,15 @@
  *
  * One stylesheet, one set of tokens. The three generations of overrides that
  * used to be appended here — each in its own units — are folded into a single
- * composition: masthead (shared `HubMasthead`), the edition facts, the lead
- * story with its rail of further updates, the daily briefing as a raised
+ * composition: masthead (shared `HubMasthead`), the edition's status line, the
+ * lead story with its rail of further updates, the daily briefing as a raised
  * plate, a bridge to the narrative desk, and the archive as a disclosure with
- * a real header. */
+ * a real header.
+ *
+ * Two type roles, kept apart on purpose (UX-31): a *kicker* — a section label
+ * or a flag such as "Latest story" — is sans caps at `--t-kicker`; a *data
+ * value* — a date, a count, a facet — is the mono face at `--t-data`. A rule
+ * that sets one must not borrow the other. */
 
 .page {
   --brief-gutter: clamp(var(--sp-4), 4vw, var(--sp-8));
@@ -33,41 +38,27 @@
   padding: var(--sp-4) var(--brief-gutter) var(--sp-9);
 }
 
-/* ── Edition facts ─────────────────────────────────────────────────────── */
+/* ── Edition status ────────────────────────────────────────────────────── */
 
-.editionFacts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-3) var(--sp-7);
+/* One sentence — "Updated 4:18 this morning · Jerusalem time" — where the
+   four-cell facts rail used to be. The instant is a machine value and keeps
+   the data face; the words around it do not. */
+.editionStatus {
   margin: 0;
   padding-block: var(--sp-4);
   border-bottom: var(--line-w) solid var(--line);
-}
-
-.editionFacts > div {
-  display: flex;
-  align-items: baseline;
-  gap: var(--sp-2);
-  min-width: 0;
-}
-
-.editionFacts dt {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
   color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
-.editionFacts dd {
+.editionStatus time {
+  color: var(--ink);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  margin: 0;
-  color: var(--ink-hi);
+  letter-spacing: var(--t-data-tracking-tight);
   font-variant-numeric: tabular-nums;
 }
 
@@ -83,11 +74,11 @@
 }
 
 .sectionHeading h2 {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-navigation);
+  font-size: var(--t-kicker, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   display: inline-flex;
   align-items: center;
@@ -103,14 +94,22 @@
   background: currentColor;
 }
 
+/* The count that used to sit in the facts rail, beside the heading it
+   describes: the figure is data, the words around it are not. */
 .sectionHeading p {
+  margin: 0;
+  color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+.sectionHeading p > [data-numeric] {
+  color: var(--ink);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking-tight);
-  margin: 0;
-  color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
 }
 
 .newsOpening,
@@ -136,7 +135,11 @@
 }
 
 .liveEyebrow > span {
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-navigation);
+  font-size: var(--t-kicker, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -166,31 +169,34 @@
 
 .briefingFlag { color: var(--gold-hi); }
 
+/* Topic · actor · arena as one plain line (UX-17). It reads in the text face
+   at caption size, sentence case as the record wrote it — no boxes, no
+   capitalize, nothing that looks like a control. */
 .storyMeta {
-  composes: dataValue from global;
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-2);
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-3);
   min-width: 0;
+  margin: 0;
   color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
   overflow-wrap: anywhere;
 }
 
 .storyMeta > .metaLabel {
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-navigation);
+  font-size: var(--t-kicker, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  color: var(--gold-hi);
 }
 
-.metaFacet {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.2rem var(--sp-2);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-1);
-  color: var(--ink);
-  text-transform: capitalize;
-}
+.metaFacets { min-width: 0; }
 
 /* ── Developing stories (VA-19) ────────────────────────────────────────── */
 
@@ -210,9 +216,13 @@
 }
 
 .storyUpdatedFlag {
-  color: var(--gold-hi);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-navigation);
+  font-size: var(--t-kicker, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  color: var(--gold-hi);
 }
 
 /* The chronology beneath a story's current headline. Indented against a rule
@@ -226,14 +236,14 @@
 }
 
 .updateLog h4 {
+  font-family: var(--face-navigation);
+  font-size: var(--t-kicker, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   margin: 0 0 var(--sp-2);
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
 }
 
 .updateLog ol {
@@ -259,8 +269,13 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* A standalone link, so it gets a standalone target (UX-11): the row is at
+   least the control height, with the text centred in it. */
 .updateLog a {
+  display: inline-flex;
+  align-items: center;
   min-width: 0;
+  min-block-size: var(--control-h);
   color: var(--ink);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
@@ -412,18 +427,22 @@
 /* The disclosure is the first line under the picture and reads as a label,
    never as part of the description beside it. */
 .mediaDisclosure {
-  flex-basis: 100%;
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-navigation);
+  font-size: var(--t-kicker, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  flex-basis: 100%;
   color: var(--gold-hi);
 }
 
 .mediaCaption { color: var(--ink); }
 .mediaCredit { color: var(--ink-lo); }
 
-/* `.newsTimeline li` sets the two-column default with an element selector, so
+/* `.newsTimeline li` sets the one-column default with an element selector, so
    the picture variant has to out-specify it rather than merely follow it. */
-.newsTimeline li.timelineWithMedia { grid-template-columns: auto minmax(0, 1fr) auto; }
+.newsTimeline li.timelineWithMedia { grid-template-columns: minmax(0, 1fr) auto; }
 
 .timelineThumb {
   inline-size: 4.5rem;
@@ -468,11 +487,11 @@
 }
 
 .newsSidebar > h2 {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-navigation);
+  font-size: var(--t-kicker, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   margin: 0 0 var(--sp-3);
   color: var(--ink-lo);
@@ -485,19 +504,15 @@
   border-top: var(--line-w) solid var(--line);
 }
 
+/* One column. The "02 … 05" rank numerals that used to open each entry were
+   removed (UX-18): the list is newest-first, not a ranking, and a numeral that
+   encodes nothing is decoration. */
 .newsTimeline li {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--sp-4);
   padding-block: var(--sp-4);
   border-bottom: var(--line-w) solid var(--line);
-}
-
-.timelineIndex {
-  composes: dataMeta from global;
-  padding-top: 0.2rem;
-  color: var(--gold-dim);
-  font-variant-numeric: tabular-nums;
 }
 
 .newsTimeline time {
@@ -887,11 +902,11 @@
 }
 
 .claimRecord dt {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-navigation);
+  font-size: var(--t-kicker, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink-lo);
   line-height: var(--t-small-lh);
@@ -936,7 +951,6 @@
   .filterBar { display: none; }
   .filterMobile { display: grid; }
 
-  .editionFacts { gap: var(--sp-2) var(--sp-5); }
   .newsFront[data-sidebar] { grid-template-columns: minmax(0, 1fr); gap: var(--sp-5); }
   .newsFront[data-sidebar] .newsLead {
     padding-inline-end: 0;

@@ -8,6 +8,7 @@ import { getIsraelsStoryEdition } from '@/lib/content/israels-story';
 import { listPublicPublications } from '@/lib/publications';
 import {
   publicationHref,
+  publicationCta,
   PUBLICATION_SECTION_LABELS,
   SECTIONS_BY_HOMEPAGE_SECTION,
 } from '@/lib/publication-routing';
@@ -67,7 +68,7 @@ function PublicationCard({ publication }: { publication: PublicPublication }) {
       <p className={styles.meta}>{dateLabel(publication.publishedAt)} <span aria-hidden="true">·</span> {LABELS[publication.section]}</p>
       <h3><Link href={publicationHref(publication.publicId)}>{publication.title}</Link></h3>
       {publication.summary ? <p>{publication.summary}</p> : null}
-      <Link className={styles.read} href={publicationHref(publication.publicId)}>Read the record <span aria-hidden="true">→</span></Link>
+      <Link className={styles.read} href={publicationHref(publication.publicId)}>{publicationCta(publication.section)} <span aria-hidden="true">→</span></Link>
     </div>
   </article>;
 }

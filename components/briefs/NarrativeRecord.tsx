@@ -6,6 +6,7 @@ import type { PublicPublication } from "@/server/contracts/publication";
 import { isAnalysisBasis } from "@/server/contracts/publication";
 import { VERIFICATION_STATES } from "@/components/live/publication-labels";
 import styles from "./narrative-record.module.css";
+import { publicationCta } from "@/lib/publication-routing";
 
 /**
  * What the picture is, said before it is read as anything else.
@@ -62,7 +63,7 @@ export function NarrativeRecord({ item, compact = false }: { item: PublicPublica
       ) : null}
       {!compact && item.summary ? <div className={styles.context}><span className={styles.label}>Published context</span><p>{item.summary}</p></div> : null}
       {details && isAnalysisBasis(details) ? <p className={styles.basis}>Organisation analysis — no source cited.</p> : null}
-      {!compact ? <Link className={styles.read} href={`/articles/${item.publicId}`}>{details && isAnalysisBasis(details) ? "Read the analysis" : "Read the assessment"} <span aria-hidden="true">→</span></Link> : null}
+      {!compact ? <Link className={styles.read} href={`/articles/${item.publicId}`}>{publicationCta(item.section)} <span aria-hidden="true">→</span></Link> : null}
     </article>
   );
 }

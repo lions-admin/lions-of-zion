@@ -216,16 +216,48 @@ by the same agent instead: **4a naming** (VA-51, VA-57, VA-63, VA-58), then
 
 ## 3. WAVE 0 — PREFLIGHT (any agent, once)
 
-- [ ] **P-1** Git preflight: report current branch, commit, working-tree status,
+- [x] **P-1** Git preflight: report current branch, commit, working-tree status,
       uncommitted/untracked files, whether `main` is up to date, and whether
       `feat/production-ux-integrity` already exists. Do not create a second branch.
-- [ ] **P-2** Create `feat/production-ux-integrity` off `main` **only if it does
+      <!-- done: performed at the start of every session on this task; a
+           SessionStart hook now emits it automatically (branch, working tree,
+           local branches, worktrees). Never marked until 2026-09-08. -->
+- [x] **P-2** Create `feat/production-ux-integrity` off `main` **only if it does
       not exist**. If it exists, continue on it.
-- [ ] **P-3** Start the dev server and confirm HTTP 200 on `/`.
-- [ ] **P-4** Read `docs/editorial-dna.md` (binding — outranks CLAUDE.md),
+      **Recorded honestly: this is not what happened.** The single-branch rule
+      was not held. Work ran on `feat/production-ux-wave-3b`, `-3c`,
+      `-3c-continuation`, `feat/production-ux-va52` and
+      `feat/production-ux-va54`, and PR #59 was merged prematurely and reverted
+      whole (`5757712`) before being restored on a continuation branch
+      (`4a977e9`). Everything is now consolidated: `feat/production-ux-va54`
+      merged to `main` as `e9b65a3` and deployed. The branch named in this step
+      never existed.
+      <!-- done: e9b65a3 | all task work is on main; no orphaned branch holds
+           unmerged work (verified with git log main..<branch> per branch) -->
+- [x] **P-3** Start the dev server and confirm HTTP 200 on `/`.
+      <!-- done: e9b65a3 | dev server used throughout; Production verified live
+           after deploy — /, /fake-resistance, /geopolitical-brief, /ask,
+           /october-7 all HTTP 200 on lionsofzion.io, 2026-09-08 -->
+- [x] **P-4** Read `docs/editorial-dna.md` (binding — outranks CLAUDE.md),
       `AGENTS.md`, `CLAUDE.md`, and §13 of the previous audit file (VA-04 results).
-- [ ] **P-5** Capture a *before* evidence set with the existing harness so §11
+      <!-- done: read by every agent on this task; §1b of this file is the
+           written product of that read — seven corrections to the audit's own
+           claims, each verified against the tree -->
+- [~] **P-5** Capture a *before* evidence set with the existing harness so §11
       has something to compare against.
+      <!-- blocked: the baseline state is gone — no before/ set was captured
+           while it still existed, and docs/reviews/production-ux-integrity/
+           holds only after/ (90 screenshots). | needs: nothing further; see
+           below -->
+      **Its purpose was served by other means, and that is why nothing is being
+      re-run.** VA-04's own numbers in the previous audit file are the "before"
+      this step existed to produce, and they are what the work actually measured
+      against: 53.1 compared the lead-headline top against VA-04's
+      1176/1239/1317/1004/1174/1338px and recorded 1176→512px at 1440; VA-54
+      compared against the 60,814px Hinkle document and its 2.4-viewport
+      finding. Re-creating screenshots from the baseline commit now would be
+      archaeology, not evidence. Left `[~]` rather than `[x]` because the
+      artefact this step names was never produced.
 
 ---
 
@@ -521,12 +553,69 @@ VA-12's collapse covers the archive projection only.
       guard did not catch them — it was also unreachable from the auto-publish
       paths until `fba1612`.
       <!-- done: read-only over PUBLIC_V1 on lionsofzion.io, 2026-09-07 -->
-- [ ] **48.5** `A3` For each confirmed duplicate: pick the canonical record;
+- [~] **48.5** `A3` For each confirmed duplicate: pick the canonical record;
       preserve strongest/current content, sources, correction history, useful
       metadata, SEO/link integrity. **Do not destroy historical provenance. Do
       not merge two genuinely different stories because the wording is similar.**
-- [ ] **48.6** `A1` Redirect or otherwise safely resolve duplicate URLs;
+
+      **Armed and ready to fire; waiting only on the secret.**
+      `scripts/ops/dedupe-publications.mjs` carries all eight confirmed pairs
+      from 48.4's sweep and performs the merge through the **authorized ops
+      path** (`POST /api/internal/chatgpt/actions`), never the database:
+
+      - **It cannot delete.** The retirement is `archive_publication`, a
+        transition to `archived` that is reversible back to draft. The registry
+        also substitutes `delete_publication` → `archive_publication` for any
+        unattended caller, so the destructive half is unreachable from here by
+        construction. Every call is audit-recorded server-side.
+      - **Dry run is the default.** It resolves both records of each pair,
+        prints which it would keep **and the reason**, and writes the redirect
+        entries 48.6 needs to `scripts/ops/dedupe-redirects.json` — so the
+        decision is reviewable before anything moves. `--apply` performs it,
+        `--only=1,3` narrows it.
+      - **Canonical is chosen by what makes the better public copy**, in order:
+        carries a `canonicalStoryId` → cites more sources → fuller body → later
+        update. A pair indistinguishable on all four is reported for a hand
+        decision rather than resolved silently.
+      - **The two non-duplicates are deliberately absent** from the script's
+        list — the 6 September briefing against the 3 September briefs are
+        different daily editions, and the sweep's own note says so. Do not add
+        them.
+      - The secret is read from the environment and **never printed**.
+      <!-- blocked: the Production ops secret | needs: CHATGPT_AUTOMATION_SECRET
+           (Vercel sensitive → write-only, unreadable from this machine; must be
+           supplied as CHATGPT_AUTOMATION_SECRET_PROD in .env.local) -->
+      <!-- partial: scripts/ops/dedupe-publications.mjs written and verified to
+           refuse cleanly with no secret present. Nothing has been merged. -->
+- [~] **48.6** `A1` Redirect or otherwise safely resolve duplicate URLs;
       suppress the duplicate from search results.
+
+      **The mechanism ships; the data waits on 48.5.** Splitting it this way is
+      deliberate — an entry may only be added once the record it retires has
+      really been archived, or the redirect would shadow a live publication.
+
+      - `lib/superseded-publications.ts` holds the retired→canonical map and
+        `supersededBy()`. The map is **empty by design** until a merge runs.
+      - `app/articles/[publicId]/page.tsx` consults it **only after a lookup has
+        already failed**, so a stale entry can never hide a published record —
+        the record wins and the map is a rescue, not an override. A hit is a
+        `permanentRedirect` to the canonical article; a miss is the previous
+        `notFound()`.
+      - `tests/superseded-publications.test.ts` (5) pins the shape rather than
+        any single entry: an unknown id does not redirect, no entry points at
+        itself, and **no canonical target is itself retired** — the chain check
+        is what stops a redirect loop being built by accident as merges
+        accumulate. These start asserting on real rows the moment 48.5 adds
+        one, with no edit to the test.
+      - **"Suppress from search" needs no separate work:** the retirement is
+        `archive_publication`, a transition to `archived`, which removes the
+        record from the public corpus the search index is built from.
+      <!-- partial: the mechanism is built, tested and merged. The map stays
+           empty until 48.5 performs the archives. -->
+      <!-- blocked: the entries themselves | needs: CHATGPT_AUTOMATION_SECRET
+           (Production) — see 48.5 -->
+      <!-- done: mechanism only | tests/superseded-publications.test.ts (5);
+           typecheck clean, lint 0 errors -->
 - [~] **48.7** `A1` Tests: duplicate-canonical prevention; the override path;
       the redirect; single-render-per-page on `/geopolitical-brief`.
       <!-- claimed: A1 @ 2026-09-07 -->
@@ -1076,10 +1165,24 @@ boundaries are enforced.
 `vitest.config.ts` sets `maxWorkers: 2` on purpose — **do not override it**;
 default parallelism OOMs the suite.
 
-- [ ] **T-1** Type checking green.
-- [ ] **T-2** Lint green (architecture boundaries).
-- [ ] **T-3** Unit/integration tests green.
-- [ ] **T-4** Production build green.
+- [x] **T-1** Type checking green.
+      <!-- done: e9b65a3 | npm run verify:full on the integrated branch before
+           the merge to main — next typegen + tsc --noEmit clean -->
+- [x] **T-2** Lint green (architecture boundaries).
+      <!-- done: e9b65a3 | 0 errors, 16 warnings (all pre-existing
+           no-unused-vars, none introduced by this task). eslint.config.mjs is
+           where the layering rules are enforced, so 0 errors means no
+           boundary was crossed. -->
+- [x] **T-3** Unit/integration tests green.
+      <!-- done: e9b65a3 | 160 test files, 1603 passed, 1 skipped (the skip is
+           semantic search: PGlite has no pgvector, expected) -->
+- [x] **T-4** Production build green.
+      <!-- done: e9b65a3 | next build succeeded, 1215 static pages generated
+           with 10 workers; deployed to Production and verified live -->
+      <!-- Note: the Turbopack "Dynamic filesystem access causes tracing of the
+           whole project" warning is pre-existing and unrelated to this task. -->
+      <!-- Note: perf:report's total-CSS budget (95.5kB gz vs 90.3kB) is over,
+           proven pre-existing and unrelated — see 53.6. Not a build failure. -->
 - [ ] **T-5** Routing and redirects verified.
 - [ ] **T-6** Canonical IDs verified.
 - [ ] **T-7** Article rendering verified.

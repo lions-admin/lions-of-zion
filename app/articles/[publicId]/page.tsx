@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { SITE_URL } from "@/lib/site-config";
+import { supersededBy } from "@/lib/superseded-publications";
 import { stripSourceDump } from "@/lib/source-dump";
 import { facebookShareUrl, xIntentUrl } from "@/lib/content/share-text";
 import { absoluteMediaUrl, articleHeroMedia } from "@/lib/content/homepage-media";
@@ -94,7 +95,17 @@ export default async function ArticlePage({ params }: Props) {
   try {
     article = await getPublicPublication(publicId);
   } catch (cause) {
-    if (isMissingPublication(cause)) notFound();
+    if (isMissingPublication(cause)) {
+      /* VA-48.6. A record archived as a duplicate leaves the public corpus,
+         which is what takes it out of search — but its URL may still be in a
+         reader's history or a search index, and 404 is the wrong answer when
+         the story itself is still published at the canonical address. The
+         lookup runs only after the record was genuinely not found, so a stale
+         map entry can never shadow a live publication. */
+      const canonical = supersededBy(publicId);
+      if (canonical) permanentRedirect(`/articles/${canonical}`);
+      notFound();
+    }
     throw cause;
   }
 

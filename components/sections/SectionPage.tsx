@@ -86,9 +86,8 @@ export function SectionPage({
 
   const pageClass = [
     styles.page,
-    /* Marks the shell as carrying rails, which widens the band the scan keeps
-       out of. DocPage shares `.page` and deliberately does not take this. */
-    styles.withRails,
+    /* The scan mask only needs rail width when a rail actually exists. */
+    withToc || aside ? styles.withRails : '',
     register === 'muted' ? styles.registerMuted : '',
     accent === 'ember' ? styles.accentEmber : '',
     surface === 'quiet' ? styles.surfaceQuiet : '',
@@ -103,16 +102,12 @@ export function SectionPage({
       routeId={id}
       register={register}
       className={pageClass}
-      progressTrackClassName={styles.topProgressTrack}
+      progressTrackClassName={withToc ? styles.topProgressTrack : undefined}
     >
       <div className={shellClass}>
         {/* The trail a hub's child passes down — the shared `Breadcrumb`, the
             same one `DocPage` mounts, so the two shells agree on where a
-            page's ancestors are written. The prop was accepted and dropped on
-            the floor after the identity band that used to carry it was
-            retired in favour of the site header; the five Fake Resistance
-            branches and the two archive indexes pass it, and this is what
-            renders it. */}
+            page's ancestors are written. */}
         {breadcrumb && breadcrumb.length > 0 ? (
           <Breadcrumb
             className={styles.documentTrail}
@@ -133,8 +128,8 @@ export function SectionPage({
             <p className={styles.lede}>{lede}</p>
             <div className={styles.ledeRule} aria-hidden="true" />
           </header>
-          {/* `data-toc-source` scopes the rail's heading scan to the page body,
-              so it can never pick up an h2 from the chat modal or the rail. */}
+          {/* `data-toc-source` remains harmless when the TOC is disabled and
+              keeps the body contract stable for pages that use the rail. */}
           <div className={styles.body} data-toc-source>
             {children}
           </div>

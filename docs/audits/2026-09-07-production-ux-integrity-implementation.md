@@ -278,7 +278,7 @@ log claiming a change that was not applied. The Lebanon record demonstrated it.
       failure mode. **Apply the identical shape to the second update path at
       `service.ts:763-812`**, which has the same defect. Do not add a new bypass.
       <!-- done: fba1612 | tests/publication-update-coherence.test.ts, tests/publication-duplicate-guard.test.ts; verify:full green 150 files / 1442 passed -->
-- [~] **46.4** Guarantee a re-promoted story references **the same canonical
+- [x] **46.4** Guarantee a re-promoted story references **the same canonical
       version the article page renders**. Homepage projection and article detail
       must read one version, not two.
       <!-- claimed: A1 @ 2026-09-07 -->
@@ -287,6 +287,62 @@ log claiming a change that was not applied. The Lebanon record demonstrated it.
            (tests/publication-update-coherence.test.ts). The projection half is
            NOT verified: nothing yet asserts that the homepage band and the
            article detail read the same version. Left open deliberately. -->
+
+      **Verified correct by construction — no divergence found, nothing
+      fixed.** Traced both read paths from the DOM back to the row:
+
+      - `app/articles/[publicId]/page.tsx` calls `getPublicPublication()`
+        (`lib/publications.ts`) → `getBriefingPublicDetail()` →
+        `repo(db).byPublicId()`.
+      - The real homepage (`/`) does **not** embed content in its persisted
+        daily-edition snapshot. `homeReferenceSchema`
+        (`server/contracts/homepage.ts:7-16`) carries only `key`, `id`, `href`,
+        `version` (an `updatedAt` stamp used solely to change-detect the
+        edition hash) and `mediaId` — no title, no summary, no body. Every
+        item is hydrated live by `resolveHomepageReference()`
+        (`lib/content/homepage-adapters.ts:22`), which calls the **same**
+        `getPublicPublication()` the article page calls. Membership is
+        persisted; content never is.
+      - `components/briefs/LiveBriefHub.tsx` (the `/geopolitical-brief` hub)
+        reads `listBriefingPublications()` → `listBriefingPublic()` →
+        `repo(db).listPublic(filters, true)` — a second query, but of the
+        identical `publications` table row, not a second table or a
+        version-snapshot join. `entity_version.snapshot` is never read by any
+        public projection.
+      - Both `PublicPublication` (list) and `PublicPublicationDetail` (detail,
+        `extend`s it) carry the full `title`/`summary`/`body`/`updatedAt` —
+        detail is a superset, not a different projection of different data.
+      - Caching cannot split them either: `cachedBriefingPublications` and
+        `cachedPublicationDetail` (`lib/publications.ts`) share one
+        `unstable_cache` tag, `"publications"`. `expirePublicPublicationCache()`
+        (`server/core/publication-cache.ts`) is the only place that calls
+        `revalidateTag("publications")`, and it also unconditionally calls
+        `clearPublicReadCache()`, sweeping the *entire* process-local
+        `publicReadCache` map (list keys and detail keys together) in the same
+        synchronous call — not per-key. It fires from exactly one outbox topic,
+        `TOPICS.publicationCacheInvalidate`, emitted inside the same
+        transaction as `recordVersion()` at every write site in
+        `publications/service.ts`. There is no code path that revalidates one
+        cache and not the other.
+      - `recordVersion()` itself never writes publication content columns — the
+        caller's `r.update()` does, in the same transaction, before
+        `recordVersion()` appends the version row and moves
+        `currentVersionId`. So the one `publications` row is the single
+        durable copy of "current"; there is no second copy for a reader to
+        disagree with.
+
+      **This closes as verification-only**, per the task instruction: extended
+      `tests/publication-update-coherence.test.ts` with
+      "46.4 — homepage projection and article detail read the same version" (2
+      tests) — asserts `listBriefingPublic()` and `getBriefingPublicDetail()`
+      return byte-identical `title`/`summary`/`body`/`updatedAt`/
+      `canonicalStoryId` for the same `publicId` after a coherent developing
+      story update, and that a second update supersedes the first in both
+      projections at once. No application code changed — `LiveBriefHub.tsx`
+      lines 383-404 and `app/articles/[publicId]/page.tsx` were read-only.
+      <!-- done: <this-commit-sha> | tests/publication-update-coherence.test.ts
+           — 2 new tests, 17/17 passing; typecheck clean; lint 0 errors (10
+           pre-existing warnings, none touched) -->
 - [x] **46.5** Consider whether a SQL trigger is the right home for any part of
       this. **Decided: no trigger, and the reason is recorded rather than
       assumed.**
@@ -936,7 +992,7 @@ Update this table in the **same commit** that changes any box above.
 | Task | Owner | Status | PR | Evidence |
 | --- | --- | --- | --- | --- |
 | P-1 … P-5 | any | ☐ not started | 0 | — |
-| VA-46 | A1 | ◐ in progress | 1 | `fba1612`, `132978e` — rules, both update paths, 15 tests, trace and trigger decision recorded, Lebanon record swept and found already coherent. Open: 46.4 projection half only |
+| VA-46 | A1 | ☑ done | 1 | `fba1612`, `132978e` — rules, both update paths, 15 tests, trace and trigger decision recorded, Lebanon record swept and found already coherent; 46.4 closed verification-only (correct by construction — homepage and detail both read the one `publications` row, snapshot carries no content, both caches share one invalidation call) with 2 more tests, 17 total |
 | VA-48 | A1 | ◐ in progress | 1 | `fba1612`, `132978e` — guard on both auto-publish paths, override documented, 4 tests, live sweep tabulated (3 exact + 7 near pairs). Open: 48.5 merges and 48.6 redirects — both need Production mutation credentials |
 | VA-47 | A2 | ☑ done | 1 | `6295324` — PUBLICATION_PROVENANCE derived from `autoPublishedAt`; Authorship line; Methodology "Two ways a record publishes"; 13 tests |
 | VA-61 | A2 | ☑ done | 1 | `6295324` — funding model published on We Are after the owner answered |

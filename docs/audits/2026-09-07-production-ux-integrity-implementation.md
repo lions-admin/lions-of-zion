@@ -673,13 +673,77 @@ state model*, not a replacement campaign.
       2026-09-07 that a picture is not a gate and a picture-less card renders
       text-led. This step models the *state*, it does not restore the *gate*.
       <!-- done: ae18ad2 | tests/publication-media-disposition.test.ts (7), tests/article-source-dump.test.ts (16); four live records verified rendered; verify:full green 153 files / 1478 passed -->
-- [ ] **49.3** `A3` For each eligible story choose media in this priority:
+- [~] **49.3** `A3` For each eligible story choose media in this priority:
       direct documentary evidence → editorial/documentary photography → relevant
       portrait/location/object photography → documents, charts or data → clearly
       labelled editorial illustration → intentional text-only.
-- [ ] **49.4** **Never** use an unrelated generic image to fill a slot. **Never**
+
+      **Proposal complete and reviewable:**
+      `docs/reviews/production-ux-integrity/VA-49-media-proposal.md`. Licences
+      verified against the Wikimedia Commons `imageinfo` API, not asserted.
+
+      **The plan's "46 of 48" is stale.** Live today: **73** published records,
+      14 already carrying media, **59** without. Of those 59 —
+
+      | Verdict | Count |
+      | --- | ---: |
+      | `illustrated`, candidate proposed, licence verified | 7 (6 fully verified, 1 needing an editorial not rights call) |
+      | `media_unavailable` — the right image is identifiable but rights or resolution block it | 3 |
+      | **`text_led` — intentionally, correctly** | **49** |
+
+      **49 of 59 is the finding, not a shortfall.** The set is
+      disproportionately daily briefs, "Reported claim:" narrative-watch
+      assessments, superseded snapshots and method essays — four categories
+      where 49.3's own priority order terminates at intentional text-only and
+      where 49.4 forbids the alternative. Manufacturing coverage here would be
+      the defect.
+      <!-- blocked: applying the 7 candidates | needs:
+           EDITORIAL_UPDATE_INGEST_SECRET (Production) — the package's
+           `updates[].media` carries `externalMediaSchema`, so this is
+           expressible; only the credential is missing. -->
+- [~] **49.4** **Never** use an unrelated generic image to fill a slot. **Never**
       present generated imagery as documentary evidence. Generated/editorial
       illustrations stay clearly disclosed.
+
+      Honoured in the proposal: every rejected candidate carries a one-line
+      reason, `role: "documentation"` was reserved for images that document the
+      event itself rather than a location near it, and nothing generated is
+      proposed as documentary. Enforced on application by
+      `externalMediaSchema`, which requires `credit`, `role`, `rights` (and for
+      `cleared`, a `clearedAt` and non-empty `surfaces`) and carries
+      `disclosure` and `generated` as first-class fields.
+      <!-- blocked: same credential as 49.3 -->
+
+      **A structural gap found while checking whether the proposal is even
+      applyable — worth an owner decision, and deliberately not fixed
+      unilaterally.** The 49 `text_led` verdicts **cannot be recorded on the
+      existing records at all**, with or without the secret:
+
+      - `mediaDisposition` is derived in `publications/service.ts:188` from
+        whether media was supplied, and on the **update** branch it is written
+        only `if (media || mediaOutcome !== "none")` (`:272`) — deliberately, so
+        that fixing a typo does not relabel a picture-less record as
+        deliberately text-only.
+      - `mediaOutcome` is computed at the one call site that knows the
+        difference (`editorial-update/service.ts:247`): `offered` if media came,
+        `unavailable` if the media stage warned, else `none`.
+      - `updatePublicationSchema` has no `mediaDisposition` field, and the
+        whole-site contract is `.strict()` and content/placement only.
+
+      So a record can become `illustrated` or `media_unavailable` through an
+      update, and can be born `text_led` on create — but an **existing**
+      picture-less record has no path to being *declared* intentionally
+      text-only, which is precisely the discriminator 49.2 was built to add.
+      Live: `text_led` 25, `null` 48, and all 14 records that *do* carry media
+      still read `null`.
+
+      **Default if unanswered: leave it.** The site already renders text-led
+      correctly — the owner ruled 2026-09-07 that a picture is not a gate — so
+      `null` costs a reader nothing today; it is an internal-honesty gap, not a
+      public defect. Closing it means giving the update path an explicit
+      disposition signal, which touches a `.strict()` contract that exists to
+      keep the run's auto-fix boundary structural. That is a change to make
+      deliberately or not at all. Recorded as open question 4.
 - [ ] **49.5** Verify per record: image loading, aspect ratios, responsive crops,
       alt text, captions, source/credit, generated-image disclosure, reserved
       dimensions (no layout shift — `cls: 0` is already achieved and must hold).
@@ -1359,6 +1423,18 @@ would do by default if unanswered.
    already has a canonical record — the editorial run itself, or only a human
    through the admin console? **Blocks step 48.2.** Default if unanswered:
    human-only through the admin console, since that is the narrower grant.
+4. *(VA-49)* An **existing** picture-less record cannot be declared
+   *intentionally* text-only. `mediaDisposition` is derived from whether media
+   was supplied, and the update branch writes it only when media arrived or the
+   media stage warned — so 49 records the VA-49.3 proposal judged correctly
+   text-led must stay `null`. Closing the gap means giving the update path an
+   explicit disposition signal, which touches `whole-site-update.ts`, a
+   `.strict()` contract deliberately limited to content and placement so the
+   run's auto-fix boundary stays structural rather than trusted. **Blocks
+   nothing public** — the owner already ruled a picture is not a gate, and the
+   text-led rendering is correct regardless. **Default if unanswered: leave it
+   as `null` and do not widen the contract.**
+
 3. *(VA-51)* ~~`/information-war` answers to three names…~~ **Resolved by the
    recorded default, no owner answer needed.** `/information-war` was unified
    to its chrome label "How it works" in `05e6dd8`. `/ask`'s remaining fourth

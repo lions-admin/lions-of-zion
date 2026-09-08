@@ -180,8 +180,12 @@ describe("keeping an AI branch current without losing work", () => {
     expect(ok).toBe(true);
     expect(out).toMatch(/Merged 1 new main commit into ai\/codex/);
     expect(branch()).toBe("ai/codex");
-    /* Both histories are present, and nothing was rebased away. */
-    expect(git(repo, "merge-base", "--is-ancestor", codexWork, "HEAD") === "").toBe(true);
+    /* Both histories are present, and nothing was rebased away. `--is-ancestor`
+       signals through its exit code and prints nothing, so ask for the answer
+       explicitly rather than asserting on an empty string that would be true
+       either way. */
+    const stillAnAncestor = spawnSync("git", ["merge-base", "--is-ancestor", codexWork, "HEAD"], { cwd: repo }).status === 0;
+    expect(stillAnAncestor, "the branch's own commit must survive the merge").toBe(true);
     expect(git(repo, "log", "--format=%s")).toMatch(/codex work in progress/);
     expect(git(repo, "log", "--format=%s")).toMatch(/claude published first/);
     expect(localBranches()).toEqual(["ai/codex", "main"]);

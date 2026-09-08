@@ -284,7 +284,22 @@ export function updateMain(env = process.env) {
       `Merging ${branch} into ${PRODUCTION_BRANCH} conflicts. The merge was aborted, nothing was pushed,\nand you are back on ${branch}. Resolve it there, then publish again.`,
     );
   }
-  git(["push", "origin", PRODUCTION_BRANCH]);
+  /* The merge is committed locally by this point, so a failed push is the one
+     failure that cannot simply be undone — and it is a real one: the
+     workstation's pre-push guard can decline it, and a race can make it
+     non-fast-forward. Return to the AI branch regardless, because the two
+     failure paths above promise exactly that and an error that strands you on
+     `main` would make the promise a lie. `main` keeps the merge commit, which
+     is recoverable and is stated rather than hidden. */
+  if (!gitStatus(["push", "origin", PRODUCTION_BRANCH])) {
+    git(["switch", branch]);
+    throw new Error(
+      `${branch} merged into local ${PRODUCTION_BRANCH}, but pushing ${PRODUCTION_BRANCH} failed.\n`
+      + `You are back on ${branch} and nothing was lost. Local ${PRODUCTION_BRANCH} still holds the merge:\n`
+      + `  git switch ${PRODUCTION_BRANCH} && git push origin ${PRODUCTION_BRANCH}\n`
+      + `to finish, or 'git switch ${PRODUCTION_BRANCH} && git reset --keep origin/${PRODUCTION_BRANCH}' to undo it.`,
+    );
+  }
   lines.push(`Merged ${branch} into ${PRODUCTION_BRANCH} and pushed it. Production deploys from here.`);
 
   git(["switch", branch]);

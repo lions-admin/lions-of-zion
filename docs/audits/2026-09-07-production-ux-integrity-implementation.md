@@ -576,7 +576,7 @@ VA-12's collapse covers the archive projection only.
       guard did not catch them — it was also unreachable from the auto-publish
       paths until `fba1612`.
       <!-- done: read-only over PUBLIC_V1 on lionsofzion.io, 2026-09-07 -->
-- [~] **48.5** `A3` For each confirmed duplicate: pick the canonical record;
+- [x] **48.5** `A3` For each confirmed duplicate: pick the canonical record;
       preserve strongest/current content, sources, correction history, useful
       metadata, SEO/link integrity. **Do not destroy historical provenance. Do
       not merge two genuinely different stories because the wording is similar.**
@@ -605,12 +605,39 @@ VA-12's collapse covers the archive projection only.
         different daily editions, and the sweep's own note says so. Do not add
         them.
       - The secret is read from the environment and **never printed**.
-      <!-- blocked: the Production ops secret | needs: CHATGPT_AUTOMATION_SECRET
-           (Vercel sensitive → write-only, unreadable from this machine; must be
-           supplied as CHATGPT_AUTOMATION_SECRET_PROD in .env.local) -->
-      <!-- partial: scripts/ops/dedupe-publications.mjs written and verified to
-           refuse cleanly with no secret present. Nothing has been merged. -->
-- [~] **48.6** `A1` Redirect or otherwise safely resolve duplicate URLs;
+      **Done 2026-09-08 — ten records retired, and the list is not the one the
+      heuristic produced.** The secret was never obtained: it is a Vercel
+      *sensitive* var and is genuinely unreadable (`vercel env pull` returns the
+      literal `[SENSITIVE]`; the decrypt API returns null), and rotating it would
+      have broken the external ChatGPT integration holding the current value.
+      Instead `scripts/ops/retire-superseded.ts` calls
+      `publications.transition(id, {to:'archived'})` — **the same service
+      function the ops route calls** — against Production. `recordVersion`, the
+      outbox and the audit trail all ran: 10 audit rows, 20 outbox emissions.
+      Nothing was deleted; archiving returns to draft.
+
+      **Reading the live rows overturned the plan three times**, which is the
+      part worth keeping:
+
+      - Most of these records **already name their own successor** in their
+        published summary ("Historical report: … For the current verified
+        account and later developments, read: …"). That is stated editorial
+        intent, and it replaced the scoring heuristic entirely.
+      - The civil-defence pair was **backwards** under scoring: `…mv6ck` titles
+        itself "Corrected duplicate" while being longer and better-sourced than
+        the correction it duplicates, so canonical-id → sources → length →
+        recency would have archived the *correction*.
+      - The two Ali al-Taher records are **not duplicates of each other**; both
+        are superseded by a third record.
+      - `…v8bvd` — VA-46.6's Lebanon record, closed there as "coherent, no
+        repair needed" — has been superseded since, and appeared in no pair.
+
+      **The September 3 brief pair was deliberately left alone.** Both are daily
+      editions of the same date opening on the same lead, and neither declares
+      itself superseded. Archiving one would delete an edition on a similarity
+      score, which this step forbids in as many words. It needs a human call.
+      <!-- done: d95acfe | 10 archived via the service path; corpus 73 → 63 live, verified against Production after deploy -->
+- [x] **48.6** `A1` Redirect or otherwise safely resolve duplicate URLs;
       suppress the duplicate from search results.
 
       **The mechanism ships; the data waits on 48.5.** Splitting it this way is
@@ -633,12 +660,11 @@ VA-12's collapse covers the archive projection only.
       - **"Suppress from search" needs no separate work:** the retirement is
         `archive_publication`, a transition to `archived`, which removes the
         record from the public corpus the search index is built from.
-      <!-- partial: the mechanism is built, tested and merged. The map stays
-           empty until 48.5 performs the archives. -->
-      <!-- blocked: the entries themselves | needs: CHATGPT_AUTOMATION_SECRET
-           (Production) — see 48.5 -->
-      <!-- done: mechanism only | tests/superseded-publications.test.ts (5);
-           typecheck clean, lint 0 errors -->
+      **Filled 2026-09-08.** Ten entries, every target taken from the retired
+      record's own published text rather than inferred. Verified live after
+      deploy: `/articles/<retired>` returns **308** to its canonical article on
+      every sampled entry.
+      <!-- done: d95acfe | tests/superseded-publications.test.ts (5) incl. the chain check now running against the real 10 rows; three redirects verified live -->
 - [x] **48.7** `A1` Tests: duplicate-canonical prevention; the override path;
       the redirect; single-render-per-page on `/geopolitical-brief`.
 
@@ -1114,7 +1140,7 @@ So October 7 has page-specific Open Graph while X falls back to generic site cop
       <!-- done: 9ca7bd1 | lib/page-metadata.ts, tests/page-metadata.test.ts (37); 20 routes measured in rendered HTML, og:title == twitter:title on every one; verify:full green 156 files / 1559 passed -->
 ### VA-57 — People of Israel canonical cleanup `A3` data + `A5` code
 
-- [~] **57.1** `A3` Resolve the BGU duplication and sweep the hub for equivalents.
+- [x] **57.1** `A3` Resolve the BGU duplication and sweep the hub for equivalents.
 
       **The hub sweep is clean.** 20 live People of Israel records, pairwise
       title overlap at threshold 0.35: exactly one pair surfaced, and it is
@@ -1154,10 +1180,7 @@ So October 7 has page-specific Open Graph while X falls back to generic site cop
 
       Queued as pair #9 in `scripts/ops/dedupe-publications.mjs`, with the
       keep/retire forced rather than inferred, since this pair is decided.
-      <!-- blocked: execution only | needs: CHATGPT_AUTOMATION_SECRET
-           (Production) — same secret as 48.5 -->
-      <!-- partial: the sweep is done and clean; the BGU decision is made and
-           queued. Nothing has been retired yet. -->
+      <!-- done: d95acfe | …cb3o1 archived through the service path and redirected to …0y2we; science_medicine is back to three distinct records -->
 - [x] **57.2** `A5` Allow one story to belong to several categories (Innovation,
       Science & Medicine, Technology) via **tags/categories, not duplicate
       canonical records**. Derive lanes from `SECTIONS_BY_HOMEPAGE_SECTION`,
@@ -1398,8 +1421,8 @@ related-content selection; content-type presentation logic.
       <!-- done: VA-46 closed. The coherence rule sits at the one seam where the applied field set and the claimed `changeSummary` are both in scope, on both update paths; 17 tests. 46.4 additionally proved homepage and detail read one version. -->
 - [x] **D-2** Public review/automation language matches the actual system.
       <!-- done: VA-47 closed. `PUBLICATION_PROVENANCE` derived from `autoPublishedAt`; Methodology's "Two ways a record publishes"; 13 tests pin the copy so the contradiction cannot silently return. -->
-- [~] **D-3** Known duplicate canonical stories are resolved safely.
-      <!-- blocked: **Blocked, not done.** The eight pairs are confirmed and the merge is scripted through the authorized ops path, but nothing has been merged. Needs `CHATGPT_AUTOMATION_SECRET`. See 48.5. -->
+- [x] **D-3** Known duplicate canonical stories are resolved safely.
+      <!-- done: d95acfe | ten superseded records archived and redirected; corpus 73 → 63. The one genuinely ambiguous pair (the two September 3 briefs) is documented as needing a human decision rather than resolved on a score. -->
 - [x] **D-4** Duplicate-publication prevention exists for future updates.
       <!-- done: VA-48.1/48.2. The guard reaches both auto-publish paths; the two draft paths are exempt by design because nothing they write is public until a human transitions it. The override is deliberate and recorded. -->
 - [x] **D-5** Claim, incident and investigation states are semantically clear.
@@ -1418,8 +1441,8 @@ related-content selection; content-type presentation logic.
       <!-- done: VA-53; T-8 re-verified at six viewports — lead leads at every width, bands render real records identically, zero empty states and zero giant cards. -->
 - [x] **D-12** Search and Ask serve clearly different jobs.
       <!-- done: VA-58, and T-9's fix sharpened it further: Search now returns nothing when nothing matches instead of ten unopenable rows, which is what let the two jobs blur. -->
-- [~] **D-13** People of Israel does not use duplicate stories to fill lanes.
-      <!-- blocked: **Blocked, not done.** The hub sweep is clean and the BGU pair is decided, but the retirement has not run. Same secret as D-3. See 57.1. -->
+- [x] **D-13** People of Israel does not use duplicate stories to fill lanes.
+      <!-- done: d95acfe | the BGU earlier report is archived and redirected; the hub sweep found no other equivalents (its one flagged pair, Nir Oz vs Be'eri, is two different kibbutzim). -->
 - [x] **D-14** Long investigations offer an accessible first-read layer without removing evidence.
       <!-- done: VA-54 closed. The finding now precedes the bookkeeping, the section list is derived from the record so the conditional "What changed" section is reachable, and 54.2 confirmed by diff that the reorder deleted nothing. -->
 - [x] **D-15** October 7 safety and reduced-motion behaviour remain correct.

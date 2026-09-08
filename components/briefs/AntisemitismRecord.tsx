@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { PublicPublication } from "@/server/contracts/publication";
 import styles from "./antisemitism-record.module.css";
+import { publicationCta } from "@/lib/publication-routing";
 
 /** A documented record, kept visually and semantically distinct from a circulating claim. */
 export function AntisemitismRecord({ item, compact = false }: { item: PublicPublication; compact?: boolean }) {
@@ -17,7 +18,7 @@ export function AntisemitismRecord({ item, compact = false }: { item: PublicPubl
         {item.arena ? <div><dt>Location or platform</dt><dd>{item.arena}</dd></div> : null}
         {item.editorialTopic ? <div><dt>Record type</dt><dd>{item.editorialTopic}</dd></div> : null}
       </dl>
-      {!compact ? <Link className={styles.read} href={`/articles/${item.publicId}`}>Read the sourced record <span aria-hidden="true">→</span></Link> : null}
+      {!compact ? <Link className={styles.read} href={`/articles/${item.publicId}`}>{publicationCta(item.section)} <span aria-hidden="true">→</span></Link> : null}
     </article>
   );
 }

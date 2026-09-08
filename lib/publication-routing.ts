@@ -50,6 +50,24 @@ export type PublicationDestination = {
    * the rest of the surfaces, so no page hand-writes a section list.
    */
   investigation: boolean;
+  /**
+   * What a link to a record of this section says — VA-63.
+   *
+   * The site used eight verbs across some forty call sites: Read, Open, View,
+   * Explore, Browse, See, Continue, Archive. Most were chosen at the call site
+   * behind a ternary on the card's shape, so the same kind of record invited
+   * the reader differently depending on which component drew it.
+   *
+   * It lives here, beside hub, href and label, for the reason all of those do:
+   * `publication.section` is the only editorial choice, and every surface is
+   * derived from it. A section that moves desk takes its verb with it.
+   *
+   * The verb carries the epistemic weight the audit asked for. An investigation
+   * is *opened* — it is a file, and the word promises the apparatus behind it.
+   * A claim assessment is *read* as an assessment, never as more reporting. A
+   * news record is *read* as a story. Nothing is "explored".
+   */
+  cta: string;
 };
 
 /**
@@ -58,20 +76,24 @@ export type PublicationDestination = {
  */
 const news = (label: string): PublicationDestination => ({
   hub: "News & Analysis", href: "/geopolitical-brief", homepageSection: "news", homepageKind: "news", label, investigation: false,
+  cta: "Read the story",
 });
-const investigation = (label: string): PublicationDestination => ({
+const investigation = (label: string, cta = "Open the investigation"): PublicationDestination => ({
   hub: "Fake Resistance", href: "/fake-resistance", homepageSection: "fakeResistance", homepageKind: "watch", label, investigation: true,
+  cta,
 });
 const people = (label: string): PublicationDestination => ({
   hub: "The People of Israel", href: "/people-of-israel", homepageSection: "people", homepageKind: "feature", label, investigation: false,
+  cta: "Read the record",
 });
 const DESTINATIONS: Record<PublicationSection, PublicationDestination> = {
   daily_brief: news("Daily Brief"),
   israel_update: news("Israel update"),
   news: news("News & Analysis"),
-  narrative_watch: investigation("Narrative Watch"),
+  /* A claim assessment is read as an assessment, never as more reporting. */
+  narrative_watch: investigation("Narrative Watch", "Read the assessment"),
   influence_investigation: investigation("Influence investigation"),
-  antisemitism: investigation("Antisemitism"),
+  antisemitism: investigation("Antisemitism", "Read the record"),
   innovation: people("Innovation"),
   science_medicine: people("Science & Medicine"),
   technology_ai: people("Technology & AI"),
@@ -93,6 +115,11 @@ export function routePublication(section: PublicationSection, options?: { histor
       : { ...investigation("History & Context"), investigation: false };
   }
   return DESTINATIONS[section];
+}
+
+/** What a link to a record of this section says — "Read the story". */
+export function publicationCta(section: PublicationSection): string {
+  return DESTINATIONS[section].cta;
 }
 
 /** The reading label for a section — "Daily Brief", "Narrative Watch". */

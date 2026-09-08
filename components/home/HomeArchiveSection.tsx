@@ -69,7 +69,8 @@ export function HomeArchiveSection({
         ))}
       </div>
       <SectionState section={section} />
-      <SectionAction href="/october-7">Explore the October 7 Archive</SectionAction>
+      {/* VA-63. Three sections said "Explore X" and one said "View all X" for the same move — going to the whole desk. One verb: it states what happens, where "Explore" only sets a mood. */}
+      <SectionAction href="/october-7">View all of October 7</SectionAction>
     </section>
   );
 }

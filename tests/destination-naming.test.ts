@@ -113,3 +113,77 @@ describe("the People hub derives its lanes", () => {
     expect(PUBLICATION_SECTION_LABELS.international_cooperation).toBe("International cooperation");
   });
 });
+
+describe("Search and Ask are one name each, and different jobs", () => {
+  const dock = read("components/ask/AskDock.tsx");
+  const searchDialog = read("components/search/SearchDialog.tsx");
+
+  it("drops the fifth name for the Ask destination", () => {
+    const markup = dock.replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
+    expect(markup).not.toContain("AI Chat");
+    expect(markup).toContain('aria-label="Ask the desk"');
+    expect(markup).toContain('title="Ask the desk"');
+  });
+
+  it("says outright that Ask is not a second search box", () => {
+    expect(dock).toMatch(/Not a search box/i);
+  });
+
+  it("keeps the honest part of the retired label — that a machine answers", () => {
+    // "AI Chat" carried that; the description has to carry it now.
+    expect(dock).toMatch(/across what this desk has published/i);
+    expect(dock).toMatch(/where there is no evidence, the answer says so/i);
+  });
+
+  it("has Search state retrieval and point at Ask for the other job", () => {
+    expect(searchDialog).toMatch(/Find a published record/i);
+    expect(searchDialog).toMatch(/ask the desk/i);
+  });
+});
+
+describe("one verb per kind of record, derived from its section", () => {
+  it("gives each family the verb its epistemic weight asks for", async () => {
+    const { publicationCta } = await import("@/lib/publication-routing");
+    // An investigation is opened — it is a file, and the word promises the
+    // apparatus behind it. A claim assessment is never read as more reporting.
+    expect(publicationCta("influence_investigation")).toBe("Open the investigation");
+    expect(publicationCta("narrative_watch")).toBe("Read the assessment");
+    expect(publicationCta("news")).toBe("Read the story");
+    expect(publicationCta("daily_brief")).toBe("Read the story");
+    expect(publicationCta("people")).toBe("Read the record");
+  });
+
+  it.each([
+    "components/home/HomeNewsSection.tsx",
+    "components/home/HomeNarrativesSection.tsx",
+    "components/briefs/NarrativeRecord.tsx",
+    "components/briefs/AntisemitismRecord.tsx",
+    "components/briefs/LiveBriefHub.tsx",
+    "app/people-of-israel/page.tsx",
+  ])("%s prefers the derived verb over one of its own", (path) => {
+    const markup = read(path).replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
+    expect(markup).toMatch(/publicationCta|item\.cta/);
+    /* The strings that were chosen at the call site. A kind-based fallback
+       survives in the narratives card on purpose — a snapshot serialized before
+       `cta` existed carries none, and collapsing every investigation to one
+       verb would lose the distinction this task exists to make — but none of
+       the retired wording does. */
+    for (const retired of ["Read the daily brief", "Read the sourced record", "Read record", "Read the article", "Read the analysis"]) {
+      expect(markup).not.toContain(retired);
+    }
+  });
+});
+
+describe("going to a whole desk uses one verb", () => {
+  it.each([
+    ["components/home/HomeNewsSection.tsx"],
+    ["components/home/HomeNarrativesSection.tsx"],
+    ["components/home/HomeArchiveSection.tsx"],
+    ["components/home/HomePeopleSection.tsx"],
+  ])("%s says View all, never Explore", (path) => {
+    const markup = read(path).replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
+    expect(markup).toMatch(/View all/);
+    // "Explore" sets a mood; "View all" states what happens.
+    expect(markup).not.toMatch(/>Explore /);
+  });
+});

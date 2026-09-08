@@ -67,9 +67,13 @@ const COMPLEX = [
   "/information-war",
   "/october-7/documentation",
   "/october-7/testimonies",
-  "/admin",
-  "/admin/login",
-  "/pipeline",
+  /* VA-60. `/admin`, `/admin/login` and `/pipeline` used to sit here. Nine of
+     this run's twenty-four CRITICALs were `HTTP 404` on `/pipeline` alone — a
+     dev-only route the script itself listed as complex — and the admin pages
+     are behind auth, so an unauthenticated pass measures a login screen and
+     calls it a defect. An exit code that counts those is not a quality signal,
+     which is exactly how the last audit's exit code came to mean nothing.
+     Their real coverage is `tests/` and the authenticated console pass. */
 ];
 
 const SIMPLE = [
@@ -79,6 +83,11 @@ const SIMPLE = [
   "/fake-resistance/official-narrative",
   "/fake-resistance/playbook",
   "/fake-resistance/social-media",
+  /* VA-60: these three had no instance in any run — a coverage gap the script
+     was reporting about itself and nobody was reading. */
+  "/fake-resistance/watch",
+  "/fake-resistance/antisemitism",
+  "/people-of-israel",
   "/israels-story",
   "/methodology",
   "/october-7",
@@ -498,7 +507,16 @@ async function auditFocus(page, steps = 25) {
           (el.id && document.querySelector(`label[for="${CSS.escape(el.id)}"]`)) ||
           el.closest("label") ||
           el.getAttribute("placeholder") ||
-          (el.textContent || "").trim()
+          (el.textContent || "").trim() ||
+          /* VA-60. A link whose only content is an image is named by that
+             image's alt text, and this rule did not look — so every card whose
+             picture links to its own record was reported nameless. Two on the
+             People hub at each viewport, and they were correctly labelled the
+             whole time. The same class of false positive as the `/pipeline`
+             404s: a harness finding that costs real attention and names
+             nothing. */
+          [...el.querySelectorAll("img[alt]")].some((img) => img.alt.trim()) ||
+          [...el.querySelectorAll("svg title")].some((t) => (t.textContent || "").trim())
         ),
       };
     });
@@ -556,8 +574,27 @@ function coverageGaps(planned) {
     return p.every((seg, i) => (seg.startsWith("[") ? u[i].length > 0 : seg === u[i]));
   };
 
-  return patterns.filter((pattern) => !planned.some((url) => matches(pattern, url)));
+  return patterns
+    .filter((pattern) => !COVERAGE_EXEMPT.has(pattern))
+    .filter((pattern) => !planned.some((url) => matches(pattern, url)));
 }
+
+/**
+ * VA-60. Routes this audit deliberately does not measure, and why.
+ *
+ * An exemption has to be *stated*, or it is indistinguishable from a gap — and
+ * a gap that can never be closed makes the exit code permanently 1, which is
+ * how the previous audit's exit code came to mean nothing at all. The rule QA-001
+ * states still holds for every route not named here: a new page without a
+ * fixture fails this audit.
+ *
+ * `/admin` and `/admin/login` sit behind `authenticateAdmin()`. An
+ * unauthenticated pass measures a login screen and reports its shortcomings as
+ * the console's, which is worse than not measuring: it spends real attention on
+ * findings that describe a page nobody in this run is looking at. Their
+ * coverage is `tests/` and the authenticated console pass instead.
+ */
+const COVERAGE_EXEMPT = new Set(["/admin", "/admin/login"]);
 
 const gaps = coverageGaps(plan.map((entry) => entry.route));
 if (gaps.length > 0) {

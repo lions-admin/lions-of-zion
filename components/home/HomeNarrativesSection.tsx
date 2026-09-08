@@ -147,14 +147,24 @@ export function HomeNarrativesSection({
                     No source link is available in this preview.
                   </p>
                 )}
+                {/* VA-63. The verb came from the card's own shape, so the same
+                    kind of record invited the reader differently depending on
+                    which component drew it. `cta` is derived from the record's
+                    section in `lib/publication-routing.ts` and carried on the
+                    preview.
+
+                    The fallback still distinguishes by kind rather than
+                    collapsing to one verb: a snapshot serialized before the
+                    field existed carries no `cta`, and turning every
+                    investigation into "Read the record" would lose exactly the
+                    distinction this task exists to make. */}
                 <JourneyLink href={item.href}>
-                  {item.kind === "case"
-                    ? "Read the investigation"
-                    : item.kind === "watch"
-                      ? item.basis === "analysis"
-                        ? "Read the analysis"
-                        : "Read the assessment"
-                      : "Read the article"}
+                  {item.cta
+                    ?? (item.kind === "case"
+                      ? "Open the investigation"
+                      : item.kind === "watch"
+                        ? "Read the assessment"
+                        : "Read the record")}
                 </JourneyLink>
               </div>
             </article>
@@ -162,7 +172,8 @@ export function HomeNarrativesSection({
         })}
       </div>
       <SectionState section={section} />
-      <SectionAction href="/fake-resistance">Explore Fake Resistance</SectionAction>
+      {/* VA-63. Three sections said "Explore X" and one said "View all X" for the same move — going to the whole desk. One verb: it states what happens, where "Explore" only sets a mood. */}
+      <SectionAction href="/fake-resistance">View all Fake Resistance</SectionAction>
     </section>
   );
 }

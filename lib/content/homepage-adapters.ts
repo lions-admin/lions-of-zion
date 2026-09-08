@@ -11,7 +11,7 @@ import { pickVersion } from './archive';
 import { displayWitness } from './archive-display';
 import { homepageMedia, homepageExcerpt } from './homepage-media';
 import { isArticleSafeMedia } from '@/server/contracts/editorial-media';
-import { publicationHomepageKind, publicationSectionLabel } from '@/lib/publication-routing';
+import { publicationHomepageKind, publicationSectionLabel, publicationCta } from '@/lib/publication-routing';
 import { SECTION_LABELS } from '@/components/live/publication-labels';
 
 const sources=(rows:{label:string;url?:string}[]):HomeSource[]=>rows.filter((s):s is {label:string;url:string}=>!!s.url).map(({label,url})=>({label,url}));
@@ -30,7 +30,9 @@ export async function resolveHomepageReference(ref:HomeReference):Promise<HomePr
     const media=p.media&&isArticleSafeMedia(p.media)?p.media:homepageMedia(ref.key);
     const publicationBase={key:ref.key,href:ref.href,media,title:p.title,summary:p.summary??'',date:p.publishedAt,
       sources:p.sources.flatMap(s=>s.url?[{label:s.publisher?`${s.publisher} — ${s.title}`:s.title,url:s.url}]:[]),
-      whyItMatters:homepageExcerpt(ref.key,'whyItMatters',p.updatedAt)};
+      whyItMatters:homepageExcerpt(ref.key,'whyItMatters',p.updatedAt),
+      /* VA-63: the verb comes from the section, like every other surface. */
+      cta:publicationCta(p.section)};
     if(ref.kind==='feature')return {...publicationBase,kind:'feature',category:SECTION_LABELS[p.section]};
     if(ref.kind==='news')return {...publicationBase,kind:'news',category:SECTION_LABELS[p.section]};
     if(p.section==='narrative_watch' && p.narrativeWatchDetails)return {...publicationBase,kind:'watch',claim:p.narrativeWatchDetails.exactClaim,

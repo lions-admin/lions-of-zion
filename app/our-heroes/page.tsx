@@ -117,7 +117,7 @@ export default async function Page() {
   return (
     <SectionPage
       id="our-heroes"
-      register="muted"
+      register="silent"
       surface="quiet"
       title="Our Heroes"
       tagline={TAGLINE}

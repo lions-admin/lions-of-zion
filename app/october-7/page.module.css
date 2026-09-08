@@ -233,6 +233,20 @@
   width: 62px;
   font: 500 12px/1.4 var(--face-text);
 }
+/* VA-55. The reduced-motion state, where the pause button used to sit. It is
+   text rather than a control because there is nothing to press: rotation is off
+   and stays off. Sized to the button it replaces so the arrows either side do
+   not shift when a reader's motion preference changes. */
+.rotationControls .rotationState {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 62px;
+  min-block-size: 44px;
+  color: var(--ink-lo);
+  font: 500 12px/1.4 var(--face-text);
+}
+
 .rotationControls button:hover:not(:disabled) {
   color: var(--gold);
   background: var(--surface-1);

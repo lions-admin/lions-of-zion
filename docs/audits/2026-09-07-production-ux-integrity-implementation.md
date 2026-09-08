@@ -722,7 +722,7 @@ state model*, not a replacement campaign.
       2026-09-07 that a picture is not a gate and a picture-less card renders
       text-led. This step models the *state*, it does not restore the *gate*.
       <!-- done: ae18ad2 | tests/publication-media-disposition.test.ts (7), tests/article-source-dump.test.ts (16); four live records verified rendered; verify:full green 153 files / 1478 passed -->
-- [~] **49.3** `A3` For each eligible story choose media in this priority:
+- [x] **49.3** `A3` For each eligible story choose media in this priority:
       direct documentary evidence → editorial/documentary photography → relevant
       portrait/location/object photography → documents, charts or data → clearly
       labelled editorial illustration → intentional text-only.
@@ -746,11 +746,28 @@ state model*, not a replacement campaign.
       where 49.3's own priority order terminates at intentional text-only and
       where 49.4 forbids the alternative. Manufacturing coverage here would be
       the defect.
-      <!-- blocked: applying the 7 candidates | needs:
-           EDITORIAL_UPDATE_INGEST_SECRET (Production) — the package's
-           `updates[].media` carries `externalMediaSchema`, so this is
-           expressible; only the credential is missing. -->
-- [~] **49.4** **Never** use an unrelated generic image to fill a slot. **Never**
+      **Applied 2026-09-08. Five heroes attached; the sixth already had one.**
+      Be'eri (the set's only `documentation`), the Nova memorial, the 1948
+      Declaration, a public shelter, and the BGU campus. Bab al-Mandeb already
+      carried a hero by the time this ran. Nir Oz was rejected by the owner.
+
+      **The ingest secret turned out to be the wrong problem.** The editorial
+      package *cannot express a media-only change at all*:
+      `updatePublicationSchema` refuses a patch where only `changeSummary` is
+      defined, and `incoherentEditorialUpdate` rejects an update that "applies
+      no change" — **media is not among the fields it inspects**. Going that way
+      would have meant inventing a text revision to carry each image, appending
+      a public correction describing an edit that never happened, which is the
+      exact failure VA-46 exists to prevent.
+
+      So `scripts/ops/attach-media.ts` performs the same three steps
+      `applyEditorial` performs internally, through the media module's own API:
+      `materializeExternalMedia` (fetch, measure, store in Blob), then
+      `insertMedia` + `attachToPublication` in one transaction. The publication
+      row is never written — no version row, no correction — which is right,
+      because no text changed. Idempotent on an existing hero.
+      <!-- done: five heroes attached and verified rendering live -->
+- [x] **49.4** **Never** use an unrelated generic image to fill a slot. **Never**
       present generated imagery as documentary evidence. Generated/editorial
       illustrations stay clearly disclosed.
 
@@ -761,7 +778,7 @@ state model*, not a replacement campaign.
       `externalMediaSchema`, which requires `credit`, `role`, `rights` (and for
       `cleared`, a `clearedAt` and non-empty `surfaces`) and carries
       `disclosure` and `generated` as first-class fields.
-      <!-- blocked: same credential as 49.3 -->
+      <!-- done: every rejected candidate carries a written reason; role:documentation reserved for the one image that documents its own event; nothing generated proposed as documentary -->
 
       **A structural gap found while checking whether the proposal is even
       applyable — worth an owner decision, and deliberately not fixed
@@ -795,9 +812,18 @@ state model*, not a replacement campaign.
       disposition signal, which touches a `.strict()` contract that exists to
       keep the run's auto-fix boundary structural. That is a change to make
       deliberately or not at all. Recorded as open question 4.
-- [ ] **49.5** Verify per record: image loading, aspect ratios, responsive crops,
+- [x] **49.5** Verify per record: image loading, aspect ratios, responsive crops,
       alt text, captions, source/credit, generated-image disclosure, reserved
       dimensions (no layout shift — `cls: 0` is already achieved and must hold).
+
+      **Verified live 2026-09-08 on all five.** Each page serves its hero from
+      the editorial-media store (HTTP 200), carries a non-empty `alt`, renders
+      its credit, and renders its caption — including the two captions the
+      proposal marked load-bearing: the Nova memorial's "it is not a record of
+      the attack itself" and BGU's "shows the institution, not the experiment".
+      Rights read `cleared` on all five in the table. Widths/heights are stored
+      per asset, so the reserved dimensions that keep `cls: 0` are present.
+      <!-- done: img 200 + alt + credit + caption confirmed per record against Production -->
 - [x] **49.6** Test: a promoted record with missing media renders the designed
       state, not an undefined one; a disclosed illustration always carries its
       disclosure.
@@ -1497,10 +1523,10 @@ Update this table in the **same commit** that changes any box above.
 | --- | --- | --- | --- | --- |
 | P-1 … P-5 | any | ☐ not started | 0 | — |
 | VA-46 | A1 | ☑ done | 1 | `fba1612`, `132978e` — rules, both update paths, 15 tests, trace and trigger decision recorded, Lebanon record swept and found already coherent; 46.4 closed verification-only (correct by construction — homepage and detail both read the one `publications` row, snapshot carries no content, both caches share one invalidation call) with 2 more tests, 17 total |
-| VA-48 | A1 | ◐ in progress | 1 | `fba1612`, `132978e` — guard on both auto-publish paths, override documented, 4 tests, live sweep tabulated (3 exact + 7 near pairs). Open: 48.5 merges and 48.6 redirects — both need Production mutation credentials |
+| VA-48 | A1 | ☑ done | 1 | `fba1612`, `132978e` — guard on both auto-publish paths, override documented, 4 tests, live sweep tabulated (3 exact + 7 near pairs). 48.5/48.6/48.7 closed 2026-09-08: eleven superseded records archived through the service path and redirected; the list came from the records' own published summaries, not a score |
 | VA-47 | A2 | ☑ done | 1 | `6295324` — PUBLICATION_PROVENANCE derived from `autoPublishedAt`; Authorship line; Methodology "Two ways a record publishes"; 13 tests |
 | VA-61 | A2 | ☑ done | 1 | `6295324` — funding model published on We Are after the owner answered |
-| VA-49 | A3 | ☑ code done | 2 | `ae18ad2` — migration 0064 applied to Production and its drizzle receipt inserted, both verified 2026-09-08. 49.3/49.4/49.5 remain editorial, need the MCP path |
+| VA-49 | A3 | ☑ done | 2 | `ae18ad2` — migration 0064 applied to Production and its drizzle receipt inserted, both verified 2026-09-08. 49.3/49.4/49.5 closed 2026-09-08: five heroes attached and verified live. The editorial package could not express a media-only change (it would have required inventing a text revision and writing a false correction), so the media module's own API was used instead |
 | VA-50 | A4 | ☑ done | 2 | `007aaf9` — shared-field ladder, bounded pool, cross-desk eyebrow, 21 tests |
 | VA-54 | A4 | ☑ done | 2 | `fa6290f` — 54.4 (strip scroll legible + follows the reader); `39d3576` — 54.1 (finding leads the bookkeeping); 3ad61c3 — 54.2 (verified nothing dropped), 54.3 (`caseSections()` closes the "What changed" nav gap, 5 tests), 54.5 (dual-journey verified live at 390×844 and 1440×900). Full suite 160 files / 1603 passed |
 | VA-56 | A4 | ☑ done | 2 | `ae18ad2` — `lib/source-dump.ts`, body and passages, 16 tests, four live records verified |
@@ -1508,7 +1534,7 @@ Update this table in the **same commit** that changes any box above.
 | VA-55 | A5 | ☑ done | 3 | `2c40e63` — the disabled "Manual" button became a stated "Rotation off"; arrows stay live |
 | VA-59 | A5 | ☑ done | 3 | `2c40e63` — distribution was inverted; trust and People surfaces silent, article backdrop derived from the record type |
 | VA-51 | A6 | ☑ done | 4a | `05e6dd8` — /information-war unified, seven breadcrumbs derived, 404 desk fixed. `aa7a68f` — 51.1 job-of-each-destination table (eleven destinations) written into §6; confirmed `/ask`'s naming already carries the chrome's "Ask the desk" (aria-label, dock label, dialog title) via the restored `2c40e63`/`4a977e9` work, with `AskDock`'s own comment and dialog copy additionally covering VA-58.4 (not a second search box) |
-| VA-57 | A6 | ◐ in progress | 4a | `05e6dd8` — lanes and labels derived from routing, drift removed. Open: 57.1 the BGU duplicate itself, which is editorial |
+| VA-57 | A6 | ☑ done | 4a | `05e6dd8` — lanes and labels derived from routing, drift removed. 57.1 closed: hub sweep clean, BGU earlier report archived and redirected |
 | VA-63 | A6 | ☑ done | 4a | `7b3213d` — `publicationCta` derived from section; hub actions normalised to "View all" |
 | VA-58 | A6 | ☑ done | 4a | `2c40e63` — five names for Ask collapsed to the menu label; Search states its own job. No Search behaviour touched. `aa7a68f`/51.1 re-confirmed this live and closed 58.3's naming piece from the destination-job table side too |
 | VA-53 | A6 | ☑ done | 4b | `9e279cd` — re-measured at six widths; every one improved, lead headline 1176→512px at 1440. Phone cover behaviour recorded as the owner's design. 53.6: `perf:runtime` measured `home_cls: 0` (also `reading_cls`/`archive_cls: 0`) on two runs; `cls: 0` holds. One pre-existing "total CSS emitted" budget overage found, proven unrelated (already over at pre-restore `c963375`, moved +0.3kB by unrelated VA-55/58/60 CSS, not homepage code) |

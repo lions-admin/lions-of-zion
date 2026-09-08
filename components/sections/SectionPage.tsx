@@ -19,10 +19,6 @@
  * placement is CSS only (`content.module.css`) — the citation stays inside its
  * entry in the markup, which is what keeps reading order, screen readers and
  * the no-JS page correct.
- *
- * Everything derives from the nav contract in `lib/site-navigation.ts`, so the
- * hover card, the lede here, and the page metadata stay one sentence in one
- * place.
  */
 import { EditorialShell } from '@/components/site/EditorialShell';
 /* Deep import, not the `@/components/motion` barrel: the barrel re-exports
@@ -46,6 +42,11 @@ export interface SectionPageProps {
   accent?: 'gold' | 'ember';
   /** `quiet`: a dimmer scan behind the page, for long reading. */
   surface?: 'default' | 'quiet';
+  /**
+   * Some hub pages are clearer without an auto-generated contents rail.
+   * Defaults to true so existing section pages keep their established behavior.
+   */
+  withToc?: boolean;
   /**
    * Optional page-level right rail, shown only at ≥1220px. Per-entry sources
    * reach the same margin on their own through `content.module.css`; this is
@@ -71,6 +72,7 @@ export function SectionPage({
   register = 'default',
   accent = 'gold',
   surface = 'default',
+  withToc = true,
   aside,
   breadcrumb,
   children,
@@ -84,9 +86,8 @@ export function SectionPage({
 
   const pageClass = [
     styles.page,
-    /* Marks the shell as carrying rails, which widens the band the scan keeps
-       out of. DocPage shares `.page` and deliberately does not take this. */
-    styles.withRails,
+    /* The scan mask only needs rail width when a rail actually exists. */
+    withToc || aside ? styles.withRails : '',
     register === 'muted' ? styles.registerMuted : '',
     accent === 'ember' ? styles.accentEmber : '',
     surface === 'quiet' ? styles.surfaceQuiet : '',
@@ -100,17 +101,14 @@ export function SectionPage({
     <EditorialShell
       routeId={id}
       register={register}
+      showProgress={withToc}
       className={pageClass}
       progressTrackClassName={styles.topProgressTrack}
     >
       <div className={shellClass}>
         {/* The trail a hub's child passes down — the shared `Breadcrumb`, the
             same one `DocPage` mounts, so the two shells agree on where a
-            page's ancestors are written. The prop was accepted and dropped on
-            the floor after the identity band that used to carry it was
-            retired in favour of the site header; the five Fake Resistance
-            branches and the two archive indexes pass it, and this is what
-            renders it. */}
+            page's ancestors are written. */}
         {breadcrumb && breadcrumb.length > 0 ? (
           <Breadcrumb
             className={styles.documentTrail}
@@ -119,9 +117,11 @@ export function SectionPage({
           />
         ) : null}
 
-        <div className={styles.tocRail}>
-          <SectionToc />
-        </div>
+        {withToc ? (
+          <div className={styles.tocRail}>
+            <SectionToc />
+          </div>
+        ) : null}
 
         <article className={styles.panel} id="page-content">
           <header>
@@ -129,21 +129,11 @@ export function SectionPage({
             <p className={styles.lede}>{lede}</p>
             <div className={styles.ledeRule} aria-hidden="true" />
           </header>
-          {/* `data-toc-source` scopes the rail's heading scan to the page body,
-              so it can never pick up an h2 from the chat modal or the rail. */}
+          {/* `data-toc-source` remains harmless when the TOC is disabled and
+              keeps the body contract stable for pages that use the rail. */}
           <div className={styles.body} data-toc-source>
             {children}
           </div>
-          {/* The page ends where the content ends.
-              There was an apparatus here — prev/next, a numbered index of the
-              other seven files, policy links — and all of it rested on a
-              fiction: that these eight are a sequence you read through. They
-              are not. The order is the orbit's spoke order, geometry rather
-              than reading order, so "next file" pointed at nothing in
-              particular. This site is a hub and spokes: the scan is how you
-              get somewhere else, and the way back to it is in the identity
-              band at the top of every page. Methodology and Corrections are
-              linked in context, from sentences that actually mean them. */}
         </article>
 
         {aside ? (
@@ -176,27 +166,7 @@ export function SectionBlock({
 }) {
   const anchor = id ?? (slugify(heading) || undefined);
   return (
-    /*
-     * The section is the unit that arrives, not the paragraphs inside it.
-     *
-     * `Reveal` is a client boundary, so the choice of where to put it is a
-     * cost decision as much as a design one, and the two answers agree here:
-     * a section is a large block a reader scrolls to as a whole, and there
-     * are three to eight of them on a page. Staging the entries *within* a
-     * section — timeline rows, sources, claim/record panels — would multiply
-     * the boundaries, stack a second blur on pixels this one already blurred,
-     * and stage a record that is not a sequence of arrivals.
-     *
-     * `children` stays a prop, so everything inside a section is still
-     * server-rendered and this file is still a server component.
-     *
-     * This shell's sibling, `DocPage`, deliberately gets none of this: it
-     * carries the ~1,177 archive routes, and `SectionBlock` is not part of
-     * that path.
-     */
     <Reveal as="section" className={styles.block}>
-      {/* The tick that used to sit beside this heading was a counterweight to
-          tracked capitals. A sentence-case serif heading carries itself. */}
       <div className={styles.blockHeading}>
         <h2 id={anchor}>{heading}</h2>
       </div>

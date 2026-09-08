@@ -49,19 +49,127 @@ How It Works (`/information-war`).
 # Commands
 
 ```bash
-npm ci && npm run sync:start && npm run dev   # localhost:3000, no config needed
+npm ci && npm run sync:start && npm run dev   # continue on this AI's branch; no config needed
 npm run verify:changed                        # adaptive checks for the current diff
 npm run verify:full                           # typecheck && lint && test && build — the CI gate
 npm run typecheck                             # next typegen && tsc --noEmit
 npx vitest run tests/items.test.ts            # one file; add -t "publishes" for one test
 npm run db:generate                           # schema → new numbered migration; needs no database
 npm run db:migrate                            # apply migrations; needs a real DATABASE_URL
-npm run main:update                           # merge current branch into main and push
+npm run main:update                           # publish this AI's branch -> main, then return to it
 ```
 
 `npm run lint` is where the architecture boundaries are enforced —
 `eslint.config.mjs` states them as errors, so a violation fails the gate rather
 than waiting for review. Read that file before moving code between layers.
+
+# Branches: one permanent branch per AI identity
+
+**The AI identity determines the branch. The task does not, and neither does
+the session, the prompt, the account, the CLI, or a restart.** Ten Codex
+sessions across three days produce exactly one branch: `ai/codex`. The number
+of branches follows the number of AI environments, and never the number of
+sessions.
+
+```
+main = Production
+  ▲    │
+  │    └──── merge main in ────┐
+  └── publish ──┐              ▼
+                ai/claude   ai/grok   ai/codex   ai/opencode   ai/gemini-agy
+```
+
+| AI | Branch | Workspace |
+| --- | --- | --- |
+| Claude | `ai/claude` | `<repo-parent>/lions-of-zion-workspaces/claude` |
+| Grok | `ai/grok` | `…/lions-of-zion-workspaces/grok` |
+| Codex | `ai/codex` | `…/lions-of-zion-workspaces/codex` |
+| OpenCode | `ai/opencode` | `…/lions-of-zion-workspaces/opencode` |
+| Gemini AGY | `ai/gemini-agy` | `…/lions-of-zion-workspaces/gemini-agy` |
+
+Each of these five branches is **permanent**: never deleted, never renamed,
+never replaced by a `-v2`, a dated variant or a continuation. The workspaces
+are git worktrees in a sibling directory of the repository, so five AIs can
+each hold uncommitted files without those files ever mixing. The primary
+checkout of the repository itself stays neutral on `main` and is used for
+publishing and maintenance, not for development.
+
+## No branch is created by default
+
+**A new branch requires an explicit owner request.** None of the following is
+one: a new session, a restarted agent, a different CLI, a different OpenAI or
+Anthropic account, a new prompt, a continuation of yesterday's task, a new
+"wave" of an implementation plan, or a task that feels large.
+
+Never create by default: `fix/*`, `feat/*`, `claude/*`, `codex/*`, `grok/*`,
+`opencode/*`, `gemini/*`, `task/*`, `session/*`, `*-v2`, `*-continuation`,
+`*-wave-*`.
+
+**Sub-agents inherit their parent AI's branch and workspace.** They commit
+where their parent commits and must never create a remote branch. Twenty agent
+sessions must not produce twenty branches.
+
+## Identity resolution
+
+The tooling resolves which AI it is running as, in this order:
+
+1. the `LIONS_AI` environment variable, if set — an explicit declaration
+   outranks everything, so a shared checkout can change hands;
+2. otherwise the current branch, if it is already `ai/*` — the ordinary case
+   inside a workspace, where nothing needs setting at all;
+3. otherwise a known CLI marker for one of the five environments;
+4. otherwise **nothing** — it prints the mapping and changes no Git state
+   rather than guessing. Putting an agent on another agent's branch would mix
+   two sets of work, which is worse than doing nothing.
+
+## `main`
+
+`main` is Production, not a development branch. `npm run main:update` checks it
+out for a few seconds during a publish; that does not make it somewhere to
+work. Do not commit unfinished work to it. A session begins and ends on this
+AI's own branch.
+
+When `main` advances while an AI still has unpublished work, **`main` is merged
+*into* the AI branch** — an ordinary merge commit, no rebase and no force-push.
+A conflict is reported and left for a human to resolve. It is never
+auto-resolved, and it is never worked around by starting a new branch.
+
+## The editorial branches are not stale development branches
+
+`chatgpt-editorial-updates` and `editorial-updates` are **operational editorial
+delivery branches**, outside this model entirely. The first is where whole-site
+update packages are committed for the delivery workflow to pick up; the second
+is the retired historical archive of packages delivered before the rename.
+They are **orphan branches that share no history with `main`**, they are
+**never merged into `main` or into any `ai/*` branch**, they are never cleaned
+up, and they are never used as an AI's workspace. A future agent must not read
+them as abandoned development branches and "tidy" them.
+
+`vercel.json` names all three delivery branches — `briefing-packages`,
+`editorial-updates` and `chatgpt-editorial-updates` — under
+`git.deploymentEnabled`, so none of them can deploy the site. Count them there
+rather than trusting a number in prose; this file, `CLAUDE.md` and
+`docs/operations.md` each stated a different, wrong count until 2026-09-08.
+
+**No `ai/*` branch produces a Vercel Preview build.**
+`scripts/vercel-ignore-build.sh` skips every branch that is not `main`, so
+pushing an AI branch costs no build minutes and creates no preview URL. Read
+the CI run on GitHub instead.
+
+## The commands
+
+| Command | What it does |
+| --- | --- |
+| `npm run sync:start` | Stay on this AI's branch, fast-forward it, reconcile it with `main`, and report. It never switches you to `main` and never creates another branch. |
+| `npm run main:update` | Publish: merge this AI's branch into `main`, push (**Production deploys**), then return to the AI branch and level it with the new `main`. The branch is not deleted. |
+| `npm run workspace:status` | Print the five mappings, which worktrees exist, the current branch and identity, dirty state, and ahead/behind `main`. |
+| `npm run workspace:add -- codex` | Create that AI's worktree on demand. |
+
+Nothing here is destructive. None of these commands runs `reset --hard`, a
+force push, `stash`, `clean`, a rebase or a destructive checkout. **A dirty
+working tree is preserved and reported, never moved.** If a branch cannot
+fast-forward, or a merge conflicts, the command says so and stops rather than
+guessing — publishing aborts the merge and puts you back on your own branch.
 
 # A push to `main` deploys to Production
 

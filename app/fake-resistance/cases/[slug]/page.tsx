@@ -203,10 +203,21 @@ export default async function Page({ params }: Params) {
             the shell's own contents rail carries the same nine headings. */}
         <InvestigationSectionNav sections={SECTIONS} />
 
-        {/* The file's face sheet: what this record is, in figures, before any
-            prose — every value is the research's own bookkeeping (`caseId`,
-            `updatedAt`, the counts, the publication record), not a summary
-            written here. */}
+        {/* VA-54. The face sheet used to come first — seven figures before a
+            reader was told what the file found. Measured on a phone, the
+            Finding sat 1,946px down, 2.3 viewports, in a 58,000px document;
+            the comment below claimed this header was "above the fold" while it
+            rendered at 859px against an 844px viewport.
+            The point now precedes the bookkeeping. Nothing is removed: the
+            figures are the research's own and still sit directly beneath, where
+            they read as corroboration of a stated finding rather than as a
+            barrier to reaching one. */}
+        <CaseStoryHeader record={record} model={model} />
+
+        {/* The file's face sheet: what this record is, in figures. Every value
+            is the research's own bookkeeping (`caseId`, `updatedAt`, the
+            counts, the publication record), not a summary written here — which
+            is exactly why it reads better after the finding than before it. */}
         <dl className={styles.fileFacts}>
           <div className={styles.fileFact}>
             <dt>File</dt>
@@ -245,10 +256,6 @@ export default async function Page({ params }: Params) {
             <dd>{record.counts.sources}</dd>
           </div>
         </dl>
-
-        {/* Above the fold: the plain-language finding, three facts, and the
-            update marker. Methodology and figures come later. */}
-        <CaseStoryHeader record={record} model={model} />
 
         {/* The persistent evidence path: what the reader is following. */}
         <EvidencePath />

@@ -601,8 +601,15 @@ Machine. VA-04 measured that document at **60,814px** with the finding 2.4
 viewports down and two horizontal scrollers clipped (a 1319px section nav inside
 a 343px box). **Do not remove evidence to shorten the page.**
 
-- [ ] **54.1** Build progressive disclosure. First layer: thesis, current
+- [~] **54.1** Build progressive disclosure. First layer: thesis, current
       assessment, strongest evidence, key caveats, what changed.
+      <!-- claimed: A4 @ 2026-09-08T00:00:00Z -->
+      <!-- partial: the case-file reading order flips so `CaseStoryHeader`
+           (thesis/finding/three facts/update marker) renders before the
+           bookkeeping `dl` face sheet, measured 1,946px down at 859px vs an
+           844px viewport. The figures are unchanged, only reordered. Layer
+           split (54.2), local ToC/deep-links (54.3) and the dual-journey
+           verification (54.5) remain open. -->
 - [ ] **54.2** Deeper layer retains everything: full source stack, entity graph,
       findings, connections, methodology, revision history, evidence.
 - [ ] **54.3** Add a local table of contents, stable deep links, collapsible /

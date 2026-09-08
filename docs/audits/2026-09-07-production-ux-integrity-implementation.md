@@ -616,15 +616,22 @@ VA-12's collapse covers the archive projection only.
            (Production) — see 48.5 -->
       <!-- done: mechanism only | tests/superseded-publications.test.ts (5);
            typecheck clean, lint 0 errors -->
-- [~] **48.7** `A1` Tests: duplicate-canonical prevention; the override path;
+- [x] **48.7** `A1` Tests: duplicate-canonical prevention; the override path;
       the redirect; single-render-per-page on `/geopolitical-brief`.
-      <!-- claimed: A1 @ 2026-09-07 -->
-      <!-- partial: fba1612 | covered: duplicate-canonical prevention by event
-           id and by story id, a non-duplicate pair still publishing, and the
-           override (a human may draft a separate story for an event that
-           already has one) — tests/publication-duplicate-guard.test.ts.
-           NOT covered: the redirect (step 48.6, not built) and
-           single-render-per-page, which belongs with 48.3's verification. -->
+
+      All four are now covered:
+
+      | Requirement | Where |
+      | --- | --- |
+      | Duplicate-canonical prevention (by `eventId` and by story id) | `tests/publication-duplicate-guard.test.ts` (`fba1612`) |
+      | The override path — a human may draft a separate story for an event that already has one | `tests/publication-duplicate-guard.test.ts` (`fba1612`) |
+      | A non-duplicate pair still publishes | `tests/publication-duplicate-guard.test.ts` (`fba1612`) |
+      | The redirect | `tests/superseded-publications.test.ts` (5) — shape-level, so it starts asserting on real rows the moment 48.5 adds one |
+      | Single-render-per-page, unfiltered | `tests/brief-hub-single-render.test.ts` — no record repeats; the lead is kept out of the archive below it |
+      | Single-render-per-page, **the deliberate filtered exception** | same file — a filtered archive still lists a match that also leads, asserted as exactly 2 occurrences. §1b correction 2 warns against "fixing" this; the test now makes fixing it fail |
+      <!-- done: 143822c, f32b1d9 | tests/brief-hub-single-render.test.ts,
+           tests/superseded-publications.test.ts, tests/publication-duplicate-guard.test.ts;
+           typecheck clean, lint 0 errors -->
 
 ### VA-56 — Remove raw source dumps from article prose `A1`
 

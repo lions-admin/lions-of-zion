@@ -229,6 +229,16 @@ knows — `typecheck, lint, test, build` and
 passed *or were skipped*. **Renaming them breaks branch protection**; see
 `docs/operations.md`.
 
+## `vercel.json` takes no comments
+
+The published schema sets `additionalProperties: false`. A `"//note": "..."`
+key — harmless in `package.json` — fails the deploy at schema validation,
+**before the build starts**, so there are no build logs to read: only
+`should NOT have additional property`. That cost a production deploy on
+2026-09-08. Put the explanation in this file or `docs/operations.md`;
+`tests/briefing-runtime.test.ts` now fails on any key outside the known-valid
+set.
+
 ## There are no crons
 
 `vercel.json` carries no `crons` array (owner ruling, 2026-09-08). Nothing

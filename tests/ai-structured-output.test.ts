@@ -31,4 +31,22 @@ describe("structured model output", () => {
     expect(() => parseStructuredJson(schema, "not json", "stop", undefined)).toThrow(/not valid JSON/);
     expect(() => parseStructuredJson(schema, "{}", "stop", undefined)).toThrow(/structured contract/);
   });
+
+  /* Production, 2026-09-03: the drafting model hit its output ceiling in the
+     middle of the object, so the body was a syntactically open JSON prefix
+     and the finish reason was `length` (provider: `max_output_tokens`). The
+     error the job carried into quarantine has to name that finish reason —
+     it is the only thing that distinguishes "the model ran out of room" from
+     "the model wrote prose" — and a truncated object must never be repaired
+     into a partial edition. */
+  it("names the output-limit finish reason when the object was cut off mid-stream", () => {
+    const truncated = JSON.stringify({
+      title: "Verified update",
+      evidenceIds: ["4cfb5485-afe9-464a-ad48-26a41f754052"],
+    }).slice(0, -12);
+    expect(() => parseStructuredJson(schema, truncated, "length", "max_output_tokens"))
+      .toThrow(/not valid JSON \(finish: length\/max_output_tokens\)/);
+    expect(() => parseStructuredJson(schema, `\`\`\`json\n${truncated}`, "length", "max_output_tokens"))
+      .toThrow(/not valid JSON \(finish: length\/max_output_tokens\)/);
+  });
 });

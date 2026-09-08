@@ -1,0 +1,66 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r15-20260908T023719Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T02:37:19.431268Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "usv-claim-wording-evidence-dossier",
+      "target": {
+        "publicId": "iran-says-it-struck-an-unmanned-u-s-vessel-centc-8m6cq"
+      },
+      "publication": {
+        "title": "Iran claims an attack on a U.S. unmanned vessel; the outcome remains unverified",
+        "summary": "A preserved IRNA dispatch describes an attack, while CENTCOM denied the account. The reviewed record does not establish a hit, identify the craft or supply authenticated technical evidence of the outcome.",
+        "body": "Iran’s September 6 claim concerning an American unmanned surface vessel remains unverified in the evidence reviewed here. The United States denied it. The newly retrieved IRNA text, preserved by GlobalSecurity, says an attack was carried out; it does not establish a successful hit, sinking or destruction. That distinction narrows the wording used in the earlier account.\n\nThe Iranian claim. IRNA’s item, news ID 86256022, attributes a statement to the Islamic Revolutionary Guard Corps Navy describing an attack on a U.S. military unmanned surface vessel attempting to enter what Iran called a protected part of the Strait of Hormuz. The copy inspected is a third-party reproduction of the state news agency’s dispatch, not an independently authenticated naval operations record. The original IRNA page could not be retrieved in this review. Tehran’s description of an area as protected also does not, by itself, establish the legal status of that restriction.\n\nThe U.S. response. AP reported that CENTCOM spokesman Capt. Tim Hawkins rejected the Iranian account. That is an attributable denial from the command responsible for U.S. regional operations. It is not independent physical evidence, and this review did not retrieve a separate CENTCOM release devoted to the alleged drone-boat incident.\n\nVessel identity. The material inspected does not provide a confirmed name, hull identifier, model or recoverable serial number for the alleged target. The category “unmanned surface vessel” describes a kind of craft, not the identity of a particular vessel. The dossier therefore does not assign the incident to a named U.S. system by analogy with other operations.\n\nImagery and telemetry. No independently authenticated image sequence, wreckage record, telemetry log or vessel-position record was retrieved that establishes this alleged engagement and its outcome. Those are gaps in this review, not proof that no evidence exists elsewhere. A useful image would need a documented time and location as well as a defensible link to the claimed craft; footage of another confrontation would not fill that gap.\n\nMaritime notices. The accessible UKMTO recent-incidents page did not provide a usable incident record matching the allegation. Its retrieved version displayed no reports, which may reflect the page’s retrieval or filtering behavior. That result cannot be treated as an authoritative finding that no attack occurred. A general navigation warning would describe risk, not necessarily authenticate damage to this particular military craft.\n\nSeparate the surrounding confrontation. CENTCOM’s September 5 release says U.S. forces struck three Iranian oil carriers following Iranian missile attacks toward two U.S. warships. It names Downy, Stark 1 and Kylo, also called Noxen. That is a primary account of a separate, earlier operation and remains attributable to CENTCOM. It does not identify or verify the alleged September 6 unmanned target. Iran’s subsequently reported proposal for a wider restricted zone is another distinct claim, not evidence of a successful strike.\n\nSource ancestry. IRNA reproduces the IRGC position; GlobalSecurity preserves that dispatch. AP reports the opposing claims, while Euronews also describes the Iranian statement and U.S. denial. These publications help establish what was said, but counting them as separate witnesses to a physical impact would overstate the evidence. The reporting reviewed does not provide an independent witness or technical record resolving the outcome.\n\nCurrent assessment. There is a documented attack claim, an attributable denial and no verified outcome in the material inspected. “Attacked,” “hit” and “sunk” are different propositions. None should silently become the next as a headline travels. Nor does the absence of corroboration here justify a definitive finding that the claim was fabricated.\n\nRevision history. The earlier page used “struck” while explaining that the outcome was disputed. This revision adds the preserved IRNA wording, narrows the headline to an attack claim, separates the preceding tanker operation and records the limits of the imagery, identity and maritime-notice checks. The original publication date and earlier source trail are retained.",
+        "changeSummary": "Clarification: narrow “struck” to an attack claim after retrieving the preserved IRNA dispatch. Add source ancestry, vessel-identity and technical-evidence gaps; distinguish September 5 tanker strikes from the alleged September 6 incident."
+      },
+      "sources": [
+        {
+          "url": "https://www.globalsecurity.org/wmd/library/news/iran/2026/09/iran-260906-irna02.htm",
+          "title": "IRNA dispatch 86256022: IRGC claims attack on unmanned U.S. vessel",
+          "publisher": "IRNA, reproduced by GlobalSecurity.org"
+        },
+        {
+          "url": "https://www.centcom.mil/MEDIA/PUBLIC-RELEASES/Article/4591744/centcom-destroys-3-irgc-oil-tankers-after-iran-targets-2-us-navy-warships/",
+          "title": "CENTCOM September 5 statement on the separate tanker strikes",
+          "publisher": "U.S. Central Command",
+          "official": true
+        },
+        {
+          "url": "https://www.ukmto.org/recent-incidents",
+          "title": "UKMTO recent incidents — no matching usable record retrieved in this review",
+          "publisher": "UKMTO",
+          "official": true
+        },
+        {
+          "url": "https://www.euronews.com/2026/09/06/iranian-forces-target-us-naval-drone-attempting-to-enter-strait-of-hormuz",
+          "title": "Iranian attack claim and U.S. denial, September 6–7",
+          "publisher": "Euronews"
+        }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 15 — unmanned vessel claims versus evidence",
+      "sourcesReviewed": [
+        "https://www.globalsecurity.org/wmd/library/news/iran/2026/09/iran-260906-irna02.htm",
+        "https://www.centcom.mil/MEDIA/PUBLIC-RELEASES/Article/4591744/centcom-destroys-3-irgc-oil-tankers-after-iran-targets-2-us-navy-warships/",
+        "https://www.ukmto.org/recent-incidents",
+        "https://www.euronews.com/2026/09/06/iranian-forces-target-us-naval-drone-attempting-to-enter-strait-of-hormuz",
+        "https://apnews.com/article/b4f64c7492d8c5b9ff71794cc152186d",
+        "https://apnews.com/article/a52beec77dc90af3d040d0553837ad20",
+        "https://www.reuters.com/world/middle-east/iran-tackle-economic-issues-says-further-attacks-will-be-more-painful-2026-09-06/"
+      ],
+      "conclusion": "IRNA reproduction says attacked, not proof of hit/sinking. Original Iranian host unavailable; AP supplies attributable U.S. denial, not independent outcome verification. Official September 5 release is separate event. UKMTO retrieval empty and explicitly not interpreted as negative proof. Existing canonical retained; no new duplicate.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 15 LIMITS: Original IRNA retrieval failed; third-party dispatch copy is labeled. Vessel identity, imagery, telemetry, authoritative matching maritime advisory and independent outcome evidence remain unresolved. No archival/redirect of earlier anmgp record is claimed."
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r07-20260908T005522Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T00:55:22.375740Z",
+  "creates": [],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 07 — donation identity and funding scope",
+      "sourcesReviewed": [
+        "https://lionsofzion.io/support-us",
+        "https://www.paypal.com/ncp/payment/PZPE4USUV3W7E",
+        "https://buymeacoffee.com/danielhanukayeb"
+      ],
+      "conclusion": "Inspected live Support Us and both outbound donation pages without payment. Support Us names Lions of Judah R.A. and combines rehabilitation mission with editorial infrastructure costs. PayPal displays Daniel LionsOFzion and wounded-warrior support; Buy Me a Coffee displays Daniel hanukayev - Lionsofzion and advocacy/tool memberships. These are account-facing descriptions, not proof of settlement recipient, restricted funds, nonprofit registration or donor-governance terms. Secondary directory suggests registration 580815371, but official registry evidence not retrieved; not published as verified. Owner clarification requested.",
+      "outcome": "no_action"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "unverified-funding-claims",
+      "candidate": "Definitive funding and recipient-entity statement",
+      "reason": "No inspected primary legal or provider record establishes settlement identity, permitted/restricted use, relationship between nonprofit and Evidence Desk, or donor influence. Avoid treating a public display name or secondary directory as legal proof. No third-party outreach or payment performed.",
+      "replacement": "Retain precise development requirements and complete verification when primary records become available."
+    }
+  ],
+  "siteRecommendations": [
+    "RUN 07 BLOCKED: /support-us donation panel must distinguish verified legal recipient and registration identifier from brand/project names, explain the recipient for each provider and the permitted uses and restrictions, state the documented relationship to Evidence Desk, and provide a real donor-influence policy. Evidence: current site names nonprofit and rehabilitation purpose alongside infrastructure costs, while provider pages show individual/brand display names. This is an unresolved disclosure question, not evidence of wrongdoing. Acceptance: each payment link has verified recipient identity and scope supported by authoritative records; no invented legal or tax claims.",
+    "RUN 07 OWNER INPUT PENDING: Requested official entity identifier, settlement ownership for PayPal and Buy Me a Coffee, and public governing documents. Other independent stages may proceed; funding facts remain incomplete."
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r24-20260908T092600Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T09:26:00.188820Z",
+  "creates": [
+    {
+      "key": "seven-turning-points-primary-document-guide",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "history_context",
+        "canonicalStoryId": "seven-israel-story-turning-points-primary-documents",
+        "title": "Seven turning points in Israel’s Story: what the primary documents establish",
+        "summary": "A source-backed companion to the existing 1947–48, 1967, 1973, Egypt, Oslo, Jordan and Abraham Accords chapters. It separates chronology, legal text, interpretation and consequence—and identifies where the short chapter versions need qualification.",
+        "body": "Seven milestones on the Israel's Story page are real turning points, but a date and a treaty label cannot carry their full meaning. This companion pairs each chapter with a primary document and identifies what the document establishes, what it leaves disputed and what followed. It is a reading guide to the existing chapters, not a replacement for their original wording.\n\n1947–1948 — recommendation, war and displacement. General Assembly Resolution 181 recommended partition with economic union; its operative verb is recommends. It proposed Arab and Jewish states and a special international regime for Jerusalem. The Jewish Agency accepted partition as a basis for statehood, while Palestinian Arab leadership and surrounding Arab governments rejected it. Violence between communities followed before the British Mandate ended; after Israel declared independence, armies from neighboring Arab states entered the war. Treating May 1948 as the beginning of all fighting erases the preceding civil-war phase.\n\nThe founding chapter also needs two histories in view. For Jews, 1948 marks sovereignty and refuge after long persecution and the Holocaust. For Palestinians, the Nakba names mass displacement, dispossession and the destruction or depopulation of communities. Historians dispute the balance of flight, expulsion, military necessity, local decisions and planned policy across places and phases. One universal cause cannot responsibly explain every locality. Resolution 181 documents a proposed settlement; it does not explain how the war unfolded or resolve refugee claims.\n\n1967 — crisis, pre-emption and occupation. The prewar sequence includes Egyptian troop movements in Sinai, the removal of the UN Emergency Force and closure of the Straits of Tiran. Israel struck first on June 5 and described the action as pre-emptive. Egypt, Jordan and Syria fought Israel, and Israel captured Sinai, Gaza, the West Bank including East Jerusalem, and the Golan Heights. The chronology supports both the immediate security crisis and the consequential fact that Israel initiated the war's main air attack.\n\nSecurity Council Resolution 242 supplies the postwar diplomatic frame: the inadmissibility of acquiring territory by war, withdrawal language, termination of belligerency, and the right of states in the area to live within secure and recognized boundaries. The English and French formulations have been argued over for decades, as have how withdrawal and recognition should be sequenced. The resolution became a negotiating basis; it did not itself draw final borders or determine the status of Jerusalem, Palestinian self-determination or settlements.\n\n1973 — battlefield shock and diplomatic change. Egypt and Syria attacked on October 6. Early Arab advances shattered Israeli assumptions formed after 1967; Israel later recovered militarily and crossed west of the Suez Canal while encircling Egypt's Third Army. Describing only a clear battlefield winner misses why the war is remembered differently. Egypt could claim recovery of military agency and use the war to open a diplomatic path, while Israel confronted intelligence failure, casualties and political upheaval.\n\nSecurity Council Resolution 338 called for a ceasefire, implementation of Resolution 242 and negotiations. It establishes the international diplomatic instruction, not a full account of compliance during the confused ceasefire or a verdict on victory. Serious historical interpretation should distinguish operational results, political objectives, domestic memory and the later peace process rather than collapse them into one score.\n\nEgypt — treaty and two linked frameworks. The 1978 Camp David Accords contained a bilateral Egypt–Israel framework and a separate Middle East framework involving Palestinian autonomy. The 1979 treaty ended the state of war between Egypt and Israel, required Israeli withdrawal from Sinai, established security arrangements and provided for normal relations and navigation. Its durable consequence was the removal of the largest Arab army from the cycle of interstate wars with Israel.\n\nThe Palestinian-autonomy framework did not produce the comprehensive settlement its authors anticipated. A chapter that describes the treaty as peace for land should also record Egyptian recovery of Sinai, Israel's security arrangements and withdrawal, U.S. mediation and support, regional opposition, and the gap between bilateral peace and the unresolved Palestinian question.\n\nOslo — a transitional design, not a final peace. The 1993 Declaration of Principles set guidelines for an interim Palestinian self-government arrangement and a five-year transition. The 1994 Gaza–Jericho agreement and 1995 Interim Agreement built the institutions and territorial-security arrangements that followed, including what became the Palestinian Authority. Saying that the 1993 ceremony alone established the mature institution compresses several legal steps.\n\nOslo deferred Jerusalem, refugees, settlements, borders and other permanent-status issues. Supporters saw mutual recognition and staged self-government as a route to two states; critics on both sides saw dangerous ambiguity, unequal power, insecure promises or unacceptable recognition. Subsequent violence, settlement growth, political assassinations, failed negotiations and the Second Intifada changed the process. The primary agreements establish commitments and sequence; they cannot by themselves assign one cause for the process's failure.\n\nJordan — boundary, water and qualified clauses. The 1994 treaty ended the state of war, established diplomatic relations and defined a boundary, while expressly stating that the boundary provision was without prejudice to the status of territories that came under Israeli military government control in 1967. Its annexes address water allocations and practical cooperation. Article 9 records Israel's respect for Jordan's existing special role in Muslim holy shrines in Jerusalem and gives high priority to Jordan's historic role in future permanent-status negotiations.\n\nThose qualifications matter. The treaty is a bilateral peace agreement and a framework for security and water cooperation; it does not decide Palestinian sovereignty or every Jerusalem claim. Its consequences include sustained state-to-state security coordination alongside periods of deep public and diplomatic tension.\n\nThe Abraham Accords — related agreements with different paths. On September 15, 2020, Israel signed a treaty of peace and normalization with the United Arab Emirates and a declaration of peace and cooperation with Bahrain, alongside a broader Abraham Accords declaration. Morocco's December 2020 joint declaration and Sudan's January 2021 declaration belong to the same diplomatic initiative but have different texts, exchanges and implementation histories.\n\nGrouping four states under one label is useful only if the differences remain visible. UAE and Bahrain established formal relations rapidly. Morocco resumed official relations through a separate trilateral declaration. Sudan signed the general declaration, but political instability obstructed completion of normalization. The accords expanded diplomatic, commercial and security ties without resolving the Israeli–Palestinian conflict; regional integration and Palestinian exclusion are both part of their consequence and debate.\n\nHow to use this guide. Start with the dated document, then distinguish its legal text from later implementation and from historical interpretation. Ask who was represented, who was absent, which questions were deferred and what evidence would challenge the chapter's current wording. Primary documents constrain claims, but they are written by institutions and negotiating parties; they need archival and scholarly context rather than reverence.\n\nThe live chapter surface should eventually carry these distinctions beside each claim. Until that is technically supported, this companion records the corrections and provides the primary-document route. The earlier Lions correction on 1948 and the Abraham Accords remains the focused notice for two specific shortcuts.",
+        "language": "en",
+        "editorialTopic": "Israel history primary documents",
+        "topicTags": [
+          "israel-history",
+          "primary-documents",
+          "peace-process",
+          "arab-israeli-conflict"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://www.un.org/unispal/document/auto-insert-185393/",
+          "title": "General Assembly Resolution 181 and Partition Plan",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://history.state.gov/historicaldocuments/frus1964-68v19",
+          "title": "FRUS volume: the 1967 Arab–Israeli crisis, war and diplomacy",
+          "publisher": "U.S. Office of the Historian",
+          "official": true
+        },
+        {
+          "url": "https://digitallibrary.un.org/record/90717",
+          "title": "Security Council Resolution 242 (1967)",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://digitallibrary.un.org/record/93466",
+          "title": "Security Council Resolution 338 (1973)",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://peacemaker.un.org/en/node/9423",
+          "title": "Camp David frameworks, September 1978",
+          "publisher": "United Nations Peacemaker",
+          "official": true
+        },
+        {
+          "url": "https://peacemaker.un.org/sites/default/files/document/files/2024/05/eg20il790326egypt20and20israel20treaty20of20peace.pdf",
+          "title": "Treaty of Peace between Egypt and Israel, March 1979",
+          "publisher": "United Nations Treaty Series",
+          "official": true
+        },
+        {
+          "url": "https://peacemaker.un.org/en/node/9432",
+          "title": "Declaration of Principles on Interim Self-Government Arrangements, 1993",
+          "publisher": "United Nations Peacemaker",
+          "official": true
+        },
+        {
+          "url": "https://peacemaker.un.org/en/node/9434",
+          "title": "Israeli–Palestinian Interim Agreement, 1995",
+          "publisher": "United Nations Peacemaker",
+          "official": true
+        },
+        {
+          "url": "https://peacemaker.un.org/sites/default/files/document/files/2024/05/il20jo941026peacetreatyisraeljordan.pdf",
+          "title": "Treaty of Peace between Israel and Jordan, October 1994",
+          "publisher": "United Nations Treaty Series",
+          "official": true
+        },
+        {
+          "url": "https://2017-2021.state.gov/the-abraham-accords/",
+          "title": "Archive of the Abraham Accords declaration and country agreements",
+          "publisher": "U.S. Department of State",
+          "official": true
+        },
+        {
+          "url": "https://lionsofzion.io/articles/1948-and-the-abraham-accords-correcting-two-shor-m7t36",
+          "title": "Focused Lions correction: 1948 and the Abraham Accords",
+          "publisher": "Lions of Zion"
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 24 — audit of seven existing Israel's Story chapters",
+      "sourcesReviewed": [
+        "https://www.un.org/unispal/document/auto-insert-185393/",
+        "https://history.state.gov/historicaldocuments/frus1964-68v19",
+        "https://digitallibrary.un.org/record/90717",
+        "https://digitallibrary.un.org/record/93466",
+        "https://peacemaker.un.org/en/node/9423",
+        "https://peacemaker.un.org/sites/default/files/document/files/2024/05/eg20il790326egypt20and20israel20treaty20of20peace.pdf",
+        "https://peacemaker.un.org/en/node/9432",
+        "https://peacemaker.un.org/en/node/9434",
+        "https://peacemaker.un.org/sites/default/files/document/files/2024/05/il20jo941026peacetreatyisraeljordan.pdf",
+        "https://2017-2021.state.gov/the-abraham-accords/",
+        "https://lionsofzion.io/articles/1948-and-the-abraham-accords-correcting-two-shor-m7t36",
+        "https://lionsofzion.io/israels-story"
+      ],
+      "conclusion": "The static chapter surface is readable but not writable through whole-site-update-v2. Publish a distinct cross-chapter primary-document guide. Flag compressed or misleading formulations: Resolution 181 was a recommendation; 1948 has civil-war and interstate phases; Israel struck first in 1967 amid an acute crisis; Oslo institutions developed through several agreements; Jordan's boundary clause is qualified; Sudan's declaration was signed in January 2021 and normalization remains incomplete.",
+      "outcome": "published"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 24 STATIC BLOCK: /israels-story remains unchanged. Acceptance: place the documented qualifications beside the corresponding seven chapter claims, replace weak tertiary links with the cited primary records, preserve contested interpretations, and link the companion without implying that it repaired the originals.",
+    "RUN 24 SPECIFIC FIXES: describe Resolution 181 as a General Assembly recommendation; distinguish the pre-May 1948 civil-war phase; state that Israel launched the June 5 air attack while preserving the preceding crisis; separate Oslo I from 1994–95 institutional implementation; retain the Jordan treaty's without-prejudice boundary clause; date Sudan's Abraham Accords declaration to January 6, 2021 and distinguish signature from completed normalization.",
+    "RUN 24 SCHOLARSHIP GAP: the package foregrounds primary legal and diplomatic records. A future static-chapter rewrite should add serious historical scholarship representing major disputes on 1948 causes and displacement, 1967 decision-making, 1973 aims and outcomes, and Oslo's failure, with claim-level citations and an acceptance review for partisan framing."
+  ]
+}

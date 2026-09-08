@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { SITE_URL } from "@/lib/site-config";
+import { supersededBy } from "@/lib/superseded-publications";
 import { stripSourceDump } from "@/lib/source-dump";
 import { facebookShareUrl, xIntentUrl } from "@/lib/content/share-text";
 import { absoluteMediaUrl, articleHeroMedia } from "@/lib/content/homepage-media";
@@ -57,29 +58,88 @@ function words(value: string): string {
   return value.replaceAll("_", " ");
 }
 
+/* The highest-volume route on the site, and until 2026-09-08 the only one of
+   the three content routes with no `revalidate` — so it rendered dynamically,
+   answered `cache-control: private, no-store`, and every reader cost a
+   function invocation and a database round trip while the homepage beside it
+   served from the CDN.
+
+   300 seconds matches the `unstable_cache` TTL the same data already uses in
+   `lib/publications.ts`, so the two layers expire together instead of one
+   holding a value the other has dropped. Freshness does not depend on it: the
+   `publication.cache-invalidate` consumer calls
+   `revalidatePath("/articles/[publicId]", "page")` inside the same run that
+   publishes, so an edit is live in seconds, not in five minutes. */
+export const revalidate = 300;
+
+/**
+ * Empty on purpose, and the whole reason this route caches at all.
+ *
+ * `revalidate` alone did nothing here, which is the mistake worth recording:
+ * a dynamic segment with no `generateStaticParams` is rendered on demand and
+ * never cached, so the export shipped on 2026-09-08 left the route answering
+ * `cache-control: private, no-store` and `x-vercel-cache: MISS` exactly as
+ * before. Declaring the function — even returning nothing — opts the segment
+ * into static generation, and `dynamicParams` (true by default) then renders
+ * an unknown `publicId` on first request and caches the result. That is ISR.
+ *
+ * It returns `[]` rather than the published ids because listing them would
+ * put a database read in the build: a Neon outage would stop being a
+ * degraded site and start being a failed deploy. Every article is generated
+ * on its first request instead, which costs one render each and nothing at
+ * build time.
+ */
+export function generateStaticParams(): { publicId: string }[] {
+  return [];
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { publicId } = await params;
   try {
     const article = await getPublicPublication(publicId);
     const articleMedia = articleHeroMedia(article);
     const articleImage = articleMedia ? absoluteMediaUrl(articleMedia.src) : undefined;
+    const canonical = SITE_URL + "/articles/" + article.publicId;
+    /* T-12. A record with no hero used to emit no `og:image` while still
+       declaring `twitter:card = summary_large_image`, so 57 of 73 articles
+       previewed as a bare title stub — and `opengraph-image.tsx` in this very
+       segment was rendering a real per-article card the whole time, deployed
+       and returning 200, referenced by nothing. Next only applies that file
+       convention when the page does not define `openGraph` itself, and this
+       function does. Naming the route explicitly is what connects them.
+
+       Preferring the generated card over the site card here is deliberate: it
+       carries this article's own headline, so a shared link says which record
+       it opens rather than only which site. */
+    const social = articleImage
+      ? [{ url: articleImage, width: articleMedia!.width, height: articleMedia!.height, alt: articleMedia!.alt }]
+      : [{ url: `${canonical}/opengraph-image`, width: 1200, height: 630, alt: article.title }];
+    /* T-12.c. The tab reads "<headline> — LIONS OF ZION" because the layout's
+       title template appends it, but the card carried the bare headline, so a
+       shared article named a different thing from the page it opened — on 73
+       pages. `lib/page-metadata.ts` states this rule for every hub route; the
+       article route predates the helper and never got it. */
+    const socialTitle = `${article.title} — LIONS OF ZION`;
     return {
       title: article.title,
       description: article.summary ?? article.title,
-      alternates: { canonical: SITE_URL + "/articles/" + article.publicId },
+      alternates: { canonical },
       openGraph: {
         type: "article",
-        title: article.title,
+        title: socialTitle,
         description: article.summary ?? article.title,
+        /* T-12.b: articles were the one route family omitting og:url, so a
+           scraper had to infer the address from the link it followed. */
+        url: canonical,
         publishedTime: article.publishedAt,
         modifiedTime: article.updatedAt,
-        images: articleMedia ? [{ url: articleImage!, width: articleMedia.width, height: articleMedia.height, alt: articleMedia.alt }] : undefined,
+        images: social,
       },
       twitter: {
         card: "summary_large_image",
-        title: article.title,
+        title: socialTitle,
         description: article.summary ?? article.title,
-        images: articleImage ? [articleImage] : undefined,
+        images: [social[0]!.url],
       },
     };
   } catch (cause) {
@@ -94,7 +154,17 @@ export default async function ArticlePage({ params }: Props) {
   try {
     article = await getPublicPublication(publicId);
   } catch (cause) {
-    if (isMissingPublication(cause)) notFound();
+    if (isMissingPublication(cause)) {
+      /* VA-48.6. A record archived as a duplicate leaves the public corpus,
+         which is what takes it out of search — but its URL may still be in a
+         reader's history or a search index, and 404 is the wrong answer when
+         the story itself is still published at the canonical address. The
+         lookup runs only after the record was genuinely not found, so a stale
+         map entry can never shadow a live publication. */
+      const canonical = supersededBy(publicId);
+      if (canonical) permanentRedirect(`/articles/${canonical}`);
+      notFound();
+    }
     throw cause;
   }
 

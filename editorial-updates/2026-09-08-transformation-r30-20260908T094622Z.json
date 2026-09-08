@@ -1,0 +1,68 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r30-20260908T094622Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T09:46:22.599081Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "bgu-aerogel-definitive-science-explainer",
+      "target": {
+        "publicId": "ben-gurion-university-team-develops-aerogel-that-0y2we"
+      },
+      "publication": {
+        "title": "BGU oil-spill aerogel: 78 g/g in the lab, with biodegradation still to prove at scale",
+        "summary": "The peer-reviewed paper reports 78 grams of crude-oil adsorption per gram of nutrient-supplemented aerogel and faster biodegradation in artificial seawater. BGU's public release rounded performance to about 100-fold. No field-scale cleanup, reuse, ecotoxicity or commercial-cost result has yet been established.",
+        "body": "Ben-Gurion University researchers built a cellulose-derived carbon aerogel that does two jobs in one laboratory system: it rapidly adsorbs oil and carries nitrogen and phosphorus that help oil-degrading bacteria break hydrocarbons down. The peer-reviewed result is promising proof of concept. It is not yet evidence of a deployable response system for a major spill.\n\nThe measured adsorption result. The paper reports a crude-oil adsorption capacity of 78 grams of oil per gram of nutrient-supplemented carbonized aerogel, summarized in the journal highlights as about 80 times the material's mass. Ben-Gurion University's public announcement rounded the broader result to approximately 100 times the aerogel's weight across crude oil, fuel and other hydrocarbons. The defensible headline number for the tested crude-oil condition is 78 g/g; the university's 100-fold language should be identified as its rounded description, not substituted for the paper's specific result.\n\nWhat the material is. The team began with cellulose fibers, added nitrogen- and phosphorus-containing nutrients and carbonized the structure. The paper calls the result a nutrient-supplemented carbonized aerogel, or NSCA. Its porous network provides surface and volume for oil uptake. Carbonization also makes the surface strongly water-repelling: the reported optimal material had a water contact angle of 139 degrees.\n\nWhy nutrients are included. In seawater, oil-degrading microorganisms can be limited by available nitrogen and phosphorus. The material is designed to concentrate hydrocarbons while making those nutrients bioavailable near an adhesion surface for microbial biofilm. That design links immediate physical capture with slower biological treatment instead of treating them as unrelated cleanup steps.\n\nWhat the experiments show. In nutrient-free, oil-contaminated artificial seawater, NSCA increased the rate and extent of biodegradation compared with carbonized aerogel that did not contain the supplemented nutrients. The paper also reports that higher nutrient concentrations in the material improved biodegradation. Those comparisons support the proposed nutrient function within the tested system.\n\nWhat covalently bound means here. The authors report that the nutrients were bound to the carbonized aerogel and did not leach in their tests. This is important because freely released fertilizer can create another environmental problem. The result is evidence from the reported laboratory conditions, not a guarantee of zero release under waves, abrasion, long deployments, salinity changes or repeated use.\n\nProduction temperature. The researchers tested pyrolysis temperature and nutrient concentration. They report sufficiently performing material at 360 degrees Celsius and optimal performance at 450 degrees, framing the lower-temperature route as relevant to energy cost. A lower process temperature may help manufacturing efficiency, but the paper does not establish a commercial life-cycle cost or carbon footprint.\n\nThe patent record. A U.S. patent application published in 2025 describes nutrient-supplemented carbonized aerogels and laboratory biodegradation methods. A patent application shows that the inventors disclosed and sought protection for an approach; it does not provide independent validation, regulatory approval or proof that a product is available. Ben-Gurion University says commercialization work is proceeding through BGN Technologies.\n\nWhat has not been demonstrated. The public paper record reviewed here does not establish field performance in an ocean spill, recovery of saturated material at scale, behavior under currents and weather, reuse over multiple cycles, ecological toxicity, shelf life, manufacturing throughput, deployment logistics or cost compared with existing sorbents and bioremediation methods. It also does not show how the system handles the complex weathering and chemical variability of a real spill.\n\nScale matters. Adsorption capacity is a mass ratio under a test condition. It cannot be multiplied directly into a cleanup promise without accounting for deployment density, contact time, competition with water and debris, retrieval losses and the fraction of spilled oil that reaches the material. Biodegradation is likewise a process over time, not the same thing as instantaneous disappearance or complete mineralization of every component.\n\nThe next decisive tests. A strong development programme would reproduce adsorption and biodegradation across independent laboratories; compare several crude oils and fuels; test natural seawater communities and ecotoxicity; measure nutrient release and hydrocarbon residues over time; evaluate reuse and safe disposal; and run controlled mesocosm and field trials. Reporting should include denominators, controls, uncertainty and failure modes rather than one maximum capacity.\n\nWho did the work. The paper lists Danit Lisa Karsagi Byron, Hana Barak, Barak Halpern, Esti Kramarsky-Winter, Lee Shelly, Noa Azaria, Shmuel Hayun, Alex Sivan and Ariel Kushmaro, spanning biotechnology and materials engineering at Ben-Gurion University. The multidisciplinary contribution is substantive: materials design, microbial ecology and chemical measurement all have to work together for the combined concept.\n\nThe finding. The study supports a laboratory material with high crude-oil uptake, hydrophobicity and enhanced biodegradation in artificial seawater. It does not support calling the system a proven large-spill solution. The distinction between the paper's 78 g/g measurement and the university's approximately 100-fold public wording is now explicit so readers can understand both without treating them as contradictory experiments.",
+        "changeSummary": "Resolve the paper-versus-press-release measurement: report 78 g/g for the tested crude-oil condition and attribute BGU's approximately 100-fold wording. Add mechanism, controls, patent context, laboratory limits and the tests needed before field claims."
+      },
+      "sources": [
+        {
+          "url": "https://www.sciencedirect.com/science/article/pii/S2666821126003583",
+          "title": "Peer-reviewed paper: methods, 78 g/g result and biodegradation findings",
+          "publisher": "Chemical Engineering Journal Advances"
+        },
+        {
+          "url": "https://cris.bgu.ac.il/en/publications/nutrient-supplemented-carbonized-aerogels-for-integrated-oil-adso/",
+          "title": "BGU research record, authors, abstract and DOI",
+          "publisher": "Ben-Gurion University"
+        },
+        {
+          "url": "https://www.bgu.ac.il/en/news-and-articles/bgu-aerogel-adsorbs-oil-and-supports-biodegradation/",
+          "title": "University announcement using the approximately 100-fold description",
+          "publisher": "Ben-Gurion University"
+        },
+        {
+          "url": "https://patents.justia.com/patent/20250136487",
+          "title": "Published U.S. patent application for nutrient-supplemented carbonized aerogels",
+          "publisher": "Justia Patents / USPTO record"
+        },
+        {
+          "url": "https://www.timesofisrael.com/israeli-scientists-develop-huge-sponge-to-mop-up-and-eat-oil-spills/",
+          "title": "Independent report on the research and development stage",
+          "publisher": "The Times of Israel"
+        }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 30 — definitive BGU aerogel review",
+      "sourcesReviewed": [
+        "https://www.sciencedirect.com/science/article/pii/S2666821126003583",
+        "https://cris.bgu.ac.il/en/publications/nutrient-supplemented-carbonized-aerogels-for-integrated-oil-adso/",
+        "https://www.bgu.ac.il/en/news-and-articles/bgu-aerogel-adsorbs-oil-and-supports-biodegradation/",
+        "https://patents.justia.com/patent/20250136487",
+        "https://www.timesofisrael.com/israeli-scientists-develop-huge-sponge-to-mop-up-and-eat-oil-spills/"
+      ],
+      "conclusion": "The peer-reviewed abstract and highlights support 78 g crude oil per g NSCA, roughly 80-fold, at the reported optimal 450°C processing condition and a 139° contact angle. BGU's announcement uses approximately 100-fold for broader hydrocarbons. Preserve both with attribution. Laboratory artificial-seawater biodegradation is promising; field performance and deployment economics remain untested in the reviewed record.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 30 FULL-TEXT LIMIT: the open ScienceDirect abstract and highlights were retrievable, but the complete methods, tables and uncertainty intervals were not independently extracted in this run. Acceptance: archive the licensed full text, verify every quantitative comparison against its table/figure and add sample size, variance and statistical test where reported.",
+    "RUN 30 DEPLOYMENT GAP: no independent replication, mesocosm or field trial, ecotoxicity, reuse, retrieval, life-cycle cost or regulatory record was located. Do not promote the material as a proven major-spill solution until those milestones are documented."
+  ]
+}

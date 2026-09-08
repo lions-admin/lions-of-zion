@@ -38,11 +38,24 @@ export type Projection = {
  * addressable entity types is readable in one screen, and so the answer for
  * an unaddressable one is written down rather than implied by omission:
  *
- *   * **publications** live at `/articles/[publicId]` — but only when they
- *     carry a `briefingRunId`. That route is deliberately briefing-only
- *     (`getBriefingPublicDetail`), and the historic site-reference
- *     publications share the table and 404 there. A href for one of those
- *     would be a manufactured dead link, which is worse than no href.
+ *   * **publications** live at `/articles/[publicId]`. This function grants
+ *     the href only when the row carries a `briefingRunId`, and **that rule is
+ *     now narrower than the route it describes**: `getBriefingPublicDetail`
+ *     accepts `briefingRunId || editorialRunId` (`publications/service.ts:757`),
+ *     so a whole-site editorial record is served perfectly well while being
+ *     indexed here as having nowhere to go. Measured 2026-09-08: 41 of 73
+ *     published records were rendering as unclickable "Indexed · no public
+ *     page" rows.
+ *
+ *     It is left alone deliberately, and the correction is applied on read in
+ *     `search/service.ts` (`readerDestination`). Widening it here would fix
+ *     nothing by itself — `href` is written into the projection at index time,
+ *     so every publication would need reindexing, and the reindex path runs
+ *     through `recordVersion()`, appending a version row and a public
+ *     correction entry per record. What remains true below is the part about
+ *     the **site-reference** publications: they carry neither run id, 404 at
+ *     that route, and a href for one of them would be a manufactured dead
+ *     link, which is worse than no href.
  *   * **information items** have a public id and no public page. There is no
  *     `/items/[publicId]`, and inventing one here would not create it.
  *   * **evidence and narratives** are never returned to an anonymous reader

@@ -6,6 +6,7 @@ import { deriveSourceLogicalKey, sourceFamilyService, sourceService, type Source
 import { ingestSource, type IngestResult } from "./ingest";
 import { sourceRepo } from "./repo";
 import { sourceFetchRepo } from "./repo";
+import { reverifyDisabledSources as reverifyDisabledSourcesAgainst } from "./reverify";
 import type { Source } from "@/server/db/schema";
 import type { Actor } from "@/server/core/audit";
 import {
@@ -286,6 +287,13 @@ function israelDate(date: Date): string {
     day: "2-digit",
   }).format(date);
 }
+
+/** Once a day: give every source the system disabled for fetch failures one
+ * real fetch, and reactivate the ones that answer. See `./reverify`. */
+export const reverifyDisabledSources = (opts: { limit?: number } = {}) =>
+  withDatabaseRole("app_service", "service:source-reverify", () =>
+    reverifyDisabledSourcesAgainst(db(), opts),
+  );
 
 export { sourceService, sourceFamilyService, type SourceService, type SourceFamilyService } from "./service";
 export { ingestSource, type IngestResult } from "./ingest";

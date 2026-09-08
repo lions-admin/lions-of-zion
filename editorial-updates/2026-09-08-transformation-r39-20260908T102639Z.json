@@ -1,0 +1,118 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r39-20260908T102639Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T10:26:39.754408Z",
+  "creates": [
+    {
+      "key": "october7-testimony-context-map",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "history_context",
+        "canonicalStoryId": "october7-testimony-context-map",
+        "title": "How five October 7 testimonies connect — without becoming one story",
+        "summary": "A small evidence-backed map links testimony from Nova, Be'eri and Nir Oz to place, timeline, translation lineage and documentary records while showing why shared archives and repeated footage are not independent corroboration.",
+        "body": "A testimony is a person's account, not a database row waiting to be rewritten. Editorial context can help a reader locate an account in time and place, find its original-language version and compare it with other evidence. It must not absorb the witness's words into a composite story or manufacture corroboration from resemblance.\n\nThe connection rule. Link two records only when they share an explicit factual anchor: a named place, a dated event, a documented route, a source relationship or a translation lineage. Similar fear, phrasing or imagery is not enough. Each connection should say what is shared and what remains specific to one witness.\n\nNova cluster — place and evacuation. Gal M.'s account explicitly identifies the Nova festival and is available in English plus six translated editions. Danielle S.'s account also identifies the festival and describes hiding under bodies. The Nova location file supplies the broader timeline and source limits; the Festival Night documentary collection supplies audiovisual records. These records share a location and event, but neither testimony independently verifies everything in the other.\n\nNova cluster — provenance. Both testimonies were republished by October7.org. The translations of Gal M.'s account are representations of the same underlying testimony, not seven witnesses. The Festival Night pages may contain several items drawn from Hamas-Massacre.net or the same original footage; separate archive pages do not automatically mean separate cameras or uploaders.\n\nBe'eri cluster — location and institutional record. Liat A.M. explicitly identifies herself as a Be'eri survivor and dates the start of her account to the alerts at about 6:30 a.m. The Be'eri dossier connects that first-person perspective to the later IDF operational inquiry and external investigations. The inquiry can test a broader timeline; it does not overwrite her language or turn her account into an institutional finding.\n\nBe'eri cluster — corrections. The location file also records that a UN mission found two widely circulated sexual-violence allegations from Be'eri unfounded. That correction belongs in the contextual layer because it changes how related reports should be read. It does not alter Liat A.M.'s testimony, which concerns her own experience.\n\nNir Oz cluster — safe rooms and delayed response. Dalit R.A. explicitly locates her family in Nir Oz and describes warnings, attempted entry, fire and hours without military protection. Neomit D. describes being captured, escaping near the fields and returning while the kibbutz was still under attack. Their accounts share a place and morning, while each follows a different route and vantage point.\n\nNir Oz cluster — what can be compared. The two accounts may be placed beside the UN Commission's location timeline because both contain explicit Nir Oz and time or route anchors. They should not be described as mutual confirmation of details witnessed by only one of them. Both were republished by the same archive; their collection pipeline is shared even though they are different named witnesses.\n\nLanguage and translation. The source package identifies English as the default edition for all five selected records. Gal M.'s record lists German, Spanish, French, Italian, Japanese and Portuguese translations; Neomit D.'s lists German and Portuguese. A translation should point back to the canonical testimony and identify the source language when known. Publication in several languages increases access, not evidentiary weight.\n\nDocumentary links. Relevant footage should connect to a testimony only through a verified location, time, person or route. A clip said to show the festival grounds may contextualize Nova generally; it should not be attached to a named survivor as depicting that person's experience unless the record establishes the identification.\n\nWhat the context layer changes. Readers gain a route from an original testimony to a location dossier, documented timeline, related testimony and relevant media collection. They also see whether the relationship is factual, translational or merely derived from the same upstream source.\n\nWhat remains unchanged. The testimony text, witness attribution, publication date and translations remain as archived. Because the current static archive cannot store these structured relationships, this article provides a verified editorial map and records the exact integration requirement separately.",
+        "language": "en",
+        "editorialTopic": "October 7 testimony context and provenance",
+        "topicTags": [
+          "october-7",
+          "survivor-testimony",
+          "provenance",
+          "translation"
+        ],
+        "primaryActor": "October 7 survivors",
+        "arena": "Nova, Be'eri and Nir Oz"
+      },
+      "sources": [
+        {
+          "url": "https://lionsofzion.io/october-7/testimonies/we-just-wanted-a-party-we-just-wanted-to-dance",
+          "title": "Gal M. testimony in the preserved archive",
+          "publisher": "Lions of Zion / October7.org",
+          "official": false
+        },
+        {
+          "url": "https://lionsofzion.io/october-7/testimonies/i-held-onto-the-hand-of-the-dead-body-laying-on-top-of-me-and-said-thank-you-for",
+          "title": "Danielle S. testimony in the preserved archive",
+          "publisher": "Lions of Zion / October7.org",
+          "official": false
+        },
+        {
+          "url": "https://lionsofzion.io/october-7/testimonies/they-went-from-house-to-house-tormenting-butchering-slaughtering-looting-torchin",
+          "title": "Liat A.M. testimony in the preserved archive",
+          "publisher": "Lions of Zion / October7.org",
+          "official": false
+        },
+        {
+          "url": "https://lionsofzion.io/october-7/testimonies/my-eldest-son-said-to-me-mom-i-don-t-want-to-die-on-my-birthday",
+          "title": "Dalit R.A. testimony in the preserved archive",
+          "publisher": "Lions of Zion / October7.org",
+          "official": false
+        },
+        {
+          "url": "https://lionsofzion.io/october-7/testimonies/i-decided-to-play-dead-and-they-didn-t-take-me-they-ignored-me-they-took-the-thr",
+          "title": "Neomit D. testimony in the preserved archive",
+          "publisher": "Lions of Zion / October7.org",
+          "official": false
+        },
+        {
+          "url": "https://lionsofzion.io/october-7/documentation/the-nova-party-massacre/the-festival-night",
+          "title": "Festival Night documentary collection",
+          "publisher": "Lions of Zion / Hamas-Massacre.net",
+          "official": false
+        },
+        {
+          "url": "https://lionsofzion.io/articles/nova-location-file-what-the-evidence-establishes-mybn8",
+          "title": "Nova evidence dossier",
+          "publisher": "Lions of Zion",
+          "official": false
+        },
+        {
+          "url": "https://lionsofzion.io/articles/be-eri-location-file-the-attack-the-failed-respo-hexu7",
+          "title": "Be'eri evidence dossier",
+          "publisher": "Lions of Zion",
+          "official": false
+        },
+        {
+          "url": "https://lionsofzion.io/articles/nir-oz-location-file-mass-abduction-delayed-resp-xuyhf",
+          "title": "Nir Oz evidence dossier",
+          "publisher": "Lions of Zion",
+          "official": false
+        },
+        {
+          "url": "https://digitallibrary.un.org/record/4051246/files/A_HRC_56_CRP.3-EN.pdf",
+          "title": "External location timelines and findings",
+          "publisher": "United Nations",
+          "official": true
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 39 — testimony context and evidence-backed connections",
+      "sourcesReviewed": [
+        "https://lionsofzion.io/october-7/testimonies/we-just-wanted-a-party-we-just-wanted-to-dance",
+        "https://lionsofzion.io/october-7/testimonies/i-held-onto-the-hand-of-the-dead-body-laying-on-top-of-me-and-said-thank-you-for",
+        "https://lionsofzion.io/october-7/testimonies/they-went-from-house-to-house-tormenting-butchering-slaughtering-looting-torchin",
+        "https://lionsofzion.io/october-7/testimonies/my-eldest-son-said-to-me-mom-i-don-t-want-to-die-on-my-birthday",
+        "https://lionsofzion.io/october-7/testimonies/i-decided-to-play-dead-and-they-didn-t-take-me-they-ignored-me-they-took-the-thr",
+        "https://lionsofzion.io/october-7/documentation/the-nova-party-massacre/the-festival-night",
+        "https://lionsofzion.io/articles/nova-location-file-what-the-evidence-establishes-mybn8",
+        "https://lionsofzion.io/articles/be-eri-location-file-the-attack-the-failed-respo-hexu7",
+        "https://lionsofzion.io/articles/nir-oz-location-file-mass-abduction-delayed-resp-xuyhf",
+        "https://digitallibrary.un.org/record/4051246/files/A_HRC_56_CRP.3-EN.pdf"
+      ],
+      "conclusion": "Five representative testimonies can be safely connected through explicit location, time, route, translation and provenance metadata. The static archive preserves the originals but cannot store the required typed relationships. The companion therefore identifies each relationship and warns that shared republishing, translation and reused footage do not constitute independent corroboration.",
+      "outcome": "published"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 39 TESTIMONY CONTEXT: add non-destructive context fields for location, event, timeline anchor, original language, translation parent and related dossier. Acceptance: representative Nova, Be'eri and Nir Oz records show the context beside the testimony without changing its text or original date.",
+    "RUN 39 TYPED CONNECTIONS: require every related-record edge to state a factual basis and relation type. Acceptance: semantic similarity alone cannot publish a link, and the UI distinguishes independent corroboration from common archive, translation and shared footage.",
+    "RUN 39 TRANSLATION LINEAGE: expose one canonical testimony identity across languages. Acceptance: language versions link to the source edition and do not inflate testimony or corroboration counts."
+  ]
+}

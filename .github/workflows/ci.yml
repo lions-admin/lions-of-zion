@@ -6,11 +6,63 @@ on:
   pull_request:
     branches: [main]
 
+# A superseded PR push is dead work: nobody reads the result of a run whose
+# commit has already been replaced. `main` is deliberately excluded — a push
+# there deploys, and cancelling the run that verifies a deploy is not a
+# saving.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
 
 jobs:
-  gate:
-    name: typecheck, lint, test, build
+  # ── What changed, and therefore what has to run ──────────────────────────
+  #
+  # One cheap job the rest switch on. `scripts/verify-changed.ts` is the same
+  # classifier an agent runs locally through `npm run verify:changed`, so CI
+  # and a developer cannot disagree about whether a change is risky.
+  #
+  # `fetch-depth: 0` because the classification is a merge-base diff: a PR is
+  # judged on what it changes relative to where it forked, not on everything
+  # that landed on main while it was open.
+  classify:
+    name: classify change
     runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.plan.outputs.code }}
+      tests: ${{ steps.plan.outputs.tests }}
+      content: ${{ steps.plan.outputs.content }}
+      migration: ${{ steps.plan.outputs.migration }}
+      highRisk: ${{ steps.plan.outputs.highRisk }}
+      docsOnly: ${{ steps.plan.outputs.docsOnly }}
+      relatedOnly: ${{ steps.plan.outputs.relatedOnly }}
+      codeFiles: ${{ steps.plan.outputs.codeFiles }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - id: plan
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            RANGE="origin/${{ github.base_ref }}...HEAD"
+          else
+            RANGE="${{ github.event.before }}...${{ github.sha }}"
+          fi
+          echo "Classifying $RANGE"
+          npx tsx scripts/verify-changed.ts --range="$RANGE" --json
+
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    needs: classify
+    if: needs.classify.outputs.code == 'true' || needs.classify.outputs.highRisk == 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -18,21 +70,92 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm run verify:full
+      - run: npm run typecheck
 
-  archive-assets:
-    name: archive assets reachable (CDN)
+  lint:
+    name: lint
     runs-on: ubuntu-latest
-    # Parallel with gate on purpose: scripts/verify-archive-assets.mjs needs
-    # no install, no build and no browser — a checkout, Node, and ~80 HEAD
-    # requests (about 10 seconds). The sampled default catches the wholesale
-    # failures the script exists for (wrong base, unpopulated or emptied
-    # bucket, access change); the exhaustive `--all` run stays a manual step
-    # after an upload — see docs/operations.md.
-    #
-    # Same public base as the smoke job below, and scoped to this job for the
-    # same reason: the gate job's tests assert the unset-variable fallback,
-    # so it must never be set at workflow level.
+    needs: classify
+    if: needs.classify.outputs.code == 'true' || needs.classify.outputs.highRisk == 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+
+  # ── The suite, four ways ────────────────────────────────────────────────
+  #
+  # 166 files, 55 of them starting a full Postgres in WASM. `maxWorkers: 2` in
+  # vitest.config.ts is NOT overridden here: that number is a memory limit per
+  # machine, and sharding adds machines rather than workers. Four runners × two
+  # workers is eight-way parallelism with the documented constraint intact.
+  #
+  # `--shard` partitions by file and vitest guarantees the partition is a
+  # cover: every file runs in exactly one shard.
+  test:
+    name: test (shard ${{ matrix.shard }}/4)
+    runs-on: ubuntu-latest
+    needs: classify
+    if: >-
+      needs.classify.outputs.relatedOnly != 'true'
+      && (needs.classify.outputs.code == 'true'
+      || needs.classify.outputs.tests == 'true'
+      || needs.classify.outputs.content == 'true'
+      || needs.classify.outputs.migration == 'true'
+      || needs.classify.outputs.highRisk == 'true')
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx vitest run --shard=${{ matrix.shard }}/4
+
+  # An isolated presentational change runs the tests that actually import it,
+  # found by walking the module graph rather than by guessing from a path.
+  # Measured on one component: 198ms against 176s for the whole suite. The
+  # classifier only chooses this for non-structural edits under app/ (not api),
+  # components/ or lib/ — see `eligibleForRelated` for why each condition is
+  # there. Anything else, including a new file, takes the sharded suite above.
+  test-related:
+    name: test (related only)
+    runs-on: ubuntu-latest
+    needs: classify
+    if: needs.classify.outputs.relatedOnly == 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx vitest related --run ${{ needs.classify.outputs.codeFiles }}
+
+  # ── One production build, reused ────────────────────────────────────────
+  #
+  # Until 2026-09-08 this ran twice in every CI run — once inside verify:full
+  # and again in the smoke job — serialised by `needs`, with the first result
+  # thrown away. It now runs once and the output travels as an artifact.
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    needs: classify
+    if: >-
+      needs.classify.outputs.code == 'true'
+      || needs.classify.outputs.content == 'true'
+      || needs.classify.outputs.highRisk == 'true'
+    # NEXT_PUBLIC_ values are inlined at build time, and the smoke job consumes
+    # this exact output — so the archive CDN has to be set here rather than in
+    # the job that runs the browser. It must never be set at workflow level:
+    # tests/archive-content.test.ts asserts the unset-variable fallback.
     env:
       NEXT_PUBLIC_ARCHIVE_CDN: https://m70ph8nwojvanarn.public.blob.vercel-storage.com
     steps:
@@ -40,24 +163,35 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - run: node scripts/verify-archive-assets.mjs "$NEXT_PUBLIC_ARCHIVE_CDN"
+          cache: npm
+      - run: npm ci
+      # Next's own incremental cache. Keyed on the lockfile and the build
+      # configuration so a dependency bump or a config change starts clean;
+      # `restore-keys` lets an unrelated source edit reuse the previous cache.
+      - uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('next.config.ts', 'tsconfig.json') }}-${{ github.sha }}
+          restore-keys: |
+            next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('next.config.ts', 'tsconfig.json') }}-
+            next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+      - run: npm run build
+      # `.next/cache` is excluded on purpose: it is a build input, restored
+      # above, and shipping it would roughly double the artifact for nothing.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: |
+            .next
+            !.next/cache
+          retention-days: 1
+          include-hidden-files: true
 
   smoke:
-    name: route smoke test (headless Chromium)
+    name: smoke (headless Chromium)
     runs-on: ubuntu-latest
-    needs: gate
-    # Scoped to this job on purpose. NEXT_PUBLIC_ variables are inlined at
-    # build time, so the smoke build needs this or the archive renderer falls
-    # back to `/archive/…` — a gitignored dev symlink tree absent from a CI
-    # checkout — and every record route logs a media 404.
-    #
-    # It must NOT be set for the gate job: tests/archive-content.test.ts
-    # asserts that fallback, and setting it at workflow level made the gate
-    # fail. The test now controls the variable itself, but the scope stays
-    # narrow regardless — a test should not inherit deployment configuration.
-    #
-    # No secret. The Blob store is public and the base is in
-    # docs/environment.md; anything private belongs in repository secrets.
+    needs: build
+    if: needs.build.result == 'success'
     env:
       NEXT_PUBLIC_ARCHIVE_CDN: https://m70ph8nwojvanarn.public.blob.vercel-storage.com
     steps:
@@ -67,8 +201,26 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # Chromium is ~150 MB and was re-downloaded on every run. The key
+      # carries the playwright version, so an upgrade fetches the matching
+      # browser instead of reusing an incompatible one.
+      - id: playwright-version
+        run: echo "version=$(node -p "require('./package.json').devDependencies['playwright-core']")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
       - run: npx playwright install --with-deps chromium
-      - run: npm run build
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+      # The system dependencies live outside the cached directory, so they are
+      # installed even on a cache hit — this is the cheap half.
+      - run: npx playwright install-deps chromium
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+      - uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: .next
       - run: npm run start &
       - name: Wait for server
         run: |
@@ -79,3 +231,70 @@ jobs:
           echo "Server never came up" >&2
           exit 1
       - run: node scripts/ci-smoke.mjs http://localhost:3000
+
+  archive-assets:
+    name: archive assets reachable (CDN)
+    runs-on: ubuntu-latest
+    # Parallel with everything on purpose: scripts/verify-archive-assets.mjs
+    # needs no install, no build and no browser — a checkout, Node, and ~80
+    # HEAD requests (about 10 seconds). The sampled default catches the
+    # wholesale failures the script exists for (wrong base, unpopulated or
+    # emptied bucket, access change); the exhaustive `--all` run stays a
+    # manual step after an upload — see docs/operations.md.
+    env:
+      NEXT_PUBLIC_ARCHIVE_CDN: https://m70ph8nwojvanarn.public.blob.vercel-storage.com
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node scripts/verify-archive-assets.mjs "$NEXT_PUBLIC_ARCHIVE_CDN"
+
+  # ── The names branch protection knows ───────────────────────────────────
+  #
+  # docs/operations.md pins three required status-check contexts to job names.
+  # The work above is now split and conditional, and a skipped job reports
+  # "skipped" — which some protection settings do not accept. These two
+  # aggregators always run, keep the historical names exactly, and fail if any
+  # dependency actually failed. A skipped dependency is a pass: it means the
+  # classifier decided this diff did not need it.
+  gate:
+    name: typecheck, lint, test, build
+    runs-on: ubuntu-latest
+    needs: [classify, typecheck, lint, test, test-related, build]
+    if: always()
+    steps:
+      - name: Report
+        run: |
+          echo "classify:  ${{ needs.classify.result }}"
+          echo "typecheck: ${{ needs.typecheck.result }}"
+          echo "lint:      ${{ needs.lint.result }}"
+          echo "test:      ${{ needs.test.result }}"
+          echo "related:   ${{ needs['test-related'].result }}"
+          echo "build:     ${{ needs.build.result }}"
+          for result in \
+            "${{ needs.classify.result }}" \
+            "${{ needs.typecheck.result }}" \
+            "${{ needs.lint.result }}" \
+            "${{ needs.test.result }}" \
+            "${{ needs['test-related'].result }}" \
+            "${{ needs.build.result }}"; do
+            case "$result" in
+              success|skipped) ;;
+              *) echo "A required check did not pass." >&2; exit 1 ;;
+            esac
+          done
+
+  smoke-gate:
+    name: route smoke test (headless Chromium)
+    runs-on: ubuntu-latest
+    needs: [build, smoke]
+    if: always()
+    steps:
+      - run: |
+          echo "build: ${{ needs.build.result }}"
+          echo "smoke: ${{ needs.smoke.result }}"
+          case "${{ needs.smoke.result }}" in
+            success|skipped) ;;
+            *) echo "The smoke test did not pass." >&2; exit 1 ;;
+          esac

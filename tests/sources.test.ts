@@ -124,8 +124,11 @@ describe("original-publisher classification", () => {
   });
 
   it("does not retain RSS endpoints that failed live verification", () => {
-    const retired = ["gov-il-official-news", "times-of-israel", "haaretz", "presstv", "unrwa", "washington-institute"];
+    /* times-of-israel left this list on 2026-09-08: its feed answers 200
+       again, and the daily re-verification sweep is what reactivates the row. */
+    const retired = ["gov-il-official-news", "haaretz", "presstv", "unrwa", "washington-institute"];
     expect(BRIEFING_RSS_CANDIDATES.some((candidate) => retired.includes(candidate.slug))).toBe(false);
+    expect(BRIEFING_RSS_CANDIDATES.some((candidate) => candidate.slug === "times-of-israel")).toBe(true);
   });
 
   it("retains editorial source categories after Google discovery", () => {

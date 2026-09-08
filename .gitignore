@@ -97,3 +97,6 @@ midjourny*/
 /*.mov
 /*.webm
 /[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]-*.png
+
+# Stray editor/tool backups — one reached a commit on 2026-09-08.
+*.bak

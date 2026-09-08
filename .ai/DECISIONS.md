@@ -2455,3 +2455,128 @@ This is a deliberate design change, not a regression: a static memorial and
 a page that invites sharing pull in different directions, and the owner's
 brief for this pass was share-oriented. Recorded here so the original
 "nothing moves" reasoning is not silently treated as still in force.
+
+## 2026-09-08 — One permanent `work` branch; a new session is not a new branch
+
+This supersedes two entries from 2026-08-27: "Every task starts from current
+main; completed rounds update it", which made `main` the baseline a session
+works from, and "Startup clears merged branches and blocks on open ones",
+whose cleanup would delete the development branch the moment it merged.
+
+**What was measured.** Two days of agent sessions left roughly twenty remote
+branches. None of them existed because two changes genuinely could not share a
+working tree; they existed because a different tool, a restarted agent or a new
+prompt had begun, and the surrounding documents told each one to branch. The
+same period produced 100 Vercel deployments and a separate branch-cleanup task.
+
+**The model now.** `main` is Production. `work` is a permanent development
+branch that every tool and every session continues on. Publishing is a round
+trip — `work` merges into `main`, `main` is pushed, and `work` is levelled with
+the new `main` and kept. A separate branch is for owner-requested isolation,
+genuinely concurrent independent work, or emergency recovery, and is temporary
+in all three cases.
+
+**What changed in code, not only in prose.** `scripts/startup-sync.mjs` no
+longer switches to `main`: `sync:start` ensures `work` exists, switches to it
+when the tree is clean, fast-forwards it and reports its distance from `main`.
+`main:update` gained the return trip that did not exist before — steps F–H of
+the brief — so a session ends where the next one starts.
+
+**The bug this closes.** `cleanupMergedBranches()` excluded only `origin/main`.
+The first successful publish of a permanent branch would have run
+`git push origin --delete work`. The same function would delete
+`chatgpt-editorial-updates` or `editorial-updates` the day either became an
+ancestor of `main`; they had survived only because, as orphan branches, they
+never are. A `PERMANENT_BRANCHES` set now exempts all four, and a GitHub
+ruleset (`protect-permanent-branches`) blocks deletion at the remote as well,
+so the exemption does not depend on this script staying correct.
+
+**Testing changed shape.** `tests/startup-sync.test.ts` used to read the script
+as a string and assert that `git(["switch", "main"])` appeared in it — pinning
+the implementation's spelling while verifying none of its behaviour, exactly as
+audit item A6-11 said. It now builds a repository and a bare origin in a temp
+directory and runs the script against them, covering all ten scenarios in the
+brief including "a full publish cycle creates no branch beyond `main` and
+`work`". The fixture sets its own empty `core.hooksPath`, because this
+workstation has a global pre-push guard that would otherwise make the test
+depend on personal configuration.
+
+**Also corrected here.** `CLAUDE.md`, `docs/operations.md` and `README.md` each
+stated a different and wrong count of the branches `vercel.json` excludes from
+deployment (one, one — a different one — and two; it is three). That drift is
+what would let a future agent delete an editorial delivery branch as stale, so
+it is fixed in the same change rather than filed as a separate cleanup.
+
+
+## 2026-09-08 — One permanent branch and one working tree per AI identity
+
+This supersedes two entries. The first is 2026-08-27, "Every task starts from
+current main; completed rounds update it", which made `main` the baseline each
+session branched from. The second is the entry immediately above this one,
+also 2026-09-08, "One permanent `work` branch; a new session is not a new
+branch" — its diagnosis was right and its remedy was one branch short. `work`
+was retired the same day it was introduced, with **zero unique commits**;
+nothing was lost and nothing needs recovering from it.
+
+**What was measured, and what it was not.** Two days of agent sessions left
+roughly twenty remote branches. Not one of them existed because two changes
+genuinely could not share a working tree. They existed because a different
+tool, a restarted agent, a fresh prompt or a new "wave" of a plan had begun,
+and every surrounding document told each one to branch. That is the finding
+the `work` entry got right, and collapsing twenty branches to one did fix it.
+
+What it missed is that five different AIs — Claude, Grok, Codex, OpenCode and
+Gemini AGY — do not merely need one branch each other's sessions stop
+multiplying. They need **isolated working trees**. A single shared checkout
+means five agents editing the same files on disk at the same time, and an
+uncommitted half-finished edit from one becoming another's starting state.
+That is not a branching problem and one shared branch cannot solve it; it is a
+filesystem problem, and a git worktree is what solves it.
+
+**The model.** `main` is Production. Five permanent branches — `ai/claude`,
+`ai/grok`, `ai/codex`, `ai/opencode`, `ai/gemini-agy` — one per AI, each
+checked out as a git worktree in `lions-of-zion-workspaces/<ai>`, a sibling
+directory of the repository. The primary checkout stays neutral on `main` and
+is used for publishing and maintenance rather than for development.
+
+**The rule that makes it stable is that identity, not work, selects the
+branch.** The AI you are determines your branch. The task does not. Neither
+does the session, the prompt, the account, the CLI, or a restart. Ten Codex
+sessions across a week produce exactly one branch. The branch count is a
+property of how many AI environments exist, and is never a property of how
+much work has been done. A new branch of any other shape — `fix/*`, `feat/*`,
+`claude/*`, `task/*`, `session/*`, a `-v2`, a `-continuation`, a `-wave-2` —
+requires an explicit owner request, and sub-agents inherit their parent's
+branch and workspace rather than claiming a namespace of their own.
+
+**Publishing is a round trip and nothing about it is destructive.**
+`main:update` merges an AI branch into `main`, pushes it (Production deploys),
+then returns to the AI branch and levels it with the new `main`; the branch
+survives. When `main` advances while an AI still holds unpublished work,
+`main` is merged **into** the AI branch as an ordinary merge commit — no
+rebase, no force-push, no `reset --hard`, no stash, no destructive checkout. A
+conflict is reported and left alone. Auto-resolving one silently discards
+somebody's work, and starting a new branch to escape one is exactly the
+reflex that produced twenty branches in the first place. `sync:start` never
+switches you to `main` and never creates a second branch; `workspace:status`
+prints the mappings and each tree's state, and `workspace:add` creates a
+worktree on demand. Where identity cannot be resolved — no `ai/*` branch, no
+`LIONS_AI`, no recognised CLI marker — the tooling prints the mapping and
+changes no Git state rather than guessing, because guessing wrong here means
+committing one AI's work onto another's branch.
+
+**Two things the model deliberately leaves outside itself.**
+`chatgpt-editorial-updates` and `editorial-updates` are operational editorial
+delivery branches: orphan branches sharing no history with `main`, never
+merged into `main` or any `ai/*` branch, never cleaned up, and never used as
+an AI's workspace. They look like abandoned development branches to anything
+that judges a branch by its distance from `main`, which is precisely why they
+are named here. And no `ai/*` branch produces a Vercel Preview — which took two controls, not
+the one this entry first claimed. `scripts/vercel-ignore-build.sh` skips every
+branch that is not `main`, but `ignoreCommand` runs *inside* a deployment
+Vercel has already created: pushing the five branches produced five queued
+previews before the ignore step reached them. `git.deploymentEnabled` in
+`vercel.json`, which the delivery branches have always used, is what prevents
+the deployment from existing at all, and the five were added to it the same
+day. With both in place five permanent branches cost no build minutes — the 100 deployments and 337
+build-minutes that the branch sprawl generated cannot recur through this door.

@@ -266,7 +266,7 @@ export const briefingJob = pgTable(
     index("briefing_job_by_stage_date").on(t.stage, t.localDate, t.state),
     index("briefing_job_stale_lease").on(t.leaseUntil).where(sql`${t.state} = 'running'`),
     check("briefing_job_stage_is_known", sql`${t.stage} IN ('collect', 'enrich', 'cluster', 'triage', 'draft', 'quality', 'publish')`),
-    check("briefing_job_state_is_known", sql`${t.state} IN ('pending', 'running', 'completed', 'quarantined')`),
+    check("briefing_job_state_is_known", sql`${t.state} IN ('pending', 'running', 'completed', 'quarantined', 'discarded')`),
     check("briefing_job_attempts_are_valid", sql`${t.attempts} >= 0 AND ${t.maxAttempts} BETWEEN 1 AND 20`),
     nonBlank(t.jobKey, "briefing_job_has_key"),
   ],

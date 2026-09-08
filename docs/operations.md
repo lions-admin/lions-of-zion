@@ -29,7 +29,7 @@ Requires Node 24 (what CI and Vercel use). The API routes will fail without a
 
 ```bash
 npm run dev          # next dev
-npm run sync:start   # update main, delete merged branches, flag open branches
+npm run sync:start   # continue on this AI's branch: fetch, fast-forward, reconcile, report
 npm run typecheck    # tsc --noEmit
 npm run lint         # eslint — this is where the architecture boundaries are enforced
 npm test             # vitest run
@@ -38,7 +38,9 @@ npm run verify:changed  # adaptive gate for the current working-tree diff
 npm run verify:full     # complete local and CI handoff gate
 npm run audit:ui        # browser geometry, landmarks, focus and no-JS audit
 npm run audit:interaction # browser route and console-error smoke audit
-npm run main:update     # merge a completed serious round into main and push it
+npm run main:update     # publish this AI's branch into `main`, then return to it
+npm run workspace:status  # AI-to-branch mappings, worktrees, identity, dirty state
+npm run workspace:add -- codex  # create that AI's worktree
 npm start            # next start, after a build
 ```
 
@@ -62,13 +64,48 @@ origin after `--` when auditing a reviewed deployment, for example
 responsive matrix. `audit:interaction` checks representative routes and
 reports non-200 responses or browser console errors.
 
-`sync:start` is an optional convenience command. It fetches `origin`, updates
-`main` when the tree permits it, deletes branches already merged into main, and
-reports any open branches without blocking work.
+Development happens on one permanent branch per AI identity — `ai/claude`,
+`ai/grok`, `ai/codex`, `ai/opencode`, `ai/gemini-agy` — each checked out as a
+git worktree in a sibling directory of the repository. The primary checkout
+stays neutral on `main`, for publishing and maintenance.
 
-`main:update` updates local main, merges the current branch, pushes main, and
-removes the completed branch locally and remotely when safe. Run verification
+`sync:start` keeps you on your own branch. It fetches `origin`, resolves which
+AI it is running as (the current `ai/*` branch, else `LIONS_AI`, else a known
+CLI marker, else it reports the mapping and changes nothing), fast-forwards
+that branch, reconciles it with `main` by merging `main` **into** it, and
+reports where it stands. It never switches you to `main` and never creates a
+second branch. **A dirty tree is preserved and reported; nothing is stashed,
+reset or switched.**
+
+`main:update` publishes: it merges this AI's branch into `main`, pushes `main`
+(Production deploys from that push), then returns to the AI branch and levels
+it with the new `main`. **The AI branch is never deleted.** A conflict aborts
+the merge and returns you to your branch with nothing pushed; it is reported,
+never auto-resolved, and never solved by making a new branch. Run verification
 when it is useful to the owner; it is not a publication gate.
+
+`workspace:status` prints the five mappings, which worktrees exist, the current
+branch and resolved identity, dirty state, and how far each branch stands ahead
+of or behind `main`. `workspace:add -- codex` creates that AI's worktree when
+it does not exist yet.
+
+No `ai/*` branch deploys on Vercel, and it takes two controls. `vercel.json`
+lists all five under `git.deploymentEnabled: false`, beside the editorial
+delivery branches — that is what stops a deployment from being created.
+`scripts/vercel-ignore-build.sh` then skips every branch that is not `main`,
+which stops the build.
+
+The second alone is not enough: `ignoreCommand` runs inside a deployment that
+already exists, so on 2026-09-08 pushing the five new branches produced five
+*queued* previews before the ignore step reached them. Re-pushing all five
+after the `deploymentEnabled` entries landed produced none.
+
+The machine-level `core.hooksPath` guard on this workstation asks for explicit
+approval before any push to `main`, so the publish step is not silent.
+
+See **Branches** in [`AGENTS.md`](../AGENTS.md) for the policy these commands
+implement — the AI identity determines the branch, and a new branch requires an
+explicit owner request.
 
 ---
 
@@ -129,8 +166,9 @@ two minutes each, with no manual step.
 
 The mechanism is the GitHub integration on the Vercel project, whose
 `link.productionBranch` is `main`. `vercel.json` disables git deployment for
-the `chatgpt-editorial-updates` delivery branch and for nothing else, and the project has
-no deploy hooks. Each branch also carries its own `vercel.json` with
+all three editorial delivery branches — `briefing-packages`,
+`editorial-updates` and `chatgpt-editorial-updates` — and for nothing else, and
+the project has no deploy hooks. Each branch also carries its own `vercel.json` with
 `"deploymentEnabled": false`, which is the copy that actually suppresses the
 build, because Vercel reads the config from the commit being pushed. Confirm
 with

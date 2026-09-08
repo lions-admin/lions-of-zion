@@ -49,9 +49,32 @@ describe("briefing server runtime contracts", () => {
       expect.stringContaining("/queue/briefing/"),
       expect.stringContaining("admin/briefing/run"),
     ]));
-    expect(vercelConfig.crons.map((cron) => cron.path)).not.toEqual(expect.arrayContaining([
-      "/api/internal/cron/briefing",
-      "/api/internal/cron/editorial",
-    ]));
+    /* There is no `crons` array at all since 2026-09-08: the owner removed
+       every schedule, and the four routes are now driven by hand from the
+       admin console or the Operations tick workflow. The assertion that the
+       retired initiator has no schedule is therefore satisfied by the
+       stronger fact that nothing has one — and this asserts that, so a
+       reinstated cron has to be a deliberate edit to this test too. */
+    expect(vercelConfig).not.toHaveProperty("crons");
+
+    /* Production deploy `dpl_HheUpCu…`, 2026-09-08, failed before the build
+       even started:
+
+         The `vercel.json` schema validation failed with the following
+         message: should NOT have additional property `//crons`
+
+       The published schema sets `additionalProperties: false`, so the
+       `"//key"` comment convention that is harmless in `package.json` is a
+       hard deploy failure here. There is no way to write a comment in this
+       file; explanations belong in AGENTS.md or docs/operations.md. */
+    const allowed = new Set([
+      "$schema", "ignoreCommand", "git", "functions", "crons", "redirects",
+      "rewrites", "headers", "buildCommand", "installCommand", "outputDirectory",
+      "framework", "regions", "cleanUrls", "trailingSlash", "images", "public",
+    ]);
+    for (const key of Object.keys(vercelConfig)) {
+      expect(key.startsWith("//"), `vercel.json rejects the comment key "${key}"`).toBe(false);
+      expect(allowed.has(key), `vercel.json key "${key}" is not one this test knows to be valid`).toBe(true);
+    }
   });
 });

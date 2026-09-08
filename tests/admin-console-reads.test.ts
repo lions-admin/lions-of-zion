@@ -55,7 +55,7 @@ vi.mock("@/server/core/auth/neon", () => ({
   neonAuth: () => ({ getSession: async () => ({ data: null }) }),
 }));
 
-const { adminConsoleService, ARTICLE_SECTIONS, classifyTrend, costSurfaceFor, nextCronTick, SCHEDULES } =
+const { adminConsoleService, ARTICLE_SECTIONS, classifyTrend, costSurfaceFor, nextCronTick, MANUAL_OPERATIONS, SCHEDULES } =
   await import("@/server/modules/admin-console/service");
 const { ADMIN_CAPABILITIES } = await import("@/server/core/auth/actor");
 const { publicationService } = await import("@/server/modules/publications/service");
@@ -79,11 +79,25 @@ async function sourceFixture(db: TestDatabase) {
 }
 
 describe("console configuration pins", () => {
+  /* Still a pin, and still in the same direction: the console must describe
+     what `vercel.json` actually does. Since 2026-09-08 that is nothing on a
+     schedule, so both sides are empty — and restoring a cron without telling
+     the console about it fails here exactly as adding one used to. */
   it("keeps SCHEDULES identical to the crons in vercel.json", () => {
     const vercel = JSON.parse(readFileSync(path.join(process.cwd(), "vercel.json"), "utf8")) as {
-      crons: Array<{ path: string; schedule: string }>;
+      crons?: Array<{ path: string; schedule: string }>;
     };
-    expect(SCHEDULES.map(({ path: p, schedule }) => ({ path: p, schedule }))).toEqual(vercel.crons);
+    expect(SCHEDULES.map(({ path: p, schedule }) => ({ path: p, schedule }))).toEqual(vercel.crons ?? []);
+  });
+
+  it("offers every retired cron route as a manual operation instead", () => {
+    expect(MANUAL_OPERATIONS.map((entry) => entry.path)).toEqual([
+      "/api/internal/cron/ingest",
+      "/api/internal/cron/embed",
+      "/api/internal/cron/outbox-drain",
+      "/api/internal/cron/maintenance",
+    ]);
+    for (const entry of MANUAL_OPERATIONS) expect(entry.description.trim()).not.toBe("");
   });
 
   it("keeps ARTICLE_SECTIONS identical to the briefing service's private list", () => {
@@ -132,8 +146,11 @@ describe("console reads on an empty database", () => {
     expect(pipeline.stages.map((stage) => stage.stage)).toEqual(["collect", "enrich", "cluster", "triage", "draft", "quality", "publish"]);
     const overview = await console.overview();
     expect(overview.automaticPublicationPaused).toBe(true);
-    expect(overview.nextRun.schedule).toBe("0,30 * * * *");
-    expect(overview.nextRun.at).not.toBeNull();
+    /* Nothing is scheduled since 2026-09-08, so the overview says so rather
+       than naming a time nothing will act on. All three fields are null
+       together: a schedule with no next tick, or a tick with no schedule,
+       would both be the console inventing something. */
+    expect(overview.nextRun).toEqual({ at: null, schedule: null, path: null });
     const settings = await console.settings();
     expect(settings.editable).toBe(false);
     expect(settings.searchGroups.map((group) => group.group).sort()).toEqual(["daily_brief", "israel_update", "narrative_watch"]);

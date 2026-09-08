@@ -1,0 +1,79 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r44-20260908T111428Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T11:14:28.036360Z",
+  "creates": [],
+  "updates": [],
+  "homepage": {
+    "news": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "publicId": "what-changed-since-september-6-the-september-8-e-2w74s"
+        }
+      },
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "publicId": "israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3"
+        }
+      }
+    },
+    "fakeResistance": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "publicId": "how-the-israel-killed-charlie-kirk-theory-surviv-sl3l9"
+        }
+      },
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "publicId": "how-weak-claims-look-confirmed-a-reader-s-guide--l09av"
+        }
+      }
+    },
+    "people": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "publicId": "licensed-but-waiting-arab-physicians-and-israel--3in0j"
+        }
+      },
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "publicId": "ben-gurion-university-team-develops-aerogel-that-0y2we"
+        }
+      }
+    }
+  },
+  "research": [
+    {
+      "topic": "Run 44 — final homepage and section composition",
+      "sourcesReviewed": [
+        "https://lionsofzion.io/",
+        "https://lionsofzion.io/geopolitical-brief",
+        "https://lionsofzion.io/fake-resistance",
+        "https://lionsofzion.io/people-of-israel",
+        "https://lionsofzion.io/october-7",
+        "https://lionsofzion.io/information-war",
+        "https://lionsofzion.io/articles/what-changed-since-september-6-the-september-8-e-2w74s",
+        "https://lionsofzion.io/articles/israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3",
+        "https://lionsofzion.io/articles/how-the-israel-killed-charlie-kirk-theory-surviv-sl3l9",
+        "https://lionsofzion.io/articles/how-weak-claims-look-confirmed-a-reader-s-guide--l09av",
+        "https://lionsofzion.io/articles/licensed-but-waiting-arab-physicians-and-israel--3in0j",
+        "https://lionsofzion.io/articles/ben-gurion-university-team-develops-aerogel-that-0y2we"
+      ],
+      "conclusion": "The final supported six-card composition leads with the delta-first September 8 edition and keeps one distinct Lebanon canonical story. Fake Resistance pairs a current major investigation with a practical methods guide. People pairs a society and healthcare investigation with a peer-reviewed Israeli science result. No slot repeats one event family. October 7 and historical companions cannot be placed through the three supported homepage areas and remain reachable through their sections or article inventory rather than being falsely reported as featured.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 44 OCTOBER 7/HISTORY COMPOSITION: the supported homepage contract exposes only news, fakeResistance and people. Acceptance: provide an editorially controlled, source-safe way to feature the verified October 7 location/timeline companions and historical reading room without changing or overwriting archive originals.",
+    "RUN 44 STATIC SURFACE BACKLOG: apply the previously recorded corrections and disclosures to /israels-story, /methodology, /corrections, /support-us, ticker and static Fake Resistance cases. Acceptance: each original surface displays the corrected language and visible change history; companion articles alone do not count as repair.",
+    "RUN 44 REVISION CACHE: several updated records briefly served stale HTML after the production API held the new version. Acceptance: article, card and homepage caches invalidate atomically on revision, and verification can read the same version identifier on all three surfaces."
+  ]
+}

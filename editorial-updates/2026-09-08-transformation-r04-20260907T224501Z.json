@@ -1,0 +1,106 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r04-20260907T224501Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-07T22:45:01.209766Z",
+  "creates": [
+    {
+      "key": "historical-corrections-companion",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "history_context",
+        "canonicalStoryId": "israels-story-1948-abraham-accords-corrections",
+        "title": "1948 and the Abraham Accords: correcting two shortcuts in Israel’s Story",
+        "summary": "Lebanon’s role in 1948 and the different histories of the UAE, Bahrain, Morocco and Sudan require more precise language. A sourced correction note to our existing history chapters.",
+        "body": "Two passages in Lions of Zion’s Israel’s Story compress distinct histories into misleading shorthand. The founding chapter describes four neighboring states entering the war in May 1948. The Abraham Accords chapter describes the participating Gulf and African states collectively as countries that had never fought Israel. Neither formulation is sufficiently precise. This note supplies a corrected account; it is a companion to the original chapters, whose wording has not been changed by this publication.\n\n1948: distinguish the opening intervention from the whole war.\n\nIsrael declared independence on May 14, 1948, as the British Mandate ended. The Truman Presidential Library’s chronology lists Egypt, Transjordan, Iraq, Syria and Lebanon in the Arab attack following the declaration. The original chapter omits Lebanon and incorrectly describes Iraq as a neighboring state: Iraq did not share a border with the former Mandate territory.\n\nA list of five states should not imply five identical military roles. A contemporary U.S. diplomatic assessment, sent from Cairo shortly before the invasion, described substantial available Iraqi and Syrian forces while assessing Lebanon’s strength as negligible. That was an estimate made at the time, not a complete retrospective order of battle. It is useful precisely because it warns against treating a coalition’s members as interchangeable. Lebanon’s subsequent armistice with Israel, signed on March 23, 1949, is a separate primary record of its place in the conflict; an armistice text alone does not establish which units fought on a particular day.\n\nThe concise replacement should describe regular forces from Egypt, Transjordan, Iraq and Syria entering the former Mandate after Israel’s declaration, with Lebanon also a participant in the war on a more limited scale. A detailed battlefield chronology needs to identify individual operations rather than project every participant’s later activity back onto May 15. Nor did violence begin with the interstate invasion: fighting between Jewish and Arab forces in Mandatory Palestine preceded the declaration. The May intervention marks a new phase of the conflict, not its entire origin.\n\nThe Abraham Accords: four countries, different starting points.\n\nThe United Arab Emirates and Bahrain established formal relations with Israel through the 2020 normalization process. Their agreements were not settlements following a bilateral battlefield war with Israel of the kind associated with Egypt’s peace treaty. That distinction helps explain what was new about their diplomacy. It should not be extended automatically to every country associated with the accords.\n\nMorocco’s history includes military involvement on the Arab side. Minutes of a U.S. interagency meeting on October 6, 1973 explicitly record Moroccan soldiers in Syria. This contemporary document establishes that deployment was known to American officials at the opening of the war; it is not a unit-by-unit combat account. Morocco’s December 22, 2020 joint declaration is another distinct document, setting out the renewed relationship with Israel. An accurate chapter must accommodate both the earlier military involvement and the later diplomatic opening.\n\nSudan’s October 23, 2020 joint statement with Israel and the United States explicitly agreed to end the state of belligerence between Sudan and Israel. It also envisaged further negotiations on cooperation. That language is materially different from saying that the countries had no history of hostility. A declared state of belligerence, participation by particular forces in an earlier war, and completed diplomatic normalization are separate questions. This note does not infer the date of full implementation from the announcement alone, or treat Sudanese volunteers before independence as automatically equivalent to the later state’s armed forces.\n\nThe corrected historical framing is therefore normalization among countries with different military and diplomatic histories. The UAE and Bahrain should be discussed separately from Morocco and Sudan. The accords can be consequential without flattening the history that preceded them.\n\nCorrection record — September 8, 2026: this companion identifies the omitted Lebanese participation, the inaccurate geographical description of Iraq, and the overgeneralization about the Abraham Accords countries. It also clarifies the distinction between the earlier fighting in Mandatory Palestine and the interstate phase beginning in May 1948. The original Israel’s Story chapters remain linked in Public sources so readers can see which text is being addressed. Updating those chapters and their own change history remains outstanding.",
+        "language": "en",
+        "editorialTopic": "Historical corrections",
+        "topicTags": [
+          "history",
+          "historical-corrections",
+          "abraham-accords",
+          "1948"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://www.trumanlibrary.gov/library/online-collections/recognition-of-state-of-israel?section=1",
+          "title": "Recognition of the State of Israel — chronology and archival collection",
+          "publisher": "Harry S. Truman Presidential Library",
+          "official": true
+        },
+        {
+          "url": "https://history.state.gov/historicaldocuments/frus1948v05p2/d270",
+          "title": "Ambassador Tuck to the Secretary of State, May 14, 1948",
+          "publisher": "U.S. Department of State, Office of the Historian",
+          "official": true
+        },
+        {
+          "url": "https://treaties.un.org/Pages/showDetails.aspx?clang=_en&objid=080000028015c467",
+          "title": "Israel–Lebanon General Armistice Agreement, March 23, 1949",
+          "publisher": "United Nations Treaty Collection",
+          "official": true
+        },
+        {
+          "url": "https://trumpwhitehouse.archives.gov/briefings-statements/joint-statement-united-states-state-israel-united-arab-emirates/",
+          "title": "U.S.–Israel–UAE joint statement, August 13, 2020",
+          "publisher": "White House archive",
+          "official": true
+        },
+        {
+          "url": "https://trumpwhitehouse.archives.gov/briefings-statements/abraham-accords-declaration-peace-cooperation-constructive-diplomatic-friendly-relations/",
+          "title": "Israel–Bahrain Declaration, September 15, 2020",
+          "publisher": "White House archive",
+          "official": true
+        },
+        {
+          "url": "https://history.state.gov/historicaldocuments/frus1969-76v25/d103",
+          "title": "Washington Special Actions Group minutes, October 6, 1973",
+          "publisher": "U.S. Department of State, Office of the Historian",
+          "official": true
+        },
+        {
+          "url": "https://www.govinfo.gov/content/pkg/DCPD-202000796/pdf/DCPD-202000796.pdf",
+          "title": "Joint U.S.–Sudan–Israel statement, October 23, 2020",
+          "publisher": "U.S. Government Publishing Office",
+          "official": true
+        },
+        {
+          "url": "https://www.govinfo.gov/content/pkg/GOVPUB-S-PURL-gpo222688/pdf/GOVPUB-S-PURL-gpo222688.pdf",
+          "title": "Morocco–United States–Israel Joint Declaration, December 22, 2020",
+          "publisher": "U.S. Government Publishing Office",
+          "official": true
+        },
+        {
+          "url": "https://lionsofzion.io/israels-story",
+          "title": "Israel’s Story — original chapters addressed by this correction note",
+          "publisher": "Lions of Zion"
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 04 — 1948 and Abraham Accords historical precision",
+      "sourcesReviewed": [
+        "https://www.trumanlibrary.gov/library/online-collections/recognition-of-state-of-israel?section=1",
+        "https://history.state.gov/historicaldocuments/frus1948v05p2/d270",
+        "https://treaties.un.org/Pages/showDetails.aspx?clang=_en&objid=080000028015c467",
+        "https://trumpwhitehouse.archives.gov/briefings-statements/joint-statement-united-states-state-israel-united-arab-emirates/",
+        "https://trumpwhitehouse.archives.gov/briefings-statements/abraham-accords-declaration-peace-cooperation-constructive-diplomatic-friendly-relations/",
+        "https://history.state.gov/historicaldocuments/frus1969-76v25/d103",
+        "https://www.govinfo.gov/content/pkg/DCPD-202000796/pdf/DCPD-202000796.pdf",
+        "https://www.govinfo.gov/content/pkg/GOVPUB-S-PURL-gpo222688/pdf/GOVPUB-S-PURL-gpo222688.pdf",
+        "https://lionsofzion.io/israels-story"
+      ],
+      "conclusion": "Published a correction companion distinguishing coalition membership from military scale, correcting Iraq’s geographical description, and separating four normalization histories. The original static chapter wording remains unchanged. Exact Lebanese opening-day deployments and detailed Sudanese wartime contingents are not asserted beyond the inspected records.",
+      "outcome": "published"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 04 PARTIAL: Apply the correction companion to the original /israels-story founding and Abraham Accords chapters, with visible correction history. Replace four neighboring states; preserve pre-May fighting chronology and distinguish Lebanon’s limited participation. Remove the blanket never-fought statement and discuss UAE, Bahrain, Morocco and Sudan separately. The companion does not repair the original page."
+  ]
+}

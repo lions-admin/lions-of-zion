@@ -1,0 +1,80 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r33-20260908T095841Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T09:58:41.666464Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "sweep-acquisition-analysis",
+      "target": {
+        "publicId": "servicenow-acquires-israeli-ai-startup-sweep-as--zk35j"
+      },
+      "publication": {
+        "title": "ServiceNow confirms Sweep acquisition to Israeli press; price remains undisclosed",
+        "summary": "ServiceNow confirmed the acquisition to CTech and Geektime, while declining to disclose terms; the roughly $400 million figure is an unnamed-source estimate. Sweep maps enterprise metadata for human teams and AI agents, making product continuity, permissions and cross-platform support the next facts to verify.",
+        "body": "ServiceNow confirmed to two Israeli technology publications that it acquired Sweep, a Tel Aviv-founded enterprise-software company. The buyer did not disclose the financial terms. Geektime attributed an estimate of about $400 million to unnamed sources, while CTech described estimates in the hundreds of millions. The acquisition is confirmed through an attributed company statement; the price is not.\n\nWhat Sweep maps. Enterprise systems accumulate objects, fields, permissions, automations, integrations and custom code. Sweep says its software continuously ingests this configuration metadata and builds a model of dependencies and business logic across platforms such as Salesforce, ServiceNow, Snowflake and HubSpot. That map is intended to help teams understand the effect of a change before they make it.\n\nMetadata is consequential. Configuration metadata is different from customer records, but it can still reveal how an organization operates: permission structures, automation logic, system relationships and potential control points. Sweep says its Salesforce connection uses read-only metadata access by default and does not store business data. Those are vendor descriptions; customers should check the permissions, processing terms and actual deployment they use.\n\nWhat the “agentic layer” claim means. Sweep markets agents that document systems, identify risks and recommend or help build changes. Its enterprise page says configuration changes require explicit approval. That is a meaningful claimed control, but it does not establish independent performance, security or error rates. The acquisition announcement did not publish an evaluation of the agents.\n\nWhy ServiceNow may value it. ServiceNow told CTech and Geektime that Sweep's technology and expertise would strengthen AI-native development and agentic deployment for customer-relationship-management systems. A current dependency map can give an AI system more context than an outdated manual diagram. The strategic fit is plausible; the statement does not reveal which Sweep products will be retained, combined or discontinued.\n\nThe cross-platform question. Sweep's current product pages present support for systems that include both ServiceNow and Salesforce. Ownership by ServiceNow creates a practical question for customers that rely on Sweep inside another vendor's platform: will integrations, marketplace access and product neutrality continue on the same terms? No reviewed public statement from ServiceNow, Salesforce or Sweep resolves that question.\n\nWhat customers should inventory. Before an ownership transition, a customer should record connected systems, OAuth scopes, service accounts, stored metadata, agent permissions, approval rules, audit logs, data locations, subprocessors, export capability and contractual notice rights. It should also know how to revoke access and how work continues if a connector or product is retired.\n\nWhat the acquisition does not prove. It does not prove that ServiceNow can safely automate changes in every customer's environment, that Sweep's performance claims generalize, or that a cross-platform metadata graph is complete. It also does not establish a public purchase multiple because the transaction value, revenue and deal structure were not disclosed.\n\nThe company record. Sweep was founded in 2021 by Ido Gaver and Eran Kirshenboim. It began with a visual, no-code approach to Salesforce operations and later described a broader enterprise metadata and agent platform. Public funding records differ on total capital raised depending on what they count; the confirmed 2025 Series B announcement was $22.5 million. Funding totals should not be used to back-calculate an undisclosed sale price.\n\nEvidence hierarchy. The strongest acquisition evidence is the ServiceNow spokesperson statement published by both outlets. The exact valuation comes from unnamed-source reporting and remains an estimate. Product functions and safeguards come primarily from Sweep's own documentation. Analysis of strategic value and customer continuity is inference based on those facts, not a statement of either company's intent.\n\nWhat to watch next. Useful confirmation would include an official transaction notice, closing status, treatment of Sweep employees and leadership, product branding, support for Salesforce and other third-party systems, security and privacy updates, pricing changes, and a migration or continuity policy for existing customers. Product benchmarks and incident reporting would be stronger evidence of value than acquisition price.\n\nThe finding. ServiceNow has confirmed the Sweep acquisition to the press, but neither company has publicly disclosed its terms. Sweep's metadata model helps explain the strategic interest: AI agents need an accurate picture of enterprise systems before acting. The reader-relevant issue now is whether that cross-platform map remains secure, governed and supported through integration.",
+        "changeSummary": "Separate the confirmed acquisition from the undisclosed price estimate; explain what Sweep's metadata layer does; classify vendor product claims; and add concrete customer questions about permissions, continuity, integrations and change control."
+      },
+      "sources": [
+        {
+          "url": "https://www.calcalistech.com/ctechnews/article/r19lbzwdfx",
+          "title": "ServiceNow statement confirming the acquisition; terms undisclosed",
+          "publisher": "CTech"
+        },
+        {
+          "url": "https://www.geektime.co.il/servicenow-acquires-israeli-enterprise-startup-sweep-for-400-million/",
+          "title": "ServiceNow confirmation and approximately $400 million unnamed-source estimate",
+          "publisher": "Geektime"
+        },
+        {
+          "url": "https://www.sweep.io/",
+          "title": "Sweep product description and supported enterprise systems",
+          "publisher": "Sweep"
+        },
+        {
+          "url": "https://www.sweep.io/enterprise",
+          "title": "Sweep enterprise controls, metadata access and approval claims",
+          "publisher": "Sweep"
+        },
+        {
+          "url": "https://www.sweep.io/salesforce",
+          "title": "Sweep description of Salesforce metadata mapping",
+          "publisher": "Sweep"
+        },
+        {
+          "url": "https://www.sweep.io/blog/here-we-go",
+          "title": "Sweep's 2022 product origin and founding account",
+          "publisher": "Sweep"
+        },
+        {
+          "url": "https://techcrunch.com/2022/12/15/sweep-a-no-code-config-tool-for-salesforce-software-raises-28m/",
+          "title": "Independent account of Sweep's original product and founders",
+          "publisher": "TechCrunch"
+        }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 33 — Sweep acquisition evidence and strategic function",
+      "sourcesReviewed": [
+        "https://www.calcalistech.com/ctechnews/article/r19lbzwdfx",
+        "https://www.geektime.co.il/servicenow-acquires-israeli-enterprise-startup-sweep-for-400-million/",
+        "https://www.sweep.io/",
+        "https://www.sweep.io/enterprise",
+        "https://www.sweep.io/salesforce",
+        "https://www.sweep.io/blog/here-we-go",
+        "https://techcrunch.com/2022/12/15/sweep-a-no-code-config-tool-for-salesforce-software-raises-28m/"
+      ],
+      "conclusion": "Two Israeli outlets published the same substantive ServiceNow confirmation and attributed product rationale. Neither company had posted a formal transaction announcement or terms in the reviewed material. Geektime's approximately $400 million figure and CTech's broader range are estimates. Sweep's product documentation supports the metadata-mapping description but remains vendor evidence for performance and safeguards.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 33 DEAL STATUS: acquisition records need distinct announced, agreed and closed states. Acceptance: the article and card expose the supported state and the dated source without converting a press confirmation into an assumed closing date.",
+    "RUN 33 FOLLOW-UP: update the canonical record only when ServiceNow or Sweep publishes closing, integration, support or product-continuity information; do not create a second acquisition article for the same event."
+  ]
+}

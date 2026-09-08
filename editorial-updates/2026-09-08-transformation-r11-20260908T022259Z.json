@@ -1,0 +1,63 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r11-20260908T022259Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T02:22:59.608079Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "lebanon-incident-dates-and-source-ancestry",
+      "target": {
+        "publicId": "israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3"
+      },
+      "publication": {
+        "title": "Israel–Lebanon escalation: separate strike dates, disputed targets and the Kfar Rumman toll",
+        "summary": "Lebanese officials reported 12 deaths at Kfar Rumman on September 7, separately from the previous day’s toll. Earlier counts differ; Israel’s target claims and the status of individual casualties remain distinct evidence questions.",
+        "body": "Lebanon’s Health Ministry reported at least 12 deaths in Israeli strikes on Kfar Rumman on September 7, including two children. Israel said it was attacking a Hezbollah weapons-transfer target after drone attacks on its troops. The deaths and Israel’s explanation should be read separately: the reported casualty count does not establish the military role of each person killed, and the military’s target claim does not independently establish that everyone struck was a combatant.\n\nThe latest detailed breakdown matters. Sky News’s September 7 account, updated that evening, attributed 11 deaths in a building and one paramedic’s death in a vehicle to the ministry. An earlier Reuters dispatch, citing Lebanon’s National News Agency, reported nine deaths at the building and two medics in the vehicle. These are different reporting snapshots, with different breakdowns. They must not be added together or silently reconciled into a single invented list of victims.\n\nThe September 7 toll is also separate from the at-least-seven deaths reported in strikes on September 6. The later figure of 12 is not simply a revision of the earlier day’s seven. Keeping the incident dates beside the numbers prevents a changing headline from obscuring which attack a count describes.\n\nHow the escalation developed. In early September, Israeli operations around Ali al-Taher and the Beaufort area became a focal point of the confrontation. Israel announced control and clearance of underground infrastructure; that military account did not settle separate claims about Iranian personnel or diplomatic pressure at the ridge. Those allegations remain in the linked, separately scoped claim record.\n\nOn September 6, Israel said Hezbollah drones had targeted its forces and described its strikes as retaliation. On September 7, further strikes hit Kfar Rumman. Sky reported the Israeli explanation that a Hezbollah militant was transporting weapons; it also reported that Hezbollah had not claimed the drone attacks or immediately responded to the intensified strikes. Silence is not confirmation of the Israeli account.\n\nA separate Israeli military update on September 7 reported a close-range encounter in the Beaufort area in which two Israeli soldiers were lightly wounded and a Hezbollah fighter was killed. That account comes from the IDF. It should not be presented as independent confirmation of the circumstances of the Kfar Rumman civilian deaths, which concerned separate strikes.\n\nThe political framework remains under strain. Reuters describes a June ceasefire intended to halt the Israel–Hezbollah fighting, followed by reduced violence but continued Israeli strikes and operations in southern Lebanon. A ceasefire’s existence does not establish compliance by either party in a particular incident. Conversely, a party’s claim of a violation is not a completed legal adjudication. The relevant questions are what happened, which undertaking applied and what evidence supports the alleged breach.\n\nHow the sources relate. AP and Sky attribute the latest death toll to Lebanon’s Health Ministry; those are separate news reports using the same official count. The earlier Reuters version uses the National News Agency. Israeli operational statements provide the military’s account of targets and attacks, not an independent casualty assessment. Multiple headlines can therefore contain fewer independent evidentiary foundations than their number suggests.\n\nWhat changed in this record. The previous version already included the September 7 toll. This revision clarifies the separate incident dates, retains the earlier conflicting breakdown instead of overwriting it, and adds the IDF’s direct account of the wounded soldiers. It preserves the distinction between acknowledged developments and unresolved allegations.\n\nStill unresolved are the status of individual targets and casualties, the reason for the differing early victim breakdowns, and independently established responsibility for each alleged ceasefire breach. Further reporting should update this record with dated evidence, not convert either side’s operational narrative into certainty.",
+        "changeSummary": "Clarification and source upgrade: distinguish September 6 and 7 casualty counts, preserve conflicting early breakdowns, add the IDF account of wounded soldiers and explain shared upstream sourcing. Original publication date retained."
+      },
+      "sources": [
+        {
+          "url": "https://news.sky.com/story/israeli-strikes-on-southern-lebanon-kill-at-least-12-people-13582649",
+          "title": "Kfar Rumman strikes: September 7 evening casualty breakdown",
+          "publisher": "Sky News"
+        },
+        {
+          "url": "https://www.investing.com/news/commodities-news/israeli-strikes-on-southern-lebanese-town-kill-11-state-news-agency-says-4890499",
+          "title": "Earlier September 7 account citing Lebanon’s National News Agency",
+          "publisher": "Reuters via Investing.com"
+        },
+        {
+          "url": "https://www.idf.il/%D7%90%D7%AA%D7%A8%D7%99-%D7%99%D7%97%D7%99%D7%93%D7%95%D7%AA/%D7%99%D7%95%D7%9E%D7%9F-%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94/%D7%99%D7%95%D7%9E%D7%9F-%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-%D7%94%D7%9E%D7%AA%D7%A2%D7%93%D7%9B%D7%9F-%D7%9B%D7%9C-%D7%94%D7%A2%D7%93%D7%9B%D7%95%D7%A0%D7%99%D7%9D-%D7%94%D7%AA%D7%99%D7%A2%D7%95%D7%93%D7%99%D7%9D-%D7%9C%D7%95%D7%97%D7%9E%D7%99%D7%9D-%D7%9E%D7%98%D7%95%D7%A1%D7%99%D7%9D-%D7%AA%D7%9E%D7%95%D7%A0%D7%AA-%D7%94%D7%9E%D7%A6%D7%91/?embed=true",
+          "title": "IDF war diary — September 7, 2026 update",
+          "publisher": "Israel Defense Forces",
+          "official": true
+        },
+        {
+          "url": "https://lionsofzion.io/articles/reported-claim-iran-warned-the-united-states-isr-t5n3b",
+          "title": "Separate Ali al-Taher claim record and its evidence limits",
+          "publisher": "Lions of Zion"
+        }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 11 — canonical Lebanon living story",
+      "sourcesReviewed": [
+        "https://news.sky.com/story/israeli-strikes-on-southern-lebanon-kill-at-least-12-people-13582649",
+        "https://www.investing.com/news/commodities-news/israeli-strikes-on-southern-lebanese-town-kill-11-state-news-agency-says-4890499",
+        "https://www.idf.il/%D7%90%D7%AA%D7%A8%D7%99-%D7%99%D7%97%D7%99%D7%93%D7%95%D7%AA/%D7%99%D7%95%D7%9E%D7%9F-%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94/%D7%99%D7%95%D7%9E%D7%9F-%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-%D7%94%D7%9E%D7%AA%D7%A2%D7%93%D7%9B%D7%9F-%D7%9B%D7%9C-%D7%94%D7%A2%D7%93%D7%9B%D7%95%D7%A0%D7%99%D7%9D-%D7%94%D7%AA%D7%99%D7%A2%D7%95%D7%93%D7%99%D7%9D-%D7%9C%D7%95%D7%97%D7%9E%D7%99%D7%9D-%D7%9E%D7%98%D7%95%D7%A1%D7%99%D7%9D-%D7%AA%D7%9E%D7%95%D7%A0%D7%AA-%D7%94%D7%9E%D7%A6%D7%91/?embed=true",
+        "https://lionsofzion.io/articles/reported-claim-iran-warned-the-united-states-isr-t5n3b",
+        "https://apnews.com/article/fc3f8c5ac5e09c93232b3a9841afb9f4"
+      ],
+      "conclusion": "Fresh research found the September 7 toll already incorporated, but early incident breakdowns conflict and the original prose could blur separate dates. Updated existing canonical record; no new article or invented September 8 event. Official casualty and military target accounts remain attributed. Current search did not establish an independent resolution of every target or ceasefire allegation.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 11 LIMITS: No original casualty roster, independent forensics or authenticated full ceasefire text was retrieved for a legal compliance finding. Source ancestry is explained; conflicting counts are retained. Earlier duplicate de-emphasis remains in place; no archival or merge claimed."
+  ]
+}

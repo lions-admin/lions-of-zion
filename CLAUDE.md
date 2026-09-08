@@ -15,12 +15,29 @@ instruction overrides repository notes and historical decisions.
 Lions of Zion is a Next.js public site with an information-model backend under
 `app/api/` and `server/`. The repository is public: a push publishes source.
 
+**Claude Code works on `ai/claude`, always.** That branch is permanent and is
+this AI's identity, not this task's or this session's — a new prompt, a
+restart, a different account or a large task is never a reason to create a
+branch, and a new branch needs an explicit owner request. Its worktree is
+`lions-of-zion-workspaces/claude`, a sibling directory of the repository, so
+Claude's uncommitted files never mix with the other four AIs'. Sub-agents
+inherit that branch and workspace and create no remote branches of their own.
+`npm run sync:start` keeps you there; `npm run main:update` publishes to `main`
+and brings you back. **The full policy — the five identities, the workspace
+layout, identity resolution, and why the editorial delivery branches are not
+stale — is the `# Branches` section of [`AGENTS.md`](AGENTS.md), which this
+file imports. It is not restated here.**
+
 **A push to `main` deploys to Production.** This paragraph claimed the
 opposite until 2026-09-04 — "a separate manual Vercel operation" — and it was
 wrong twice in one session: both pushes were live on `lionsofzion.io` inside
 two minutes. The mechanism is the GitHub integration on the Vercel project,
 whose `productionBranch` is `main`; `vercel.json` disables git deployment for
-exactly one branch (`briefing-packages`) and for nothing else. There are no
+the three editorial delivery branches — `briefing-packages`,
+`editorial-updates` and `chatgpt-editorial-updates` — and for nothing else.
+This sentence claimed "exactly one branch (`briefing-packages`)" until
+2026-09-08, `docs/operations.md` claimed a different single branch and
+`README.md` claimed two; count them in `vercel.json`. There are no
 deploy hooks. Verify with
 `vercel api "/v9/projects/<id>?teamId=<team>"` and read `link.productionBranch`.
 
@@ -68,83 +85,41 @@ npm run verify:full
 
 An information-model API: sources are ingested, evidence is attached to items,
 assessments are reviewed by a second human, and published items are searchable.
-Neon, Blob and AI Gateway **are provisioned and live in Production** — see
-"Wired infrastructure" below, and `docs/vercel-infrastructure.md` for the
-topology. This paragraph claimed the opposite until 2026-08-27 while the
-section 50 lines down described the live stack, so treat the wired list as
-authoritative if anything here drifts again. Frontend work must still not
-silently provision or mutate those services.
+Neon, Blob and AI Gateway **are provisioned and live in Production** — see the
+wired-infrastructure list in
+[`.claude/skills/project-invariants/SKILL.md`](.claude/skills/project-invariants/SKILL.md),
+and `docs/vercel-infrastructure.md` for the topology. This paragraph claimed the
+opposite until 2026-08-27 while another section of this same file described the
+live stack, so treat the wired list as authoritative if anything here drifts
+again. Frontend work must still not silently provision or mutate those
+services.
 
-### Layering, enforced by ESLint
+### The backend detail lives in a skill
 
-`eslint.config.mjs` states the architecture as lint errors, so a violation
-fails `npm run lint` rather than a review. Read it before moving code between
-layers.
+The layering rules, the module shape, the cross-cutting invariants, the wired
+infrastructure and the test harness are documented in
+[`.claude/skills/project-invariants/SKILL.md`](.claude/skills/project-invariants/SKILL.md).
+They are loaded on demand when a task touches `server/`, `app/api/` or
+`lib/publication-routing.ts`, rather than competing for attention during
+frontend work. **Read that skill before editing backend code.** In one line
+each, so a reader knows what is there:
 
-- `app/**` and `components/**` may import `@/server/contracts/*` and nothing
-  else under `server/`. This is what keeps a Postgres driver out of the client
-  bundle.
-- `app/api/**` may not import `@/server/db` or a module's `service`/`repo`/
-  `rules` directly. A route parses, calls one module through its `index.ts`,
-  and serializes.
-- `server/contracts/**` may import zod and nothing else — no drizzle, no
-  `next/*`, no `server-only` — so it stays loadable from an RSC and from a
-  test with no database.
-- `server/db/**` never imports modules; `server/**` never imports the
-  frontend; `server/jobs/**` never touches the database directly.
+- **Layering is lint-enforced, not convention** — `eslint.config.mjs` states it
+  as errors, and `tsc` cannot see any of it. A route importing the database
+  typechecks perfectly.
+- **`recordVersion()` is the only write path for a versioned entity**;
+  **`emit()` writes job intent inside the causing transaction**; **only the
+  WebSocket `neon-serverless` driver may be exported** from
+  `server/db/client.ts`.
+- **RLS is engaged at runtime** through `withDatabaseRole`, which is also the
+  one real untested mechanism.
+- **Business rules live in SQL triggers as often as in TypeScript**, so changing
+  one usually means a new numbered migration. Read the *highest-numbered*
+  migration that defines a trigger, never the one that introduced it.
+- **Get the module list from `ls server/modules`**, and count every other
+  asserted number at its source. Both have been wrong in this file before.
 
-### Module shape
-
-Each `server/modules/<name>/` exposes `index.ts` (binds `db()` lazily and
-returns the service), `service.ts` (the transactional workflow), `repo.ts`
-(queries), and sometimes `rules.ts` — pure, DB-free policy that is unit-tested
-directly, as in `assessments/rules.ts`. **Get the module list from `ls
-server/modules`, never from here** — this line said "fourteen" against a
-directory of nineteen until 2026-09-06, having missed `admin-console`,
-`editorial-update`, `homepage`, `media` and `ops-agent`, which are precisely
-the modules the whole-site editorial path runs through. Most follow the shape
-above — `publications` and `reports` kept
-their repository inline until 2026-08-27. `public-x-auth` is a deliberate
-exception: a pure re-export facade over `core/auth/public-x.ts`, with no
-service, no repo and no database, existing so `app/auth/**/route.ts` can reach
-it under the carve-out in `eslint.config.mjs`. `outbox` and `public-auth`
-depart from it too; read them before assuming the four-file shape.
-
-### Cross-cutting rules worth knowing before editing
-
-- `server/core/config.ts` is the only **server-runtime** file that reads
-  `process.env`. Four others do, none of them a server request path:
-  `drizzle.config.ts`, `next.config.ts`, `server/db/testing.ts`, and two files
-  reading `NEXT_PUBLIC_*` values that are inlined at build time —
-  `components/auth/google-identity.ts` and `lib/content/archive.ts`. (This
-  previously named a `NODE_ENV` check in `components/graphics/viewport.ts`,
-  which no longer exists.)
-- `server/core/versioning.ts` `recordVersion()` is the only write path for a
-  versioned entity: row update, version row, head pointer, audit trail and
-  reindex emit happen in one transaction. Nothing else may `UPDATE` a versioned
-  table.
-- `server/core/outbox.ts` `emit()` writes job intent inside the causing
-  transaction; `drainOutbox` and the queue/cron routes under
-  `app/api/internal/` deliver it. Publishing to a queue after commit is not
-  atomic and is not done here. `emit()` accepts only a `Topic`, so a retired
-  topic in `RETIRED_TOPICS` cannot be produced again without a type error —
-  which is why `item.detected` lives there rather than carrying a comment.
-  Its consumer is kept as a **tombstone**: undrained rows may still exist in
-  Production and `dispatchOutboxMessage` throws on an unregistered topic, so
-  removing the consumer is a second deploy, gated on
-  `SELECT count(*) FROM outbox WHERE topic='item.detected' AND published_at IS NULL`
-  reading zero.
-- `server/db/client.ts` exports only the WebSocket `neon-serverless` driver.
-  `neon-http` cannot hold an interactive transaction, which makes `SET LOCAL
-  ROLE` a silent no-op and every authorization test pass for the wrong reason.
-  Do not add it back.
-- `server/http/handler.ts` wraps every route with request-id propagation and
-  error translation; errors are RFC 9457 problem+json with a stable `code`
-  from `responses.ts`. Internal routes go through `internal-guard.ts`.
-- Business rules live in SQL triggers as often as in TypeScript — status
-  transitions, append-only tables, derived columns and the publish gate are all
-  enforced in `server/db/migrations/`. Changing a rule usually means a new
-  numbered migration, not just a service edit.
+`docs/architecture.md` remains the full system map.
 
 ### The whole-site editorial update, and the one article that may cite nothing
 
@@ -261,49 +236,3 @@ migration, an environment value, or application code, which is what makes the
 run's auto-fix boundary structural rather than a matter of trust. Homepage
 placements are three areas (`news`, `fakeResistance`, `people`) × two positions
 (`lead`, `secondary`); October 7 is not placeable.
-
-### Wired infrastructure and load-bearing gaps
-
-Verified against the code on 2026-08-26. `docs/architecture.md` carries the
-full list; these three change what an editor should assume.
-
-- **Neon Auth is the Production identity boundary.**
-  `/api/auth/[...path]` restricts signup to `ADMIN_EMAIL`; `authenticateAdmin()`
-  verifies the session, upserts `app_user` and loads the five capability grants.
-  The `x-actor-label` shim is development-only.
-- **RLS is engaged at runtime.** This bullet said the opposite until
-  2026-08-27; it was wrong. `server/http/handler.ts` wraps every classified
-  request in `withDatabaseRole(role, identity, invoke)`, which takes a dedicated
-  pooled connection, issues `SET ROLE` plus `set_config('app.identity', …)`, and
-  `RESET ALL` on release. Migration `0018` grants the owner membership in
-  `app_public`/`app_staff`/`app_service` so `SET ROLE` succeeds; `0019` adds the
-  policy that lets `INSERT … RETURNING` work under `app_public`.
-  **`PUBLIC_V1` is exactly nine entries** — `GET /search`,
-  `GET /published-items`, `GET /published-publications` (which one pattern
-  covers both with and without a `publicId`), `POST /reports`,
-  `POST /volunteer-interest`, and the four chat paths. Everything
-  else under `/api/v1/` goes through `authenticateAdmin()` and fails closed, so
-  `GET /api/v1/evidence` is staff-only, not anonymous. `docs/api.md`'s guard
-  table still describes ~12 of those routes as `anon` and understates the
-  lockdown.
-  **`requireCapability()` is called from nowhere, and that is now a recorded
-  decision rather than a gap** (`.ai/DECISIONS.md`, 2026-08-27). There is one
-  account, `authenticateAdmin()` grants it every capability on each sign-in, so
-  a check could only ever pass — while adding a way to be locked out. What
-  protects those operations is the SQL triggers, which hold on every path, and
-  the `evidence_staff_reads_unrestricted` RLS policy, which reads
-  `capability_grant` directly. `tests/admin-capabilities.test.ts` pins that the
-  owner holds all five. **Wire it up when a second account exists.**
-  **One real gap survives:** `withDatabaseRole` has no test:
-  `tests/rls.test.ts` proves the policies via `SET LOCAL ROLE` in a transaction
-  on PGlite, which is not the pooled session-scope mechanism production uses.
-
-### Tests
-
-`tests/` runs on vitest in a node environment against `server/db/testing.ts`
-`freshDatabase()` — PGlite, a real Postgres 18 in WASM, migrated per test, so
-triggers and constraints behave as they will in Neon. PGlite has no pgvector:
-semantic-search tests skip unless `TEST_DATABASE_URL` points at a Postgres that
-has it, while lexical search (`tsvector`, `pg_trgm`) is fully covered locally.
-`vitest.config.ts` aliases `server-only` to its empty module rather than
-letting tests drop the import.

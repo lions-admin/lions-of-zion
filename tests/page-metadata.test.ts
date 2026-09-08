@@ -47,9 +47,64 @@ describe("the helper builds a complete, self-consistent card", () => {
     expect((meta.twitter as { card?: string }).card).toBe("summary_large_image");
   });
 
-  it("inherits the site image rather than inventing one", () => {
-    // A wrong picture is worse than the general one.
-    expect((meta.openGraph as { images?: unknown }).images).toBeUndefined();
+  it("falls back to the site card rather than inventing one — or shipping none", () => {
+    /* A wrong picture is worse than the general one, so a page without its own
+       image gets the site card. It must not get *nothing*: this test asserted
+       `toBeUndefined()` until 2026-09-08, which encoded the T-12 defect rather
+       than catching it. Next replaces `openGraph` wholesale instead of
+       deep-merging it, so emitting no `images` here suppressed the layout's
+       card — and every one of these pages still declared
+       `twitter:card = summary_large_image`, a format defined by its image.
+       Measured live: `og:image` on exactly one page in the whole site. */
+    const images = (meta.openGraph as { images?: { url: string }[] }).images;
+    expect(images).toHaveLength(1);
+    expect(images![0]!.url).toBe("/opengraph-image.png");
+    expect((meta.twitter as { images?: string[] }).images).toEqual(["/opengraph-image.png"]);
+  });
+
+  it("prefers a page's own image when it has one", () => {
+    const own = pageMetadata({
+      title: "T", description: "d", path: "/p",
+      image: { url: "/custom.png", width: 800, height: 600, alt: "custom" },
+    });
+    const images = (own.openGraph as { images?: { url: string; alt: string }[] }).images;
+    expect(images![0]!.url).toBe("/custom.png");
+    expect(images![0]!.alt).toBe("custom");
+    expect((own.twitter as { images?: string[] }).images).toEqual(["/custom.png"]);
+  });
+
+  it("never declares a large-image card without an image to put in it", () => {
+    /* The invariant the defect violated, stated once so it cannot come back:
+       whatever the inputs, if the card is summary_large_image there is an
+       image behind it. */
+    for (const input of [
+      { title: "A", description: "d", path: "/a" },
+      { title: "B", description: "d", path: "/b", type: "article" as const },
+      { title: "C", description: "d", path: "/c", image: { url: "/c.png", width: 1, height: 2, alt: "c" } },
+    ]) {
+      const built = pageMetadata(input);
+      expect((built.twitter as { card?: string }).card).toBe("summary_large_image");
+      expect((built.twitter as { images?: string[] }).images?.[0]).toBeTruthy();
+      expect((built.openGraph as { images?: unknown[] }).images).toHaveLength(1);
+    }
+  });
+
+  it("gives the homepage an absolute title, since the layout template cannot reach it", () => {
+    /* T-12.c. Next applies title.template to child segments only, so
+       app/page.tsx — which shares a segment with the layout defining it — kept
+       a bare tab title while its card carried the suffix, on the site's
+       most-shared page. Derived from the path so a future page cannot forget
+       to set it. */
+    const home = pageMetadata({ title: "Truth Has a Signal", description: "d", path: "/" });
+    expect(home.title).toEqual({ absolute: "Truth Has a Signal — LIONS OF ZION" });
+    expect((home.title as { absolute: string }).absolute)
+      .toBe((home.openGraph as { title: string }).title);
+  });
+
+  it("leaves every other route's title bare, for the template to complete", () => {
+    const inner = pageMetadata({ title: "Methodology", description: "d", path: "/methodology" });
+    expect(inner.title).toBe("Methodology");
+    expect((inner.openGraph as { title?: string }).title).toBe("Methodology — LIONS OF ZION");
   });
 
   it("carries publishedTime only on an article, keeping the union intact", () => {
@@ -99,4 +154,5 @@ describe("no public page hand-writes half a card", () => {
     }
     expect(source).toContain("pageMetadata");
   });
+
 });

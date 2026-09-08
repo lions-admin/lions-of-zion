@@ -49,19 +49,163 @@ How It Works (`/information-war`).
 # Commands
 
 ```bash
-npm ci && npm run sync:start && npm run dev   # localhost:3000, no config needed
+npm ci && npm run sync:start && npm run dev   # continue on this AI's branch; no config needed
 npm run verify:changed                        # adaptive checks for the current diff
 npm run verify:full                           # typecheck && lint && test && build — the CI gate
 npm run typecheck                             # next typegen && tsc --noEmit
 npx vitest run tests/items.test.ts            # one file; add -t "publishes" for one test
 npm run db:generate                           # schema → new numbered migration; needs no database
 npm run db:migrate                            # apply migrations; needs a real DATABASE_URL
-npm run main:update                           # merge current branch into main and push
+npm run main:update                           # publish this AI's branch -> main, then return to it
 ```
 
 `npm run lint` is where the architecture boundaries are enforced —
 `eslint.config.mjs` states them as errors, so a violation fails the gate rather
 than waiting for review. Read that file before moving code between layers.
+
+# Branches: one permanent branch per AI identity
+
+**The AI identity determines the branch. The task does not, and neither does
+the session, the prompt, the account, the CLI, or a restart.** Ten Codex
+sessions across three days produce exactly one branch: `ai/codex`. The number
+of branches follows the number of AI environments, and never the number of
+sessions.
+
+```
+main = Production
+  ▲    │
+  │    └──── merge main in ────┐
+  └── publish ──┐              ▼
+                ai/claude   ai/grok   ai/codex   ai/opencode   ai/gemini-agy
+```
+
+| AI | Branch | Workspace |
+| --- | --- | --- |
+| Claude | `ai/claude` | `<repo-parent>/lions-of-zion-workspaces/claude` |
+| Grok | `ai/grok` | `…/lions-of-zion-workspaces/grok` |
+| Codex | `ai/codex` | `…/lions-of-zion-workspaces/codex` |
+| OpenCode | `ai/opencode` | `…/lions-of-zion-workspaces/opencode` |
+| Gemini AGY | `ai/gemini-agy` | `…/lions-of-zion-workspaces/gemini-agy` |
+
+Each of these five branches is **permanent**: never deleted, never renamed,
+never replaced by a `-v2`, a dated variant or a continuation. The workspaces
+are git worktrees in a sibling directory of the repository, so five AIs can
+each hold uncommitted files without those files ever mixing. The primary
+checkout of the repository itself stays neutral on `main` and is used for
+publishing and maintenance, not for development.
+
+## No branch is created by default
+
+**A new branch requires an explicit owner request.** None of the following is
+one: a new session, a restarted agent, a different CLI, a different OpenAI or
+Anthropic account, a new prompt, a continuation of yesterday's task, a new
+"wave" of an implementation plan, or a task that feels large.
+
+Never create by default: `fix/*`, `feat/*`, `claude/*`, `codex/*`, `grok/*`,
+`opencode/*`, `gemini/*`, `task/*`, `session/*`, `*-v2`, `*-continuation`,
+`*-wave-*`.
+
+**Sub-agents inherit their parent AI's branch and workspace.** They commit
+where their parent commits and must never create a remote branch. Twenty agent
+sessions must not produce twenty branches.
+
+## Identity resolution
+
+The tooling resolves which AI it is running as, in this order:
+
+1. the `LIONS_AI` environment variable, if set — an explicit declaration
+   outranks everything, so a shared checkout can change hands;
+2. otherwise the current branch, if it is already `ai/*` — the ordinary case
+   inside a workspace, where nothing needs setting at all;
+3. otherwise a known CLI marker for one of the five environments;
+4. otherwise **nothing** — it prints the mapping and changes no Git state
+   rather than guessing. Putting an agent on another agent's branch would mix
+   two sets of work, which is worse than doing nothing.
+
+## `main`
+
+`main` is Production, not a development branch. `npm run main:update` checks it
+out for a few seconds during a publish; that does not make it somewhere to
+work. Do not commit unfinished work to it. A session begins and ends on this
+AI's own branch.
+
+When `main` advances while an AI still has unpublished work, **`main` is merged
+*into* the AI branch** — an ordinary merge commit, no rebase and no force-push.
+A conflict is reported and left for a human to resolve. It is never
+auto-resolved, and it is never worked around by starting a new branch.
+
+## The editorial branches are not stale development branches
+
+`chatgpt-editorial-updates` and `editorial-updates` are **operational editorial
+delivery branches**, outside this model entirely. The first is where whole-site
+update packages are committed for the delivery workflow to pick up; the second
+is the retired historical archive of packages delivered before the rename.
+They are **orphan branches that share no history with `main`**, they are
+**never merged into `main` or into any `ai/*` branch**, they are never cleaned
+up, and they are never used as an AI's workspace. A future agent must not read
+them as abandoned development branches and "tidy" them.
+
+`vercel.json` names all three delivery branches — `briefing-packages`,
+`editorial-updates` and `chatgpt-editorial-updates` — under
+`git.deploymentEnabled`, so none of them can deploy the site. Count them there
+rather than trusting a number in prose; this file, `CLAUDE.md` and
+`docs/operations.md` each stated a different, wrong count until 2026-09-08.
+
+**No `ai/*` branch produces a Vercel Preview build**, and it takes two
+controls, not one. `git.deploymentEnabled` in `vercel.json` lists all five
+alongside the editorial delivery branches — that is what stops a deployment
+from being created at all. `scripts/vercel-ignore-build.sh` then skips every
+branch that is not `main`, which stops the build.
+
+The second alone is not enough, and this was measured rather than assumed: on
+2026-09-08 pushing the five new branches produced five *queued* preview
+deployments, because `ignoreCommand` runs inside a deployment that already
+exists. Read the CI run on GitHub instead of looking for a preview URL.
+
+## Chrome
+
+Every agent drives a real Chrome through the `chrome-devtools` MCP server,
+registered in `.mcp.json`. That file is tracked and identical in all five
+worktrees, so the capability arrives with the checkout — nothing to install
+per agent.
+
+**Each agent gets its own Chrome profile.** `.mcp.json` points at
+`scripts/chrome-mcp.mjs`, which resolves who is asking — `LIONS_AI`, else the
+checked-out branch, else the directory name — and hands
+`chrome-devtools-mcp` a `--userDataDir` under
+`<repo-parent>/lions-of-zion-workspaces/.chrome-profiles/<ai>`. This is not
+tidiness: Chrome locks its user-data directory, so a shared profile means the
+second agent to open a browser either fails or fights the first for the same
+tabs, cookies and session. It is the worktree problem one layer up, and it
+gets the same answer.
+
+Two things that will bite an editor of that wrapper. **stdout belongs to the
+protocol** — an MCP server speaks JSON-RPC on stdin/stdout, so every
+diagnostic goes to stderr; a stray `console.log` corrupts the stream and the
+client drops the connection with no useful error. And the server version is
+**pinned**, not `@latest`, because a tool surface that changes underneath five
+running agents is a debugging problem nobody asked for. Bump it deliberately.
+
+The repository's own browser scripts — `npm run audit:ui`,
+`npm run audit:interaction`, `npm run perf:report` — are separate and use
+Playwright rather than the MCP server. They need `node_modules` in that
+worktree; the Chromium binary itself lives once in
+`~/Library/Caches/ms-playwright` and is shared by all five.
+
+## The commands
+
+| Command | What it does |
+| --- | --- |
+| `npm run sync:start` | Stay on this AI's branch, fast-forward it, reconcile it with `main`, and report. It never switches you to `main` and never creates another branch. |
+| `npm run main:update` | Publish: merge this AI's branch into `main`, push (**Production deploys**), then return to the AI branch and level it with the new `main`. The branch is not deleted. |
+| `npm run workspace:status` | Print the five mappings, which worktrees exist, the current branch and identity, dirty state, and ahead/behind `main`. |
+| `npm run workspace:add -- codex` | Create that AI's worktree on demand. |
+
+Nothing here is destructive. None of these commands runs `reset --hard`, a
+force push, `stash`, `clean`, a rebase or a destructive checkout. **A dirty
+working tree is preserved and reported, never moved.** If a branch cannot
+fast-forward, or a merge conflicts, the command says so and stops rather than
+guessing — publishing aborts the merge and puts you back on your own branch.
 
 # A push to `main` deploys to Production
 
@@ -100,7 +244,10 @@ Note: `README.md` still says git auto-deploy is *not* connected — stale.
 
 # Cross-cutting invariants
 
-Only the ones an edit is most likely to break; the full list is in CLAUDE.md.
+Only the ones an edit is most likely to break. The full list — layering,
+module shape, wired infrastructure and the test harness — lives in
+[`.claude/skills/project-invariants/SKILL.md`](.claude/skills/project-invariants/SKILL.md),
+which is a plain Markdown file any agent can read.
 
 - `server/core/config.ts` is the only server-runtime file that reads
   `process.env`. Nothing throws at import time — accessors throw at the point
@@ -155,6 +302,95 @@ Only the ones an edit is most likely to break; the full list is in CLAUDE.md.
 - Source catalog (`server/modules/sources/catalog.ts`): **change the query,
   change the slug.** Catalog-sync only ever creates; editing a query in place
   leaves the live source running the old text.
+
+# Verification and CI policy
+
+**Do not run `verify:full` after every edit.** Verification is proportional to
+the change: read the diff, run the smallest check that actually covers it, and
+escalate when the change reaches something shared. Before 2026-09-08 every
+commit — a Markdown edit included — ran typecheck, lint, all 166 test files and
+**two** production builds; that is what this policy replaces.
+
+`npm run verify:changed` is the default. It classifies the diff with
+`scripts/verify-changed.ts` and runs exactly the steps that diff needs. **CI
+runs the same classifier**, so a local pass and a green pipeline cannot
+disagree about whether a change was risky.
+
+## What runs for what
+
+| The diff touches | Checks | Notes |
+| --- | --- | --- |
+| Only `*.md`, `docs/`, `.ai/`, `.claude/`, `.codex/`, `.agents/` | none | No build. None of it reaches the bundle. |
+| A component, page, style or `lib/` module — edited, not added or moved | typecheck · lint · **`vitest related`** · build | `related` walks the module graph and runs only the tests that import the change (measured: 198 ms against 176 s). |
+| `content-packages/**`, `public/**` | full suite · build | Static generation reads these; an edit can break a build every other check passes. |
+| Anything under `server/` other than the high-risk paths below | full suite · typecheck · lint · build | A service is reached through boundaries the module graph does not show. |
+| `server/db/**`, `server/core/**`, `server/contracts/**`, `server/http/**`, anything matching `auth`, `package*.json`, `next.config.ts`, `vercel.json`, `vitest.config.ts`, `eslint.config.mjs`, `tsconfig*.json`, `drizzle.config.ts`, `.github/**`, `tests/fixtures/**`, `middleware.ts`, `instrumentation.ts` | **everything** | High risk. Never narrowed. |
+| A path the classifier cannot place | **everything** | Unknown escalates. Over-verifying costs minutes; under-verifying costs a deploy. |
+| A file added, renamed or deleted | full suite, never `related` | A new import edge may have no test covering it. |
+
+## Commands
+
+| Command | Use it for |
+| --- | --- |
+| `npm run verify:changed` | The default after an edit. Classifies and runs only what the diff needs. |
+| `npx vitest related --run <files…>` | The tests that import specific files. Fast, and what `verify:changed` picks for isolated presentational edits. |
+| `npx vitest run tests/<file>.test.ts` | One suite. Add `-t "name"` for one test. |
+| `npm test` | The whole suite locally, serial-ish at `maxWorkers: 2`. |
+| `npm run test:shard -- 1/4` | Reproduce a specific CI shard failure. |
+| `npm run typecheck` / `npm run lint` | On their own when only one is in question. |
+| `npm run build` | Production-build validation. Needed when the change reaches the bundle — **not** needed to see a change locally. |
+| `npm run verify:full` | The whole gate. **Required** for schema, security, dependency, build-config and CI changes, before a release, and whenever you are unsure. |
+
+## Rules
+
+- Inspect the diff before choosing checks; do not choose from habit.
+- Documentation-only changes never need a build.
+- An isolated frontend change does not need the database suites.
+- Run targeted tests first, broader ones when shared code is touched.
+- Production- or deployment-affecting changes need a real production build.
+- Do not build twice. If a valid build artifact exists, reuse it.
+- Prefer independent checks in parallel over one serial chain.
+- **Never skip a failing relevant test, and never weaken a test, to save time.**
+- When unsure whether a change crosses a high-risk boundary, escalate.
+
+## Local development is not a build
+
+`npm run dev` and hot reload are how frontend work is seen. A production build
+is a verification and deployment concern; it is not a prerequisite for looking
+at a change.
+
+## How CI is arranged
+
+`.github/workflows/ci.yml`: a `classify` job publishes the change classes, and
+`typecheck`, `lint`, `test` (four `--shard` matrix runners) or `test-related`,
+`build` and `archive-assets` run in parallel behind it. `smoke` consumes the
+**build artifact** rather than building again. `.next/cache` and the Playwright
+browser are cached. Superseded PR runs are cancelled; `main` runs are not.
+
+Two aggregator jobs keep the required status-check names branch protection
+knows — `typecheck, lint, test, build` and
+`route smoke test (headless Chromium)` — and pass when their dependencies
+passed *or were skipped*. **Renaming them breaks branch protection**; see
+`docs/operations.md`.
+
+## `vercel.json` takes no comments
+
+The published schema sets `additionalProperties: false`. A `"//note": "..."`
+key — harmless in `package.json` — fails the deploy at schema validation,
+**before the build starts**, so there are no build logs to read: only
+`should NOT have additional property`. That cost a production deploy on
+2026-09-08. Put the explanation in this file or `docs/operations.md`;
+`tests/briefing-runtime.test.ts` now fails on any key outside the known-valid
+set.
+
+## There are no crons
+
+`vercel.json` carries no `crons` array (owner ruling, 2026-09-08). Nothing
+collects, drains the outbox, embeds or reconciles alerts on its own. The routes
+under `app/api/internal/cron/` still exist and still work — run them from the
+admin console (`POST /api/v1/admin/console/{sources/collect-sweep,
+outbox/drain, maintenance/tick}`) or from the **Operations tick** workflow in
+GitHub Actions. Do not restore a schedule without an owner instruction.
 
 # Tests
 

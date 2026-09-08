@@ -1,0 +1,62 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r07-followup-20260908T005918Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T00:59:18.270310Z",
+  "creates": [
+    {
+      "key": "funding-recipient-clarification",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "news",
+        "canonicalStoryId": "lions-project-funding-recipient-clarification",
+        "title": "How project contributions are received and what they fund",
+        "summary": "The project owner says contributions are received through Daniel’s account to cover project expenses. Association registration, payment routing and actual spending are separate facts.",
+        "body": "Contributions made through the support links on Lions of Zion are received through Daniel’s account and used to fund the project’s expenses, according to the project owner’s clarification on September 8, 2026. Readers should not assume that these payments go directly into a bank account held in the nonprofit’s name. This explanation accompanies the existing Support Us page, whose wording has not been changed by this article.\n\nThe project and the registered association are distinct parts of the explanation. A registration certificate supplied by the owner identifies the association as HaArayot MiYehuda — LIONS OF JUDAH (R.A.), registration number 580815371, registered on April 7, 2025. That certificate documents registration on that date. It does not identify the recipient account behind a payment link or account for how contributions have been spent.\n\nThe certificate lists two principal purposes: positive advocacy for the people of Israel internationally, while maintaining political neutrality and avoiding direct political involvement; and assistance to disadvantaged populations in Israel affected by October 7, 2023, emphasizing lone soldiers and combatants. This is a summary of the registered purposes, not evidence that each advertised activity has been delivered or that a particular payment is restricted to a particular purpose.\n\nWhat the payment pages show. The PayPal link displays Daniel LionsOFzion and a description focused on support for wounded soldiers and related recovery work. The Buy Me a Coffee page displays Daniel hanukayev - Lionsofzion and describes advocacy, content and tools, alongside support for soldiers and survivors. Both are external payment services. Their public descriptions identify the presented project and purpose; they are not an independent audit of spending.\n\nThe owner’s clarification supplies the missing distinction: the receiving route is Daniel’s account, and the stated use is project expenses. It does not provide an allocation among research, hosting, software, advocacy, rehabilitation or other activities. No audited breakdown or specific restricted-fund arrangement was supplied for this explanation. A reader should not infer that every contribution reaches an individual beneficiary, that all funds go to rehabilitation, or that all funds go to the editorial desk.\n\nEvidence Desk is the publishing identity shown on Lions of Zion. The registration certificate establishes the association’s name and purposes; it does not, on its own, establish a separate legal identity for Evidence Desk or set out its financial relationship to Daniel’s account. Those distinctions should be visible beside the donation links, rather than left for readers to reconstruct from similar names.\n\nFunding and editorial findings. Contributions do not constitute evidence for a story. We have not been supplied a documented donor-control arrangement or a published policy establishing what influence, if any, contributors have over editorial decisions. This note therefore makes no unsupported promise about a legally or contractually guaranteed separation. A clear donor-influence policy and a documented description of the financial relationship remain outstanding.\n\nSource and verification note. The account route and project-expense purpose are attributed to the owner’s direct statement. The association details come from the supplied registration certificate dated April 7, 2025; its digital signature and the association’s current standing have not been independently validated in this review. The public payment pages were inspected without making a payment. This note is not a tax-deductibility claim, financial audit or assurance about funds already distributed.",
+        "language": "en",
+        "editorialTopic": "Funding transparency",
+        "topicTags": [
+          "funding",
+          "transparency",
+          "project-expenses"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://lionsofzion.io/support-us",
+          "title": "Support Us — original donation-facing explanation",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://www.paypal.com/ncp/payment/PZPE4USUV3W7E",
+          "title": "Project PayPal page — public account and purpose descriptions",
+          "publisher": "PayPal payment page"
+        },
+        {
+          "url": "https://buymeacoffee.com/danielhanukayeb",
+          "title": "Project Buy Me a Coffee page — public profile and stated purposes",
+          "publisher": "Buy Me a Coffee"
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 07 follow-up — owner statement and registration certificate",
+      "sourcesReviewed": [
+        "https://lionsofzion.io/support-us",
+        "https://www.paypal.com/ncp/payment/PZPE4USUV3W7E",
+        "https://buymeacoffee.com/danielhanukayeb"
+      ],
+      "conclusion": "New evidence changes the earlier stage disposition. Owner supplied a one-page registration certificate and stated that funds pass through Daniel’s account for project expenses. Published attributed clarification separating registration, recipient route and spending. No inference of nonprofit-bank settlement, tax relief, independent audit or donor governance. Supplied certificate inspected locally, not uploaded; no public certificate URL established.",
+      "outcome": "published"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 07 FOLLOW-UP PARTIAL: Update /support-us beside both payment links to say funds are received through Daniel’s account for project expenses, attributed to the owner. Identify the registered association separately: LIONS OF JUDAH (R.A.), 580815371, registration certificate dated April 7, 2025. Preserve distinctions between registered purposes, intended use and delivered spending. Acceptance: no implication that provider payments settle directly to a nonprofit bank account or guarantee direct rehabilitation aid.",
+    "RUN 07 STILL OPEN: Document provider-specific account ownership, relationship to Evidence Desk, spending allocation/restrictions and donor-influence policy. Current registration standing and certificate signature not independently validated. Do not claim tax deductibility or publish bank identifiers. The companion does not alter the original support page."
+  ]
+}

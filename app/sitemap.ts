@@ -36,6 +36,12 @@ const BRANCH_INDEXES = [
   "/fake-resistance/official-narrative",
   "/fake-resistance/social-media",
   "/fake-resistance/antisemitism",
+  /* T-5.a: `/fake-resistance/watch` is a real destination returning 200 with
+     its own title ("Narrative monitoring archive"), and it was the one
+     `/fake-resistance/*` page absent from the sitemap while its six siblings
+     were listed — so the monitoring archive was the only branch a crawler had
+     to find by link alone. */
+  "/fake-resistance/watch",
 ];
 /** Reference works under Fake Resistance, alongside the eight destinations. */
 const RESEARCH_INDEXES = ["/fake-resistance/playbook", "/fake-resistance/network"];

@@ -23,5 +23,9 @@ export const dynamic = "force-dynamic";
 export const GET = handler(async (request) => {
   await rateLimit(bucketFor(request, "search"), SEARCH_QUERIES);
   const query = parseQuery(request, searchQuerySchema);
-  return ok(await search().search(query));
+  /* `"reader"` names this endpoint's audience; the rule that follows from it
+     — a hit with no destination is not a result — lives in the service. This
+     is the anonymous reader's search, so a row it cannot open is noise at
+     best: see the service for what that was doing to the no-match state. */
+  return ok(await search().search(query, "reader"));
 });

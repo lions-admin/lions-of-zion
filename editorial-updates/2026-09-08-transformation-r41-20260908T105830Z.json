@@ -1,0 +1,97 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r41-20260908T105830Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T10:58:30.588818Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "ali-taher-headline-attribution",
+      "target": {
+        "publicId": "idf-clears-hezbollah-tunnels-under-ali-al-taher--ak2iu"
+      },
+      "publication": {
+        "title": "IDF says troops cleared two Hezbollah tunnel routes beneath Ali al-Taher Ridge",
+        "summary": "The military said it completed underground clearing and was continuing neutralization. The announcement undercuts a same-day report that Israel had postponed entering the ridge, but independent measurement and complete neutralization are not publicly established.",
+        "body": "The Israel Defense Forces said on September 3 that troops had finished clearing two major Hezbollah tunnel routes beneath the Ali al-Taher Ridge and were continuing to neutralize the infrastructure. The headline now keeps that operational result attributed to the military.\n\nThe IDF described the underground complex as a strategic network built over two decades with Iranian funding and planning. The Times of Israel reported the same military account and said the 36th Division had taken operational control above and below ground.\n\nThe announcement is material because it undercuts a same-day Reuters account in which Iranian sources said Israel had put off storming the ridge. The timelines can be reconciled only by distinguishing the reported Iranian warning from the IDF's later statement that underground clearing had already taken place over weeks.\n\nWhat is established publicly is that the IDF announced completion of clearing and ongoing neutralization. The public sources reviewed do not provide independent measurement of the tunnel network, a full inventory of what was found, or external verification that every operational capability at the ridge was neutralized.\n\nThe evidence-aligned formulation is therefore narrower than the previous headline: the IDF says its troops cleared the tunnel routes. Any claim about complete destruction, Iranian command or the permanent removal of threat requires further evidence.",
+        "changeSummary": "Attribute the operational result directly to the IDF in the headline and summary. Separate the military announcement from independent verification and explain how it changes the earlier postponed-assault report."
+      },
+      "sources": [
+        {
+          "url": "https://x.com/IDF/status/2095569785522360508",
+          "title": "IDF announcement on clearing and neutralization",
+          "publisher": "Israel Defense Forces",
+          "official": true
+        },
+        {
+          "url": "https://www.timesofisrael.com/idf-says-it-entered-cleared-hezbollahs-ali-taher-ridge-tunnels-ahead-of-demolition/",
+          "title": "Report on the IDF announcement and earlier timeline",
+          "publisher": "The Times of Israel",
+          "official": false
+        },
+        {
+          "url": "https://www.reuters.com/world/middle-east/iran-warns-us-against-israeli-attack-south-lebanon-ridge-held-by-hezbollah-2026-09-03/",
+          "title": "Earlier attributed Iranian warning and postponed-assault claim",
+          "publisher": "Reuters",
+          "official": false
+        }
+      ]
+    },
+    {
+      "key": "wck-headline-causation-alignment",
+      "target": {
+        "publicId": "reported-claim-guilt-by-association-why-seven-in-3y6mg"
+      },
+      "publication": {
+        "title": "World Central Kitchen strike: acknowledged IDF failures and a disputed targeting explanation",
+        "summary": "The IDF found grave operational errors in the 2024 strike that killed seven aid workers. A Guardian investigation argues association-based targeting contributed; that broader causal explanation remains an attributed finding.",
+        "body": "Seven World Central Kitchen workers were killed by Israeli strikes on their convoy in Gaza on April 1, 2024. The central disputed question is why the convoy was targeted despite coordination and markings, not whether the deaths occurred.\n\nA Guardian investigation argued that association-based targeting practices contributed to the strike. That is the newspaper's investigative conclusion. It should not appear in a headline as a settled causal explanation without the attribution and evidence that support it.\n\nThe IDF's published investigation found grave errors arising from mistaken identification, errors in decision-making and violations of standard operating procedures. It dismissed two officers and reprimanded commanders. World Central Kitchen said those steps were important but called for an independent commission.\n\nThe two accounts overlap on the failure and deaths but differ in what they establish. The military inquiry provides an institutional reconstruction and disciplinary action; it is not independent of the force that conducted the strike. The Guardian's reporting offers an external theory about broader targeting practice; it does not turn every disputed association claim into proven policy.\n\nWhat is established: three strikes hit the convoy; seven aid workers were killed; the vehicles had coordinated their movements; and the IDF acknowledged serious failures. What remains contested is whether a broader association-based targeting method caused the decisions in this specific case and whether the investigation and accountability were sufficient.\n\nThe revised headline states the event and the competing explanations. It preserves the investigation's allegation without presenting it as the final answer.",
+        "changeSummary": "Replace a headline that read like a settled causal answer with the established event, the IDF's acknowledged failures and the Guardian's attributed explanation. Retain the accountability dispute and primary WCK and IDF records."
+      },
+      "sources": [
+        {
+          "url": "https://www.idf.il/en/mini-sites/idf-press-releases-israel-at-war/april-24-pr/5-april-summary-of-the-investigation-of-the-incident-in-which-7-wck-workers-were-killed-during-a-humanitarian-operation-in-gaza/",
+          "title": "IDF investigation summary and disciplinary action",
+          "publisher": "Israel Defense Forces",
+          "official": true
+        },
+        {
+          "url": "https://wck.org/news/idf-investigation/",
+          "title": "World Central Kitchen response calling for an independent commission",
+          "publisher": "World Central Kitchen",
+          "official": true
+        },
+        {
+          "url": "https://www.theguardian.com/world/2026/sep/01/guilt-by-association-israel-military-targeting-gaza",
+          "title": "Investigation arguing association-based targeting contributed",
+          "publisher": "The Guardian",
+          "official": false
+        }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 41 — headline and evidence consistency",
+      "sourcesReviewed": [
+        "https://x.com/IDF/status/2095569785522360508",
+        "https://www.timesofisrael.com/idf-says-it-entered-cleared-hezbollahs-ali-taher-ridge-tunnels-ahead-of-demolition/",
+        "https://www.reuters.com/world/middle-east/iran-warns-us-against-israeli-attack-south-lebanon-ridge-held-by-hezbollah-2026-09-03/",
+        "https://www.idf.il/en/mini-sites/idf-press-releases-israel-at-war/april-24-pr/5-april-summary-of-the-investigation-of-the-incident-in-which-7-wck-workers-were-killed-during-a-humanitarian-operation-in-gaza/",
+        "https://wck.org/news/idf-investigation/",
+        "https://www.theguardian.com/world/2026/sep/01/guilt-by-association-israel-military-targeting-gaza",
+        "https://lionsofzion.io/articles/iran-coordinates-with-hezbollah-hamas-houthis-fo-of4fn",
+        "https://lionsofzion.io/articles/israel-s-new-biotech-center-aims-to-turn-lab-dis-s90zi",
+        "https://lionsofzion.io/articles/iran-says-it-struck-an-unmanned-u-s-vessel-centc-8m6cq"
+      ],
+      "conclusion": "The prominent Iran-coordination, biotech fundraising and unmanned-vessel headlines already distinguish established facts from allegation, target or uncertainty and did not warrant no-op revisions. Two material mismatches remained: an IDF operational claim stated as fact and a World Central Kitchen headline framed as a settled causal explanation. Both are now attributed at headline level.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 41 LEGACY PASSAGES: both updated records contain stored passages. Acceptance: migrate the versioned passage projection so the complete revised article body, not only the corrected headline and summary, is visible publicly.",
+    "RUN 41 CARD CONSISTENCY: ensure generated cards and cached homepage/hub entries consume the current title and summary. Acceptance: article, hub card and homepage card show the same attribution and uncertainty after a revision."
+  ]
+}

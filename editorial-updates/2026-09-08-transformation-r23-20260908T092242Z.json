@@ -1,0 +1,89 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r23-20260908T092242Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T09:22:42.869753Z",
+  "creates": [
+    {
+      "key": "source-ancestry-authority-and-association-playbook",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "influence_investigation",
+        "canonicalStoryId": "source-ancestry-authority-association-playbook",
+        "title": "How weak claims look confirmed: a reader’s guide to repetition, authority and association",
+        "summary": "Three recurring reasoning traps can make evidence look stronger than it is. This guide shows how to trace source ancestry, separate a real post from a real event, and test whether an association actually supports a claim—without treating similarity as proof of coordination.",
+        "body": "The fastest way for a weak claim to look established is for readers to encounter several versions without seeing that they descend from one source. Repetition can increase perceived truth, but repeated reporting is not automatically manipulation and several links are not automatically independent corroboration. The practical task is to reconstruct the evidence chain before judging motive or coordination.\n\nTechnique one — source laundering through repetition. A claim moves from an original statement into articles, screenshots and summaries. Later items may cite one another or omit the first attribution, creating the appearance of multiple witnesses. The psychological effect is modest but well supported: repeated statements tend to receive higher truth ratings than new ones. A 2026 systematic review and meta-analysis covering 182 studies found a reliable small effect after correction for publication bias, with meaningful variation between studies. This research concerns perceived truth; it does not prove that any particular audience believed a Lions case because of repetition.\n\nHow to test it. Draw the chain backward. Identify the earliest accessible document, then mark which later sources add firsthand evidence and which merely repeat it. In the U.S. unmanned-vessel case, an accessible copy of an IRNA dispatch and later coverage establish that Iran made a claim. They do not independently establish a hit. In the Iraq helicopter proposal, several reports point back to the same State Department notification. Their agreement strengthens traceability to the announcement but does not multiply the evidence for a final contract or delivery.\n\nEvidence threshold. Source laundering is established only when the ancestry can be shown: copied wording, explicit citation, matching unique details or another documented link. Repetition alone is insufficient. Independent corroboration requires a source with a separate route to the underlying event—such as its own authenticated imagery, documents, named witness or data—not a second page repeating the first.\n\nFalse-positive risk. Newsrooms often publish similar facts because they receive the same public statement, and wire stories are lawfully republished. That can create a narrow source base without deceptive intent. Call it shared upstream sourcing unless evidence establishes concealment or purposeful misrepresentation.\n\nTechnique two — authority transfer. A claim gains apparent evidentiary weight from the status of the account, official or institution that carries it. The Kharg Island case shows the mechanism: a synthetic battlefield video paired with declarative language from a head of state could be read as documentation of a completed attack. The supported finding is that the account and framing increased the video's documentary appearance while independent reporting found no evidence at that time that Kharg had been attacked.\n\nHow to test it. Separate three objects: the media file, the caption and the real-world event. Authenticate each independently. A real post does not make its image authentic; an AI-generated image does not prove the accompanying event false; and an official denial is a party's statement rather than physical evidence. Useful corroboration can include geolocated imagery, time-linked satellite data, named operational records or several genuinely independent eyewitness paths.\n\nEvidence threshold. Misleading evidentiary effect can be shown when synthetic or unrelated material is presented in a context likely to be understood as event evidence. Intent, a coordinated campaign and audience impact need additional proof. Detection-tool scores alone are not enough: tools can disagree, compression can create artifacts and authentic images can be mislabeled.\n\nFalse-positive risk. Illustrations, simulations, satire and strategic signaling can be obvious in context. Cropping away a label can make an original disclosure disappear. Preserve the full post, timestamp, caption and platform markings before classifying the use.\n\nTechnique three — guilt by association and identity substitution. A true fact about a person or institution is used as if it proves a separate allegation. In the Adidas case, a former Israeli soldier appeared in a local promotion; that did not establish that the general accessibility service was created for soldiers or that his injury occurred in the post-October 2023 war. The political objection to choosing him can still be argued without relying on those false factual links. In the World Central Kitchen case, the identity or prior associations of individual victims cannot by themselves establish a general targeting practice or resolve responsibility for a specific strike.\n\nHow to test it. Write each proposition on its own line. Person A belonged to group B. Organization C selected A. Event D occurred. Claim E alleges a motive or practice. Then ask which evidence connects each pair. A biography can establish identity; it cannot supply intent. One incident can support investigation of a pattern; it cannot establish prevalence without a defined set of cases and consistent criteria.\n\nEvidence threshold. Association is relevant when there is a demonstrated operational link to the conduct at issue: instructions, transactions, access, communications, a declared selection criterion or a consistent documented process. Shared nationality, employment, attendance, ideology or appearance in the same image does not establish command, knowledge or coordination.\n\nFalse-positive risk. Relationships sometimes are probative. Rejecting all network evidence would be as mistaken as accepting every association. The test is whether the relationship explains access, action or decision-making in the specific claim, and whether alternative explanations and contrary evidence were retained.\n\nWhat does not establish manipulation or coordination. Similar wording; simultaneous posting; a large number of links; common political interests; use of the same image; one wrong detail; one official source; or an emotionally forceful frame. Any of these can justify further investigation. None alone identifies a hidden organizer, deceptive intent or coordinated distribution.\n\nRecognition checklist. First, state the exact claim without its rhetoric. Second, separate observation, attribution and inference. Third, trace every source to the earliest accessible evidence. Fourth, count independent evidence paths rather than URLs. Fifth, preserve dates and ask what each source could know at that time. Sixth, record evidence against the preferred explanation. Seventh, name the missing record that would change the assessment. Eighth, describe coordination only at the level the evidence supports.\n\nHow to read related Lions cases. The unmanned-vessel and Iraq helicopter records demonstrate shared-source ancestry. The Kharg video demonstrates authority transfer without a proven network. The Adidas and World Central Kitchen records demonstrate the need to separate identity from purpose, intent and pattern. These are examples of reasoning problems, not proof that every propagator used a deliberate influence technique.\n\nEditorial rule. Lead with the supported finding, place the decisive qualification beside it and keep the original claim visible only as much as readers need to understand the correction. The American Psychological Association's consensus guidance warns that repetition can itself reinforce misinformation and recommends making the correction more prominent. That is why a reusable explainer should teach a test, not build a gallery of slogans.",
+        "language": "en",
+        "editorialTopic": "Manipulation recognition and evidence assessment",
+        "topicTags": [
+          "source-ancestry",
+          "repetition",
+          "synthetic-media",
+          "guilt-by-association",
+          "verification"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13066098/",
+          "title": "2026 systematic review and meta-analysis of the illusory-truth effect",
+          "publisher": "Psychonomic Bulletin & Review / PubMed Central"
+        },
+        {
+          "url": "https://www.apa.org/pubs/reports/misinformation-recommendations.pdf",
+          "title": "Consensus guidance on repetition and correction of misinformation",
+          "publisher": "American Psychological Association",
+          "official": true
+        },
+        {
+          "url": "https://lionsofzion.io/articles/iran-says-it-struck-an-unmanned-u-s-vessel-centc-8m6cq",
+          "title": "Lions case: Iran's disputed unmanned-vessel claim",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/articles/us-accepts-military-sale-of-helicopters-to-iraq--p5zzh",
+          "title": "Lions case: tracing the Iraq helicopter proposal",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/articles/when-synthetic-battlefield-footage-comes-from-th-3c4f9",
+          "title": "Lions case: synthetic Kharg Island battlefield video",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/articles/adidas-boycott-narrative-what-the-viral-single-s-5wxlh",
+          "title": "Lions case: Adidas accessibility service and identity substitution",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/articles/reported-claim-guilt-by-association-why-seven-in-3y6mg",
+          "title": "Lions case: World Central Kitchen and guilt by association",
+          "publisher": "Lions of Zion"
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 23 — cross-case manipulation methods",
+      "sourcesReviewed": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC13066098/",
+        "https://www.apa.org/pubs/reports/misinformation-recommendations.pdf",
+        "https://lionsofzion.io/articles/iran-says-it-struck-an-unmanned-u-s-vessel-centc-8m6cq",
+        "https://lionsofzion.io/articles/us-accepts-military-sale-of-helicopters-to-iraq--p5zzh",
+        "https://lionsofzion.io/articles/when-synthetic-battlefield-footage-comes-from-th-3c4f9",
+        "https://lionsofzion.io/articles/adidas-boycott-narrative-what-the-viral-single-s-5wxlh",
+        "https://lionsofzion.io/articles/reported-claim-guilt-by-association-why-seven-in-3y6mg"
+      ],
+      "conclusion": "The strongest reusable cross-case contribution is an evidence-testing guide covering source ancestry, authority transfer and identity substitution. Psychological claims are limited to supported findings about perceived truth and do not infer effects on a particular audience. Similarity, repetition and common interests are explicitly rejected as standalone proof of coordination.",
+      "outcome": "published"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 23 STATIC GAP: existing static Fake Resistance case files cannot be rewritten or withdrawn through the package contract. This companion has independent reader value but does not change their clearance or publication status. Acceptance: expose supported article-to-case relationships and apply the same evidence-threshold labels to static files after a separate supported editorial surface exists.",
+    "RUN 23 MEDIA GAP: no diagram was attached because the current article body cannot render a source-ancestry graphic with reliable labels and accessibility. Acceptance: add a reviewed, provenance-disclosed diagram only if it communicates the evidence chain accurately on article and card surfaces."
+  ]
+}

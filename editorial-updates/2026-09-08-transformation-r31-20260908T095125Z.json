@@ -1,0 +1,70 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r31-20260908T095125Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T09:51:25.248281Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "weizmann-otp-mouse-limits",
+      "target": {
+        "publicId": "weizmann-study-links-adult-otp-activity-to-stres-m54ou"
+      },
+      "publication": {
+        "title": "Weizmann Otp study: a causal result in adult male mice, with human relevance still untested",
+        "summary": "Deleting Otp from a broad set of forebrain neurons changed stress-induced corticosterone, thyroid signaling, body composition and ghrelin response in adult male mice. The study identifies an adult biological role; it does not demonstrate human depression, obesity or a treatment target.",
+        "body": "A Weizmann-led study shows that the transcription factor Orthopedia, or Otp, still has measurable functions after the mouse brain has developed. When researchers conditionally deleted Otp in the forebrain of adult male mice, the animals showed altered stress-hormone responses, behavioral-test results, thyroid signaling, body composition and response to ghrelin. This is causal evidence in a specific mouse model. It is not a diagnosis, treatment result or demonstration of the same effects in people.\n\nWhat the intervention was. The team used mice carrying a floxed Otp allele and a tamoxifen-inducible Cre system driven by a CaMKII alpha promoter. At eight to ten weeks of age, both knockout and control animals received tamoxifen for four consecutive days. The genetic design helped separate Otp's adult role from its established role in embryonic development, because deletion began only after the animals had matured.\n\nWhere the intervention acted. The model deleted Otp across CaMKII-expressing forebrain neurons, including cells in the paraventricular and arcuate nuclei of the hypothalamus. It was not restricted to one cell type or one hypothalamic nucleus. The authors therefore caution that the combined phenotype may arise from deletion in several regions or from interactions between them.\n\nThe stress-hormone result. Baseline day and night plasma corticosterone did not differ after Otp loss. During acute restraint, knockout mice had higher corticosterone at 15, 30 and 120 minutes. Corticosterone is the principal glucocorticoid measured in rodents; the public article previously called this cortisol. The defensible result is a heightened and prolonged corticosterone response to an imposed stressor in male mice.\n\nWhat the behavioral assays mean. The mice were tested with marble burying, tail suspension and forced swimming. Knockout animals showed more immobility in the latter two tests, which the authors interpret as passive stress coping and describe with the conventional phrase “depressive-like behavior.” These assays do not establish that a mouse has human depression, and each can reflect more than one underlying process. The study supports altered behavior under the test conditions, not a psychiatric diagnosis.\n\nThe metabolic pattern. Otp deletion reduced hypothalamic expression of CRH, TRH, AgRP and NPY. The animals had lower free T4 and body temperature, higher fasting glucose, a larger percentage of fat and a smaller percentage of lean mass. Yet body weight, overall food intake, measured heat production and locomotion did not significantly change in the reported observation window. That mixed pattern is why “Otp controls obesity” would overstate this experiment.\n\nThe ghrelin experiment. After intraperitoneal ghrelin, knockout mice ate less than controls at 30 and 60 minutes. The authors also looked for changes in several AgRP-neuron markers and for signs of cell death, and did not find evidence that the response simply reflected loss of those neurons. This supports reduced responsiveness within the model, while the ghrelin feeding comparison itself used five animals per group.\n\nHow large were the experiments. Sample sizes varied by endpoint. The paper reports nine mice per group for baseline corticosterone, ten to eleven for restraint-stress corticosterone, seven to nine for marble burying, sixteen for tail suspension and forced swimming, eight for body composition, and four to twelve for several hormone and glucose measures. Some anatomical co-localization estimates used only two or three animals. These are common sizes for mechanistic animal work, but they limit precision and make replication important.\n\nThe sex limitation. Every animal in the reported experiments was an adult male. The paper therefore cannot show whether the effects are the same in females, whether ovarian cycles change them or whether sex-specific stress biology produces a different pattern. “Adult mice” remains technically true, but “adult male mice” carries information readers need beside the claim.\n\nWhat is causal, and what is inferred. The inducible deletion supports a causal role for adult forebrain Otp in the measured mouse outcomes. Associations between reduced neuropeptide expression and the behavioral or metabolic changes help explain a mechanism, but the experiment does not isolate one pathway as the sole cause. Connections to depression, anxiety, obesity or Prader-Willi syndrome in people are research hypotheses built from related biology.\n\nWhat would move this toward medicine. The next steps are replication in independent laboratories, experiments in female mice, cell-type and nucleus-specific manipulations, rescue experiments that restore Otp or downstream signals, longer follow-up and work with human genetics and tissue data. A therapeutic claim would then need a safe intervention, a clinically meaningful endpoint and trials in people. None of those milestones is established by this paper.\n\nThe finding. Otp is not only a developmental switch. In adult male mice, removing it from a broad forebrain population changed the response to acute stress and produced a complex neuroendocrine and metabolic phenotype. The study sharpens a biological map of stress and energy balance; it does not yet tell clinicians to test or treat human patients differently.",
+        "changeSummary": "Correct the mouse stress hormone from cortisol to corticosterone; specify the adult-male, broad-forebrain knockout design; add endpoint sample sizes; distinguish behavioral assays from a depression diagnosis; and state the replication and human-evidence gaps."
+      },
+      "sources": [
+        {
+          "url": "https://academic.oup.com/endo/article-abstract/167/4/bqag029/8525632",
+          "title": "Peer-reviewed article: adult forebrain Otp deletion in male mice",
+          "publisher": "Endocrinology / Oxford Academic"
+        },
+        {
+          "url": "https://pubmed.ncbi.nlm.nih.gov/41840852/",
+          "title": "PubMed record for the peer-reviewed Otp study",
+          "publisher": "U.S. National Library of Medicine",
+          "official": true
+        },
+        {
+          "url": "https://www.biorxiv.org/content/10.1101/2025.09.09.675064v1",
+          "title": "Open preprint with methods, figures and sample sizes",
+          "publisher": "bioRxiv"
+        },
+        {
+          "url": "https://www.weizmann.ac.il/mcb/levkowitz/publications",
+          "title": "Levkowitz Lab publication record",
+          "publisher": "Weizmann Institute of Science",
+          "official": true
+        },
+        {
+          "url": "https://www.timesofisrael.com/israeli-scientists-find-multitasking-gene-controls-mood-and-metabolism-in-mice/",
+          "title": "Independent report on the research and its proposed implications",
+          "publisher": "The Times of Israel"
+        }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 31 — Otp study methods and translational limits",
+      "sourcesReviewed": [
+        "https://academic.oup.com/endo/article-abstract/167/4/bqag029/8525632",
+        "https://pubmed.ncbi.nlm.nih.gov/41840852/",
+        "https://www.biorxiv.org/content/10.1101/2025.09.09.675064v1",
+        "https://www.weizmann.ac.il/mcb/levkowitz/publications",
+        "https://www.timesofisrael.com/israeli-scientists-find-multitasking-gene-controls-mood-and-metabolism-in-mice/"
+      ],
+      "conclusion": "The peer-reviewed paper and full preprint support causal effects of inducible adult forebrain Otp deletion in male mice. The measured stress hormone was plasma corticosterone, despite a cortisol reference in the abstract and the prior article. Sample sizes varied substantially by endpoint, the deletion covered multiple forebrain regions, and no females or human intervention data were reported.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 31 SCIENCE LABEL: science cards should expose species and intervention beside consequential claims. Acceptance: the card displays ‘adult male mice’ and ‘conditional forebrain deletion’ without requiring the reader to open the article.",
+    "RUN 31 MEDIA GAP: do not use generic human-depression imagery for an animal mechanistic study. Acceptance: any added image identifies the mouse model or laboratory material, with institution, caption, date and rights provenance."
+  ]
+}

@@ -1,0 +1,202 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r28-20260908T093820Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T09:38:20.284620Z",
+  "creates": [
+    {
+      "key": "israel-palestine-primary-documents-reading-room",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "history_context",
+        "canonicalStoryId": "documents-to-understand-israel-palestine-conflict",
+        "title": "Documents to understand Israel and the Israeli–Palestinian conflict",
+        "summary": "An evergreen reading room for foundational declarations, UN resolutions, armistices, peace agreements, Oslo, disengagement, Hamas texts, the Abraham Accords and major court opinions—with a neutral explanation of what each says and does not say.",
+        "body": "Primary documents do not speak without context. They show what an institution proposed, promised, recognized or judged at a particular time. They do not automatically show implementation, popular consent, later law or the motives of every actor. This reading room gives readers a route into the texts and a neutral question to carry into each one.\n\nBalfour Declaration, 1917. What it is: a British foreign secretary's letter expressing government support for a Jewish national home in Palestine. What it says: Britain would use its efforts toward that objective while protecting the civil and religious rights of existing non-Jewish communities and the status of Jews elsewhere. What it does not say: it does not define a state, borders, Arab political rights or a mechanism for consent. Why it matters: its asymmetrical wording joined Zionist aims to British imperial power. Dispute centers on legal weight, wartime promises and the omission of the Arab majority's national status.\n\nLeague of Nations Mandate, 1922. What it is: the international instrument assigning Britain administrative authority. It incorporated the national-home commitment, directed facilitation of Jewish immigration under conditions and required civil and religious protections and self-governing institutions. It did not grant immediate sovereignty to either population. Its Jewish national language and different formulation of Arab rights remain central to arguments about colonial authority and self-determination.\n\nGeneral Assembly Resolution 181, 1947. What it is: a recommendation for Arab and Jewish states with economic union and a special regime for Jerusalem. It includes boundaries, transition provisions and minority protections. It did not itself create functioning states, authorize every act in the war or determine the armistice lines. Its authority, fairness, acceptance by Jewish leadership, rejection by Arab leadership and failure of implementation are interpreted differently.\n\nIsrael's Declaration of Establishment, 1948. What it is: the proclamation creating the State of Israel and provisional institutions. It invokes Jewish historical and natural rights, the Holocaust and Resolution 181, and promises equality and freedoms to all citizens. It does not define final borders, enact a complete constitution or settle how its equality commitments apply in every later law. It matters both as an act of sovereignty and a continuing normative text whose legal status within Israel is debated.\n\n1949 General Armistice Agreements. What they are: separate military agreements between Israel and Egypt, Jordan, Lebanon and Syria ending active hostilities. The Egypt and Jordan texts illustrate a crucial rule: armistice demarcation lines were not final political or territorial settlements. They do not create a Palestinian state or resolve refugees and Jerusalem. Readers should resist treating the Green Line as either meaningless or a mutually agreed final border; it became the practical baseline for later diplomacy.\n\nGeneral Assembly Resolution 194, 1948. What it is: a broad resolution on conciliation, Jerusalem and refugees. Its paragraph 11 addresses refugees wishing to return and live at peace and compensation for those not returning or for property loss. It did not create an implemented settlement, and parties dispute whether the language establishes an individual legal right, a policy principle or a conditional negotiating framework. UN records document repeated failure to implement repatriation or compensation.\n\nSecurity Council Resolution 242, 1967. What it is: the postwar framework combining withdrawal language, the inadmissibility of territorial acquisition by war, termination of belligerency and secure recognized boundaries. It does not draw those boundaries or name a Palestinian state. The missing definite article in the English withdrawal clause and different language versions have fueled argument, but the whole text must be read together rather than reduced to one word.\n\nSecurity Council Resolution 338, 1973. What it is: the October 22 ceasefire resolution directing implementation of 242 and negotiations. It does not certify immediate compliance or decide the war's victor. It matters because it converted 242 from a post-1967 principle into an explicit negotiating instruction during the 1973 war.\n\nCamp David frameworks, 1978, and Egypt–Israel treaty, 1979. These are related but distinct. Camp David includes a bilateral framework and a proposed Palestinian-autonomy process. The treaty ends the Egypt–Israel state of war, requires Israeli withdrawal from Sinai and sets security and navigation arrangements. The documents do not constitute a completed Palestinian settlement. Dispute concerns the gap between durable bilateral peace and the unrealized wider framework.\n\nIsrael–PLO recognition letters, 1993. What they are: reciprocal political recognitions preceding Oslo. The PLO recognized Israel's right to exist in peace and security and renounced terrorism; Israel recognized the PLO as the representative of the Palestinian people. The letters do not recognize a Palestinian state or settle permanent-status claims. Their importance lies in changing the parties' formal relationship; dispute concerns compliance and whether the recognition was sufficiently reciprocal in substance.\n\nOslo Declaration of Principles, 1993, and Interim Agreement, 1995. The first sets a five-year transitional design and defers permanent-status issues. The second elaborates governance, elections, security and territorial arrangements. They do not promise that statehood will automatically follow the transition or decide Jerusalem, refugees, settlements and borders. Interpretation divides over constructive ambiguity, unequal power, mutual obligations and whether interim arrangements became a durable substitute for a final settlement.\n\nIsrael–Jordan Peace Treaty, 1994. What it is: a bilateral treaty on peace, boundary, security, water and normal relations. Its boundary clause is without prejudice to territories under Israeli military government control since 1967, and it records Jordan's special role at Muslim holy shrines. It does not decide Palestinian sovereignty or every Jerusalem claim. Its practical durability and periods of public hostility coexist.\n\nGaza disengagement plan, 2004–05. What it is: Israel's unilateral policy to evacuate Gaza settlements and permanent forces and four northern West Bank settlements. It says Israel believed withdrawal would remove a basis for occupation claims. It does not constitute an agreement with Palestinians or show that external control ended. Its legal consequence is disputed because Israel retained forms of control over access, airspace, waters and registration.\n\nHamas Covenant, 1988. What it is: the movement's founding ideological charter, framed through Islamist nationalism and armed struggle and containing antisemitic material. It rejects negotiated territorial compromise. It does not describe every later tactical position or automatically prove the intent of every member. It matters as foundational self-description and should be read directly rather than through selected quotations alone.\n\nHamas political document, 2017. What it is: a later statement accepting a Palestinian state on the 1967 lines as a formula of national consensus while refusing recognition of Israel and retaining armed resistance. It distinguishes opposition to Zionism from conflict with Jews as a religion. It does not formally repeal the 1988 charter or recognize Israel. Dispute concerns whether it marks ideological change, tactical reframing or both; subsequent conduct is separate evidence.\n\nSecurity Council Resolution 1701, 2006. What it is: the framework ending the 2006 Israel–Hezbollah war, expanding UNIFIL and calling for Lebanese state authority and an area in the south free of unauthorized armed personnel and weapons. It does not itself disarm Hezbollah or create an Israel–Lebanon peace treaty. Its incomplete implementation is essential context for every later border escalation.\n\nThe Abraham Accords documents, 2020–21. What they are: a general declaration and country-specific instruments involving the UAE, Bahrain, Morocco and Sudan through different legal paths. They support peace, normalization and cooperation but do not settle the Palestinian conflict or make each country's implementation identical. Sudan's January 2021 signature should not be turned into a completed bilateral normalization that political instability prevented.\n\nSecurity Council Resolution 2334, 2016. What it is: a Council decision stating that Israeli settlements in territory occupied since 1967 have no legal validity and demanding cessation. It also calls for preventing violence and terrorism and distinguishing Israel from occupied territory. It does not impose a negotiated final border or erase Israeli security claims. Israel rejects the resolution's legal and political framing; the text remains part of the authoritative international record.\n\nICJ wall opinion, 2004. What it is: an advisory opinion, requested by the General Assembly, on the legal consequences of the wall in occupied Palestinian territory. The Court found the route and associated regime contrary to international law in the territory examined. An advisory opinion is authoritative legal reasoning but not a bilateral judgment based on both parties' consent. Separate opinions and Israel's jurisdictional and security objections belong in a full reading.\n\nICJ occupation opinion, 2024. What it is: an advisory opinion on the legal consequences of Israel's policies and continued presence in occupied Palestinian territory. The majority found the continued presence unlawful and addressed obligations of Israel, other states and the UN. The opinion expressly did not adjudicate Israel's conduct in Gaza after October 7 within its defined temporal question. Separate and dissenting judges challenged aspects of evidence, security analysis, Oslo and remedy. Reading only the majority summary or only a dissent produces an incomplete legal record.\n\nHow to compare documents. First identify the issuing body and whether the text is a declaration, recommendation, Security Council decision, treaty, interim agreement, policy plan or advisory opinion. Then locate the operative verbs, the represented parties, the questions deferred and the implementation record. Later practice can violate, modify or supersede a document; it cannot silently change what the original text said.\n\nReader discipline. A primary source is primary evidence for its own contents and institutional act. It may be advocacy, compromise or legal reasoning rather than neutral history. Use it to answer who committed to what, on which date and with which qualifications. Use archives, data and competing scholarship to answer what happened and why.",
+        "language": "en",
+        "editorialTopic": "Primary documents reading room",
+        "topicTags": [
+          "primary-documents",
+          "israel-history",
+          "palestinian-history",
+          "international-law",
+          "peace-agreements"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://avalon.law.yale.edu/20th_century/balfour.asp",
+          "title": "Balfour Declaration, 1917",
+          "publisher": "Yale Law School Avalon Project"
+        },
+        {
+          "url": "https://www.loc.gov/resource/gdcwdl.wdl_11572/?st=gallery",
+          "title": "Mandate for Palestine and Transjordan memorandum",
+          "publisher": "Library of Congress",
+          "official": true
+        },
+        {
+          "url": "https://www.un.org/unispal/document/auto-insert-185393/",
+          "title": "General Assembly Resolution 181",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://main.knesset.gov.il/EN/About/pages/declaration.aspx/about/pages/declaration.aspx",
+          "title": "Declaration of the Establishment of the State of Israel",
+          "publisher": "Knesset",
+          "official": true
+        },
+        {
+          "url": "https://peacemaker.un.org/sites/default/files/document/files/2024/05/eg20il490224egyptian-israeli20general20armistice20agreement.pdf",
+          "title": "Egypt–Israel General Armistice Agreement, 1949",
+          "publisher": "United Nations Treaty Series",
+          "official": true
+        },
+        {
+          "url": "https://peacemaker.un.org/en/node/9439",
+          "title": "Jordan–Israel General Armistice Agreement, 1949",
+          "publisher": "United Nations Peacemaker",
+          "official": true
+        },
+        {
+          "url": "https://www.un.org/unispal/document/auto-insert-180810/",
+          "title": "Resolution 194 text and UNCCP implementation record",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://digitallibrary.un.org/record/90717",
+          "title": "Security Council Resolution 242",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://digitallibrary.un.org/record/93466",
+          "title": "Security Council Resolution 338",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://peacemaker.un.org/en/node/9423",
+          "title": "Camp David frameworks",
+          "publisher": "United Nations Peacemaker",
+          "official": true
+        },
+        {
+          "url": "https://peacemaker.un.org/sites/default/files/document/files/2024/05/eg20il790326egypt20and20israel20treaty20of20peace.pdf",
+          "title": "Egypt–Israel Treaty of Peace",
+          "publisher": "United Nations Treaty Series",
+          "official": true
+        },
+        {
+          "url": "https://peacemaker.un.org/en/node/9651",
+          "title": "Israel–PLO mutual-recognition letters",
+          "publisher": "United Nations Peacemaker",
+          "official": true
+        },
+        {
+          "url": "https://peacemaker.un.org/en/node/9432",
+          "title": "Oslo Declaration of Principles",
+          "publisher": "United Nations Peacemaker",
+          "official": true
+        },
+        {
+          "url": "https://peacemaker.un.org/en/node/9434",
+          "title": "Israeli–Palestinian Interim Agreement",
+          "publisher": "United Nations Peacemaker",
+          "official": true
+        },
+        {
+          "url": "https://peacemaker.un.org/sites/default/files/document/files/2024/05/il20jo941026peacetreatyisraeljordan.pdf",
+          "title": "Israel–Jordan Treaty of Peace",
+          "publisher": "United Nations Treaty Series",
+          "official": true
+        },
+        {
+          "url": "https://www.gov.il/en/pages/over-all-concept-of-the-disengagement-plan-15-apr-2004",
+          "title": "Israeli disengagement plan",
+          "publisher": "Government of Israel",
+          "official": true
+        },
+        {
+          "url": "https://avalon.law.yale.edu/20th_century/hamas.asp",
+          "title": "Hamas Covenant, 1988",
+          "publisher": "Yale Law School Avalon Project"
+        },
+        {
+          "url": "https://web.archive.org/web/20231030163224/https://irp.fas.org/world/para/docs/hamas-2017.pdf",
+          "title": "Hamas Document of General Principles and Policies, 2017",
+          "publisher": "Hamas text archived by Internet Archive / FAS"
+        },
+        {
+          "url": "https://digitallibrary.un.org/record/581053",
+          "title": "Security Council Resolution 1701",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://2017-2021.state.gov/the-abraham-accords/",
+          "title": "Abraham Accords declaration and country instruments",
+          "publisher": "U.S. Department of State",
+          "official": true
+        },
+        {
+          "url": "https://digitallibrary.un.org/record/853446",
+          "title": "Security Council Resolution 2334",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://www.icj-cij.org/case/131",
+          "title": "ICJ 2004 wall advisory-opinion case file",
+          "publisher": "International Court of Justice",
+          "official": true
+        },
+        {
+          "url": "https://www.icj-cij.org/case/186",
+          "title": "ICJ 2024 occupation advisory-opinion case file and separate opinions",
+          "publisher": "International Court of Justice",
+          "official": true
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 28 — primary documents reading room",
+      "sourcesReviewed": [
+        "https://avalon.law.yale.edu/20th_century/balfour.asp",
+        "https://www.loc.gov/resource/gdcwdl.wdl_11572/?st=gallery",
+        "https://www.un.org/unispal/document/auto-insert-185393/",
+        "https://main.knesset.gov.il/EN/About/pages/declaration.aspx/about/pages/declaration.aspx",
+        "https://peacemaker.un.org/sites/default/files/document/files/2024/05/eg20il490224egyptian-israeli20general20armistice20agreement.pdf",
+        "https://peacemaker.un.org/en/node/9439",
+        "https://www.un.org/unispal/document/auto-insert-180810/",
+        "https://digitallibrary.un.org/record/90717",
+        "https://digitallibrary.un.org/record/93466",
+        "https://peacemaker.un.org/en/node/9423",
+        "https://peacemaker.un.org/sites/default/files/document/files/2024/05/eg20il790326egypt20and20israel20treaty20of20peace.pdf",
+        "https://peacemaker.un.org/en/node/9651",
+        "https://peacemaker.un.org/en/node/9432",
+        "https://peacemaker.un.org/en/node/9434",
+        "https://peacemaker.un.org/sites/default/files/document/files/2024/05/il20jo941026peacetreatyisraeljordan.pdf",
+        "https://www.gov.il/en/pages/over-all-concept-of-the-disengagement-plan-15-apr-2004",
+        "https://avalon.law.yale.edu/20th_century/hamas.asp",
+        "https://web.archive.org/web/20231030163224/https://irp.fas.org/world/para/docs/hamas-2017.pdf",
+        "https://digitallibrary.un.org/record/581053",
+        "https://2017-2021.state.gov/the-abraham-accords/"
+      ],
+      "conclusion": "Publish an evergreen collection that labels document type and institutional authority before summarizing content. For each, identify what it does not decide and where interpretation is disputed. Include both Hamas's 1988 and 2017 texts, and majority plus separate-opinion access for ICJ advisory proceedings.",
+      "outcome": "published"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 28 STATIC INTEGRATION GAP: the reading room is a history_context article and is not a native /israels-story document collection. Acceptance: add a document index with type, issuer, date, language, stable file, related chapters and last-link check; preserve this article's neutral what-it-says/does-not-say notes.",
+    "RUN 28 FORMAT GAP: article bodies do not render a structured table or per-document inline links reliably. Sources appear in the supported source list. Acceptance: expose an accessible document list with one row per instrument, not a single undifferentiated sources block.",
+    "RUN 28 ARCHIVE RISK: the 2017 Hamas text is linked through an archived copy because a stable official live file was not established. Acceptance: retain the captured text, identify translation provenance and checksum, and add Arabic original plus a reviewed translation without silently replacing versions."
+  ]
+}

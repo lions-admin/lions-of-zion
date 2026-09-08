@@ -1,0 +1,128 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r20-20260908T085328Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T08:53:28.934539Z",
+  "creates": [
+    {
+      "key": "september8-delta-edition",
+      "publication": {
+        "kind": "brief",
+        "section": "daily_brief",
+        "canonicalStoryId": "editorial-delta-edition-2026-09-08",
+        "title": "What changed since September 6: the September 8 editorial edition",
+        "summary": "New reported consequences in Lebanon and Saudi Arabia, Adidas’s response, and our shelter-data correction. Primary-source upgrades to existing stories are identified separately from new events.",
+        "body": "Since the September 6 edition, the material changes are the reported September 7 death toll at Kfar Rumman, attacks affecting Saudi facilities, Adidas’s response to its local promotion, and a correction to this site’s shelter-data reporting. This September 8 edition distinguishes developments in the world from changes in our evidence. It is not a claim that every continuing story has changed.\n\nLebanon: a separate strike and casualty report. Lebanon’s Health Ministry reported twelve deaths after September 7 strikes at Kfar Rumman. This concerns a different event from the seven deaths reported in the previous day’s strikes. The practical change is a further reported civilian toll during the escalation; the figures should not be fused into one event. The canonical Lebanon report retains conflicting early breakdowns and the distinction between military target claims and independently established findings. Responsibility for individual deaths and the full target evidence remain unresolved in the reviewed record.\n\nYemen and Saudi Arabia: the reported escalation now includes fires at Saudi facilities. AP’s September 8 account attributes those reports to Saudi authorities. This broadens the exposure beyond Yemen’s ground fighting, but it does not itself demonstrate a complete maritime closure. The western Yemen report remains the event record; the new Bab al-Mandeb analysis explains the connection to alternative oil routes and the limits of dated traffic estimates. A verified effect on current shipping requires separate port, carrier or incident evidence.\n\nAdidas: the company response changes the sequence, not the service’s origin. The September 7 apology reported by The Times of Israel is a development after the boycott controversy. It sits alongside the earlier accessibility-service launch and the local advertising choice. The canonical article now keeps those events separate and explains why criticism of the promotion does not require accepting false claims about the service or the athlete’s injury date. A complete earliest-post chronology remains unestablished.\n\nOur correction: the shelter-data expansion claim is withdrawn. Two earlier Lions of Zion records asserted nationwide expansion corroborated by a Jerusalem Post report. The cited URLs failed and the dataset identifier was not found in the September 8 check; we did not substantiate the claim. Both records now carry an explicit correction. The new practical guide identifies the municipal resources actually inspected and explains why an open-data row is not a live readiness certificate. This is a correction of our earlier reporting, not an external news development.\n\nEvidence clarified, without a new event: the U.S. university-boycott bill. House Clerk and GovInfo records confirm H.R. 4795’s September 3 passage. That vote was already reported; adding primary records does not make it a fresh legislative advance. The canonical tracker now identifies the exact proposal and explains that the official snapshot checked September 8 contains no later Senate action. A verified subsequent chamber action would justify the next status update.\n\nEvidence clarified, without a verified battlefield result: the unmanned-vessel allegation. A preserved IRNA dispatch supports the narrower wording that Iran claimed an attack; it does not establish a successful hit or sinking. The U.S. denial remains in the record. The updated dossier identifies the missing vessel and technical evidence, and separates a preceding tanker operation. Repetition of either side’s account is not a new outcome.\n\nThe linked sources below lead to the retained story records, the distinct explanatory guides and the earlier edition. Older editions remain dated historical accounts. Their continued availability does not make them competing statements of today’s status. The next edition should change when the evidence or events change, while keeping these corrections and unresolved questions visible.",
+        "language": "en",
+        "editorialTopic": "September 8 editorial changes",
+        "topicTags": [
+          "edition",
+          "lebanon",
+          "yemen",
+          "corrections"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://lionsofzion.io/articles/israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3",
+          "title": "Canonical Lebanon report: separate strike dates and Kfar Rumman toll",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/articles/civilians-among-at-least-60-killed-in-yemen-as-g-wzukq",
+          "title": "Canonical western Yemen fighting report",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/articles/bab-al-mandeb-and-hormuz-why-yemen-s-fighting-pu-ws71p",
+          "title": "Bab al-Mandeb companion: route exposure and dated oil-flow evidence",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/articles/adidas-boycott-narrative-what-the-viral-single-s-5wxlh",
+          "title": "Canonical Adidas report: service, promotion, injury date and apology",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/articles/israel-s-open-civil-defence-data-initiative-cont-fgpr4",
+          "title": "Corrected shelter-data expansion report",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/articles/using-municipal-shelter-data-what-the-records-sh-6gl78",
+          "title": "Practical municipal shelter-data guide",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/articles/us-house-passes-bill-targeting-university-boycot-lhl1q",
+          "title": "Canonical H.R. 4795 legislative tracker",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/articles/iran-says-it-struck-an-unmanned-u-s-vessel-centc-8m6cq",
+          "title": "Canonical unmanned-vessel claims and evidence dossier",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/articles/israel-and-regional-security-briefing-6-septembe-kc8en",
+          "title": "Previous edition: September 6, 2026",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://apnews.com/article/fc3f8c5ac5e09c93232b3a9841afb9f4",
+          "title": "September 7 Kfar Rumman casualty report, attributed to Lebanon’s Health Ministry",
+          "publisher": "Associated Press"
+        },
+        {
+          "url": "https://apnews.com/article/4ad9446f0bb8c096750c84b6e1ba86b8",
+          "title": "September 8 Saudi facility attacks, attributed to Saudi authorities",
+          "publisher": "Associated Press"
+        },
+        {
+          "url": "https://www.timesofisrael.com/adidas-apologizes-for-offense-over-promotion-featuring-ex-idf-soldier-who-lost-leg-in-2021/",
+          "title": "September 7 Adidas response reporting",
+          "publisher": "The Times of Israel"
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {
+    "news": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "operationKey": "september8-delta-edition"
+        }
+      }
+    }
+  },
+  "research": [
+    {
+      "topic": "Run 20 — edition audit and material changes",
+      "sourcesReviewed": [
+        "https://lionsofzion.io/articles/israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3",
+        "https://lionsofzion.io/articles/civilians-among-at-least-60-killed-in-yemen-as-g-wzukq",
+        "https://lionsofzion.io/articles/bab-al-mandeb-and-hormuz-why-yemen-s-fighting-pu-ws71p",
+        "https://lionsofzion.io/articles/adidas-boycott-narrative-what-the-viral-single-s-5wxlh",
+        "https://lionsofzion.io/articles/israel-s-open-civil-defence-data-initiative-cont-fgpr4",
+        "https://lionsofzion.io/articles/using-municipal-shelter-data-what-the-records-sh-6gl78",
+        "https://lionsofzion.io/articles/us-house-passes-bill-targeting-university-boycot-lhl1q",
+        "https://lionsofzion.io/articles/iran-says-it-struck-an-unmanned-u-s-vessel-centc-8m6cq",
+        "https://lionsofzion.io/articles/israel-and-regional-security-briefing-6-septembe-kc8en",
+        "https://apnews.com/article/fc3f8c5ac5e09c93232b3a9841afb9f4",
+        "https://apnews.com/article/4ad9446f0bb8c096750c84b6e1ba86b8",
+        "https://www.timesofisrael.com/adidas-apologizes-for-offense-over-promotion-featuring-ex-idf-soldier-who-lost-leg-in-2021/",
+        "https://lionsofzion.io/articles/israel-security-diplomacy-and-anti-boycott-brief-4xspk",
+        "https://lionsofzion.io/articles/israel-security-and-diplomacy-brief-september-3--xgjvx"
+      ],
+      "conclusion": "Three dated brief records inspected, with six/eight stored passages. Two September 3 editions overlap but differ in scope; preserve historical editions rather than destroy distinct coverage. Latest September6 edition supplies comparison. September8 edition contains actual developments and clearly separated evidence corrections, with retained story links; no artificial refresh of older publication dates.",
+      "outcome": "published"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 20 PARTIAL: older editions remain accessible and homepage placements cannot suppress all automatic hub/related prominence. No archival or record merge performed. Acceptance: one current edition prominence and dated historical alternatives, with duplicate exposure outside supported positions resolved in development.",
+    "RUN 20 SCOPE: This edition covers supported material changes, not an exhaustive daily news digest. Canonical original Yemen and legislation bodies still have legacy-passage limits recorded in stages17–18. Article links are provided through supported Public sources, not assumed inline-link rendering."
+  ]
+}

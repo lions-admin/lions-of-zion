@@ -657,26 +657,71 @@ Machine. VA-04 measured that document at **60,814px** with the finding 2.4
 viewports down and two horizontal scrollers clipped (a 1319px section nav inside
 a 343px box). **Do not remove evidence to shorten the page.**
 
-- [~] **54.1** Build progressive disclosure. First layer: thesis, current
+- [x] **54.1** Build progressive disclosure. First layer: thesis, current
       assessment, strongest evidence, key caveats, what changed.
-      <!-- claimed: A4 @ 2026-09-08T00:00:00Z -->
-      <!-- partial: the case-file reading order flips so `CaseStoryHeader`
+      <!-- done: 39d3576 | the case-file reading order flips so `CaseStoryHeader`
            (thesis/finding/three facts/update marker) renders before the
            bookkeeping `dl` face sheet, measured 1,946px down at 859px vs an
-           844px viewport. The figures are unchanged, only reordered. Layer
-           split (54.2), local ToC/deep-links (54.3) and the dual-journey
-           verification (54.5) remain open. -->
-- [~] **54.2** Deeper layer retains everything: full source stack, entity graph,
+           844px viewport. The figures are unchanged, only reordered. 54.2,
+           54.3 and 54.5 below close out the remaining layer-split, local ToC
+           and dual-journey verification work. -->
+- [x] **54.2** Deeper layer retains everything: full source stack, entity graph,
       findings, connections, methodology, revision history, evidence.
-      <!-- claimed: A4 @ 2026-09-08T00:00:00Z -->
-- [~] **54.3** Add a local table of contents, stable deep links, collapsible /
+      <!-- done: pending-commit | verification, not a rebuild: `git diff main -- "app/fake-resistance/cases/[slug]/page.tsx"`
+           shows 54.1 was a pure reorder (CaseStoryHeader moved up, `dl.fileFacts`
+           moved down) with zero deletions. Live-rendered the Hinkle Machine case
+           (42 entities, 17 connections, 7 narratives, 14 graded findings, 104
+           sources) at 390px and 1440px: RoleMap's per-role and per-entity native
+           `<details>`, EvidenceLedger's per-finding "Show evidence" disclosure,
+           RelationshipFlow's per-edge evidence, InvestigationTimeline's two-level
+           view, and the full Sources list all render intact and reachable — the
+           layer already reads as a delineated "layer two" (SectionBlock h2s +
+           InvestigationSectionNav + SectionToc + EvidencePath), so no
+           restructuring was needed. -->
+- [x] **54.3** Add a local table of contents, stable deep links, collapsible /
       `<details>` structures, mobile-aware hierarchy.
-      <!-- claimed: A4 @ 2026-09-08T00:00:00Z -->
+      <!-- done: pending-commit | Extended `InvestigationSectionNav` rather than adding a
+           second nav: the mobile/tablet strip's section list was a static
+           nine-entry array in `page.tsx` that never grew a tenth entry for the
+           conditional "What changed" `SectionBlock` (renders only when
+           `record.overturned.length > 0`, true for Hinkle Machine's 8 overturned
+           readings) — a real, anchor-linkable section with a working
+           `#what-changed` link inside `CaseStoryHeader`'s update marker, but no
+           entry in the one local-TOC surface built for exactly that. The
+           ≥1220px `SectionToc` rail never had this gap (it reads live DOM `h2`s).
+           Fix: `BASE_CASE_SECTIONS`/`caseSections()` now live in
+           `components/investigation/labels.tsx` (no `'use client'`, so the
+           server-component page can call it directly — the first attempt, with
+           the helper in the client-directive `InvestigationSectionNav.tsx`,
+           threw "Attempted to call caseSections() from the server" at runtime,
+           caught via the shared dev server's error log) and `page.tsx` now
+           derives its section list from the record instead of a hand-written
+           array. `tests/investigation-case-sections.test.ts` (5 tests) pins the
+           derivation, including against the real Hinkle Machine record. Verified
+           live: mobile strip and desktop rail both list `what-changed` right
+           after `finding`; clicking/reloading directly on `#what-changed` lands
+           correctly (scroll-margin already handled site-wide). Deep links to
+           individual findings/entities/edges/narratives
+           (`#claim_id`/`#entity-id`/`#edge-id`/`#narrative-id`) and collapsible
+           `<details>` (RoleMap groups and profiles, roster fallback,
+           EvidenceLedger/RelationshipFlow per-row disclosures) were already in
+           place and confirmed working, not added. -->
 - [x] **54.4** Fix the clipped horizontal scrollers on mobile.
       <!-- done: 007aaf9 | lib/continue-the-record.ts, tests/continue-the-record.test.ts (21); verify:full green 154 files / 1503 passed -->
-- [~] **54.5** Serve both the reader who wants the conclusion and the researcher
+- [x] **54.5** Serve both the reader who wants the conclusion and the researcher
       who wants the dossier. Verify both journeys.
-      <!-- claimed: A4 @ 2026-09-08T00:00:00Z -->
+      <!-- done: pending-commit | Verified live in Chrome against the Hinkle Machine case
+           on the dev server. Reader journey at 390×844: title, question and
+           "What survives"/finding excerpt visible with one scroll, mobile strip
+           and update marker ("See what changed") both reachable immediately.
+           Researcher journey at 390×844 and 1440×900: local nav (strip + rail)
+           lists and jumps to all ten sections including "What changed"; Evidence
+           section's per-finding "Show evidence" expands supporting/contradicting
+           sources in place; Who-is-involved's nested `<details>` expand an
+           entity's full profile, connections and cross-links on mobile. Full
+           suite green: `npx vitest run` 160 files / 1603 passed / 1 skipped;
+           `npm run typecheck` clean; `npm run lint` 0 errors (16 pre-existing
+           warnings, none touched by this change). -->
 
 ### VA-55 — October 7 reduced-motion wording `A4`
 
@@ -1113,7 +1158,7 @@ Update this table in the **same commit** that changes any box above.
 | VA-61 | A2 | ☑ done | 1 | `6295324` — funding model published on We Are after the owner answered |
 | VA-49 | A3 | ☑ code done | 2 | `ae18ad2` — migration 0064 applied to Production and its drizzle receipt inserted, both verified 2026-09-08. 49.3/49.4/49.5 remain editorial, need the MCP path |
 | VA-50 | A4 | ☑ done | 2 | `007aaf9` — shared-field ladder, bounded pool, cross-desk eyebrow, 21 tests |
-| VA-54 | A4 | ◐ in progress | 2 | `fa6290f` — 54.4 (strip scroll legible + follows the reader); `39d3576` — 54.1 (finding leads the bookkeeping). In progress: 54.2/54.3/54.5 claimed |
+| VA-54 | A4 | ☑ done | 2 | `fa6290f` — 54.4 (strip scroll legible + follows the reader); `39d3576` — 54.1 (finding leads the bookkeeping); pending-commit — 54.2 (verified nothing dropped), 54.3 (`caseSections()` closes the "What changed" nav gap, 5 tests), 54.5 (dual-journey verified live at 390×844 and 1440×900). Full suite 160 files / 1603 passed |
 | VA-56 | A4 | ☑ done | 2 | `ae18ad2` — `lib/source-dump.ts`, body and passages, 16 tests, four live records verified |
 | VA-52 | A5 | ☑ done | 3 | `lib/fake-resistance-grammar.ts` — three types, one map, incident language separated from claim language, 12 tests |
 | VA-55 | A5 | ☑ done | 3 | `2c40e63` — the disabled "Manual" button became a stated "Rotation off"; arrows stay live |

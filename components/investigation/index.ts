@@ -10,6 +10,12 @@
 export { InvestigationProvider, useInvestigation } from './InvestigationProvider';
 export { EvidencePath } from './EvidencePath';
 export { InvestigationSectionNav, type InvestigationSection } from './InvestigationSectionNav';
+/* `BASE_CASE_SECTIONS` and `caseSections` live in `labels.tsx`, which carries
+   no `'use client'` directive, so a server component (the case page) can call
+   `caseSections()` directly. Re-exporting them here from `InvestigationSectionNav`
+   instead would still resolve to a client reference — Next's RSC compiler
+   tracks the *originating* module, not the barrel that re-exports it. */
+export { BASE_CASE_SECTIONS, caseSections } from './labels';
 export { CaseStoryHeader } from './CaseStoryHeader';
 export { RoleMap } from './RoleMap';
 export { NarrativeLanes } from './NarrativeLanes';

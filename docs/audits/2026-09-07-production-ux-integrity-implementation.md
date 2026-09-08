@@ -667,7 +667,7 @@ a 343px box). **Do not remove evidence to shorten the page.**
            and dual-journey verification work. -->
 - [x] **54.2** Deeper layer retains everything: full source stack, entity graph,
       findings, connections, methodology, revision history, evidence.
-      <!-- done: pending-commit | verification, not a rebuild: `git diff main -- "app/fake-resistance/cases/[slug]/page.tsx"`
+      <!-- done: 3ad61c3 | verification, not a rebuild: `git diff main -- "app/fake-resistance/cases/[slug]/page.tsx"`
            shows 54.1 was a pure reorder (CaseStoryHeader moved up, `dl.fileFacts`
            moved down) with zero deletions. Live-rendered the Hinkle Machine case
            (42 entities, 17 connections, 7 narratives, 14 graded findings, 104
@@ -680,7 +680,7 @@ a 343px box). **Do not remove evidence to shorten the page.**
            restructuring was needed. -->
 - [x] **54.3** Add a local table of contents, stable deep links, collapsible /
       `<details>` structures, mobile-aware hierarchy.
-      <!-- done: pending-commit | Extended `InvestigationSectionNav` rather than adding a
+      <!-- done: 3ad61c3 | Extended `InvestigationSectionNav` rather than adding a
            second nav: the mobile/tablet strip's section list was a static
            nine-entry array in `page.tsx` that never grew a tenth entry for the
            conditional "What changed" `SectionBlock` (renders only when
@@ -710,7 +710,7 @@ a 343px box). **Do not remove evidence to shorten the page.**
       <!-- done: 007aaf9 | lib/continue-the-record.ts, tests/continue-the-record.test.ts (21); verify:full green 154 files / 1503 passed -->
 - [x] **54.5** Serve both the reader who wants the conclusion and the researcher
       who wants the dossier. Verify both journeys.
-      <!-- done: pending-commit | Verified live in Chrome against the Hinkle Machine case
+      <!-- done: 3ad61c3 | Verified live in Chrome against the Hinkle Machine case
            on the dev server. Reader journey at 390×844: title, question and
            "What survives"/finding excerpt visible with one scroll, mobile strip
            and update marker ("See what changed") both reachable immediately.
@@ -1158,7 +1158,7 @@ Update this table in the **same commit** that changes any box above.
 | VA-61 | A2 | ☑ done | 1 | `6295324` — funding model published on We Are after the owner answered |
 | VA-49 | A3 | ☑ code done | 2 | `ae18ad2` — migration 0064 applied to Production and its drizzle receipt inserted, both verified 2026-09-08. 49.3/49.4/49.5 remain editorial, need the MCP path |
 | VA-50 | A4 | ☑ done | 2 | `007aaf9` — shared-field ladder, bounded pool, cross-desk eyebrow, 21 tests |
-| VA-54 | A4 | ☑ done | 2 | `fa6290f` — 54.4 (strip scroll legible + follows the reader); `39d3576` — 54.1 (finding leads the bookkeeping); pending-commit — 54.2 (verified nothing dropped), 54.3 (`caseSections()` closes the "What changed" nav gap, 5 tests), 54.5 (dual-journey verified live at 390×844 and 1440×900). Full suite 160 files / 1603 passed |
+| VA-54 | A4 | ☑ done | 2 | `fa6290f` — 54.4 (strip scroll legible + follows the reader); `39d3576` — 54.1 (finding leads the bookkeeping); 3ad61c3 — 54.2 (verified nothing dropped), 54.3 (`caseSections()` closes the "What changed" nav gap, 5 tests), 54.5 (dual-journey verified live at 390×844 and 1440×900). Full suite 160 files / 1603 passed |
 | VA-56 | A4 | ☑ done | 2 | `ae18ad2` — `lib/source-dump.ts`, body and passages, 16 tests, four live records verified |
 | VA-52 | A5 | ☑ done | 3 | `lib/fake-resistance-grammar.ts` — three types, one map, incident language separated from claim language, 12 tests |
 | VA-55 | A5 | ☑ done | 3 | `2c40e63` — the disabled "Manual" button became a stated "Rotation off"; arrows stay live |

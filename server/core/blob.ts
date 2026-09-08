@@ -11,11 +11,39 @@ import "server-only";
  * keeps that narrow.
  */
 
-import { put } from "@vercel/blob";
+import { head, put } from "@vercel/blob";
 import { briefingBlobOptions, editorialMediaBlobOptions } from "./config";
 
 export type StoredBlob = { url: string; contentType: string };
 
+/** The exact refusal `put()` raises for a pathname that is already taken. */
+const BLOB_ALREADY_EXISTS = /This blob already exists/;
+
+/**
+ * A raw source capture, private, never overwritten — and idempotent anyway.
+ *
+ * The pathname is `briefing/raw/<sourceId>/<sha256 of the bytes>`, so two
+ * writes to one path can only ever carry byte-identical content. The caller
+ * (`ingestSource`) asks `source_fetch` whether these bytes were stored before
+ * and skips the upload when a row says so. What that lookup cannot see is an
+ * object that reached the store without its row: the upload happens before
+ * the fetch transaction opens, deliberately, so a transaction that then
+ * failed leaves the object behind and nothing pointing at it.
+ *
+ * Until 2026-09-08 that state was permanent. Israel Hayom served the same
+ * bytes for six hours; every collection window re-derived the same path,
+ * `put()` refused it with "This blob already exists", and twelve jobs burned
+ * five attempts each into quarantine while the feed was healthy. When the
+ * publisher changed a byte the path changed and the failure vanished, which
+ * is exactly why nobody had caught it: it cleared itself before anyone read
+ * the error.
+ *
+ * `allowOverwrite` stays `false` here — the capture store is an evidence
+ * record and an overwrite is not something it should be able to do. The
+ * refusal is instead the answer: an existing object at a content-addressed
+ * path *is* the bytes we were about to store, so `head()` it and return it.
+ * Any other failure still throws.
+ */
 export async function storeRawBytes(
   pathname: string,
   data: string,
@@ -24,14 +52,21 @@ export async function storeRawBytes(
   if (!pathname.startsWith("briefing/raw/")) {
     throw new Error("Briefing source captures must use the isolated briefing/raw prefix.");
   }
-  const blob = await put(pathname, data, {
-    access: "private",
-    addRandomSuffix: false,
-    allowOverwrite: false,
-    contentType,
-    ...briefingBlobOptions(),
-  });
-  return { url: blob.url, contentType: blob.contentType };
+  const options = briefingBlobOptions();
+  try {
+    const blob = await put(pathname, data, {
+      access: "private",
+      addRandomSuffix: false,
+      allowOverwrite: false,
+      contentType,
+      ...options,
+    });
+    return { url: blob.url, contentType: blob.contentType };
+  } catch (cause) {
+    if (!(cause instanceof Error) || !BLOB_ALREADY_EXISTS.test(cause.message)) throw cause;
+    const existing = await head(pathname, options);
+    return { url: existing.url, contentType: existing.contentType };
+  }
 }
 
 /**

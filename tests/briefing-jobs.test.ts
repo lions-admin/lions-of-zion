@@ -174,4 +174,101 @@ describe("briefing job ledger", () => {
     expect(await store.recoverConfigurationFailures()).toHaveLength(0);
   });
 
+  /* The Israel Hayom quarantines of 2026-09-08: a storage-idempotency defect,
+     never the source's fault, so the same one-shot revival applies. */
+  it("retries a job quarantined by the content-addressed blob collision once", async () => {
+    const { db, src } = await sourceFixture();
+    const store = briefingJobStore(db);
+    const job = await store.createCollectJob(src, "2026-09-08", "2026-09-08T01:30");
+    await db.update(briefingJob).set({
+      state: "quarantined",
+      attempts: 5,
+      lastError: "Vercel Blob: This blob already exists, use `allowOverwrite: true` if you want to overwrite it.",
+      finishedAt: new Date(),
+    }).where(eq(briefingJob.id, job.id));
+
+    expect(await store.recoverConfigurationFailures()).toHaveLength(1);
+    const [stored] = await db.select().from(briefingJob).where(eq(briefingJob.id, job.id));
+    expect(stored).toMatchObject({ state: "pending", attempts: 0 });
+    expect(stored?.checkpoint).toMatchObject({
+      configurationRecovery: { error: expect.stringContaining("This blob already exists") },
+    });
+  });
+
+  /* `publish:2026-09-01:v1` in Production: `fail()` decided from a row that
+     under-reported the attempt count and wrote `pending` back onto a job
+     whose stored counter was already exhausted. `claim` requires
+     `attempts < max_attempts`, so nothing could ever take it, and it aged
+     the queue metric for a week. The database's counter is the authority. */
+  it("quarantines from the stored attempt counter, not the caller's stale row", async () => {
+    const { db, src } = await sourceFixture();
+    const store = briefingJobStore(db);
+    const job = await store.createCollectJob(src, "2026-08-30", "2026-08-30T15:00");
+    const claim = await store.claim(job.id, "message-stale", 1);
+    expect(claim.status).toBe("claimed");
+    await db.update(briefingJob).set({ attempts: 5 }).where(eq(briefingJob.id, job.id));
+
+    const failed = await store.fail({ ...claim.job!, attempts: 1 }, "message-stale", new Error("late failure"));
+    expect(failed.quarantined).toBe(true);
+    const [stored] = await db.select().from(briefingJob).where(eq(briefingJob.id, job.id));
+    expect(stored).toMatchObject({ state: "quarantined", attempts: 5 });
+    const [delivery] = await db.select().from(briefingJobDelivery);
+    expect(delivery).toMatchObject({ status: "quarantined" });
+  });
+
+  it("sweeps a pending collect job with a spent attempt budget into quarantine", async () => {
+    const { db, src } = await sourceFixture();
+    const store = briefingJobStore(db);
+    const job = await store.createCollectJob(src, "2026-08-30", "2026-08-30T15:00");
+    await db.update(briefingJob).set({ state: "pending", attempts: 5, lastError: "Failed query: insert into narrative" })
+      .where(eq(briefingJob.id, job.id));
+
+    const recovered = await store.recoverStale();
+    expect(recovered.map((row) => row.id)).toEqual([job.id]);
+    const [stored] = await db.select().from(briefingJob).where(eq(briefingJob.id, job.id));
+    expect(stored).toMatchObject({ state: "quarantined", attempts: 5, lastError: "Failed query: insert into narrative" });
+    expect(stored?.finishedAt).not.toBeNull();
+  });
+
+  /* The internal briefing initiator was retired on 2026-09-06. A draft or
+     publish row left pending or quarantined from before that date is not
+     work any worker will run, yet it counted as such for a week. */
+  it("discards retired-stage jobs while leaving collection jobs alone", async () => {
+    const { db, src } = await sourceFixture();
+    const store = briefingJobStore(db);
+    const [edition] = await db.insert(briefingEdition).values({
+      localDate: "2026-09-02",
+      contractVersion: "test-contract",
+      promptVersion: "test-prompt",
+      collectionOpenedAt: new Date(),
+    }).returning();
+    const draft = await store.createStageJob(edition!.id, "2026-09-02", "draft");
+    await db.update(briefingJob).set({
+      state: "quarantined", attempts: 5, finishedAt: new Date("2026-09-02T04:34:23.000Z"),
+      lastError: "The model response was not valid JSON (finish: length/max_output_tokens).",
+    }).where(eq(briefingJob.id, draft.id));
+    const publish = await store.createStageJob(edition!.id, "2026-09-01", "publish");
+    await db.update(briefingJob).set({ state: "pending", attempts: 5, checkpoint: { completed: true } })
+      .where(eq(briefingJob.id, publish.id));
+    const collect = await store.createCollectJob(src, "2026-09-08", "2026-09-08T09:00");
+    await db.update(briefingJob).set({ state: "quarantined", attempts: 5 }).where(eq(briefingJob.id, collect.id));
+
+    const discarded = await store.retireLegacyStageJobs();
+    expect(discarded.map((row) => row.state)).toEqual(["discarded", "discarded"]);
+    expect(await store.retireLegacyStageJobs()).toHaveLength(0);
+
+    const rows = await db.select().from(briefingJob);
+    const byId = new Map(rows.map((row) => [row.id, row]));
+    expect(byId.get(draft.id)).toMatchObject({
+      state: "discarded",
+      lastError: "The model response was not valid JSON (finish: length/max_output_tokens).",
+      finishedAt: new Date("2026-09-02T04:34:23.000Z"),
+    });
+    expect(byId.get(draft.id)?.checkpoint).toMatchObject({ retired: { previousState: "quarantined" } });
+    expect(byId.get(publish.id)).toMatchObject({ state: "discarded" });
+    expect(byId.get(publish.id)?.checkpoint).toMatchObject({ completed: true, retired: { previousState: "pending" } });
+    expect(byId.get(publish.id)?.finishedAt).not.toBeNull();
+    expect(byId.get(collect.id)).toMatchObject({ state: "quarantined" });
+  });
+
 });

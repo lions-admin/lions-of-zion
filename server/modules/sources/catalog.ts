@@ -4,6 +4,11 @@ export const BRIEFING_RSS_CANDIDATES = [
   { slug: "jerusalem-post", name: "The Jerusalem Post", homepageUrl: "https://www.jpost.com", feedUrl: "https://www.jpost.com/rss/rssfeedsfrontpage.aspx", language: "en", country: "IL", category: "israeli_media" },
   { slug: "ynetnews", name: "Ynetnews", homepageUrl: "https://www.ynetnews.com", feedUrl: "https://www.ynetnews.com/Integration/StoryRss3082.xml", language: "en", country: "IL", category: "israeli_media" },
   { slug: "israel-hayom", name: "Israel Hayom", homepageUrl: "https://www.israelhayom.com", feedUrl: "https://www.israelhayom.com/feed/", language: "en", country: "IL", category: "israeli_media" },
+  /* Retired on 2026-09-01 after the feed answered 403; it answers 200 again
+     (probed 2026-09-08). Listed so the catalog documents the live set — the
+     row already exists, and `reverifyDisabledSources` is what reactivates it
+     once a real fetch succeeds, never this file. */
+  { slug: "times-of-israel", name: "The Times of Israel", homepageUrl: "https://www.timesofisrael.com", feedUrl: "https://www.timesofisrael.com/feed/", language: "en", country: "IL", category: "israeli_media" },
   { slug: "bbc-middle-east", name: "BBC News — Middle East", homepageUrl: "https://www.bbc.com/news/world/middle_east", feedUrl: "https://feeds.bbci.co.uk/news/world/middle_east/rss.xml", language: "en", country: "GB", category: "international_media" },
   { slug: "guardian-middle-east", name: "The Guardian — Middle East", homepageUrl: "https://www.theguardian.com/world/middleeast", feedUrl: "https://www.theguardian.com/world/middleeast/rss", language: "en", country: "GB", category: "international_media" },
   { slug: "france24-middle-east", name: "France 24 — Middle East", homepageUrl: "https://www.france24.com/en/middle-east/", feedUrl: "https://www.france24.com/en/middle-east/rss", language: "en", country: "FR", category: "international_media" },

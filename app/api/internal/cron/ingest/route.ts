@@ -3,6 +3,7 @@ import { ok } from "@/server/http/responses";
 import { requireCron } from "@/server/http/internal-guard";
 import { briefingFeatures } from "@/server/core/config";
 import { enqueueDueCollectionJobs, recoverAndDispatchSourceCollectionJobs } from "@/server/modules/briefing/jobs";
+import { evaluateAndQueueBriefingAlerts } from "@/server/modules/briefing/alerts";
 
 /**
  * Walks every active source of every registered connector kind and runs it.
@@ -29,5 +30,14 @@ export const GET = handler(async (request) => {
   const recovery = await recoverAndDispatchSourceCollectionJobs();
   const results = await enqueueDueCollectionJobs();
 
-  return ok({ ranAt: new Date().toISOString(), recovery, results });
+  /* Alerts are a reconciliation against current state, and a 30-minute
+   * queue-age threshold evaluated once a day at 03:20 was not one. Three
+   * count queries per tick; a condition that clears is closed within the
+   * half hour, and one that opens is delivered within it. Never allowed to
+   * fail the tick — collection is the job here, alerting is a report on it. */
+  const alerts = await evaluateAndQueueBriefingAlerts().catch((cause: unknown) => ({
+    error: cause instanceof Error ? cause.message : String(cause),
+  }));
+
+  return ok({ ranAt: new Date().toISOString(), recovery, results, alerts });
 });

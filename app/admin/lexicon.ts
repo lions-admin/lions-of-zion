@@ -119,6 +119,7 @@ export const JOB_STATE_LABEL: Record<string, string> = {
   running: "רץ",
   completed: "הושלם",
   quarantined: "בבידוד",
+  discarded: "נגנז",
 };
 
 /* ── Sources ──────────────────────────────────────────────────────────── */

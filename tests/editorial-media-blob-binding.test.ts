@@ -24,14 +24,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  * assertion, so that specific pairing cannot be reintroduced silently.
  */
 
-const { put } = vi.hoisted(() => ({
+const { put, head } = vi.hoisted(() => ({
   put: vi.fn(async (pathname: string, _body: unknown, options: Record<string, unknown>) => ({
     url: `https://editorial-media-test.public.blob.vercel-storage.com/${pathname}`,
     contentType: options.contentType,
   })),
+  head: vi.fn(async (pathname: string) => ({
+    url: `https://briefing-test.private.blob.vercel-storage.com/${pathname}`,
+    contentType: "application/xml",
+  })),
 }));
 
-vi.mock("@vercel/blob", () => ({ put }));
+vi.mock("@vercel/blob", () => ({ put, head }));
 
 import { storeEditorialImage, storeRawBytes } from "@/server/core/blob";
 import {
@@ -66,6 +70,7 @@ let saved: Record<string, string | undefined>;
 beforeEach(() => {
   saved = Object.fromEntries(ENV_KEYS.map((key) => [key, process.env[key]]));
   put.mockClear();
+  head.mockClear();
 });
 
 afterEach(() => {
@@ -197,6 +202,36 @@ describe("editorial media Blob binding", () => {
       deployedWithBothStores();
       await storeRawBytes("briefing/raw/example.html", "<html></html>", "text/html");
       expect(optionsOfLastPut()).toMatchObject({ allowOverwrite: false, addRandomSuffix: false });
+    });
+
+    /* Production, 2026-09-07 22:30 → 09-08 04:13 UTC. Israel Hayom served
+       byte-identical feed content for six hours; the object for those bytes
+       was already in the store with no `source_fetch` row pointing at it, so
+       every collection window re-derived the same content-addressed path,
+       `put()` refused it, and twelve jobs burned five attempts each into
+       quarantine while the feed was healthy. An existing object at a
+       content-addressed path *is* the bytes about to be stored. */
+    it("returns the existing object when a content-addressed raw path is already taken", async () => {
+      deployedWithBothStores();
+      put.mockRejectedValueOnce(new Error(
+        "Vercel Blob: This blob already exists, use `allowOverwrite: true` if you want to overwrite it. Or `addRandomSuffix: true` to generate a unique filename.",
+      ));
+      const pathname = "briefing/raw/source-id/6a731b4f61b7346d2cb246b7b2d8e8024e3153db884695ed59f396aaacbba29e.xml";
+
+      const stored = await storeRawBytes(pathname, "<rss/>", "application/xml");
+
+      expect(stored.url).toBe(`https://briefing-test.private.blob.vercel-storage.com/${pathname}`);
+      expect(put).toHaveBeenCalledTimes(1);
+      expect(optionsOfLastPut()).toMatchObject({ allowOverwrite: false, addRandomSuffix: false });
+      expect(head).toHaveBeenCalledWith(pathname, { storeId: BRIEFING_STORE });
+    });
+
+    it("still surfaces every other raw storage failure", async () => {
+      deployedWithBothStores();
+      put.mockRejectedValueOnce(new Error("Vercel Blob: Access denied, please provide a valid token for this resource."));
+      await expect(storeRawBytes("briefing/raw/example.html", "<html></html>", "text/html"))
+        .rejects.toThrow(/Access denied/);
+      expect(head).not.toHaveBeenCalled();
     });
 
     it("passes the caller's content type through unchanged", async () => {

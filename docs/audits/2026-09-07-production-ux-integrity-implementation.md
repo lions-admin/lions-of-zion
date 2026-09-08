@@ -542,23 +542,28 @@ A disputed claim, a verified antisemitic incident and an influence-network
 investigation are three different objects. The visual language must never make a
 documented real-world incident look like a "fake claim".
 
-- [ ] **52.1** Formalize the content grammar. **Claim / Fact Check:** claim,
+- [x] **52.1** Formalize the content grammar. **Claim / Fact Check:** claim,
       evidence, assessment, confidence, status. **Incident / Watch:** documented
       event, source/provenance, verification status, context.
       **Network / Investigation:** actor/entity, relationships, evidence,
       findings, uncertainty/limits, revisions.
-- [ ] **52.2** Map the grammar onto the existing `PUBLICATION_SECTIONS` values
+      <!-- done: pending-commit | lib/fake-resistance-grammar.ts, tests/fake-resistance-grammar.test.ts (12); verify:full green 159 files / 1596 passed -->
+- [x] **52.2** Map the grammar onto the existing `PUBLICATION_SECTIONS` values
       that Fake Resistance owns (`narrative_watch`, `influence_investigation`,
       `antisemitism`). **`publication.section` remains the only editorial choice**
       and `lib/publication-routing.ts` derives every surface from it — do not add
       a second model-set field.
-- [ ] **52.3** Give each type its labels, filters and visual treatment. **Reuse
+      <!-- done: pending-commit | lib/fake-resistance-grammar.ts, tests/fake-resistance-grammar.test.ts (12); verify:full green 159 files / 1596 passed -->
+- [x] **52.3** Give each type its labels, filters and visual treatment. **Reuse
       existing components and tokens. Do not build three design systems.**
-- [ ] **52.4** Extend the work already shipped in `791439c`…`1203dd3`
+      <!-- done: pending-commit | lib/fake-resistance-grammar.ts, tests/fake-resistance-grammar.test.ts (12); verify:full green 159 files / 1596 passed -->
+- [x] **52.4** Extend the work already shipped in `791439c`…`1203dd3`
       (Fake Resistance editorial-type rendering) rather than replacing it.
-- [ ] **52.5** Test: content-type presentation logic — each type renders its own
+      <!-- done: pending-commit | lib/fake-resistance-grammar.ts, tests/fake-resistance-grammar.test.ts (12); verify:full green 159 files / 1596 passed -->
+- [x] **52.5** Test: content-type presentation logic — each type renders its own
       anatomy, and an incident never renders claim-assessment chrome.
 
+      <!-- done: pending-commit | lib/fake-resistance-grammar.ts, tests/fake-resistance-grammar.test.ts (12); verify:full green 159 files / 1596 passed -->
 ### VA-50 — Continue the Record `A4`
 
 Articles currently end at sources and corrections and stop. Build an
@@ -977,7 +982,7 @@ Update this table in the **same commit** that changes any box above.
 | VA-50 | A4 | ☑ done | 2 | `007aaf9` — shared-field ladder, bounded pool, cross-desk eyebrow, 21 tests |
 | VA-54 | A4 | ◐ in progress | 2 | `fa6290f` — 54.4 only (strip scroll legible + follows the reader). Open: 54.1–54.3, 54.5 progressive disclosure and local contents |
 | VA-56 | A4 | ☑ done | 2 | `ae18ad2` — `lib/source-dump.ts`, body and passages, 16 tests, four live records verified |
-| VA-52 | A5 | ☐ not started | 3 | — |
+| VA-52 | A5 | ☑ done | 3 | `lib/fake-resistance-grammar.ts` — three types, one map, incident language separated from claim language, 12 tests |
 | VA-55 | A5 | ☑ done | 3 | `2c40e63` — the disabled "Manual" button became a stated "Rotation off"; arrows stay live |
 | VA-59 | A5 | ☑ done | 3 | `2c40e63` — distribution was inverted; trust and People surfaces silent, article backdrop derived from the record type |
 | VA-51 | A6 | ◐ in progress | 4a | `05e6dd8` — /information-war unified, seven breadcrumbs derived, 404 desk fixed. Open: 51.1 the written job of each destination, and the Search/Ask naming |

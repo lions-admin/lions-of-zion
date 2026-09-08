@@ -15,6 +15,7 @@ import {
 } from "./HomeJourneyPrimitives";
 import styles from "./homepage-journey.module.css";
 import narrativeStyles from "./HomeNarrativesSection.module.css";
+import { FAKE_RESISTANCE_GRAMMAR, FAKE_RESISTANCE_INTRO } from "@/lib/fake-resistance-grammar";
 
 /**
  * Fake Resistance contains three distinct editorial shapes: Narrative Watch,
@@ -40,8 +41,7 @@ export function HomeNarrativesSection({
         title="Fake Resistance"
       />
       <p className={styles.sectionIntro}>
-        What circulates is not always what the evidence establishes. Read the
-        status before the claim.
+        {FAKE_RESISTANCE_INTRO}
       </p>
       <div className={styles.narrativeSpread}>
         {section.items.map((item, index) => {
@@ -62,18 +62,15 @@ export function HomeNarrativesSection({
               : item.kind === "case"
                 ? "Research case"
                 : item.label;
+          /* VA-52. These were nested ternaries here, so the words that
+             distinguish a claim from an incident from an investigation lived in
+             the component that happened to draw them. They are one map now, and
+             the reason each type gets its own vocabulary is written down beside
+             it: a documented incident must never read as a disputed claim. */
+          const grammar = FAKE_RESISTANCE_GRAMMAR[item.kind];
           const statusMeaning =
-            item.kind === "watch"
-              ? status?.meaning
-              : item.kind === "case"
-                ? "Findings carry their own confidence and limitations."
-                : "Editorial reporting filed to the Fake Resistance desk.";
-          const kicker =
-            item.kind === "watch"
-              ? "Claim in circulation"
-              : item.kind === "case"
-                ? "Influence investigation"
-                : item.label;
+            item.kind === "watch" ? status?.meaning : grammar.meaning;
+          const kicker = grammar.kicker;
           const heading = item.kind === "watch" ? item.claim : item.title;
           return (
             <article

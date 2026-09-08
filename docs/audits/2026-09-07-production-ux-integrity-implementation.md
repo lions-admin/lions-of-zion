@@ -1331,15 +1331,58 @@ default parallelism OOMs the suite.
            whole project" warning is pre-existing and unrelated to this task. -->
       <!-- Note: perf:report's total-CSS budget (95.5kB gz vs 90.3kB) is over,
            proven pre-existing and unrelated — see 53.6. Not a build failure. -->
-- [ ] **T-5** Routing and redirects verified.
-- [ ] **T-6** Canonical IDs verified.
-- [ ] **T-7** Article rendering verified.
-- [ ] **T-8** Homepage rendering verified.
-- [ ] **T-9** Search behaviour verified.
-- [ ] **T-10** Mobile navigation verified.
-- [ ] **T-11** Media states verified.
-- [ ] **T-12** Metadata verified.
-- [ ] **T-13** Reduced-motion behaviour verified.
+Measured against live Production 2026-09-08, in two passes — HTTP
+(`docs/reviews/production-ux-integrity/T-http-verification.md`) and a real
+browser (`…/T-browser-verification.md`). Both swept the **whole** corpus rather
+than a sample.
+
+- [x] **T-5** Routing and redirects verified.
+      <!-- done: 9648c69 | 16 destinations 200 incl. both LEGACY_SECTION_PAGES; /war-update 308 → /geopolitical-brief; robots.txt and sitemap.xml serve; sitemap's 73 /articles/* locs match the API's 73 records exactly, zero in one and not the other. T-5.a (/fake-resistance/watch missing a loc) fixed in 9078e2f -->
+- [x] **T-6** Canonical IDs verified.
+      <!-- done: 9648c69 | 73 records, 0 missing publicId, 0 duplicates; 44 carry a canonicalStoryId and all are distinct, so publication_canonical_story_once holds on live data; all 73 /articles/<publicId> return 200 with a self-referential rel=canonical, 0 mismatches -->
+- [x] **T-7** Article rendering verified.
+      <!-- done: 899e2d5 | all 73 records swept: 200, h1, VA-47 authorship line, structured stack of 1–23 links, 0px overflow. Zero raw "Sources:" dumps and zero bare-URL lines (VA-56 holds). Continue-the-record on 73/73, the 4 thin records falling back to their hub as VA-50 specifies. No doubled narrativeWatchTitle prefix on any of the 14 Fake Resistance records -->
+- [x] **T-8** Homepage rendering verified.
+      <!-- done: 899e2d5 | 0px horizontal overflow at all six viewports, by a full `body *` edge-crossing scan each time; lead leads at every width; bands render 4/4/2 real records identically at all six, nothing dropped on mobile; zero empty states, zero giant cards; donation chips present throughout (§9 intact) -->
+- [x] **T-9** Search behaviour verified.
+      **Failed, fixed, and the fix's own regression fixed.** See the retraction
+      of §1b correction 6 and open question 5. Final live state: a no-match
+      query returns 0 hits and the empty state renders; 72 of 73 records remain
+      findable; keyboard and ARIA untouched.
+      <!-- done: 6cbb9ae, 4956733 | tests/search-reader-audience.test.ts (6); measured live before, after, and after the correction -->
+- [x] **T-10** Mobile navigation verified.
+      <!-- done: 899e2d5 | 390 and 360: every destination reachable, labels match the chrome's canonical names, aria-current marks the active page, focus trapped, Escape closes; 812x375 landscape behaves -->
+- [x] **T-11** Media states verified.
+      <!-- done: 9648c69 | all 14 media URLs resolve (12 Blob PNGs, 2 site-relative webp); 57 pages render no image and *zero* pages anywhere contain src="", src="undefined", >undefined< or an empty <figure>; text-led pages carry breadcrumb, section label, h1, dek and JSON-LD. No media gate touched (owner ruling 2026-09-07 intact) -->
+
+      Two caveats, both recorded rather than fixed, and neither reader-visible:
+
+      - **T-11.a — `mediaDisposition` is `null` on all 14 records that have a
+        picture** (live: `text_led` 25, `null` 48, **`illustrated` 0**). The
+        verification called this "wrong for the entire illustrated corpus" for
+        any consumer branching on `=== "illustrated"`. **Checked: no such
+        consumer exists** — `grep` over `app/`, `components/` and `lib/` finds
+        no frontend read of the field at all. So this is **latent, not live**:
+        nothing is misrendering today, and the trap is set for whoever writes
+        the first consumer. It has the same root as open question 4 — the
+        disposition can only be written when media accompanies the write.
+      - **T-11.b — two articles render a hero the API says they do not have**
+        (`israel-ministry-of-defense-activities-regional-r-lref0`,
+        `us-accepts-military-sale-of-helicopters-to-iraq--p5zzh`).
+        `articleHeroMedia()` falls back to `editorialMediaForSurface`
+        (`lib/content/homepage-media.ts:48`), which the API projection does not
+        see. The page is right and the API is incomplete; a consumer trusting
+        `media: null` would wrongly conclude these are text-led.
+- [x] **T-12** Metadata verified.
+      **Failed; fixed and deployed.** `og:image` existed on exactly one page
+      site-wide while 97 pages declared `summary_large_image`. Fixed in
+      `fe52b7c` (site-card fallback, articles referencing their own deployed
+      generated card) and `9078e2f` (`og:url` on articles, the two title/prefix
+      mismatches). Re-measured live after deploy: hub routes and article pages
+      all carry an image, articles carry `og:url`.
+      <!-- done: fe52b7c, 9078e2f | tests/page-metadata.test.ts (41); verified live on /methodology, /we-are, /october-7 and an article -->
+- [x] **T-13** Reduced-motion behaviour verified.
+      <!-- done: 899e2d5 | controlled comparison: control reads "Rotation off" not "Manual" (VA-55); no auto-play — 7 samples over 12s gave 1 distinct state; arrows work under reduce (1 → Next → 2 → Previous → 1); ScanBackdrop 16 of 17 rows animated under no-preference vs 0 of 17 under reduce, zero running animations. Preference respected, aesthetic not deleted (VA-59) -->
 
 **New regression coverage is required, not optional**, for: partial
 developing-story updates; duplicate-canonical prevention; source normalization;
@@ -1423,7 +1466,8 @@ Update this table in the **same commit** that changes any box above.
 | VA-60 | A7 | ☑ done | 5 | `c7b78c9`, `9e279cd` — 20 critical/exit 1 → **0 critical/exit 0**, full coverage; 90 screenshots; harness fixed first |
 | A11Y-1 | A7 | ☑ done | 5 | `c7b78c9` — contrast, no-JS records, accessible names all re-verified |
 | A11Y-2 | A7 | ⛔ blocked | 5 | Needs a physical iOS device; must not be claimed on emulation |
-| T-1 … T-13 | all | ☐ not started | all | — |
+| T-1 … T-4 | all | ☑ done | all | `e9b65a3` — verify:full green: typecheck clean, lint 0 errors, 163 files / 1620 tests, build 1215 pages |
+| T-5 … T-13 | all | ☑ done | all | Measured live 2026-09-08 over the whole corpus, HTTP + browser. 7 passed; **T-9 and T-12 failed and were fixed and redeployed** (`fe52b7c`, `9078e2f`, `6cbb9ae`, `4956733`). Reports in `docs/reviews/production-ux-integrity/T-{http,browser}-verification.md` |
 
 Note: VA-56 moved from A1 to A4, because A4 owns the article page where the
 structured source stack renders. VA-52 moved from A4 to A5, because the Fake

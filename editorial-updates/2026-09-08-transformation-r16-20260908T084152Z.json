@@ -1,0 +1,94 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r16-20260908T084152Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T08:41:52.453454Z",
+  "creates": [
+    {
+      "key": "iran-partner-relationships-evidence-guide",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "news",
+        "canonicalStoryId": "iran-armed-partner-relationships-evidence-guide",
+        "title": "Iran’s armed partners: what funding, weapons and coordination records actually establish",
+        "summary": "A relationship-by-relationship analysis of Hezbollah, the Houthis, Iraqi armed groups and Hamas. Public records support substantial ties, but their dates and scope do not establish one current synchronized attack order.",
+        "body": "Iran’s ties with Hezbollah, the Houthis, Hamas and particular Iraqi armed groups are supported by public records. Those records establish different things: financial channels, weapons assistance, training, political alignment and, in some cases, attributed operational cooperation. They do not establish one current attack order binding every group to the same targets and date.\n\nThis analysis accompanies the Lions of Zion report on a possible coordinated campaign. It examines the relationships behind that report rather than presenting another account of the same alleged plan. The distinction matters because evidence about how a group acquires resources can be strong while evidence about its next operation remains unavailable.\n\nIran and the IRGC-Quds Force. The Quds Force is the external-operations arm named in many of the reviewed records. A November 29, 2023 U.S. Treasury action describes commodity sales and financial intermediaries that it says benefit Iranian military institutions and support groups including Hamas and Hezbollah. The record establishes the U.S. government’s stated basis for sanctions and identifies a financial mechanism. It is not an independently published ledger of every payment to every armed group, and it cannot supply a current attack timetable.\n\nIran and Hezbollah — financing is documented as a sanctions finding; present command arrangements are less visible. A further Treasury action concerning Hezbollah-aligned officials describes cash moving from Iran and revenue-generating business networks. This is more specific than a generic assertion of alignment, but the findings remain attributable to Treasury. The March 2026 U.S. Annual Threat Assessment also describes Hezbollah’s decision to fight on Iran’s behalf, while warning that future Iranian support was uncertain. That combination supports a consequential strategic relationship without establishing that Tehran directly chooses every Lebanese operation.\n\nHezbollah’s position should therefore be tested in separate parts. Funding and external support concern resources. A decision to enter a conflict concerns strategic alignment. Selection of a particular target, launch time or weapon concerns operational command. The first two may help explain the third, but they do not prove it. A statement about an impending synchronized attack needs evidence at that final level.\n\nIran and the Houthis — material and training links have a separate UN evidentiary basis. The 2024 UN Panel of Experts on Yemen reported information indicating technical assistance, weapons, training and financial support from Iran, Iraqi armed groups and Hezbollah. It examined military equipment and described external assistance as important to Houthi capabilities. That report supports more than rhetorical sympathy. It is nevertheless a dated sanctions-monitoring investigation, not an inventory of September 2026 stocks or a transcript of current instructions from Tehran.\n\nThe same panel describes the Houthis’ own revenue collection and commercial networks. Local resources and external assistance can coexist. A supply relationship does not remove the need to investigate Houthi decisions, local objectives and bargaining interests. For a specific shipping attack, the pertinent questions are who selected the vessel, who provided targeting information and who authorized the launch. Those answers cannot be read directly from a weapons resemblance or a previous training relationship.\n\nIran and Iraqi armed groups — identify the organization before describing the relationship. Treasury’s October 9, 2025 action names Kata’ib Hizballah and associated financial and commercial channels, including allegations of weapons support through the Muhandis General Company. It also states that Kata’ib Hizballah and IRGC officials coordinated operations against U.S. interests in early 2025. This is an attributed claim of operational cooperation with a named group and period, stronger and narrower than saying every Iraqi armed formation follows one command.\n\nThe March 2026 U.S. assessment says some Iraqi Shia militias responded to an Iranian call to attack U.S. bases. The word “some” matters: it does not identify a uniform decision across all organizations or across the Popular Mobilization Forces. Neither that assessment nor the Treasury action justifies treating Iraq’s government, its population or every militia as interchangeable with the groups specified in a source.\n\nIran and Hamas — support does not settle prior knowledge or control. The 2023 Treasury financial-network action includes Hamas among beneficiaries of Iranian support. That is evidence for an attributed financing relationship. It does not show that Iran approved a particular Hamas operation. The September Jerusalem Post report itself distinguishes earlier aspirations to connect fronts from full prior coordination of the October 7 attack. This review has not authenticated the underlying seized planning documents or a complete record of communications; it does not turn that retrospective reporting into a definitive account of who knew every detail.\n\nWhat the current report actually adds. The Jerusalem Post’s September 5 article, updated September 6, describes Israeli assessments and other reporting about an effort to prepare coordinated pressure across several fronts. It also relays claims about conference calls, advisers and joint activity. The article does not disclose the underlying intelligence necessary to verify a shared final plan, target allocation, readiness or execution date. Its publication is evidence that the assessment was reported, not independent access to the alleged operational arrangements.\n\nDates constrain the comparison. The U.S. Annual Threat Assessment uses information available through March 14, 2026. The Yemen panel report was transmitted in October 2024. Those are useful background records, but neither is a September operational update. Conversely, a recent newspaper account does not retroactively authenticate every older allegation it references. The three evidence streams have different dates and purposes and should remain identifiable.\n\nHow to grade the claims. The reviewed records give substantial, attributable support for financial and material relationships. Training assistance is specifically addressed in the Yemen panel’s findings. Some operational cooperation is described for named Iraqi actors and periods. A unified current command chain, a jointly approved simultaneous attack and its imminence remain unverified here. Shared interests and communication make coordination plausible; they do not identify which particular plan, if any, has been approved.\n\nWhat would change the assessment. Authenticated communications tied to named commanders and dates, independently corroborated orders, or a documented sequence connecting planning to execution would strengthen a specific coordination finding. Conflicting instructions, refusals or independently chosen timing could narrow it. Until then, describing each relationship and the limits of its sources is more informative than using “proxy network” as a complete explanation.",
+        "language": "en",
+        "editorialTopic": "Iran-aligned armed group relationships",
+        "topicTags": [
+          "iran",
+          "hezbollah",
+          "houthis",
+          "iraq",
+          "hamas",
+          "evidence"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://home.treasury.gov/news/press-releases/jy1932",
+          "title": "November 29, 2023: Iranian military financial facilitation networks",
+          "publisher": "U.S. Treasury",
+          "official": true
+        },
+        {
+          "url": "https://home.treasury.gov/news/press-releases/sb0535",
+          "title": "Treasury findings on Hezbollah financial networks and Iranian cash transfers",
+          "publisher": "U.S. Treasury",
+          "official": true
+        },
+        {
+          "url": "https://home.treasury.gov/news/press-releases/sb0277",
+          "title": "October 9, 2025: named Iraqi militia finance, arms and operational links",
+          "publisher": "U.S. Treasury",
+          "official": true
+        },
+        {
+          "url": "https://www.dni.gov/files/ODNI/documents/assessments/ATA-2026-Unclassified-Report.pdf",
+          "title": "March 2026 Annual Threat Assessment — information cutoff March 14",
+          "publisher": "Office of the Director of National Intelligence",
+          "official": true
+        },
+        {
+          "url": "https://documents.un.org/api/symbol/access?l=en&s=S%2F2024%2F731&t=pdf",
+          "title": "S/2024/731: UN Panel of Experts on Yemen report",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://www.jpost.com/middle-east/article-907636",
+          "title": "September 5–6 reporting on alleged coordination assessments",
+          "publisher": "The Jerusalem Post"
+        },
+        {
+          "url": "https://lionsofzion.io/articles/iran-coordinates-with-hezbollah-hamas-houthis-fo-of4fn",
+          "title": "Related original report: Iran and its armed partners",
+          "publisher": "Lions of Zion"
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 16 — relationship-by-relationship analysis",
+      "sourcesReviewed": [
+        "https://home.treasury.gov/news/press-releases/jy1932",
+        "https://home.treasury.gov/news/press-releases/sb0535",
+        "https://home.treasury.gov/news/press-releases/sb0277",
+        "https://www.dni.gov/files/ODNI/documents/assessments/ATA-2026-Unclassified-Report.pdf",
+        "https://documents.un.org/api/symbol/access?l=en&s=S%2F2024%2F731&t=pdf",
+        "https://www.jpost.com/middle-east/article-907636",
+        "https://lionsofzion.io/articles/iran-coordinates-with-hezbollah-hamas-houthis-fo-of4fn"
+      ],
+      "conclusion": "Full 52-record public inventory rechecked. Original of4fn has two stored passages overriding its previously rewritten body; headline already appropriately qualified. Publish distinct relationship evidence guide with direct link to original current-plan report, not a second event record. UN PDF and ODNI PDF downloaded and extracted; administrative allegations and dated assessments kept attributable.",
+      "outcome": "published"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 16 PARTIAL: of4fn remains a two-passage original report; its stored full analysis is not rendered and cannot be substituted by package body. Companion addresses distinct relationship-evidence subject and does not claim original-body repair. Acceptance: supported original passage replacement plus visible revision history and explicit related-article link; no duplicate event prominence.",
+    "RUN 16 EVIDENCE LIMITS: No authenticated current joint attack order, complete underlying intelligence, private command records or seized-document provenance chain reviewed. Full hidden/all-status canonical search unavailable; public inventory checked. No current readiness or universal Iranian control finding."
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r13-20260908T023051Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T02:30:51.375043Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "adidas-dated-lifecycle",
+      "target": {
+        "publicId": "adidas-boycott-narrative-what-the-viral-single-s-5wxlh"
+      },
+      "publication": {
+        "title": "Adidas boycott: the accessibility service, misleading claims and the company’s response",
+        "summary": "The Single Shoe service began before the controversy. The local Israeli promotion, the athlete’s 2021 injury and Adidas’s later apology are distinct parts of the story; criticism of the advertising choice is separate from false claims about the program.",
+        "body": "The Adidas controversy combines a real choice of featured athlete with misleading claims about an accessibility service. The company’s Single Shoe service was not created for Israeli soldiers injured in the current Gaza war. Objections to featuring a former Israeli soldier are a different question from the service’s origin, availability or eligibility.\n\nBefore the boycott: the service. Adidas’s March 11, 2026 announcement says the service had been operating since January 19 in 23 European countries. Customers with a leg-limb difference could purchase the shoe they needed for half the price of a pair in participating Adidas-owned stores. That dated primary document describes a general accessibility initiative developed with input from the relevant community; it does not identify Israeli military service as an eligibility requirement.\n\nThe advertising choice. A local Israeli promotion featured Shalev Biton, a former IDF soldier and amputee. The Times of Israel reports that the posters were used in Israel rather than as a global campaign. The reach of a reposted image is therefore not a reliable guide to where the original advertising appeared. The original service announcement and the local promotion are related events, not the same launch.\n\nThe injury timeline. The same report dates Biton’s injury to May 12, 2021, on the Israeli side of the Gaza border. It does not place that injury in the war beginning in October 2023. A correct date matters because moving an event into a later war changes the factual allegation attached to the person in the image.\n\nHow the framing changed. The misleading version turned a service for people with limb differences into a benefit supposedly designed for Israeli soldiers. Another version moved the featured athlete’s injury into the current war. Those are testable factual propositions. A political objection to the company’s choice of representative does not depend on either proposition being true and should not be dismissed merely because other posts contained errors.\n\nThe source stack retains an indexed September 3 social post from the earlier reporting. It is a documented example within that earlier source trail, not proof that its author originated every version of the claim. The reviewed material does not establish a complete first-post chronology or an independently measured amplification network. A prominent post can be an amplifier without being the origin, and similar wording does not by itself prove coordination.\n\nThe company response. In a statement reported on September 7, Adidas apologized for offense caused by the local activation and said it was taking the feedback seriously. That response addresses the promotional choice and its impact. It does not make the service’s earlier launch date or broader purpose disappear. The apology was already added to this record before this revision; it is retained here as part of the sequence, not presented as a new development today.\n\nGeography also needs a date. The March primary announcement establishes the European rollout at that point in time. It should not be treated as proof that no later expansion occurred. Nor should later availability be projected backward into the January launch. A claim about where the program operates needs to specify which announcement and date it describes.\n\nCurrent assessment. The documentary correction is narrow: the service predates the controversy and was not announced as a program for Israeli military casualties. The dated reporting also contradicts the claim that Biton lost his leg in the current war. Questions about representation, corporate responsibility and whether to boycott remain political judgments. Keeping those questions separate lets readers assess criticism without accepting an inaccurate supporting story.\n\nWhat this revision changes. It adds the exact launch date, separates the geographic reach of the service from the local promotion and the later online circulation, and clarifies that the available source trail does not establish a complete origin or coordination finding. The remaining gaps are the full earliest-post sequence, the private decision-making behind the promotion, and a measured account of later mutations across platforms.",
+        "changeSummary": "Clarification: add the January 19 launch date, separate the European service rollout from the local Israeli promotion, and distinguish documented amplification from an unproven origin or coordination claim. Retain the previously reported apology."
+      },
+      "sources": []
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 13 — Adidas narrative lifecycle",
+      "sourcesReviewed": [
+        "https://news.adidas.com/GLOBAL/adidas-launches-single-shoe-service-for-those-living-with-leg-limb-difference/S/566e1eb1-0e4f-4747-b153-0607890bacef",
+        "https://www.timesofisrael.com/adidas-apologizes-for-offense-over-promotion-featuring-ex-idf-soldier-who-lost-leg-in-2021/"
+      ],
+      "conclusion": "Rechecked the primary launch announcement and September 7 response reporting. Existing canonical already contained apology; no invented new event. Refined chronology, local-versus-global promotion distinction and limits of origin claims, while retaining political criticism as a separate proposition. Existing sources retained; no duplicate source attachment needed.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 13 PARTIAL RESEARCH: Complete first-post chronology, authenticated original promotion archive and measured cross-platform propagation remain unavailable. The article explicitly limits its origin and coordination conclusions. No claim of a complete forensic network reconstruction or independently verified every later mutation."
+  ]
+}

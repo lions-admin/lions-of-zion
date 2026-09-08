@@ -1,0 +1,82 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r42-20260908T110203Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T11:02:03.190370Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "iran-partner-network-natural-prose",
+      "target": {
+        "publicId": "iran-s-armed-partners-what-funding-weapons-and-c-1c7jr"
+      },
+      "publication": {
+        "title": "Iran's armed partners do not operate as one army: what the records show",
+        "summary": "Financial, weapons and training ties are well documented, but they differ across Hezbollah, the Houthis, Hamas and named Iraqi groups. The public record does not establish one current command chain or a finalized synchronized attack plan.",
+        "body": "Iran's relationships with Hezbollah, the Houthis, Hamas and named Iraqi armed groups are real, consequential and different from one another. Public records document money, weapons, training, political alignment and some operational cooperation. They do not show one standing army under a single command or prove the reported existence of a synchronized attack plan for a particular date.\n\nThe IRGC-Quds Force appears repeatedly in sanctions and intelligence records as Iran's principal instrument for work with armed partners. A November 2023 U.S. Treasury action described commodity sales and intermediaries that it said benefited Iranian military institutions and supported Hamas and Hezbollah. That finding identifies a financial mechanism and the U.S. government's basis for sanctions. It is not a ledger of every transfer or a window into current attack orders.\n\nHezbollah has the deepest institutional relationship with Iran among the groups examined here. Treasury has described cash transfers and revenue networks linked to Hezbollah officials. The March 2026 U.S. Annual Threat Assessment said Hezbollah chose to fight on Iran's behalf while also describing uncertainty about future Iranian support. Together, those records support financing and strategic alignment. They reveal much less about who selects a particular target, weapon or launch time.\n\nThe Houthi relationship has a separate evidentiary trail. A 2024 UN Panel of Experts on Yemen reported information about technical assistance, weapons, training and financial support from Iran, Iraqi armed groups and Hezbollah. The panel also documented the Houthis' own revenue sources and commercial networks. External assistance and local decision-making can coexist; neither should be erased by calling the group a proxy.\n\nFor any particular shipping attack, the unanswered questions are practical: who selected the vessel, supplied the intelligence and authorized the launch? A previous training relationship or similarity between weapons cannot answer those questions on its own.\n\nIraq requires even more precision because its armed groups are not one organization. Treasury's October 2025 action named Kata'ib Hizballah and alleged specific finance, weapons and operational links with IRGC officials in a defined period. The 2026 U.S. threat assessment said some Iraqi Shia militias answered an Iranian call to attack U.S. bases. “Some” is the key word. These records do not justify treating every militia, the Popular Mobilization Forces, Iraq's government and the Iraqi public as one actor.\n\nIranian support for Hamas is also documented, including in Treasury's financial-network findings. Support does not settle whether Iran knew or approved the details of a particular Hamas operation. The reviewed September report distinguishes ambitions to connect fronts from complete prior coordination of the October 7 attack, and this review has not authenticated the underlying seized documents or a full communications record.\n\nThe current attack-plan story rests on reported Israeli assessments about efforts to prepare coordinated pressure across several fronts. It includes claims about conference calls, advisers and joint activity, but does not disclose the intelligence needed to verify a final plan, target allocation, readiness or execution date. Publication confirms that the assessment was reported; it does not grant independent access to the alleged plan.\n\nThe dates keep the evidence in proportion. The U.S. threat assessment used information available through March 14, 2026, and the Yemen panel report was transmitted in October 2024. Both are strong background sources. Neither is a September operational update. The newer newspaper report is timely, but timeliness does not authenticate every retrospective allegation it repeats.\n\nThe resulting picture is firm at the level of relationships and uneven at the level of command. Financial and material ties have substantial attributable support. Training is specifically documented in the Yemen findings. Operational cooperation is described for named Iraqi actors and periods. A current unified command chain and approved simultaneous attack remain unverified.\n\nThat assessment could change with authenticated communications tied to named commanders and dates, corroborated orders, or a documented path from planning to execution. Evidence of refusal, conflicting instructions or independently chosen timing could narrow it. Until then, describing the relationships one by one tells readers more than treating “proxy network” as a complete explanation.",
+        "changeSummary": "Replace a repetitive claim-by-claim template with a shorter narrative organized around how the four relationships differ. Preserve every evidentiary distinction, source date, counterexample and unresolved attack-plan question."
+      },
+      "sources": [
+        {
+          "url": "https://www.dni.gov/files/ODNI/documents/assessments/ATA-2026-Unclassified-Report.pdf",
+          "title": "March 2026 Annual Threat Assessment — information cutoff March 14",
+          "publisher": "Office of the Director of National Intelligence",
+          "official": true
+        },
+        {
+          "url": "https://home.treasury.gov/news/press-releases/sb0535",
+          "title": "Treasury findings on Hezbollah financial networks and Iranian cash transfers",
+          "publisher": "U.S. Department of the Treasury",
+          "official": true
+        },
+        {
+          "url": "https://home.treasury.gov/news/press-releases/sb0277",
+          "title": "Named Iraqi militia finance, arms and operational links",
+          "publisher": "U.S. Department of the Treasury",
+          "official": true
+        },
+        {
+          "url": "https://documents.un.org/api/symbol/access?l=en&s=S%2F2024%2F731&t=pdf",
+          "title": "UN Panel of Experts on Yemen report",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://www.jpost.com/middle-east/article-907636",
+          "title": "Report on an alleged coordinated attack effort",
+          "publisher": "The Jerusalem Post",
+          "official": false
+        },
+        {
+          "url": "https://home.treasury.gov/news/press-releases/jy1932",
+          "title": "Treasury findings on Iranian military financial networks",
+          "publisher": "U.S. Department of the Treasury",
+          "official": true
+        }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 42 — prominent prose and template review",
+      "sourcesReviewed": [
+        "https://www.dni.gov/files/ODNI/documents/assessments/ATA-2026-Unclassified-Report.pdf",
+        "https://home.treasury.gov/news/press-releases/sb0535",
+        "https://home.treasury.gov/news/press-releases/sb0277",
+        "https://documents.un.org/api/symbol/access?l=en&s=S%2F2024%2F731&t=pdf",
+        "https://www.jpost.com/middle-east/article-907636",
+        "https://home.treasury.gov/news/press-releases/jy1932",
+        "https://lionsofzion.io/articles/how-weak-claims-look-confirmed-a-reader-s-guide--l09av",
+        "https://lionsofzion.io/articles/what-changed-since-september-6-the-september-8-e-2w74s",
+        "https://lionsofzion.io/articles/israel-and-regional-security-briefing-6-septembe-kc8en"
+      ],
+      "conclusion": "The methods playbook benefits from explicit technique and test labels, and the delta edition already uses event-specific prose, so neither warranted cosmetic rewriting. The Iran-partner explainer repeated identical qualification structures across actors. It has been tightened into a connected comparison without dropping evidence limits or disconfirming possibilities. The older September 6 brief still uses a mechanical six-module template but stored passages prevent a reliable package-only rewrite.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 42 STORED BRIEF PASSAGES: the September 6 briefing renders six generic modules from stored passages. Acceptance: support versioned passage replacement so editors can rewrite mechanical structures while preserving the original edition and visible change history."
+  ]
+}

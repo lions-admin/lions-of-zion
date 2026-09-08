@@ -1,0 +1,102 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r36-20260908T101009Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T10:10:09.374577Z",
+  "creates": [
+    {
+      "key": "october7-high-stakes-figures-audit",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "history_context",
+        "canonicalStoryId": "october7-high-stakes-figures-audit",
+        "title": "October 7 by the numbers: what is counted, estimated and revised",
+        "summary": "The 251-hostage total is a defined later count; the death toll is commonly rounded above 1,200; location totals depend on the unit; and reported Israeli estimates of roughly 5,500–6,000 border crossings do not establish that every person was a fighter. Each figure needs a source, date and definition.",
+        "body": "Four numbers anchor the Lions of Zion October 7 hub: more than 1,200 people killed, 251 hostages, more than 22 communities attacked, and roughly 6,000 “fighters” crossing from Gaza. They do not have the same precision or source history. The hostage count is a defined later total; the death toll is conventionally rounded; the location count depends on what is counted; and the border-crossing estimate should not classify every person as a fighter.\n\nPeople killed. The IDF's October 7 inquiry hub states that 1,200 people were killed. United Nations records also use “more than 1,200.” These are rounded public totals rather than a single immutable roll attached to the page. Early estimates were revised as bodies were identified, and later sources can differ depending on whether they count only deaths on October 7, people who later died of wounds, security personnel killed in continuing battles, or hostages killed at the scene whose bodies were taken to Gaza.\n\nWhat “mostly civilians” means. The overall record supports that civilians formed the largest category among those killed in the attack. A precise civilian share requires a named casualty list and stated rules for soldiers off duty, police, local security teams, foreign workers and people whose status changed after identification. The hub's qualitative wording is safer than an uncited exact percentage, but its source and cutoff date should appear beside it.\n\nHostages. The strongest stable figure is 251 people abducted from Israel and taken to Gaza on October 7. A September 2024 UN Commission of Inquiry report specifies 226 civilians and 25 members of Israeli security forces, including 90 women and 36 children. Earlier reporting often said about 240 or about 250 because identification was incomplete; those are superseded estimates, not competing current totals.\n\nBorder crossings. A September 2024 report based on a Gaza Division assessment said about 6,000 Gazans crossed the border, including approximately 3,800 members of Hamas's Nukhba force. Later coverage of the IDF inquiry described approximately 5,400 to 5,600 invaders. The underlying full force-wide dataset, definitions and uncertainty interval were not published in the sources reviewed here.\n\nWhy “6,000 fighters” is too definite. The reported 6,000 is a total crossing estimate. The same reporting distinguished trained Hamas forces from other militants and civilians who crossed later. Calling all 6,000 fighters erases that distinction and gives an estimate the appearance of a confirmed combatant count. A better formulation is: Israeli military assessments reported by news organizations estimated roughly 5,500 to 6,000 people crossed; reported classifications within that total vary and remain incompletely documented.\n\nAn earlier international estimate. A June 2024 UN Commission report referred to more than 1,000 members of Hamas and other armed groups, accompanied by Palestinian civilians. That does not necessarily contradict a later Israeli crossing estimate: it uses a different evidentiary record, earlier date and category. It does show why a page must name the source and date instead of presenting one figure as timeless.\n\nCommunities and locations. Associated Press reported on October 7 that armed men reached as many as 22 locations. The Lions hub says 22-plus communities, the Nova festival and about a dozen military bases or posts. A location count, a civilian-community count and a count of separate attack sites are not interchangeable. Some inquiries count kibbutzim and towns; others include roads, the festival, military posts and border facilities.\n\nRockets. The hub says thousands of rockets were fired, while the IDF inquiry page states more than 3,000. Other later reports cite higher totals for the day. The important correction is the same: preserve the metric and time window. Launches, projectiles crossing into Israel, interceptions and impact sites are different denominators.\n\nRevisions are evidence. A change from an early hostage or death estimate is not evidence that the event was invented; it records identification under difficult conditions. The editorial obligation is to retain the earlier figure when historically relevant, show the later number and explain what changed. Silent replacement makes legitimate updating look like contradiction.\n\nThe current evidence hierarchy. Named official lists and case-level identifications are strongest for people. Operational inquiry findings can support attack timelines and force estimates, but an internal military inquiry is still a party's investigation. UN inquiries add an external record with their own access limits. Independent reporting can reconcile these sources; multiple articles repeating one leaked assessment remain one source family.\n\nWhat should change on the archive hub. Keep 251 as the defined abduction total. Label the death toll as an approximate, dated count and link its methodology. Replace “roughly 6,000 fighters” with a reported range for people crossing and separately attribute the militant classification. Replace “22-plus communities” with a defined count or explain that early reports counted locations while the hub separately includes civilian communities, Nova and military sites.\n\nThe finding. The scale of the October 7 attack is firmly documented, but the headline figures differ in precision. The current crossing sentence turns a contested classification into a fact, and the location label mixes units. Showing source, date, definition and revision beside each number makes the record stronger, not weaker.",
+        "language": "en",
+        "editorialTopic": "October 7 casualty, hostage and attacker figures",
+        "topicTags": [
+          "october-7",
+          "casualty-counts",
+          "hostages",
+          "attackers",
+          "evidence-methods"
+        ],
+        "primaryActor": "Victims, hostages and attackers on October 7",
+        "arena": "Southern Israel and Gaza border"
+      },
+      "sources": [
+        {
+          "url": "https://www.idf.il/en/mini-sites/710-the-inquiries/",
+          "title": "IDF October 7 inquiries hub: 1,200 killed, 251 hostages and more than 3,000 rockets",
+          "publisher": "Israel Defense Forces",
+          "official": true
+        },
+        {
+          "url": "https://www.un.org/unispal/document/report-of-the-independent-international-commission-of-inquiry-on-the-occupied-palestinian-territory-including-east-jerusalem-and-israel-11sep24/",
+          "title": "UN Commission report defining the 251 hostages and category breakdown",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://www.un.org/unispal/document/coi-report-a-hrc-56-26-27may24/",
+          "title": "June 2024 UN Commission report and earlier attacker description",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://www.un.org/unispal/document/coi-attacks-7october2023-report-10jun24/",
+          "title": "Detailed UN findings on the October 7 attacks",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://www.jpost.com/israel-hamas-war/article-817176",
+          "title": "Report on the Gaza Division estimate of 6,000 crossings and 3,800 Nukhba members",
+          "publisher": "The Jerusalem Post"
+        },
+        {
+          "url": "https://www.ynetnews.com/article/h1o411xr9ke",
+          "title": "Report on later IDF inquiry estimate of more than 5,500 infiltrators",
+          "publisher": "Ynetnews"
+        },
+        {
+          "url": "https://apnews.com/article/11fb98655c256d54ecb5329284fc37d2",
+          "title": "October 7 contemporaneous report of armed men reaching as many as 22 locations",
+          "publisher": "Associated Press"
+        },
+        {
+          "url": "https://library.mevaker.gov.il/sites/DigitalLibrary/Pages/Reports/10312-1.aspx",
+          "title": "2026 State Comptroller report showing a later casualty categorization",
+          "publisher": "State Comptroller of Israel",
+          "official": true
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 36 — October 7 high-stakes claim audit",
+      "sourcesReviewed": [
+        "https://www.idf.il/en/mini-sites/710-the-inquiries/",
+        "https://www.un.org/unispal/document/report-of-the-independent-international-commission-of-inquiry-on-the-occupied-palestinian-territory-including-east-jerusalem-and-israel-11sep24/",
+        "https://www.un.org/unispal/document/coi-report-a-hrc-56-26-27may24/",
+        "https://www.un.org/unispal/document/coi-attacks-7october2023-report-10jun24/",
+        "https://www.jpost.com/israel-hamas-war/article-817176",
+        "https://www.ynetnews.com/article/h1o411xr9ke",
+        "https://apnews.com/article/11fb98655c256d54ecb5329284fc37d2",
+        "https://library.mevaker.gov.il/sites/DigitalLibrary/Pages/Reports/10312-1.aspx"
+      ],
+      "conclusion": "The 251-hostage figure is supported by Israeli and UN records with a defined breakdown. More than 1,200 killed is a rounded figure whose exact composition depends on cutoff and category. The archive's ‘roughly 6,000 fighters’ overstates reported military assessments: coverage described about 6,000 total Gazans crossing, with a subset classified as Nukhba and the remainder containing other militants and civilians; later inquiry coverage used about 5,400–5,600. The 22 figure originated as locations and should not silently become a community count.",
+      "outcome": "published"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 36 STATIC FIGURES: replace ‘roughly 6,000 fighters cross’ on /october-7 with a dated, attributed range for people crossing and a separate classification statement. Acceptance: source, date, estimate status and competing later range appear beside the claim.",
+    "RUN 36 LOCATION UNIT: the 22-plus label mixes communities, event sites and posts. Acceptance: define whether the number counts civilian communities, all locations or attack focal points, and attach a maintained list.",
+    "RUN 36 CASUALTY LEDGER: attach a dated methodology and version history to the rounded death figure. Acceptance: category definitions, cutoff, later identifications and reasons for revision are visible without altering archived testimony."
+  ]
+}

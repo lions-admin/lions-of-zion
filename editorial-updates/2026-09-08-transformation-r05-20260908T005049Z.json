@@ -1,0 +1,80 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r05-20260908T005049Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T00:50:49.977837Z",
+  "creates": [
+    {
+      "key": "publication-provenance-reader-guide",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "news",
+        "canonicalStoryId": "lions-publication-provenance-reader-guide",
+        "title": "Who wrote this, who reviewed it, and what counts as evidence?",
+        "summary": "A reader’s guide to Lions of Zion’s automated reports, human assessments, checked packages, imports and preserved records—and the limits of each label.",
+        "body": "A Lions of Zion page can be machine-authored reporting, a human-reviewed assessment, an imported record or an editorial history page. Those descriptions tell readers how material reached publication. They do not, by themselves, establish whether its central claim is true. The practical questions remain: what is the claim, which source supports it, and what does that source actually establish?\n\nMachine-authored editorial reporting. The editorial system can research, draft, publish and revise articles without a person approving each article before publication. Its records carry machine provenance. The people operating the system remain responsible for its design and corrections, but that responsibility should not be confused with a recorded human review of an individual article. Successful publication shows that the delivery process accepted the article; it does not certify every inference in it.\n\nHuman-reviewed assessment. This is a different path. A person other than the assessment’s author must approve it, and an automated identity cannot provide that approval. A public page should claim this review only when the record supports it. A polished investigation page, a long source list or an old reference to review is not a substitute for evidence of the relevant approval.\n\nChecked editorial package. Some reporting has arrived through the legacy briefing-package process, which applies its own validation and checks. This describes a delivery route, not an additional kind of independent witness. It can overlap with machine authorship. Readers should not assume that every newer editorial article passed the legacy checks, or that a package check amounts to a human assessment of the reporting.\n\nDirect import. Other material can be brought into the site through an import process. The import history matters: it identifies where the material came from and how it was incorporated. Importing a document does not establish that it followed the checked briefing route or received a new independent review. Where those details are absent, the review status remains unestablished rather than silently upgraded.\n\nPreserved archive record. The October 7 archive preserves source material with its own provenance. Hosting, organizing and searching it can make that material more accessible. None of those actions automatically verifies every statement within a testimony or document. A later editorial explanation should remain distinguishable from the preserved source and should identify what it adds.\n\nHistorical or editorial page. Curated pages such as Israel’s Story present an editorial account of a subject. Their claims need sources and their mistakes need visible correction just as reporting does. Their location outside the daily article feed does not make them timeless or exempt from revision.\n\nThese descriptions answer different questions: who authored or reviewed the material, how it was delivered, and whether readers are seeing a source record or an editorial interpretation. They should not be treated as six mutually exclusive badges. A machine-authored report, for example, may also have arrived in a checked package. Its author and its delivery route still do not become evidence for the event it describes.\n\nUse the sources to test the finding. Several articles repeating one statement are not several independent confirmations. An official statement establishes what the official said; its underlying claim may still need corroboration. AI can help compare and explain material, but AI output is never evidence. The most consequential uncertainty should appear beside the claim, where readers need it.\n\nThis explanation accompanies We Are, Methodology and How It Works. It does not certify the review status of every older record or change those original pages. One visible inconsistency remains: the central Corrections page currently treats its empty list as proof that no publication has needed correction. That conclusion is not supported by an empty list, particularly while article histories and static-page revisions are not all connected to it. Readers should consult the change history and correction notes on the relevant publication.",
+        "language": "en",
+        "editorialTopic": "Publication transparency",
+        "topicTags": [
+          "editorial-transparency",
+          "provenance",
+          "methodology"
+        ]
+      },
+      "sources": [
+        {
+          "url": "https://lionsofzion.io/we-are",
+          "title": "We Are — assessment and machine-publication paths",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/methodology",
+          "title": "Methodology — authorship, review and sources",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/information-war",
+          "title": "How It Works — editorial, assessment and archive journeys",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/corrections",
+          "title": "Corrections — current policy and central list",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://github.com/lions-admin/lions-of-zion/blob/main/docs/briefing-packages.md",
+          "title": "Legacy briefing-package documentation",
+          "publisher": "Lions of Zion repository"
+        },
+        {
+          "url": "https://github.com/lions-admin/lions-of-zion/blob/main/scripts/import-archive-package.mjs",
+          "title": "Archive import implementation",
+          "publisher": "Lions of Zion repository"
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 05 — publication classes and public trust",
+      "sourcesReviewed": [
+        "https://lionsofzion.io/we-are",
+        "https://lionsofzion.io/methodology",
+        "https://lionsofzion.io/information-war",
+        "https://lionsofzion.io/corrections",
+        "https://github.com/lions-admin/lions-of-zion/blob/main/docs/briefing-packages.md",
+        "https://github.com/lions-admin/lions-of-zion/blob/main/scripts/import-archive-package.mjs"
+      ],
+      "conclusion": "Live trust pages now distinguish automated editorial publication from human assessment. Companion explains overlapping provenance dimensions without asserting universal review. Static corrections copy still equates an empty unintegrated list with no errors. /how-it-works returns 404; actual How It Works destination is /information-war. Current public inventory contained no canonical guide; authenticated hidden-record search unavailable after connector change.",
+      "outcome": "published"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 05 PARTIAL: Reconcile /methodology and /corrections empty-log claims with actual article and static-page histories. Remove the inference that no item has needed correction. State coverage of the list until integration exists. Acceptance: no public claim that empty list proves absence of errors; distinguish human assessment, automated reporting, checked delivery, direct imports, archives and historical pages without inventing per-record review. Companion does not modify these static pages.",
+    "RUN 05 VERIFICATION LIMIT: Public publication inventory and rendered trust pages inspected; authenticated full-status canonical search and operational source/media warning views are unavailable in the current tool context. No claim of exhaustive unpublished-record inspection."
+  ]
+}

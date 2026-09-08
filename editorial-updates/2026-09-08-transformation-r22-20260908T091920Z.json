@@ -1,0 +1,157 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r22-20260908T091920Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T09:19:20.227900Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "gaza-formal-policy-proposition",
+      "target": {
+        "publicId": "reported-claim-us-ambassador-to-israel-says-ther-0k1g2"
+      },
+      "publication": {
+        "title": "Gaza displacement claim: ministerial proposals exist; a formal forced-removal policy is not established",
+        "summary": "Israeli ministers have advocated large-scale migration, while U.S. Ambassador Mike Huckabee said he knew of no Israeli or U.S. plan to force Palestinians out. The reviewed record does not establish a formal forced-removal order. A voluntary label alone cannot establish meaningful consent.",
+        "body": "The proposition assessed here is narrow: whether the reviewed record establishes a formal Israeli or United States policy to force Palestinians out of Gaza. It does not. U.S. Ambassador Mike Huckabee told Reuters that he knew of no such Israeli or American plan. That statement is evidence of his knowledge and the U.S. position he expressed; it cannot prove that no undisclosed planning exists.\n\nSeparate facts must remain separate. Israeli ministers have publicly advocated large-scale migration. A May 2025 Knesset committee account records Prime Minister Benjamin Netanyahu discussing voluntary migration as a postwar possibility. Public advocacy and administrative preparation are consequential, but they are not the same as a cabinet-approved order for forcible removal, an implementation directive, or completed displacement.\n\nThe word voluntary does not settle the legal or factual question. The ICRC explains that consent must be real and voluntary, and Article 49 of the Fourth Geneva Convention prohibits forcible transfers while allowing only narrow temporary-evacuation exceptions. Whether a future scheme is voluntary would depend on conditions, freedom of choice, destination guarantees and the ability to return—not its label alone.\n\nThis assessment should change if a cabinet decision, operative order, budget authority, implementation record or reliable evidence of coercion emerges. The current record supports three findings: ministerial proposals exist; Huckabee denied knowledge of a forced-removal plan; implementation of a formal mass-forcible-transfer policy has not been established by the reviewed sources.",
+        "narrativeWatchDetails": {
+          "arenas": [
+            "Gaza",
+            "International diplomacy"
+          ],
+          "exactClaim": "Israel or the United States has formally approved a policy to forcibly remove Palestinians from Gaza.",
+          "propagators": [
+            "Commentators treating ministerial migration proposals as an operative government forced-removal policy"
+          ],
+          "knownUnknowns": [
+            "Whether a cabinet-approved operative policy exists outside the reviewed record.",
+            "Whether any future movement would involve meaningful consent under actual conditions.",
+            "Whether receiving-state agreements, budgets, orders or implementation records exist."
+          ],
+          "trendDirection": "unclear",
+          "israeliPosition": "Israeli officials have advocated voluntary migration; Huckabee said he knew of no Israeli or American forced-removal plan.",
+          "securityContext": "Assessment checked September 8, 2026. Ministerial advocacy, a formal government decision, implementation and meaningful consent are distinct propositions. The reviewed sources establish the first, not the latter two. Huckabee's statement is an attributed denial, not proof about every undisclosed process.",
+          "verificationState": "unresolved",
+          "supportingEvidenceIds": [
+            "8dd596fd-8961-48f0-baa8-a8ad5bed6aa8"
+          ],
+          "contradictingEvidenceIds": [
+            "8dd596fd-8961-48f0-baa8-a8ad5bed6aa8"
+          ]
+        },
+        "changeSummary": "Separate ministerial proposals, a formal policy, implementation and voluntariness. Preserve Huckabee's denial as an attributed statement and add primary legal criteria for assessing consent and forcible transfer."
+      },
+      "sources": [
+        {
+          "url": "https://www.reuters.com/world/middle-east/us-ambassador-israel-says-there-is-no-plan-force-palestinians-out-gaza-2026-09-05/",
+          "title": "Huckabee says he knows of no Israeli or U.S. forced-removal plan",
+          "publisher": "Reuters"
+        },
+        {
+          "url": "https://main.knesset.gov.il/AR/News/PressReleases/Pages/press12052025.aspx",
+          "title": "Knesset committee account of Netanyahu remarks on voluntary migration, May 2025",
+          "publisher": "Knesset",
+          "official": true
+        },
+        {
+          "url": "https://ihl-databases.icrc.org/en/ihl-treaties/gciv-1949/article-49",
+          "title": "Fourth Geneva Convention, Article 49 — transfers and evacuations",
+          "publisher": "International Committee of the Red Cross",
+          "official": true
+        },
+        {
+          "url": "https://www.icrc.org/en/document/how-humanitarian-corridors-work",
+          "title": "ICRC explanation of consent and voluntary evacuation",
+          "publisher": "International Committee of the Red Cross",
+          "official": true
+        }
+      ]
+    },
+    {
+      "key": "gaza-ministerial-proposal-proposition",
+      "target": {
+        "publicId": "reported-claim-claims-that-israeli-government-pl-nos0i"
+      },
+      "publication": {
+        "title": "Gaza migration proposals: ministerial advocacy is verified; forced-transfer implementation is not",
+        "summary": "Ben-Gvir and Katz publicly advocated large-scale migration from Gaza. Their statements verify political proposals, not an approved and implemented programme of mass forcible transfer. Formal authority, financing, recipient agreements, coercive conditions and movement records remain unresolved.",
+        "body": "The proposition assessed here is that senior Israeli ministers publicly advocated large-scale migration from Gaza. That proposition is supported. Reuters reported that Itamar Ben-Gvir outlined a seven-year plan described as voluntary emigration and that Israel Katz said migration was ultimately necessary. Earlier, a Knesset committee account recorded Prime Minister Benjamin Netanyahu presenting voluntary migration as a postwar possibility.\n\nThose statements do not by themselves establish the stronger proposition carried in earlier coverage: that the government has approved and begun a funded programme of mass forced expulsion. The reviewed reports discuss proposals, political advocacy and requests for U.S. support. They do not supply a cabinet resolution, enacted law, operative removal order, recipient-state agreement or verified implementation record for that stronger claim.\n\nThe categories matter. A speech is evidence of an official's position. A proposal describes an intended policy. A formal decision authorizes government action. Implementation requires evidence of measures taken. Voluntariness is a separate question about meaningful consent under actual conditions. The ICRC's guidance makes clear that a voluntary label is insufficient if civilians do not have a genuine choice.\n\nThe public proposals warrant scrutiny because population movement during war can carry grave legal consequences. The assessment remains open to evidence of formal approval, financing, coercive conditions, agreements with receiving states, movement records and guarantees of safe return. Until then, the ministerial advocacy is verified; government approval and implementation of mass forcible transfer are unresolved.",
+        "narrativeWatchDetails": {
+          "arenas": [
+            "international media",
+            "diplomatic discourse",
+            "social media"
+          ],
+          "exactClaim": "Senior Israeli ministers publicly advocated large-scale migration from Gaza; the reviewed record does not establish an approved and implemented programme of mass forcible transfer.",
+          "propagators": [
+            "Itamar Ben-Gvir",
+            "Israel Katz",
+            "News reports and commentary interpreting their proposals"
+          ],
+          "knownUnknowns": [
+            "A cabinet resolution, law or operative order authorizing the proposed programme.",
+            "Verified budget authority and agreements with receiving states.",
+            "Evidence showing whether movement would be voluntary, coerced or forced in practice.",
+            "Implementation records and guarantees of safe return."
+          ],
+          "trendDirection": "unclear",
+          "israeliPosition": "Ben-Gvir and Katz described migration proposals as voluntary. That description records their stated position and does not determine whether consent would be meaningful in practice.",
+          "securityContext": "Assessment checked September 8, 2026. The public statements are verified as advocacy. Formal government approval, implementation and the legal character of any future movement require separate evidence. Shared reporting about the same statements is not independent confirmation of implementation.",
+          "verificationState": "verified",
+          "supportingEvidenceIds": [
+            "0bac905c-4180-4179-9b99-92e53d16f58c",
+            "34d8da4c-34c3-4424-bd6c-c05033d0b88c"
+          ],
+          "contradictingEvidenceIds": []
+        },
+        "changeSummary": "Narrow the verified finding to public ministerial advocacy. Separate rhetoric and proposals from formal approval, implementation and the factual test of meaningful consent."
+      },
+      "sources": [
+        {
+          "url": "https://main.knesset.gov.il/AR/News/PressReleases/Pages/press12052025.aspx",
+          "title": "Knesset committee account of Netanyahu remarks on voluntary migration, May 2025",
+          "publisher": "Knesset",
+          "official": true
+        },
+        {
+          "url": "https://www.reuters.com/world/middle-east/us-ambassador-israel-says-there-is-no-plan-force-palestinians-out-gaza-2026-09-05/",
+          "title": "Huckabee says he knows of no Israeli or U.S. forced-removal plan",
+          "publisher": "Reuters"
+        },
+        {
+          "url": "https://ihl-databases.icrc.org/en/ihl-treaties/gciv-1949/article-49",
+          "title": "Fourth Geneva Convention, Article 49 — transfers and evacuations",
+          "publisher": "International Committee of the Red Cross",
+          "official": true
+        },
+        {
+          "url": "https://www.icrc.org/en/document/how-humanitarian-corridors-work",
+          "title": "ICRC explanation of consent and voluntary evacuation",
+          "publisher": "International Committee of the Red Cross",
+          "official": true
+        }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 22 — Gaza displacement propositions",
+      "sourcesReviewed": [
+        "https://www.reuters.com/world/middle-east/us-ambassador-israel-says-there-is-no-plan-force-palestinians-out-gaza-2026-09-05/",
+        "https://main.knesset.gov.il/AR/News/PressReleases/Pages/press12052025.aspx",
+        "https://ihl-databases.icrc.org/en/ihl-treaties/gciv-1949/article-49",
+        "https://www.icrc.org/en/document/how-humanitarian-corridors-work",
+        "https://www.middleeasteye.net/news/ben-gvir-set-unveil-20-billion-plan-ethnically-cleanse-gaza-within-seven-years",
+        "https://www.theguardian.com/world/2026/sep/02/israel-seeking-trumps-support-for-plan-to-expel-palestinians-from-gaza"
+      ],
+      "conclusion": "Separate five questions: rhetoric, proposal, formal decision, implementation and voluntariness. Ministerial advocacy is supported; Huckabee's denial is an attributed statement. The reviewed record does not establish an operative mass-forced-transfer programme. The term voluntary cannot answer whether consent would be meaningful under conflict conditions.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 22 PARTIAL: both canonical records have two stored passages that may continue to project the older combined framing over the prepared bodies. Acceptance: replace passages with the proposition-separated text while preserving the original reports and visible revision history.",
+    "RUN 22 EVIDENCE GAP: public inventory cannot rule out hidden policy documents or records. No cabinet resolution, operative order, recipient-state agreement, implementation ledger or independent consent evidence was located. Do not convert absence from the reviewed record into proof of absence."
+  ]
+}

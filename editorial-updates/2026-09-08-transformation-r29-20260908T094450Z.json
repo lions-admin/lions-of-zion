@@ -1,0 +1,104 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r29-20260908T094450Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T09:44:50.327621Z",
+  "creates": [
+    {
+      "key": "arab-physicians-residency-bottleneck",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "science_medicine",
+        "canonicalStoryId": "arab-physicians-israel-residency-bottleneck",
+        "title": "Licensed but waiting: Arab physicians and Israel’s residency bottleneck",
+        "summary": "A policy study found that 71% of Arab graduates of foreign medical schools began residency within five years, compared with more than 90% in the other groups studied. A later Knesset hearing alleged a 3,500-person backlog but did not publish the underlying list. The human and health-system problem is real; its current scale needs transparent data.",
+        "body": "Israel is training and licensing physicians while failing to move some of them into specialist residencies quickly enough. Arab citizens who studied medicine abroad face the clearest measured delay. The result is not just an employment story: it connects who gets to become a specialist with hospital staffing, care in the periphery and the public value of a diverse medical workforce.\n\nThe human bottleneck. At a Knesset Health Committee hearing, Dr. Hussein Khamaisi of Mirsham, an organization representing physicians seeking residency positions, said he waited nearly three years before beginning residency. The hearing also recorded claims that some licensed doctors work through contractors or outside formal positions while waiting. His experience is one account, not a measure of every applicant, but it shows what a multi-year delay means after medical school and licensing.\n\nWhat the research measured. A 2024 Myers-JDC-Brookdale study, commissioned by the Health Ministry, followed the interval between receiving an Israeli medical license and starting residency. It found that Arab graduates of foreign medical schools started residency more slowly than the other groups it compared: 71 percent began within five years, versus more than 90 percent among Jewish doctors and non-Jewish graduates of Israeli universities. The study says the relevant combination was Arab identity and foreign medical education; it should not be rewritten as a finding that every Arab applicant was rejected because of discrimination.\n\nThe 3,500 figure. At the May 18, 2026 committee hearing, MK Ahmad Tibi said more than 3,500 Arab physicians were waiting to begin residency and that about 11,000 Arab physicians were active in Israel. Those are attributed figures presented by a legislator. The committee notice does not provide the underlying applicant list, a date-by-date cohort definition or a Ministry of Health validation of the 3,500. It therefore supports reporting what the committee was told, while the exact current total remains to be verified against administrative data.\n\nWhy residency positions matter. A medical license permits practice, but specialist training depends on an accredited residency post, supervision, clinical exposure and funded staffing. A hospital may report a physician shortage while a licensed graduate cannot enter the specialty or location they seek. The apparent contradiction can reflect geography, specialty mix, training capacity, funding and hiring processes at the same time.\n\nThe national shortage is real but uneven. The OECD's 2025 country note lists 3.5 practicing doctors per 1,000 people in Israel against an OECD average of 3.9, and 5.6 practicing nurses against 9.2. National ratios do not show which hospital, specialty or community lacks staff. The Knesset hearing described stronger shortages in peripheral areas and demanded department-level vacancy and staffing data. That granularity is necessary before claiming that one pool of waiting applicants can fill every gap.\n\nThe role of Arab physicians. The hearing's estimate of 11,000 active Arab physicians describes a large contribution to Israeli healthcare. Hospitals and clinics are among the country's most routine sites of Jewish–Arab professional cooperation, but a coexistence slogan can conceal career barriers. The substantive question is whether licensing, residency selection, mentoring and geographic incentives allow qualified physicians to progress and whether patients receive the specialists they need.\n\nForeign medical schools. Israel tightened recognition of overseas medical education through the Yatziv reform to protect training quality. Quality standards are a legitimate patient-safety function. Their existence does not explain delays among people who already hold an Israeli license. The Brookdale result indicates that school type and group membership need to be analyzed together; the next evidence should compare applicants with similar licensing status, exam performance, specialty preference and geography.\n\nWhat government representatives said. A Health Ministry official told the committee that funded treatment beds include physician and nursing positions and said roughly 1,800 beds were expected to be budgeted in the coming year according to system needs and workload. A Finance Ministry representative described incentives for work in the periphery and recruitment of immigrant specialists. These are statements about planned capacity and programmes, not evidence that positions were created, filled or matched to waiting candidates.\n\nThe committee's accountability request. The acting chair asked the Health Ministry for hospital- and department-level information: required positions, filled and vacant posts, where staffing formulas need revision, and positions added for home care. She also called for regular public disclosure of unfilled residency and specialist positions. That request defines a useful acceptance test. Publication of consistent vacancy, applicant and time-to-placement data would let readers distinguish a training bottleneck from a specialty or location mismatch.\n\nWhat would establish unequal treatment. Aggregate waiting times identify disparity, not mechanism. Stronger evidence would compare similarly qualified applicants across school, exam, specialty and institution; document selection criteria and interview outcomes; and test whether differences persist after those factors. Testimony about connections or opaque hiring is a reason for investigation. It is not sufficient by itself to assign intent across the system.\n\nWhat would show improvement. The meaningful measures are not announcements or total licenses. They are shorter median and tail waiting times, narrower group gaps, more transparent vacancies, completed residencies in shortage specialties, retention in underserved regions and improved patient access. Data should also show applicants who change plans, work abroad or leave medicine so that disappearance from a waiting list is not mistaken for successful placement.\n\nThe finding. Arab physicians are already a major part of Israeli medicine, and peer-reviewed policy research identifies a specific residency delay for Arab graduates of foreign schools. A legislative hearing then put a much larger current backlog claim into the public record and exposed missing administrative transparency. The evidence supports urgent measurement and capacity work; it does not yet support a precise verified count of every person waiting or one cause for every delay.",
+        "language": "en",
+        "editorialTopic": "Arab physicians and health workforce",
+        "topicTags": [
+          "arab-citizens",
+          "physicians",
+          "healthcare",
+          "residency-training",
+          "social-equality"
+        ],
+        "primaryActor": "Arab physicians in Israel",
+        "arena": "Israeli healthcare"
+      },
+      "sources": [
+        {
+          "url": "https://main.knesset.gov.il/EN/News/PressReleases/Pages/press18526q.aspx",
+          "title": "Health Committee hearing on physician posts and Arab residency applicants, May 18, 2026",
+          "publisher": "Knesset",
+          "official": true
+        },
+        {
+          "url": "https://brookdale.jdc.org.il/en/publication/delays-in-the-start-of-residency-for-physicians-after-receipt-of-an-israeli-medical-license/",
+          "title": "Study of delays between medical licensing and residency start",
+          "publisher": "Myers-JDC-Brookdale Institute"
+        },
+        {
+          "url": "https://www.oecd.org/content/dam/oecd/en/publications/reports/2025/11/health-at-a-glance-2025-country-notes_2f94481e/israel_23aa66e2/b3600fbc-en.pdf",
+          "title": "Health at a Glance 2025: Israel country note",
+          "publisher": "OECD",
+          "official": true
+        },
+        {
+          "url": "https://data.gov.il/he/datasets/ministry-health/database-of-doctors-licenses-moh",
+          "title": "Ministry of Health physicians licensing database",
+          "publisher": "Israel Government Data Portal",
+          "official": true
+        },
+        {
+          "url": "https://www.gov.il/en/service/licensed-medical-practitioners",
+          "title": "Official licensed medical-professionals registry guide",
+          "publisher": "Israel Ministry of Health",
+          "official": true
+        },
+        {
+          "url": "https://www.taubcenter.org.il/wp-content/uploads/2025/12/Health-2025-ENG-3.pdf",
+          "title": "Health-system workforce and regional disparities, 2025",
+          "publisher": "Taub Center"
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {
+    "people": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "operationKey": "arab-physicians-residency-bottleneck"
+        }
+      },
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "publicId": "ben-gurion-university-team-develops-aerogel-that-0y2we"
+        }
+      }
+    }
+  },
+  "research": [
+    {
+      "topic": "Run 29 — substantive Israeli society coverage",
+      "sourcesReviewed": [
+        "https://main.knesset.gov.il/EN/News/PressReleases/Pages/press18526q.aspx",
+        "https://brookdale.jdc.org.il/en/publication/delays-in-the-start-of-residency-for-physicians-after-receipt-of-an-israeli-medical-license/",
+        "https://www.oecd.org/content/dam/oecd/en/publications/reports/2025/11/health-at-a-glance-2025-country-notes_2f94481e/israel_23aa66e2/b3600fbc-en.pdf",
+        "https://data.gov.il/he/datasets/ministry-health/database-of-doctors-licenses-moh",
+        "https://www.gov.il/en/service/licensed-medical-practitioners",
+        "https://www.taubcenter.org.il/wp-content/uploads/2025/12/Health-2025-ENG-3.pdf"
+      ],
+      "conclusion": "Select the Arab-physician residency bottleneck because it has a specific human account, a commissioned policy study, national workforce context and a clear accountability test. Attribute the 3,500 and 11,000 figures to the Knesset speaker; the underlying current administrative totals were not published in the reviewed notice.",
+      "outcome": "published"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 29 DATA GAP: the Ministry of Health registry verifies individuals but does not expose the cohort-level waiting list needed to validate the 3,500 claim. Acceptance: publish de-identified applicant counts, time-to-residency distributions, specialty preferences, vacancies, placements and attrition by comparable education and demographic groups.",
+    "RUN 29 COMPOSITION LIMIT: homepage placement uses the supported people band, while the article's science_medicine section routes automatically. Final cross-site composition remains run 44; static People navigation and any desired society sublabels require separate application work.",
+    "RUN 29 MEDIA GAP: no identifiable physician portrait was used without consent and provenance. Acceptance: attach documentary photography only with subject consent, accurate caption, date, location and photographer rights."
+  ]
+}

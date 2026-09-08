@@ -1,0 +1,80 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r18-20260908T084744Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T08:47:44.321909Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "hr4795-primary-legislative-tracker",
+      "target": {
+        "publicId": "us-house-passes-bill-targeting-university-boycot-lhl1q"
+      },
+      "publication": {
+        "title": "H.R. 4795: House passage confirmed; subsequent Senate action not yet verified",
+        "summary": "The House passed the Protect Economic and Academic Freedom Act of 2026 by 237–169 on September 3. The official status file checked September 8 records no later Senate action. The proposal concerns institutional funding conditions and academic-exchange certifications; House passage alone does not make it law. Primary text, vote and committee arguments are now linked below.",
+        "body": "H.R. 4795, the Protect Economic and Academic Freedom Act of 2026, passed the House on September 3 by 237 votes to 169, with 27 members not voting. House Clerk roll call 295 confirms the result. The latest action in the official bill-status file checked September 8 is a House procedural action on September 3; no subsequent Senate action or enactment is recorded in that retrieved file.\n\nThe sponsors and House path. Representative Virginia Foxx introduced the bill on July 29, 2025, with Josh Gottheimer named alongside her in the introduced and reported text. The House Education and Workforce Committee reported an amended version on August 27, 2026. The Rules Committee subsequently provided for consideration under a closed rule and adoption of the substitute in Rules Committee Print 119-39. The operative reference for what the House passed is the September 3 engrossed text, not the earlier introduced version.\n\nThe two funding mechanisms. Section 2 would add a condition to Higher Education Act program-participation agreements barring institutions from specified commercial boycotts of a defined major strategic partner. It defines the covered conduct through commercial purpose and absence of a valid business reason, with incorporated exceptions. Section 3 separately requires annual certifications concerning access to academic exchanges for eligibility under Title VI of that Act. The certification covers both an institution’s students and faculty going abroad and participation by students and faculty from the partner’s institutions. Missing certification would affect the following fiscal year’s Title VI funds.\n\nWhat it does not do. The reviewed House text operates through institutional funding conditions; it does not create a standalone criminal offense of a student criticizing Israel. That textual distinction does not settle whether its definitions and implementation could burden protected expression. House passage alone does not impose the proposed conditions as law.\n\nThe argument for the bill. The committee majority presents it as protecting economic and academic participation from discriminatory institutional boycotts. Its approach distinguishes commercial conduct from expression and seeks to preserve academic exchange. Those are the sponsors’ policy and constitutional arguments, not a court judgment confirming every possible application.\n\nThe civil-liberties objection. The committee’s minority views argue that funding conditions can burden protected political choices and academic freedom, including through pressure on institutions to avoid controversial positions. They dispute the conduct-versus-expression distinction and raise constitutional concerns about attaching conditions to federal money. Opposing the boycott movement and opposing this bill are therefore compatible positions; the disagreement concerns the remedy as well as the underlying politics.\n\nAmendments and next steps. The committee and Rules Committee records establish the amended House path. This review does not identify a later Senate amendment or committee action in the retrieved official status file. Any further claim should specify the chamber, date, text version and recorded action. For enactment, both chambers would need to approve the same text and complete the constitutional enactment process. A Senate referral, if later recorded, would not itself be passage.\n\nThis source upgrade replaces sole reliance on the Reuters account with the House vote, bill text, committee report, procedural record and official status file. The earlier reported vote remains correct. The more precise status is confirmed House passage with no later Senate action shown in the checked official snapshot; the article does not infer a specific Senate committee stage from the general phrase “pending in the Senate.”",
+        "changeSummary": "Source upgrade: identify H.R. 4795 and attach the official vote, House-passed text, committee report and status record. Clarify that the checked record confirms House passage but does not establish a specific subsequent Senate stage."
+      },
+      "sources": [
+        {
+          "url": "https://clerk.house.gov/Votes/2026295",
+          "title": "House roll call 295, September 3, 2026: H.R. 4795 passed 237–169",
+          "publisher": "Clerk of the U.S. House",
+          "official": true
+        },
+        {
+          "url": "https://www.govinfo.gov/content/pkg/BILLS-119hr4795eh/html/BILLS-119hr4795eh.htm",
+          "title": "H.R. 4795 House-passed text, September 3, 2026",
+          "publisher": "U.S. Government Publishing Office",
+          "official": true
+        },
+        {
+          "url": "https://www.govinfo.gov/content/pkg/CRPT-119hrpt780/html/CRPT-119hrpt780.htm",
+          "title": "House Report 119-780: committee explanation and minority views",
+          "publisher": "U.S. Government Publishing Office",
+          "official": true
+        },
+        {
+          "url": "https://rules.house.gov/bill/119/hr-4795",
+          "title": "Rules Committee record for H.R. 4795 and substitute text",
+          "publisher": "House Committee on Rules",
+          "official": true
+        },
+        {
+          "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr4795.xml",
+          "title": "Official bill-status file — checked September 8, latest action September 3",
+          "publisher": "U.S. Government Publishing Office / Library of Congress",
+          "official": true
+        },
+        {
+          "url": "https://www.govinfo.gov/content/pkg/BILLS-119hr4795rh/html/BILLS-119hr4795rh.htm",
+          "title": "Reported text: introduction, sponsor and August 27 committee stage",
+          "publisher": "U.S. Government Publishing Office",
+          "official": true
+        }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 18 — primary legislative tracker",
+      "sourcesReviewed": [
+        "https://clerk.house.gov/Votes/2026295",
+        "https://www.govinfo.gov/content/pkg/BILLS-119hr4795eh/html/BILLS-119hr4795eh.htm",
+        "https://www.govinfo.gov/content/pkg/CRPT-119hrpt780/html/CRPT-119hrpt780.htm",
+        "https://rules.house.gov/bill/119/hr-4795",
+        "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr4795.xml",
+        "https://www.govinfo.gov/content/pkg/BILLS-119hr4795rh/html/BILLS-119hr4795rh.htm"
+      ],
+      "conclusion": "House vote and engrossed text verified; sponsor Foxx, Gottheimer named at introduction; amended House pathway verified. Congress.gov direct retrieval blocked and stale indexed result; official GovInfo BILLSTATUS XML retrieved with latest September 3 House action and no Senate action. Preserve canonical lhl1q and historical duplicate skxk2. No new article.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 18 PARTIAL: lhl1q has two stored passages overriding the full tracker body. Updated rendered headline, summary and six primary source links improve the record, but detailed text/sponsors/amendments/arguments are not all visible in body. Acceptance: supported passage replacement renders the prepared tracker and preserves earlier vote report and revision history.",
+    "RUN 18 STATUS LIMIT: official snapshot has no Senate action; this is not proof no unrecorded procedural step occurred. No current Senate committee stage or enactment is asserted. Original skxk2 remains historical duplicate; no archive/redirect performed."
+  ]
+}

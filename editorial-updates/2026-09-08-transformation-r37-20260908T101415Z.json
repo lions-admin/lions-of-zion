@@ -1,0 +1,160 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r37-20260908T101415Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T10:14:15.718684Z",
+  "creates": [
+    {
+      "key": "october7-post-event-timeline",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "history_context",
+        "canonicalStoryId": "october7-post-event-timeline",
+        "title": "After October 7: the milestones that changed the hostage, evidence and recovery record",
+        "summary": "A selective timeline connects hostage releases and rescues, ceasefires, military phases, UN evidence findings, Israeli inquiries, ICJ proceedings and western Negev recovery through 2026. Each milestone is labeled by function so unlike events are not mistaken for the same kind of proof.",
+        "body": "October 7 did not end when Israeli forces regained the attacked communities. The hostage crisis, war, investigations, evidence work, diplomacy, litigation and community recovery continued for years. This selective timeline follows developments that materially changed what families, investigators and the public knew or could do. It is not a log of every battlefield event.\n\nHostages — October 7, 2023. Hamas and other armed groups abducted 251 people from Israel into Gaza. A later UN Commission report identified 226 civilians and 25 members of the Israeli security forces. This defined total superseded the approximate counts used in the first weeks.\n\nMilitary — October 27, 2023. Israel expanded ground operations in Gaza after weeks of air strikes. This began the principal ground phase of a campaign Israel described as aimed at dismantling Hamas and returning hostages. The milestone explains the war's shift; it does not resolve the legality or effects of particular operations.\n\nHostages and diplomacy — November 24 to December 1, 2023. A temporary pause enabled hostage and detainee releases through ICRC facilitation. The ICRC later reported facilitating the release and transfer of 109 hostages in Gaza during the 2023 ceasefire period. The pause ended and fighting resumed, leaving most hostages in Gaza.\n\nLegal — January 26, March 28 and May 24, 2024. In South Africa v. Israel, the International Court of Justice indicated and later supplemented provisional measures under the Genocide Convention. Provisional measures protect asserted rights while a case proceeds; they were not a final judgment that genocide had or had not occurred. These orders became a major legal frame for the war that followed October 7.\n\nEvidence — March 4, 2024. A UN mission on conflict-related sexual violence reported reasonable grounds to believe sexual violence, including rape and gang rape, occurred in multiple locations during the attack, and clear and convincing information concerning sexual violence against hostages. It also described major access and evidence limitations and called for a full investigation.\n\nEvidence — June 2024. The UN Commission of Inquiry published detailed findings on attacks in Israel and on subsequent hostilities. It assessed multiple source types and set out legal findings, while noting limits on access and cooperation. Its publication added an external investigative record; it did not make every archived caption or testimony independently verified.\n\nHostages — June 8, 2024. Israeli forces rescued Noa Argamani, Almog Meir Jan, Andrey Kozlov and Shlomi Ziv from Nuseirat. Police officer Arnon Zamora died from wounds sustained in the operation. The IDF account establishes the rescue and its own operational description; civilian casualties reported in Gaza require separate sourcing and should remain part of a complete account of the operation.\n\nInvestigations — July 11, 2024. The IDF published its inquiry into the battle at Kibbutz Be'eri, documenting grave failures, the actions of residents and security forces, and the timing of the response. It was the first major location inquiry released publicly. A military operational inquiry provides evidence and institutional findings, but it is not a substitute for an independent state commission.\n\nHostages — late August and September 1, 2024. Israeli forces recovered the bodies of six hostages from a tunnel in Rafah; Israeli authorities said they had been killed shortly before troops reached them. The recovery intensified public pressure around a hostage agreement. Cause, timing and responsibility should be tied to the forensic and official records rather than inferred from the recovery alone.\n\nMilitary — October 16, 2024. Israeli forces killed Hamas leader Yahya Sinwar in Gaza. His death changed Hamas leadership and negotiations, but did not end the war or immediately secure the hostages' return.\n\nHostages and diplomacy — January 19, 2025. A new ceasefire and release process began. Hostages returned in stages while Palestinian prisoners and detainees were released. Each exchange should be reported with the mediator's dated transfer record and without assuming that agreement on one phase guaranteed completion of later phases.\n\nInvestigations — February 2025. The IDF presented an overarching set of internal October 7 inquiries and its chief of staff publicly acknowledged failure. The inquiries added operational timelines and revised force estimates. Their institutional scope and lack of a state commission remained material limits.\n\nHostages and diplomacy — October 13, 2025. The ICRC facilitated the transfer of the final 20 living hostages to Israeli authorities under a ceasefire agreement, alongside Palestinian detainee releases, and also transferred remains of four deceased hostages. The ICRC later corrected and specified detainee totals; the dated record should be cited rather than a rounded memory of the exchange.\n\nHostages — January 26, 2026. Israeli authorities announced the recovery and return of Ran Gvili, described by the Israeli government as the last hostage still held in Gaza. This closed the physical hostage-return chapter for the original 251 while leaving bereavement, accountability and medical consequences ongoing.\n\nRecovery — February 2026. At a Knesset oversight hearing, the Tkuma Directorate said residents had returned to 42 of 47 Gaza-border localities. Return is not the same as full recovery: housing, education, health, employment, security and community continuity require separate measures.\n\nRecovery and oversight — 2026. The State Comptroller published a broad audit of western Negev rehabilitation. It credited sustained work while finding partial implementation, budget and coordination problems and calling for clearer public accounting. This is a recovery milestone because it moves the record from announcements toward measured delivery.\n\nHow to use this timeline. Events are grouped by function so readers can remember why each matters. A hostage transfer, military operation, inquiry, legal order and community-return statistic answer different questions. Their sources should not be collapsed into one claim, and an official announcement should remain identified as the issuing institution's account.\n\nThe finding. The sparse seven-entry archive timeline captures several anchors but omits decisive releases, rescues, evidence reports, inquiries, legal proceedings and recovery checks. This companion supplies those connections while the original archive remains preserved. Integration into the static timeline remains a separate development requirement.",
+        "language": "en",
+        "editorialTopic": "Consequences and investigation of October 7",
+        "topicTags": [
+          "october-7",
+          "timeline",
+          "hostages",
+          "investigations",
+          "recovery"
+        ],
+        "primaryActor": "Hostages, investigators and western Negev communities",
+        "arena": "Israel, Gaza and international institutions"
+      },
+      "sources": [
+        {
+          "url": "https://www.un.org/unispal/document/report-of-the-independent-international-commission-of-inquiry-on-the-occupied-palestinian-territory-including-east-jerusalem-and-israel-11sep24/",
+          "title": "UN Commission report defining the 251 people abducted",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://www.ochaopt.org/content/hostilities-gaza-strip-and-israel-flash-update-22",
+          "title": "October 27–28, 2023 ground-operation update",
+          "publisher": "UN OCHA",
+          "official": true
+        },
+        {
+          "url": "https://www.ochaopt.org/content/hostilities-gaza-strip-and-israel-flash-update-49",
+          "title": "November 24, 2023 pause and first exchange update",
+          "publisher": "UN OCHA",
+          "official": true
+        },
+        {
+          "url": "https://www.icrc.org/sites/default/files/media_file/2024-10/humanity-in-action-2023-icrc.pdf",
+          "title": "ICRC 2023 report on 109 hostage transfers during the ceasefire period",
+          "publisher": "International Committee of the Red Cross",
+          "official": true
+        },
+        {
+          "url": "https://www.icj-cij.org/case/192/provisional-measures",
+          "title": "South Africa v. Israel provisional-measures docket",
+          "publisher": "International Court of Justice",
+          "official": true
+        },
+        {
+          "url": "https://www.un.org/unispal/document/following-visit-to-israel-and-the-occupied-west-bank-un-special-representative-of-the-secretary-general-on-sexual-violence-in-conflict-ms-pramila-patten-finds-sexual-violence-occurred-on-7-october/",
+          "title": "UN mission findings on conflict-related sexual violence",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://www.un.org/unispal/document/coi-attacks-7october2023-report-10jun24/",
+          "title": "Detailed UN Commission findings on the October 7 attacks",
+          "publisher": "United Nations",
+          "official": true
+        },
+        {
+          "url": "https://www.idf.il/en/mini-sites/idf-press-releases-israel-at-war/operation-arnon-4-hostages-rescued-from-the-heart-of-gaza/who-were-the-brave-faces-behind-operation-arnon/",
+          "title": "IDF account of the June 8, 2024 rescue of four hostages",
+          "publisher": "Israel Defense Forces",
+          "official": true
+        },
+        {
+          "url": "https://www.idf.il/en/mini-sites/710-the-inquiries/all-of-the-710-inquiries/battle-of-kibbutz-beeri-the-inquiry/",
+          "title": "IDF inquiry into the battle at Kibbutz Be'eri",
+          "publisher": "Israel Defense Forces",
+          "official": true
+        },
+        {
+          "url": "https://www.govinfo.gov/content/pkg/DCPD-202400923/html/DCPD-202400923.htm",
+          "title": "Dated statement on the death of Yahya Sinwar",
+          "publisher": "U.S. Presidential Documents",
+          "official": true
+        },
+        {
+          "url": "https://embassies.gov.il/usa/en/news/first-hostages-return-home-19012025",
+          "title": "January 19, 2025 hostage-release announcement",
+          "publisher": "Israel Prime Minister's Office",
+          "official": true
+        },
+        {
+          "url": "https://www.idf.il/en/mini-sites/idf-press-releases-israel-at-war/february-25-pr/ltg-herzi-halevi-truth-must-come-first-in-october-7-inquiry/",
+          "title": "IDF chief's statement on the February 2025 inquiries",
+          "publisher": "Israel Defense Forces",
+          "official": true
+        },
+        {
+          "url": "https://www.icrc.org/en/news-release/israel-and-occupied-territories-icrc-facilitates-return-20-hostages-and-1809-detainees",
+          "title": "October 13, 2025 ICRC transfer record",
+          "publisher": "International Committee of the Red Cross",
+          "official": true
+        },
+        {
+          "url": "https://embassies.gov.il/nepal/en/news/president-isaac-herzog-addresses-return-home-last-hostage-ran-gvili-26012026",
+          "title": "January 26, 2026 announcement on the return of Ran Gvili",
+          "publisher": "Israel Ministry of Foreign Affairs",
+          "official": true
+        },
+        {
+          "url": "https://m.knesset.gov.il/EN/News/PressReleases/Pages/press16226u.aspx",
+          "title": "February 2026 Knesset oversight hearing on community return",
+          "publisher": "Knesset",
+          "official": true
+        },
+        {
+          "url": "https://library.mevaker.gov.il/sites/DigitalLibrary/Pages/Reports/10312-1.aspx",
+          "title": "2026 audit of western Negev rehabilitation and development",
+          "publisher": "State Comptroller of Israel",
+          "official": true
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 37 — deep post-event October 7 timeline",
+      "sourcesReviewed": [
+        "https://www.un.org/unispal/document/report-of-the-independent-international-commission-of-inquiry-on-the-occupied-palestinian-territory-including-east-jerusalem-and-israel-11sep24/",
+        "https://www.ochaopt.org/content/hostilities-gaza-strip-and-israel-flash-update-22",
+        "https://www.ochaopt.org/content/hostilities-gaza-strip-and-israel-flash-update-49",
+        "https://www.icrc.org/sites/default/files/media_file/2024-10/humanity-in-action-2023-icrc.pdf",
+        "https://www.icj-cij.org/case/192/provisional-measures",
+        "https://www.un.org/unispal/document/following-visit-to-israel-and-the-occupied-west-bank-un-special-representative-of-the-secretary-general-on-sexual-violence-in-conflict-ms-pramila-patten-finds-sexual-violence-occurred-on-7-october/",
+        "https://www.un.org/unispal/document/coi-attacks-7october2023-report-10jun24/",
+        "https://www.idf.il/en/mini-sites/idf-press-releases-israel-at-war/operation-arnon-4-hostages-rescued-from-the-heart-of-gaza/who-were-the-brave-faces-behind-operation-arnon/",
+        "https://www.idf.il/en/mini-sites/710-the-inquiries/all-of-the-710-inquiries/battle-of-kibbutz-beeri-the-inquiry/",
+        "https://www.govinfo.gov/content/pkg/DCPD-202400923/html/DCPD-202400923.htm",
+        "https://embassies.gov.il/usa/en/news/first-hostages-return-home-19012025",
+        "https://www.idf.il/en/mini-sites/idf-press-releases-israel-at-war/february-25-pr/ltg-herzi-halevi-truth-must-come-first-in-october-7-inquiry/",
+        "https://www.icrc.org/en/news-release/israel-and-occupied-territories-icrc-facilitates-return-20-hostages-and-1809-detainees",
+        "https://embassies.gov.il/nepal/en/news/president-isaac-herzog-addresses-return-home-last-hostage-ran-gvili-26012026",
+        "https://m.knesset.gov.il/EN/News/PressReleases/Pages/press16226u.aspx",
+        "https://library.mevaker.gov.il/sites/DigitalLibrary/Pages/Reports/10312-1.aspx"
+      ],
+      "conclusion": "The current static timeline has seven entries and misses multiple consequential hostage, investigation, evidence, legal and recovery milestones. Sixteen official or institutional records support a selective companion sequence through 2026. Events remain labeled by type and issuing institution; legal provisional measures are not described as a final merits ruling, and official operational accounts are not treated as independent investigations.",
+      "outcome": "published"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 37 STATIC TIMELINE: integrate the supported milestones into /october-7 without deleting the existing seven entries. Acceptance: filters or headings distinguish Hostages, Investigations, Military, Diplomacy, Evidence, Legal and Recovery, with source and revision date on every item.",
+    "RUN 37 VERSIONING: preserve superseded counts and descriptions where historically relevant. Acceptance: a reader can see what changed, when and why instead of encountering silent replacements."
+  ]
+}

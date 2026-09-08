@@ -1,0 +1,86 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r32-20260908T095511Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T09:55:11.075099Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "september-funding-composition",
+      "target": {
+        "publicId": "israeli-startups-raise-1-16-billion-in-first-two-1h7h8"
+      },
+      "publication": {
+        "title": "Nine startup rounds totaled $1.164 billion; two companies supplied 73%",
+        "summary": "The nine announced amounts reconcile to $1.164 billion, but Wonderful ($550m) and Upwind ($300m) account for 73%, and the top four for 91.6%. This was an exceptional, concentrated two-day announcement cluster—not evidence that financing was broadly distributed across Israeli startups.",
+        "body": "Nine financing announcements counted by CTech totaled $1.164 billion across September 1 and 2, 2026. The total is arithmetically correct, but it is highly concentrated: Wonderful's $550 million and Upwind's reported $300 million account for $850 million, or about 73 percent. Four rounds account for more than 91 percent. Readers should treat this as an exceptional two-day announcement cluster, not a broad measure of startup health.\n\nThe complete reconstruction. CTech's total consists of Wonderful at $550 million, Upwind at $300 million, HiBob at $166 million, AIR Security at $50 million, AITAN at $41 million, Huskeys at $27 million, Particula at $15 million, DataAgent at $10 million and Catch at $5 million. Those nine figures sum to $1.164 billion.\n\nConcentration. Wonderful and Upwind together contribute 73.0 percent of the total. Adding HiBob raises the top-three share to 87.3 percent. Adding AIR Security brings the top four to $1.066 billion, or 91.6 percent. The remaining five companies together account for $98 million. A headline total therefore says much more about a few large rounds than about the median company.\n\nWhat was independently announced. Wonderful said it closed a $550 million Series C at a $5 billion valuation, led by Insight Partners. HiBob announced a $166 million investment led by Salesforce with Farallon participating. AITAN said it closed a $41 million round. The aggregate and individual technology reports supply the remaining amounts and investors. Upwind's contemporaneous status was less uniform: CTech wrote that it had raised about $300 million, while Globes described the round as set to complete and reported no response from the company.\n\nRound size is not company revenue. A financing announcement describes capital committed in an equity transaction, often alongside a valuation. It does not establish that all cash arrived on the announcement date, that the company earned that amount from customers, or that the valuation is a realizable sale price. Round terms, secondary-share components and tranches were not disclosed for every deal in the reviewed public material.\n\nThe sector mix. The largest dollars went to enterprise AI and cloud security. HiBob added HR technology; AIR Security, Huskeys and DataAgent sit around AI, cybersecurity and cloud infrastructure; AITAN is defense technology; Particula makes connected toys; Catch targets administrative automation. These labels overlap, and company descriptions are partly self-characterizations. The mix supports strong investor interest in AI and security, while showing less breadth than the phrase “across the ecosystem” can imply.\n\nThe stage mix. DataAgent's $10 million was reported as pre-seed and Catch's $5 million as seed. Wonderful described a Series C. Public reports describe several other later or larger rounds, but the aggregate does not normalize by stage. Comparing a pre-seed round with a late-stage investment tells readers about capital volume, not equivalent company progress.\n\nThe time comparison. CTech compared the $1.164 billion announcement total with $585 million across September 2025 and $608 million in October 2025. The arithmetic supports “nearly twice” September 2025. A two-day cluster can still move between months when an announcement date changes, and it should not be used alone to infer a durable acceleration in annual investment.\n\nWhat this evidence does show. Multiple investors were willing to announce large commitments to Israeli-founded or Israel-linked companies during an unusually concentrated window. The primary announcements confirm several of the biggest components, and the nine-item sum reconciles exactly. That is a real financing signal.\n\nWhat it does not show. The total does not reveal the number of startups that failed to raise, changes in deal terms, down rounds, investor nationality, capital deployed in Israel, employment created in Israel, founder liquidity, or whether announced money will be spent locally. It also cannot by itself measure the health of early-stage fundraising because two large later rounds dominate it.\n\nThe better dashboard. Readers need quarterly totals, deal counts, median round size, stage distribution, follow-on rates, company headquarters and Israeli employment, alongside exits and closures. The same series should identify whether a round was announced, signed, closed or still being completed. That would turn a dramatic two-day number into evidence about the ecosystem rather than a substitute for it.\n\nThe finding. The reported $1.164 billion total reconciles to nine named rounds. Its strongest interpretation is narrow: a very large two-day announcement cluster led by Wonderful and Upwind. The top-heavy composition is part of the finding, because without it readers may mistake capital concentration for broad-based access to finance.",
+        "changeSummary": "Reconstruct all nine rounds, reconcile the $1.164 billion sum, calculate top-two and top-four concentration, distinguish financing from revenue or cash deployment, and flag differing contemporaneous descriptions of the Upwind round's completion status."
+      },
+      "sources": [
+        {
+          "url": "https://www.calcalistech.com/ctechnews/article/hjvc16uoge",
+          "title": "Aggregate list of nine funding announcements and $1.164 billion total",
+          "publisher": "CTech"
+        },
+        {
+          "url": "https://www.wonderful.ai/blog-articles/wonderful-raises-550m-series-c",
+          "title": "Wonderful announcement: $550 million Series C",
+          "publisher": "Wonderful"
+        },
+        {
+          "url": "https://www.calcalistech.com/ctechnews/article/0kbwgdw01",
+          "title": "Report on Upwind's approximately $300 million financing",
+          "publisher": "CTech"
+        },
+        {
+          "url": "https://en.globes.co.il/en/article-upwind-set-to-raise-300m-at-38b-valuation-1001554301",
+          "title": "Contemporaneous report describing the Upwind round as set to complete",
+          "publisher": "Globes"
+        },
+        {
+          "url": "https://www.hibob.com/news/salesforce-hibob-166m-investment/",
+          "title": "HiBob announcement: $166 million investment",
+          "publisher": "HiBob"
+        },
+        {
+          "url": "https://www.calcalistech.com/ctechnews/article/r13apdnugg",
+          "title": "AIR Security $50 million funding report",
+          "publisher": "CTech"
+        },
+        {
+          "url": "https://www.prnewswire.com/news-releases/aitan-emerges-from-stealth-defines-new-defense-category-of-robotic-sovereignty-as-a-service--closes-41-million-funding-round-to-scale-its-battle-proven-technology-globally-302867620.html",
+          "title": "AITAN announcement: closed $41 million round",
+          "publisher": "AITAN / PR Newswire"
+        },
+        {
+          "url": "https://www.calcalistech.com/ctechnews/article/h1vdhnvoge",
+          "title": "DataAgent $10 million pre-seed funding report",
+          "publisher": "CTech"
+        }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 32 — composition of the September 1–2 startup-funding total",
+      "sourcesReviewed": [
+        "https://www.calcalistech.com/ctechnews/article/hjvc16uoge",
+        "https://www.wonderful.ai/blog-articles/wonderful-raises-550m-series-c",
+        "https://www.calcalistech.com/ctechnews/article/0kbwgdw01",
+        "https://en.globes.co.il/en/article-upwind-set-to-raise-300m-at-38b-valuation-1001554301",
+        "https://www.hibob.com/news/salesforce-hibob-166m-investment/",
+        "https://www.calcalistech.com/ctechnews/article/r13apdnugg",
+        "https://www.prnewswire.com/news-releases/aitan-emerges-from-stealth-defines-new-defense-category-of-robotic-sovereignty-as-a-service--closes-41-million-funding-round-to-scale-its-battle-proven-technology-globally-302867620.html",
+        "https://www.calcalistech.com/ctechnews/article/h1vdhnvoge"
+      ],
+      "conclusion": "The nine amounts listed by CTech sum exactly to $1.164 billion. Wonderful and Upwind make up $850 million (73.0%); the four largest make up $1.066 billion (91.6%). Primary company announcements support several major components. Upwind's status was described inconsistently by contemporaneous reports, so the aggregate should remain an announcement total rather than a cash-received measure.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 32 LEGACY PASSAGES: the dynamic record contains two older passages that remain the article-page projection, so the stored reconstructed body may not be visible even when the title, summary, sources and revision are updated. Acceptance: allow a whole-site update to replace publication passages transactionally, preserve their prior version, and verify the new passage projection publicly.",
+    "RUN 32 DATA VIEW: add a reusable editorial funding breakdown only through a separate development task. Acceptance: readers can inspect company, amount, stage, status and source while the article remains readable without a table renderer."
+  ]
+}

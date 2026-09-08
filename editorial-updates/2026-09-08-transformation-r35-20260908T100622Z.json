@@ -1,0 +1,91 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r35-20260908T100622Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T10:06:22.984349Z",
+  "creates": [
+    {
+      "key": "october7-provenance-taxonomy-guide",
+      "publication": {
+        "kind": "brief",
+        "section": "history_context",
+        "canonicalStoryId": "october7-archive-provenance-taxonomy-guide",
+        "title": "How to read the October 7 Archive: source, taxonomy, translation and verification",
+        "summary": "The archive preserves imported testimony and documentary collections while Lions supplies navigation and editorial context. Categories and translation links largely come from source packages; a published record is not automatically an independently verified claim, and multiple versions remain one source family.",
+        "body": "The Lions of Zion October 7 Archive hosts two imported collections: survivor accounts derived from October7.org and documentary records derived from Hamas-Massacre.net. Hosting a record preserves access and provenance. It does not mean Lions independently witnessed, authenticated or adjudicated every statement, caption or category in the source collection.\n\nOriginal-source description. Each record carries text, title, date, language, media relationships and a source URL from its imported package. The source URL identifies the page from which that version was derived. A local Lions URL is the address of the hosted copy; it is not a claim that Lions created the original testimony or media.\n\nImported taxonomy. Labels such as “Nova Festival,” “Gaza Border Communities” and “Security Forces” came with the testimony package. Labels such as “The Nova Party Massacre,” “Murdered in Their Homes,” “Mass Rapes,” “Terrorists Raiding the Streets,” “Abductions to the Gaza Strip” and “Rockets Striking Civilian Areas” came with the documentation package. They organize the imported records. They should not be read as fresh Lions findings about every item inside a category.\n\nLions-added classification. Lions decides how the two collections appear on this site: one is presented as a testimony collection and the other as a source-record collection. It also adds route structure, content warnings, display labels, related navigation and homepage or sharing context. Those interface decisions are editorial additions and should remain distinguishable from the source record itself.\n\nVerification status. “Published” in a record version describes its availability in the imported package. It is not a verdict that every factual assertion in the testimony has been independently corroborated. Likewise, the archive hub's contextual timeline has separate sources and assessments; those labels do not automatically transfer to all 514 archived records.\n\nTranslation status. A record marked complete has the language versions and translation links represented by the package. It does not by itself establish who translated the text, whether a human reviewed it, or whether every nuance matches the original language. The testimony collection contains 179 English records and a varying number of German, Spanish, French, Italian, Japanese and Portuguese versions; availability differs by record.\n\nEditorial summary. Hub descriptions, list excerpts and share text help readers navigate sensitive material. A summary is a finding aid, not the testimony. Readers should open the record, note the named witness where supplied, identify the language being read and follow the source pointer before citing a passage.\n\nModification state. The hosted presentation may normalize titles, remove source-site navigation furniture from display, cover graphic media until a reader chooses to reveal it, and generate local links between language versions. These presentation changes should not be described as rewriting the testimony. The underlying imported versions and media relationships remain the source record to preserve.\n\nA representative testimony. “We just wanted a party, we just wanted to dance” is attributed in the package to Gal M., categorized as Nova Festival, dated October 12, 2023, and available in seven languages. Those fields establish attribution, imported category, package date and version availability. The account itself remains first-person testimony; its presence in seven versions does not create seven independent witnesses.\n\nA representative documentary record. “The festival night” is categorized by the source package under the Nova party massacre and carries an image credited to Ido Derbi. English and Spanish pages are two versions of one canonical source record. They are not two independent items, and the credit identifies the supplied attribution rather than an independent chain-of-custody investigation by Lions.\n\nHow to cite responsibly. Identify the speaker or creator when available, the original collection, the record title, the language version and the source or publication date. Say whether a statement comes from first-person testimony, a caption, official investigation or later reporting. Several translations, reposts or archive pages derived from one original remain one upstream source family.\n\nWhat remains unresolved. The imported fields do not consistently expose interviewer, translator, consent terms, capture timestamp, geolocation method, cryptographic acquisition record or independent verification notes. Absence of those fields is not proof that the source project lacked them; it means this hosted package does not show them. Claims that depend on those facts need additional source work.\n\nThe finding. The archive is a preservation and access layer with source pointers and locally added context. Its taxonomy is primarily inherited, its translation labels describe package relationships, and publication status is not blanket verification. Readers can use the material more accurately when those layers stay visible and separate.",
+        "language": "en",
+        "editorialTopic": "October 7 archive provenance and methods",
+        "topicTags": [
+          "october-7",
+          "archive-methods",
+          "provenance",
+          "testimony",
+          "translation"
+        ],
+        "primaryActor": "October 7 archive collections",
+        "arena": "Israel"
+      },
+      "sources": [
+        {
+          "url": "https://lionsofzion.io/october-7",
+          "title": "October 7 Archive hub and contextual record",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/october-7/testimonies",
+          "title": "Hosted Survivor Stories collection",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/october-7/documentation",
+          "title": "Hosted Documented Records collection",
+          "publisher": "Lions of Zion"
+        },
+        {
+          "url": "https://lionsofzion.io/october-7/testimonies/we-just-wanted-a-party-we-just-wanted-to-dance",
+          "title": "Representative imported testimony record: Gal M.",
+          "publisher": "Lions of Zion / October7.org"
+        },
+        {
+          "url": "https://lionsofzion.io/october-7/documentation/the-nova-party-massacre/the-festival-night",
+          "title": "Representative imported documentary record: The festival night",
+          "publisher": "Lions of Zion / Hamas-Massacre.net"
+        },
+        {
+          "url": "https://www.october7.org/",
+          "title": "Original testimony collection",
+          "publisher": "October7.org"
+        },
+        {
+          "url": "https://www.hamas-massacre.net/",
+          "title": "Original documentary collection",
+          "publisher": "Hamas-Massacre.net"
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 35 — October 7 provenance and taxonomy precision",
+      "sourcesReviewed": [
+        "https://lionsofzion.io/october-7",
+        "https://lionsofzion.io/october-7/testimonies",
+        "https://lionsofzion.io/october-7/documentation",
+        "https://lionsofzion.io/october-7/testimonies/we-just-wanted-a-party-we-just-wanted-to-dance",
+        "https://lionsofzion.io/october-7/documentation/the-nova-party-massacre/the-festival-night",
+        "https://www.october7.org/",
+        "https://www.hamas-massacre.net/"
+      ],
+      "conclusion": "The hosted archive exposes 179 testimony records and 335 documentary records in imported packages. Categories, version publication states and translation relationships are package metadata. Lions adds the two collection classes, local routes, warnings, navigation and contextual copy. Representative English, French and Spanish routes returned successfully, but the package does not consistently expose independent authentication or translator-review fields.",
+      "outcome": "published"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 35 STATIC ARCHIVE: the whole-site package cannot add this clarification beside archive records. Acceptance: every record labels source-provided fields, Lions-added context, verification state, original language, translator/reviewer status and substantive modification state separately.",
+    "RUN 35 TAXONOMY: imported category names currently appear as navigation without a persistent ‘source taxonomy’ qualifier. Acceptance: hubs and record datelines identify imported categories without implying a new Lions adjudication.",
+    "RUN 35 TRANSLATION: ‘complete’ describes package linkage, not translation review. Acceptance: expose original language, translator or method when known, review status and relationship to the source version; use ‘unknown’ rather than inference when absent."
+  ]
+}

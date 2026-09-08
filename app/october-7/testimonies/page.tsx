@@ -12,6 +12,7 @@ import {
   getTestimonyIndex,
 } from '@/lib/content/testimonies';
 import { SITE_URL } from '@/lib/site-config';
+import { pageMetadata } from '@/lib/page-metadata';
 
 const TAGLINE = 'First-hand accounts of October 7, held here in full.';
 const PAGE_URL = `${SITE_URL}/october-7/testimonies`;
@@ -27,11 +28,11 @@ const LANGUAGE_NAMES: Readonly<Record<string, string>> = {
   pt: 'Português',
 };
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Testimonies',
   description: TAGLINE,
-  alternates: { canonical: PAGE_URL },
-};
+  path: '/october-7/testimonies',
+});
 
 export default async function Page() {
   const [index, manifest, digests] = await Promise.all([

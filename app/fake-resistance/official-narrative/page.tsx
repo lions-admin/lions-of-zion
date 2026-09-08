@@ -14,6 +14,7 @@ import { SITE_URL } from "@/lib/site-config";
 import type { AssessmentValue } from "@/server/contracts/enums";
 import styles from "./page.module.css";
 import { publicationHubCrumb } from '@/lib/publication-routing';
+import { pageMetadata } from '@/lib/page-metadata';
 
 /** Same wording VerificationBadge uses, so the stamp and the accessible
  *  badge underneath it never disagree. */
@@ -82,15 +83,11 @@ const TAGLINE =
   "Three worked cases of claims engineered to pass as war reporting — and the corrections that unmade them.";
 const PAGE_URL = `${SITE_URL}/fake-resistance/official-narrative`;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Official narrative engineering",
   description: TAGLINE,
-  alternates: { canonical: PAGE_URL },
-  openGraph: {
-    title: "Official narrative engineering — LIONS OF ZION",
-    description: TAGLINE,
-  },
-};
+  path: "/fake-resistance/official-narrative",
+});
 
 export default async function Page() {
   const edition = await getFakeResistanceEdition();

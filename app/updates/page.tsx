@@ -10,6 +10,7 @@ import { encodePublicPublicationCursor } from "@/server/contracts/publication";
 import type { PublicPublication } from "@/server/contracts/publication";
 import { SITE_URL } from "@/lib/site-config";
 import { publicationHubCrumb } from "@/lib/publication-routing";
+import { pageMetadata } from "@/lib/page-metadata";
 
 const TITLE = "Updates";
 const TAGLINE =
@@ -20,16 +21,11 @@ const PAGE_URL = `${SITE_URL}/updates`;
  *  1–100 band, so the cursor arithmetic below is the API's own. */
 const PAGE_SIZE = 25;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: TITLE,
   description: TAGLINE,
-  alternates: { canonical: PAGE_URL },
-  openGraph: {
-    title: `${TITLE} — LIONS OF ZION`,
-    description: TAGLINE,
-    type: "website",
-  },
-};
+  path: "/updates",
+});
 
 /* The feed is a projection of live published data behind a five-minute cache,
    and a prerendered copy at the CDN would add a second, unbounded staleness on

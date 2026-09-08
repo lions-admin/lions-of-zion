@@ -12,6 +12,7 @@ import { getOurHeroesEdition } from "@/lib/content/our-heroes";
 import type { HeroProfile } from "@/lib/content/our-heroes";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
+import { pageMetadata } from "@/lib/page-metadata";
 
 const TAGLINE =
   "The people behind the story: the fallen, the fighters, the rescuers.";
@@ -20,17 +21,13 @@ const PAGE_URL = `${SITE_URL}/our-heroes`;
 export async function generateMetadata(): Promise<Metadata> {
   const edition = await getOurHeroesEdition();
   const publishedTime = new Date(edition.publishedAt).toISOString();
-  return {
+  return pageMetadata({
     title: "Our Heroes",
     description: TAGLINE,
-    alternates: { canonical: PAGE_URL },
-    openGraph: {
-      title: "Our Heroes — LIONS OF ZION",
-      description: TAGLINE,
-      type: "article",
-      publishedTime,
-    },
-  };
+    path: "/our-heroes",
+    type: "article",
+    publishedTime: publishedTime,
+  });
 }
 
 /**

@@ -7,17 +7,17 @@ import { getPlaybook } from '@/lib/content/fake-resistance-playbook';
 import { SITE_URL } from '@/lib/site-config';
 import styles from './page.module.css';
 import { publicationHubCrumb } from '@/lib/publication-routing';
+import { pageMetadata } from '@/lib/page-metadata';
 
 const TAGLINE =
   'Nine techniques that make manufactured outrage feel like something you found yourself.';
 const PAGE_URL = `${SITE_URL}/fake-resistance/playbook`;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'The playbook',
   description: TAGLINE,
-  alternates: { canonical: PAGE_URL },
-  openGraph: { title: 'The playbook — LIONS OF ZION', description: TAGLINE },
-};
+  path: "/fake-resistance/playbook",
+});
 
 export default async function Page() {
   const chapters = getPlaybook();

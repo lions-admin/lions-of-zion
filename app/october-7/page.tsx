@@ -22,23 +22,20 @@ import { buildShareQuote, facebookShareUrl, stripSourceBreadcrumb, xIntentUrl } 
 import { SITE_URL } from "@/lib/site-config";
 import { ArchiveShareShowcase, type ArchiveShareSample } from "./ArchiveShareShowcase";
 import styles from "./page.module.css";
+import { pageMetadata } from "@/lib/page-metadata";
 
 const TAGLINE = "Survivor accounts and documented source material preserved with context.";
 const PAGE_URL = `${SITE_URL}/october-7`;
 
 export async function generateMetadata(): Promise<Metadata> {
   const record = await getOctober7Record();
-  return {
+  return pageMetadata({
     title: "October 7 Archive",
     description: TAGLINE,
-    alternates: { canonical: PAGE_URL },
-    openGraph: {
-      title: "October 7 Archive — LIONS OF ZION",
-      description: TAGLINE,
-      type: "article",
-      publishedTime: new Date(record.publishedAt).toISOString(),
-    },
-  };
+    path: "/october-7",
+    type: "article",
+    publishedTime: new Date(record.publishedAt).toISOString(),
+  });
 }
 
 function october7JsonLd(record: Awaited<ReturnType<typeof getOctober7Record>>) {
@@ -187,7 +184,7 @@ export default async function Page() {
           <p className={styles.eyebrow}>Archive collections</p>
           <h2 id="explore-archive">Explore the archive</h2>
         </header>
-        <nav className={styles.archiveEntries} aria-label="Explore the October 7 Archive">
+        <nav className={styles.archiveEntries} aria-label="Choose an archive collection">
           <Link className={styles.archiveEntry} href="/october-7/testimonies">
             <span className={styles.entryKind}>Testimony collection</span>
             <span className={styles.entryTitle}>Survivor Stories</span>

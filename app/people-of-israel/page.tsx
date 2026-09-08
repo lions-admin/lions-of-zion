@@ -11,7 +11,7 @@ import {
   PUBLICATION_SECTION_LABELS,
   SECTIONS_BY_HOMEPAGE_SECTION,
 } from '@/lib/publication-routing';
-import { SITE_URL } from '@/lib/site-config';
+import { pageMetadata } from '@/lib/page-metadata';
 import type { PublicPublication } from '@/server/contracts/publication';
 import type { PublicationSection } from '@/server/contracts/enums';
 import styles from './page.module.css';
@@ -47,11 +47,11 @@ const ORDER: PublicationSection[] = [
 ];
 const LABELS: Record<PublicationSection, string> = PUBLICATION_SECTION_LABELS;
 
-export const metadata: Metadata = {
-  title: 'The People of Israel', description: DESCRIPTION,
-  alternates: { canonical: `${SITE_URL}/people-of-israel` },
-  openGraph: { title: 'The People of Israel — LIONS OF ZION', description: DESCRIPTION, type: 'website' },
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'The People of Israel',
+  description: DESCRIPTION,
+  path: '/people-of-israel',
+});
 
 function dateLabel(value: string) {
   return new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeZone: 'Asia/Jerusalem' }).format(new Date(value));

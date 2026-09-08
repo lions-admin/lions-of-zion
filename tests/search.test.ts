@@ -357,6 +357,24 @@ describe("the embedding backlog", () => {
     expect(result.skipped).toMatch(/pgvector/);
   });
 
+  it("degrades a reader search to lexical when the embedder throws, instead of failing it", async () => {
+    /* UX-27 (2026-09-08): an exhausted AI budget made `assertWithinBudget`
+       throw RATE_LIMITED inside the embedder, and every search became a 429.
+       With the arm claimed live and an embedder that throws, the query must
+       still answer — lexically, and say so. */
+    const db = await freshDatabase();
+    await seedDocs(db, [["Hezbollah drone attack in the north", "The IDF said two soldiers were wounded.", "en"]]);
+    await db.execute(
+      sql`CREATE OR REPLACE FUNCTION search_has_semantic_arm() RETURNS boolean
+          LANGUAGE sql STABLE AS $$ SELECT true $$`,
+    );
+    const budgetExhausted = async () => { throw new Error("The monthly AI budget is exhausted."); };
+
+    const result = await searchService(db, { embed: budgetExhausted }).search({ q: "hezbollah", limit: 10 }, "reader");
+    expect(result.semantic).toBe(false);
+    expect(result.hits.map((hit) => hit.title)).toContain("Hezbollah drone attack in the north");
+  });
+
   it("reports a backlog but embeds nothing when no embedder is configured", async () => {
     /* The Phase 6 shape: a database that could store embeddings, and no
        client yet to compute them. Simulated by claiming the arm exists. */

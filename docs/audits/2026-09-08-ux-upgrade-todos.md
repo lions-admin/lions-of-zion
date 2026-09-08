@@ -647,7 +647,7 @@ are now in `UX-CONTRACT.md`.
 | UX-19–23 | Done. Article ends sources → activation band → corrections → "Keep reading"; no auto-rotation on October 7, one primary share per card opening the app-owned sheet; counts once. |
 | UX-24 / 26 / 28 | Done. Composer first, three activist suggestions, 44px Send with a label at ≥768; "Searching…"; matching note only in the empty state. |
 | UX-25 | Kept per owner. Row opacity ceiling 0.1 → 0.2 with the two dimmers re-tuned so a row reads as decoration, not a smear; `tests/scan-register-intent.test.ts` updated to the new ceiling. |
-| UX-27 | Root cause found: `useSearch.ts` debounce was 120 ms, so a slow typist sent one request per keystroke and the server counted every aborted one; now 300 ms. Policy in `server/core/rate-limit.ts` untouched. |
+| UX-27 | Two causes, both fixed. Client: `useSearch.ts` debounce was 120 ms, so a slow typist sent one request per keystroke and the server counted every aborted one (15 requests for one query, measured); now 300 ms. Server: the semantic arm's embedder is gated by `assertWithinBudget`, and an exhausted AI budget made *every* search a 429 on Preview — `searchService` now degrades a query-time embedder failure to lexical and reports `semantic: false` (reindexing stays strict; `tests/search.test.ts` covers it). `server/core/rate-limit.ts` untouched. The Preview AI budget itself ($0.50/month, $1.68 spent) is an operations setting for the owner. |
 | UX-29 | Not reproduced: 0 ghosted in-viewport elements 3 s after load on `/support-us` and `/we-are` at 1440×900. The 2026-09-08 sighting was dev-server timing. `Reveal.tsx` unchanged. |
 | UX-30 / 32 | Done. |
 

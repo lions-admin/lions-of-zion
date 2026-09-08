@@ -40,9 +40,13 @@ const { searchService } = await import("@/server/modules/search/service");
  * that caused the incident.
  */
 
-const hit = (publicId: string, href: string | null): SearchHit => ({
+const hit = (
+  publicId: string,
+  href: string | null,
+  entityType: SearchHit["entityType"] = "brief",
+): SearchHit => ({
   documentId: crypto.randomUUID(),
-  entityType: "brief",
+  entityType,
   entityId: crypto.randomUUID(),
   publicId,
   href,
@@ -99,9 +103,9 @@ describe("T-9 — the reader audience never receives an unaddressable hit", () =
        Verified live: the BGU aerogel record answers 200 while its search hit
        claims nowhere to go.
 
-       Until `destinationFor` is widened and the publications reindexed, such a
-       record must still be *found*. Showing it as an unlinked row is the
-       lesser failure; making it invisible is the worse one. */
+       Such a record must still be *found*; making it invisible is the worse
+       failure. Q5 below covers the second half — that it is now also
+       clickable. */
     const editorialRecord = hit("ben-gurion-university-team-develops-aerogel-that-0y2we", null);
     const service = serviceReturning([editorialRecord, ...DEAD]);
     const result = await service.search({ q: "aerogel", limit: 25 }, "reader");
@@ -124,5 +128,93 @@ describe("T-9 — the reader audience never receives an unaddressable hit", () =
     const service = serviceReturning(DEAD);
     const result = await service.search({ q: "anything", limit: 25 });
     expect(result.hits).toHaveLength(10);
+  });
+});
+
+/**
+ * Q5 — the reader's destination is computed on read, not trusted from the
+ * projection.
+ *
+ * Measured on Production 2026-09-08: 41 of 73 published records rendered as
+ * unclickable "Indexed · no public page" rows while their own pages answered
+ * 200. `href` is written at index time by `destinationFor`, which grants one
+ * only for a `briefingRunId`; a whole-site *editorial* record carries an
+ * `editorialRunId` and was indexed with `href: null`.
+ *
+ * Correcting the stored projection would mean reindexing every publication
+ * through `recordVersion()` — a version row and a public correction entry per
+ * record, all of them fictitious. So the service derives the destination when
+ * it answers a reader, and `projection.ts` is untouched.
+ */
+describe("Q5 — a reader's publication hit resolves to its article page", () => {
+  it("makes an editorial record with a stored null href clickable", async () => {
+    const editorial = hit("ben-gurion-university-team-develops-aerogel-that-0y2we", null);
+    const service = serviceReturning([editorial, ...DEAD]);
+    const result = await service.search({ q: "aerogel", limit: 25 }, "reader");
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0]!.href).toBe(
+      "/articles/ben-gurion-university-team-develops-aerogel-that-0y2we",
+    );
+  });
+
+  it("covers all four publication kinds, not just brief", async () => {
+    const kinds = ["news_update", "brief", "geopolitical_analysis", "scenario"] as const;
+    const service = serviceReturning(kinds.map((k) => hit(`rec-${k}`, null, k)));
+    const result = await service.search({ q: "q", limit: 25 }, "reader");
+    expect(result.hits.map((h) => h.href)).toEqual(kinds.map((k) => `/articles/rec-${k}`));
+  });
+
+  it("leaves an href the projection already wrote exactly as it is", async () => {
+    const service = serviceReturning([hit("lebanon-strike-abc12", "/articles/lebanon-strike-abc12")]);
+    const result = await service.search({ q: "lebanon", limit: 25 }, "reader");
+    expect(result.hits[0]!.href).toBe("/articles/lebanon-strike-abc12");
+  });
+
+  it("still drops the site-reference rows rather than fabricating articles for them", async () => {
+    /* These are the one publication family that genuinely has no article. The
+       derivation must never reach them, or T-9 would regress into ten
+       manufactured 404s instead of ten dead rows. */
+    const service = serviceReturning(DEAD);
+    const result = await service.search({ q: "zzzqqxwvnothingmatchesthis", limit: 25 }, "reader");
+    expect(result.hits).toEqual([]);
+  });
+
+  it("does not invent a destination for an information item", async () => {
+    /* There is no /items/[publicId] route, and inventing one here would not
+       create it — a fabricated link is worse than an honest dead row. */
+    const item = hit("item-public-id-123", null, "information_item");
+    const service = serviceReturning([item]);
+    const result = await service.search({ q: "q", limit: 25 }, "reader");
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0]!.href).toBeNull();
+  });
+
+  it("does not invent a destination for evidence or a narrative", async () => {
+    const service = serviceReturning([
+      hit("ev-1", null, "evidence"),
+      hit("nar-1", null, "narrative"),
+    ]);
+    const result = await service.search({ q: "q", limit: 25 }, "reader");
+    expect(result.hits.map((h) => h.href)).toEqual([null, null]);
+  });
+
+  it("leaves the internal audience byte-for-byte unchanged", async () => {
+    /* Chat cites by documentId and never by href; it must keep receiving the
+       repo's rows exactly as they are, null hrefs included. */
+    const rows = [
+      hit("editorial-record-abc", null),
+      hit("item-public-id-123", null, "information_item"),
+      hit("lebanon-strike-abc12", "/articles/lebanon-strike-abc12"),
+    ];
+    const service = serviceReturning(rows);
+    const result = await service.search({ q: "q", limit: 25 }, "internal");
+    expect(result.hits).toEqual(rows);
+    expect(result.hits.map((h) => h.href)).toEqual([null, null, "/articles/lebanon-strike-abc12"]);
+  });
+
+  it("does not derive an href for a publication that has no publicId at all", async () => {
+    const service = serviceReturning([{ ...hit("x", null), publicId: null }]);
+    const result = await service.search({ q: "q", limit: 25 }, "reader");
+    expect(result.hits[0]!.href).toBeNull();
   });
 });

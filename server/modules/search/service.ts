@@ -42,6 +42,57 @@ function isSiteReference(hit: { publicId: string | null; href: string | null }):
   return hit.href === null && (hit.publicId?.startsWith("site-") ?? false);
 }
 
+/**
+ * The entity types that are publications — the four `publication.kind` values.
+ *
+ * Spelled here rather than imported from `projection.ts` because that file's
+ * copy lives inside `destinationFor`, which is index-time policy and is
+ * deliberately left alone by the read-time correction below. `reindex()` uses
+ * this same constant, so the two statements of the list in this file cannot
+ * drift apart.
+ */
+const PUBLICATION_ENTITY_TYPES: readonly EntityType[] = [
+  "news_update",
+  "brief",
+  "geopolitical_analysis",
+  "scenario",
+];
+
+/**
+ * Where a *reader* actually goes for this hit, computed now rather than trusted
+ * from the stored projection.
+ *
+ * `href` is written at index time by `destinationFor`, which grants one only to
+ * a publication carrying a `briefingRunId`. A record created by the whole-site
+ * **editorial** run carries an `editorialRunId` instead and was therefore
+ * indexed with `href: null`, even though `/articles/<publicId>` serves it
+ * perfectly well. Measured on Production 2026-09-08: 41 of 73 published records
+ * rendered as unclickable "Indexed · no public page" rows while their pages
+ * answered 200.
+ *
+ * Fixing it in the projection would mean widening `destinationFor` *and*
+ * reindexing every publication — and the reindex path runs through
+ * `recordVersion()`, which would append a bogus version row and a fake public
+ * correction entry for each one. So the correction is applied on read, and the
+ * stored projection is left exactly as it is.
+ *
+ * **Why deriving here cannot manufacture a dead link:**
+ *
+ *  * Public search only ever returns *published* records — the
+ *    `search_document_public_published_items` view (migration 0018) restricts
+ *    it — and a published publication is precisely what `/articles/[publicId]`
+ *    serves.
+ *  * The site-reference publications, the one publication family that genuinely
+ *    has no article, are dropped by `isSiteReference` before this runs.
+ *  * Non-publication types keep whatever the projection gave them. There is no
+ *    `/items/[publicId]` route, and inventing one here would not create it.
+ */
+function readerDestination(hit: { entityType: EntityType; publicId: string | null; href: string | null }): string | null {
+  if (hit.href !== null) return hit.href;
+  if (!PUBLICATION_ENTITY_TYPES.includes(hit.entityType) || !hit.publicId) return hit.href;
+  return `/articles/${hit.publicId}`;
+}
+
 export function searchService(db: unknown, opts: { embed?: Embedder } = {}) {
   const repo = searchRepo(db);
   const loader = db as Loader;
@@ -91,13 +142,14 @@ export function searchService(db: unknown, opts: { embed?: Embedder } = {}) {
      * because those records are not in the published set at all — measured
      * live, **zero** of the 73 published records carry a `site-` publicId.
      *
-     * **This is the narrow fix, not the whole one.** The real repair is to
-     * widen `destinationFor` to accept an `editorialRunId` and then reindex
-     * the publications, so the stored projection stops lying about where a
-     * record lives. That needs a reindex pass over live data, which is why it
-     * is not done here. Until it lands, an editorial record still renders as
-     * an "Indexed · no public page" row — visible and honest about being
-     * unlinked, which is the lesser of the two failures.
+     * Keeping such a record *findable* was the first half of the repair.
+     * Making it clickable is the second, and it is done by
+     * `readerDestination` below rather than by widening `destinationFor`:
+     * the stored `href` is written at index time, so correcting it there
+     * would require reindexing every publication through `recordVersion()`
+     * — 41 bogus version rows and 41 fake public corrections. The reader's
+     * destination is computed on read instead, and the projection is left
+     * alone.
      */
     async search(query: SearchQuery, audience: "reader" | "internal" = "internal"): Promise<SearchResult> {
       const semantic = await repo.hasSemanticArm();
@@ -111,8 +163,15 @@ export function searchService(db: unknown, opts: { embed?: Embedder } = {}) {
          could come back short simply because dead rows occupied the window. */
       const window = audience === "reader" ? Math.min(query.limit * 2 + 10, 100) : query.limit;
       const found = await repo.search(query.q, queryEmbedding, window, query.entityType);
+      /* Reader: drop the genuinely unaddressable, then repair the href of the
+         records the projection understated. Internal is handed the repo's rows
+         untouched — chat cites by `documentId` and must keep seeing exactly
+         what it sees today. */
       const hits = audience === "reader"
-        ? found.filter((hit) => !isSiteReference(hit)).slice(0, query.limit)
+        ? found
+            .filter((hit) => !isSiteReference(hit))
+            .slice(0, query.limit)
+            .map((hit) => ({ ...hit, href: readerDestination(hit) }))
         : found;
       return { query: query.q, hits, semantic: semantic && queryEmbedding !== null };
     },
@@ -169,7 +228,7 @@ export function searchService(db: unknown, opts: { embed?: Embedder } = {}) {
         return "indexed";
       }
 
-      if (["news_update", "brief", "geopolitical_analysis", "scenario"].includes(entityType)) {
+      if (PUBLICATION_ENTITY_TYPES.includes(entityType)) {
         const [row] = (await loader
           .select()
           .from(publication)

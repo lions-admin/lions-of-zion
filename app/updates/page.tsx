@@ -59,7 +59,7 @@ function asSection(value: string | undefined): PublicationSection | undefined {
  * component must stay synchronous, or the shell goes back to waiting on the
  * request before any of it can be flushed.
  */
-export default function UpdatesPage({ searchParams }: { searchParams: Search }) {
+export default async function UpdatesPage({ searchParams }: { searchParams: Search }) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -81,12 +81,18 @@ export default function UpdatesPage({ searchParams }: { searchParams: Search }) 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {/* `inline` because the shell above already paid for the header offset
-          and the measure. The standalone family geometry is a whole-page
-          stand-in and would count both a second time. */}
-      <Suspense fallback={<SkeletonDesk inline label="Loading the record" />}>
-        <UpdatesRecord searchParams={searchParams} />
-      </Suspense>
+      {/* VA-60/VA-42. This was a Suspense boundary, and the audit measured the
+          result: 1,044 characters of chrome and **zero** published records for a
+          reader with scripting off. React streams a boundary's contents into
+          `<div hidden id="S:…">` and only client script moves them into the
+          document, so a `<noscript>` inside it is exactly as invisible as the
+          records themselves.
+          The same three fixes were weighed for `/geopolitical-brief` and the
+          reasoning is written out in `components/briefs/LiveBriefHub.tsx`. The
+          conclusion holds here for the same reasons: the boundary goes, the
+          route serves complete HTML, and TTFB gains one public-projection read
+          that is already cached three deep. */}
+      <UpdatesRecord searchParams={searchParams} />
     </DocPage>
   );
 }

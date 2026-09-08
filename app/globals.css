@@ -199,10 +199,21 @@
   --data-ember: #c97365;
   --data-ember-dim: #71382f;
   --data-ember-peak: #e8a397;
+  /* VA-60. The quieter ember, for a weaker verdict — "Out of context",
+     "Contested" — which should read softer than "False" without reading
+     *worse*. `--data-ember` was carrying that job at 5.74:1 on `--ground` and
+     only **4.22:1 on `--surface-1`**, where the badge actually sits, so the
+     audit failed it against the 4.5 floor.
+     This is the dimmest step on the ember ramp that clears 4.5 on all four
+     grounds the badge can land on — 4.68:1 at worst, on `--surface-3` —
+     computed rather than picked, the same way `--control-line` was. The
+     severity distinction survives: peak stays for the stronger verdicts. */
+  --data-ember-soft: #df9588;
   --data-ember-wash: rgba(201, 115, 101, 0.08);
   --ember: var(--data-ember);
   --ember-dim: var(--data-ember-dim);
   --ember-peak: var(--data-ember-peak);
+  --ember-soft: var(--data-ember-soft);
   --ember-wash: var(--data-ember-wash);
 
   /* --- Semantic state (SYS-010). Text labels required; colour is not a cue. --- */

@@ -1077,9 +1077,20 @@ html:has([id="home-wordmark"]) .dockTrigger { display: none; }
      they sit back until pointed at. The shadow goes because this system has
      none — `--shadow-1` through `--shadow-3` are all `none`. */
   background: var(--surface-1);
-  border-color: var(--line);
   box-shadow: none;
   color: var(--ink);
+}
+
+/* VA-60. These chips are shadcn `Button variant="outline"`, whose Tailwind
+   `dark:border-input` is specificity 0,2,0 and beat `.primerExamples button` at
+   0,1,1 — so the resting border fell back to a 1.36:1 hairline while the hover
+   rule below, which is 0,2,1, correctly used `--control-line`. The control was
+   legible once you found it and not before, which is the opposite of the point.
+   `[class]` is the specificity bump, not a selector for anything: it exists to
+   win against a utility class, and removing it silently reintroduces
+   A11Y-004 on this surface. */
+.primerExamples button[class] {
+  border-color: var(--control-line);
 }
 
 .primerExamples button:hover:not(:disabled) {

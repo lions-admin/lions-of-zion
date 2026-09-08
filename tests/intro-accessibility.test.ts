@@ -25,7 +25,7 @@
  * TOC links, the home file numbers — reads 4.93:1 on the brightest pixel of
  * `--scan-ground` before the scan adds anything at all. The helper below
  * recomputes the composite from first principles so that raising an intensity
- * in `scanProfiles.ts`, the 0.1 ceiling in the stylesheet, or the mask's 25%
+ * in `scanProfiles.ts`, the 0.34 ceiling in the stylesheet, or the mask's 25%
  * dim fails this suite instead of a review.
  */
 import { readFileSync } from "node:fs";
@@ -114,7 +114,7 @@ const GROUND_PEAK = composite([246, 243, 235], 0.055, GROUND_EDGE);
 
 /* ------------------------------------------- the numbers, read from source */
 
-/** `opacity: calc(0.1 * var(--register, 1) * var(--scan-intensity, 1))`. */
+/** `opacity: calc(0.34 * var(--register, 1) * var(--scan-intensity, 1))`. */
 const ROW_OPACITY_CEILING = (() => {
   const m = sections.match(/opacity:\s*calc\(([\d.]+)\s*\*\s*var\(--register/);
   if (!m) throw new Error("no row opacity ceiling in sections.module.css");
@@ -411,7 +411,7 @@ describe("composited contrast — the scan against real content, not the hero ti
    * measurement in this file.
    */
   it("pins the audited effective opacities", () => {
-    /* A hair of tolerance, because floating-point products are not exact. */
+    /* A hair of tolerance, because 0.34 × 0.45 is 0.15300000000000002. */
     const effective = (intensity: number) => ROW_OPACITY_CEILING * intensity - 1e-9;
     expect(effective(FAMILY_SCAN_PROFILES.desk.intensity)).toBeLessThanOrEqual(0.17);
     expect(effective(FAMILY_SCAN_PROFILES.dossier.intensity)).toBeLessThanOrEqual(0.153);

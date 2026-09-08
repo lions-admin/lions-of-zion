@@ -100,22 +100,11 @@ export function ArchiveShareShowcase({
                 <button type="button" onClick={() => move(-1)} aria-label={`Previous ${label}`} aria-controls={slideId}>
                   <Icon name="arrow-right" size={17} className={styles.previousIcon} />
                 </button>
-                {/* VA-55. Under reduced motion this was a permanently disabled
-                    button reading "Manual" — a word describing the system's mode
-                    rather than the reader's, on a control that cannot be
-                    pressed. A disabled button is still a target someone reaches
-                    for, so there is no button here at all now: the state is
-                    stated once, and the arrows either side stay live. Nothing
-                    re-enables rotation for a reader who asked for less of it. */}
-                {reduced ? (
-                  <span className={styles.rotationState}>Rotation off</span>
-                ) : (
-                  <button type="button" className={styles.pauseButton}
-                    onClick={() => setPaused((value) => !value)}
-                    aria-label={paused ? `Resume automatic ${label} rotation` : `Pause automatic ${label} rotation`}>
-                    {paused ? "Resume" : "Pause"}
-                  </button>
-                )}
+                <button type="button" className={styles.pauseButton} disabled={reduced}
+                  onClick={() => setPaused((value) => !value)}
+                  aria-label={reduced ? "Automatic rotation off: reduced motion" : paused ? `Resume automatic ${label} rotation` : `Pause automatic ${label} rotation`}>
+                  {reduced ? "Manual" : paused ? "Resume" : "Pause"}
+                </button>
                 <button type="button" onClick={() => move(1)} aria-label={`Next ${label}`} aria-controls={slideId}>
                   <Icon name="arrow-right" size={17} />
                 </button>

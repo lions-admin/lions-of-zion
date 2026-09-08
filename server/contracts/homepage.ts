@@ -39,13 +39,7 @@ export const homeOverridesSchema = z.object({revision:z.string(), pins:z.array(z
 })), breakingNews:z.object({keys:z.array(z.string()).max(2), reason:z.string().min(1), revision:z.string(), expires:z.string().date()}).nullable()});
 export type HomeOverrides = z.infer<typeof homeOverridesSchema>;
 export type HomeSource = { label:string; url:string };
-/* `cta` is what the link to this record says — VA-63. Derived from
-   `publication.section` in `lib/publication-routing.ts` and carried on the
-   preview because the preview is what the card has: the section is gone by
-   render time, and a card that re-derived a verb from its own shape is exactly
-   how eight of them appeared. Optional so a snapshot serialized before the
-   field existed still parses; the card falls back to its own default. */
-type PreviewBase = {key:string; href:string; title:string; summary:string; date:string; media:EditorialMedia|null; sources:HomeSource[]; whyItMatters?:string; cta?:string};
+type PreviewBase = {key:string; href:string; title:string; summary:string; date:string; media:EditorialMedia|null; sources:HomeSource[]; whyItMatters?:string};
 export type NewsPreview = PreviewBase & {kind:'news'; category:string};
 export type WatchPreview = PreviewBase & {kind:'watch'; claim:string; finding?:string; verification:string; basis:'sourced'|'analysis'};
 export type CasePreview = PreviewBase & {kind:'case'; question?:string; finding?:string; confidence:string; sourceCount:number};

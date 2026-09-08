@@ -82,9 +82,7 @@ export default async function Page() {
   const count = ledger.kind === "ready" ? ledger.entries.length : null;
 
   return (
-    <DocPage
-      /* VA-59. A trust page states rules; the scan is decoration behind them. */
-      register="silent" routeId="corrections" title="Corrections" tagline={TAGLINE}>
+    <DocPage routeId="corrections" title="Corrections" tagline={TAGLINE}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(CORRECTIONS_JSON_LD) }}

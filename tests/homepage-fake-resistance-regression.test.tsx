@@ -29,7 +29,7 @@ describe('Fake Resistance homepage regression coverage', () => {
     expect(html).toContain('data-has-media="true"');
     expect(html).toContain('<figure');
     expect(html).toContain('Research case');
-    expect(html).toContain('Open the investigation');
+    expect(html).toContain('Read the investigation');
   });
 
   it('renders an investigation without media as intentional text-led content', () => {
@@ -38,7 +38,7 @@ describe('Fake Resistance homepage regression coverage', () => {
     expect(html).not.toContain('<figure');
     expect(html).not.toContain('<img');
     expect(html).not.toContain('dossierCover');
-    expect(html).toContain('Open the investigation');
+    expect(html).toContain('Read the investigation');
   });
 
   it('renders Narrative Watch correctly with and without media', () => {
@@ -64,15 +64,8 @@ describe('Fake Resistance homepage regression coverage', () => {
     ]);
     expect(html).toContain('Claim with documentary media');
     expect(html).toContain('Claim without media');
-    /* VA-63. The verb used to vary with `evidenceBasis` — "Read the analysis"
-       for an unsourced record, "Read the assessment" for a sourced one. It is
-       one verb per *content type* now, because the basis is not the type and is
-       already disclosed in its own line directly above the link. Both records
-       are claim assessments, so both are read as assessments; what separates
-       them is still visible, and still exact. */
-    expect(html.match(/Read the assessment/g)).toHaveLength(2);
-    expect(html).toContain('Lions of Zion editorial analysis');
-    expect(html).toContain('No source-backed finding is implied');
+    expect(html).toContain('Read the assessment');
+    expect(html).toContain('Read the analysis');
     expect(html.match(/data-kind="watch"/g)).toHaveLength(2);
   });
 
@@ -82,10 +75,10 @@ describe('Fake Resistance homepage regression coverage', () => {
     ]);
     expect(html).toContain('Antisemitism');
     expect(html).toContain('Published summary.');
-    expect(html).toContain('Read the record');
+    expect(html).toContain('Read the article');
     expect(html).not.toContain('Research case');
     expect(html).not.toContain('Research question');
-    expect(html).not.toContain('Open the investigation');
+    expect(html).not.toContain('Read the investigation');
   });
 
   it('does not duplicate a headline as a research question', () => {

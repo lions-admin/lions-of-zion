@@ -18,18 +18,10 @@ describe("public chat entry", () => {
     },
   );
 
-  /* The visible label was "AI Chat" until VA-58. This destination answered to
-     five names — that one, "Ask the desk" in the menu, in the page title and in
-     the dialog, and "ask the desk" in the launcher's accessible name — so a
-     reader could not tell they were one place. The menu label wins, per the
-     owner's naming ruling of 2026-09-08. What the assertion is actually for is
-     unchanged: a real, navigable destination with a visible name, before any
-     JavaScript runs. */
   it.each([false, true])("keeps a real chat destination before hydration (home=%s)", (home) => {
     const html = renderToStaticMarkup(createElement(AskDock, { home }));
     expect(html).toMatch(/<a[^>]*href="\/ask"[^>]*data-ask-launcher/);
-    expect(html).toContain("Ask the desk");
-    expect(html).not.toContain("AI Chat");
+    expect(html).toContain("AI Chat");
   });
 
   it("retains the chat entry on an article", () => {

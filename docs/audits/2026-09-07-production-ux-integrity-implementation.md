@@ -609,23 +609,18 @@ a 343px box). **Do not remove evidence to shorten the page.**
 
 ### VA-55 — October 7 reduced-motion wording `A4`
 
-- [x] **55.1** Replace system-oriented visible text such as **"Manual"** with
+- [ ] **55.1** Replace system-oriented visible text such as **"Manual"** with
       user-facing language ("Rotation off" / "Reduced motion"), or remove the
       redundant visible state if the controls already communicate it.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **55.2** **Do not re-enable automatic motion for users requesting reduced
+- [ ] **55.2** **Do not re-enable automatic motion for users requesting reduced
       motion.** Current behaviour is correct — preserve it.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **55.3** Previous/next controls remain fully usable.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **55.4** Preserve October 7 sensitive-content and graphic-content warning
+- [ ] **55.3** Previous/next controls remain fully usable.
+- [ ] **55.4** Preserve October 7 sensitive-content and graphic-content warning
       behaviour exactly. `tests/*october-7*` asserts the mechanism, not the prose.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **55.5** Test: reduced-motion behaviour regression.
+- [ ] **55.5** Test: reduced-motion behaviour regression.
 
 ---
 
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
 ## 6. WAVE 3 — INFORMATION ARCHITECTURE & PRESENTATION (A5)
 
 ### VA-51 — Clarify navigation terminology `A5`
@@ -655,22 +650,17 @@ the same three records the hub lists under "On the watch", with
 **VA-10 and VA-21 already shipped.** This is a re-check against the current
 build, not a rebuild. **Do not redesign the homepage from scratch.**
 
-- [x] **53.1** Re-measure the first viewport at 1440/1024/768/390/360 against
+- [ ] **53.1** Re-measure the first viewport at 1440/1024/768/390/360 against
       VA-04's numbers (lead headline top was 1176/1239/1317/1004/1174/1338px).
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **53.2** Confirm the reader understands within seconds: what matters now,
+- [ ] **53.2** Confirm the reader understands within seconds: what matters now,
       why, what to inspect next.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **53.3** Reduce competition between lead story, mission messaging, support
+- [ ] **53.3** Reduce competition between lead story, mission messaging, support
       prompts, Search, Ask/AI Chat, shortcuts and utility navigation. **One
       visually dominant editorial action.**
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **53.4** Keep the hero donation chips — removing them contradicts the owner
+- [ ] **53.4** Keep the hero donation chips — removing them contradicts the owner
       ruling recorded in `.ai/DECISIONS.md`, 2026-09-07 ("the ask is on the cover
       too"), and VA-11 is closed on that basis.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **53.5** No generic SaaS cards, no oversized marketing hero.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [ ] **53.5** No generic SaaS cards, no oversized marketing hero.
 - [ ] **53.6** Re-run the LCP/perf budget afterwards (`npm run build` then
       `perf:report`). `cls: 0` must hold.
 
@@ -680,42 +670,33 @@ build, not a rebuild. **Do not redesign the homepage from scratch.**
 rewrite Search unless a real defect is found.** VA-17 shipped a no-match state;
 VA-04 noted the fallback-index rows beneath it are untested.
 
-- [x] **58.1** ~~Verify the fallback-index rows beneath the no-match state.~~
+- [ ] **58.1** ~~Verify the fallback-index rows beneath the no-match state.~~
       **Verified 2026-09-07: they do not render.** The list is gated on a
       non-empty hit set (`SearchPanel.tsx:310`) and the else branch is an empty
       listbox kept so `aria-controls` resolves (`:324-328`). What VA-04 saw is
       the page-level `noscript` index, invisible with JavaScript on. **There is
       no Search defect. This task is naming and copy only.**
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **58.2** State the distinction in product terms: **Search** finds a
+- [ ] **58.2** State the distinction in product terms: **Search** finds a
       published record; **Ask the Desk** asks a question across what Lions has
       published and researched.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **58.3** Align launcher copy, menu labels, empty states, explanatory text.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **58.4** Ask must not look like a second search box. Search stays
+- [ ] **58.3** Align launcher copy, menu labels, empty states, explanatory text.
+- [ ] **58.4** Ask must not look like a second search box. Search stays
       deterministic retrieval, not conversational synthesis.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **58.5** **Do not weaken existing Search keyboard/ARIA behaviour.**
+- [ ] **58.5** **Do not weaken existing Search keyboard/ARIA behaviour.**
 
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
 ### VA-63 — CTA vocabulary `A5`
 
-- [x] **63.1** Adopt a systematic semantic model: News → *Read story*;
+- [ ] **63.1** Adopt a systematic semantic model: News → *Read story*;
       Investigation → *Open investigation*; Evidence/archive → *Open record* /
       *View evidence*; Testimony → *Read testimony*; Search → *Search the record*;
       AI synthesis → *Ask the desk*. Final wording follows the current Lions
       voice, but it must be systematic.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **63.2** Stop alternating between Open / View / Read / Explore without a
+- [ ] **63.2** Stop alternating between Open / View / Read / Explore without a
       reason. Sweep every surface.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **63.3** Sensitive archive actions keep communicating their warnings.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **63.4** Derive the CTA from `publication.section` via
+- [ ] **63.3** Sensitive archive actions keep communicating their warnings.
+- [ ] **63.4** Derive the CTA from `publication.section` via
       `lib/publication-routing.ts` — **not** from a new model-set field.
 
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
 ### VA-62 — Social metadata `A5`
 
 Confirmed live: ~20 pages export `openGraph`, but `twitter` metadata exists in
@@ -758,62 +739,49 @@ recomputes and asserts the contrast budget per family. **This is tuning inside
 an existing mechanism — do not rebuild it, and do not remove the Lions signal
 aesthetic globally.**
 
-- [x] **59.1** Keep full strength on Fake Resistance, Information War and
+- [ ] **59.1** Keep full strength on Fake Resistance, Information War and
       selected investigations.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **59.2** Reduce or silence it on calmer editorial/trust surfaces: ordinary
+- [ ] **59.2** Reduce or silence it on calmer editorial/trust surfaces: ordinary
       news articles, People of Israel, Methodology, Corrections, We Are.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **59.3** Content must always visually dominate the effect.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **59.4** Hostile claims shown decoratively must never look like article copy.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **59.5** Respect reduced-motion preferences.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **59.6** Any intensity change must keep `tests/intro-accessibility.test.ts`
+- [ ] **59.3** Content must always visually dominate the effect.
+- [ ] **59.4** Hostile claims shown decoratively must never look like article copy.
+- [ ] **59.5** Respect reduced-motion preferences.
+- [ ] **59.6** Any intensity change must keep `tests/intro-accessibility.test.ts`
       green — raising a value fails that suite by design.
 
 ---
 
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
 ## 7. WAVE 4 — CERTIFICATION (A6)
 
 ### VA-60 — Final production visual certification `A6`
 
 **Do not rely on code inspection.** Run against the rendered application.
 
-- [x] **60.1** Fix `ui-audit.mjs`'s `COMPLEX` route list first — 9 of its 24
+- [ ] **60.1** Fix `ui-audit.mjs`'s `COMPLEX` route list first — 9 of its 24
       CRITICALs were `HTTP 404` on `/pipeline`, a dev-only route. Do not quote
       that exit code as a quality signal until the list is corrected.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **60.2** Viewports: **1440**, **1024**, **768**, **390**, **360**,
+- [ ] **60.2** Viewports: **1440**, **1024**, **768**, **390**, **360**,
       **812×375 landscape**.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **60.3** Surfaces: Homepage; News/Analysis; standard article; developing
+- [ ] **60.3** Surfaces: Homepage; News/Analysis; standard article; developing
       story; Fake Resistance; major investigation (Hinkle); October 7 landing;
       testimony detail; video record; image record; People of Israel; Search;
       How It Works; Methodology; We Are; Corrections.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **60.4** Inspect: first-viewport composition, headline wrapping, image
+- [ ] **60.4** Inspect: first-viewport composition, headline wrapping, image
       crops, missing/broken media, sticky navigation, overlays, horizontal
       overflow, spacing rhythm, card/content density, reading measure, mobile
       ordering, captions/credits, empty states, focus states, reduced motion,
       warning states, long content, footer transitions.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **60.5** Assert zero of each: unintended horizontal scrolling; clipped
+- [ ] **60.5** Assert zero of each: unintended horizontal scrolling; clipped
       headlines; overlapping UI; broken image state; clearly bad hero crop;
       accidental giant cards from missing content; inaccessible critical
       controls; mobile ordering that destroys editorial hierarchy.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **60.6** Capture screenshots as QA evidence under
+- [ ] **60.6** Capture screenshots as QA evidence under
       `docs/reviews/production-ux-integrity/after/`.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [x] **60.7** Fix an issue found here **only if it is clearly inside this
+- [ ] **60.7** Fix an issue found here **only if it is clearly inside this
       task's scope**, then re-verify it.
 
 ---
 
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
 ## 8. IMPLEMENTATION DISCIPLINE — binding for every agent
 
 - Preserve working functionality. Reuse existing components and tokens.
@@ -877,8 +845,7 @@ failures, and no dialog failure across 37 dialogs.
 
 Mobile must be intentionally composed, not mechanically stacked desktop columns.
 
-- [x] **A11Y-1** Re-verify every item above after Waves 1–3.
-      <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
+- [ ] **A11Y-1** Re-verify every item above after Waves 1–3.
 - [ ] **A11Y-2** Confirm `viewport-fit=cover` (shipped in `52bae19`) still holds
       and that the safe-area rules it revived behave on a physical device.
 
@@ -978,17 +945,16 @@ Update this table in the **same commit** that changes any box above.
 | VA-54 | A4 | ◐ in progress | 2 | `fa6290f` — 54.4 only (strip scroll legible + follows the reader). Open: 54.1–54.3, 54.5 progressive disclosure and local contents |
 | VA-56 | A4 | ☑ done | 2 | `ae18ad2` — `lib/source-dump.ts`, body and passages, 16 tests, four live records verified |
 | VA-52 | A5 | ☐ not started | 3 | — |
-| VA-55 | A5 | ☑ done | 3 | `2c40e63` — the disabled "Manual" button became a stated "Rotation off"; arrows stay live |
-| VA-59 | A5 | ☑ done | 3 | `2c40e63` — distribution was inverted; trust and People surfaces silent, article backdrop derived from the record type |
+| VA-55 | A5 | ☐ not started | 3 | — |
+| VA-59 | A5 | ☐ not started | 3 | — |
 | VA-51 | A6 | ◐ in progress | 4a | `05e6dd8` — /information-war unified, seven breadcrumbs derived, 404 desk fixed. Open: 51.1 the written job of each destination, and the Search/Ask naming |
 | VA-57 | A6 | ◐ in progress | 4a | `05e6dd8` — lanes and labels derived from routing, drift removed. Open: 57.1 the BGU duplicate itself, which is editorial |
-| VA-63 | A6 | ☑ done | 4a | `7b3213d` — `publicationCta` derived from section; hub actions normalised to "View all" |
-| VA-58 | A6 | ☑ done | 4a | `2c40e63` — five names for Ask collapsed to the menu label; Search states its own job. No Search behaviour touched |
-| VA-53 | A6 | ☑ done | 4b | `9e279cd` — re-measured at six widths; every one improved, lead headline 1176→512px at 1440. Phone cover behaviour recorded as the owner's design |
+| VA-63 | A6 | ☐ not started | 4a | — |
+| VA-58 | A6 | ☐ not started | 4a | — |
+| VA-53 | A6 | ☐ not started | 4b | — |
 | VA-62 | A6 | ☑ done | 4b | `9ca7bd1` — `pageMetadata` helper, 20 routes converted, 37 tests |
-| VA-60 | A7 | ☑ done | 5 | `c7b78c9`, `9e279cd` — 20 critical/exit 1 → **0 critical/exit 0**, full coverage; 90 screenshots; harness fixed first |
-| A11Y-1 | A7 | ☑ done | 5 | `c7b78c9` — contrast, no-JS records, accessible names all re-verified |
-| A11Y-2 | A7 | ⛔ blocked | 5 | Needs a physical iOS device; must not be claimed on emulation |
+| VA-60 | A7 | ☐ not started | 5 | — |
+| A11Y-1, A11Y-2 | A7 | ☐ not started | 5 | — |
 | T-1 … T-13 | all | ☐ not started | all | — |
 
 Note: VA-56 moved from A1 to A4, because A4 owns the article page where the

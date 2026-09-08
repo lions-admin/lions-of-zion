@@ -88,22 +88,14 @@ describe("the no-JavaScript invariant: boundaries nothing can resolve", () => {
     expect(source).not.toContain("export async function LiveBriefHub");
   });
 
-  /* VA-60. This asserted that both DocPage desks were *synchronous*, which kept
-     their chrome out of a Suspense fallback and left their records inside one.
-     The audit measured the cost on each: 1,044 characters and zero published
-     records on `/updates`, 1,408 and zero of seven checked claims on
-     `/fact-check`. The boundary that made the old assertion pass was the
-     defect, exactly as it was on the news desk.
-     Both are `async` now and neither has a boundary, so the assertion inverts:
-     what must not come back is the boundary. */
-  it("keeps the two DocPage desks free of a boundary their records sit behind", async () => {
+  it("keeps the two DocPage desks out of their own boundary", async () => {
     for (const [file, name] of [
       ["app/updates/page.tsx", "UpdatesPage"],
       ["app/fact-check/page.tsx", "FactCheckPage"],
     ] as const) {
       const source = await read(file);
-      expect(source, file).toContain(`export default async function ${name}`);
-      expect(source, file).not.toMatch(/<Suspense[\s>]/);
+      expect(source, file).toContain(`export default function ${name}`);
+      expect(source, file).not.toContain(`export default async function ${name}`);
     }
   });
 });
@@ -327,33 +319,31 @@ describe("the no-JavaScript invariant: the shell arrives before the data", () =>
    * Production. When they are fixed, their cases here move up to this comment.
    */
 
-  it("puts every /updates record in the initial HTML, outside any streaming hole", async () => {
-    listBriefingPublications.mockResolvedValue([record]);
+  it("serves the /updates shell while the projection read is still pending", async () => {
+    listBriefingPublications.mockImplementation(never);
     const { default: Page } = await import("@/app/updates/page");
-    const html = await fullHtml(await Page({ searchParams: Promise.resolve({}) } as never));
+    const html = await pendingHtml(
+      "/updates",
+      Page({ searchParams: Promise.resolve({}) } as never),
+    );
 
     expectShellRenders("/updates", html);
     expect(html).toContain("Everything this desk has published");
-    /* The record itself, and no hidden div for a client script to reveal. */
-    expect(html).toContain(record.title);
-    expect(html).not.toContain('<div hidden id="S:');
-    expect(html).not.toContain("Loading the record");
+    expect(html).toContain("Loading the record");
   });
 
-  it("puts every /fact-check claim in the initial HTML, outside any streaming hole", async () => {
-    listBriefingPublications.mockResolvedValue([record]);
-    getPublicPublication.mockResolvedValue(detail);
+  it("serves the /fact-check shell while the projection read is still pending", async () => {
+    listBriefingPublications.mockImplementation(never);
+    getPublicPublication.mockImplementation(never);
     const { default: Page } = await import("@/app/fact-check/page");
-    const html = await fullHtml(await Page({ searchParams: Promise.resolve({}) } as never));
+    const html = await pendingHtml(
+      "/fact-check",
+      Page({ searchParams: Promise.resolve({}) } as never),
+    );
 
     expectShellRenders("/fact-check", html);
     expect(html).toContain("Claims in circulation");
-    /* The desk renders the *claim*, not the record's headline — the headline
-       is the prefixed reported-claim form and the page leads with what is in
-       circulation. Asserting the claim is asserting the record is there. */
-    expect(html).toContain(detailShape.exactClaim);
-    expect(html).not.toContain('<div hidden id="S:');
-    expect(html).not.toContain("Loading the checked claims");
+    expect(html).toContain("Loading the checked claims");
   });
 });
 

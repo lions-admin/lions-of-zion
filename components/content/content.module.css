@@ -96,9 +96,7 @@
 
 .badge[data-assessment='out_of_context'],
 .badge[data-assessment='contested'] {
-  /* VA-60: `--ember` reads 4.22:1 on `--surface-1`. `--ember-soft` is the
-     dimmest step that clears 4.5 on every ground this badge can sit on. */
-  --badge-color: var(--ember-soft);
+  --badge-color: var(--ember);
   --badge-dot: color-mix(in oklab, var(--ember) 38%, transparent);
 }
 

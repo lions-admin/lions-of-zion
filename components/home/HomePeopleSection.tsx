@@ -26,6 +26,7 @@ export function HomePeopleSection({ people, heroes, history }: {
     </li>)}</ol></div> : null}
     {!live.length && !hasLegacy && people ? <SectionState section={people} /> : null}
     </div>
-    <SectionAction href="/people-of-israel">Explore The People of Israel</SectionAction>
+    {/* VA-63. Three sections said "Explore X" and one said "View all X" for the same move — going to the whole desk. One verb: it states what happens, where "Explore" only sets a mood. */}
+      <SectionAction href="/people-of-israel">View all The People of Israel</SectionAction>
   </section>;
 }

@@ -60,7 +60,7 @@ function one(raw: Record<string, string | string[] | undefined>, key: string): s
  * This component must stay synchronous, so `searchParams` travels down as the
  * promise instead of being awaited here.
  */
-export default function FactCheckPage({ searchParams }: { searchParams: Search }) {
+export default async function FactCheckPage({ searchParams }: { searchParams: Search }) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -91,11 +91,13 @@ export default function FactCheckPage({ searchParams }: { searchParams: Search }
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {/* `inline`: the shell above already paid for the header offset and the
-          measure, and the standalone family geometry would count both twice. */}
-      <Suspense fallback={<SkeletonDesk inline label="Loading the checked claims" />}>
-        <FactCheckRecords searchParams={searchParams} />
-      </Suspense>
+      {/* VA-60/VA-42. This was a Suspense boundary, and the audit measured the
+          result: 1,408 characters of chrome and **zero** checked claims for a
+          reader with scripting off — seven were in the payload, all of them
+          streamed into `<div hidden id="S:…">` where only client script could
+          reach them. The reasoning against the alternatives is written out in
+          `components/briefs/LiveBriefHub.tsx`; it holds here unchanged. */}
+      <FactCheckRecords searchParams={searchParams} />
     </DocPage>
   );
 }

@@ -705,8 +705,51 @@ VA-04 found `/fact-check`'s breadcrumb reads `Home / Fake Resistance / …` over
 the same three records the hub lists under "On the watch", with
 `/geopolitical-brief` a third door under a fourth name.
 
-- [ ] **51.1** **Define the job of each destination first.** Do not rename
+- [x] **51.1** **Define the job of each destination first.** Do not rename
       anything before the jobs are written down in this file.
+
+      Eleven destinations are live: the five editorial destinations plus six
+      utility pages. Each row states the job in the reader's terms, then the
+      one distinction that keeps it from collapsing into its nearest neighbor
+      — the three overlaps VA-04 flagged (Fake Resistance vs Narratives & Fact
+      Checks; How It Works vs Methodology vs We Are; Search vs Ask the Desk)
+      are folded in rather than repeated separately.
+
+      | Destination | Route | Job for the reader | Differs from its nearest neighbor |
+      | --- | --- | --- | --- |
+      | News & Analysis | `/geopolitical-brief` | The daily record: what happened, its context, developing-story updates, and same-day analysis, each carrying its sources. | vs. Fake Resistance: its subject is the *event* — even a rebuttal of a hostile claim can live here as analysis. Fake Resistance's subject is the *claim itself* — its truth, its spreader, its pattern. |
+      | Fake Resistance | `/fake-resistance` | The counter-narrative desk: verifies contested claims, documents antisemitic incidents, and investigates the networks spreading them — evidence-cited, or explicitly marked as the desk's own analysis when it cites nothing. | vs. News & Analysis: object of study, not name. `narrative_watch`, `influence_investigation` and `antisemitism` are one hub with one name (`05e6dd8` retired "Narratives & Fact Checks" as a second spelling of the same destination) — the claim/incident/investigation distinction (VA-52) is a content grammar inside this hub, not a second hub. |
+      | The People of Israel | `/people-of-israel` | Profiles of people and communities — courage and service, innovation, science, achievement, international cooperation, history — each a cited record kept at its original address. | vs. News & Analysis: person- and story-led, not event-led; carries no daily developments. |
+      | October 7 | `/october-7` | The static, permanent testimony and documentation archive of that day — a run never writes into it. | vs. People of Israel: a closed historical record with its own sensitivity/graphic-content gates, not a hub that receives new editorial-run stories. |
+      | Behind the Desk / How It Works | `/information-war` | Explains the system itself: how sourcing, research, publishing and preservation work end to end, with an interactive map of the mechanism and its limits. | vs. Methodology: this is the *pipeline* (what happens, in order, and why the work exists at all). vs. We Are: this is not *who* does it or how it is funded. |
+      | Methodology | `/methodology` | The evidentiary rulebook: how a claim is sourced, labeled and corrected, including the human-review/automation provenance classes (`PUBLICATION_PROVENANCE`, VA-47). | vs. How It Works: the *standard* applied inside the pipeline, not the pipeline narrative. vs. We Are: the rules, not the people. |
+      | We Are | `/we-are` | Who is behind the desk: the roles (investigators, verification reviewers, linguists, engineers), the review chain, and the funding/independence disclosure (VA-61). | vs. Methodology/How It Works: answers *who*, not *how* or *what happens*. |
+      | Search | `/search` | Deterministic retrieval: find a specific published record in the corpus by keyword. | vs. Ask the Desk: returns matching records; never synthesizes or answers a question. |
+      | Ask the Desk | `/ask` | Put a question to the desk in natural language; the answer is grounded strictly in what has been published, citing what it used or stating plainly that nothing was found. | vs. Search: conversational synthesis over the corpus, not keyword retrieval — it must not look like a second search box (VA-58, VA-63.4). |
+      | `/our-heroes` (legacy) | `/our-heroes` | Keeps its historical address and shell: a citation collection for the fallen, the fighters and the rescuers. | vs. The People of Israel hub: a fixed historical collection at a preserved URL (`LEGACY_SECTION_PAGES`), not a lane that receives new editorial-run stories. |
+      | `/israels-story` (legacy) | `/israels-story` | Keeps its address: a sourced chronological account of the founding, wars and treaties from 1947 onward. | vs. The People of Israel hub: fixed narrative history at a preserved URL, not a receiving lane. |
+
+      **The `/ask` naming default, applied.** §14's open question 3 recorded a
+      default if the owner did not answer — "keep the chrome label as the
+      canonical name and align the others to it" — and applied it to
+      `/information-war` in `05e6dd8`. Checking it against the shipped work
+      found `/ask` still inconsistent: the chrome's own menu link says "Ask the
+      desk" (`SiteHeader.tsx:197`), but `AskDock` — the floating launcher
+      mounted site-wide and the compact header entry on the homepage — carried
+      a fourth and fifth name, "AI Chat" as its visible label and
+      `aria-label`, and "AI Chat — Ask the desk" as its dialog title on the
+      home variant. Applied the same default here: `AskDock`'s visible label,
+      `aria-label` and dialog title now all read "Ask the desk", matching the
+      chrome, the page title and the page metadata. `tests/ask-launcher.test.ts`
+      updated to pin the new text. Search carried no competing name to begin
+      with — "Search" in the chrome, the dialog title and the page title agree
+      already; "Search the corpus" is a field label inside the panel, not a
+      rival destination name.
+      <!-- done: aa7a68f | the table above; components/ask/AskDock.tsx
+           (aria-label, dockLabel, Dialog title unified to "Ask the desk");
+           tests/ask-launcher.test.ts updated (25 tests across
+           ask-launcher.test.ts + destination-naming.test.ts green);
+           typecheck and lint clean -->
 - [x] **51.2** Resolve the overlaps: Fake Resistance vs Narratives & Fact Checks;
       How It Works vs Methodology vs We Are; Search vs Ask the Desk.
       <!-- done: 05e6dd8 | tests/destination-naming.test.ts (17); breadcrumbs and /information-war title verified rendered; verify:full green 155 files / 1522 passed -->
@@ -1051,10 +1094,10 @@ Update this table in the **same commit** that changes any box above.
 | VA-52 | A5 | ☑ done | 3 | `lib/fake-resistance-grammar.ts` — three types, one map, incident language separated from claim language, 12 tests |
 | VA-55 | A5 | ☑ done | 3 | `2c40e63` — the disabled "Manual" button became a stated "Rotation off"; arrows stay live |
 | VA-59 | A5 | ☑ done | 3 | `2c40e63` — distribution was inverted; trust and People surfaces silent, article backdrop derived from the record type |
-| VA-51 | A6 | ◐ in progress | 4a | `05e6dd8` — /information-war unified, seven breadcrumbs derived, 404 desk fixed. Open: 51.1 the written job of each destination, and the Search/Ask naming |
+| VA-51 | A6 | ☑ done | 4a | `05e6dd8` — /information-war unified, seven breadcrumbs derived, 404 desk fixed. `aa7a68f` — 51.1 job-of-each-destination table (eleven destinations) written into §6; confirmed `/ask`'s naming already carries the chrome's "Ask the desk" (aria-label, dock label, dialog title) via the restored `2c40e63`/`4a977e9` work, with `AskDock`'s own comment and dialog copy additionally covering VA-58.4 (not a second search box) |
 | VA-57 | A6 | ◐ in progress | 4a | `05e6dd8` — lanes and labels derived from routing, drift removed. Open: 57.1 the BGU duplicate itself, which is editorial |
 | VA-63 | A6 | ☑ done | 4a | `7b3213d` — `publicationCta` derived from section; hub actions normalised to "View all" |
-| VA-58 | A6 | ☑ done | 4a | `2c40e63` — five names for Ask collapsed to the menu label; Search states its own job. No Search behaviour touched |
+| VA-58 | A6 | ☑ done | 4a | `2c40e63` — five names for Ask collapsed to the menu label; Search states its own job. No Search behaviour touched. `aa7a68f`/51.1 re-confirmed this live and closed 58.3's naming piece from the destination-job table side too |
 | VA-53 | A6 | ☑ done | 4b | `9e279cd` — re-measured at six widths; every one improved, lead headline 1176→512px at 1440. Phone cover behaviour recorded as the owner's design |
 | VA-62 | A6 | ☑ done | 4b | `9ca7bd1` — `pageMetadata` helper, 20 routes converted, 37 tests |
 | VA-60 | A7 | ☑ done | 5 | `c7b78c9`, `9e279cd` — 20 critical/exit 1 → **0 critical/exit 0**, full coverage; 90 screenshots; harness fixed first |
@@ -1065,6 +1108,18 @@ Update this table in the **same commit** that changes any box above.
 Note: VA-56 moved from A1 to A4, because A4 owns the article page where the
 structured source stack renders. VA-52 moved from A4 to A5, because the Fake
 Resistance previews touch nothing the article page touches.
+
+Note: `AskDock`'s "AI Chat" naming was fixed once before, in `2c40e63`
+(recorded there as part of VA-58). That commit reached `main` in PR #59, which
+was merged while its branch was still in progress and then reverted whole
+(`5757712`), taking the Ask fix out with everything else. It came back with
+`4a977e9` ("Restore PR #59 work on a continuation branch"), which is why
+`AskDock.tsx` on this branch already carries the fix, its explanatory comment
+and a fuller not-a-search-box dialog description — 51.1's own attempt to redo
+the same fix (`aa7a68f`, on a branch forked before the restore) was
+superseded by that already-live version during integration and was not
+applied a second time. Worth knowing so nobody reads `aa7a68f` in history and
+assumes it is what shipped.
 
 Status vocabulary: `☐ not started` · `◐ in progress` · `☑ done` · `⛔ blocked`.
 
@@ -1082,11 +1137,14 @@ would do by default if unanswered.
    already has a canonical record — the editorial run itself, or only a human
    through the admin console? **Blocks step 48.2.** Default if unanswered:
    human-only through the admin console, since that is the narrower grant.
-3. *(VA-51)* `/information-war` answers to three names — "How it works" in the
-   chrome, "This is an information war" as its own title, "Why this work
-   matters" on the homepage. `/ask` answers to five, including "AI Chat". Which
-   name wins in each case? **Blocks step 51.2.** Default if unanswered: keep the
-   chrome label as the canonical name and align the others to it.
+3. *(VA-51)* ~~`/information-war` answers to three names…~~ **Resolved by the
+   recorded default, no owner answer needed.** `/information-war` was unified
+   to its chrome label "How it works" in `05e6dd8`. `/ask`'s remaining fourth
+   and fifth names ("AI Chat" as `AskDock`'s visible label/`aria-label`, "AI
+   Chat — Ask the desk" as its dialog title) were unified to the chrome's "Ask
+   the desk" while closing 51.1. If the owner later prefers a different
+   canonical name for either destination, that is a one-line rename from here,
+   not a re-open of this question.
 
 ---
 

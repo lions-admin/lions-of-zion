@@ -89,9 +89,16 @@ branch and resolved identity, dirty state, and how far each branch stands ahead
 of or behind `main`. `workspace:add -- codex` creates that AI's worktree when
 it does not exist yet.
 
-No `ai/*` branch builds on Vercel: `scripts/vercel-ignore-build.sh` skips every
-branch that is not `main`, so pushing one costs no build minutes and produces
-no preview URL.
+No `ai/*` branch deploys on Vercel, and it takes two controls. `vercel.json`
+lists all five under `git.deploymentEnabled: false`, beside the editorial
+delivery branches — that is what stops a deployment from being created.
+`scripts/vercel-ignore-build.sh` then skips every branch that is not `main`,
+which stops the build.
+
+The second alone is not enough: `ignoreCommand` runs inside a deployment that
+already exists, so on 2026-09-08 pushing the five new branches produced five
+*queued* previews before the ignore step reached them. Re-pushing all five
+after the `deploymentEnabled` entries landed produced none.
 
 The machine-level `core.hooksPath` guard on this workstation asks for explicit
 approval before any push to `main`, so the publish step is not silent.

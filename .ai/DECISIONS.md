@@ -2571,7 +2571,12 @@ delivery branches: orphan branches sharing no history with `main`, never
 merged into `main` or any `ai/*` branch, never cleaned up, and never used as
 an AI's workspace. They look like abandoned development branches to anything
 that judges a branch by its distance from `main`, which is precisely why they
-are named here. And no `ai/*` branch produces a Vercel Preview:
-`scripts/vercel-ignore-build.sh` skips every branch that is not `main`, so
-five permanent branches cost no build minutes — the 100 deployments and 337
+are named here. And no `ai/*` branch produces a Vercel Preview — which took two controls, not
+the one this entry first claimed. `scripts/vercel-ignore-build.sh` skips every
+branch that is not `main`, but `ignoreCommand` runs *inside* a deployment
+Vercel has already created: pushing the five branches produced five queued
+previews before the ignore step reached them. `git.deploymentEnabled` in
+`vercel.json`, which the delivery branches have always used, is what prevents
+the deployment from existing at all, and the five were added to it the same
+day. With both in place five permanent branches cost no build minutes — the 100 deployments and 337
 build-minutes that the branch sprawl generated cannot recur through this door.

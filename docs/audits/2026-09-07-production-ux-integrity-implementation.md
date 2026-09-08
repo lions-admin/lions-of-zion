@@ -340,7 +340,7 @@ log claiming a change that was not applied. The Lebanon record demonstrated it.
       story update, and that a second update supersedes the first in both
       projections at once. No application code changed — `LiveBriefHub.tsx`
       lines 383-404 and `app/articles/[publicId]/page.tsx` were read-only.
-      <!-- done: <this-commit-sha> | tests/publication-update-coherence.test.ts
+      <!-- done: 05b7d5d | tests/publication-update-coherence.test.ts
            — 2 new tests, 17/17 passing; typecheck clean; lint 0 errors (10
            pre-existing warnings, none touched) -->
 - [x] **46.5** Consider whether a SQL trigger is the right home for any part of

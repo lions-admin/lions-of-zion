@@ -3,6 +3,8 @@ import { InformationWarSystem } from "@/components/briefs/InformationWarSystem";
 import { SITE_URL } from "@/lib/site-config";
 import { pageMetadata } from "@/lib/page-metadata";
 
+/* The public destination is named “How it works” in navigation and metadata;
+   the page's editorial heading remains “This is an information war.” */
 const TITLE = "How it works";
 const HEADLINE = "This is an information war";
 const DESCRIPTION =

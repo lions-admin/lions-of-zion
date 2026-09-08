@@ -21,7 +21,7 @@ describe("public chat entry", () => {
   it.each([false, true])("keeps a real chat destination before hydration (home=%s)", (home) => {
     const html = renderToStaticMarkup(createElement(AskDock, { home }));
     expect(html).toMatch(/<a[^>]*href="\/ask"[^>]*data-ask-launcher/);
-    expect(html).toContain("AI Chat");
+    expect(html).toContain("Ask the desk");
   });
 
   it("retains the chat entry on an article", () => {

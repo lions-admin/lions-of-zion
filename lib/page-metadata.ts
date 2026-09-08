@@ -41,9 +41,19 @@ export interface PageMetadataInput {
   /** Path only, leading slash — `/october-7`. The canonical URL is derived. */
   path: string;
   /**
-   * A page-specific social image. Omit to inherit the site card from the root
-   * layout, which is the honest default: a wrong picture is worse than the
-   * general one.
+   * A page-specific social image. Omit to fall back to the site card, which is
+   * the honest default: a wrong picture is worse than the general one.
+   *
+   * **Omitting used to mean no picture at all, not the site card.** The
+   * sentence above said "inherit the site card from the root layout" and that
+   * is not what Next does: `openGraph` is replaced wholesale by the deepest
+   * page that defines it, not deep-merged, so a page-level block without
+   * `images` *suppresses* the layout's card instead of inheriting it. Measured
+   * live 2026-09-08 (T-12): `og:image` existed on exactly one page in the
+   * site, `/`. The other 23 helper-built routes shipped
+   * `twitter:card = summary_large_image` — a format defined by its image —
+   * with no image, so every one of them previewed in X and Slack as a bare
+   * title-and-text stub. The fallback below now makes the comment true.
    */
   image?: { url: string; width: number; height: number; alt: string };
   /** `article` for a record, `website` for a destination. */
@@ -65,9 +75,20 @@ export function pageMetadata({
      tab but not to Open Graph — so a card built from the bare title would read
      differently from the tab it opens. */
   const social = `${title} — LIONS OF ZION`;
-  const images = image
-    ? [{ url: image.url, width: image.width, height: image.height, alt: image.alt }]
-    : undefined;
+  /* The site card, repeated here rather than imported from the layout: these
+     are the values `app/layout.tsx` already publishes, and a page that falls
+     back must fall back to the *same* picture the site advertises. If that
+     file's card changes, this must change with it — which is why the alt text
+     is spelled out rather than abbreviated, so a mismatch is visible in a
+     diff. */
+  const SITE_CARD = {
+    url: "/opengraph-image.png",
+    width: 1731,
+    height: 909,
+    alt: "LIONS OF ZION — Investigations, fact checks, and information warfare",
+  } as const;
+  const card = image ?? SITE_CARD;
+  const images = [{ url: card.url, width: card.width, height: card.height, alt: card.alt }];
 
   return {
     title,
@@ -83,20 +104,20 @@ export function pageMetadata({
           description,
           url: canonical,
           ...(publishedTime ? { publishedTime } : {}),
-          ...(images ? { images } : {}),
+          images,
         }
       : {
           type: "website",
           title: social,
           description,
           url: canonical,
-          ...(images ? { images } : {}),
+          images,
         },
     twitter: {
       card: "summary_large_image",
       title: social,
       description,
-      ...(image ? { images: [image.url] } : {}),
+      images: [card.url],
     },
   };
 }

@@ -64,23 +64,41 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const article = await getPublicPublication(publicId);
     const articleMedia = articleHeroMedia(article);
     const articleImage = articleMedia ? absoluteMediaUrl(articleMedia.src) : undefined;
+    const canonical = SITE_URL + "/articles/" + article.publicId;
+    /* T-12. A record with no hero used to emit no `og:image` while still
+       declaring `twitter:card = summary_large_image`, so 57 of 73 articles
+       previewed as a bare title stub — and `opengraph-image.tsx` in this very
+       segment was rendering a real per-article card the whole time, deployed
+       and returning 200, referenced by nothing. Next only applies that file
+       convention when the page does not define `openGraph` itself, and this
+       function does. Naming the route explicitly is what connects them.
+
+       Preferring the generated card over the site card here is deliberate: it
+       carries this article's own headline, so a shared link says which record
+       it opens rather than only which site. */
+    const social = articleImage
+      ? [{ url: articleImage, width: articleMedia!.width, height: articleMedia!.height, alt: articleMedia!.alt }]
+      : [{ url: `${canonical}/opengraph-image`, width: 1200, height: 630, alt: article.title }];
     return {
       title: article.title,
       description: article.summary ?? article.title,
-      alternates: { canonical: SITE_URL + "/articles/" + article.publicId },
+      alternates: { canonical },
       openGraph: {
         type: "article",
         title: article.title,
         description: article.summary ?? article.title,
+        /* T-12.b: articles were the one route family omitting og:url, so a
+           scraper had to infer the address from the link it followed. */
+        url: canonical,
         publishedTime: article.publishedAt,
         modifiedTime: article.updatedAt,
-        images: articleMedia ? [{ url: articleImage!, width: articleMedia.width, height: articleMedia.height, alt: articleMedia.alt }] : undefined,
+        images: social,
       },
       twitter: {
         card: "summary_large_image",
         title: article.title,
         description: article.summary ?? article.title,
-        images: articleImage ? [articleImage] : undefined,
+        images: [social[0]!.url],
       },
     };
   } catch (cause) {

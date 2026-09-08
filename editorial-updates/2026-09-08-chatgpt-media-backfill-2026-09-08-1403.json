@@ -1,0 +1,94 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-media-backfill-2026-09-08-1403",
+  "composer": "ChatGPT editorial media backfill",
+  "createdAt": "2026-09-08T11:03:00.000Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "uk-settlement-trade-ban-media-backfill",
+      "target": { "publicId": "uk-confirms-settlement-goods-trade-ban-is-coming-zweiy" },
+      "publication": {
+        "canonicalStoryId": "uk-israeli-settlement-trade-ban-2026-09-08",
+        "changeSummary": "Attached a generated editorial illustration; article text, headline, sourcing and classification are unchanged."
+      },
+      "media": {
+        "inputUrl": "https://muskzgl5ub29yfnz.public.blob.vercel-storage.com/editorial/generated/chatgpt-media-backfill-20260908/uk-settlement-goods-trade-ban-hero-e78ec45757bc.jpg",
+        "sourceUrl": null,
+        "alt": "Conceptual editorial illustration of British trade regulation with Westminster, cargo, a globe and a judge's gavel.",
+        "caption": "Editorial illustration — not documentary evidence",
+        "credit": "Lions of Zion / ChatGPT generated editorial illustration",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "role": "editorial-illustration",
+        "focalPoint": { "x": 57, "y": 55 },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "cleared",
+          "basis": "Generated in-house for Lions of Zion",
+          "reference": "generated-media:run=chatgpt-media-backfill-20260908;file=a2df5059-8d6b-4817-b681-bb7153357317",
+          "clearedAt": "2026-09-08",
+          "surfaces": ["article", "homepage"]
+        },
+        "generated": true
+      }
+    },
+    {
+      "key": "israel-biotech-center-media-backfill",
+      "target": { "publicId": "israel-s-new-biotech-center-aims-to-turn-lab-dis-s90zi" },
+      "publication": {
+        "canonicalStoryId": "israel-national-biotech-innovation-center-2026",
+        "changeSummary": "Attached a generated editorial illustration; article text, headline, sourcing and classification are unchanged."
+      },
+      "media": {
+        "inputUrl": "https://muskzgl5ub29yfnz.public.blob.vercel-storage.com/editorial/generated/chatgpt-media-backfill-20260908/israel-biotech-center-hero-b2629d74b3f6.jpg",
+        "sourceUrl": null,
+        "alt": "Conceptual editorial illustration of Israeli translational biotech with laboratory glassware, microscopy and a sculpted therapeutic-protein form.",
+        "caption": "Editorial illustration — not documentary evidence",
+        "credit": "Lions of Zion / ChatGPT generated editorial illustration",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "role": "editorial-illustration",
+        "focalPoint": { "x": 54, "y": 53 },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "cleared",
+          "basis": "Generated in-house for Lions of Zion",
+          "reference": "generated-media:run=chatgpt-media-backfill-20260908;file=46b6a8b8-19a0-4fd0-88e8-17152214f591",
+          "clearedAt": "2026-09-08",
+          "surfaces": ["article", "homepage"]
+        },
+        "generated": true
+      }
+    },
+    {
+      "key": "charlie-kirk-conspiracy-media-backfill",
+      "target": { "publicId": "how-the-israel-killed-charlie-kirk-theory-surviv-sl3l9" },
+      "publication": {
+        "canonicalStoryId": "charlie-kirk-israel-conspiracy-2026",
+        "changeSummary": "Attached a generated editorial illustration; article text, headline, sourcing and classification are unchanged."
+      },
+      "media": {
+        "inputUrl": "https://muskzgl5ub29yfnz.public.blob.vercel-storage.com/editorial/generated/chatgpt-media-backfill-20260908/charlie-kirk-conspiracy-investigation-hero-510178566d85.jpg",
+        "sourceUrl": null,
+        "alt": "Abstract editorial illustration of rumor propagation being examined through a magnifying lens, with fragmented signals resolving into a structured verification network.",
+        "caption": "Editorial illustration — not documentary evidence",
+        "credit": "Lions of Zion / ChatGPT generated editorial illustration",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "role": "editorial-illustration",
+        "focalPoint": { "x": 69, "y": 48 },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "cleared",
+          "basis": "Generated in-house for Lions of Zion",
+          "reference": "generated-media:run=chatgpt-media-backfill-20260908;file=6798556a-9baa-4181-8374-0903787ecf33",
+          "clearedAt": "2026-09-08",
+          "surfaces": ["article", "homepage"]
+        },
+        "generated": true
+      }
+    }
+  ],
+  "homepage": {},
+  "siteRecommendations": [],
+  "research": [],
+  "vetoes": []
+}

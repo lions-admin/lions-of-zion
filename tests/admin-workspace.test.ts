@@ -65,7 +65,11 @@ describe("honest operational state", () => {
       expect(summary.attention).toContainEqual({ code: "critical_alerts", severity: "critical", count: 1 });
       expect(summary.health?.collection).toMatchObject({ state: "unknown", observedAt: null });
       expect(summary.health?.processing.reason).not.toBe("critical_alerts");
-      expect(summary.nextRun.schedule).toBe("0,30 * * * *");
+      /* No cron since 2026-09-08, so no next run to report. The point of the
+         surrounding test is unchanged: an open alert alone must not read as a
+         global shutdown, and a null schedule is a fact about scheduling, not
+         a health verdict. */
+      expect(summary.nextRun.schedule).toBeNull();
       expect(typeof summary.systemActive).toBe("boolean"); // legacy contract remains available
     } finally { await db.$client.close(); }
   });

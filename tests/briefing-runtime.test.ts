@@ -49,9 +49,12 @@ describe("briefing server runtime contracts", () => {
       expect.stringContaining("/queue/briefing/"),
       expect.stringContaining("admin/briefing/run"),
     ]));
-    expect(vercelConfig.crons.map((cron) => cron.path)).not.toEqual(expect.arrayContaining([
-      "/api/internal/cron/briefing",
-      "/api/internal/cron/editorial",
-    ]));
+    /* There is no `crons` array at all since 2026-09-08: the owner removed
+       every schedule, and the four routes are now driven by hand from the
+       admin console or the Operations tick workflow. The assertion that the
+       retired initiator has no schedule is therefore satisfied by the
+       stronger fact that nothing has one — and this asserts that, so a
+       reinstated cron has to be a deliberate edit to this test too. */
+    expect(vercelConfig).not.toHaveProperty("crons");
   });
 });

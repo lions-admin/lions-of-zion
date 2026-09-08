@@ -9,12 +9,10 @@ import {
   briefingRawStorageWarningBytes,
   databasePoolConfig,
   briefingAiBudgets,
-  briefingFeatures,
 } from "@/server/core/config";
 import { emit, TOPICS } from "@/server/core/outbox";
 import { db } from "@/server/db/client";
 import { sendWorkspaceEmail } from "@/server/core/email";
-import { israelLocalDate, israelLocalHour } from "./service";
 
 type Candidate = { kind: string; severity: "warning" | "critical"; message: string; details: Record<string, unknown> };
 type Database = ReturnType<typeof db>;
@@ -46,12 +44,11 @@ const pgArray = (values: string[]) => `{${values.map((value) => `"${value.replac
  * seconds of each other, and the second one must see the first one's rows.
  */
 export async function evaluateAndQueueBriefingAlerts(database: Database = db(), now = new Date()) {
-  const localDate = israelLocalDate(now);
-  const [metrics, control, connections] = await Promise.all([
+  const [metrics, connections] = await Promise.all([
     database.execute<{
       failedRuns: number | string; quarantinedJobs: number | string; staleSources: number | string;
       oldestPendingMinutes: number | string | null; dailySpend: number | string; monthlySpend: number | string;
-      publishedEdition: boolean; searchAttempts: number | string; searchSuccesses: number | string;
+      searchAttempts: number | string; searchSuccesses: number | string;
       rawBytes: number | string;
     }>(sql`
       SELECT
@@ -67,14 +64,16 @@ export async function evaluateAndQueueBriefingAlerts(database: Database = db(), 
           WHERE consecutive_failures >= 3
             AND active
             AND coalesce(config ->> 'retired', 'false') <> 'true') AS "staleSources",
-        /* Age of the oldest job a worker could actually claim. A row whose
-         * attempt budget is spent is recoverStale's to quarantine, not this
-         * metric's to report as a backlog. */
-        (SELECT extract(epoch FROM (now() - min(created_at))) / 60 FROM briefing_job
+        /* How long the oldest claimable job has been ready, which is not how
+         * long its row has existed. createCollectJob upserts on job_key, so a
+         * window that repeats reuses the original row and keeps its
+         * created_at: measuring from there reported a job queued seconds ago
+         * as a 17-hour backlog. A row whose attempt budget is spent is
+         * recoverStale's to quarantine, not this metric's to report. */
+        (SELECT extract(epoch FROM (now() - min(available_at))) / 60 FROM briefing_job
           WHERE state = 'pending' AND attempts < max_attempts) AS "oldestPendingMinutes",
         (SELECT coalesce(sum(cost_usd), 0) FROM ai_run WHERE model_profile IN ('briefing_triage','briefing_draft') AND created_at >= now() - interval '24 hours') AS "dailySpend",
         (SELECT coalesce(sum(cost_usd), 0) FROM ai_run WHERE model_profile IN ('briefing_triage','briefing_draft') AND created_at >= now() - interval '30 days') AS "monthlySpend",
-        EXISTS (SELECT 1 FROM briefing_edition WHERE local_date = ${localDate} AND status = 'published') AS "publishedEdition",
         (SELECT count(*) FROM source_fetch sf JOIN source s ON s.id = sf.source_id
           WHERE s.kind = 'agent_search' AND sf.started_at >= date_trunc('month', now())) AS "searchAttempts",
         (SELECT count(*) FROM source_fetch sf JOIN source s ON s.id = sf.source_id
@@ -82,9 +81,6 @@ export async function evaluateAndQueueBriefingAlerts(database: Database = db(), 
             AND sf.started_at >= date_trunc('month', now())) AS "searchSuccesses",
         (SELECT coalesce(sum(coalesce((to_jsonb(source_fetch)->>'raw_byte_size')::bigint, 0)), 0) FROM source_fetch
           WHERE started_at >= now() - interval '30 days') AS "rawBytes"
-    `),
-    database.execute<{ paused: boolean }>(sql`
-      SELECT automatic_publication_paused AS paused FROM briefing_control WHERE id = 'global'
     `),
     database.execute<{ total: number | string; active: number | string; waiting: number | string }>(sql`
       SELECT count(*) AS total,
@@ -146,10 +142,18 @@ export async function evaluateAndQueueBriefingAlerts(database: Database = db(), 
     message: "Briefing database connection usage reached at least 80 percent of the configured pool size.",
     details: { totalConnections, activeConnections: Number(connections.rows[0]?.active ?? 0), waitingConnections: Number(connections.rows[0]?.waiting ?? 0), poolMax: pool.max },
   });
-  const publishExpected = briefingFeatures().autoPublish && !control.rows[0]?.paused;
-  add(publishExpected && israelLocalHour(now) >= 10 && !row.publishedEdition, {
-    kind: "edition_missing", severity: "critical", message: "No valid daily edition was published by 10:00 Israel time.", details: { localDate },
-  });
+  /* `edition_missing` was removed on 2026-09-08. It asked whether a
+   * `briefing_edition` row reached `published` by 10:00 Israel time — and the
+   * only writer of that table was the internal briefing initiator, retired by
+   * owner ruling on 2026-09-06. No path creates an edition any more, so the
+   * check could only ever be true: it opened a fresh critical alert every
+   * morning for a pipeline that no longer exists, which is worse than no
+   * alert because it teaches a reader to scroll past criticals.
+   *
+   * The whole-site editorial path has its own reporting — `editorial_run`,
+   * its report email, and the run-report outbox topic — and does not write
+   * `briefing_edition`. If a daily-delivery alert is ever wanted again it
+   * belongs there, measured against `editorial_run`, not resurrected here. */
 
   let created = 0;
   let refreshed = 0;

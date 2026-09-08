@@ -58,6 +58,20 @@ function words(value: string): string {
   return value.replaceAll("_", " ");
 }
 
+/* The highest-volume route on the site, and until 2026-09-08 the only one of
+   the three content routes with no `revalidate` — so it rendered dynamically,
+   answered `cache-control: private, no-store`, and every reader cost a
+   function invocation and a database round trip while the homepage beside it
+   served from the CDN.
+
+   300 seconds matches the `unstable_cache` TTL the same data already uses in
+   `lib/publications.ts`, so the two layers expire together instead of one
+   holding a value the other has dropped. Freshness does not depend on it: the
+   `publication.cache-invalidate` consumer calls
+   `revalidatePath("/articles/[publicId]", "page")` inside the same run that
+   publishes, so an edit is live in seconds, not in five minutes. */
+export const revalidate = 300;
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { publicId } = await params;
   try {

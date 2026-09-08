@@ -13,6 +13,7 @@ export {
   costSurfaceFor,
   nextCronTick,
   SCHEDULES,
+  MANUAL_OPERATIONS,
   WARN_AT,
   type AdminConsoleService,
 } from "./service";

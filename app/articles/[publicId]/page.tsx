@@ -79,13 +79,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const social = articleImage
       ? [{ url: articleImage, width: articleMedia!.width, height: articleMedia!.height, alt: articleMedia!.alt }]
       : [{ url: `${canonical}/opengraph-image`, width: 1200, height: 630, alt: article.title }];
+    /* T-12.c. The tab reads "<headline> — LIONS OF ZION" because the layout's
+       title template appends it, but the card carried the bare headline, so a
+       shared article named a different thing from the page it opened — on 73
+       pages. `lib/page-metadata.ts` states this rule for every hub route; the
+       article route predates the helper and never got it. */
+    const socialTitle = `${article.title} — LIONS OF ZION`;
     return {
       title: article.title,
       description: article.summary ?? article.title,
       alternates: { canonical },
       openGraph: {
         type: "article",
-        title: article.title,
+        title: socialTitle,
         description: article.summary ?? article.title,
         /* T-12.b: articles were the one route family omitting og:url, so a
            scraper had to infer the address from the link it followed. */
@@ -96,7 +102,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
       twitter: {
         card: "summary_large_image",
-        title: article.title,
+        title: socialTitle,
         description: article.summary ?? article.title,
         images: [social[0]!.url],
       },

@@ -89,6 +89,24 @@ describe("the helper builds a complete, self-consistent card", () => {
     }
   });
 
+  it("gives the homepage an absolute title, since the layout template cannot reach it", () => {
+    /* T-12.c. Next applies title.template to child segments only, so
+       app/page.tsx — which shares a segment with the layout defining it — kept
+       a bare tab title while its card carried the suffix, on the site's
+       most-shared page. Derived from the path so a future page cannot forget
+       to set it. */
+    const home = pageMetadata({ title: "Truth Has a Signal", description: "d", path: "/" });
+    expect(home.title).toEqual({ absolute: "Truth Has a Signal — LIONS OF ZION" });
+    expect((home.title as { absolute: string }).absolute)
+      .toBe((home.openGraph as { title: string }).title);
+  });
+
+  it("leaves every other route's title bare, for the template to complete", () => {
+    const inner = pageMetadata({ title: "Methodology", description: "d", path: "/methodology" });
+    expect(inner.title).toBe("Methodology");
+    expect((inner.openGraph as { title?: string }).title).toBe("Methodology — LIONS OF ZION");
+  });
+
   it("carries publishedTime only on an article, keeping the union intact", () => {
     const article = pageMetadata({
       title: "Our Heroes", description: "d", path: "/our-heroes",
@@ -136,4 +154,5 @@ describe("no public page hand-writes half a card", () => {
     }
     expect(source).toContain("pageMetadata");
   });
+
 });

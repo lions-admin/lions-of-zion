@@ -91,7 +91,14 @@ export function pageMetadata({
   const images = [{ url: card.url, width: card.width, height: card.height, alt: card.alt }];
 
   return {
-    title,
+    /* T-12.c. Next's `title.template` applies to child segments, not to the
+       page sharing a segment with the layout that defines it — so the homepage
+       tab read "Truth Has a Signal" while its card read
+       "Truth Has a Signal — LIONS OF ZION", the exact mismatch this helper
+       exists to prevent, on the site's most-shared page. Derived from the path
+       rather than passed as a flag: `/` is the only route this can apply to,
+       and a flag is something a future page can forget to set. */
+    title: path === "/" ? { absolute: social } : title,
     description,
     alternates: { canonical },
     /* Spelled per branch rather than spread: Next's `OpenGraph` is a union

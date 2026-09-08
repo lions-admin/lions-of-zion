@@ -11,85 +11,23 @@ const PAGE_URL = `${SITE_URL}/methodology`;
 
 export const metadata: Metadata = pageMetadata({ title: "Methodology", description: TAGLINE, path: "/methodology" });
 
-const METHODOLOGY_JSON_LD = {
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  name: "Methodology",
-  url: PAGE_URL,
-  description: TAGLINE,
-  isPartOf: { "@type": "WebSite", name: "Lions of Zion", url: SITE_URL },
-};
+const METHODOLOGY_JSON_LD = { "@context": "https://schema.org", "@type": "WebPage", name: "Methodology", url: PAGE_URL, description: TAGLINE, isPartOf: { "@type": "WebSite", name: "Lions of Zion", url: SITE_URL } };
 
 export default function Page() {
   return (
     <DocPage register="silent" routeId="methodology" title="Methodology" tagline={TAGLINE} rails="toc">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(METHODOLOGY_JSON_LD) }} />
-
-      <SectionBlock heading="The standard" id="the-standard">
-        <p>Lions of Zion uses AI, OSINT and editorial research to operate at scale, but scale does not change what counts as evidence. A source is not a claim, a claim is not evidence, evidence is not an assessment, and an assessment is not certainty. The method is designed to keep those categories visible even when a story is moving quickly.</p>
-        <p>Technology increases our reach. Standards determine what deserves publication. Human governance defines the boundaries.</p>
-      </SectionBlock>
-
-      <SectionBlock heading="Source, claim, evidence, assessment" id="source-claim-evidence-assessment">
-        <dl>
-          <div><dt><strong>Source</strong></dt><dd>The original material or reporting that actually says, shows or records something.</dd></div>
-          <div><dt><strong>Claim</strong></dt><dd>An assertion attributed to a source, a person, an institution or the public information environment.</dd></div>
-          <div><dt><strong>Evidence</strong></dt><dd>Material that genuinely supports, contradicts or constrains a claim.</dd></div>
-          <div><dt><strong>Assessment</strong></dt><dd>Lions of Zion&apos;s evidence-based interpretation of what the available record supports.</dd></div>
-          <div><dt><strong>Uncertainty</strong></dt><dd>What the reviewed material does not establish, including missing evidence, unresolved contradictions and limits in provenance.</dd></div>
-        </dl>
-      </SectionBlock>
-
-      <SectionBlock heading="Source families and corroboration" id="source-families">
-        <p>Repetition is not corroboration. Five articles, posts or clips that all trace back to one original account remain one source family for that fact. We preserve source lineage wherever possible and treat independent origin as a different question from the number of copies or headlines repeating the same material.</p>
-        <p>Primary material is preferred where it can be reached. Secondary reporting and fact-checking can be valuable, but a citation has to support the specific sentence beside it, not merely discuss the same subject.</p>
-      </SectionBlock>
-
-      <SectionBlock heading="Facts, allegations and analysis" id="labels-and-language">
-        <p>The language of a publication should tell readers what kind of thing they are looking at. We distinguish established fact, attributed or official claim, allegation, inference, analysis and editorial conclusion. Contested material stays contested when the evidence does not settle it. Unsupported means the reviewed record does not support the assertion; it does not mean an algorithm has omnisciently proved a universal negative.</p>
-        <p>Confidence and uncertainty should be explicit. A real post does not prove the event described in it happened. A real association does not prove operational coordination. Similar wording or simultaneous posting does not by itself prove common direction or malicious intent.</p>
-      </SectionBlock>
-
-      <SectionBlock heading="How AI is used" id="ai-assistance">
-        <p>AI systems can help scan large information environments, compare sources, surface inconsistencies, retrieve historical context, organize evidence, monitor developing stories, identify narrative patterns, assist drafting and operate structured editorial workflows. Authorized machine-authored runs can also create or update canonical publications and publish through the controlled production pipeline.</p>
-        <p>Those capabilities do not make model output evidence. AI-generated reasoning, summaries and illustrations remain derived editorial material. Documentary claims still depend on inspectable sources and provenance.</p>
-      </SectionBlock>
-
-      <SectionBlock heading="Human governance" id="human-governance">
-        <p>Lions of Zion is AI-powered and human-governed. People define the mission, editorial policy, source standards, provenance rules, publishing permissions, escalation paths, corrections policy, verification requirements and safety boundaries. Humans also review sensitive or consequential work where the operating rules require editorial escalation.</p>
-        <p>Human governance is not the same thing as claiming that a person manually approves every sentence before publication. The site has more than one publication path, and each path should be described as it actually operates.</p>
-      </SectionBlock>
-
-      <SectionBlock heading="Publication provenance" id="publication-provenance">
-        <p>Editorial publications use two disclosed provenance paths. The authorship line on a publication tells readers which one produced the record.</p>
-        <dl>{(["machine", "human"] as const).map((kind) => <div key={kind}><dt><strong>{PUBLICATION_PROVENANCE[kind].label}</strong></dt><dd>{PUBLICATION_PROVENANCE[kind].detail}</dd></div>)}</dl>
-        <p>Imported and archive records are separate from those editorial bylines. They retain the provenance of the underlying material. Hosting, translating, indexing or machine-processing an archive item does not mean Lions independently re-verified every statement inside it.</p>
-      </SectionBlock>
-
-      <SectionBlock heading="Information-war research" id="information-war-research">
-        <p>Investigations can trace claim origin, source lineage, narrative evolution, timing, amplification, image or video provenance and source-family relationships. These signals can reveal patterns worth investigating; they do not automatically establish coordination, intent or authorship.</p>
-        <p>Where synthetic or manipulated media is suspected, the publication should distinguish what can be established about the file from what remains a forensic hypothesis. An illustrated visual is never treated as evidence of the event it explains.</p>
-      </SectionBlock>
-
-      <SectionBlock heading="Operational and civilian reporting" id="operational-reporting">
-        <p>Reporting involving military activity, public safety or civilians is held to the same evidence discipline with additional care for timing, operational security, casualty uncertainty and the distinction between official statements and independently established facts. We do not turn a military claim into a neutral finding merely by repeating it.</p>
-      </SectionBlock>
-
-      <SectionBlock heading="Changes to the record" id="changes-to-the-record">
-        <ul>
-          <li><strong>Correction.</strong> Fixes a material factual or contextual error and should be transparent.</li>
-          <li><strong>Update.</strong> Adds information that emerged after publication without implying the earlier record was wrong.</li>
-          <li><strong>Developing-story revision.</strong> Updates the current canonical account while preserving version history.</li>
-          <li><strong>Added context.</strong> Improves understanding without changing the underlying finding.</li>
-          <li><strong>Source update.</strong> Adds, replaces or clarifies sourcing; if it changes the conclusion, that change also belongs in the correction record.</li>
-          <li><strong>Technical migration.</strong> Moves or reformats material without pretending it was newly verified.</li>
-        </ul>
-      </SectionBlock>
-
-      <SectionBlock heading="Corrections and accountability" id="corrections">
-        <p>Automated assistance does not reduce responsibility; it raises the importance of a transparent correction mechanism. When evidence changes, uncertainty and conclusions can change with it. Material errors should be corrected, significant changes should be visible and useful historical context should be preserved rather than silently erased.</p>
-        <p>The current sitewide policy and public ledger are on the <Link href="/corrections">Corrections</Link> page. The system map and information-war workflow are explained on <Link href="/information-war">How it works</Link>.</p>
-      </SectionBlock>
+      <SectionBlock heading="The standard" id="the-standard"><p>Lions of Zion uses AI, OSINT and editorial research to operate at scale, but scale does not change what counts as evidence. A source is not a claim, a claim is not evidence, evidence is not an assessment, and an assessment is not certainty. The method is designed to keep those categories visible even when a story is moving quickly.</p><p>Technology increases our reach. Standards determine what deserves publication. Human governance defines the boundaries.</p></SectionBlock>
+      <SectionBlock heading="Source, claim, evidence, assessment" id="source-claim-evidence-assessment"><dl><div><dt><strong>Source</strong></dt><dd>The original material or reporting that actually says, shows or records something.</dd></div><div><dt><strong>Claim</strong></dt><dd>An assertion attributed to a source, a person, an institution or the public information environment.</dd></div><div><dt><strong>Evidence</strong></dt><dd>Material that genuinely supports, contradicts or constrains a claim.</dd></div><div><dt><strong>Assessment</strong></dt><dd>Lions of Zion&apos;s evidence-based interpretation of what the available record supports.</dd></div><div><dt><strong>Uncertainty</strong></dt><dd>What the reviewed material does not establish, including missing evidence, unresolved contradictions and limits in provenance.</dd></div></dl></SectionBlock>
+      <SectionBlock heading="Source families and corroboration" id="source-families"><p>Repetition is not corroboration. Five articles, posts or clips that all trace back to one original account remain one source family for that fact. We preserve source lineage wherever possible and treat independent origin as a different question from the number of copies or headlines repeating the same material.</p><p>Primary material is preferred where it can be reached. Secondary reporting and fact-checking can be valuable, but a citation has to support the specific sentence beside it, not merely discuss the same subject.</p></SectionBlock>
+      <SectionBlock heading="Facts, allegations and analysis" id="labels-and-language"><p>The language of a publication should tell readers what kind of thing they are looking at. We distinguish established fact, attributed or official claim, allegation, inference, analysis and editorial conclusion. Contested material stays contested when the evidence does not settle it. Unsupported means the reviewed record does not support the assertion; it does not mean an algorithm has omnisciently proved a universal negative.</p><p>Confidence and uncertainty should be explicit. A real post does not prove the event described in it happened. A real association does not prove operational coordination. Similar wording or simultaneous posting does not by itself prove common direction or malicious intent.</p></SectionBlock>
+      <SectionBlock heading="How AI is used" id="ai-assistance"><p>AI systems can help scan large information environments, compare sources, surface inconsistencies, retrieve historical context, organize evidence, monitor developing stories, identify narrative patterns, assist drafting and operate structured editorial workflows. Authorized machine-authored runs can also create or update canonical publications and publish through the controlled production pipeline.</p><p>Those capabilities do not make model output evidence. AI-generated reasoning, summaries and illustrations remain derived editorial material. Documentary claims still depend on inspectable sources and provenance.</p></SectionBlock>
+      <SectionBlock heading="Human governance" id="human-governance"><p>Lions of Zion is AI-powered and human-governed. People define the mission, editorial policy, source standards, provenance rules, publishing permissions, escalation paths, corrections policy, verification requirements and safety boundaries. Humans also review sensitive or consequential work where the operating rules require editorial escalation.</p><p>Human governance is not the same thing as claiming that a person manually approves every sentence before publication. The site has more than one publication path, and each path should be described as it actually operates.</p></SectionBlock>
+      <SectionBlock heading="Publication provenance" id="publication-provenance"><p>Editorial publications use two disclosed provenance paths. The authorship line on a publication tells readers which one produced the record.</p><dl>{(["machine", "human"] as const).map((kind) => <div key={kind}><dt><strong>{PUBLICATION_PROVENANCE[kind].label}</strong></dt><dd>{PUBLICATION_PROVENANCE[kind].detail}</dd></div>)}</dl><p>Imported and archive records are separate from those editorial bylines. They retain the provenance of the underlying material. Hosting, translating, indexing or machine-processing an archive item does not mean Lions independently re-verified every statement inside it.</p></SectionBlock>
+      <SectionBlock heading="Information-war research" id="information-war-research"><p>Investigations can trace claim origin, source lineage, narrative evolution, timing, amplification, image or video provenance and source-family relationships. These signals can reveal patterns worth investigating; they do not automatically establish coordination, intent or authorship.</p><p>Where synthetic or manipulated media is suspected, the publication should distinguish what can be established about the file from what remains a forensic hypothesis. An illustrated visual is never treated as evidence of the event it explains.</p></SectionBlock>
+      <SectionBlock heading="Operational and civilian reporting" id="operational-reporting"><p>Reporting involving military activity, public safety or civilians is held to the same evidence discipline with additional care for timing, operational security, casualty uncertainty and the distinction between official statements and independently established facts. We do not turn a military claim into a neutral finding merely by repeating it.</p></SectionBlock>
+      <SectionBlock heading="Changes to the record" id="changes-to-the-record"><ul><li><strong>Correction.</strong> Fixes a material factual or contextual error and should be transparent.</li><li><strong>Update.</strong> Adds information that emerged after publication without implying the earlier record was wrong.</li><li><strong>Developing-story revision.</strong> Updates the current canonical account while preserving version history.</li><li><strong>Added context.</strong> Improves understanding without changing the underlying finding.</li><li><strong>Source update.</strong> Adds, replaces or clarifies sourcing; if it changes the conclusion, that change also belongs in the correction record.</li><li><strong>Technical migration.</strong> Moves or reformats material without pretending it was newly verified.</li></ul></SectionBlock>
+      <SectionBlock heading="Corrections and accountability" id="corrections"><p>Automated assistance does not reduce responsibility; it raises the importance of a transparent correction mechanism. When evidence changes, uncertainty and conclusions can change with it. Material errors should be corrected, significant changes should be visible and useful historical context should be preserved rather than silently erased.</p><p>The current sitewide policy and public ledger are on the <Link href="/corrections">Corrections</Link> page. The system map and information-war workflow are explained on <Link href="/information-war">How it works</Link>.</p></SectionBlock>
     </DocPage>
   );
 }

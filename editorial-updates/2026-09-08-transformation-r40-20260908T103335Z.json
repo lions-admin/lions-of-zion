@@ -1,0 +1,143 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r40-20260908T103335Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T10:33:35.377281Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "fy27-ndaa-primary-text-upgrade",
+      "target": {
+        "publicId": "us-israel-defense-technology-cooperation-faces-a-zzynw"
+      },
+      "publication": {
+        "title": "U.S.–Israel defense technology initiative: what the House passed and what remains unsettled",
+        "summary": "Official House and Senate records show related FY2027 NDAA provisions for joint defense research, licensing and production. The House passed Section 219; the final text and legal effect remain subject to the congressional process.",
+        "body": "Section 219 of the House-passed fiscal 2027 National Defense Authorization Act would create a United States–Israel Defense Technology Cooperation Initiative. The bill text, rather than a description of it, is the primary evidence for what the provision would do.\n\nThe provision directs the secretary of defense to designate an executive agent to coordinate bilateral research, testing, integration and industrial cooperation. It lists possible work on jointly developed or Israeli-origin technologies, movement from research into procurement, joint ventures, licensing, U.S.-based manufacturing, coordination among defense bodies, training and information sharing.\n\nThe House and Senate texts are not identical. The House provision is Section 219; reporting and congressional material identify the related Senate provision as Section 1217. Their existence does not mean either text is final law. The chambers must resolve differences and enact a final authorization before the initiative has statutory force.\n\nThe political dispute is separate from the text. Reuters reported that 56 civil-rights and advocacy organizations urged Congress to remove the provisions. Their letter is evidence of organized opposition and the reasons those groups give. It does not by itself establish the legal effect, cost or security consequences of the initiative.\n\nSupporters describe the provisions as a way to accelerate useful defense innovation and industrial cooperation. Critics describe them as entrenching military integration and weakening oversight. Those are policy judgments. The bill text establishes the proposed structure; implementation consequences would depend on the final text, appropriations, agreements, export controls and agency decisions.\n\nThe House Rules Committee record shows that an amendment to strike Section 219 was proposed and not made in order for a floor vote. That procedural record is stronger evidence of what happened in the House than an inference from the provision's survival.\n\nWhat changed in this review. The original article relied on one Reuters report. It now links the official House bill and Rules Committee record, the Congressional Record for the parallel Senate debate, the independent Reuters account and one advocacy analysis. These sources answer different questions and are not presented as multiple confirmations of a single political claim.\n\nWhat to watch. The decisive records are the final conference text, recorded votes, enactment or failure, appropriations and subsequent Defense Department implementation. Until those exist, the accurate formulation is that Congress is considering related provisions and the House has passed one version.",
+        "changeSummary": "Replace single-report dependence with the official House bill, Rules Committee record and Congressional Record. Separate statutory text, procedural status, opposition and policy interpretation, and clarify that no final law or implementation is established."
+      },
+      "sources": [
+        {
+          "url": "https://www.govinfo.gov/app/details/BILLS-119hr8800rh",
+          "title": "H.R. 8800 official bill text, including Section 219",
+          "publisher": "U.S. Government Publishing Office",
+          "official": true
+        },
+        {
+          "url": "https://rules.house.gov/bill/119/hr-8800",
+          "title": "House Rules Committee amendment and floor record",
+          "publisher": "U.S. House Committee on Rules",
+          "official": true
+        },
+        {
+          "url": "https://www.govinfo.gov/content/pkg/CREC-2026-06-24/pdf/CREC-2026-06-24-pt1-PgS3335-6.pdf",
+          "title": "Congressional Record on the related Senate provision and proposed limitation",
+          "publisher": "Congressional Record",
+          "official": true
+        },
+        {
+          "url": "https://www.reuters.com/legal/government/rights-groups-urge-us-lawmakers-drop-provision-deepen-defense-ties-with-israel-2026-09-03/",
+          "title": "Independent report on the provision and organized opposition",
+          "publisher": "Reuters",
+          "official": false
+        },
+        {
+          "url": "https://www.anewpolicy.org/the-legislative-tracker/section-224-ndaa",
+          "title": "Opposition analysis of Sections 219 and 1217",
+          "publisher": "A New Policy",
+          "official": false
+        }
+      ]
+    },
+    {
+      "key": "gaza-city-strike-later-target-identification",
+      "target": {
+        "publicId": "gaza-city-strike-kills-father-and-daughter-idf-s-b5wsk"
+      },
+      "publication": {
+        "title": "Gaza City strike killed Youssef Aqila and his daughter; IDF later identified him as a Nukhba commander",
+        "summary": "Hospital sources said the September 6 strike killed Youssef Aqila, his eight-year-old daughter Wafaa and wounded six. A day later the IDF identified Aqila as a Nukhba company commander; that claimed role remains attributed to the military.",
+        "body": "An Israeli airstrike hit a vehicle in western Gaza City on September 6. Hospital director Mohammed Abu Selmia told Reuters that Youssef Aqila and his eight-year-old daughter Wafaa were killed and six other people were wounded. EFE separately reported the deaths and injuries through Al-Shifa hospital sources.\n\nThe military's account changed after the first report. On September 7 the IDF said Youssef Aqila was a company commander in Hamas's Nukhba force, that he had advanced attacks and worked to restore Hamas capabilities, and that the strike killed him. The Times of Israel and other outlets reproduced that dated military statement.\n\nThat later identification resolves the initially unknown identity and reported fate of the intended target. It does not erase the civilian death. Wafaa was killed in the same strike, and the reported injuries remain part of the result even if the military's target identification is accurate.\n\nThe evidence layers remain distinct. Hospital sources identify casualties; the IDF identifies the intended target and states its operational rationale; Reuters and EFE report those claims and the scene. This review did not locate an independently published personnel record proving Aqila's rank or an external battle-damage investigation. His Nukhba position therefore remains attributed to the IDF.\n\nThe strike took place under the October 2025 ceasefire framework. The IDF described Aqila's alleged activity as a systematic violation and a continuing threat. That is the military's justification, not an independent legal finding about the strike or the ceasefire.\n\nWhat changed. The original report correctly left the target's identity and fate unresolved because the military was still assessing the result. The September 7 statement supplies a named identification and claimed role. The article now preserves the earlier uncertainty while showing the evidence that changed it.\n\nWhat remains unresolved. Public reporting reviewed here does not establish the six injured people's identities, the complete strike precautions, or an independent assessment of whether the attack complied with international humanitarian law. Those questions should not be inferred from either casualty reporting or the military announcement alone.",
+        "changeSummary": "Add the September 7 IDF identification of Youssef Aqila and distinguish it from hospital casualty reporting. Preserve Wafaa's death, attribute the claimed Nukhba role and identify the legal and casualty questions that remain unresolved."
+      },
+      "sources": [
+        {
+          "url": "https://www.reuters.com/world/middle-east/israeli-strike-kills-two-people-gaza-medics-say-2026-09-06/",
+          "title": "Initial casualty report and first IDF statement",
+          "publisher": "Reuters",
+          "official": false
+        },
+        {
+          "url": "https://www.swissinfo.ch/spa/israel-mata-a-una-ni%C3%B1a-de-8-a%C3%B1os-y-a-su-padre-en-ataque-a%C3%A9reo-al-oeste-de-ciudad-de-gaza/92013391",
+          "title": "EFE report citing Al-Shifa sources",
+          "publisher": "EFE / SWI swissinfo",
+          "official": false
+        },
+        {
+          "url": "https://www.timesofisrael.com/liveblog_entry/idf-hamas-commander-killed-in-gaza-city-airstrike-on-sunday/",
+          "title": "September 7 report reproducing the IDF's named target identification",
+          "publisher": "The Times of Israel",
+          "official": false
+        }
+      ]
+    },
+    {
+      "key": "cer-manifesto-primary-source-upgrade",
+      "target": {
+        "publicId": "european-rabbis-urge-governments-to-confront-the-2igk8"
+      },
+      "publication": {
+        "title": "European rabbis propose seven measures against antisemitic violence; implementation is the next test",
+        "summary": "The Conference of European Rabbis published a seven-part manifesto on funding, incitement, radicalization and safeguarding. EU records support the wider concern; they do not prove that every incident forms one coordinated network.",
+        "body": "The Conference of European Rabbis launched a manifesto in Brussels on September 3 calling on governments, European institutions, religious leaders and civil society to address antisemitic violence through seven policy areas. The conference's own publication is the primary source for the proposal; independent reporting establishes how it was presented publicly.\n\nThe proposals concern oversight of extremist funding, standards for religious leadership, incitement and glorification of terrorism, community protection, online hate and institutional accountability. The conference describes these connected risks as an 'infrastructure of hatred.' That phrase is its policy diagnosis, not proof that all antisemitic incidents share one command, financier or organization.\n\nThe Council of the European Union separately reported an exceptionally high level of antisemitism and called for action against hate crime, disinformation, terrorist content and radicalization. That institutional record supports the broader policy context. It does not validate every causal claim or measure in the rabbis' manifesto.\n\nIndependent coverage by the Jewish Chronicle documents the launch and the seven-point framing. Because it reports the same event, it is useful confirmation of publication and presentation; it is not a separate empirical study of whether the proposed interventions work.\n\nEvidence about a manifesto and evidence about the problem it addresses are different. The CER page establishes authorship and requested measures. EU documents establish official concern and existing policy. Incident statistics, criminal cases and financial investigations would be required to test particular trends, networks or funding claims.\n\nThe editorial value of the proposal lies in treating prevention as several measurable tasks rather than one sweeping theory. Each alleged funding route, extremist organization, institutional failure or online amplification mechanism still requires its own evidence.\n\nWhat to watch. Government adoption, enforcement actions, transparent funding investigations, incident trends and evaluation of prevention programs will show whether the manifesto changes policy or outcomes. Publication alone establishes a proposal, not delivery.",
+        "changeSummary": "Add the conference's own launch page and an official EU policy record. Separate authorship of the proposal, independent reporting, broader institutional context and the evidence needed to test specific causal claims."
+      },
+      "sources": [
+        {
+          "url": "https://rabbiscer.org/home/",
+          "title": "Conference launch of A Call to End the Violent Hatred",
+          "publisher": "Conference of European Rabbis",
+          "official": true
+        },
+        {
+          "url": "https://data.consilium.europa.eu/doc/document/ST-14245-2024-INIT/en/pdf",
+          "title": "Council declaration on fostering Jewish life and combating antisemitism",
+          "publisher": "Council of the European Union",
+          "official": true
+        },
+        {
+          "url": "https://www.thejc.com/news/world/european-rabbis-launch-manifesto-to-combat-great-wave-of-violent-hatred-sweeping-the-continent-qu4ixddx",
+          "title": "Independent coverage of the manifesto launch",
+          "publisher": "The Jewish Chronicle",
+          "official": false
+        }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 40 — primary-source upgrade pass",
+      "sourcesReviewed": [
+        "https://www.govinfo.gov/app/details/BILLS-119hr8800rh",
+        "https://rules.house.gov/bill/119/hr-8800",
+        "https://www.govinfo.gov/content/pkg/CREC-2026-06-24/pdf/CREC-2026-06-24-pt1-PgS3335-6.pdf",
+        "https://www.reuters.com/legal/government/rights-groups-urge-us-lawmakers-drop-provision-deepen-defense-ties-with-israel-2026-09-03/",
+        "https://www.anewpolicy.org/the-legislative-tracker/section-224-ndaa",
+        "https://www.reuters.com/world/middle-east/israeli-strike-kills-two-people-gaza-medics-say-2026-09-06/",
+        "https://www.swissinfo.ch/spa/israel-mata-a-una-ni%C3%B1a-de-8-a%C3%B1os-y-a-su-padre-en-ataque-a%C3%A9reo-al-oeste-de-ciudad-de-gaza/92013391",
+        "https://www.timesofisrael.com/liveblog_entry/idf-hamas-commander-killed-in-gaza-city-airstrike-on-sunday/",
+        "https://rabbiscer.org/home/",
+        "https://data.consilium.europa.eu/doc/document/ST-14245-2024-INIT/en/pdf",
+        "https://www.thejc.com/news/world/european-rabbis-launch-manifesto-to-combat-great-wave-of-violent-hatred-sweeping-the-continent-qu4ixddx"
+      ],
+      "conclusion": "Three high-impact records warranted revision. The defense-technology story now rests on official legislative text and procedure; the Gaza strike includes the military's later named target claim alongside independent casualty reporting; and the CER manifesto is grounded in the author's publication plus an EU policy record. Sources are assigned distinct roles, and shared reporting chains are not counted as independent proof.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 40 SOURCE ROLES: expose source type and claim role on article pages. Acceptance: readers can distinguish primary text, party statement, independent reporting and analysis without inferring independence from link count.",
+    "RUN 40 PASSAGE PROJECTION: the legacy U.S.–Israel defense record has stored passages that may override a revised body. Acceptance: migrate or version those passages so the public page renders the complete source-upgraded copy and visible revision note."
+  ]
+}

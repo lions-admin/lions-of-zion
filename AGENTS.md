@@ -162,6 +162,36 @@ The second alone is not enough, and this was measured rather than assumed: on
 deployments, because `ignoreCommand` runs inside a deployment that already
 exists. Read the CI run on GitHub instead of looking for a preview URL.
 
+## Chrome
+
+Every agent drives a real Chrome through the `chrome-devtools` MCP server,
+registered in `.mcp.json`. That file is tracked and identical in all five
+worktrees, so the capability arrives with the checkout — nothing to install
+per agent.
+
+**Each agent gets its own Chrome profile.** `.mcp.json` points at
+`scripts/chrome-mcp.mjs`, which resolves who is asking — `LIONS_AI`, else the
+checked-out branch, else the directory name — and hands
+`chrome-devtools-mcp` a `--userDataDir` under
+`<repo-parent>/lions-of-zion-workspaces/.chrome-profiles/<ai>`. This is not
+tidiness: Chrome locks its user-data directory, so a shared profile means the
+second agent to open a browser either fails or fights the first for the same
+tabs, cookies and session. It is the worktree problem one layer up, and it
+gets the same answer.
+
+Two things that will bite an editor of that wrapper. **stdout belongs to the
+protocol** — an MCP server speaks JSON-RPC on stdin/stdout, so every
+diagnostic goes to stderr; a stray `console.log` corrupts the stream and the
+client drops the connection with no useful error. And the server version is
+**pinned**, not `@latest`, because a tool surface that changes underneath five
+running agents is a debugging problem nobody asked for. Bump it deliberately.
+
+The repository's own browser scripts — `npm run audit:ui`,
+`npm run audit:interaction`, `npm run perf:report` — are separate and use
+Playwright rather than the MCP server. They need `node_modules` in that
+worktree; the Chromium binary itself lives once in
+`~/Library/Caches/ms-playwright` and is shared by all five.
+
 ## The commands
 
 | Command | What it does |

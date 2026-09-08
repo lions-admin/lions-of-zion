@@ -247,7 +247,21 @@ export function syncStart(env = process.env) {
   const { removed, retained } = cleanupMergedBranches();
   if (removed.length) lines.push(`Removed merged branches: ${removed.join(", ")}`);
   if (retained.length) lines.push(`Merged branches retained because another worktree uses them: ${retained.join(", ")}`);
+  const stale = localDataAge();
+  if (stale) lines.push(stale);
   return report(lines, currentBranch());
+}
+
+/**
+ * Git is only half of "am I up to date"; the other half is the database the
+ * local site reads, which drifts silently. Out of process and time-boxed, so a
+ * slow or absent database can never delay or fail a session start.
+ */
+function localDataAge() {
+  const check = spawnSync(process.execPath, [join(root, "scripts/check-local-data-age.mjs")], {
+    cwd: root, encoding: "utf8", timeout: 8000, stdio: ["ignore", "pipe", "ignore"],
+  });
+  return check.stdout?.trim() || null;
 }
 
 /** Which worktree, if any, currently has this branch checked out. */

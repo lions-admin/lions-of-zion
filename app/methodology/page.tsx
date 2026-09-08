@@ -158,7 +158,9 @@ const PIPELINE: { name: string; note: string; icon: IconName; gate?: string }[] 
 
 export default function Page() {
   return (
-    <DocPage routeId="methodology" title="Methodology" tagline={TAGLINE} rails="toc">
+    <DocPage
+      /* VA-59. A trust page states rules; the scan is decoration behind them. */
+      register="silent" routeId="methodology" title="Methodology" tagline={TAGLINE} rails="toc">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(METHODOLOGY_JSON_LD) }}

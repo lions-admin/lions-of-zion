@@ -92,7 +92,7 @@ export default async function Page() {
   const publishedRecords = groups.reduce((count, group) => count + group.publications.length, 0);
   const legacyHeroes = [heroes.featured, ...heroes.profiles];
 
-  return <EditorialShell routeId="people-of-israel" register="muted" className={styles.page}>
+  return <EditorialShell routeId="people-of-israel" register="silent" className={styles.page}>
     <div className={styles.hub}>
       <HubMasthead
         kicker="A living record"

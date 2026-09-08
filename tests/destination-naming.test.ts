@@ -113,3 +113,30 @@ describe("the People hub derives its lanes", () => {
     expect(PUBLICATION_SECTION_LABELS.international_cooperation).toBe("International cooperation");
   });
 });
+
+describe("Search and Ask are one name each, and different jobs", () => {
+  const dock = read("components/ask/AskDock.tsx");
+  const searchDialog = read("components/search/SearchDialog.tsx");
+
+  it("drops the fifth name for the Ask destination", () => {
+    const markup = dock.replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
+    expect(markup).not.toContain("AI Chat");
+    expect(markup).toContain('aria-label="Ask the desk"');
+    expect(markup).toContain('title="Ask the desk"');
+  });
+
+  it("says outright that Ask is not a second search box", () => {
+    expect(dock).toMatch(/Not a search box/i);
+  });
+
+  it("keeps the honest part of the retired label — that a machine answers", () => {
+    // "AI Chat" carried that; the description has to carry it now.
+    expect(dock).toMatch(/across what this desk has published/i);
+    expect(dock).toMatch(/where there is no evidence, the answer says so/i);
+  });
+
+  it("has Search state retrieval and point at Ask for the other job", () => {
+    expect(searchDialog).toMatch(/Find a published record/i);
+    expect(searchDialog).toMatch(/ask the desk/i);
+  });
+});

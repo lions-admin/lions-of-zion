@@ -219,7 +219,13 @@ export default async function ArticlePage({ params }: Props) {
     <EditorialShell
       routeId="articles"
       backdropSeed={article.publicId}
-      register="muted"
+      /* VA-59. Every article ran the scan at the same reduced strength, which
+         meant a Ministry of Defence announcement carried the same signal
+         aesthetic as an influence investigation. The register is derived from
+         the same predicate that decides whether a record may be staged as an
+         investigation at all — so a section that changes desk changes its
+         backdrop with it, and there is no section list in this file. */
+      register={publicationSupportsInvestigationExplorer(article.section) ? "muted" : "silent"}
       className={styles.page}
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />

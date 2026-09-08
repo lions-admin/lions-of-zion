@@ -18,6 +18,11 @@
 .rotationControls > div { display: flex; align-items: center; }
 .rotationControls button { display: inline-flex; align-items: center; justify-content: center; width: 44px; min-height: 44px; border: 0; padding: 0; color: var(--ink); background: transparent; cursor: pointer; }
 .rotationControls .pauseButton { width: 62px; font: 500 12px/1.4 var(--face-text); }
+/* VA-55. The reduced-motion state, where the pause button used to sit. It is
+   text rather than a control because there is nothing to press: rotation is
+   off and stays off. Sized to the button it replaces so the arrows either side
+   do not shift when a reader's motion preference changes. */
+.rotationControls .rotationState { display: inline-flex; align-items: center; justify-content: center; width: 62px; min-height: 44px; color: var(--ink-lo); font: 500 12px/1.4 var(--face-text); }
 .rotationControls button:hover:not(:disabled) { color: var(--gold); background: var(--surface-1); }
 .rotationControls button:active:not(:disabled) { background: var(--surface-2); }
 .rotationControls button:disabled { color: var(--ink-lo); cursor: default; }

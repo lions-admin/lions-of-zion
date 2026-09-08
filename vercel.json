@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "ignoreCommand": "bash scripts/vercel-ignore-build.sh",
   "git": {
     "deploymentEnabled": {
       "briefing-packages": false,
@@ -21,10 +22,5 @@
       "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "outbox-dispatch", "retryAfterSeconds": 30 }]
     }
   },
-  "crons": [
-    { "path": "/api/internal/cron/ingest", "schedule": "0,30 * * * *" },
-    { "path": "/api/internal/cron/embed", "schedule": "10,40 * * * *" },
-    { "path": "/api/internal/cron/outbox-drain", "schedule": "*/15 * * * *" },
-    { "path": "/api/internal/cron/maintenance", "schedule": "20 3 * * *" }
-  ]
+  "//crons": "Removed 2026-09-08 by owner ruling. The four routes under app/api/internal/cron/ still exist and still work; only the schedule is gone. Run them on demand through the admin console (POST /api/v1/admin/console/{sources/collect-sweep, outbox/drain, maintenance/tick}) or the manual Operations tick workflow in GitHub Actions. Nothing collects, drains or reconciles on its own any more."
 }

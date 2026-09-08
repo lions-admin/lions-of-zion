@@ -62,6 +62,38 @@ const nextConfig: NextConfig = {
   },
   // Kept from the retired particle entrance, which the badge used to sit on
   // top of. Harmless either way, and a dev-only surface.
+  /* No `eslint` key: Next 16 removed linting from `next build` entirely, so
+     there is nothing here to disable. `npm run lint` and the CI lint job are
+     the only places ESLint runs. Type checking during the build is left on
+     deliberately — it is the last line of defence on Vercel if a check is
+     ever skipped. */
+  /* Guarantees the content the server actually reads is in the output.
+
+     `server/modules/homepage/catalog.ts` and `lib/content/{archive,
+     fake-resistance-cases}.ts` read `join(process.cwd(), <variable>)`; in the
+     catalog's case the file list is derived at runtime from the *contents* of
+     `content-packages/homepage/media.json`. Nothing static can resolve that.
+
+     **This does not silence the build warning, and it was not expected to
+     once measured.** Turbopack still reports "Dynamic filesystem access
+     causes tracing of the whole project" for `/articles/[publicId]`,
+     `/geopolitical-brief` and three sibling routes, because the access
+     genuinely is dynamic — the warning is about the *shape* of the call, not
+     about a missing include. Removing it would mean replacing runtime reads
+     with a static import map across the archive loaders, which changes
+     working application code to please a tracer; that is a separate,
+     deliberate piece of work, not a side effect of a CI change.
+
+     What this earns is that the needed files are named rather than inferred,
+     so a future narrowing of the trace cannot silently drop them. Keep the
+     list in step with the directories those three modules read. */
+  outputFileTracingIncludes: {
+    "/": ["./content-packages/homepage/**", "./content-packages/fake-resistance/index.json"],
+    "/fake-resistance/**": ["./content-packages/fake-resistance/**"],
+    "/october-7/**": ["./content-packages/october7/**", "./content-packages/hamas-massacre/**"],
+    "/our-heroes": ["./content-packages/homepage/**"],
+    "/israels-story": ["./content-packages/homepage/**"],
+  },
   devIndicators: false,
   async headers() {
     return [

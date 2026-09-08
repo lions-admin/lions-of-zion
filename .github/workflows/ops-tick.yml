@@ -1,0 +1,63 @@
+name: Operations tick
+
+# The crons were removed from vercel.json on 2026-09-08 by owner ruling.
+# Nothing collects, drains, embeds or reconciles on its own any more — this
+# workflow is how those operations are run now, plus the equivalent buttons in
+# the admin console at /admin.
+#
+# Manual only. It costs nothing when nobody presses it, which is the point.
+#
+# Each choice calls the same internal route the cron used to call, with the
+# same `requireCron` secret, so the behaviour is identical to a scheduled run:
+#
+#   ingest        walk every active source, recover and dispatch collection
+#                 jobs, discard retired-stage rows, reconcile alerts
+#   outbox-drain  publish pending outbox rows (cache invalidation, search
+#                 reindex, editorial run reports, alert email)
+#   embed         work the semantic-search embedding backlog
+#   maintenance   prune rate limits and idempotency keys, recover jobs,
+#                 re-verify disabled sources, reconcile alerts
+#
+# Requires two repository secrets: CRON_SECRET (the same value the Vercel
+# project holds) and SITE_URL.
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: "Which operation to run"
+        required: true
+        type: choice
+        options:
+          - ingest
+          - outbox-drain
+          - embed
+          - maintenance
+
+permissions:
+  contents: read
+
+jobs:
+  tick:
+    name: run ${{ inputs.operation }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call the operation
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SITE_URL: ${{ secrets.SITE_URL }}
+          OPERATION: ${{ inputs.operation }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CRON_SECRET:-}" ] || [ -z "${SITE_URL:-}" ]; then
+            echo "CRON_SECRET and SITE_URL must both be set as repository secrets." >&2
+            exit 1
+          fi
+          # --fail-with-body so a non-2xx still prints what the route said,
+          # which is the whole reason to run this by hand.
+          curl --fail-with-body -sS \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            "${SITE_URL%/}/api/internal/cron/${OPERATION}" \
+            | tee response.json
+          echo
+          echo "--- ${OPERATION} completed"

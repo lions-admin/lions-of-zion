@@ -159,6 +159,85 @@ which is a plain Markdown file any agent can read.
   change the slug.** Catalog-sync only ever creates; editing a query in place
   leaves the live source running the old text.
 
+# Verification and CI policy
+
+**Do not run `verify:full` after every edit.** Verification is proportional to
+the change: read the diff, run the smallest check that actually covers it, and
+escalate when the change reaches something shared. Before 2026-09-08 every
+commit — a Markdown edit included — ran typecheck, lint, all 166 test files and
+**two** production builds; that is what this policy replaces.
+
+`npm run verify:changed` is the default. It classifies the diff with
+`scripts/verify-changed.ts` and runs exactly the steps that diff needs. **CI
+runs the same classifier**, so a local pass and a green pipeline cannot
+disagree about whether a change was risky.
+
+## What runs for what
+
+| The diff touches | Checks | Notes |
+| --- | --- | --- |
+| Only `*.md`, `docs/`, `.ai/`, `.claude/`, `.codex/`, `.agents/` | none | No build. None of it reaches the bundle. |
+| A component, page, style or `lib/` module — edited, not added or moved | typecheck · lint · **`vitest related`** · build | `related` walks the module graph and runs only the tests that import the change (measured: 198 ms against 176 s). |
+| `content-packages/**`, `public/**` | full suite · build | Static generation reads these; an edit can break a build every other check passes. |
+| Anything under `server/` other than the high-risk paths below | full suite · typecheck · lint · build | A service is reached through boundaries the module graph does not show. |
+| `server/db/**`, `server/core/**`, `server/contracts/**`, `server/http/**`, anything matching `auth`, `package*.json`, `next.config.ts`, `vercel.json`, `vitest.config.ts`, `eslint.config.mjs`, `tsconfig*.json`, `drizzle.config.ts`, `.github/**`, `tests/fixtures/**`, `middleware.ts`, `instrumentation.ts` | **everything** | High risk. Never narrowed. |
+| A path the classifier cannot place | **everything** | Unknown escalates. Over-verifying costs minutes; under-verifying costs a deploy. |
+| A file added, renamed or deleted | full suite, never `related` | A new import edge may have no test covering it. |
+
+## Commands
+
+| Command | Use it for |
+| --- | --- |
+| `npm run verify:changed` | The default after an edit. Classifies and runs only what the diff needs. |
+| `npx vitest related --run <files…>` | The tests that import specific files. Fast, and what `verify:changed` picks for isolated presentational edits. |
+| `npx vitest run tests/<file>.test.ts` | One suite. Add `-t "name"` for one test. |
+| `npm test` | The whole suite locally, serial-ish at `maxWorkers: 2`. |
+| `npm run test:shard -- 1/4` | Reproduce a specific CI shard failure. |
+| `npm run typecheck` / `npm run lint` | On their own when only one is in question. |
+| `npm run build` | Production-build validation. Needed when the change reaches the bundle — **not** needed to see a change locally. |
+| `npm run verify:full` | The whole gate. **Required** for schema, security, dependency, build-config and CI changes, before a release, and whenever you are unsure. |
+
+## Rules
+
+- Inspect the diff before choosing checks; do not choose from habit.
+- Documentation-only changes never need a build.
+- An isolated frontend change does not need the database suites.
+- Run targeted tests first, broader ones when shared code is touched.
+- Production- or deployment-affecting changes need a real production build.
+- Do not build twice. If a valid build artifact exists, reuse it.
+- Prefer independent checks in parallel over one serial chain.
+- **Never skip a failing relevant test, and never weaken a test, to save time.**
+- When unsure whether a change crosses a high-risk boundary, escalate.
+
+## Local development is not a build
+
+`npm run dev` and hot reload are how frontend work is seen. A production build
+is a verification and deployment concern; it is not a prerequisite for looking
+at a change.
+
+## How CI is arranged
+
+`.github/workflows/ci.yml`: a `classify` job publishes the change classes, and
+`typecheck`, `lint`, `test` (four `--shard` matrix runners) or `test-related`,
+`build` and `archive-assets` run in parallel behind it. `smoke` consumes the
+**build artifact** rather than building again. `.next/cache` and the Playwright
+browser are cached. Superseded PR runs are cancelled; `main` runs are not.
+
+Two aggregator jobs keep the required status-check names branch protection
+knows — `typecheck, lint, test, build` and
+`route smoke test (headless Chromium)` — and pass when their dependencies
+passed *or were skipped*. **Renaming them breaks branch protection**; see
+`docs/operations.md`.
+
+## There are no crons
+
+`vercel.json` carries no `crons` array (owner ruling, 2026-09-08). Nothing
+collects, drains the outbox, embeds or reconciles alerts on its own. The routes
+under `app/api/internal/cron/` still exist and still work — run them from the
+admin console (`POST /api/v1/admin/console/{sources/collect-sweep,
+outbox/drain, maintenance/tick}`) or from the **Operations tick** workflow in
+GitHub Actions. Do not restore a schedule without an owner instruction.
+
 # Tests
 
 Vitest, node environment, against `server/db/testing.ts` `freshDatabase()` —

@@ -47,6 +47,11 @@ export interface SectionPageProps {
   /** `quiet`: a dimmer scan behind the page, for long reading. */
   surface?: 'default' | 'quiet';
   /**
+   * Some hub pages are clearer without an auto-generated contents rail.
+   * Defaults to true so existing section pages keep their established behavior.
+   */
+  withToc?: boolean;
+  /**
    * Optional page-level right rail, shown only at ≥1220px. Per-entry sources
    * reach the same margin on their own through `content.module.css`; this is
    * for a page that has something else standing to say there.
@@ -71,6 +76,7 @@ export function SectionPage({
   register = 'default',
   accent = 'gold',
   surface = 'default',
+  withToc = true,
   aside,
   breadcrumb,
   children,
@@ -84,9 +90,8 @@ export function SectionPage({
 
   const pageClass = [
     styles.page,
-    /* Marks the shell as carrying rails, which widens the band the scan keeps
-       out of. DocPage shares `.page` and deliberately does not take this. */
-    styles.withRails,
+    /* The scan mask only needs rail width when a rail actually exists. */
+    withToc || aside ? styles.withRails : '',
     register === 'muted' ? styles.registerMuted : '',
     accent === 'ember' ? styles.accentEmber : '',
     surface === 'quiet' ? styles.surfaceQuiet : '',
@@ -101,7 +106,7 @@ export function SectionPage({
       routeId={id}
       register={register}
       className={pageClass}
-      progressTrackClassName={styles.topProgressTrack}
+      progressTrackClassName={withToc ? styles.topProgressTrack : undefined}
     >
       <div className={shellClass}>
         {/* The trail a hub's child passes down — the shared `Breadcrumb`, the
@@ -119,9 +124,11 @@ export function SectionPage({
           />
         ) : null}
 
-        <div className={styles.tocRail}>
-          <SectionToc />
-        </div>
+        {withToc ? (
+          <div className={styles.tocRail}>
+            <SectionToc />
+          </div>
+        ) : null}
 
         <article className={styles.panel} id="page-content">
           <header>

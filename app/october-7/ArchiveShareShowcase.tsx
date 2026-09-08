@@ -58,7 +58,7 @@ export function ArchiveShareShowcase({
   const label = isStory ? "story" : "record";
   const running = !paused && !reduced && visible && samples.length > 1;
   const sample = samples[index];
-  const headingId = isStory ? "survivor-stories" : "documented-records";
+  const headingId = isStory ? "featured-survivor-story" : "featured-documented-record";
   const archiveHref = isStory ? "/october-7/testimonies" : "/october-7/documentation";
 
   useEffect(() => {
@@ -83,9 +83,9 @@ export function ArchiveShareShowcase({
   return (
     <section ref={root} className={styles.archiveFeature} data-kind={kind} aria-labelledby={headingId}>
       <header className={styles.featureHeading}>
-        <p className={styles.eyebrow}>{isStory ? "First-person accounts" : "Films & photographs"}</p>
-        <h2 id={headingId}>{isStory ? "Survivor stories" : "Documented records"}</h2>
-        <p>{isStory ? "Read their words. Help their stories reach others." : "See what was recorded. Post the original source media with its archive context preserved here."}</p>
+        <p className={styles.eyebrow}>{isStory ? "Featured testimony" : "Featured source record"}</p>
+        <h2 id={headingId}>{isStory ? "Featured survivor story" : "Featured documented record"}</h2>
+        <p>{isStory ? "A first-person account selected from the testimony archive." : "A preserved record selected from the documentation archive."}</p>
         <Link className={styles.browseLink} href={archiveHref}>
           Browse all {count} {isStory ? "stories" : "records"} <Icon name="arrow-right" size={18} />
         </Link>
@@ -156,7 +156,7 @@ export function ArchiveShareShowcase({
                 copyLabel={isStory ? "Copy story to share" : "Copy record to share"}
                 actions={sample.xMedia ? <XMediaPostButton {...sample.xMedia} returnTo={sample.href} /> : undefined}
                 targets={[
-                  ...(sample.xMedia ? [] : [{ label: "Share on X", href: sample.xHref }]),
+                  { label: "Post on X", href: sample.xHref },
                   { label: "Facebook", href: sample.facebookHref },
                 ]}
               />

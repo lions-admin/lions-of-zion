@@ -11,17 +11,17 @@ import { facebookShareUrl, xIntentUrl } from "@/lib/content/share-text";
 import { SITE_URL } from "@/lib/site-config";
 import flowStyles from "@/components/support/support-flows.module.css";
 import styles from "./page.module.css";
+import { pageMetadata } from "@/lib/page-metadata";
 
 const TAGLINE =
   "Ways to join the effort: amplify verified truth, contribute skills, sustain the work.";
 const PAGE_URL = `${SITE_URL}/support-us`;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Support Us",
   description: TAGLINE,
-  alternates: { canonical: PAGE_URL },
-  openGraph: { title: "Support Us — LIONS OF ZION", description: TAGLINE },
-};
+  path: "/support-us",
+});
 
 /* An action page, not an article — WebPage is the correct real schema.org
    type here. */

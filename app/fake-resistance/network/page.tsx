@@ -14,17 +14,17 @@ import { getCaseIndex, getResearchNetwork } from '@/lib/content/fake-resistance-
 import { SITE_URL } from '@/lib/site-config';
 import styles from './page.module.css';
 import { publicationHubCrumb } from '@/lib/publication-routing';
+import { pageMetadata } from '@/lib/page-metadata';
 
 const TAGLINE =
   'What the case files add up to when the network is computed rather than drawn by hand — and which of the earlier readings that killed.';
 const PAGE_URL = `${SITE_URL}/fake-resistance/network`;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'The network',
   description: TAGLINE,
-  alternates: { canonical: PAGE_URL },
-  openGraph: { title: 'The network — LIONS OF ZION', description: TAGLINE },
-};
+  path: "/fake-resistance/network",
+});
 
 export default async function Page() {
   const [network, cases] = await Promise.all([getResearchNetwork(), getCaseIndex()]);

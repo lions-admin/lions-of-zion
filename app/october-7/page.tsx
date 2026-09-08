@@ -21,23 +21,20 @@ import { buildShareQuote, facebookShareUrl, stripSourceBreadcrumb, xIntentUrl } 
 import { SITE_URL } from "@/lib/site-config";
 import { ArchiveShareShowcase, type ArchiveShareSample } from "./ArchiveShareShowcase";
 import styles from "./page.module.css";
+import { pageMetadata } from "@/lib/page-metadata";
 
 const TAGLINE = "Survivor stories and documented records. Read, share and preserve the context.";
 const PAGE_URL = `${SITE_URL}/october-7`;
 
 export async function generateMetadata(): Promise<Metadata> {
   const record = await getOctober7Record();
-  return {
+  return pageMetadata({
     title: "October 7",
     description: TAGLINE,
-    alternates: { canonical: PAGE_URL },
-    openGraph: {
-      title: "October 7 — LIONS OF ZION",
-      description: TAGLINE,
-      type: "article",
-      publishedTime: new Date(record.publishedAt).toISOString(),
-    },
-  };
+    path: "/october-7",
+    type: "article",
+    publishedTime: new Date(record.publishedAt).toISOString(),
+  });
 }
 
 function october7JsonLd(record: Awaited<ReturnType<typeof getOctober7Record>>) {

@@ -11,17 +11,17 @@ import {
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
+import { pageMetadata } from "@/lib/page-metadata";
 
 const TAGLINE =
   "Who Lions of Zion are, why this network exists, and how it works.";
 const PAGE_URL = `${SITE_URL}/we-are`;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "We Are",
   description: TAGLINE,
-  alternates: { canonical: PAGE_URL },
-  openGraph: { title: "We Are — LIONS OF ZION", description: TAGLINE },
-};
+  path: "/we-are",
+});
 
 /* This page is the site's own "about" page — Organization is the correct
    real schema.org type here, not Article. */

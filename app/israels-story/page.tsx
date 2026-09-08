@@ -5,16 +5,16 @@ import { PublicationMeta, Timeline } from "@/components/content";
 import { getIsraelsStoryEdition } from "@/lib/content/israels-story";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
+import { pageMetadata } from "@/lib/page-metadata";
 
 const TAGLINE =
   "The long arc: history, identity, and the context the noise leaves out.";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Israel’s Story",
   description: TAGLINE,
-  openGraph: { title: "Israel’s Story — LIONS OF ZION", description: TAGLINE },
-  alternates: { canonical: `${SITE_URL}/israels-story` },
-};
+  path: "/israels-story",
+});
 
 /** I–XX is far more than this page will ever need; a book's chapter marks
  *  don't count in Arabic numerals, and this page is built to read as one. */

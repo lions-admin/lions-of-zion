@@ -7,7 +7,21 @@ import { HeroVideo } from "@/components/sections/HeroVideo";
 import { HomepageJourney } from "@/components/home/HomepageJourney";
 import { HeroSupportStrip } from "@/components/home/HeroSupportStrip";
 import { getHomepageEdition } from "@/lib/homepage";
+import { pageMetadata } from "@/lib/page-metadata";
+import { SITE_DESCRIPTION } from "@/lib/site-config";
+import type { Metadata } from "next";
 import styles from "./home.module.css";
+
+/* VA-62. The homepage exported no metadata at all and inherited the root
+   layout's. That worked, but it meant the one page most likely to be pasted
+   anywhere carried no canonical URL of its own and no `og:url`. It states
+   itself now; the description stays the site's, because on the homepage the
+   site's description *is* the page's. */
+export const metadata: Metadata = pageMetadata({
+  title: "Truth Has a Signal",
+  description: SITE_DESCRIPTION,
+  path: "/",
+});
 
 export const revalidate = 60;
 

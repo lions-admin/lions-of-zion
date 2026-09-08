@@ -4,16 +4,16 @@ import { DocPage } from "@/components/sections/DocPage";
 import { AskDesk } from "@/components/ask";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "@/components/ask/ask.module.css";
+import { pageMetadata } from "@/lib/page-metadata";
 
 const TAGLINE =
   "Put a question to the desk. Every answer lists what it was built from, or says that it was built from nothing.";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Ask the desk",
   description: TAGLINE,
-  alternates: { canonical: `${SITE_URL}/ask` },
-  openGraph: { title: "Ask the desk — LIONS OF ZION", description: TAGLINE },
-};
+  path: "/ask",
+});
 
 /* A conversation is per-reader and held in their browser; there is nothing
    here to prerender or cache. */

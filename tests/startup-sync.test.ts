@@ -266,8 +266,15 @@ describe("publishing leaves the permanent branch alive", () => {
     expect(branch()).toBe("ai/codex");
     expect(out).toMatch(/Merged ai\/codex into main and pushed it/);
     expect(out).toMatch(/ai\/codex is permanent and was not deleted/);
-    expect(git(origin, "rev-parse", "main")).toBe(git(repo, "rev-parse", "main"));
-    expect(git(repo, "rev-parse", "ai/codex")).toBe(git(repo, "rev-parse", "main"));
+    /* origin/main carries the merge, and the AI branch is level with it. The
+       local `main` ref is asserted against the remote rather than the other
+       way round: since 2026-09-08 the publish builds the merge in a temporary
+       detached worktree instead of checking `main` out, precisely so that a
+       publish works while the primary checkout is sitting on `main` — so the
+       local ref is fast-forwarded afterwards rather than being the thing that
+       moved first. */
+    expect(git(repo, "rev-parse", "main")).toBe(git(origin, "rev-parse", "main"));
+    expect(git(repo, "rev-parse", "ai/codex")).toBe(git(origin, "rev-parse", "main"));
     expect(remoteBranches()).toContain("ai/codex");
   });
 
@@ -283,6 +290,33 @@ describe("publishing leaves the permanent branch alive", () => {
     expect(localBranches()).toEqual(["ai/codex", "main"]);
     expect(remoteBranches()).toEqual(["ai/codex", "main"]);
     expect(branch()).toBe("ai/codex");
+  });
+
+  /* The reason the merge moved into a temporary worktree: with a worktree per
+     AI, `main` is checked out in the primary tree and git will not check it
+     out a second time. Publishing had to stop needing to. */
+  it("publishes from a worktree while another tree holds main", () => {
+    run([], "codex");
+    commit("work done inside the codex worktree");
+    git(repo, "push", "origin", "ai/codex");
+
+    /* Give ai/codex its own worktree and leave the sandbox checkout on main,
+       exactly as the real layout does. */
+    const codexTree = join(dir, "wt-codex");
+    git(repo, "switch", "main");
+    git(repo, "worktree", "add", codexTree, "ai/codex");
+
+    const result = spawnSync("node", [SCRIPT, "--publish"], {
+      cwd: codexTree,
+      encoding: "utf8",
+      env: { ...process.env, CLAUDE_PROJECT_DIR: codexTree, LIONS_AI: "codex" },
+    });
+
+    expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
+    expect(git(origin, "rev-parse", "main")).toBe(git(codexTree, "rev-parse", "ai/codex"));
+    expect(git(repo, "branch", "--show-current")).toBe("main");
+    /* The staging worktree cleaned up after itself. */
+    expect(git(repo, "worktree", "list")).not.toMatch(/lions-publish-/);
   });
 
   it("refuses to publish from main rather than guessing what was meant", () => {

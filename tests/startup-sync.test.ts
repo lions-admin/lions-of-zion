@@ -325,10 +325,27 @@ describe("permanent branches survive automatic cleanup", () => {
 });
 
 describe("no AI branch reaches Vercel", () => {
-  /* Cost control, asserted rather than assumed: the ignore script must skip
-     every branch that is not `main`, so pushing an AI branch cannot start a
-     Preview build. */
-  it("skips a Preview build for every permanent AI branch", () => {
+  /* Two independent controls, because the first one alone is not enough.
+     `ignoreCommand` runs *inside* a deployment, so it stops the build but a
+     deployment record is still created and queued — measured on 2026-09-08,
+     when pushing the five branches produced five queued previews before the
+     ignore step reached them. `git.deploymentEnabled` is the one that stops
+     the deployment from being created at all, which is why the editorial
+     delivery branches have always used it. Both are asserted. */
+  it("never lets git create a deployment for a permanent AI branch", () => {
+    const config = JSON.parse(readFileSync(join(process.cwd(), "vercel.json"), "utf8")) as {
+      git: { deploymentEnabled: Record<string, boolean> };
+    };
+    for (const ai of ["claude", "grok", "codex", "opencode", "gemini-agy"]) {
+      expect(config.git.deploymentEnabled[`ai/${ai}`], `ai/${ai} must not deploy`).toBe(false);
+    }
+    /* The editorial delivery branches keep the same protection. */
+    for (const branch of ["chatgpt-editorial-updates", "editorial-updates", "briefing-packages"]) {
+      expect(config.git.deploymentEnabled[branch], `${branch} must not deploy`).toBe(false);
+    }
+  });
+
+  it("skips the build for every permanent AI branch as a second line", () => {
     const script = join(process.cwd(), "scripts/vercel-ignore-build.sh");
     for (const ref of ["ai/claude", "ai/grok", "ai/codex", "ai/opencode", "ai/gemini-agy"]) {
       const result = spawnSync("bash", [script], {

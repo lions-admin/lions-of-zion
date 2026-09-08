@@ -151,10 +151,16 @@ them as abandoned development branches and "tidy" them.
 rather than trusting a number in prose; this file, `CLAUDE.md` and
 `docs/operations.md` each stated a different, wrong count until 2026-09-08.
 
-**No `ai/*` branch produces a Vercel Preview build.**
-`scripts/vercel-ignore-build.sh` skips every branch that is not `main`, so
-pushing an AI branch costs no build minutes and creates no preview URL. Read
-the CI run on GitHub instead.
+**No `ai/*` branch produces a Vercel Preview build**, and it takes two
+controls, not one. `git.deploymentEnabled` in `vercel.json` lists all five
+alongside the editorial delivery branches — that is what stops a deployment
+from being created at all. `scripts/vercel-ignore-build.sh` then skips every
+branch that is not `main`, which stops the build.
+
+The second alone is not enough, and this was measured rather than assumed: on
+2026-09-08 pushing the five new branches produced five *queued* preview
+deployments, because `ignoreCommand` runs inside a deployment that already
+exists. Read the CI run on GitHub instead of looking for a preview URL.
 
 ## The commands
 

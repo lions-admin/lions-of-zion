@@ -5,7 +5,12 @@
     "deploymentEnabled": {
       "briefing-packages": false,
       "editorial-updates": false,
-      "chatgpt-editorial-updates": false
+      "chatgpt-editorial-updates": false,
+      "ai/claude": false,
+      "ai/grok": false,
+      "ai/codex": false,
+      "ai/opencode": false,
+      "ai/gemini-agy": false
     }
   },
   "functions": {

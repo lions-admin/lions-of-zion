@@ -19,10 +19,10 @@ type State = 'idle' | 'preparing' | 'ready' | 'downloaded' | 'failed';
 type ShareAttempt = 'shared' | 'dismissed' | 'activation-expired' | 'unsupported';
 
 /**
- * The historical component name is retained to avoid unnecessary call-site
- * churn. This no longer posts through the X API and never starts social OAuth.
- * It prepares the original archive file and hands it to the operating system's
- * native share sheet, where the reader can choose X, Facebook, or another app.
+ * Historical component name retained for compatibility with the archive call
+ * sites. This action no longer posts through the X API and never starts social
+ * OAuth. It hands the original archive file to the operating system share
+ * sheet. The separate "Post on X" action remains a normal X Web Intent.
  */
 export function XMediaPostButton({
   mediaId,
@@ -32,7 +32,11 @@ export function XMediaPostButton({
 }: Props) {
   const [state, setState] = useState<State>('idle');
   const preparedFile = useRef<File | null>(null);
-  const label = medium === 'video' ? 'Share video' : 'Share image';
+  const label = compact
+    ? 'Share original'
+    : medium === 'video'
+      ? 'Share original video'
+      : 'Share original image';
 
   const share = async () => {
     if (state === 'preparing') return;
@@ -73,8 +77,8 @@ export function XMediaPostButton({
       else if (result === 'activation-expired') setState('ready');
       else downloadOriginal(assetUrl, setState);
     } catch {
-      // No account authorization fallback. If this browser cannot hand the
-      // File to the native sheet, deliver the original media as a download.
+      // Never fall back to account authorization. If this browser cannot hand
+      // the File to a native share target, deliver the original media instead.
       downloadOriginal(assetUrl, setState);
     }
   };
@@ -98,9 +102,9 @@ export function XMediaPostButton({
         data-state={state === 'failed' ? 'failed' : state === 'ready' ? 'copied' : undefined}
       >
         {state === 'ready'
-          ? `${medium === 'video' ? 'Video' : 'Image'} ready — tap ${label} again, then choose X or Facebook.`
+          ? `${medium === 'video' ? 'Video' : 'Image'} ready — tap ${label} again, then choose X, Facebook, or another app.`
           : state === 'downloaded'
-            ? `Direct app sharing is unavailable here. The original ${medium} was downloaded instead.`
+            ? `Direct file sharing is unavailable here. The original ${medium} was downloaded instead.`
             : state === 'failed'
               ? `Couldn’t prepare the original ${medium}. Use Download instead.`
               : null}
@@ -117,7 +121,7 @@ async function shareFile(file: File): Promise<ShareAttempt> {
 
   try {
     // Files only: the destination composer receives the actual archived media.
-    // Record/caption sharing remains a separate action in the surrounding UI.
+    // The direct X composer and record/caption sharing remain separate actions.
     await navigator.share({ files: [file] });
     return 'shared';
   } catch (cause) {

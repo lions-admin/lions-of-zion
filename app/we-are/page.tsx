@@ -1,35 +1,23 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import {
-  Card,
-  CardDescription,
-  CardEyebrow,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/Card";
+import { Card, CardDescription, CardEyebrow, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 import { pageMetadata } from "@/lib/page-metadata";
 
-const TAGLINE =
-  "Israeli-built technology for the information battlefield — AI-powered, evidence-led and human-governed.";
+const TAGLINE = "Israeli-built technology for the information battlefield — AI-powered, evidence-led and human-governed.";
 const PAGE_URL = `${SITE_URL}/we-are`;
 
-export const metadata: Metadata = pageMetadata({
-  title: "We Are",
-  description: TAGLINE,
-  path: "/we-are",
-});
+export const metadata: Metadata = pageMetadata({ title: "We Are", description: TAGLINE, path: "/we-are" });
 
 const WE_ARE_JSON_LD = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: "Lions of Zion",
   url: PAGE_URL,
-  description:
-    "An independent Israeli-built editorial and public-information platform combining AI-scale research, OSINT, evidence organization and human editorial governance.",
+  description: "An independent Israeli-built editorial and public-information platform combining AI-scale research, OSINT, evidence organization and human editorial governance.",
 };
 
 const SYSTEM_STEPS: { title: string; icon: IconName; body: string }[] = [
@@ -56,7 +44,6 @@ const FAQ: { q: string; a: React.ReactNode }[] = [
 ];
 
 export default function Page() {
-  /* VA-59. Trust pages state the rules; the scan treatment stays deliberately silent here. */
   return (
     <SectionPage id="we-are" register="silent" surface="quiet" title="We Are" tagline={TAGLINE}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(WE_ARE_JSON_LD) }} />
@@ -78,10 +65,7 @@ export default function Page() {
             {SYSTEM_STEPS.map((step, index) => (
               <li key={step.title} className={styles.pipelineStage}>
                 <span className={styles.pipelineNode} aria-hidden="true"><Icon name={step.icon} size={18} /></span>
-                <div className={styles.pipelineContent}>
-                  <div className={styles.pipelineHead}><span className={styles.pipelineNumber}>{String(index + 1).padStart(2, "0")}</span><h3>{step.title}</h3></div>
-                  <p>{step.body}</p>
-                </div>
+                <div className={styles.pipelineContent}><div className={styles.pipelineHead}><span className={styles.pipelineNumber}>{String(index + 1).padStart(2, "0")}</span><h3>{step.title}</h3></div><p>{step.body}</p></div>
               </li>
             ))}
           </ol>
@@ -90,15 +74,7 @@ export default function Page() {
       </SectionBlock>
 
       <SectionBlock heading="What the AI is used for">
-        <ul className={styles.roleRoster}>
-          {AI_USES.map((role) => (
-            <Card as="li" key={role.title} variant="row">
-              <CardHeader><CardEyebrow>{role.eyebrow}</CardEyebrow></CardHeader>
-              <CardTitle>{role.title}</CardTitle>
-              <CardDescription>{role.body}</CardDescription>
-            </Card>
-          ))}
-        </ul>
+        <ul className={styles.roleRoster}>{AI_USES.map((role) => <Card as="li" key={role.title} variant="row"><CardHeader><CardEyebrow>{role.eyebrow}</CardEyebrow></CardHeader><CardTitle>{role.title}</CardTitle><CardDescription>{role.body}</CardDescription></Card>)}</ul>
       </SectionBlock>
 
       <SectionBlock heading="The boundaries people set">
@@ -114,9 +90,7 @@ export default function Page() {
         <p>Lions of Zion is built in Israel, but it is not a government, military or intelligence-agency project. It claims no classified access and no institutional authority. Its credibility has to come from transparent sourcing, inspectable reasoning, clear provenance and a record that can be corrected.</p>
       </SectionBlock>
 
-      <SectionBlock heading="FAQ">
-        <dl className={styles.faq}>{FAQ.map((item) => <div key={item.q}><dt>{item.q}</dt><dd>{item.a}</dd></div>)}</dl>
-      </SectionBlock>
+      <SectionBlock heading="FAQ"><dl className={styles.faq}>{FAQ.map((item) => <div key={item.q}><dt>{item.q}</dt><dd>{item.a}</dd></div>)}</dl></SectionBlock>
     </SectionPage>
   );
 }

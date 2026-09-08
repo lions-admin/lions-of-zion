@@ -147,11 +147,34 @@ thing. **Read this before starting any task below.**
    half the owner kept — there is still no discriminator between *missing* and
    *intentionally text-only*, and the only signal is a run-report warning never
    persisted on the publication.
-6. **VA-58's suspected defect does not exist.** The result list is gated on a
-   non-empty hit set (`components/search/SearchPanel.tsx:310`); the else branch
-   renders an empty listbox kept solely so `aria-controls` resolves (`:324-328`).
-   The rows VA-04 saw are the page-level `noscript` index, invisible whenever
-   JavaScript is on. **VA-58 reduces to naming and copy. Do not rewrite Search.**
+6. ~~**VA-58's suspected defect does not exist.**~~ **This correction was itself
+   wrong, and VA-04 was right.** Retracted 2026-09-08 after measuring the live
+   site rather than the component.
+
+   What it said: the result list is gated on a non-empty hit set
+   (`components/search/SearchPanel.tsx:310`), the else branch is an empty
+   listbox kept so `aria-controls` resolves (`:324-328`), and the rows VA-04 saw
+   were the page-level `noscript` index. All three statements about the
+   *component* are true. The conclusion drawn from them was not.
+
+   Measured on Production, query `zzzqqxwvnothingmatchesthis`: **ten result rows
+   render and the live region announces "10 results"**. The hit set is never
+   empty, so the gate at `:310` never opens the empty state. The rows come from
+   the **API**: the historic site-reference publications (`site-war-update`,
+   `site-we-are`, `site-our-heroes`, …) share the publications table, carry no
+   `briefingRunId`, and so resolve to `href: null` — `destinationFor` refusing,
+   correctly, to manufacture a dead link. Their rank-floor scores (~0.016) put
+   them under every real result and made them the *whole* result set when
+   nothing matched. Consequences: the no-results state was unreachable, row 01
+   was auto-highlighted while `aria-disabled`, one row was the `war_update`
+   section retired on 2026-09-05, and they contaminated genuine result sets too.
+
+   **The lesson is the method, not the bug.** The sweep read the component,
+   found it correct, and closed the finding — without asking what the API hands
+   it. VA-58.1 was marked `[x]` on that reasoning. Fixed in the service, scoped
+   by audience so chat (which cites by `documentId`, never `href`) is untouched:
+   `tests/search-reader-audience.test.ts` (5). **Search behaviour and its
+   keyboard/ARIA contract were not otherwise touched** — §9 still holds.
 7. **The naming problem is larger than the audit said.** `/information-war` has
    three public names (chrome "How it works", its own title "This is an
    information war", homepage "Why this work matters"). `/ask` has five,
@@ -1024,7 +1047,18 @@ rewrite Search unless a real defect is found.** VA-17 shipped a no-match state;
 VA-04 noted the fallback-index rows beneath it are untested.
 
 - [x] **58.1** ~~Verify the fallback-index rows beneath the no-match state.~~
-      **Verified 2026-09-07: they do not render.** The list is gated on a
+      ~~**Verified 2026-09-07: they do not render.**~~ **They did render.
+      Reopened and fixed 2026-09-08** — see the retraction of §1b correction 6.
+      The 2026-09-07 verification read `SearchPanel.tsx` and stopped there; the
+      rows were coming from the API, which always returned ten unaddressable
+      site-reference rows and so kept the hit set non-empty and the no-match
+      state unreachable. Fixed in `server/modules/search/service.ts` by
+      dropping destination-less hits for the reader audience;
+      `tests/search-reader-audience.test.ts` (5) pins it. Search's own
+      behaviour, keyboard handling and ARIA were not modified.
+      <!-- done: T-9 | tests/search-reader-audience.test.ts (5); measured live
+           before and after; docs/reviews/production-ux-integrity/T-browser-verification.md -->
+      **Original note, kept because its component reading is still accurate:** The list is gated on a
       non-empty hit set (`SearchPanel.tsx:310`) and the else branch is an empty
       listbox kept so `aria-controls` resolves (`:324-328`). What VA-04 saw is
       the page-level `noscript` index, invisible with JavaScript on. **There is

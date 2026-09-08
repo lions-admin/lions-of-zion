@@ -32,7 +32,31 @@ export function searchService(db: unknown, opts: { embed?: Embedder } = {}) {
   const loader = db as Loader;
 
   return {
-    async search(query: SearchQuery): Promise<SearchResult> {
+    /**
+     * @param audience `"reader"` drops hits with no destination — T-9.
+     *
+     * Measured on Production 2026-09-08: a query matching nothing returned ten
+     * hits and the live region announced "10 results", because the historic
+     * site-reference publications (`site-war-update`, `site-we-are`, …) sit in
+     * the same table, carry no `briefingRunId`, and so resolve to `href: null`
+     * by `destinationFor`'s deliberate rule that a manufactured dead link is
+     * worse than none. Their rank-floor scores (~0.016) put them at the bottom
+     * of every result set and, when nothing else matched, they *were* the
+     * result set — so the client's no-results state was unreachable, the first
+     * row was auto-highlighted and `aria-disabled`, and one of them was the
+     * retired `war_update` section. They also leaked into genuine result sets.
+     *
+     * §1b correction 6 of the PUXI plan recorded that these rows "do not
+     * render" and closed VA-58.1 on that basis. They render. The correction was
+     * measured against the component, which is innocent — it renders what the
+     * API hands it.
+     *
+     * Scoped by audience rather than filtered globally: chat cites by
+     * `documentId`, never by `href`, so Ask the Desk may legitimately ground an
+     * answer in a record with no public page. Only a *reader* being offered a
+     * row they cannot open is the defect.
+     */
+    async search(query: SearchQuery, audience: "reader" | "internal" = "internal"): Promise<SearchResult> {
       const semantic = await repo.hasSemanticArm();
 
       /* An embedding is only computed when both halves are actually present:
@@ -40,7 +64,13 @@ export function searchService(db: unknown, opts: { embed?: Embedder } = {}) {
          Otherwise the query runs lexical-only against the identical function. */
       const queryEmbedding = semantic && opts.embed ? await opts.embed(query.q) : null;
 
-      const hits = await repo.search(query.q, queryEmbedding, query.limit, query.entityType);
+      /* Over-fetch before dropping the unaddressable, or a page of results
+         could come back short simply because dead rows occupied the window. */
+      const window = audience === "reader" ? Math.min(query.limit * 2 + 10, 100) : query.limit;
+      const found = await repo.search(query.q, queryEmbedding, window, query.entityType);
+      const hits = audience === "reader"
+        ? found.filter((hit) => hit.href !== null).slice(0, query.limit)
+        : found;
       return { query: query.q, hits, semantic: semantic && queryEmbedding !== null };
     },
 

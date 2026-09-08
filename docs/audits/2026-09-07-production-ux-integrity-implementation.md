@@ -703,15 +703,19 @@ Confirmed live: ~20 pages export `openGraph`, but `twitter` metadata exists in
 **only two files** — `app/layout.tsx` and `app/articles/[publicId]/page.tsx`.
 So October 7 has page-specific Open Graph while X falls back to generic site copy.
 
-- [ ] **62.1** Audit page-specific metadata across every major section and the
+- [x] **62.1** Audit page-specific metadata across every major section and the
       article route.
-- [ ] **62.2** Give each its own title, description, Open Graph and
+      <!-- done: 9ca7bd1 | lib/page-metadata.ts, tests/page-metadata.test.ts (37); 20 routes measured in rendered HTML, og:title == twitter:title on every one; verify:full green 156 files / 1559 passed -->
+- [x] **62.2** Give each its own title, description, Open Graph and
       X/Twitter metadata, and social preview imagery. Generic Lions metadata is
       **fallback only**.
-- [ ] **62.3** Reuse `app/articles/[publicId]/opengraph-image.tsx` as the pattern
+      <!-- done: 9ca7bd1 | lib/page-metadata.ts, tests/page-metadata.test.ts (37); 20 routes measured in rendered HTML, og:title == twitter:title on every one; verify:full green 156 files / 1559 passed -->
+- [x] **62.3** Reuse `app/articles/[publicId]/opengraph-image.tsx` as the pattern
       where a generated preview is appropriate.
-- [ ] **62.4** Test: metadata regression per route family.
+      <!-- done: 9ca7bd1 | lib/page-metadata.ts, tests/page-metadata.test.ts (37); 20 routes measured in rendered HTML, og:title == twitter:title on every one; verify:full green 156 files / 1559 passed -->
+- [x] **62.4** Test: metadata regression per route family.
 
+      <!-- done: 9ca7bd1 | lib/page-metadata.ts, tests/page-metadata.test.ts (37); 20 routes measured in rendered HTML, og:title == twitter:title on every one; verify:full green 156 files / 1559 passed -->
 ### VA-57 — People of Israel canonical cleanup `A3` data + `A5` code
 
 - [ ] **57.1** `A3` Resolve the BGU duplication and sweep the hub for equivalents.
@@ -948,7 +952,7 @@ Update this table in the **same commit** that changes any box above.
 | VA-63 | A6 | ☐ not started | 4a | — |
 | VA-58 | A6 | ☐ not started | 4a | — |
 | VA-53 | A6 | ☐ not started | 4b | — |
-| VA-62 | A6 | ☐ not started | 4b | — |
+| VA-62 | A6 | ☑ done | 4b | `9ca7bd1` — `pageMetadata` helper, 20 routes converted, 37 tests |
 | VA-60 | A7 | ☐ not started | 5 | — |
 | A11Y-1, A11Y-2 | A7 | ☐ not started | 5 | — |
 | T-1 … T-13 | all | ☐ not started | all | — |

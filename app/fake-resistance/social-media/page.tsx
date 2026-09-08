@@ -15,6 +15,7 @@ import { buildInvestigationModel } from '@/lib/content/investigation-model';
 import { SITE_URL } from '@/lib/site-config';
 import styles from './page.module.css';
 import { publicationHubCrumb } from '@/lib/publication-routing';
+import { pageMetadata } from '@/lib/page-metadata';
 
 const TAGLINE =
   'Investigations into accounts, narratives and propagation patterns on X: who is involved, what moves between them, what was actually observed, and how strong each conclusion is.';
@@ -57,15 +58,11 @@ function confidenceRange(record: ResearchCase): { low?: ResearchConfidence; high
   return { low: grades[0], high: grades.at(-1) };
 }
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'The social-media front',
   description: TAGLINE,
-  alternates: { canonical: PAGE_URL },
-  openGraph: {
-    title: 'The social-media front — LIONS OF ZION',
-    description: TAGLINE,
-  },
-};
+  path: "/fake-resistance/social-media",
+});
 
 export default async function Page() {
   const [index, playbook, network] = await Promise.all([

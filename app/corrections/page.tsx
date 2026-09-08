@@ -7,17 +7,17 @@ import { StatusState } from "@/components/ui/StatusState";
 import { getCorrectionsLog } from "@/lib/content/corrections";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
+import { pageMetadata } from "@/lib/page-metadata";
 
 const TAGLINE =
   "The policy for handling errors, and the public record of every correction made.";
 const PAGE_URL = `${SITE_URL}/corrections`;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Corrections",
   description: TAGLINE,
-  alternates: { canonical: PAGE_URL },
-  openGraph: { title: "Corrections — LIONS OF ZION", description: TAGLINE },
-};
+  path: "/corrections",
+});
 
 /* A policy page, not an article — WebPage is the correct real schema.org
    type here. */

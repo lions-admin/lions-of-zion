@@ -9,12 +9,12 @@ import { AntisemitismRecord } from "@/components/briefs/AntisemitismRecord";
 import { publicationHref } from "@/lib/publication-routing";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
+import { pageMetadata } from "@/lib/page-metadata";
 
 const description = "Investigations into false narratives, with circulating claims kept distinct from established findings.";
-export const metadata: Metadata = {
-  title: "Fake Resistance", description,
-  alternates: { canonical: `${SITE_URL}/fake-resistance` },
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Fake Resistance", description, path: "/fake-resistance",
+});
 function dateLabel(value: string) {
   return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "Asia/Jerusalem" }).format(new Date(value));
 }

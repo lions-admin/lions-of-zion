@@ -1,21 +1,17 @@
 import type { Metadata } from "next";
 import { LiveBriefHub } from "@/components/briefs/LiveBriefHub";
 import { SITE_URL } from "@/lib/site-config";
+import { pageMetadata } from "@/lib/page-metadata";
 
 const TAGLINE =
   "News, war updates and analysis on Israel and regional developments, with source context and daily briefings.";
 const PAGE_URL = `${SITE_URL}/geopolitical-brief`;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "News & Analysis",
   description: TAGLINE,
-  alternates: { canonical: PAGE_URL },
-  openGraph: {
-    title: "News & Analysis — LIONS OF ZION",
-    description: TAGLINE,
-    type: "website",
-  },
-};
+  path: "/geopolitical-brief",
+});
 
 const jsonLd = {
   "@context": "https://schema.org",

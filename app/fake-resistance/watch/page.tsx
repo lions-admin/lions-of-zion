@@ -6,17 +6,17 @@ import { getNarrativeWatchFeed } from "@/lib/content/fake-resistance-watch";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 import { publicationHubCrumb } from '@/lib/publication-routing';
+import { pageMetadata } from '@/lib/page-metadata';
 
 const TAGLINE =
   "Published narrative monitoring, claims circulating on X and research into incitement — with source context and assessment status.";
 const PAGE_URL = `${SITE_URL}/fake-resistance/watch`;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Narrative monitoring archive",
   description: TAGLINE,
-  alternates: { canonical: PAGE_URL },
-  openGraph: { title: "The daily watch — LIONS OF ZION", description: TAGLINE },
-};
+  path: "/fake-resistance/watch",
+});
 
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat("en", {

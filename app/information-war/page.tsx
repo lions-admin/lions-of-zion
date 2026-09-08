@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { InformationWarSystem } from "@/components/briefs/InformationWarSystem";
 import { SITE_URL } from "@/lib/site-config";
+import { pageMetadata } from "@/lib/page-metadata";
 
 /* VA-51, and a deliberate narrowing of IW-002.
  *
@@ -26,16 +27,11 @@ const HEADLINE = "This is an information war";
 const DESCRIPTION =
   "Explore how Lions of Zion collects sources, researches claims, publishes reporting and preserves documentation — with an interactive map of the system and its limits.";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: TITLE,
   description: DESCRIPTION,
-  alternates: { canonical: SITE_URL + "/information-war" },
-  openGraph: {
-    type: "website",
-    title: TITLE + " — LIONS OF ZION",
-    description: DESCRIPTION,
-  },
-};
+  path: "/information-war",
+});
 
 export default function InformationWarPage() {
   const jsonLd = {

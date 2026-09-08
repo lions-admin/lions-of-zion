@@ -5,15 +5,15 @@ import { SearchPageView } from "@/components/search";
 import { SITE_NAVIGATION } from "@/lib/site-navigation";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "@/components/search/search.module.css";
+import { pageMetadata } from "@/lib/page-metadata";
 
 const TAGLINE = "Query the published corpus — briefs, analyses and updates, and the claims behind them.";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Search",
   description: TAGLINE,
-  alternates: { canonical: `${SITE_URL}/search` },
-  openGraph: { title: "Search — LIONS OF ZION", description: TAGLINE },
-};
+  path: "/search",
+});
 
 /* The query arrives as a prop rather than through `useSearchParams()`, which
    would put this page behind a Suspense boundary during prerender — the exact

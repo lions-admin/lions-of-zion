@@ -11,6 +11,7 @@ import {
 import type { PublicPublication, PublicPublicationDetail } from "@/server/contracts/publication";
 import { SITE_URL } from "@/lib/site-config";
 import { publicationHubCrumb } from "@/lib/publication-routing";
+import { pageMetadata } from "@/lib/page-metadata";
 
 const TITLE = "Narratives & Fact Checks";
 const TAGLINE =
@@ -32,16 +33,11 @@ const PAGE_SIZE = 20;
  */
 const DETAIL_BUDGET = 8;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: TITLE,
   description: TAGLINE,
-  alternates: { canonical: PAGE_URL },
-  openGraph: {
-    title: `${TITLE} — LIONS OF ZION`,
-    description: TAGLINE,
-    type: "website",
-  },
-};
+  path: "/fact-check",
+});
 
 export const dynamic = "force-dynamic";
 

@@ -8,16 +8,17 @@ import {
   getDocumentationGroups,
 } from '@/lib/content/documentation';
 import { SITE_URL } from '@/lib/site-config';
+import { pageMetadata } from '@/lib/page-metadata';
 
 const TAGLINE = 'The documentation record of October 7, filed as it was published.';
 const PAGE_URL = `${SITE_URL}/october-7/documentation`;
 const BASE_PATH = '/october-7/documentation';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Documentation',
   description: TAGLINE,
-  alternates: { canonical: PAGE_URL },
-};
+  path: '/october-7/documentation',
+});
 
 export default async function Page() {
   const [groups, digests] = await Promise.all([

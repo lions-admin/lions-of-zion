@@ -6,17 +6,17 @@ import { SectionBlock } from "@/components/sections/SectionPage";
 import { SITE_URL } from "@/lib/site-config";
 import { PUBLICATION_PROVENANCE } from "@/server/contracts/publication";
 import styles from "./page.module.css";
+import { pageMetadata } from "@/lib/page-metadata";
 
 const TAGLINE =
   "How claims are sourced, labeled, and corrected across every desk.";
 const PAGE_URL = `${SITE_URL}/methodology`;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Methodology",
   description: TAGLINE,
-  alternates: { canonical: PAGE_URL },
-  openGraph: { title: "Methodology — LIONS OF ZION", description: TAGLINE },
-};
+  path: "/methodology",
+});
 
 /* A policy page, not an article — WebPage is the correct real schema.org
    type here. */

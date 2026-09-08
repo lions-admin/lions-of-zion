@@ -610,14 +610,17 @@ a 343px box). **Do not remove evidence to shorten the page.**
            844px viewport. The figures are unchanged, only reordered. Layer
            split (54.2), local ToC/deep-links (54.3) and the dual-journey
            verification (54.5) remain open. -->
-- [ ] **54.2** Deeper layer retains everything: full source stack, entity graph,
+- [~] **54.2** Deeper layer retains everything: full source stack, entity graph,
       findings, connections, methodology, revision history, evidence.
-- [ ] **54.3** Add a local table of contents, stable deep links, collapsible /
+      <!-- claimed: A4 @ 2026-09-08T00:00:00Z -->
+- [~] **54.3** Add a local table of contents, stable deep links, collapsible /
       `<details>` structures, mobile-aware hierarchy.
+      <!-- claimed: A4 @ 2026-09-08T00:00:00Z -->
 - [x] **54.4** Fix the clipped horizontal scrollers on mobile.
       <!-- done: 007aaf9 | lib/continue-the-record.ts, tests/continue-the-record.test.ts (21); verify:full green 154 files / 1503 passed -->
-- [ ] **54.5** Serve both the reader who wants the conclusion and the researcher
+- [~] **54.5** Serve both the reader who wants the conclusion and the researcher
       who wants the dossier. Verify both journeys.
+      <!-- claimed: A4 @ 2026-09-08T00:00:00Z -->
 
 ### VA-55 — October 7 reduced-motion wording `A4`
 
@@ -987,7 +990,7 @@ Update this table in the **same commit** that changes any box above.
 | VA-61 | A2 | ☑ done | 1 | `6295324` — funding model published on We Are after the owner answered |
 | VA-49 | A3 | ☑ code done | 2 | `ae18ad2` — migration 0064 applied to Production and its drizzle receipt inserted, both verified 2026-09-08. 49.3/49.4/49.5 remain editorial, need the MCP path |
 | VA-50 | A4 | ☑ done | 2 | `007aaf9` — shared-field ladder, bounded pool, cross-desk eyebrow, 21 tests |
-| VA-54 | A4 | ◐ in progress | 2 | `fa6290f` — 54.4 only (strip scroll legible + follows the reader). Open: 54.1–54.3, 54.5 progressive disclosure and local contents |
+| VA-54 | A4 | ◐ in progress | 2 | `fa6290f` — 54.4 (strip scroll legible + follows the reader); `39d3576` — 54.1 (finding leads the bookkeeping). In progress: 54.2/54.3/54.5 claimed |
 | VA-56 | A4 | ☑ done | 2 | `ae18ad2` — `lib/source-dump.ts`, body and passages, 16 tests, four live records verified |
 | VA-52 | A5 | ☑ done | 3 | `lib/fake-resistance-grammar.ts` — three types, one map, incident language separated from claim language, 12 tests |
 | VA-55 | A5 | ☑ done | 3 | `2c40e63` — the disabled "Manual" button became a stated "Rotation off"; arrows stay live |

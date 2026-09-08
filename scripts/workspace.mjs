@@ -61,31 +61,58 @@ function divergence(left, right) {
   }
 }
 
+/**
+ * Clean or dirty, asked of the worktree itself.
+ *
+ * `git status` reports the tree it is run in, so each workspace has to be
+ * asked in its own directory — reading the primary checkout's status and
+ * printing it five times would claim every agent shares one state, which is
+ * the exact opposite of what this layout is for.
+ */
+function treeState(path) {
+  if (!path || !existsSync(path)) return null;
+  try {
+    const changes = git(["status", "--porcelain", "--untracked-files=all"], path);
+    return changes ? `${changes.split("\n").length} uncommitted` : "clean";
+  } catch {
+    return "unreadable";
+  }
+}
+
 export function status() {
   const trees = worktrees();
   const here = git(["branch", "--show-current"]);
   const dirty = git(["status", "--porcelain", "--untracked-files=all"]);
-  const lines = ["AI workspaces", ""];
+  const rows = [];
 
   for (const [ai, branch] of Object.entries(AI_BRANCHES)) {
     const tree = trees.get(branch);
     const exists = ok(["show-ref", "--verify", "--quiet", `refs/heads/${branch}`]);
     const gap = exists ? divergence(branch, `origin/${PRODUCTION_BRANCH}`) : null;
-    const state = !exists
-      ? "branch not created yet"
-      : gap
-        ? `${gap.ahead} ahead / ${gap.behind} behind ${PRODUCTION_BRANCH}`
-        : "no comparison available";
-    const where = tree ?? (existsSync(workspacePath(ai)) ? `${workspacePath(ai)} (not a worktree)` : "no worktree — npm run workspace:add -- " + ai);
-    lines.push(`  ${ai.padEnd(11)} ${branch.padEnd(16)} ${state}`);
-    lines.push(`  ${" ".repeat(11)} ${where}`);
+    rows.push({
+      ai,
+      branch,
+      state: treeState(tree) ?? "—",
+      gap: !exists ? "no branch" : gap ? `${gap.ahead}/${gap.behind}` : "—",
+      where: tree ?? (existsSync(workspacePath(ai))
+        ? `${workspacePath(ai)} (not a worktree)`
+        : `no worktree — npm run workspace:add -- ${ai}`),
+    });
   }
 
-  lines.push("", `Here: ${here || "detached HEAD"} in ${root}`, `Tree:  ${dirty ? `${dirty.split("\n").length} uncommitted change(s)` : "clean"}`);
-  const gap = here ? divergence(here, `origin/${PRODUCTION_BRANCH}`) : null;
-  if (gap) lines.push(`Main:  ${gap.ahead} to publish, ${gap.behind} to take in.`);
+  const width = (key, heading) => Math.max(heading.length, ...rows.map((row) => String(row[key]).length));
+  const w = { ai: width("ai", "AI"), branch: width("branch", "BRANCH"), state: width("state", "TREE"), gap: width("gap", "±MAIN") };
+  const lines = [
+    `${"AI".padEnd(w.ai)}  ${"BRANCH".padEnd(w.branch)}  ${"TREE".padEnd(w.state)}  ${"±MAIN".padEnd(w.gap)}  WORKSPACE`,
+  ];
+  for (const row of rows) {
+    lines.push(`${row.ai.padEnd(w.ai)}  ${row.branch.padEnd(w.branch)}  ${row.state.padEnd(w.state)}  ${row.gap.padEnd(w.gap)}  ${row.where}`);
+  }
+
+  lines.push("", `±MAIN is ahead/behind origin/${PRODUCTION_BRANCH}.`);
+  lines.push(`Here: ${here || "detached HEAD"} in ${root} (${dirty ? `${dirty.split("\n").length} uncommitted` : "clean"})`);
   console.log(lines.join("\n"));
-  return { here, dirty: Boolean(dirty), trees };
+  return { here, dirty: Boolean(dirty), trees, rows };
 }
 
 export function add(ai) {

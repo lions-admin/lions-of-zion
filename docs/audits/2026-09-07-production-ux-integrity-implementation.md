@@ -785,8 +785,32 @@ build, not a rebuild. **Do not redesign the homepage from scratch.**
       <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
 - [x] **53.5** No generic SaaS cards, no oversized marketing hero.
       <!-- done: 2c40e63, 7b3213d, c7b78c9, 9e279cd | audit 0 critical / exit 0 across 162 pairs; 90 screenshots in docs/reviews/production-ux-integrity/; verify:full green 157 files / 1583 passed -->
-- [ ] **53.6** Re-run the LCP/perf budget afterwards (`npm run build` then
+- [x] **53.6** Re-run the LCP/perf budget afterwards (`npm run build` then
       `perf:report`). `cls: 0` must hold.
+      <!-- done: 4a977e9 | npm run build succeeded; npm run perf:runtime -- http://localhost:3919
+           against a `next start` server measured home_cls: 0, reading_cls: 0
+           (/israels-story), archive_cls: 0 (/october-7/testimonies) on two
+           separate runs (home_lcp_ms 204/360, reading_lcp_ms 132/180,
+           archive_lcp_ms 96/116) -- cls: 0 holds. All eight static bundle
+           budgets pass (shared JS 165.8kB/249.3kB, homepage JS
+           265.7kB/310kB, worst route CSS 57.2kB/64.3kB, etc.). One
+           pre-existing, unrelated budget fails: "total CSS emitted" 95.5kB gz
+           vs a 90.3kB budget calibrated 2026-09-03. Isolated by building and
+           running perf:report at c963375 (pre-VA-53-restore) first: it was
+           already 95.2kB gz there, i.e. already over budget before this
+           worktree picked up VA-53's homepage commits -- merging in
+           4a977e9 moved it by only +0.3kB gz, and that diff is 50 lines
+           across app/globals.css, app/october-7/page.module.css,
+           components/ask/ask.module.css, components/content/content.module.css
+           and components/support/support-flows.module.css (VA-55/58/60
+           contrast and reduced-motion-copy fixes), none of them homepage
+           components. Not VA-53's regression and out of this step's scope
+           to fix. Separately, the runtime budgets in
+           scripts/perf-budgets.json are still null/"uncalibrated" (nobody
+           has run --update-budgets since the file was created), so
+           perf:report alone (no origin) cannot check LCP/CLS against a
+           number; perf:runtime -- <origin> is what actually measures them,
+           and did, above. -->
 
 ### VA-58 — Search vs Ask `A5`
 
@@ -1098,7 +1122,7 @@ Update this table in the **same commit** that changes any box above.
 | VA-57 | A6 | ◐ in progress | 4a | `05e6dd8` — lanes and labels derived from routing, drift removed. Open: 57.1 the BGU duplicate itself, which is editorial |
 | VA-63 | A6 | ☑ done | 4a | `7b3213d` — `publicationCta` derived from section; hub actions normalised to "View all" |
 | VA-58 | A6 | ☑ done | 4a | `2c40e63` — five names for Ask collapsed to the menu label; Search states its own job. No Search behaviour touched. `aa7a68f`/51.1 re-confirmed this live and closed 58.3's naming piece from the destination-job table side too |
-| VA-53 | A6 | ☑ done | 4b | `9e279cd` — re-measured at six widths; every one improved, lead headline 1176→512px at 1440. Phone cover behaviour recorded as the owner's design |
+| VA-53 | A6 | ☑ done | 4b | `9e279cd` — re-measured at six widths; every one improved, lead headline 1176→512px at 1440. Phone cover behaviour recorded as the owner's design. 53.6: `perf:runtime` measured `home_cls: 0` (also `reading_cls`/`archive_cls: 0`) on two runs; `cls: 0` holds. One pre-existing "total CSS emitted" budget overage found, proven unrelated (already over at pre-restore `c963375`, moved +0.3kB by unrelated VA-55/58/60 CSS, not homepage code) |
 | VA-62 | A6 | ☑ done | 4b | `9ca7bd1` — `pageMetadata` helper, 20 routes converted, 37 tests |
 | VA-60 | A7 | ☑ done | 5 | `c7b78c9`, `9e279cd` — 20 critical/exit 1 → **0 critical/exit 0**, full coverage; 90 screenshots; harness fixed first |
 | A11Y-1 | A7 | ☑ done | 5 | `c7b78c9` — contrast, no-JS records, accessible names all re-verified |

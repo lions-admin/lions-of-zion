@@ -1,0 +1,66 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "transformation-r34-20260908T100151Z",
+  "composer": "ChatGPT",
+  "createdAt": "2026-09-08T10:01:51.254364Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "tkuma-commitments-versus-delivery",
+      "target": {
+        "publicId": "israel-launches-nis-22-million-tech-human-capita-794jg"
+      },
+      "publication": {
+        "title": "Tkuma tech-workforce plan: NIS 22 million announced, delivery still to be measured",
+        "summary": "The September 6 initiative sets targets for at least 500 practical placements, 300 overseas-talent referrals and 500 skills participants. The release does not yet show contracts, disbursement, completions, hires or retention, so these remain dated commitments rather than delivered outcomes.",
+        "body": "On September 6, 2026, the Israel Innovation Authority and the Tkuma Directorate announced a NIS 22 million technology-workforce initiative for the western Negev. The announcement defines four program areas and several participation targets. Two days later, it is evidence of a public commitment and program design, not evidence that NIS 22 million has been spent or that jobs have been created.\n\nWhat was announced. The four areas are practical experience for students and other trainees, recruitment for companies in the region, skills upgrading, and attracting technology professionals from abroad. The stated policy aim is to help local companies find workers while giving people reasons to study, work and settle in the region.\n\nThe numerical targets. The internship track is intended to serve at least 500 students, academics and practical engineers in placements lasting six to nine months and recruit at least ten employers. The overseas-talent track is intended to refer and support at least 300 candidates through matching and interviews. The skills track is expected to include at least 500 participants in areas such as AI, data and automation.\n\nTargets are not outcomes. “Participants,” “candidates referred,” “interviews,” “placements,” “hires” and “retained employees” describe different stages. A person who enters training has not necessarily completed it; a candidate sent to an interview has not necessarily moved to the region; a job accepted is not necessarily retained. Reporting should preserve those distinctions.\n\nWhat the release does not disclose. The public announcement does not break the NIS 22 million among the four programs, name delivery organizations or selected employers, state how much has been contracted or disbursed, provide a start and end date for each cohort, or publish baseline employment and vacancy figures. Those gaps prevent a spending or impact assessment at launch.\n\nExisting regional work is separate evidence. A June 2026 Tkuma update described the Muksharim training model, about ten approved or operating tracks, and reported placement rates around 75 to 80 percent. It also described an ambition to train about 500 professionals while maintaining 60 to 70 percent placement. That is useful context for implementation capacity, but it is not a result from the newly announced NIS 22 million initiative.\n\nThe broader execution warning. A 2026 State Comptroller report described partial implementation of the Tkuma five-year plan and called for clearer publication of budgets for each tool. In one education example, only NIS 16.8 million of a NIS 200 million five-year teacher-incentive budget had been used during the 2024–25 school year. That finding concerns a different program. It does not prove failure of the technology initiative, but it shows why allocations and results should be tracked separately.\n\nWho should count as local impact. A useful report should identify the participant's residence before and after the program, the employer's actual worksite, whether the role is remote or located in the Tkuma region, the length and wage level of employment, and whether a placement displaced an existing worker. Company registration or a temporary training session alone is a weak proxy for regional growth.\n\nQuality alongside quantity. A target can be reached with short courses or low-retention placements while missing the policy goal. Measures should include completion, credential value, job relevance, pay, six- and twelve-month retention, employer satisfaction, participant satisfaction and barriers faced by people who leave. Results should be broken down without exposing individuals.\n\nThe funding ledger readers need. For each program, the authorities should publish budget authorized, amount contracted, amount paid, delivery partner, cohort dates, applicants, accepted participants, completions, interviews, offers, hires and retained hires. Changes to targets or schedules should remain visible rather than replacing earlier promises.\n\nThe first fair checkpoints. Procurement and operator selection can be checked first. Enrollment and employer commitments follow. Completion and hiring require more time, and retention can only be assessed months later. Judging all outcomes immediately would be premature; treating the launch as completed delivery would be equally misleading.\n\nThe finding. The NIS 22 million initiative supplies a concrete framework and minimum participation targets for rebuilding technology human capital in the Tkuma region. No reviewed public evidence yet shows its spending, completion, hiring or retention outcomes. The canonical story should remain a developing accountability record in which each later result is compared with the original dated commitment.",
+        "changeSummary": "Convert the launch item into an accountability baseline: distinguish participants, interviews, placements and retained jobs; list missing budget and delivery data; separate results from earlier Tkuma programs; and define dated checkpoints for future updates."
+      },
+      "sources": [
+        {
+          "url": "https://innovationisrael.org.il/en/press_release/tkuma-programs/",
+          "title": "Official NIS 22 million initiative announcement and participation targets",
+          "publisher": "Israel Innovation Authority",
+          "official": true
+        },
+        {
+          "url": "https://govextra.gov.il/tkuma/tkuma-eng/home/tkuma-updates/updates-june2026/",
+          "title": "June 2026 Tkuma update on separate workforce programs and reported placement rates",
+          "publisher": "Tkuma Directorate",
+          "official": true
+        },
+        {
+          "url": "https://library.mevaker.gov.il/sites/DigitalLibrary/Pages/Reports/10312-1.aspx",
+          "title": "Special audit of western Negev rehabilitation and development implementation",
+          "publisher": "State Comptroller of Israel",
+          "official": true
+        },
+        {
+          "url": "https://m.knesset.gov.il/EN/News/PressReleases/Pages/press16226u.aspx",
+          "title": "Knesset oversight hearing on Tkuma return, budgeting and transparency",
+          "publisher": "Knesset",
+          "official": true
+        }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Run 34 — Tkuma commitments versus delivered outcomes",
+      "sourcesReviewed": [
+        "https://innovationisrael.org.il/en/press_release/tkuma-programs/",
+        "https://govextra.gov.il/tkuma/tkuma-eng/home/tkuma-updates/updates-june2026/",
+        "https://library.mevaker.gov.il/sites/DigitalLibrary/Pages/Reports/10312-1.aspx",
+        "https://m.knesset.gov.il/EN/News/PressReleases/Pages/press16226u.aspx"
+      ],
+      "conclusion": "The September 6 official release supports the NIS 22 million headline and three published numerical participation targets, but does not provide allocation by program, contract or disbursement status, operators, cohort dates, hires or retention. Separate official regional updates report results from earlier programs. The State Comptroller's broader audit documents why allocation, utilization and outcome must remain distinct, but does not evaluate this new initiative.",
+      "outcome": "updated"
+    }
+  ],
+  "vetoes": [],
+  "siteRecommendations": [
+    "RUN 34 LIVING ACCOUNTABILITY: preserve the September 6 targets as the baseline on every future revision. Acceptance: later updates show promised, contracted, paid, enrolled, completed, hired and retained values side by side with dates and sources.",
+    "RUN 34 PROGRAM IDENTIFIERS: the release names four program areas but provides no stable public award or cohort identifiers. Acceptance: each call, operator, contract and cohort has a durable identifier that can be linked from the canonical article."
+  ]
+}

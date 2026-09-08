@@ -21,7 +21,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
       open={open}
       onClose={onClose}
       title="Search"
-      description="Find a published record. For a question answered across them, ask the desk."
+      description="Published items, briefs, and records on this desk."
       variant="modal"
       size="wide"
     >

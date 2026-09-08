@@ -12,7 +12,7 @@
  * `.page[data-family] .row` overrides in the stylesheet, which the home band
  * (no `.page`, no family) could not reach.
  *
- * The scale: `intensity` multiplies the row opacity ceiling (0.1) that the
+ * The scale: `intensity` multiplies the row opacity ceiling (0.34) that the
  * stylesheet owns, so `1` is "as loud as the design allows", not "opaque".
  * A page's own `register` still stacks on top — `muted` is a per-page dimmer
  * relative to its family, `silent` renders nothing at all.
@@ -40,7 +40,7 @@ export function clampScanIntensity(value: number | undefined): number {
 /**
  * The contrast budget these numbers answer to (§7 audit, 2026-09-04).
  *
- * Effective row opacity is `0.1 × register × intensity`, and inside
+ * Effective row opacity is `0.34 × register × intensity`, and inside
  * `--content-w` the `.rowField` mask multiplies it by a further 0.25. Every
  * surface a reader reads sits inside that mask: `.withRails` widens
  * `--content-w` over both rails at the 1220px breakpoint, and below it the

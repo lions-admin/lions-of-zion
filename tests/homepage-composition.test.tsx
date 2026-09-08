@@ -27,14 +27,11 @@ describe('homepage editorial composition',()=>{
  expect(html.indexOf('Unresolved')).toBeLessThan(html.indexOf('An unresolved claim'));
  /* The status line says it once; an unresolved record with no finding excerpt carries no finding block repeating it. */
  expect(html.match(/no finding has been reached/gi)).toHaveLength(1);expect(html).not.toContain('Monitoring is not confirmation');
- expect(html).toContain('Lions of Zion editorial analysis');expect(html).toContain('Read the assessment');expect(html).not.toContain('Read the sources');
+ expect(html).toContain('Lions of Zion editorial analysis');expect(html).toContain('Read the analysis');expect(html).not.toContain('Read the sources');
  });
  it('names the destinations as the site names them and keeps one action per section after its records',()=>{
  const html=renderToStaticMarkup(<HomepageJourney edition={edition()}/>);
- expect(html).toContain('Fake Resistance');
- /* VA-63: one verb for "go to the whole desk". Three sections said "Explore X"
-    and one said "View all X" for the same move. */
- expect(html).toContain('View all Fake Resistance');expect(html).not.toContain('Explore the investigations');expect(html).not.toContain('Explore Fake Resistance');
+ expect(html).toContain('Fake Resistance');expect(html).toContain('Explore Fake Resistance');expect(html).not.toContain('Explore the investigations');
  const news=html.slice(html.indexOf('data-home-section="news"'),html.indexOf('data-home-section="fakeResistance"'));
  expect(news.indexOf('A full headline')).toBeLessThan(news.indexOf('View all News &amp; Analysis'));
  expect(news.match(/View all News &amp; Analysis/g)).toHaveLength(1);

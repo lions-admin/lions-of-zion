@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { listBriefingPublications } from "@/lib/publications";
-import { SECTIONS_BY_HOMEPAGE_SECTION, publicationCta } from "@/lib/publication-routing";
+import { SECTIONS_BY_HOMEPAGE_SECTION } from "@/lib/publication-routing";
 import { isArticleSafeMedia, type EditorialMedia } from "@/server/contracts/editorial-media";
 import { isAnalysisBasis } from "@/server/contracts/publication";
 import { EditorialShell } from "@/components/site/EditorialShell";
@@ -453,7 +453,7 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
               <UpdatedMarker item={lead} />
               <Metadata item={lead} />
               <Link className={styles.readLink} href={`/articles/${lead.publicId}`}>
-                {publicationCta(lead.section)} <span aria-hidden="true">→</span>
+                Read the story <span aria-hidden="true">→</span>
               </Link>
             </article>
             {sidebarUpdates.length ? (
@@ -677,7 +677,7 @@ function PublicationSection({ title, stories, narrative = false }: { title: stri
             <UpdateLog earlier={story.earlier} />
             <CardFooter className={styles.liveRowAction}>
               <ButtonLink href={`/articles/${item.publicId}`} variant="text" size="md">
-                {publicationCta(item.section)}
+                Read record
               </ButtonLink>
             </CardFooter>
             {media ? <Thumbnail media={media} className={styles.rowThumb} sizes="112px" /> : null}

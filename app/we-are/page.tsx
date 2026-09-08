@@ -125,11 +125,8 @@ const FAQ: { q: string; a: React.ReactNode }[] = [
 ];
 
 export default function Page() {
-  /* VA-59. This page carried the scan at full family strength while the Fake
-     Resistance hub, where the signal aesthetic belongs, ran silent. A page
-     whose whole job is to be believed should not be the loudest one. */
   return (
-    <SectionPage id="we-are" register="silent" surface="quiet" title="We Are" tagline={TAGLINE}>
+    <SectionPage id="we-are" surface="quiet" title="We Are" tagline={TAGLINE}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(WE_ARE_JSON_LD) }}

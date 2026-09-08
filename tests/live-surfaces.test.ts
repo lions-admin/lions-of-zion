@@ -318,18 +318,16 @@ describe("the fact-check desk", () => {
 });
 
 describe("/updates route wiring", () => {
-  /* VA-60/VA-42. The page component is `async` again, and deliberately.
-     Keeping it synchronous kept the masthead out of a Suspense fallback, but
-     it left the *records* inside one — and React streams a boundary into
-     `<div hidden>`, so a reader with scripting off got 1,044 characters of
-     chrome and no records at all. The boundary is gone; the read is awaited
-     here and the route serves complete HTML. */
-  const updates = async (search: Record<string, string> = {}) =>
-    render(await UpdatesPage({ searchParams: Promise.resolve(search) }));
+  /* The page component is synchronous now — the shell has to be, or the
+     masthead goes back behind a Suspense fallback only the client can resolve.
+     The read it used to `await` sits inside an inner boundary, and `render`
+     waits for `allReady`, so the feed is still in the markup this returns. */
+  const updates = (search: Record<string, string> = {}) =>
+    render(UpdatesPage({ searchParams: Promise.resolve(search) }) as React.ReactElement);
 
   it("offers an older page only when the page came back exactly full", async () => {
     listBriefingPublications.mockResolvedValue([watch, brief]);
-    expect(await (await updates())).not.toContain("Older entries");
+    expect(await updates()).not.toContain("Older entries");
 
     const full = Array.from({ length: 25 }, (_, index) => ({
       ...brief,
@@ -367,11 +365,9 @@ describe("/updates route wiring", () => {
 });
 
 describe("/fact-check route wiring", () => {
-  /* Async for the same reason as `/updates` above: the records were inside a
-     Suspense boundary, which streams into `<div hidden>`, so a reader with
-     scripting off saw chrome and none of the seven checked claims. */
-  const page = async (search: Record<string, string> = {}) =>
-    render(await FactCheckPage({ searchParams: Promise.resolve(search) }));
+  /* Synchronous for the same reason as `/updates` above. */
+  const page = (search: Record<string, string> = {}) =>
+    render(FactCheckPage({ searchParams: Promise.resolve(search) }) as React.ReactElement);
 
   it("opens the first check when no claim is in the query", async () => {
     listBriefingPublications.mockResolvedValue([watch]);

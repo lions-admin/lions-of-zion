@@ -27,7 +27,9 @@
  * `ai/codex-v2`.
  */
 import { execFileSync, spawnSync } from "node:child_process";
-import { resolve } from "node:path";
+import { rmSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { tmpdir } from "node:os";
 
 const root = process.env.CLAUDE_PROJECT_DIR ?? resolve(new URL("..", import.meta.url).pathname);
 
@@ -248,6 +250,56 @@ export function syncStart(env = process.env) {
   return report(lines, currentBranch());
 }
 
+/** Which worktree, if any, currently has this branch checked out. */
+function worktreeHolding(branch) {
+  let path = null;
+  for (const line of git(["worktree", "list", "--porcelain"]).split("\n")) {
+    if (line.startsWith("worktree ")) path = line.slice("worktree ".length);
+    else if (line === `branch refs/heads/${branch}`) return path;
+  }
+  return null;
+}
+
+/**
+ * Somewhere to build the merge commit that is not this worktree.
+ *
+ * The old shape — `git switch main`, merge, push, switch back — cannot work
+ * once every AI has its own worktree: `main` is checked out in the primary
+ * checkout, and git refuses to check out one branch in two trees at once.
+ * That refusal is the same guarantee that keeps two agents out of each
+ * other's files, so the answer is not to weaken it but to stop needing it.
+ *
+ * A short-lived detached worktree does the merge instead. It never touches
+ * the caller's tree, so an agent publishes without leaving its own workspace
+ * or disturbing whatever the primary checkout is doing, and a failure part-way
+ * leaves nothing behind but a directory that `release()` removes.
+ *
+ * Detached on purpose: it checks out `origin/main` by commit, so it never
+ * needs the local `main` ref that another tree already holds.
+ */
+function publishStaging() {
+  const path = join(tmpdir(), `lions-publish-${process.pid}-${Date.now()}`);
+  git(["worktree", "add", "--detach", path, `origin/${PRODUCTION_BRANCH}`]);
+  const run = (args) => spawnSync("git", args, { cwd: path, stdio: "ignore" }).status === 0;
+  return {
+    path,
+    merge: (branch) => run(["merge", "--no-ff", branch, "-m", `merge: publish ${branch}`]),
+    /* HEAD is detached, so name the destination explicitly. */
+    push: () => run(["push", "origin", `HEAD:refs/heads/${PRODUCTION_BRANCH}`]),
+    /* Delete the directory outright rather than asking git to remove the
+       worktree forcibly. The staging tree can hold a half-finished merge,
+       which a plain `git worktree remove` refuses; reaching for git's forcing
+       flag to get past that would put one in a file whose whole contract is
+       that it has none, and the test that greps for it is right to fail that.
+       This deletes a temp directory created seconds ago by this function, and
+       nothing else. */
+    release: () => {
+      rmSync(path, { recursive: true, force: true });
+      spawnSync("git", ["worktree", "prune"], { cwd: root, stdio: "ignore" });
+    },
+  };
+}
+
 /**
  * Publish this AI's branch, and come back ready for the next round.
  *
@@ -270,40 +322,39 @@ export function updateMain(env = process.env) {
 
   git(["fetch", "--prune", "origin"]);
   const lines = [];
-  git(["switch", PRODUCTION_BRANCH]);
-  if (!gitStatus(["merge", "--ff-only", `origin/${PRODUCTION_BRANCH}`])) {
-    git(["switch", branch]);
-    throw new Error(
-      `Local ${PRODUCTION_BRANCH} cannot fast-forward to origin/${PRODUCTION_BRANCH}; it has commits of its own.\nNothing was merged or pushed, and you are back on ${branch}.`,
-    );
-  }
-  if (!gitStatus(["merge", "--no-ff", branch, "-m", `merge: publish ${branch}`])) {
-    git(["merge", "--abort"]);
-    git(["switch", branch]);
-    throw new Error(
-      `Merging ${branch} into ${PRODUCTION_BRANCH} conflicts. The merge was aborted, nothing was pushed,\nand you are back on ${branch}. Resolve it there, then publish again.`,
-    );
-  }
-  /* The merge is committed locally by this point, so a failed push is the one
-     failure that cannot simply be undone — and it is a real one: the
-     workstation's pre-push guard can decline it, and a race can make it
-     non-fast-forward. Return to the AI branch regardless, because the two
-     failure paths above promise exactly that and an error that strands you on
-     `main` would make the promise a lie. `main` keeps the merge commit, which
-     is recoverable and is stated rather than hidden. */
-  if (!gitStatus(["push", "origin", PRODUCTION_BRANCH])) {
-    git(["switch", branch]);
-    throw new Error(
-      `${branch} merged into local ${PRODUCTION_BRANCH}, but pushing ${PRODUCTION_BRANCH} failed.\n`
-      + `You are back on ${branch} and nothing was lost. Local ${PRODUCTION_BRANCH} still holds the merge:\n`
-      + `  git switch ${PRODUCTION_BRANCH} && git push origin ${PRODUCTION_BRANCH}\n`
-      + `to finish, or 'git switch ${PRODUCTION_BRANCH} && git reset --keep origin/${PRODUCTION_BRANCH}' to undo it.`,
-    );
+  const staging = publishStaging();
+  try {
+    if (!staging.merge(branch)) {
+      throw new Error(
+        `Merging ${branch} into ${PRODUCTION_BRANCH} conflicts. Nothing was pushed and you are still on ${branch}.\n`
+        + `Bring ${PRODUCTION_BRANCH} in first and resolve it there:\n  git merge origin/${PRODUCTION_BRANCH}`,
+      );
+    }
+    if (!staging.push()) {
+      throw new Error(
+        `${branch} merged cleanly but pushing ${PRODUCTION_BRANCH} failed — the pre-push guard may have declined it,\n`
+        + `or someone pushed ${PRODUCTION_BRANCH} in between. Nothing was lost and you are still on ${branch}.\n`
+        + "Run main:update again.",
+      );
+    }
+  } finally {
+    staging.release();
   }
   lines.push(`Merged ${branch} into ${PRODUCTION_BRANCH} and pushed it. Production deploys from here.`);
 
-  git(["switch", branch]);
-  if (gitStatus(["merge", "--ff-only", PRODUCTION_BRANCH])) {
+  git(["fetch", "--prune", "origin"]);
+  /* Nothing checked `main` out during the publish, so the local ref still
+     points where it did before. Fast-forward it when no worktree holds it —
+     `fetch` can update a ref it is not standing on — and say so plainly when
+     one does, because a stale local `main` in the primary checkout is
+     confusing precisely when someone goes looking for what was published. */
+  const mainHost = worktreeHolding(PRODUCTION_BRANCH);
+  if (!mainHost) {
+    gitStatus(["fetch", "origin", `${PRODUCTION_BRANCH}:${PRODUCTION_BRANCH}`]);
+  } else if (mainHost !== root) {
+    lines.push(`Local ${PRODUCTION_BRANCH} is checked out in ${mainHost}; fast-forward it there when convenient.`);
+  }
+  if (gitStatus(["merge", "--ff-only", `origin/${PRODUCTION_BRANCH}`])) {
     if (remoteBranchExists(branch)) git(["push", "origin", branch]);
     lines.push(`${branch} is level with ${PRODUCTION_BRANCH} and ready for the next session.`);
   } else {

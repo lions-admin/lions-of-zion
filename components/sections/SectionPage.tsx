@@ -101,8 +101,9 @@ export function SectionPage({
     <EditorialShell
       routeId={id}
       register={register}
+      showProgress={withToc}
       className={pageClass}
-      progressTrackClassName={withToc ? styles.topProgressTrack : undefined}
+      progressTrackClassName={styles.topProgressTrack}
     >
       <div className={shellClass}>
         {/* The trail a hub's child passes down — the shared `Breadcrumb`, the

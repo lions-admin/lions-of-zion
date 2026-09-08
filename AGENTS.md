@@ -100,7 +100,10 @@ Note: `README.md` still says git auto-deploy is *not* connected — stale.
 
 # Cross-cutting invariants
 
-Only the ones an edit is most likely to break; the full list is in CLAUDE.md.
+Only the ones an edit is most likely to break. The full list — layering,
+module shape, wired infrastructure and the test harness — lives in
+[`.claude/skills/project-invariants/SKILL.md`](.claude/skills/project-invariants/SKILL.md),
+which is a plain Markdown file any agent can read.
 
 - `server/core/config.ts` is the only server-runtime file that reads
   `process.env`. Nothing throws at import time — accessors throw at the point

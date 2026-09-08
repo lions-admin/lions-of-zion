@@ -1457,6 +1457,29 @@ would do by default if unanswered.
    already has a canonical record — the editorial run itself, or only a human
    through the admin console? **Blocks step 48.2.** Default if unanswered:
    human-only through the admin console, since that is the narrower grant.
+5. *(T-9 / search)* **`destinationFor` does not know the editorial run exists.**
+   `server/modules/search/projection.ts:64` grants a publication an `href` only
+   when it carries a `briefingRunId`. Records created by the whole-site
+   **editorial** run carry an `editorialRunId` instead, so they are indexed with
+   `href: null` while `/articles/<publicId>` serves them — verified: the BGU
+   aerogel record answers 200 while its own search hit says it has nowhere to
+   go. They render as "Indexed · no public page" rows: findable, but not
+   clickable, and the badge is untrue.
+
+   The repair is two steps, and the second is why it is not done here: widen
+   `destinationFor` to accept `briefingRunId || editorialRunId`, **then reindex
+   the publications**, because `href` is written into the stored projection at
+   index time and a code change alone updates nothing. The reindex is a data
+   pass over live rows through the outbox `search.reindex` consumer.
+
+   **This is also what made the first T-9 fix dangerous.** Filtering the
+   reader's results on `href === null` looked equivalent to "has no page" and
+   was not: it hid 42 of 73 published records for about an hour, caught by
+   re-measuring Production rather than by any test. The shipped filter matches
+   the `site-` prefix instead — precise, and safe because zero published records
+   carry it. **Default if unanswered: do the widening plus reindex as a
+   deliberate task, and do not touch the reader filter again until it lands.**
+
 4. *(VA-49)* An **existing** picture-less record cannot be declared
    *intentionally* text-only. `mediaDisposition` is derived from whether media
    was supplied, and the update branch writes it only when media arrived or the

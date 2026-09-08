@@ -33,12 +33,15 @@ so it is caught by tooling rather than review. **These are invisible to
 
 `server/modules/<name>/` exposes `index.ts` (binds `db()` lazily, returns the
 service), `service.ts` (transactional workflow), `repo.ts` (queries), sometimes
-`rules.ts` (pure, DB-free, unit-tested directly).
+`rules.ts` — pure, DB-free policy, unit-tested directly, as in
+`assessments/rules.ts`.
 
 **Get the module list from `ls server/modules`, never from prose.** That count
 has been wrong in documentation more than once. Known departures from the shape:
-`public-x-auth` (a pure re-export facade, no service/repo/db), `outbox`,
-`public-auth`, and historically `publications`/`reports`.
+`public-x-auth` — a pure re-export facade over `core/auth/public-x.ts`, with no
+service, no repo and no database, existing so `app/auth/**/route.ts` can reach
+it under the carve-out in `eslint.config.mjs` — plus `outbox` and `public-auth`.
+`publications` and `reports` kept their repository inline until 2026-08-27.
 
 ## The six cross-cutting invariants
 
@@ -52,7 +55,11 @@ has been wrong in documentation more than once. Known departures from the shape:
    done here. `emit()` accepts only a `Topic`; a topic in `RETIRED_TOPICS`
    cannot be produced again without a type error. Retiring a topic is two
    deploys — the consumer stays as a tombstone until no undrained row remains,
-   because `dispatchOutboxMessage` throws on an unregistered topic.
+   because `dispatchOutboxMessage` throws on an unregistered topic. `item.detected`
+   is the live example; its removal is gated on
+   `SELECT count(*) FROM outbox WHERE topic='item.detected' AND published_at IS NULL`
+   reading zero. Delivery is `drainOutbox` plus the queue/cron routes under
+   `app/api/internal/`.
 
 3. **`server/db/client.ts` exports only the WebSocket `neon-serverless`
    driver.** `neon-http` cannot hold an interactive transaction, which makes
@@ -86,22 +93,38 @@ has been wrong in documentation more than once. Known departures from the shape:
 - `server/core/config.ts` is the only **server-runtime** file that reads
   `process.env`. Four others do, none in a request path: `drizzle.config.ts`,
   `next.config.ts`, `server/db/testing.ts`, and two reading build-time-inlined
-  `NEXT_PUBLIC_*` values.
+  `NEXT_PUBLIC_*` values — `components/auth/google-identity.ts` and
+  `lib/content/archive.ts`.
 - `server/http/handler.ts` wraps every route with request-id propagation and
   error translation. Errors are RFC 9457 problem+json with a stable `code` from
   `responses.ts`. Internal routes go through `internal-guard.ts`.
+- **Neon Auth is the Production identity boundary.** `/api/auth/[...path]`
+  restricts signup to `ADMIN_EMAIL`; `authenticateAdmin()` verifies the session,
+  upserts `app_user` and loads the five capability grants. The `x-actor-label`
+  shim is development-only.
 - **RLS is engaged at runtime.** `withDatabaseRole(role, identity, invoke)`
   takes a dedicated pooled connection, issues `SET ROLE` plus
   `set_config('app.identity', …)`, and `RESET ALL` on release. It has **no
   test** — `tests/rls.test.ts` proves policies via `SET LOCAL ROLE` in a
   transaction on PGlite, which is not the pooled session-scope mechanism
-  production uses. This is the one real known gap.
-- `PUBLIC_V1` is a small allowlist; everything else under `/api/v1/` goes
-  through `authenticateAdmin()` and fails closed. Count the entries at the
-  source — `docs/api.md` understates the lockdown.
+  production uses. This is the one real known gap. Migration `0018` grants the
+  owner membership in `app_public`/`app_staff`/`app_service` so `SET ROLE`
+  succeeds; `0019` adds the policy that lets `INSERT … RETURNING` work under
+  `app_public`.
+- `PUBLIC_V1` is a small allowlist: `GET /search`, `GET /published-items`,
+  `GET /published-publications` (one pattern covers it with and without a
+  `publicId`), `POST /reports`, `POST /volunteer-interest`, and the chat paths.
+  Everything else under `/api/v1/` goes through `authenticateAdmin()` and fails
+  closed — so `GET /api/v1/evidence` is staff-only, not anonymous. Count the
+  entries at the source rather than trusting a number in prose; `docs/api.md`'s
+  guard table still calls many of these `anon` and understates the lockdown.
 - `requireCapability()` is called from nowhere, by recorded decision — there is
   one account and it holds every capability, so a check could only ever pass
-  while adding a way to be locked out. Wire it up when a second account exists.
+  while adding a way to be locked out. What protects those operations is the SQL
+  triggers, which hold on every path, and the `evidence_staff_reads_unrestricted`
+  RLS policy, which reads `capability_grant` directly.
+  `tests/admin-capabilities.test.ts` pins that the owner holds all five. Wire it
+  up when a second account exists.
 - **Business rules live in SQL triggers as often as in TypeScript.** Changing a
   rule usually means a new numbered migration, not a service edit. When reading
   what a trigger enforces, read the **highest-numbered** migration that defines
@@ -111,9 +134,16 @@ has been wrong in documentation more than once. Known departures from the shape:
 ## Tests
 
 Vitest, node environment, `server/db/testing.ts` `freshDatabase()` — PGlite, a
-real Postgres 18 in WASM, migrated per test, so triggers behave as in Neon.
+real Postgres 18 in WASM, migrated per test, so triggers and constraints
+behave as they will in Neon.
 
 - `maxWorkers: 2` in `vitest.config.ts` is deliberate; default parallelism
   OOMs the suite. Do not override it.
 - PGlite has no pgvector: semantic-search tests skip unless `TEST_DATABASE_URL`
-  points at a Postgres that has it. Lexical search is covered locally.
+  points at a Postgres that has it. Lexical search (`tsvector`, `pg_trgm`) is
+  fully covered locally.
+- `vitest.config.ts` aliases `server-only` to its empty module rather than
+  letting tests drop the import.
+- Hand-written SQL rules go in a new numbered file in `server/db/migrations/`
+  alongside the generated ones — applied in filename order by both `db:migrate`
+  and the test harness, so a trigger cannot exist in one place and not the other.

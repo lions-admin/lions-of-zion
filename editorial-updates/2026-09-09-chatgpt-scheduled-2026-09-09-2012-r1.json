@@ -1,0 +1,122 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-scheduled-2026-09-09-2012-r1",
+  "composer": "ChatGPT scheduled editorial agent",
+  "createdAt": "2026-09-09T17:12:00.000Z",
+  "creates": [
+    {
+      "key": "uae-october7-warning-dispute",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "history_context",
+        "canonicalStoryId": "uae-october7-warning-report-2026-09-08",
+        "title": "The reported UAE warning before October 7: what is alleged, denied and still unverified",
+        "summary": "A report says UAE President Mohammed bin Zayed warned Benjamin Netanyahu about 10 days before October 7 that Hamas was planning a major operation. An Emirati source told The Times of Israel the conversation occurred; Netanyahu's office denies it, while the UAE's official statement neither confirms nor denies the alleged leaders' call. The existence and content of the warning remain disputed.",
+        "body": "A consequential new claim about the days before October 7 has entered the public record, but it is not yet a settled fact. Haaretz reported that UAE President Mohammed bin Zayed personally warned Prime Minister Benjamin Netanyahu roughly 10 days before the Hamas-led attack that Yahya Sinwar was planning a major operation against Israel.\n\nThe strongest corroboration currently available is still source reporting rather than a released primary record. An Emirati source familiar with the conversation told The Times of Israel that the call and warning occurred. Associated Press separately reported the allegation and the Israeli denial. Those reports make the claim significant and documentable, but they do not provide a recording, contemporaneous memorandum or authenticated call record.\n\nNetanyahu's office has issued a categorical denial, saying no such warning was given and that Netanyahu did not speak with the UAE president during the relevant period. On September 9, Netanyahu repeated that denial and said he intended to sue Haaretz. That is an attributed denial, not independent proof that the reported conversation did not occur.\n\nThe UAE Foreign Ministry responded without confirming or denying the specific conversation. Its September 8 statement said the UAE does not comment on media reports or speculation about conversations between government leaders and added that relevant intelligence is communicated between the appropriate entities when necessary. The statement therefore establishes the UAE's public position but does not resolve whether this warning existed.\n\nIf authenticated, a direct warning from a foreign head of state about a major Hamas operation shortly before October 7 would be highly relevant to the history of pre-attack warning signs and decision-making. The key unanswered questions are what exactly was said, how specific it was, whether it was passed to the IDF and Shin Bet, and what actions followed.\n\nThe correct present assessment is disputed. What would materially change it is official confirmation or denial of the specific conversation, contemporaneous call records or memoranda, attributable testimony from participants, or findings from an empowered inquiry. Until then, this record preserves the discrepancy without converting either side's claim into established fact.",
+        "language": "en",
+        "editorialTopic": "Pre-October 7 warning record",
+        "topicTags": ["october-7", "uae", "israel", "intelligence", "warning", "historical-record"],
+        "primaryActor": "United Arab Emirates and Israeli prime minister's office",
+        "arena": "Israel and United Arab Emirates"
+      },
+      "sources": [
+        {"url":"https://apnews.com/article/935c2cd82d3204d6dc859d296fc866e3","title":"UAE warned Netanyahu of major Hamas operation days before Oct. 7 attack, news report says","publisher":"Associated Press"},
+        {"url":"https://www.timesofisrael.com/days-before-oct-7-uae-leader-warned-netanyahu-hamas-was-planning-war-but-pm-did-nothing-with-the-info-report/","title":"Days before Oct. 7, UAE leader warned Netanyahu Hamas was planning war, report says","publisher":"The Times of Israel"},
+        {"url":"https://www.mofa.gov.ae/en/mediahub/news/2026/9/8/uae-media-reporting","title":"Statement by the UAE Ministry of Foreign Affairs in Response to Media Reporting","publisher":"UAE Ministry of Foreign Affairs","official":true}
+      ]
+    },
+    {
+      "key": "malkovich-fabricated-quote",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "influence_investigation",
+        "canonicalStoryId": "john-malkovich-fabricated-quote-israel-2026-09-09",
+        "title": "The Malkovich fake quote: how a press release became a published direct quote",
+        "summary": "A promotional release falsely attributed a pro-return statement to John Malkovich; the actor disavowed it and canceled his Tel Aviv performance. The producer acknowledged the misattribution and corrections followed. This is a documented quote-laundering failure, not evidence of a coordinated influence campaign.",
+        "body": "A false quotation can acquire the appearance of confirmation very quickly when its source is a professional press release. The John Malkovich Tel Aviv cancellation is a clear case because the source of the error, its replication and the correction are all visible.\n\nA promotional release for a planned Tel Aviv performance of The Music Critic attributed a first-person statement to Malkovich about returning to Israel. Malkovich later said he never made or approved the quoted language and had not been consulted before it was printed. He withdrew from the performance.\n\nThe language then appeared in media coverage, giving material created by a promotional chain the surface appearance of a direct statement by the actor. Associated Press and Variety reported Malkovich's denial and cancellation. The producer acknowledged the false attribution and described it as human error.\n\nThat admission narrows what can responsibly be inferred. The available evidence supports a documented public-relations and verification failure. It does not establish a covert influence operation, state coordination or a centrally directed propaganda campaign.\n\nThe source-ancestry lesson is straightforward: multiple outlets repeating a quotation from one press release are not multiple independent confirmations that the speaker said those words. A direct quote should trace to a recording, transcript, speaker-approved statement or another inspectable primary source.\n\nThe correct conclusion is narrow: a fabricated quote was published and propagated, then corrected. Anything broader about motive or coordination requires separate evidence.",
+        "language": "en",
+        "editorialTopic": "Fabricated quotation and source ancestry",
+        "topicTags": ["media-integrity", "misquotation", "public-relations", "israel", "information-war", "culture"],
+        "primaryActor": "Israeli event promoter and public-relations chain",
+        "arena": "Israel and international entertainment media"
+      },
+      "sources": [
+        {"url":"https://apnews.com/article/23fc7325ae0ec89067438be3434c3ddd","title":"John Malkovich cancels performance in Israel over fabricated quote circulated by promoters","publisher":"Associated Press"},
+        {"url":"https://au.variety.com/2026/film/global/john-malkovich-drops-out-music-critic-israel-40107/","title":"John Malkovich Drops Out of The Music Critic in Israel After Press Release Attributed False Quotes","publisher":"Variety"}
+      ]
+    }
+  ],
+  "updates": [
+    {
+      "key": "hormuz-five-tankers-traffic-collapse",
+      "target": {"publicId":"us-iranian-forces-fire-at-vessels-in-waters-near-f2cks"},
+      "publication": {
+        "canonicalStoryId": "iran-us-hormuz-maritime-escalation-2026",
+        "title": "U.S. destroys five more Iranian tankers as Hormuz traffic falls further",
+        "summary": "CENTCOM says U.S. forces rendered five Iranian crude carriers inoperable on September 8 after two failed ballistic-missile attacks on a U.S. warship. Reuters-cited Kpler data show commercial traffic remaining sharply depressed. U.S., Iranian and commercial-tracking claims remain separate evidence layers.",
+        "body": "The U.S.-Iran maritime confrontation around the Strait of Hormuz has escalated again. U.S. Central Command said on September 8 that American forces destroyed five Iranian crude oil carriers after the Islamic Revolutionary Guard Corps targeted a U.S. Navy warship with ballistic missiles twice over the preceding two days.\n\nCENTCOM said the warship evaded the attacks and no American personnel were harmed. It identified the struck vessels and said crews were directed to abandon ship before the carriers were rendered inoperable. These details are the U.S. military's account and remain attributed as such.\n\nThe new strikes follow CENTCOM's September 5 announcement that it had disabled or destroyed three other Iranian crude carriers after attempted attacks on U.S. warships. The pattern is now sustained enough to warrant a canonical developing-story identity rather than another duplicate article.\n\nCommercial traffic is also showing a measurable response. Reuters, using Kpler ship-tracking data, reported a severe short-term slowdown around Hormuz after the tanker attacks. Vessel counts are evidence of traffic disruption, not proof that every vessel class has stopped or that the strait is physically closed.\n\nThe previous version focused on Tehran's retaliation threats, a proposed restricted maritime zone and earlier traffic declines. The September 8-9 evidence is a material escalation: additional tankers have been struck and commercial movement remains under acute pressure.\n\nWhat to watch next: updated Kpler or comparable traffic data, independently verified vessel damage, publication of Iran's proposed restricted-zone coordinates, further U.S. or Iranian strikes and whether commercial movement recovers. Severe disruption should not be silently converted into a claim of permanent blockade.",
+        "changeSummary": "Add CENTCOM's September 8 five-tanker strikes and the latest measured Hormuz traffic disruption; assign a canonical story id to the continuing maritime escalation."
+      },
+      "sources": [
+        {"url":"https://www.centcom.mil/MEDIA/PUBLIC-RELEASES/Article/4593050/us-destroys-5-irgc-tankers-after-iran-targets-another-american-warship/","title":"U.S. Destroys 5 IRGC Tankers After Iran Targets Another American Warship","publisher":"U.S. Central Command","official":true},
+        {"url":"https://apnews.com/article/ae03ad7a30b113a8acca045ea10ad8b2","title":"Yemen's Houthi rebels say Saudi-backed forces launched airstrikes, and other key Mideast news","publisher":"Associated Press"}
+      ]
+    },
+    {
+      "key": "uk-settlement-ban-final-statement",
+      "target": {"publicId":"uk-confirms-settlement-goods-trade-ban-is-coming-zweiy"},
+      "publication": {
+        "title": "UK details settlement-goods ban and sanctions; legislation due within six to nine months",
+        "summary": "Britain has now set out the policy that the earlier Lions report was waiting for: an import ban on goods from Israeli settlements, a broader sanctions regime targeting settlement expansion and a ban on advertising settlement property in the UK. The legislation is expected within six to nine months, so the announced regime is not yet an immediate blanket customs ban.",
+        "body": "The uncertainty in the previous version of this article has been narrowed by the Foreign Secretary's September 8 statement to the House of Commons. Britain will introduce an import ban on goods from Israeli settlements in occupied territories and a broader sanctions regime aimed at economic activity that supports settlement expansion.\n\nThe scope is narrower than a general boycott of Israel. Foreign Secretary Ed Miliband said the measures target settlements and settlement expansion, not Israel itself, and said Britain would continue to support trade with Israel inside the Green Line. He also rejected the wider BDS campaign.\n\nThe import ban is an announced legislative policy, not a complete customs prohibition that took effect on September 8. Miliband said the legislation would be in place within six to nine months. The final statutory text, commencement date, customs definitions and enforcement guidance will determine how the ban works in practice.\n\nThe package also goes beyond goods. The government says the sanctions regime will allow action against specific companies and individuals providing construction, infrastructure, financing or real-estate services for settlement expansion, and will prohibit advertising settlement property in the United Kingdom.\n\nThe correct present formulation is therefore neither 'Britain is only considering a ban' nor 'all settlement-linked trade is already prohibited today.' The government has announced the ban and sanctions architecture; implementation remains the next evidentiary step.",
+        "changeSummary": "Replace the advance-announcement framing with the delivered Commons policy, including the six-to-nine-month implementation horizon and the distinction from a general boycott of Israel."
+      },
+      "sources": [
+        {"url":"https://www.gov.uk/government/speeches/foreign-secretary-oral-statement-on-israel-palestine","title":"Foreign Secretary Oral Statement on Israel-Palestine","publisher":"UK Government","official":true},
+        {"url":"https://www.gov.uk/government/news/joint-foreign-ministers-statement-on-the-two-state-solution","title":"Joint Foreign Ministers' Statement on the Two-State Solution","publisher":"UK Government","official":true}
+      ]
+    },
+    {
+      "key": "yemen-houthi-saudi-energy-strikes",
+      "target": {"publicId":"civilians-among-at-least-60-killed-in-yemen-as-g-wzukq"},
+      "publication": {
+        "title": "Houthi attacks hit Saudi energy sites as Yemen's war spills deeper into the Gulf",
+        "summary": "Saudi authorities say Houthi attacks struck civilian and economic sites in southern Saudi Arabia, injuring 73 people and igniting fires at energy facilities. The attacks materially expand the existing Yemen and Bab al-Mandeb story without proving a sustained regional energy blockade.",
+        "body": "The western Yemen conflict documented in the earlier version of this article has spilled more directly into Saudi territory. On September 8, Houthi attacks targeted civilian and economic sites in southern Saudi Arabia while the group continued pressure on maritime routes.\n\nSaudi authorities said 73 civilians were injured, including women and children. Associated Press reported fires at oil and utility facilities. These accounts establish a major escalation and reported infrastructure damage, but they do not independently quantify the duration of every outage or any net loss of Saudi oil exports.\n\nThe event moves the story beyond ground control in western Yemen and threats to Bab al-Mandeb. The Houthis are demonstrating an ability to impose costs on energy and civilian infrastructure inside Saudi Arabia while regional maritime pressure is also rising.\n\nThat does not prove that every Houthi target selection is directly commanded from Tehran. Iranian support and alignment are relevant background; operational direction for a specific strike requires specific evidence.\n\nWhat to watch next: independently measured Saudi output and export data, duration of facility outages, new Houthi launches, Saudi military responses and verified changes in Bab al-Mandeb traffic. The article should continue to distinguish measurable effects from belligerent declarations.",
+        "changeSummary": "Update the canonical Yemen/Bab al-Mandeb story with the September 8 Houthi attacks on southern Saudi civilian and energy infrastructure and the Saudi-reported 73 injuries."
+      },
+      "sources": [
+        {"url":"https://apnews.com/article/4ad9446f0bb8c096750c84b6e1ba86b8","title":"Houthi attacks on Saudi Arabia ignite fires at oil facilities and wound 73 people","publisher":"Associated Press"}
+      ]
+    }
+  ],
+  "homepage": {
+    "news": {
+      "lead": {"action":"set","publication":{"operationKey":"hormuz-five-tankers-traffic-collapse"}},
+      "secondary": {"action":"set","publication":{"operationKey":"uk-settlement-ban-final-statement"}}
+    },
+    "fakeResistance": {
+      "lead": {"action":"set","publication":{"publicId":"how-the-israel-killed-charlie-kirk-theory-surviv-sl3l9"}},
+      "secondary": {"action":"set","publication":{"publicId":"when-synthetic-battlefield-footage-comes-from-th-3c4f9"}}
+    },
+    "people": {
+      "lead": {"action":"set","publication":{"publicId":"be-eri-location-file-the-attack-the-failed-respo-hexu7"}},
+      "secondary": {"action":"set","publication":{"publicId":"ben-gurion-university-team-develops-aerogel-that-0y2we"}}
+    }
+  },
+  "research": [
+    {"topic":"U.S.-Iran and Hormuz escalation","sourcesReviewed":["https://www.centcom.mil/MEDIA/PUBLIC-RELEASES/Article/4593050/us-destroys-5-irgc-tankers-after-iran-targets-another-american-warship/","https://apnews.com/article/ae03ad7a30b113a8acca045ea10ad8b2"],"conclusion":"Five additional tanker strikes and continued traffic disruption materially update the existing Hormuz record; update and promote the canonical story rather than create another article.","outcome":"updated"},
+    {"topic":"UK settlement-goods restrictions","sourcesReviewed":["https://www.gov.uk/government/speeches/foreign-secretary-oral-statement-on-israel-palestine","https://www.gov.uk/government/news/joint-foreign-ministers-statement-on-the-two-state-solution"],"conclusion":"The Commons statement resolves the prior policy uncertainty; update the existing canonical story and keep the implementation timetable explicit.","outcome":"updated"},
+    {"topic":"UAE warning allegation before October 7","sourcesReviewed":["https://apnews.com/article/935c2cd82d3204d6dc859d296fc866e3","https://www.timesofisrael.com/days-before-oct-7-uae-leader-warned-netanyahu-hamas-was-planning-war-but-pm-did-nothing-with-the-info-report/","https://www.mofa.gov.ae/en/mediahub/news/2026/9/8/uae-media-reporting"],"conclusion":"Historically significant and source-corroborated enough to preserve, but still disputed and lacking public primary evidence; publish as a disputed evidence record, not a verified warning.","outcome":"published"},
+    {"topic":"John Malkovich fabricated quotation","sourcesReviewed":["https://apnews.com/article/23fc7325ae0ec89067438be3434c3ddd","https://au.variety.com/2026/film/global/john-malkovich-drops-out-music-critic-israel-40107/"],"conclusion":"A strong media-integrity and source-ancestry case with direct disavowal and promoter acknowledgment; publish without alleging coordination.","outcome":"published"},
+    {"topic":"Houthi attacks on Saudi energy infrastructure","sourcesReviewed":["https://apnews.com/article/4ad9446f0bb8c096750c84b6e1ba86b8"],"conclusion":"Material escalation belongs in the existing Yemen/Bab al-Mandeb canonical record; update rather than duplicate.","outcome":"updated"}
+  ],
+  "vetoes": [
+    {"key":"veto-idf-ai-branch-rush","candidate":"Standalone immediate promotion of the newly announced IDF unmanned-systems and AI branch","reason":"The announcement is significant but the current reviewed record is still mainly the chief of staff's announcement relayed by press. Hold homepage promotion until the formal organizational order, command structure or additional primary documentation is available.","section":"technology_ai","replacement":"Monitor for the December inauguration, commander appointment, organizational order and autonomy doctrine."}
+  ],
+  "siteRecommendations": [
+    "Current-day edition ownership needs an operations review: the homepage was still dated September 8 when this run began and a September 8 edition-missing alert remained open.",
+    "Hero-media backlog remains large. Keep high-value records text-led rather than attaching generic stock; promote records with cleared media until source-relevant illustrations or documentation are available.",
+    "Separate stale historical pipeline last-error strings from active failures in the operations UI so editorial operators can distinguish recovered faults from live blockers."
+  ]
+}

@@ -1,0 +1,192 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "claude-scheduled-2026-09-10-1840-r1",
+  "composer": "Claude scheduled editorial agent",
+  "createdAt": "2026-09-10T15:40:00.000Z",
+  "creates": [
+    {
+      "key": "ventura-antisemitic-vandalism",
+      "publication": {
+        "kind": "news_update",
+        "section": "antisemitism",
+        "canonicalStoryId": "ventura-california-antisemitic-vandalism-2026-09",
+        "title": "Swastikas spray-painted at California synagogue, church and park; suspect arrested",
+        "summary": "A synagogue, a church and a public park in Ventura, California were vandalized with swastikas and other hate imagery in early September. Local officials condemned the attack, and police later arrested a suspect found with photographic evidence tying him to the graffiti.",
+        "body": "A wave of antisemitic vandalism hit Ventura, California in early September, with swastikas and other hate symbols spray-painted at three separate sites: Temple Beth Torah, a Reform synagogue; Higher Vision Church; and Juanamaria Park.\n\nVentura police opened an investigation and city leadership responded publicly. Mayor Jeannette Sanchez-Palacios issued a condemnation of the vandalism, calling it an attack on the community's values rather than an isolated act of property damage.\n\nInvestigators later announced an arrest. According to reporting on the case, the suspect was found in possession of photographs of his own graffiti, and investigators said he had also attempted to shift suspicion onto others. He faces felony and hate-crime-related charges.\n\nWhat is confirmed: three distinct hate-symbol vandalism incidents in the same city within a short window, a public statement from city leadership, and a subsequent arrest with evidence directly tying the suspect to the graffiti. What remains for the courts to determine: the full scope of charges and any broader motive beyond what has been publicly reported.\n\nSwastika vandalism at a synagogue is not an abstract symbol dispute. It is a targeted act meant to make a Jewish community feel unsafe in its own building. Community security organizations recommend that congregations experiencing this kind of incident document it, report it to local police as a hate crime, and coordinate with regional Jewish community security bodies, which track patterns across incidents that a single police report will not surface on its own.",
+        "language": "en",
+        "editorialTopic": "Antisemitic vandalism, United States",
+        "topicTags": ["antisemitism", "united-states", "vandalism", "hate-crime", "california"],
+        "primaryActor": "Ventura Police Department",
+        "arena": "United States"
+      },
+      "sources": [
+        {"url": "https://ktla.com/news/local-news/swastika-spray-painted-at-temple-beth-torah-in-ventura-prompts-investigation-police/", "title": "Swastika spray-painted at Temple Beth Torah in Ventura prompts investigation: police", "publisher": "KTLA"},
+        {"url": "https://www.jta.org/quick-reads/swastika-painted-on-reform-synagogue-in-ventura-california", "title": "Swastika painted on Reform synagogue in Ventura, California", "publisher": "Jewish Telegraphic Agency"},
+        {"url": "https://www.edhat.com/ventura/news/antisemitic-vandalism-targets-temple-church-and-park-in-ventura/", "title": "Antisemitic Vandalism Targets Temple, Church and Park in Ventura", "publisher": "edhat Ventura"},
+        {"url": "https://www.yahoo.com/news/ventura-serial-swastika-spray-painter-011249656.html", "title": "Ventura 'serial swastika spray painter' arrested", "publisher": "Yahoo News"}
+      ]
+    },
+    {
+      "key": "israeli-erc-starting-grants",
+      "publication": {
+        "kind": "news_update",
+        "section": "achievement",
+        "canonicalStoryId": "israeli-erc-starting-grants-2026",
+        "title": "Israeli researchers win a wave of EU Starting Grants, worth over $18 million, despite funding-climate friction",
+        "summary": "Eleven researchers at Israeli universities — including the Weizmann Institute, Technion, Tel Aviv University, Bar-Ilan and Ben-Gurion University — were named winners of the European Research Council's competitive Starting Grants, together worth more than $18 million, at a time when Israeli access to EU research funding has faced political headwinds.",
+        "body": "Eleven researchers across five Israeli institutions have been named winners of the European Research Council's Starting Grant, one of Europe's most competitive early-career research awards, in a round worth more than $18 million combined.\n\nThe winning teams span the Weizmann Institute of Science, the Technion, Tel Aviv University, Bar-Ilan University and Ben-Gurion University, working across fields from cancer biology to computer science. Among the named recipients: Dr. Leeat Keren at the Weizmann Institute, who is combining custom imaging techniques with AI to map how proteins are distributed inside human tissue, work aimed at improving how cancer is understood at the cellular level; and Dr. Hagai Maron and Dr. Nir Hananya at the Technion, both working in computational and life-science research.\n\nThe ERC Starting Grant program funds early-career scientists pursuing high-risk, high-reward research, and is awarded through a highly selective, peer-reviewed competition open across the European Research Area and its associated countries. Winning eleven grants in a single round is a significant showing for Israel's research sector.\n\nThe result is notable partly because of the backdrop it arrives against: Israeli institutions have reported friction and uncertainty around EU research funding access tied to the broader political climate in Europe. A strong Starting Grant round does not resolve that structural tension, but it is a concrete data point that Israeli early-career research remains internationally competitive and continues to draw funding through Europe's most demanding peer-review process.\n\nFor readers who want to look past the headline: Starting Grant winners and their project abstracts are published by the ERC itself, and are a legitimate way to see, in the researchers' own words, what problem each grant is actually funding — rather than relying on a press summary alone.",
+        "language": "en",
+        "editorialTopic": "Israeli science and research funding",
+        "topicTags": ["science", "research", "innovation", "european-union", "academia", "cancer-research"],
+        "primaryActor": "Weizmann Institute, Technion, Tel Aviv University, Bar-Ilan University, Ben-Gurion University",
+        "arena": "Israel and European Union"
+      },
+      "sources": [
+        {"url": "https://www.timesofisrael.com/seven-israeli-researchers-awarded-prestigious-eu-starting-grants/", "title": "Israeli researchers awarded prestigious EU Starting Grants", "publisher": "The Times of Israel"},
+        {"url": "https://www.ynetnews.com/health_science/article/bjwce7uzgg", "title": "Israeli researchers win prestigious ERC Starting Grants", "publisher": "Ynetnews"}
+      ]
+    },
+    {
+      "key": "lebanon-ali-al-taher-ridge",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "israel_update",
+        "canonicalStoryId": "lebanon-ali-al-taher-ridge-2026-09",
+        "title": "Israel says it has cleared Hezbollah's Ali al-Taher ridge in south Lebanon; Iran reportedly warned of retaliation",
+        "summary": "Israel's Defense Ministry says IDF forces have taken control of the Ali al-Taher ridge near Nabatieh, a position Hezbollah spent two decades fortifying with Iranian financing. Iran reportedly warned Washington, via Oman, that a full-scale offensive there could trigger a large-scale Iranian response; Hezbollah has so far downplayed the loss rather than escalating.",
+        "body": "Israel says its forces have taken control of the Ali al-Taher ridge overlooking Nabatieh in southern Lebanon, a position multiple outlets describe as one of Hezbollah's most heavily fortified points, built up with tunnels and infrastructure over roughly two decades and financed in part by Iran.\n\nDefense Minister Israel Katz confirmed the seizure in early September, and the IDF's 36th Division is reported to have led the operation clearing Hezbollah tunnels and personnel from the ridge. The development was reported independently by France 24, Al Jazeera and the FDD's Long War Journal, with consistent framing of the ridge's strategic and symbolic significance to Hezbollah's southern positioning.\n\nAccording to reporting on the diplomatic backdrop, Iran had warned the United States — through Omani intermediaries — that a full Israeli offensive to take the ridge could trigger what was described as a large-scale Iranian response. That warning is attributed reporting, not a confirmed Iranian government statement on the record, and it has not been matched so far by a major Iranian military response tied specifically to this ridge.\n\nHezbollah's public posture since the ridge fell has been to downplay the loss rather than announce escalation, a response that several of the outlets covering the story noted as notable given how significant the position was to the group's fortified network in the area.\n\nThe episode sits inside the broader south Lebanon front, where Israeli strikes in the days around the ridge operation were also reported to have killed and wounded people in towns near Nabatieh, described by the IDF as responses to Hezbollah drone attacks on Israeli forces holding territory in south Lebanon; casualty figures for those strikes come from Lebanese and wire reporting and have not been independently verified by this desk.\n\nWhat to watch next: whether Iran's reported warning translates into any specific action, whether Hezbollah changes its public posture, and whether the ridge holds as a stable Israeli position or becomes a renewed flashpoint.",
+        "language": "en",
+        "editorialTopic": "South Lebanon front",
+        "topicTags": ["lebanon", "hezbollah", "iran", "idf", "nabatieh", "regional-security"],
+        "primaryActor": "IDF 36th Division and Hezbollah",
+        "arena": "South Lebanon"
+      },
+      "sources": [
+        {"url": "https://www.france24.com/en/middle-east/20260904-israel-says-it-has-seized-lebanon-key-ali-al-taher-ridge-from-hezbollah", "title": "Israel says it has seized Lebanon's key Ali al-Taher ridge from Hezbollah", "publisher": "France 24"},
+        {"url": "https://www.longwarjournal.org/archives/2026/09/israel-claims-control-of-ali-al-taher-after-weeks-of-hezbollah-attacks-and-failed-handover-efforts.php", "title": "Israel claims control of Ali al-Taher after weeks of Hezbollah attacks and failed handover efforts", "publisher": "FDD's Long War Journal"},
+        {"url": "https://www.aljazeera.com/news/2026/9/5/israel-claims-control-of-lebanons-key-ali-al-taher-ridge-what-that-means", "title": "Israel claims control of Lebanon's key Ali al-Taher ridge: What that means", "publisher": "Al Jazeera"},
+        {"url": "https://www.aljazeera.com/news/2026/9/6/israeli-air-attacks-on-lebanon-kill-at-least-four", "title": "Israeli air attacks on Lebanon kill at least four", "publisher": "Al Jazeera"},
+        {"url": "https://www.timesofisrael.com/3-said-killed-in-idf-strikes-in-lebanon-after-hezbollah-drone-attack-on-troops/", "title": "3 said killed in IDF strikes in Lebanon after Hezbollah drone attack on troops", "publisher": "The Times of Israel"}
+      ]
+    },
+    {
+      "key": "recycled-game-footage-narrative-watch",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "narrative_watch",
+        "canonicalStoryId": "recycled-war-footage-and-ai-fakes-pattern-2026",
+        "title": "Reported claim: video-game clips and an AI-generated video are circulating as real footage of strikes on Israel and Iran",
+        "summary": "Clips from the video games ARMA 3 and War Thunder, an AI-generated video falsely showing an Iranian strike on Israeli military headquarters, and recycled footage from earlier conflicts have repeatedly circulated on TikTok and X as if they were real, current strike footage — a recurring pattern the Israeli military itself has had to publicly debunk.",
+        "body": "A recurring pattern of fabricated and recycled war footage has circulated on social media during the current period of tension between Israel and Iran, and it is worth documenting as a pattern rather than as a single incident, because the same techniques keep reappearing.\n\nThe first component is video-game footage relabeled as real combat video. Clips recorded in the military simulation games ARMA 3 and War Thunder have circulated on TikTok and elsewhere captioned as if they showed real strikes, to the point that the Israeli military itself has had to publicly clarify that specific viral clips were fake. Reporting on the pattern has linked at least some of the distribution of this footage to networks associated with Russian influence operations, rather than treating it as purely organic misinformation.\n\nThe second component is AI-generated video. A synthetic video claiming to show an Iranian strike on Israeli military headquarters was assessed by detection researchers as approximately 93 percent likely to be AI-generated, based on physical inconsistencies in the footage and a building that does not match the real structure it claimed to depict. This is a case where the underlying claim is not simply exaggerated or missing context — the visual evidence itself does not depict a real event.\n\nThe third component is recycled footage from earlier, unrelated conflicts, relabeled with new captions claiming to show current Lebanon strikes. This is one of the oldest disinformation techniques, and it remains effective specifically because a viewer has no easy way to verify a clip's true origin without a reverse-image or reverse-video search.\n\nWhat unites these three techniques is not necessarily central coordination — game footage passed off as real war video is a recurring problem across many conflicts, and this desk is not asserting a single coordinated campaign behind all of it. What can be said is that verified instances exist of each technique being used in this information environment, and that at least part of the game-footage distribution has been linked by researchers to Russian-associated influence networks.\n\nWhat a reader can do: treat any dramatic, uncaptioned strike video with default skepticism until it is confirmed by a named military source or a reputable wire service; check whether the same clip appears attached to a different, older conflict elsewhere online; and know that AI-detection tools, while imperfect, exist and are increasingly used by fact-checking organizations to flag synthetic video before it is amplified further.",
+        "language": "en",
+        "editorialTopic": "Fabricated and recycled conflict footage",
+        "topicTags": ["disinformation", "deepfake", "social-media", "fact-check", "information-war", "iran", "russia"],
+        "primaryActor": "TikTok and X accounts circulating fabricated footage",
+        "arena": "Social media platforms",
+        "narrativeWatchDetails": {
+          "exactClaim": "Various viral clips claim to show real, current strikes and combat in the Israel-Iran-Lebanon theater, including footage later identified as recorded from the video games ARMA 3 and War Thunder, an AI-generated video purporting to show an Iranian strike on Israeli military headquarters, and older footage from unrelated past conflicts relabeled as current Lebanon strikes.",
+          "propagators": ["Anonymous TikTok accounts", "Anonymous X/Twitter accounts", "Networks researchers have linked to Russian-associated influence distribution"],
+          "arenas": ["TikTok", "X (Twitter)"],
+          "trendDirection": "stable",
+          "israeliPosition": "The Israeli military has publicly clarified that specific viral clips circulating as real strike footage were fake, without issuing one comprehensive rebuttal covering every instance.",
+          "securityContext": "The footage circulated during an active period of Israel-Iran and Israel-Hezbollah tension, when public appetite for real-time visual confirmation of strikes was high, which is precisely the condition fabricated and recycled footage exploits.",
+          "supportingEvidenceIds": [],
+          "contradictingEvidenceIds": [],
+          "verificationState": "refuted",
+          "knownUnknowns": [
+            "The full scale of distribution for each individual clip is not independently quantified here.",
+            "Whether the game-footage distribution reflects coordinated state direction, opportunistic amplification by aligned accounts, or both, is not established by the sources reviewed.",
+            "The original uploader and first-seen date for the AI-generated headquarters video were not independently established by this desk."
+          ]
+        }
+      },
+      "sources": [
+        {"url": "https://www.pcgamer.com/games/as-the-possibility-of-war-looms-in-the-middle-east-clips-of-arma-3-and-war-thunder-are-being-used-as-propaganda-and-even-the-israeli-militarys-having-to-clarify-the-footage-is-fake/", "title": "Clips of ARMA 3 and War Thunder are being used as propaganda, and even the Israeli military's having to clarify the footage is fake", "publisher": "PC Gamer"},
+        {"url": "https://www.rollingstone.com/politics/politics-features/arma-3-video-game-clips-israel-hamas-conflict-1234849405/", "title": "ARMA 3 video game clips are being passed off as real conflict footage", "publisher": "Rolling Stone"},
+        {"url": "https://www.newsguardrealitycheck.com/p/ai-fakes-911-like-iranian-strike", "title": "AI fakes a 9/11-like Iranian strike on Israeli military headquarters", "publisher": "NewsGuard Reality Check"},
+        {"url": "https://www.sochfactcheck.com/old-video-falsely-linked-to-recent-israeli-strikes-in-lebanon/", "title": "Old video falsely linked to recent Israeli strikes in Lebanon", "publisher": "Soch Fact Check"}
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "Israel-Hezbollah south Lebanon front (Ali al-Taher ridge)",
+      "sourcesReviewed": [
+        "https://www.france24.com/en/middle-east/20260904-israel-says-it-has-seized-lebanon-key-ali-al-taher-ridge-from-hezbollah",
+        "https://www.longwarjournal.org/archives/2026/09/israel-claims-control-of-ali-al-taher-after-weeks-of-hezbollah-attacks-and-failed-handover-efforts.php",
+        "https://www.aljazeera.com/news/2026/9/5/israel-claims-control-of-lebanons-key-ali-al-taher-ridge-what-that-means"
+      ],
+      "conclusion": "Corroborated by three independent outlets with clear official attribution; published as a new canonical developing story with hedged, attributed language on the disputed Iran-warning detail.",
+      "outcome": "published"
+    },
+    {
+      "topic": "Reported Houthi seizure of Mocha, Yemen, near Bab al-Mandeb",
+      "sourcesReviewed": ["https://www.timesofisrael.com/liveblog-september-10-2026"],
+      "conclusion": "Single-source liveblog attribution with an inflammatory quoted chant and no independent wire corroboration found in this session. Too thin to publish as a standalone confirmed news item; declined pending stronger corroboration.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Recycled and AI-generated war footage circulating as real strike video",
+      "sourcesReviewed": [
+        "https://www.pcgamer.com/games/as-the-possibility-of-war-looms-in-the-middle-east-clips-of-arma-3-and-war-thunder-are-being-used-as-propaganda-and-even-the-israeli-militarys-having-to-clarify-the-footage-is-fake/",
+        "https://www.newsguardrealitycheck.com/p/ai-fakes-911-like-iranian-strike",
+        "https://www.sochfactcheck.com/old-video-falsely-linked-to-recent-israeli-strikes-in-lebanon/"
+      ],
+      "conclusion": "No single fresh incident in the last 48 hours was confirmed, but a well-documented, multi-source-verified recurring pattern exists tied to the active conflict. Published as a pattern investigation rather than framed as breaking news, per the fallback rule for the mandatory information-war desk.",
+      "outcome": "published"
+    },
+    {
+      "topic": "Iranian/Russian influence-operation coordination behind the recycled footage",
+      "sourcesReviewed": [
+        "https://www.pbs.org/newshour/amp/politics/russia-and-iran-ramping-up-influence-campaigns-targeting-us-voters-federal-agencies-say",
+        "https://mei.edu/policymemo/russias-wartime-support-for-iran/"
+      ],
+      "conclusion": "Real, sourced reporting exists linking some distribution networks to Russian influence operations, but the clearest dated evidence clusters around February-March 2026, not the last 48 hours, and does not establish central coordination of every instance. Folded into the narrative-watch piece as a caveated observation rather than published as a standalone influence-investigation claim of coordination.",
+      "outcome": "no_action"
+    },
+    {
+      "topic": "Antisemitic vandalism, Ventura, California",
+      "sourcesReviewed": [
+        "https://ktla.com/news/local-news/swastika-spray-painted-at-temple-beth-torah-in-ventura-prompts-investigation-police/",
+        "https://www.jta.org/quick-reads/swastika-painted-on-reform-synagogue-in-ventura-california",
+        "https://www.yahoo.com/news/ventura-serial-swastika-spray-painter-011249656.html"
+      ],
+      "conclusion": "Multi-source corroborated, low ambiguity, includes a confirmed arrest. Published without sensationalism.",
+      "outcome": "published"
+    },
+    {
+      "topic": "Israeli ERC Starting Grants",
+      "sourcesReviewed": [
+        "https://www.timesofisrael.com/seven-israeli-researchers-awarded-prestigious-eu-starting-grants/",
+        "https://www.ynetnews.com/health_science/article/bjwce7uzgg"
+      ],
+      "conclusion": "Well-sourced positive achievement story with a genuine news hook (funding-climate friction). Published.",
+      "outcome": "published"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "veto-mocha-seizure",
+      "candidate": "Standalone News & Analysis article reporting the Houthi seizure of Mocha near Bab al-Mandeb, including the quoted chant attributed to fighters entering the city",
+      "reason": "The only source found in this session was a single liveblog entry with no independent wire-service corroboration retrievable from this environment (this session's network access to most news domains is search-snippet only, and lionsofzion.io and general news-domain fetches were blocked outright, so full-text verification was not possible). A strategic-city-seizure claim with an inflammatory attributed quote is exactly the category this desk should not publish on single-source attribution alone.",
+      "section": "israel_update",
+      "sources": ["https://www.timesofisrael.com/liveblog-september-10-2026"],
+      "replacement": "Hold for corroboration from a second independent outlet (Reuters, AP, AFP or a named Yemeni/Saudi official source) before publishing; revisit in the next run.",
+      "ownerDecisionRequested": false
+    },
+    {
+      "key": "veto-homepage-composition",
+      "candidate": "Homepage lead/secondary placements for today's run",
+      "reason": "This session could not reach lionsofzion.io or the authenticated /api/internal/chatgpt/editorial-context read endpoint (no automation secret available to this session; direct fetches to the production domain are blocked by this sandbox's network egress policy). Without visibility into current homepage strength, setting or displacing any live placement would risk overriding stronger existing content purely because today's items are newer, which the editorial DNA explicitly forbids. Homepage was left untouched this run.",
+      "ownerDecisionRequested": true
+    }
+  ],
+  "siteRecommendations": [
+    "This run could not check the live site or the /api/internal/chatgpt/* read endpoints for existing canonical stories before publishing (no automation secret in this session, and direct network access to lionsofzion.io is blocked from this environment). Please run a duplicate-check pass on canonicalStoryId 'lebanon-ali-al-taher-ridge-2026-09' against any existing south-Lebanon developing story and merge/redirect if one already exists.",
+    "All four records in this run publish text-led with no hero image: this session has no image-generation or rights-clearance tool available, and did not want to invent licensing terms or hotlink external images. Recommend attaching cleared hero images (IDF/official imagery for the Lebanon piece, an ERC/university photo for the research piece, official Ventura PD or synagogue exterior imagery for the antisemitism piece, subject to real rights clearance) in a follow-up media pass.",
+    "The Houthi seizure of Mocha (reported today, single-sourced to a liveblog) should be revisited within 24-48 hours once wire-service corroboration is available; see the corresponding veto entry.",
+    "Consider adding a worked whole-site-update-v2 example with a narrativeWatchDetails object to docs/whole-site-updates.md — this run had to derive the shape entirely from server/contracts/publication.ts, which is workable but slower than a reference package would be."
+  ]
+}

@@ -36,9 +36,9 @@ describe("public explanation of editorial provenance", () => {
     const methodology = publicCopy("app/methodology/page.tsx");
     const informationWar = publicCopy("components/briefs/information-war/pipeline-data.ts");
 
-    expect(weAre).toContain("AI output is never evidence");
+    expect(weAre).toContain("AI output is never documentary evidence");
     expect(weAre).toContain("machine provenance");
-    expect(methodology).toContain("Machine-authored editorial runs may create or update");
+    expect(methodology).toContain("Authorized machine-authored runs can also create or update");
     expect(informationWar).toContain("It never composes or publishes an editorial record on its own");
     expect(informationWar).toContain("Human assessments retain their separate review gate");
   });

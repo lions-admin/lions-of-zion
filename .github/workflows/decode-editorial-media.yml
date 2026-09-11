@@ -1,0 +1,41 @@
+name: Decode editorial media
+
+on:
+  push:
+    branches: [chatgpt-editorial-updates]
+    paths:
+      - 'editorial-updates/media-src/**'
+
+concurrency:
+  group: decode-editorial-media
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  decode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode base64 images to jpeg
+        run: |
+          set -euo pipefail
+          mkdir -p editorial-updates/media
+          shopt -s nullglob
+          decoded=0
+          for f in editorial-updates/media-src/*.jpg.b64; do
+            name=$(basename "$f" .b64)
+            base64 -d "$f" > "editorial-updates/media/$name"
+            decoded=$((decoded + 1))
+          done
+          echo "decoded=$decoded"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add editorial-updates/media
+          if git diff --cached --quiet; then
+            echo "no media changes"
+            exit 0
+          fi
+          git commit -m "Store decoded hub editorial illustrations"
+          git push

@@ -23,13 +23,28 @@ jobs:
           set -euo pipefail
           mkdir -p editorial-updates/media
           shopt -s nullglob
+          if [ ! -f editorial-updates/media-src/ready.json ]; then
+            echo "ready.json missing; skip decode"
+            exit 0
+          fi
           decoded=0
           for f in editorial-updates/media-src/*.jpg.b64; do
             name=$(basename "$f" .b64)
             base64 -d "$f" > "editorial-updates/media/$name"
             decoded=$((decoded + 1))
           done
+          for first in editorial-updates/media-src/*.jpg.b64.aa; do
+            stem=${first%.aa}
+            name=$(basename "$stem" .b64)
+            cat "$stem".* > /tmp/assembled.b64
+            base64 -d /tmp/assembled.b64 > "editorial-updates/media/$name"
+            decoded=$((decoded + 1))
+          done
           echo "decoded=$decoded"
+          if [ "$decoded" -eq 0 ]; then
+            echo "no source images"
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add editorial-updates/media
@@ -38,4 +53,5 @@ jobs:
             exit 0
           fi
           git commit -m "Store decoded hub editorial illustrations"
+          git pull --rebase origin chatgpt-editorial-updates
           git push

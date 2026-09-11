@@ -72,32 +72,32 @@ describe("the trust pages describe both pathways, not one", () => {
   });
 
   it("says on We Are that most records take the other route", () => {
-    expect(weAre).toMatch(/published by the editorial system itself/i);
+    expect(weAre).toMatch(/machine-authored editorial publications follow a separate disclosed path/i);
   });
 
   it("scopes the Methodology human-review gate to the human path", () => {
-    expect(methodology).toMatch(/Gate — human path only/);
+    expect(methodology).toMatch(/Human governance is not the same thing as claiming that a person manually approves every sentence before publication/);
     expect(methodology).not.toContain('gate: "Gate — human only"');
   });
 
   it("renders the two pathways on Methodology from the shared constant", () => {
     expect(methodology).toMatch(/PUBLICATION_PROVENANCE\[kind\]\.label/);
     expect(methodology).toMatch(/PUBLICATION_PROVENANCE\[kind\]\.detail/);
-    expect(methodology).toMatch(/heading="Two ways a record publishes"/);
+    expect(methodology).toMatch(/heading="Publication provenance"/);
   });
 
   it("does not describe archive records as a third editorial byline", () => {
-    expect(methodology).toMatch(/Imported and archive records are a separate class/i);
+    expect(methodology).toMatch(/Imported and archive records are separate from those editorial bylines/i);
     expect(methodology).not.toMatch(/Every published record on this site took one of exactly two routes/i);
   });
 
   it("states that AI interpretation is not evidence", () => {
-    expect(weAre).toMatch(/AI output is never evidence/i);
+    expect(weAre).toMatch(/AI output is never documentary evidence/i);
     expect(informationWar).toMatch(/neither is an AI interpretation/i);
   });
 
   it("does not turn hosted archive material into independent verification", () => {
-    expect(weAre).toMatch(/hosting or machine processing does not by itself establish/i);
+    expect(weAre).toMatch(/machine processing does not upgrade a claim into verified fact/i);
     expect(methodology).toMatch(/does\s+not mean Lions independently re-verified/i);
   });
 
@@ -116,8 +116,8 @@ describe("the funding disclosure is specific rather than deferred", () => {
     expect(weAre).not.toContain("Not yet published in full");
   });
 
-  it("names the funding model and the absence of a backer", () => {
-    expect(weAre).toMatch(/privately funded independent initiative/i);
-    expect(weAre).toMatch(/no institutional, governmental, party or corporate/i);
+  it("names independence without claiming state affiliation", () => {
+    expect(weAre).toMatch(/independent Israeli-built/i);
+    expect(weAre).toMatch(/not a government, military or intelligence-agency project/i);
   });
 });

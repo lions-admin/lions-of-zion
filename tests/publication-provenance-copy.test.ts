@@ -93,7 +93,7 @@ describe("the trust pages describe both pathways, not one", () => {
 
   it("states that AI interpretation is not evidence", () => {
     expect(weAre).toMatch(/AI output is never documentary evidence/i);
-    expect(informationWar).toMatch(/neither is an AI interpretation/i);
+    expect(informationWar).toMatch(/it does not become evidence/i);
   });
 
   it("does not turn hosted archive material into independent verification", () => {

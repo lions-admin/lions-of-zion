@@ -1,0 +1,471 @@
+{
+  "composer": "ChatGPT scheduled whole-site editorial update",
+  "contractVersion": "whole-site-update-v2",
+  "createdAt": "2026-09-11T17:21:33.258Z",
+  "creates": [
+    {
+      "key": "anthropic-iran-influence",
+      "media": {
+        "alt": "Abstract glass speech profiles linked to a red source behind translucent panels.",
+        "caption": "AI-generated editorial illustration of concealed message origins, not a map of the reported network.",
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "generated": true,
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/beb71a602edd4753986a483b09b31cbad23f563ccaa76433ee82dc762b05c4b1.png",
+        "rights": {
+          "basis": "Generated in-house",
+          "clearedAt": "2026-09-11",
+          "reference": "ChatGPT generated file file_0000000035f881fbb612162d8d50f14a; run chatgpt-editorial-2026-09-11-evening-r1; operation anthropic-iran-influence; stored 2026-09-11T17:14:34.235Z; sha256 beb71a602edd4753986a483b09b31cbad23f563ccaa76433ee82dc762b05c4b1",
+          "status": "cleared",
+          "surfaces": [
+            "article",
+            "homepage"
+          ]
+        },
+        "role": "editorial-illustration",
+        "sensitivity": "safe",
+        "sourceUrl": null
+      },
+      "publication": {
+        "body": "Anthropic's September 2026 threat report says it removed three accounts linked to Iranian state-aligned propaganda institutions. The company names the Islamic Culture and Communications Organization, a Khorasan Razavi propaganda office and the Bina Cultural Observatory.\n\nAccording to Anthropic, operators used Claude to prepare campaign plans, personas and institutional documents, and to make state-origin messaging appear independent. The company says attribution relied on account information, institutional references and public-source corroboration, rather than shared opinions alone. It reports some dissemination beyond Claude.\n\nThese are Anthropic's findings. Lions of Zion has not independently examined the underlying account telemetry. Removing accounts disrupts access to one service; it does not establish that the broader organizations stopped operating or that audiences were persuaded.\n\nThe practical distinction is between evidence of concealed sponsorship and mere repetition. Similar language alone cannot identify a controller. For readers, trace the first attributable source, check whether apparently separate outlets cite each other, and look for authenticated organizational links before calling a campaign coordinated.\n\nLast checked: September 11, 2026. Revisit if independent researchers release corroborating evidence, named institutions respond, or platforms document subsequent activity.",
+        "canonicalStoryId": "anthropic-iran-influence-operations-september-2026",
+        "editorialTopic": "AI and Iranian influence operations",
+        "kind": "geopolitical_analysis",
+        "language": "en",
+        "section": "influence_investigation",
+        "summary": "Anthropic identifies three state-aligned accounts and describes attribution laundering. Its report is the primary source, not an independently replicated investigation.",
+        "title": "Anthropic reports Iranian propaganda operations using AI to conceal state origins",
+        "topicTags": [
+          "iran",
+          "ai",
+          "influence-operations",
+          "source-verification"
+        ]
+      },
+      "sources": [
+        {
+          "official": true,
+          "publisher": "Anthropic",
+          "title": "Detecting and countering misuse of AI: September 2026",
+          "url": "https://www.anthropic.com/threat-intelligence-report-september-2026"
+        }
+      ]
+    }
+  ],
+  "homepage": {
+    "fakeResistance": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "operationKey": "anthropic-iran-influence"
+        }
+      },
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "operationKey": "ny-primary-media"
+        }
+      }
+    },
+    "news": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "operationKey": "ridge-primary-media"
+        }
+      },
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "canonicalStoryId": "iran-us-hormuz-maritime-escalation-2026"
+        }
+      }
+    },
+    "people": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "operationKey": "technion-correction-media"
+        }
+      }
+    }
+  },
+  "research": [
+    {
+      "conclusion": "Direct September 11 IDF account added to existing Ali al-Taher canonical story; operational claims attributed and unsupported headline precision removed.",
+      "outcome": "updated",
+      "sourcesReviewed": [
+        "https://www.idf.il/en/mini-sites/idf-press-releases-israel-at-war/september-26-pr/what-happened-in-the-ali-al-taher-ridge/"
+      ],
+      "topic": "Israel and Lebanon"
+    },
+    {
+      "conclusion": "Update the existing canonical record with reported Mayun/Perim seizure. AP search result was retrievable; full-page open failed. Keep the update narrow and attributed; no complete-closure claim.",
+      "outcome": "updated",
+      "sourcesReviewed": [
+        "https://apnews.com/article/025d052a14d9481258d51009a76d0bd6"
+      ],
+      "topic": "Yemen and Bab al-Mandeb"
+    },
+    {
+      "conclusion": "Add bounded September 11 context and distinguish earlier traffic reports from present measurements. Do not publish a live oil quote or unverified diplomatic breakthrough.",
+      "outcome": "updated",
+      "sourcesReviewed": [
+        "https://apnews.com/article/2b126da67b09de2f328846eb656abe0e",
+        "https://www.ft.com/content/ab6f6433-1f23-4153-a02b-7984d14734c6"
+      ],
+      "topic": "Iran, Hormuz and Gulf diplomacy"
+    },
+    {
+      "conclusion": "New attributed report on Anthropic's Iranian state-aligned account findings. One primary investigative source; no independent replication claimed, no audience persuasion inferred.",
+      "outcome": "published",
+      "sourcesReviewed": [
+        "https://www.anthropic.com/threat-intelligence-report-september-2026"
+      ],
+      "topic": "AI, Iranian propaganda and influence networks"
+    },
+    {
+      "conclusion": "Primary survey directly examined: different time window and excluded population limit retrospective conclusions. Correct misleading declaration attribution and unsupported trend.",
+      "outcome": "updated",
+      "sourcesReviewed": [
+        "https://www.unicef.org/sop/media/6811/file/Gaza%20SMART%20Survey%202026_Report.pdf"
+      ],
+      "topic": "Gaza nutrition and famine narrative"
+    },
+    {
+      "conclusion": "Official source establishes September 8 date, announced $70M/290 organizations and physical/cyber security scope; no claim of completed disbursement.",
+      "outcome": "updated",
+      "sourcesReviewed": [
+        "https://www.governor.ny.gov/news/video-audio-photos-rush-transcript-ahead-jewish-high-holidays-governor-hochul-announces"
+      ],
+      "topic": "Antisemitism and community security"
+    },
+    {
+      "conclusion": "May 27 preclinical research was presented with excessive clinical language. Correct the existing feature, avoid treating it as a new September breakthrough and add media.",
+      "outcome": "updated",
+      "sourcesReviewed": [
+        "https://www.technion.ac.il/en/blog/article/medicine-without-drugs-an-israeli-breakthrough-in-nanomedicine/"
+      ],
+      "topic": "Israeli science and medicine"
+    },
+    {
+      "conclusion": "Broad discovery did not yield sufficiently examined primary operational records for another distinct article in this run. Hold further candidates for research, not a claim that nothing happened.",
+      "outcome": "no_action",
+      "sourcesReviewed": [
+        "https://www.justsecurity.org/156946/early-edition-september-11-2026/"
+      ],
+      "topic": "Gaza operations, Syria, Iraq and regional developments"
+    },
+    {
+      "conclusion": "An opposition commitment to a future inquiry does not establish an inquiry has been formed. No sufficiently verified new primary basis for changing the UAE-warning attribution or legislation status; retain existing canonical records pending further research.",
+      "outcome": "no_action",
+      "sourcesReviewed": [
+        "https://www.jpost.com/israel-election-2026/article-907972"
+      ],
+      "topic": "October 7, political accountability and legislation"
+    },
+    {
+      "conclusion": "Inspected all 71 live publication summaries and media flags, 50 canonical stories, current placements and recent runs. Five new illustrations supplied; homepage shifts to current primary-source reporting, influence investigation, community security and corrected science, retaining the existing BGU feature.",
+      "outcome": "updated",
+      "sourcesReviewed": [
+        "https://lionsofzion.io"
+      ],
+      "topic": "Whole-site media and homepage audit"
+    }
+  ],
+  "runId": "chatgpt-editorial-2026-09-11-evening-r1",
+  "siteRecommendations": [
+    "Historical critical edition_missing alert e1302f24-5094-4594-9efa-e0d6df098d57 refers to September 8, while the live homepage edition is September 11. Investigate and reconcile in a separate operational task; no alert suppressed in this run.",
+    "Media backlog baseline: 50 of 71 live records lack hero media. This package addresses four existing records and supplies media for the new investigation. Next priority: recycled-war-footage case, Malkovich fabricated quote, UAE warning explainer, Nir Oz and October 7 testimony-context records; then long-lived explainers, then older briefs.",
+    "Yemen's existing relevant illustration is retained for article use only because its clearance covers article, not homepage. It is not promoted into a homepage slot. No rights were silently expanded.",
+    "Official IDF and New York media were located, but this run did not establish reusable rights for individual external assets. Generated conceptual illustrations are disclosed and must never be presented as documentary evidence.",
+    "The October 7 archive is static and outside this contract; its visible homepage testimony/documentation pair was inspected, not modified.",
+    "Homepage source preview can foreground a secondary or tangential source: the earlier Hormuz card displayed a Yemen AP source and Be'eri displayed a separate sexual-violence review. A separate UI task should support choosing the source most relevant to the displayed claim.",
+    "Source counts are not independence counts: prior run's JNS/BizPac descriptions and institutional science syndication should not be reported as multiple independent confirmations.",
+    "Do not modify application code, styles, schemas, infrastructure, permissions or merge the delivery branch as part of this editorial run."
+  ],
+  "updates": [
+    {
+      "key": "technion-correction-media",
+      "media": {
+        "alt": "Conceptual illustration of translucent particles surrounding a cell-like form.",
+        "caption": "AI-generated editorial illustration. Not microscopy, experimental evidence or an exact depiction of MPsomes.",
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "generated": true,
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/5b662876cd5b635758d0e05593399a53b0e17f0add49294c514eb13197bb9e4a.png",
+        "rights": {
+          "basis": "Generated in-house",
+          "clearedAt": "2026-09-11",
+          "reference": "ChatGPT generated file file_000000001aa481f5b67d77cff802b995; run chatgpt-editorial-2026-09-11-evening-r1; operation technion-correction-media; stored 2026-09-11T17:12:57.348Z; sha256 5b662876cd5b635758d0e05593399a53b0e17f0add49294c514eb13197bb9e4a",
+          "status": "cleared",
+          "surfaces": [
+            "article",
+            "homepage"
+          ]
+        },
+        "role": "editorial-illustration",
+        "sensitivity": "safe",
+        "sourceUrl": null
+      },
+      "publication": {
+        "body": "Technion researchers reported that nanoparticles called MPsomes inhibited triple-negative breast-cancer growth in cell cultures and mouse models. The institution announced the work on May 27, 2026; this is a research feature, not a new September clinical breakthrough.\n\nThe particles act on the tumor's immune environment without carrying a drug payload. That does not make them chemical-free. The work was led by Ofri Vizenblit, assisted by Rawan Mhajne, under Assaf Zinger's supervision, and published in ACS Nano.\n\nThe reported findings support further preclinical development. They do not demonstrate effectiveness in patients, human safety or approval as a cancer treatment. The university itself says the research remains preclinical.\n\nCorrection, September 11: the headline now identifies the experimental setting. The earlier chemical-free wording and speculative implication of reduced toxicity in patients have been removed.\n\nLast checked: September 11, 2026. The next meaningful update would be independently assessed replication, registered human trials or published clinical results.",
+        "changeSummary": "Clarify the May 27 announcement date and preclinical setting; remove chemical-free wording and unsupported clinical extrapolation; attach a disclosed conceptual illustration.",
+        "summary": "A May 27 Technion announcement describes drug-free nanoparticles tested in cells and mice. Human effectiveness and safety remain unproven; drug-free does not mean chemical-free.",
+        "title": "Technion nanoparticles inhibit breast-cancer growth in preclinical models"
+      },
+      "sources": [
+        {
+          "official": true,
+          "publisher": "Technion",
+          "title": "Medicine Without Drugs: An Israeli Breakthrough in Nanomedicine",
+          "url": "https://www.technion.ac.il/en/blog/article/medicine-without-drugs-an-israeli-breakthrough-in-nanomedicine/"
+        }
+      ],
+      "target": {
+        "canonicalStoryId": "technion-mpsome-nanoparticle-breast-cancer-2026"
+      }
+    },
+    {
+      "key": "ridge-primary-media",
+      "media": {
+        "alt": "Abstract stone strata with an interrupted amber line symbolizing a severed underground route.",
+        "caption": "AI-generated editorial illustration. Not a photograph, survey or reconstruction of Ali al-Taher.",
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "generated": true,
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/a0b45af256a09ee79cbae17acbf1c0b58586f5affe8645382cbcf989fb2f764b.png",
+        "rights": {
+          "basis": "Generated in-house",
+          "clearedAt": "2026-09-11",
+          "reference": "ChatGPT generated file file_00000000a664820e85d516af5f7deb32; run chatgpt-editorial-2026-09-11-evening-r1; operation ridge-primary-media; stored 2026-09-11T17:15:31.477Z; sha256 a0b45af256a09ee79cbae17acbf1c0b58586f5affe8645382cbcf989fb2f764b",
+          "status": "cleared",
+          "surfaces": [
+            "article",
+            "homepage"
+          ]
+        },
+        "role": "editorial-illustration",
+        "sensitivity": "safe",
+        "sourceUrl": null
+      },
+      "publication": {
+        "body": "The IDF's September 11 account says troops completed dismantling underground infrastructure beneath the Ali al-Taher ridge in southern Lebanon. It describes routes extending more than two kilometers and a central command complex belonging to Hezbollah's Badr Unit.\n\nThe military says the complex contained command facilities, weapons storage and living quarters, alongside Iranian-made rockets, missiles, drones and other weapons. These are the IDF's operational findings; this desk has not independently surveyed the site.\n\nWhat changed: a direct military account now supplements the media reporting used in the previous version. Multiple outlets repeating that account do not constitute multiple independent inspections.\n\nThe earlier version foregrounded a reported 4.1 seismic reading and roughly 1,100 tons of explosives. Those figures are not supplied by this particular IDF release and are no longer the headline's evidentiary anchor. This change does not establish that the earlier reports were false.\n\nLast checked: September 11, 2026. Revisit with independently documented site evidence, a directly examined seismic record or further official operational detail.",
+        "changeSummary": "Add the September 11 IDF primary account, distinguish it from repeated reporting and independently verified measurements, and attach a clearly non-documentary illustration.",
+        "summary": "The IDF's September 11 release describes more than two kilometers of underground routes and a Badr Unit command complex. Its operational findings remain explicitly attributed to the military.",
+        "title": "IDF says Ali al-Taher underground network dismantled; primary account added"
+      },
+      "sources": [
+        {
+          "official": true,
+          "publisher": "Israel Defense Forces",
+          "title": "What Happened in the Ali al-Taher Ridge?",
+          "url": "https://www.idf.il/en/mini-sites/idf-press-releases-israel-at-war/september-26-pr/what-happened-in-the-ali-al-taher-ridge/"
+        }
+      ],
+      "target": {
+        "canonicalStoryId": "lebanon-ali-al-taher-ridge-2026-09"
+      }
+    },
+    {
+      "key": "ny-primary-media",
+      "media": {
+        "alt": "Illustrated illuminated doorway with blue circuit-like lines and a stylized city backdrop.",
+        "caption": "AI-generated editorial illustration of community and cyber security, not an actual funded site.",
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "generated": true,
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/7331ef3237e920a11e36ef1f15f64aff60258fd9a432ec7ae6e8f58b0f55ffb5.png",
+        "rights": {
+          "basis": "Generated in-house",
+          "clearedAt": "2026-09-11",
+          "reference": "ChatGPT generated file file_00000000976c820ebe055d03179d3bb3; run chatgpt-editorial-2026-09-11-evening-r1; operation ny-primary-media; stored 2026-09-11T17:17:45.741Z; sha256 7331ef3237e920a11e36ef1f15f64aff60258fd9a432ec7ae6e8f58b0f55ffb5",
+          "status": "cleared",
+          "surfaces": [
+            "article",
+            "homepage"
+          ]
+        },
+        "role": "editorial-illustration",
+        "sensitivity": "safe",
+        "sourceUrl": null
+      },
+      "publication": {
+        "body": "New York Governor Kathy Hochul's September 8 announcement says $70 million will be distributed to 290 nonprofit community organizations vulnerable to hate crimes and attacks. The program supports physical facilities, cyber security, staff and the people served by those organizations.\n\nThe state's Securing Communities Against Hate Crimes program is administered by the Division of Criminal Justice Services. The announcement came ahead of the Jewish High Holidays and addressed antisemitism as well as threats to other vulnerable communities.\n\nWhat changed: the primary state release is now attached, replacing reliance on several stories that did not represent independent confirmation of the funding. The record also corrects the announcement date from September 7 to September 8.\n\nThis is an announced distribution, not proof that every award has been paid or that every security upgrade is finished. The prior city crime percentages are omitted from this update pending direct examination of the underlying dataset; city and statewide statistics must not be conflated.\n\nLast checked: September 11, 2026. Next checks: award records, disbursements and implementation.",
+        "changeSummary": "Add the official September 8 release; correct the announcement date, specify physical and cyber security, and separate announced funding from implementation; attach illustration.",
+        "summary": "The September 8 official announcement covers 290 organizations and physical and cyber security. Funding announced is distinct from completed security improvements.",
+        "title": "New York announces $70 million for security at vulnerable nonprofits"
+      },
+      "sources": [
+        {
+          "official": true,
+          "publisher": "New York Governor",
+          "title": "September 8: $70 million to protect vulnerable community organizations",
+          "url": "https://www.governor.ny.gov/news/video-audio-photos-rush-transcript-ahead-jewish-high-holidays-governor-hochul-announces"
+        }
+      ],
+      "target": {
+        "canonicalStoryId": "new-york-antisemitism-hate-crime-response-2026-09"
+      }
+    },
+    {
+      "key": "gaza-survey-primary-media",
+      "media": {
+        "alt": "Two glass windows with distinct landscapes positioned at different points along a light band.",
+        "caption": "AI-generated editorial metaphor for observations at different times. Not Gaza imagery or survey data.",
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "generated": true,
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/4b7336ffe262fca385342d996dbd6643c3ff71a2f36cdcbd3505e6df28cc703a.png",
+        "rights": {
+          "basis": "Generated in-house",
+          "clearedAt": "2026-09-11",
+          "reference": "ChatGPT generated file file_00000000159482099d5964a0470697fa; run chatgpt-editorial-2026-09-11-evening-r1; operation gaza-survey-primary-media; stored 2026-09-11T17:19:05.315Z; sha256 4b7336ffe262fca385342d996dbd6643c3ff71a2f36cdcbd3505e6df28cc703a",
+          "status": "cleared",
+          "surfaces": [
+            "article",
+            "homepage"
+          ]
+        },
+        "role": "editorial-illustration",
+        "sensitivity": "safe",
+        "sourceUrl": null
+      },
+      "publication": {
+        "body": "The claim assessed here is that the 2026 Gaza nutrition survey disproves the 2025 famine finding. UNICEF's own report does not support that inference.\n\nIts executive summary describes data collected from May 31 to June 15, 2026. The accessible survey population represented approximately 83 percent of Gaza's estimated population; about 17 percent was excluded because of access and security constraints. The report says the findings cannot establish conditions in those excluded areas or retrospectively confirm or disprove past assessments.\n\nThe survey reports relatively low acute malnutrition among sampled children alongside other nutritional concerns. Acute malnutrition and longer-term stunting measure different phenomena; one indicator cannot stand for the whole nutritional situation.\n\nWhat changed, September 11: the original survey now anchors the assessment instead of relying on secondary fact-checking. The earlier headline's wording wrongly suggested Israel had declared the famine; that attribution has been corrected. Unverified claims about an official U.S. position and an unmeasured rising trend have been removed.\n\nThe verdict remains limited: using this later snapshot as retrospective disproof is misleading. This article does not settle objections to the original 2025 IPC methodology.",
+        "changeSummary": "Attach UNICEF's primary survey; clarify survey dates, coverage and retrospective limits; correct the headline's declaration attribution and remove unsupported trend and U.S.-position claims; add illustration.",
+        "narrativeWatchDetails": {
+          "arenas": [
+            "News outlets and opinion pages",
+            "X (Twitter)"
+          ],
+          "contradictingEvidenceIds": [],
+          "exactClaim": "Mid-2026 UNICEF-led nutrition data showing improved malnutrition rates in Gaza proves the IPC's August 2025 famine declaration was false or fabricated, and that a famine never actually occurred.",
+          "israeliPosition": "Israel disputed the August 2025 IPC determination. This update evaluates only whether a later survey can retrospectively disprove it; it does not adjudicate the earlier methodological dispute.",
+          "knownUnknowns": [
+            "Conditions in areas excluded from the 2026 survey cannot be inferred from its sample.",
+            "This review does not resolve objections to the original 2025 IPC methodology.",
+            "The reach and growth of the claim have not been independently measured.",
+            "An official State Department characterization has not been directly verified by this desk."
+          ],
+          "propagators": [
+            "The Algemeiner",
+            "JNS.org"
+          ],
+          "securityContext": "The dispute sits inside the broader information contest over humanitarian conditions in Gaza during and after the war, where malnutrition data has been invoked by both critics and defenders of Israel's conduct of the campaign to support opposing conclusions.",
+          "supportingEvidenceIds": [],
+          "trendDirection": "unclear",
+          "verificationState": "misleading"
+        },
+        "summary": "UNICEF's own survey says its May 31 to June 15, 2026 observations cannot retrospectively confirm or disprove earlier conditions. The sample also excluded inaccessible areas.",
+        "title": "Reported claim: a 2026 Gaza nutrition survey disproves the 2025 famine finding"
+      },
+      "sources": [
+        {
+          "official": true,
+          "publisher": "UNICEF",
+          "title": "Gaza SMART Survey 2026, executive summary",
+          "url": "https://www.unicef.org/sop/media/6811/file/Gaza%20SMART%20Survey%202026_Report.pdf"
+        }
+      ],
+      "target": {
+        "canonicalStoryId": "gaza-famine-declaration-dispute-2026"
+      }
+    },
+    {
+      "key": "yemen-mayun-update",
+      "publication": {
+        "body": "Associated Press reported on September 11 that Houthi forces seized Mayun Island, also known as Perim, at the Bab al-Mandeb Strait. This extends the existing western Yemen story from fighting on land and attacks on Saudi infrastructure to a strategically important island.\n\nThe change raises the risk to shipping through the southern entrance to the Red Sea. It does not, by itself, demonstrate that commercial passage has ceased or that all vessel categories face identical restrictions.\n\nThis update relies on identifiable published reporting, not this desk's independent observation of control on the island. Earlier Saudi-infrastructure developments remain in the article's version history. Iranian support for the Houthis does not establish Tehran's command of this particular operation.\n\nLast checked: September 11, 2026. Revisit with independently verified territorial evidence, navigational advisories and measured vessel movements.",
+        "changeSummary": "Update the existing Yemen/Bab al-Mandeb story with September 11 reporting of the Mayun/Perim seizure; distinguish territorial control from a verified maritime closure. Existing relevant illustration retained.",
+        "summary": "September 11 reporting places Houthi forces on Mayun Island at the Red Sea chokepoint. Territorial control increases exposure but does not itself prove a complete shipping closure.",
+        "title": "Houthis reportedly seize Mayun Island, raising Bab al-Mandeb shipping risk"
+      },
+      "sources": [
+        {
+          "official": false,
+          "publisher": "Associated Press",
+          "title": "Yemen's Iranian-backed Houthis seize an island in a key strait",
+          "url": "https://apnews.com/article/025d052a14d9481258d51009a76d0bd6"
+        }
+      ],
+      "target": {
+        "canonicalStoryId": "yemen-bab-al-mandeb-fighting-2026"
+      }
+    },
+    {
+      "key": "hormuz-latest-context",
+      "publication": {
+        "body": "September 11 update: Associated Press describes partial U.S. progress in reopening passage through Hormuz while the confrontation with Iran remains unresolved. This is not evidence of normalized commercial traffic or a concluded war.\n\nThe assessment is time-sensitive. The September 8 tanker-strike account and earlier traffic observations below describe earlier stages, not a live vessel count. New Houthi territorial gains near Bab al-Mandeb add a separate shipping exposure; the two straits should not be treated as a single measured blockade.\n\nLast checked: September 11, 2026. Next checks: current vessel movements, official navigation advisories and directly documented diplomatic developments.\n\nEarlier reporting retained for context:\n\nThe U.S.-Iran maritime confrontation around the Strait of Hormuz has escalated again. U.S. Central Command said on September 8 that American forces destroyed five Iranian crude oil carriers after the Islamic Revolutionary Guard Corps targeted a U.S. Navy warship with ballistic missiles twice over the preceding two days.\n\nCENTCOM said the warship evaded the attacks and no American personnel were harmed. It identified the struck vessels and said crews were directed to abandon ship before the carriers were rendered inoperable. These details are the U.S. military's account and remain attributed as such.\n\nThe new strikes follow CENTCOM's September 5 announcement that it had disabled or destroyed three other Iranian crude carriers after attempted attacks on U.S. warships. The pattern is now sustained enough to warrant a canonical developing-story identity rather than another duplicate article.\n\nCommercial traffic is also showing a measurable response. Reuters, using Kpler ship-tracking data, reported a severe short-term slowdown around Hormuz after the tanker attacks. Vessel counts are evidence of traffic disruption, not proof that every vessel class has stopped or that the strait is physically closed.\n\nThe previous version focused on Tehran's retaliation threats, a proposed restricted maritime zone and earlier traffic declines. The September 8-9 evidence is a material escalation: additional tankers have been struck and commercial movement remains under acute pressure.\n\nWhat to watch next: updated Kpler or comparable traffic data, independently verified vessel damage, publication of Iran's proposed restricted-zone coordinates, further U.S. or Iranian strikes and whether commercial movement recovers. Severe disruption should not be silently converted into a claim of permanent blockade.",
+        "changeSummary": "Add September 11 context, replace the dated tanker-count headline and label earlier traffic and military accounts as earlier reporting. Existing cleared illustration retained.",
+        "summary": "September 11 reporting describes partial U.S. progress on passage through Hormuz alongside an unresolved war. Earlier tanker-strike details remain attributed to CENTCOM.",
+        "title": "Hormuz remains contested as U.S. pressure on Iran continues"
+      },
+      "sources": [
+        {
+          "official": false,
+          "publisher": "Associated Press",
+          "title": "The US has made progress in reopening the Strait of Hormuz, but the Iran war is far from over",
+          "url": "https://apnews.com/article/2b126da67b09de2f328846eb656abe0e"
+        }
+      ],
+      "target": {
+        "canonicalStoryId": "iran-us-hormuz-maritime-escalation-2026"
+      }
+    }
+  ],
+  "vetoes": [
+    {
+      "candidate": "Another new Ali al-Taher demolition article",
+      "key": "duplicate-ridge",
+      "reason": "Existing canonical story already covers the event; update it with primary sourcing and media.",
+      "replacement": "ridge-primary-media"
+    },
+    {
+      "candidate": "Separate Mayun article repeating the developing Yemen story",
+      "key": "duplicate-yemen",
+      "reason": "Same continuing western Yemen/Bab al-Mandeb conflict; update the canonical record.",
+      "replacement": "yemen-mayun-update"
+    },
+    {
+      "candidate": "Chemical-free cancer treatment works in humans",
+      "key": "clinical-overclaim",
+      "reason": "The primary source describes preclinical experiments; drug-free is not chemical-free and patient benefit is unproven.",
+      "replacement": "technion-correction-media"
+    },
+    {
+      "candidate": "Declare a coordinated campaign from matching social posts",
+      "key": "coordination-by-repetition",
+      "reason": "Repeated wording does not establish common control. Report only Anthropic's specifically attributed institutional findings."
+    },
+    {
+      "candidate": "Mayun seizure proves Bab al-Mandeb is closed to all shipping",
+      "key": "maritime-closure",
+      "reason": "Territorial gains alone do not establish a total navigation closure; current advisories and vessel data are needed."
+    },
+    {
+      "candidate": "Publish additional Gaza/West Bank named-operative casualty claims from discovery summaries",
+      "key": "gaza-operational-casualties",
+      "reason": "No adequately examined direct operational source for these specific attributions in this run. Further research required."
+    }
+  ]
+}

@@ -13,7 +13,9 @@
     "jumps jumps";
   align-items: end;
   gap: var(--sp-5) var(--sp-7);
-  padding-block: clamp(var(--sp-5), 4vw, var(--sp-7)) 0;
+  /* One step less air above the kicker (2026-09-11): the masthead was
+     spending most of a laptop viewport before the first record. */
+  padding-block: clamp(var(--sp-4), 3vw, var(--sp-6)) 0;
   border-bottom: var(--line-w) solid var(--line-strong);
   scroll-margin-top: var(--header-h);
 }
@@ -51,12 +53,16 @@
   background: currentColor;
 }
 
+/* The display role itself, no longer a size above it (2026-09-11). At 5rem
+   "The People of Israel" broke onto two lines and pushed the first profile
+   below the fold; the hub name is the page's h1 and the display role is what
+   an h1 is. The phone rule below keeps its own size. */
 .title {
   max-width: none;
   margin: 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: clamp(2.75rem, 1.4rem + 4.8vw, 5rem);
+  font-size: var(--t-display);
   font-weight: var(--t-display-weight);
   line-height: 1.02;
   letter-spacing: -0.03em;
@@ -86,7 +92,9 @@
   max-width: 28ch;
   margin: 0;
   padding-bottom: var(--sp-2);
-  color: var(--ink-lo);
+  /* Full ink (2026-09-11): "Updated … Jerusalem time" is how old the front
+     is, and in the muted step it was the least readable line on it. */
+  color: var(--ink);
   font-family: var(--face-text);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
@@ -95,7 +103,7 @@
 }
 
 .status time {
-  color: var(--ink);
+  color: var(--ink-hi);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
@@ -109,16 +117,19 @@
   grid-area: jumps;
   display: flex;
   flex-wrap: wrap;
-  gap: 0 var(--sp-5);
+  gap: 0 var(--sp-6);
   margin-bottom: calc(-1 * var(--line-w));
 }
 
+/* Plain links on a rule, never chips (UX-17). A step taller than the 44px
+   floor and a step further apart, in full ink, so the row reads as the
+   front's contents rather than as its fine print. */
 .jump {
   position: relative;
   display: inline-flex;
   align-items: center;
-  min-height: var(--control-h);
-  color: var(--ink-lo);
+  min-height: calc(var(--control-h) + var(--sp-1));
+  color: var(--ink);
   font-family: var(--face-navigation);
   font-size: var(--t-caption);
   font-weight: var(--t-caption-weight);

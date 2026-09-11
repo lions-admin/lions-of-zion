@@ -47,14 +47,17 @@
   margin: 0;
   padding-block: var(--sp-4);
   border-bottom: var(--line-w) solid var(--line);
-  color: var(--ink-lo);
+  /* Full ink, not muted (2026-09-11): on the live page this sentence was the
+     hardest line above the fold to read, and it is the one that says how old
+     everything under it is. */
+  color: var(--ink);
   font-family: var(--face-text);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
 }
 
 .editionStatus time {
-  color: var(--ink);
+  color: var(--ink-hi);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
@@ -130,7 +133,7 @@
   align-items: baseline;
   gap: var(--sp-1) var(--sp-3);
   margin: 0;
-  color: var(--ink-lo);
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 
@@ -179,7 +182,7 @@
   gap: var(--sp-1) var(--sp-3);
   min-width: 0;
   margin: 0;
-  color: var(--ink-lo);
+  color: var(--ink);
   font-family: var(--face-text);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
@@ -357,12 +360,16 @@
   border-inline-end: var(--line-w) solid var(--line);
 }
 
+/* The ceiling came down from 4.25rem (2026-09-11): a long lead title at 68px
+   in a two-thirds column was a five-line wall before the summary. The measure
+   widens as the size drops, so the lines get fewer rather than just smaller.
+   The phone rule below keeps its own 2rem floor. */
 .newsLead h3 {
-  max-width: 22ch;
+  max-width: 26ch;
   margin: 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: clamp(2.25rem, 1.2rem + 3.6vw, 4.25rem);
+  font-size: clamp(2.25rem, 1.2rem + 2.4vw, 3.25rem);
   font-weight: 400;
   line-height: 1.06;
   letter-spacing: -0.028em;
@@ -400,14 +407,22 @@
   margin: 0;
 }
 
-.leadMedia img {
+/* The lead picture's plate (`app/globals.css` `.mediaPlate`), with its edge
+   in the decorative gold line: the one image on this front that outranks the
+   rest, marked the way the homepage marks its own lead. The rail below stays
+   on the plain plate. */
+.leadFrame {
+  composes: mediaPlate from global;
+  border-color: var(--gold-line);
+  border-radius: var(--radius-2);
+}
+
+.leadFrame img {
   display: block;
   inline-size: 100%;
   block-size: auto;
   aspect-ratio: 16 / 9;
   object-fit: cover;
-  border-radius: var(--radius-2);
-  border: var(--line-w) solid var(--line);
 }
 
 .leadMedia figcaption {
@@ -445,12 +460,12 @@
 .newsTimeline li.timelineWithMedia { grid-template-columns: minmax(0, 1fr) auto; }
 
 .timelineThumb {
+  composes: mediaPlate from global;
   inline-size: 4.5rem;
   block-size: 4.5rem;
   align-self: start;
   object-fit: cover;
   border-radius: var(--radius-1);
-  border: var(--line-w) solid var(--line);
 }
 
 /* The archive row is a single column until a picture arrives, at which point
@@ -473,12 +488,12 @@
 }
 
 .rowThumb {
+  composes: mediaPlate from global;
   inline-size: 7rem;
   block-size: auto;
   aspect-ratio: 4 / 3;
   object-fit: cover;
   border-radius: var(--radius-1);
-  border: var(--line-w) solid var(--line);
 }
 
 .newsSidebar {
@@ -494,7 +509,7 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   margin: 0 0 var(--sp-3);
-  color: var(--ink-lo);
+  color: var(--ink);
 }
 
 .newsTimeline {
@@ -513,7 +528,12 @@
   gap: var(--sp-4);
   padding-block: var(--sp-4);
   border-bottom: var(--line-w) solid var(--line);
+  transition: border-color var(--dur-fast) var(--ease-out);
 }
+
+/* A rail entry answers as one record: its closing rule firms up, the way a
+   `Card` row does. The rail keeps no gold — that is the lead's. */
+.newsTimeline li:hover { border-bottom-color: var(--line-strong); }
 
 .newsTimeline time {
   font-family: var(--face-data);
@@ -522,7 +542,7 @@
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking-tight);
   display: block;
-  color: var(--ink-lo);
+  color: var(--ink);
 }
 
 .newsTimeline h3 {
@@ -852,7 +872,10 @@
 .liveList .liveRow {
   gap: var(--sp-2);
   padding-block: var(--sp-5);
+  transition: border-color var(--dur-fast) var(--ease-out);
 }
+
+.liveList .liveRow:hover { border-bottom-color: var(--line-strong); }
 
 .liveList time {
   color: var(--ink-lo);
@@ -983,11 +1006,20 @@
   .filterBar > a { width: 100%; }
 }
 
+/* The lead record's picture moves 2% inside its plate when the record is
+   hovered or holds keyboard focus. Only with motion allowed, and only the
+   lead: a thumbnail at 72px would move a pixel and say nothing. */
+@media (prefers-reduced-motion: no-preference) {
+  .newsLead:is(:hover, :has(a:focus-visible)) .leadFrame img { transform: scale(1.02); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .readLink,
   .readLink > span,
   .archiveChevron,
-  .archiveTitle > span:first-child { transition: none; }
+  .archiveTitle > span:first-child,
+  .newsTimeline li,
+  .liveList .liveRow { transition: none; }
   .readLink:hover > span { transform: none; }
 }
 

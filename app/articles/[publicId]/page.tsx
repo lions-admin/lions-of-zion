@@ -308,6 +308,7 @@ export default async function ArticlePage({ params }: Props) {
          backdrop with it, and there is no section list in this file. */
       register={publicationSupportsInvestigationExplorer(article.section) ? "muted" : "silent"}
       className={styles.page}
+      progressTrackClassName={styles.progressTrack}
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <article className={styles.article} id="page-content">

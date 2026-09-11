@@ -204,7 +204,7 @@ looking for a `repo.ts` that was never meant to exist:
 flowchart TB
     W["A versioned write<br/>recordVersion()"] -->|"same transaction"| OB[("outbox table")]
 
-    OB --> Drain["GET /api/internal/cron/outbox-drain<br/>requireCron, every 15 min, 250 rows"]
+    OB --> Drain["GET /api/internal/cron/outbox-drain<br/>requireCron, run by hand, 250 rows"]
     Drain -->|"dispatchToQueue"| Q{{"Vercel Queue<br/>topic: outbox-dispatch"}}
     Q --> Disp["POST /api/internal/queue/outbox-dispatch<br/>queue trigger, no public URL"]
     Disp --> Cons["server/jobs/consumers<br/>consumerFor(topic)"]
@@ -234,6 +234,13 @@ The drain is the path that cannot lose a job: it runs with no dependency on
 Vercel Queues at all, and a row that fails to dispatch simply stays pending
 with a backoff.
 
+**The drain has no schedule.** `vercel.json` carries no `crons` array (owner
+ruling, 2026-09-08), so nothing drains the outbox on its own: a drain runs when
+someone runs it — `POST /api/v1/admin/console/outbox/drain`, or `outbox-drain`
+in the **Operations tick** workflow (`.github/workflows/ops-tick.yml`,
+`workflow_dispatch` only). See "There are no crons" in
+[`../AGENTS.md`](../AGENTS.md).
+
 **`TOPICS` in `server/core/outbox.ts` is the whole list, and `item.detected` is
 not in it.** A reader who finds a consumer with no producer should know that is
 deliberate. Retiring a topic is two deploys, not one: the producers go and the
@@ -257,16 +264,16 @@ can be no undrained row to acknowledge.
 
 **The drain limit is a throughput, and it was sized by an edition's reindex
 burst.**
-`DEFAULT_DRAIN_LIMIT` is 250; the cron runs every 15 minutes, so that is 1,000
-rows an hour. One edition materializes roughly a claim per paragraph and emits
-a `search.reindex` for each — about 190 rows arriving at once. At the previous
-limit of 25 that took eight ticks, so a story published at 05:00 was not
-searchable until nearly 07:00. At 250 it drains on the first tick with room for
-a double-length edition and whatever ordinary traffic accumulated alongside it.
+`DEFAULT_DRAIN_LIMIT` is 250 rows per drain run. One edition materializes
+roughly a claim per paragraph and emits a `search.reindex` for each — about 190
+rows arriving at once. At the previous limit of 25 that took eight ticks (when
+the drain still ran every 15 minutes), so a story published at 05:00 was not
+searchable until nearly 07:00. At 250 it drains in one run with room for a
+double-length edition and whatever ordinary traffic accumulated alongside it.
 The ceiling is the route's `maxDuration = 60`: each row costs one queue `send`
 and one single-row `UPDATE`, so 250 finishes well inside the budget even at a
 pessimistic 150ms a row. Overshooting is not destructive either, since
-`published_at` commits per row and the next tick resumes from where a timeout
+`published_at` commits per row and the next drain resumes from where a timeout
 stopped.
 
 ### Ingestion → publication
@@ -483,8 +490,9 @@ calls it, deliberately: see the known gaps below and `.ai/DECISIONS.md`.
 
 Two mechanisms exist, at different levels of readiness:
 
-- **Route-level guards.** `requireCron` (Vercel signs every cron invocation
-  with `Authorization: Bearer $CRON_SECRET` once the env var exists) and
+- **Route-level guards.** `requireCron` (`Authorization: Bearer $CRON_SECRET`
+  — the header Vercel Cron used to send; with no `crons` in `vercel.json` it is
+  now sent by the **Operations tick** workflow or a manual call) and
   `requireInternalSecret` (`x-internal-secret`, for routes Vercel does not
   sign). Deliberately different secrets — reusing one would mean rotating
   either silently breaks the other.
@@ -567,10 +575,11 @@ separate data boundaries.
 | Vercel Blob | RSS bytes and archive media | `BLOB_READ_WRITE_TOKEN`, archive-prefixed variables | RSS stores + dedicated archive store |
 | Vercel AI Gateway | chat, embeddings, briefing triage and draft | Vercel OIDC in linked Functions | provisioned, $5 Gateway cap |
 | Vercel Queues | outbox dispatch and package execution | OIDC (`vercel link`, `vercel env pull`) | `outbox-dispatch` only — hyphen, never a dot: the queue API refuses any other character at `send()` |
-| Vercel Cron | ingest, embed, drain, maintenance | `CRON_SECRET` | four schedules in `vercel.json` |
+| Vercel Cron | nothing | — | **not used**: `vercel.json` has no `crons` array since 2026-09-08 (owner ruling). ingest, embed, drain and maintenance run by hand from the `workflow_dispatch`-only **Operations tick** workflow (all four) or the admin console (collect-sweep, drain, maintenance tick), authenticated by `CRON_SECRET` |
 
-The queue's absence is not fatal for the outbox: the drain cron dispatches
-straight to it and retries on the next tick if unreachable. Production has the
+The queue's absence is not fatal for the outbox: the drain dispatches straight
+to it and, if it is unreachable, leaves the row pending for the next drain run.
+Production has the
 topics configured; Preview is isolated and cannot write its messages to
 Production — and `runStage` refuses outright when `appEnv()` is `preview`, so a
 Preview deploy cannot spend Gateway budget or publish an edition.

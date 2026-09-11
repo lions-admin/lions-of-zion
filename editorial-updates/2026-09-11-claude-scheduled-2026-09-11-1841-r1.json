@@ -1,0 +1,187 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "claude-scheduled-2026-09-11-1841-r1",
+  "composer": "Claude scheduled editorial agent",
+  "createdAt": "2026-09-11T15:41:00.000Z",
+  "creates": [
+    {
+      "key": "gaza-famine-claims-narrative-watch",
+      "publication": {
+        "kind": "geopolitical_analysis",
+        "section": "narrative_watch",
+        "canonicalStoryId": "gaza-famine-declaration-dispute-2026",
+        "title": "Reported claim: UNICEF nutrition data proves Israel's declared Gaza famine never happened",
+        "summary": "Several outlets and the U.S. State Department have pointed to improved mid-2026 UNICEF nutrition data in Gaza as proof the UN-backed IPC's August 2025 famine declaration was false. An independent Snopes fact-check found the claim compares two different time periods and does not hold up, without resolving Israel's separate, still-contested objection to the original 2025 methodology.",
+        "body": "Since the UN-backed Integrated Food Security Phase Classification (IPC) declared a famine in Gaza Governorate in August 2025 -- a declaration Israel rejected at the time as resting on \"partial, biased\" data it said originated with Hamas -- a newer round of data has become the center of its own dispute.\n\nA UNICEF-led nutrition survey, reported in mid-2026 after a ceasefire and a scale-up in humanitarian aid, found acute malnutrition rates in Gaza as low as those in neighboring countries. Several outlets, including the Algemeiner and JNS, and separately the U.S. State Department, characterized that finding as evidence that the original famine declaration was overstated or false -- with one headline describing the newer data as \"dispelling\" the Gaza famine narrative entirely.\n\nThat characterization does not hold up under scrutiny. A Snopes fact-check of the claim found no evidence that UNICEF or the IPC themselves ever described the mid-2026 data as contradicting the 2025 famine finding. The nutrition survey measured conditions roughly nine months after the period the IPC's famine determination covered -- after a ceasefire took hold and humanitarian access improved -- and, in Snopes's words, the newer data \"does not tell us what conditions were in August 2025, and it was never designed to.\" A separate Famine Review Committee report from December 2025 reiterated that famine conditions had existed in Gaza Governorate during the July-to-mid-August 2025 window the original declaration addressed.\n\nSo two separate claims are being conflated. The first -- that conditions in Gaza were significantly better by mid-2026 than during the acute crisis a year earlier -- is well supported and, on its own, a genuinely positive development worth reporting on its own terms. The second -- that this later improvement retroactively disproves the original 2025 famine finding -- compares two different time periods to reach a conclusion neither dataset was designed to support.\n\nThis desk is not taking a position here on whether the IPC's original August 2025 methodology itself was sound; Israel's objection to that methodology is a separate, still-contested question this piece does not resolve. What can be said with confidence, on the specific claim examined here, is that citing the newer UNICEF data as proof the famine \"never happened\" is a misleading use of more recent, more encouraging figures to answer a question they were not designed to answer.\n\nWhat a reader can do: when a headline claims a new report \"disproves\" or \"dispels\" an earlier finding, check what time period each dataset actually covers before accepting that they describe the same thing.",
+        "language": "en",
+        "editorialTopic": "Gaza humanitarian data dispute",
+        "topicTags": ["gaza", "famine", "unicef", "fact-check", "information-war", "humanitarian-aid"],
+        "primaryActor": "IPC, UNICEF, and commentators disputing the 2025 famine declaration",
+        "arena": "News outlets and social media",
+        "narrativeWatchDetails": {
+          "exactClaim": "Mid-2026 UNICEF-led nutrition data showing improved malnutrition rates in Gaza proves the IPC's August 2025 famine declaration was false or fabricated, and that a famine never actually occurred.",
+          "propagators": ["The Algemeiner", "JNS.org", "U.S. State Department (per Fox News reporting)"],
+          "arenas": ["News outlets and opinion pages", "X (Twitter)"],
+          "trendDirection": "rising",
+          "israeliPosition": "Israel's government rejected the original August 2025 IPC famine determination at the time, calling it based on \"partial, biased\" data it said originated from Hamas, and Netanyahu stated Israel does not have a policy of starvation. Israeli officials and Israel-aligned outlets have since pointed to the improved mid-2026 UNICEF nutrition figures as vindication of that rejection.",
+          "securityContext": "The dispute sits inside the broader information contest over humanitarian conditions in Gaza during and after the war, where malnutrition data has been invoked by both critics and defenders of Israel's conduct of the campaign to support opposing conclusions.",
+          "supportingEvidenceIds": [],
+          "contradictingEvidenceIds": [],
+          "verificationState": "misleading",
+          "knownUnknowns": [
+            "Whether the IPC's original August 2025 methodology was itself sound is a separate dispute this piece does not resolve.",
+            "The full reach and virality of the 'UNICEF disproves famine' framing across platforms was not independently quantified by this desk.",
+            "Whether the State Department's characterization reflects an official, on-the-record analytic judgment or a press-line summary was not independently confirmed beyond the Fox News report of it."
+          ]
+        }
+      },
+      "sources": [
+        { "url": "https://www.snopes.com/fact-check/gaza-famine-unicef-date/", "title": "UNICEF report didn't disprove famine in Gaza, contrary to claims", "publisher": "Snopes" },
+        { "url": "https://www.algemeiner.com/2026/08/07/unicef-report-dispels-gaza-famine-narrative-enclave-less-malnourished-than-finland/", "title": "UNICEF Report Dispels Gaza Famine Narrative, Enclave Less Malnourished Than Finland", "publisher": "The Algemeiner" },
+        { "url": "https://www.jns.org/unicef-data-show-there-was-no-famine-in-gaza/", "title": "UNICEF data show there was no famine in Gaza", "publisher": "JNS.org" },
+        { "url": "https://www.commondreams.org/news/unicef-gaza-famine", "title": "Genocide Deniers Call Gaza Starvation a 'Hoax' by Citing UNICEF -- Which Reported Famine", "publisher": "Common Dreams" },
+        { "url": "https://www.npr.org/2025/08/22/nx-s1-5509964/famine-gaza-israel-middle-east-un", "title": "Famine confirmed in northern Gaza, says U.N.-backed panel", "publisher": "NPR" }
+      ]
+    },
+    {
+      "key": "ny-antisemitism-70m-grants",
+      "publication": {
+        "kind": "news_update",
+        "section": "antisemitism",
+        "canonicalStoryId": "new-york-antisemitism-hate-crime-response-2026-09",
+        "title": "New York state to direct $70 million to Jewish and other hate-crime-vulnerable nonprofits as antisemitic incidents rise",
+        "summary": "Governor Kathy Hochul announced $70 million in New York state grants for 290 nonprofits vulnerable to hate crimes, ahead of the Jewish High Holidays. The announcement came alongside data showing confirmed anti-Jewish hate crimes in New York City up 8% year-over-year in 2026, with Jews the target of the majority of the city's confirmed hate crimes.",
+        "body": "New York Governor Kathy Hochul announced on September 7 that the state will distribute $70 million in grants to 290 nonprofit community organizations the state says are \"vulnerable to hate crimes and attacks due to their ideology, beliefs or mission,\" during a visit to a kosher supermarket in the Kew Gardens Hills neighborhood of Queens ahead of the Jewish High Holidays.\n\n\"The Jewish community has been subjected to horrible, horrible acts of antisemitism,\" Hochul told JNS in comments published around the announcement. \"It's on the rise, and we have to do something about it... I want Jewish New Yorkers to know that I will always be there for them.\"\n\nThe funding announcement arrived alongside new data on anti-Jewish hate crimes in New York City. According to figures reported by JNS, confirmed anti-Jewish hate crimes in the city were up 8 percent so far in 2026 compared to the same period in 2025 -- 229 incidents, up from 212 -- and Jews have been the target of 53.9 percent of all confirmed hate crimes recorded in the city this year, a share far exceeding the Jewish share of the city's population. The city also said it would step up police presence at synagogues for the High Holidays.\n\nSome Jewish communal leaders, including the Zionist Organization of America's Morton Klein, described \"little comfort\" in what they characterized as \"minor fluctuations\" in the monthly data, arguing that a slight month-to-month dip does not change an elevated year-over-year trend that has persisted since October 7, 2023.\n\nWhat this means in practice: the $70 million is directed at nonprofit organizations' physical security and programming, not at individuals. Community security organizations continue to recommend that individuals and institutions report suspected hate crimes to local police so incidents are captured in the data driving decisions like this one.",
+        "language": "en",
+        "editorialTopic": "Antisemitism and hate-crime policy, United States",
+        "topicTags": ["antisemitism", "united-states", "new-york", "hate-crime", "security-funding"],
+        "primaryActor": "New York Governor Kathy Hochul",
+        "arena": "New York, United States"
+      },
+      "sources": [
+        { "url": "https://www.jns.org/news/u-s-news/ill-always-be-there-for-jewish-new-yorkers-hochul-tells-jns-ahead-of-high-holidays", "title": "'I'll always be there' for Jewish New Yorkers, Hochul tells JNS ahead of High Holidays", "publisher": "JNS.org" },
+        { "url": "https://www.jns.org/news/u-s-news/anti-jewish-hate-crimes-in-nyc-down-slightly-in-august-from-2025-but-up-in-first-eight-months-of-2026-over-span-last-year", "title": "As High Holidays loom, Jewish leaders say 'little comfort' in 'minor fluctuations' in new NYC data on anti-Jewish hate crimes", "publisher": "JNS.org" },
+        { "url": "https://www.jns.org/news/u-s-news/scoop-ny-state-to-distribute-70-million-to-nonprofits-vulnerable-to-hate-crimes", "title": "SCOOP: NY state to distribute $70 million to nonprofits vulnerable to hate crimes", "publisher": "JNS.org" },
+        { "url": "https://www.bizpacreview.com/2026/09/08/kathy-hochul-announces-70000000-in-new-grants-in-effort-to-protect-against-hate-crimes-antisemitism-1658066/", "title": "Kathy Hochul announces $70,000,000 in new grants in effort to protect against hate crimes, antisemitism", "publisher": "BizPac Review" }
+      ]
+    },
+    {
+      "key": "technion-drug-free-nanoparticle-breast-cancer",
+      "publication": {
+        "kind": "news_update",
+        "section": "science_medicine",
+        "canonicalStoryId": "technion-mpsome-nanoparticle-breast-cancer-2026",
+        "title": "Technion researchers halt aggressive breast cancer growth with drug-free nanoparticles",
+        "summary": "Technion-Israel Institute of Technology researchers engineered nanoparticles, called MPsomes, that inhibit triple-negative breast cancer tumor growth by acting on the tumor's immune microenvironment rather than releasing any drug. Published in ACS Nano, the preclinical work points toward a possible chemical-free treatment for one of breast cancer's hardest-to-treat forms.",
+        "body": "Researchers at the Technion-Israel Institute of Technology have developed a nanoparticle treatment that halts the growth of aggressive triple-negative breast cancer tumors without using any chemotherapy drug -- a \"medicine without drugs\" approach the university says could open a chemical-free path for one of the hardest cancers to treat.\n\nTriple-negative breast cancer lacks the three receptors most breast-cancer drugs target, making it unusually aggressive and resistant to standard therapy. Rather than attacking the cancer cells directly, the Technion team's nanoparticles -- engineered structures the researchers call MPsomes -- target the environment surrounding the tumor instead. The particles act as a biological decoy, competing with harmful immune cells for binding sites in the tumor microenvironment and delivering their own biological signal to the tissue and immune cells around the tumor.\n\nIn cell-culture and preclinical mouse-model testing, the particles accumulated at high concentrations around the tumor and inhibited its growth with effectiveness the researchers describe as comparable to existing drug treatments -- without a single drug molecule being released. The work, led by Ofri Vizenblit and Rawan Mhajne under the supervision of Assistant Professor Assaf Zinger at the Technion's Wolfson Faculty of Chemical Engineering, was published in the peer-reviewed journal ACS Nano.\n\nThe research remains at the preclinical stage: it has been tested in cell cultures and in mice, not yet in human clinical trials, and the university's own announcement frames the approach as a promising direction rather than an approved treatment. If it eventually reaches the clinic, a chemical-free method of halting an aggressive cancer's growth would sidestep some of the toxicity that limits how much conventional chemotherapy a patient can tolerate.\n\nThe project is one entry in a wider pattern of Israeli life-science research aimed at re-engineering how the immune system itself is recruited against disease, rather than only searching for new drug compounds.",
+        "language": "en",
+        "editorialTopic": "Israeli medical and scientific research",
+        "topicTags": ["science", "medicine", "cancer-research", "technion", "nanotechnology", "innovation"],
+        "primaryActor": "Technion-Israel Institute of Technology",
+        "arena": "Israel"
+      },
+      "sources": [
+        { "url": "https://www.technion.ac.il/en/blog/article/medicine-without-drugs-an-israeli-breakthrough-in-nanomedicine/", "title": "Medicine Without Drugs: An Israeli Breakthrough in Nanomedicine", "publisher": "Technion-Israel Institute of Technology", "official": true },
+        { "url": "https://pubs.acs.org/ancac3/article-split/20/8/7001/5151846/Drug-free-Immunotherapeutic-Biomimetic", "title": "Drug-free Immunotherapeutic Biomimetic Nanoparticles for Treating Triple-Negative Breast Cancer", "publisher": "ACS Nano" },
+        { "url": "https://www.timesofisrael.com/israeli-drug-free-nanomedicine-gives-fresh-hope-in-battling-aggressive-breast-cancer/", "title": "Israeli drug-free nanomedicine gives fresh hope in battling aggressive breast cancer", "publisher": "The Times of Israel" },
+        { "url": "https://www.eurekalert.org/news-releases/1132444", "title": "Medicine without drugs: An Israeli breakthrough in nanomedicine", "publisher": "EurekAlert!" },
+        { "url": "https://phys.org/news/2026-06-drug-free-nanoparticles-tumor-growth.html", "title": "Drug-free nanoparticles stop tumor growth by transmitting biological messages to immune cells", "publisher": "Phys.org" }
+      ]
+    }
+  ],
+  "updates": [
+    {
+      "key": "lebanon-ali-taher-tunnel-demolition-update",
+      "target": { "canonicalStoryId": "lebanon-ali-al-taher-ridge-2026-09" },
+      "publication": {
+        "changeSummary": "Adds the September 10 demolition of the Hezbollah tunnel network beneath Ali al-Taher ridge -- roughly 1,100 tons of explosives, a magnitude-4.1 seismic reading, and the weapons the IDF says it recovered -- to the developing story of Israel's control of the ridge.",
+        "title": "Israel demolishes Hezbollah's fortified tunnel network beneath Lebanon's Ali al-Taher ridge, registering as a 4.1-magnitude tremor",
+        "summary": "The IDF says it used about 1,100 tons of explosives to destroy a two-kilometer Hezbollah tunnel network beneath the Ali al-Taher ridge it took control of earlier this month, an operation strong enough to register as a 4.1-magnitude seismic event. Israel says the tunnels served as the nerve center of Hezbollah's Badr regional division and held Iranian-made rockets, missiles, drones and mines.",
+        "body": "Israeli forces have destroyed the Hezbollah tunnel network beneath the Ali al-Taher ridge near Nabatieh in southern Lebanon, the position Israel said it took control of earlier this month after two decades of Hezbollah fortification financed in part by Iran.\n\nAccording to Israeli and international reporting, IDF combat engineers used roughly 1,100 tons of explosives to collapse two tunnel shafts spanning more than two kilometers underneath the ridge. The blast was powerful enough that a magnitude 4.1 seismic event was recorded in the area -- a reported consequence of the demolition rather than a natural earthquake, though Lebanese residents reported it as a large explosion.\n\nThe IDF said the tunnel complex functioned as the \"nerve center\" of Hezbollah's Badr regional division, the unit responsible for the area north of the Litani River, and that forces recovered dozens of Iranian-made rockets, missiles and drones inside it, along with firearms, anti-tank missiles and hundreds of mines and other explosives.\n\nThis is the latest development in a story this desk has followed since Israel first announced it had cleared the ridge in early September. Hezbollah's public posture has continued to downplay the losses at Ali al-Taher rather than announce escalation, even as Israel systematically dismantles the infrastructure found there. Iran had reportedly warned Washington, via Omani intermediaries, that a full-scale offensive on the ridge could draw a large-scale Iranian response; no response tied specifically to this location had been reported as of this writing.\n\nWhat to watch next: whether further tunnel or weapons-cache discoveries follow at Ali al-Taher, whether Hezbollah's restrained public response continues to hold, and whether Iran's reported warning translates into any action.",
+        "topicTags": ["lebanon", "hezbollah", "iran", "idf", "nabatieh", "regional-security", "tunnel-warfare"]
+      },
+      "sources": [
+        { "url": "https://www.france24.com/en/middle-east/20260910-israel-hezbollah-tunnels-lebanon-earthquake", "title": "Israel destroys Hezbollah tunnel network in south Lebanon, triggering 4.1-magnitude tremor", "publisher": "France 24" },
+        { "url": "https://www.thejc.com/news/israel/idf-uses-1-100-tons-of-explosive-to-blow-up-huge-hezbollah-tunnel-network-cp8du2c0", "title": "IDF uses 1,100 tons of explosive to blow up huge Hezbollah tunnel network", "publisher": "The Jewish Chronicle" },
+        { "url": "https://www.timesofisrael.com/idf-blows-up-hezbollahs-strategic-complex-beneath-south-lebanons-ali-taher-ridge/", "title": "IDF blows up Hezbollah's 'strategic' complex beneath south Lebanon's Ali Taher Ridge", "publisher": "The Times of Israel" },
+        { "url": "https://www.albawaba.com/news/israeli-blast-al-taher-tunnel-complex-1636870", "title": "Israeli blast of Al-Taher tunnel complex triggers reported 4.1-magnitude quake", "publisher": "Al Bawaba" }
+      ]
+    }
+  ],
+  "homepage": {},
+  "research": [
+    {
+      "topic": "South Lebanon front -- Ali al-Taher ridge tunnel demolition",
+      "sourcesReviewed": [
+        "https://www.france24.com/en/middle-east/20260910-israel-hezbollah-tunnels-lebanon-earthquake",
+        "https://www.thejc.com/news/israel/idf-uses-1-100-tons-of-explosive-to-blow-up-huge-hezbollah-tunnel-network-cp8du2c0",
+        "https://www.timesofisrael.com/idf-blows-up-hezbollahs-strategic-complex-beneath-south-lebanons-ali-taher-ridge/",
+        "https://www.albawaba.com/news/israeli-blast-al-taher-tunnel-complex-1636870"
+      ],
+      "conclusion": "Multi-outlet corroboration (France 24, Jewish Chronicle, Times of Israel, Al Bawaba) of the September 10 tunnel demolition and the 4.1-magnitude tremor it caused. This is a continuation of the existing 'lebanon-ali-al-taher-ridge-2026-09' developing story published by a prior run, so it was filed as an update rather than a new article.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "Gaza famine declaration vs. mid-2026 UNICEF nutrition data",
+      "sourcesReviewed": [
+        "https://www.snopes.com/fact-check/gaza-famine-unicef-date/",
+        "https://www.algemeiner.com/2026/08/07/unicef-report-dispels-gaza-famine-narrative-enclave-less-malnourished-than-finland/",
+        "https://www.jns.org/unicef-data-show-there-was-no-famine-in-gaza/",
+        "https://www.commondreams.org/news/unicef-gaza-famine",
+        "https://www.npr.org/2025/08/22/nx-s1-5509964/famine-gaza-israel-middle-east-un"
+      ],
+      "conclusion": "Independent fact-checking (Snopes) confirms the specific claim that newer UNICEF nutrition data 'disproves' or 'dispels' the 2025 IPC famine finding rests on comparing two different time periods. Published as a narrative-watch analysis with a 'misleading' verification state on that specific derivative claim, without re-litigating the original August 2025 IPC determination itself, which remains a separate contested question.",
+      "outcome": "published"
+    },
+    {
+      "topic": "New York state antisemitism response -- $70M grant program and NYC hate-crime data",
+      "sourcesReviewed": [
+        "https://www.jns.org/news/u-s-news/ill-always-be-there-for-jewish-new-yorkers-hochul-tells-jns-ahead-of-high-holidays",
+        "https://www.jns.org/news/u-s-news/anti-jewish-hate-crimes-in-nyc-down-slightly-in-august-from-2025-but-up-in-first-eight-months-of-2026-over-span-last-year",
+        "https://www.bizpacreview.com/2026/09/08/kathy-hochul-announces-70000000-in-new-grants-in-effort-to-protect-against-hate-crimes-antisemitism-1658066/"
+      ],
+      "conclusion": "Multi-source corroborated (JNS as primary reporter, independently referenced by BizPac Review and the Zionist Organization of America). Published with both the funding announcement and the contested trend data represented, without sensationalism.",
+      "outcome": "published"
+    },
+    {
+      "topic": "Technion drug-free nanoparticle (MPsome) treatment for triple-negative breast cancer",
+      "sourcesReviewed": [
+        "https://www.technion.ac.il/en/blog/article/medicine-without-drugs-an-israeli-breakthrough-in-nanomedicine/",
+        "https://pubs.acs.org/ancac3/article-split/20/8/7001/5151846/Drug-free-Immunotherapeutic-Biomimetic",
+        "https://www.timesofisrael.com/israeli-drug-free-nanomedicine-gives-fresh-hope-in-battling-aggressive-breast-cancer/"
+      ],
+      "conclusion": "Peer-reviewed (ACS Nano) and confirmed directly by the researching institution. Published as a People of Israel / science achievement feature, framed accurately as preclinical research rather than an approved treatment.",
+      "outcome": "published"
+    },
+    {
+      "topic": "Reported Gaza and West Bank strikes on named Hamas operatives, September 8-10",
+      "sourcesReviewed": [],
+      "conclusion": "Only a blended search-engine synthesis was available in this session, without individually verifiable named-outlet articles for the specific unit attributions (IDF, Israel Police Gideonim unit, Shin Bet) and casualty identifications. This desk does not publish operational or casualty claims it cannot trace to a specific, citable article, so this candidate was declined pending direct sourcing.",
+      "outcome": "vetoed"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "veto-gaza-nukhba-operation",
+      "candidate": "News & Analysis item reporting IDF/Shin Bet/Israel Police strikes said to have killed a Hamas Nukhba Force member in Khan Younis and a West Bank Qassam Brigades commander in Gaza City around September 8-10",
+      "reason": "This session could only retrieve a blended search-engine synthesis of the claim, not individually verifiable named-outlet URLs and excerpts for the specific unit attributions and casualty identifications. Publishing an operational/casualty claim this desk cannot trace to a specific citable article risks stating as fact details that were not independently confirmed in this session.",
+      "section": "israel_update",
+      "sources": [],
+      "replacement": "Revisit with direct source URLs (an IDF spokesperson statement, Times of Israel, or Jerusalem Post reporting naming the operation) in the next run.",
+      "ownerDecisionRequested": false
+    },
+    {
+      "key": "veto-homepage-composition",
+      "candidate": "Homepage lead/secondary placements for today's run",
+      "reason": "This session has no CHATGPT_AUTOMATION_SECRET and cannot reach /api/internal/chatgpt/editorial-context or the live site, so today's homepage strength and existing placements are not visible from here -- the same constraint the prior scheduled run (2026-09-10) reported. Setting or displacing a lead or secondary slot without that visibility risks replacing stronger existing content with merely newer content, which the editorial DNA explicitly forbids. Homepage left untouched this run.",
+      "sources": [],
+      "ownerDecisionRequested": true
+    }
+  ],
+  "siteRecommendations": [
+    "This run, like the September 10 run before it, had no CHATGPT_AUTOMATION_SECRET and no working path to lionsofzion.io or /api/internal/chatgpt/editorial-context, so it could not check current homepage placements or the full list of live canonical stories before publishing. Recommend provisioning that secret (or a read-only equivalent) to this environment if homepage curation and duplicate-detection are meant to run unattended from here.",
+    "All publications in this run are text-led: no image-generation or rights-clearance tool is available in this session, and this desk does not hotlink external imagery or invent licensing terms. Recommend a follow-up media pass with genuinely cleared imagery -- official IDF imagery for the Lebanon update, a Technion/ACS Nano figure or campus photo (with permission) for the nanoparticle piece, and a Hochul/NYS press photo for the antisemitism piece.",
+    "The reported Gaza/West Bank strikes on named Hamas operatives around September 8-10 were vetoed for thin sourcing in this session; recommend the next run verify and publish with direct outlet URLs.",
+    "timesofisrael.com is blocked for full-page fetches by this session's network egress policy, though its headlines and snippets remain visible through search. Several facts here are therefore corroborated through other outlets (France 24, Jewish Chronicle, Al Bawaba, JNS) rather than a direct fetch of timesofisrael.com. Recommend allow-listing that domain for this environment if it is meant to be a primary source."
+  ]
+}

@@ -12,8 +12,10 @@
  *   · a gold hairline on the "All files" trigger when the current file is one
  *     the bar cannot show at this width, so "you are here" always has a home.
  *   · a gold spine on the drawer/sheet row for the current file.
- * Gold is spent on exactly one idea in this component — *here* — which is why
- * hover, the trigger's open state and the Support control all resolve to ink.
+ * Gold is spent on two ideas in this component and no third: *here*, and the
+ * Support control. The second is an owner ruling of 2026-09-11 — donations
+ * are to be prominent — and it outranks the earlier line that kept Support
+ * in ink. Hover and the trigger's open state still resolve to ink.
  *
  * Faces: Newsreader for the wordmark (the one editorial mark in the chrome),
  * Plex Sans for every label and control — the brand role and the menu group
@@ -280,30 +282,38 @@
   color: var(--ink-hi);
 }
 
-/* The desk's action, stated in the site's own words. A hairline control, not
-   a filled button: gold in this bar means "here", and an accent spent on a
-   permanent call to action is the urgency theatre this site documents. */
+/* The desk's action, stated in the site's own words. Still an outline and
+   never a fill — a filled gold button on every page would be the urgency
+   theatre this site documents — but the outline is gold (owner ruling,
+   2026-09-11): `--gold-line-strong` is the control-boundary gold, measured to
+   clear 3:1 on every ground, and the glyph takes the full accent. The label
+   stays in high ink so it reads as a sentence, not as a badge. */
 .support {
   height: var(--control-h);
   display: inline-flex;
   align-items: center;
   padding-inline: var(--sp-4);
   gap: var(--sp-2);
-  border: var(--line-w) solid var(--line-strong);
+  border: var(--line-w) solid var(--gold-line-strong);
   border-radius: var(--radius-pill);
   color: var(--ink-hi);
+  font-weight: 600;
   transition:
     border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
 
+.support > svg { color: var(--gold); flex: 0 0 auto; }
+
 .support:hover {
-  border-color: var(--ink-lo);
-  background: var(--tint-hover);
+  border-color: var(--gold);
+  background: var(--gold-wash);
+  color: var(--gold-hi);
 }
 
 .support[aria-current="page"] {
-  border-color: var(--gold-line-strong);
+  border-color: var(--gold);
 }
 
 /* ── The account control ───────────────────────────────────────────────────
@@ -573,8 +583,9 @@
  */
 @media (max-width: 45rem), (max-height: 30rem) and (pointer: coarse) {
   .bar { grid-template-columns: minmax(0, 1fr) auto; }
-  .header .filesTrigger,
-  .support { display: none; }
+  /* Support Us is no longer dropped here (owner ruling, 2026-09-11); below
+     45rem it becomes a glyph, see the block after the phone chrome. */
+  .header .filesTrigger { display: none; }
   /* The role does not fit here. Four 44px controls — Ask, Search, Account,
      Menu — and the gutters leave about 160px for the lockup on a 375px bar,
      and "Evidence, not narratives" at the 13px floor measures more than that.
@@ -876,6 +887,67 @@
 
   .header .deskSearch:hover {
     border-color: var(--control-line);
+  }
+}
+
+/* Support Us on a phone (owner ruling, 2026-09-11). It used to be dropped
+   below 45rem, which left a phone reader no way to give from the bar. Five
+   44px controls now share it — Ask, Search, Support, Account, Menu — so the
+   word goes screen-reader-only the way Account's and Menu's do, and what is
+   left is a 44px gold-outlined glyph that still says "Support Us" to anyone
+   who cannot see it. Ask and Search are not dropped to make room. */
+@media (max-width: 45rem) {
+  .supportLabel {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .support {
+    inline-size: var(--control-h-coarse);
+    min-inline-size: var(--control-h-coarse);
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .support > svg { inline-size: 18px; block-size: 18px; }
+
+  /* A ring, on the cover too. The cover's near-square corner is for chrome
+     that sits over the moving film; on a phone the bar is opaque ground, and
+     the glyph sits between Ask's and Account's rings, where a gold square
+     read as a sticker of its own. Specific enough to beat the `[data-home]`
+     corner rule at the foot of this file. */
+  .header[data-home] .utility .support { border-radius: var(--radius-pill); }
+}
+
+/* What the fifth control costs, measured rather than guessed: the gutters,
+   the wordmark (101px at 15px with its tracking), the bar gap and five 44px
+   targets need 365px. A 360px Android missed by five pixels, a 320px phone by
+   forty-five. The targets do not shrink — 44px is the contract — so the
+   chrome around them gives first: a narrower gutter, a tighter gap and less
+   tracking, which holds the wordmark on one line down to 345px. */
+@media (max-width: 23rem) {
+  .bar {
+    --bar-gutter: var(--sp-3);
+    gap: var(--sp-2);
+  }
+
+  .brandName { letter-spacing: 0.02em; }
+}
+
+/* Below that the wordmark sets on two balanced lines — "Lions of / Zion" —
+   inside the same 56px bar, rather than running under the Ask control. */
+@media (max-width: 21.5rem) {
+  .brandName {
+    white-space: normal;
+    text-wrap: balance;
+    line-height: 1.05;
   }
 }
 

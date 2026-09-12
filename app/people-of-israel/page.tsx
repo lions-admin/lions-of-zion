@@ -93,15 +93,17 @@ function Profile({ profile, featured = false }: { profile: HeroProfile; featured
   const href = `/our-heroes#${profile.id}`;
   return <article className={styles.profile} data-featured={featured ? '' : undefined}>
     {media ? <figure className={styles.portrait}>
-      <Image
-        src={media.src}
-        alt={media.alt}
-        width={media.width}
-        height={media.height}
-        loading={featured ? 'eager' : 'lazy'}
-        sizes="(max-width: 45rem) 100vw, (max-width: 64rem) 50vw, 30vw"
-        style={{ objectPosition: `${media.focalPoint.x}% ${media.focalPoint.y}%` }}
-      />
+      <span className={styles.portraitFrame}>
+        <Image
+          src={media.src}
+          alt={media.alt}
+          width={media.width}
+          height={media.height}
+          loading={featured ? 'eager' : 'lazy'}
+          sizes="(max-width: 45rem) 100vw, (max-width: 64rem) 50vw, 30vw"
+          style={{ objectPosition: `${media.focalPoint.x}% ${media.focalPoint.y}%` }}
+        />
+      </span>
       <figcaption>
         {media.disclosure ? <span className={styles.disclosure}>{media.disclosure}</span> : null}
         <span>{media.credit}</span>

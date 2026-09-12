@@ -126,7 +126,7 @@
 /* ── The opening band: profiles ────────────────────────────────────────── */
 
 .courage {
-  padding-block: var(--sp-7) var(--sp-8);
+  padding-block: var(--sp-6) var(--sp-8);
 }
 
 .profiles {
@@ -158,14 +158,19 @@
   margin: 0;
 }
 
-.portrait img {
+/* The portrait's plate (`app/globals.css` `.mediaPlate`), on a wrapper so the
+   picture can move inside its edge without the edge moving with it. */
+.portraitFrame {
+  composes: mediaPlate from global;
+  border-radius: var(--radius-2);
+}
+
+.portraitFrame img {
   display: block;
   inline-size: 100%;
   block-size: auto;
   aspect-ratio: 4 / 5;
   object-fit: cover;
-  border-radius: var(--radius-2);
-  border: var(--line-w) solid var(--line);
 }
 
 /* The credit is a machine value under a picture; the disclosure, when there
@@ -269,7 +274,10 @@
   gap: var(--sp-5);
   padding-block: var(--sp-5);
   border-bottom: var(--line-w) solid var(--line);
+  transition: border-color var(--dur-fast) var(--ease-out);
 }
+
+.record:hover { border-bottom-color: var(--line-strong); }
 
 /* The row is one column until a picture arrives; a list that reserves space
    for an image it has not got reads as a broken layout rather than a plain
@@ -325,12 +333,10 @@
 .record .read { margin-top: var(--sp-1); }
 
 .recordImage {
+  composes: mediaPlate from global;
   align-self: start;
   inline-size: 9rem;
-  overflow: hidden;
   border-radius: var(--radius-1);
-  border: var(--line-w) solid var(--line);
-  background: var(--surface-1);
 }
 
 .recordImage img {
@@ -423,12 +429,20 @@
   .record h3 { max-width: none; }
 }
 
+/* A profile or a record answers as one object: its picture moves 2% inside
+   the plate while the record is hovered or holds keyboard focus. */
+@media (prefers-reduced-motion: no-preference) {
+  .profile:is(:hover, :has(a:focus-visible)) .portraitFrame img,
+  .record:is(:hover, :has(a:focus-visible)) .recordImage img { transform: scale(1.02); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .read,
   .read > span,
   .sectionLink > span,
   .hub h2 a,
-  .hub h3 a { transition: none; }
+  .hub h3 a,
+  .record { transition: none; }
   .read:hover > span,
   .sectionLink:hover > span { transform: none; }
 }

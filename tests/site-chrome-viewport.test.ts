@@ -100,7 +100,23 @@ describe("VA-45 — the phone seam is a pointer and a height, not only a width",
       /\.header\s+\.menuTrigger\s*\{\s*display:\s*inline-flex/.test(b.body),
     )!;
     expect(swap.body).toMatch(/\.filesPanel\s*\{\s*display:\s*none/);
-    expect(swap.body).toMatch(/\.header\s+\.filesTrigger,[\s\S]{0,40}display:\s*none/);
+    expect(swap.body).toMatch(/\.header\s+\.filesTrigger\s*\{\s*display:\s*none/);
+  });
+
+  it("keeps Support Us in the bar on a phone (owner ruling, 2026-09-11)", () => {
+    // Support Us used to be grouped with the Files trigger and dropped here.
+    // It now stays at every width: the word goes screen-reader-only below
+    // 45rem and a 44px gold-outlined glyph carries it.
+    const swap = mediaBlocks(header).find((b) =>
+      /\.header\s+\.menuTrigger\s*\{\s*display:\s*inline-flex/.test(b.body),
+    )!;
+    expect(swap.body).not.toMatch(/\.support\s*[,{][^}]*display:\s*none/);
+    const phone = mediaBlocks(header).find(
+      (b) => /max-width:\s*45rem/.test(b.prelude) && /\.supportLabel\s*\{/.test(b.body),
+    );
+    expect(phone, "a 45rem block makes the Support label screen-reader-only").toBeTruthy();
+    expect(phone!.body).toMatch(/\.supportLabel\s*\{[^}]*clip-path:\s*inset\(50%\)/);
+    expect(phone!.body).toMatch(/\.support\s*\{[^}]*min-inline-size:\s*var\(--control-h-coarse\)/);
   });
 
   it("clears every phone in landscape and no tablet in either orientation", () => {

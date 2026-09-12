@@ -139,8 +139,14 @@
   }
 }
 
-/* The article hero: the reading measure, and no plate border — the record's
-   own page frames its picture with the column, not with a hairline. */
+/* The article hero: the reading measure, on the media plate.
+ *
+ * This layout used to drop the border altogether — "the column frames the
+ * picture" — which held for a photograph and failed for every illustration
+ * drawn on black: on the #0b0b0b ground it had no edge at all and read as an
+ * image that had not loaded (2026-09-11). It now wears the plate
+ * `app/globals.css` defines as `.mediaPlate`, written out by hand because a
+ * descendant rule cannot compose; the four tokens are the same four. */
 .reading,
 .block[data-layout='reading'] {
   max-width: var(--reading-w, var(--measure-reading));
@@ -149,8 +155,22 @@
 
 .reading .frame,
 .block[data-layout='reading'] .frame {
-  border: 0;
-  border-radius: 0;
+  isolation: isolate;
+  background: var(--surface-0);
+  border-color: var(--line-strong);
+  border-radius: var(--radius-2);
+  box-shadow: var(--shadow-1);
+}
+
+.reading .frame::after,
+.block[data-layout='reading'] .frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 var(--line-w) var(--edge-hi);
+  pointer-events: none;
 }
 
 .credit,

@@ -38,7 +38,7 @@ async function main(): Promise<void> {
   const pkg = parsed.data;
   console.log(`runId=${pkg.runId} contract=${pkg.contractVersion} composer=${pkg.composer} creates=${pkg.creates.length} updates=${pkg.updates.length}`);
   console.log(`homepage=${Object.keys(pkg.homepage).length} recommendations=${pkg.siteRecommendations.length}`
-    + (pkg.contractVersion === 'whole-site-update-v2' ? ` research=${pkg.research?.length ?? 0} vetoes=${pkg.vetoes?.length ?? 0}` : ''));
+    + (pkg.contractVersion === 'whole-site-update-v2' ? ` research=${pkg.research?.length ?? 0} vetoes=${pkg.vetoes?.length ?? 0} homepageReview=${pkg.homepageReview ? 'yes' : 'no'}` : ''));
   if (dryRun) return;
 
   const baseUrl = process.env.EDITORIAL_UPDATE_INGEST_BASE_URL?.trim() || 'https://lionsofzion.io';

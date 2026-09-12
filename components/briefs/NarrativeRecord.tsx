@@ -7,6 +7,7 @@ import { isAnalysisBasis } from "@/server/contracts/publication";
 import { VERIFICATION_STATES } from "@/components/live/publication-labels";
 import styles from "./narrative-record.module.css";
 import { publicationCta } from "@/lib/publication-routing";
+import { formatDateTime } from "@/lib/format-date";
 
 /**
  * What the picture is, said before it is read as anything else.
@@ -34,7 +35,7 @@ export function NarrativeRecord({ item, compact = false }: { item: PublicPublica
     <article className={[styles.record, compact ? styles.compact : ""].join(" ")}>
       <div className={styles.meta}>
         <span className={styles.status} data-tone={status?.tone ?? "neutral"}>{status?.label ?? "Assessment unavailable"}</span>
-        <time dateTime={item.publishedAt}>{new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jerusalem" }).format(new Date(item.publishedAt))}</time>
+        <time dateTime={item.publishedAt}>{formatDateTime(item.publishedAt)}</time>
       </div>
       <p className={styles.label}>Claim in circulation</p>
       <h3><Link href={`/articles/${item.publicId}`}>{title}</Link></h3>

@@ -28,12 +28,14 @@ export async function resolveHomepageReference(ref:HomeReference):Promise<HomePr
     /* No picture is not a reason to drop the record (owner ruling,
        2026-09-07): the card renders without a figure. */
     const media=p.media&&isArticleSafeMedia(p.media)?p.media:homepageMedia(ref.key);
-    const publicationBase={key:ref.key,href:ref.href,media,title:p.title,summary:p.summary??'',date:p.publishedAt,
+    const publicationBase={key:ref.key,href:ref.href,media,title:p.title,summary:p.summary??'',date:p.publishedAt,updatedAt:p.updatedAt,
       sources:p.sources.flatMap(s=>s.url?[{label:s.publisher?`${s.publisher} — ${s.title}`:s.title,url:s.url}]:[]),
       whyItMatters:homepageExcerpt(ref.key,'whyItMatters',p.updatedAt),
       /* VA-63: the verb comes from the section, like every other surface. */
       cta:publicationCta(p.section)};
-    if(ref.kind==='feature')return {...publicationBase,kind:'feature',category:SECTION_LABELS[p.section]};
+    /* The portrait frame is a fact about the section, decided here so the card
+       never compares its own label strings to pick one. */
+    if(ref.kind==='feature')return {...publicationBase,kind:'feature',category:SECTION_LABELS[p.section],portrait:p.section==='people'||p.section==='courage_service'};
     if(ref.kind==='news')return {...publicationBase,kind:'news',category:SECTION_LABELS[p.section]};
     if(p.section==='narrative_watch' && p.narrativeWatchDetails)return {...publicationBase,kind:'watch',claim:p.narrativeWatchDetails.exactClaim,
       verification:p.narrativeWatchDetails.verificationState,basis:p.narrativeWatchDetails.evidenceBasis==='analysis'?'analysis':'sourced',

@@ -45,7 +45,12 @@ export type HomeSource = { label:string; url:string };
    render time, and a card that re-derived a verb from its own shape is exactly
    how eight of them appeared. Optional so a snapshot serialized before the
    field existed still parses; the card falls back to its own default. */
-type PreviewBase = {key:string; href:string; title:string; summary:string; date:string; media:EditorialMedia|null; sources:HomeSource[]; whyItMatters?:string; cta?:string};
+/* `updatedAt` is the record's latest revision stamp. A card dates itself by
+   the revision when one exists and differs from `date`, so a developing story
+   updated at 17:07 does not read as this morning's. Optional for the same
+   reason as `cta`: a snapshot serialized before the field existed, and the
+   static kinds, which carry no revision a reader should see. */
+type PreviewBase = {key:string; href:string; title:string; summary:string; date:string; updatedAt?:string; media:EditorialMedia|null; sources:HomeSource[]; whyItMatters?:string; cta?:string};
 export type NewsPreview = PreviewBase & {kind:'news'; category:string};
 export type WatchPreview = PreviewBase & {kind:'watch'; claim:string; finding?:string; verification:string; basis:'sourced'|'analysis'};
 export type CasePreview = PreviewBase & {kind:'case'; question?:string; finding?:string; confidence:string; sourceCount:number};
@@ -53,7 +58,10 @@ export type FakeResistanceArticlePreview = PreviewBase & {kind:'article'; label:
 export type ArchivePreview = PreviewBase & {kind:'testimony'|'documentation'; witness?:string; warning:string};
 export type HeroPreview = PreviewBase & {kind:'hero'; role:string; meta:string};
 export type HistoryPreview = PreviewBase & {kind:'chapter'; era:string; contested:boolean};
-export type FeaturePreview = PreviewBase & {kind:'feature'; category:string};
+/* `portrait` is decided at the source from `publication.section` (a person
+   is framed as a portrait; a technology or science record is not), so the
+   card never compares its own label strings to pick a frame. */
+export type FeaturePreview = PreviewBase & {kind:'feature'; category:string; portrait?:boolean};
 export type HomePreview = FeaturePreview|NewsPreview|WatchPreview|CasePreview|FakeResistanceArticlePreview|ArchivePreview|HeroPreview|HistoryPreview;
 export type HomepageSection<T> = {state:'ready'|'partial'|'empty'|'unavailable'; items:T[]; gaps:string[]};
 export type HomepageEdition = {

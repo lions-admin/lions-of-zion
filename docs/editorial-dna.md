@@ -433,6 +433,17 @@ position and the other slots are placed regardless.
 none in the service. The homepage band is chosen by `selectHomepage()` from the
 static archive catalogue, rotated against display history.
 
+**The operating detail lives in
+[`editorial/homepage-operating-manual.md`](editorial/homepage-operating-manual.md)**
+(since 2026-09-12): the band-by-band map with routes, sources, selection and
+date rules; how the lead is chosen; the update-the-canonical rule; media on the
+cover; and the promote / retain / replace / demote / veto vocabulary. A run
+records the review it made against that manual in the `homepageReview` block
+of a `whole-site-update-v2` package (`wholeSiteHomepageReviewSchema`) — the
+manual version it read, the bands it reviewed and changed, and one reasoned
+decision per slot, so "retained because what is live is stronger" is finally
+representable ([§12](#12-gaps), gap 10).
+
 After the placements land, `processEditorialRun` calls
 `homepageService(db()).ensureEdition()`, which is idempotent per
 (Israel date, override revision) and appends a new snapshot revision.
@@ -523,7 +534,7 @@ follows is the shape an editor has to hold.
 | Application baseline | `main` |
 | Delivery branch | `chatgpt-editorial-updates` (orphan; never merged into `main`) |
 | Package path | `editorial-updates/<Israel-local-date>-<runId>.json` |
-| Wire contract | `whole-site-update-v1` — `server/contracts/whole-site-update.ts` |
+| Wire contract | `whole-site-update-v2` (v1 still accepted) — `server/contracts/whole-site-update.ts` |
 | Validator / submitter | `npm run editorial:publish` → `scripts/publish-editorial-update.ts` |
 | Workflow | `.github/workflows/publish-editorial-update.yml`, **on the `chatgpt-editorial-updates` branch** |
 | Ingest | `POST /api/internal/editorial-updates/ingest` |
@@ -574,6 +585,8 @@ Every run produces a report, **in chat and by email**, covering:
 - innovation;
 - History / Context;
 - homepage changes;
+- homepage review — the manual version, the bands reviewed and changed, and
+  the reason for every promote / retain / replace / demote / veto;
 - external, generated and enhanced images;
 - vetoes;
 - recommendations;
@@ -621,7 +634,8 @@ During the run-in period the owner has ruled that the system carries the
 - `external-briefing-v1` is **not** the central constraint. It remains only as
   the legacy compatibility path for historical Daily Brief packages
   (`POST /api/internal/briefing/external-publish`, documented in
-  `docs/briefing-packages.md`). New editorial work is `whole-site-update-v1`.
+  `docs/briefing-packages.md`). New editorial work is `whole-site-update-v2`
+  (v1 still accepted).
 - No heavy quality contracts on the whole-site path. `REQUIRED_QUALITY_CHECKS`
   and `evaluateCandidate()` live in `server/modules/briefing/quality.ts` and run
   on the **external-publish path only**. Nothing in
@@ -725,7 +739,8 @@ still resolve, and are marked **Closed** in place.
    legacy contracts. A composer approaching `whole-site-update-v1` has the zod
    schema, `docs/whole-site-updates.md` and this document, and no reference
    package to copy.
-10. **"Do not displace what is stronger" is unenforceable by construction.**
+10. **Closed 2026-09-12 — see below.** **"Do not displace what is stronger"
+    is unenforceable by construction.**
     The contract expresses a placement as set-or-remove; there is no
     representation of *why*, and no comparison against what currently occupies
     the position. Omitting a decision leaves the slot alone — which is the
@@ -741,6 +756,21 @@ still resolve, and are marked **Closed** in place.
     `CLAUDE.md`: `tests/rls.test.ts` proves the policies via `SET LOCAL ROLE`
     in a transaction on PGlite, which is not the pooled session-scope mechanism
     production uses — and every editorial ingest runs through it.
+
+### Closed since, recorded here on 2026-09-12
+
+- **Gap 10 ("do not displace what is stronger")** is closed by the
+  `homepageReview` block of `whole-site-update-v2`
+  (`wholeSiteHomepageReviewSchema` in `server/contracts/whole-site-update.ts`)
+  and by
+  [`editorial/homepage-operating-manual.md`](editorial/homepage-operating-manual.md),
+  whose version line the block echoes as `manualVersion`. A run now records
+  which bands it reviewed, which it changed, and a reasoned `promote`,
+  `replace`, `retain`, `demote` or `veto` per slot; the validator cross-checks
+  a promote/replace against a `set` and a demote against a `remove`, and the
+  report prints the block under `HOMEPAGE REVIEW`. What remains unrepresentable
+  by design: the code still does not compare candidates — "stronger" is the
+  editor's judgement, now written down rather than inferred from silence.
 
 ### Closed since, recorded here on 2026-09-11
 
@@ -902,12 +932,36 @@ documentary photo: send `"generated": true` with
 actually displayed still requires full rights and provenance; the fallback
 does not lower that bar.
 
+**Before you compose, five steps in order.** (1) Read the live context:
+`GET /api/internal/chatgpt/editorial-context` — today's edition date, the
+homepage as it stands with its placements, the live records, the developing
+stories, and the warnings. (2) Read
+`docs/editorial/homepage-operating-manual.md` and note its `Manual version:`
+line. (3) Review the homepage section by section, top to bottom — cover, News
+& Analysis, Fake Resistance, October 7, The People of Israel, Behind the desk,
+Support. (4) Decide, per slot: create, update, promote, retain, replace,
+demote, veto, or publish nothing. (5) State the homepage impact in the
+package's `homepageReview` block.
+
 **Homepage.** Compose it: news lead, news companion, Fake Resistance lead and
 items, People of Israel feature. The supported placements are `news`,
-`fakeResistance` and `people`, each with a `lead` and a `secondary`. October 7
-rotates on its own — do not try to place it. **Do not displace live content
-merely because yours is newer.** If what is live is stronger, leave the
-position alone by omitting a decision for it.
+`fakeResistance` and `people`, each with a `lead` and a `secondary`. The news
+lead is one selection: the edition rail on the cover shows the same record as
+the News & Analysis lead. October 7 rotates on its own — do not try to place
+it. **Do not displace live content merely because yours is newer.** If what is
+live is stronger, leave the position alone by omitting a decision for it, and
+say so. A developing story is updated in place, never duplicated: the card
+shows `Updated` when a record is revised.
+
+**Record the review.** Every package carries `homepageReview`:
+`manualVersion` (the manual's version line, verbatim), `sectionsReviewed` and
+`sectionsChanged` (from `cover`, `news`, `fakeResistance`, `october7`,
+`people`, `system`, `support`; changed ⊆ reviewed), and `decisions` — one per
+slot you touched or deliberately kept, each `{ area, position?, action,
+publication?, reason }` with `action` one of `promote`, `replace`, `retain`,
+`demote`, `veto`. A `promote` or `replace` with a position must match a `set`
+in `homepage`; a `demote` must match a `remove`. The report prints the block
+under `HOMEPAGE REVIEW`, and a run without one is flagged.
 
 **Veto.** You may refuse to publish anything weak or insufficiently evidenced,
 misleading, trivial, stale, duplicate, canonically ambiguous, or otherwise
@@ -939,8 +993,10 @@ share sourced material, use the interviews and documentation, learn how a
 narrative spreads, and take part in legitimate technological and civic
 activism. Never harassment, spam or brigading.
 
-**Delivery.** Compose a `whole-site-update-v1` package. Application baseline is
-`main`; the delivery branch is `chatgpt-editorial-updates`; the package path is
+**Delivery.** Compose a `whole-site-update-v2` package (`"contractVersion":
+"whole-site-update-v2"`; it is the only version that carries `research`,
+`vetoes` and `homepageReview`). Application baseline is `main`; the delivery
+branch is `chatgpt-editorial-updates`; the package path is
 `editorial-updates/<Israel-local-date>-<runId>.json`. The GitHub Action on that
 branch validates it against `server/contracts/whole-site-update.ts`, posts it to
 `POST /api/internal/editorial-updates/ingest`, and polls
@@ -951,8 +1007,9 @@ command, a migration, an environment value, or application code.
 **Report, every run, in chat and by email.** Cover: success / partial /
 failure; what was researched; what was published; what was updated; News; Fake
 Resistance; influence investigations; antisemitism; The People of Israel;
-innovation; History and Context; homepage changes; external, generated and
-enhanced images; vetoes; recommendations; and the URL of every publication.
+innovation; History and Context; homepage changes; the homepage review;
+external, generated and enhanced images; vetoes; recommendations; and the URL
+of every publication.
 
 **If the run crashes**, report: the exact stage, the exact error, what
 succeeded before the crash, what was published, what was not published, what

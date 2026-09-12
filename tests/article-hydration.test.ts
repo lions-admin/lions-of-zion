@@ -132,18 +132,18 @@ describe("article render is timezone-independent (VA-43)", () => {
     expect(markup).toContain("evidence-explorer-title");
 
     /* One source, one date. The explorer used to say "Sep 1, 2026" while
-       "Public sources" a few centimetres below said "Aug 31, 2026". Scoped to
+       "Public sources" a few centimetres below said "31 Aug 2026". Scoped to
        the byline spans on purpose: the article's *own* `publishedAt` is
        deliberately shown in Asia/Jerusalem and does read "Sep 1, 2026", so a
        whole-document search for that string would fail for the wrong reason. */
     const bylines = [
-      ...markup.matchAll(/Middle East Eye(?:<!-- -->)? · ([A-Z][a-z]{2} \d{1,2}, \d{4})/g),
+      ...markup.matchAll(/Middle East Eye(?:<!-- -->)? · (\d{1,2} [A-Z][a-z]{2,3} \d{4})/g),
     ].map((match) => match[1]!);
     /* Two explorer stages carry the source list (Origin and Evidence) and the
        "Public sources" stack carries it once. A zero here would mean the
        markup shape moved and the assertion stopped testing anything. */
     expect(bylines).toHaveLength(3);
-    expect(new Set(bylines)).toEqual(new Set(["Aug 31, 2026"]));
+    expect(new Set(bylines)).toEqual(new Set(["31 Aug 2026"]));
   });
 
   it("stays deterministic for a source with no date, and for a record with none", async () => {

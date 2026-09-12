@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { PublicPublicationDetail } from '@/server/contracts/publication';
 import { VERIFICATION_STATES } from '@/components/live/publication-labels';
+import { formatSourceDay } from '@/lib/format-date';
 import styles from './investigation-explorer.module.css';
 
 type Stage = { id: string; label: string; title: string; body: string; sources?: PublicPublicationDetail['sources']; items?: string[] };
@@ -27,7 +28,6 @@ function uniqueSources(sources: PublicPublicationDetail['sources']) {
  * `app/articles/[publicId]/page.tsx` prints under "Public sources" — also in
  * UTC. Anything else would leave one source dated two ways on one page.
  */
-const SOURCE_DATE = new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeZone: 'UTC' });
 
 /** A readable evidence path for any published investigation. It never draws an
  * inference from a relationship the public projection does not actually carry. */
@@ -68,5 +68,5 @@ function StagePanel({ stage, id, labelledBy }: { stage: Stage; id: string; label
 }
 
 function StageContents({ stage }: { stage: Stage }) {
-  return <><h3>{stage.title}</h3><p>{stage.body}</p>{stage.items?.length ? <ul>{stage.items.map(item => <li key={item}>{item}</li>)}</ul> : null}{stage.sources?.length ? <ol className={styles.sources}>{stage.sources.map((source, index) => <li key={source.url ?? `${source.title}-${index}`}><a href={source.url ?? undefined} target={source.url ? '_blank' : undefined} rel={source.url ? 'noreferrer' : undefined}>{source.title}</a><span>{source.publisher}{source.publishedAt ? ` · ${SOURCE_DATE.format(new Date(source.publishedAt))}` : ''}</span></li>)}</ol> : null}</>;
+  return <><h3>{stage.title}</h3><p>{stage.body}</p>{stage.items?.length ? <ul>{stage.items.map(item => <li key={item}>{item}</li>)}</ul> : null}{stage.sources?.length ? <ol className={styles.sources}>{stage.sources.map((source, index) => <li key={source.url ?? `${source.title}-${index}`}><a href={source.url ?? undefined} target={source.url ? '_blank' : undefined} rel={source.url ? 'noreferrer' : undefined}>{source.title}</a><span>{source.publisher}{source.publishedAt ? ` · ${formatSourceDay(source.publishedAt)}` : ''}</span></li>)}</ol> : null}</>;
 }

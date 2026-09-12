@@ -265,6 +265,9 @@ export function chatgptAutomationService(database: Database, context: OpsToolCon
         /* Editorial decisions. */
         research: isV2 ? (report.research ?? []) : null,
         vetoes: isV2 ? (report.vetoes ?? []) : null,
+        /* The editor's cover review. Null for v1 (unrepresentable) and null
+           for a v2 run that omitted it (the manual says it should not). */
+        homepageReview: isV2 ? (report.homepageReview ?? null) : null,
         /* Faults. Kept apart from the two above on purpose. */
         errors: report.errors ?? [],
         failure: run.failure ?? null,

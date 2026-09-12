@@ -10,7 +10,11 @@
  *
  * One timezone for every reader, named on the page: Asia/Jerusalem is where
  * the desk is and where the day boundaries the feed groups on actually fall.
+ * The site-wide policy is `lib/format-date.ts`; the day heading and the row
+ * clock below are the feed's own shapes and stay here.
  */
+
+import { formatDateTime } from "@/lib/format-date";
 
 /** How long a cached read of the published record may be, in seconds. Mirrors
  *  `revalidate: 300` on the `unstable_cache` wrappers in `lib/publications.ts`
@@ -39,12 +43,6 @@ const CLOCK = new Intl.DateTimeFormat("en-GB", {
   timeZone: "Asia/Jerusalem",
 });
 
-const STAMP = new Intl.DateTimeFormat("en-GB", {
-  dateStyle: "medium",
-  timeStyle: "short",
-  timeZone: "Asia/Jerusalem",
-});
-
 /** `2026-09-02` in Jerusalem — the key the feed groups days on. */
 export function dayKey(iso: string): string {
   return DAY_KEY.format(new Date(iso));
@@ -60,9 +58,12 @@ export function clock(iso: string): string {
   return CLOCK.format(new Date(iso));
 }
 
-/** `2 Sep 2026, 14:20` — the full stamp, for titles and single-line contexts. */
+/** `2 Sept 2026, 14:20` — the full stamp, for titles and single-line
+ *  contexts. It is the site-wide `formatDateTime` (en-GB, dateStyle medium,
+ *  timeStyle short, Asia/Jerusalem): the same options this file carried until
+ *  2026-09-12, output verified identical before the local formatter went. */
 export function stamp(iso: string): string {
-  return STAMP.format(new Date(iso));
+  return formatDateTime(iso);
 }
 
 export interface DayGroup<T> {

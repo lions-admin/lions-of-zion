@@ -2,10 +2,11 @@ import Link from "next/link";
 import type { PublicPublication } from "@/server/contracts/publication";
 import styles from "./antisemitism-record.module.css";
 import { publicationCta } from "@/lib/publication-routing";
+import { formatDay } from "@/lib/format-date";
 
 /** A documented record, kept visually and semantically distinct from a circulating claim. */
 export function AntisemitismRecord({ item, compact = false }: { item: PublicPublication; compact?: boolean }) {
-  const date = new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "Asia/Jerusalem" }).format(new Date(item.publishedAt));
+  const date = formatDay(item.publishedAt);
   return (
     <article className={[styles.record, compact ? styles.compact : ""].join(" ")}>
       <div className={styles.meta}>

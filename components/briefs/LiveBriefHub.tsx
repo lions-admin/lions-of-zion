@@ -1,5 +1,6 @@
 import { ActivationBand } from "@/components/content";
 import { SITE_URL } from "@/lib/site-config";
+import { formatDateTime, formatDay } from "@/lib/format-date";
 import Image from "next/image";
 import Link from "next/link";
 import { listBriefingPublications } from "@/lib/publications";
@@ -613,7 +614,7 @@ function Briefing({ item, headingId }: { item: Publication; headingId?: string }
   return <div id="daily-brief" className={styles.briefingContent}>
     <p className={styles.liveEyebrow}>
       <span className={styles.briefingFlag}>The daily briefing</span>
-      <time dateTime={item.publishedAt}>{formatDate(item.publishedAt)}</time>
+      <time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time>
     </p>
     <h2 id={headingId}><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h2>
     {item.summary ? <p className={styles.newsSummary}>{item.summary}</p> : null}
@@ -655,7 +656,7 @@ function PublicationSection({ title, stories, narrative = false }: { title: stri
                 {item.editorialTopic ? ` · ${humanize(item.editorialTopic)}` : ""}
               </CardEyebrow>
               <CardCount>
-                <time dateTime={item.publishedAt}>{formatDate(item.publishedAt)}</time>
+                <time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time>
               </CardCount>
             </CardHeader>
             <Headline title={item.title} narrative={narrative} />
@@ -715,7 +716,7 @@ function UpdateLog({ earlier }: { earlier: Publication[] }) {
       <ol>
         {earlier.map((item) => (
           <li key={item.publicId}>
-            <time dateTime={item.publishedAt}>{formatDate(item.publishedAt)}</time>
+            <time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time>
             <Link href={`/articles/${item.publicId}`}>{item.title}</Link>
           </li>
         ))}
@@ -792,12 +793,4 @@ function Metadata({ item, narrative = false }: { item: Publication; narrative?: 
       </dl>
     ) : null}
   </>;
-}
-
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "Asia/Jerusalem" }).format(new Date(value));
-}
-
-function formatDateTime(value: string): string {
-  return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jerusalem" }).format(new Date(value));
 }

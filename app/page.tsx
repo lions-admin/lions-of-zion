@@ -6,6 +6,7 @@ import { JourneyLink } from "@/components/home/HomeJourneyPrimitives";
 import { HeroVideo } from "@/components/sections/HeroVideo";
 import { HomepageJourney } from "@/components/home/HomepageJourney";
 import { getHomepageEdition } from "@/lib/homepage";
+import { formatEditionDate } from "@/lib/format-date";
 import { pageMetadata } from "@/lib/page-metadata";
 import { SITE_DESCRIPTION } from "@/lib/site-config";
 import type { Metadata } from "next";
@@ -25,21 +26,16 @@ export const metadata: Metadata = pageMetadata({
 export const revalidate = 60;
 
 /**
- * The cover's own date line, from the edition the bands below already read.
- * A fixed IANA zone and an explicit locale so the string is the same on every
- * render of the same edition — this is a server component, so it is written
- * once into the HTML and never re-formatted in a browser.
+ * The cover's own date line, from the edition the bands below already read,
+ * in the words the edition masthead (`HomepageJourney`) uses for the same
+ * date — one formatter, `formatEditionDate`, so the cover and the masthead
+ * cannot name the day differently. This is a server component, so the string
+ * is written once into the HTML and never re-formatted in a browser.
  */
 function editionDateLabel(editionDate: string): string {
-  if (!editionDate) return "Edition unavailable";
-  const day = new Date(`${editionDate}T12:00:00Z`);
-  if (Number.isNaN(day.valueOf())) return "Edition unavailable";
-  return new Intl.DateTimeFormat("en-GB", {
-    timeZone: "UTC",
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-  }).format(day);
+  if (!editionDate || Number.isNaN(Date.parse(`${editionDate}T09:00:00Z`)))
+    return "Edition unavailable";
+  return formatEditionDate(editionDate);
 }
 
 export default async function Page() {

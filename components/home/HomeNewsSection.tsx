@@ -12,6 +12,9 @@ import {
   rankOf,
 } from "./HomeJourneyPrimitives";
 import styles from "./homepage-journey.module.css";
+import { homepageBand } from "@/lib/homepage-bands";
+
+const BAND = homepageBand("news");
 
 /**
  * An editorial spread: the lead story with its picture, and a companion that
@@ -47,7 +50,7 @@ export function HomeNewsSection({
             <div className={styles.newsBody}>
             <div className={styles.byline}>
               <span>{item.category}</span>
-              <HomeTime date={item.date} includeTime />
+              <HomeTime date={item.date} updatedAt={item.updatedAt} includeTime />
             </div>
             <h3>
               <a href={item.href}>{item.title}</a>
@@ -79,10 +82,9 @@ export function HomeNewsSection({
       </div>
       <SectionState section={section} />
       {/* UX-05. The hub "everything" link is "All of <Section>" with the
-          journey arrow, on every band. */}
-      <SectionAction href="/geopolitical-brief">
-        All of News & Analysis
-      </SectionAction>
+          journey arrow, on every band; the words and the address come from the
+          band map (`lib/homepage-bands.ts`), as the contents line's do. */}
+      <SectionAction href={BAND.hubHref}>All of {BAND.label}</SectionAction>
     </section>
   );
 }

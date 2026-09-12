@@ -10,6 +10,67 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-12 — The homepage has an operating manual and the run records its homepage review
+
+The owner saw the news lead say *"Aoun visits south Lebanon…"* over a card
+dated 10 Sept, two days before the visit. The record was right — one canonical,
+rewritten on 12 Sept with the development, exactly the shape the DNA asks for —
+but the card showed `publishedAt` and nothing else, so a correctly updated
+story read as stale. Around it sat four separate published records on the same
+tunnel event, three date renderings on one screen, and a contents nav with six
+hand-typed anchors. No document told a daily editor what any band on the
+homepage *is*: where it links, where its content comes from, who selects it,
+or what its date means.
+
+Two decisions, one narrow and one written.
+
+**The run records its homepage review.** `docs/editorial-dna.md` §12 gap 10
+said "do not displace what is stronger" was unenforceable by construction: the
+contract could say a slot was set or removed, never *why*, and a run that
+reviewed the whole cover and kept it was indistinguishable from a run that
+never looked. `whole-site-update-v2` gains an optional `homepageReview` —
+`manualVersion`, `sectionsReviewed`, `sectionsChanged`, and up to twelve
+decisions, each `promote`, `replace`, `retain`, `demote` or `veto` with a
+reason. The validator cross-checks a promote/replace against a `set` and a
+demote against a `remove`; `retain` and `veto` are deliberately not checked,
+because they are the two things the placements cannot show. The report prints
+it under `HOMEPAGE REVIEW`, and a v2 run without one says so.
+
+The narrow place is the same one the v2 entry below found: `delivery` in
+`server/contracts/editorial-update.ts`. A field absent from that whitelist is
+stripped before `editorialInputHash`, so two runs differing only in their
+review would hash identically and the second would be refused as a replay. It
+is named there. No migration — `editorial_run.request` and `.report` are jsonb.
+
+**The manual is versioned, and the version is a contract field.**
+`docs/editorial/homepage-operating-manual.md` carries `Manual version:
+2026-09-12.1` on its second line and the run echoes it verbatim. That is what
+makes a review composed against a stale manual visible in the report rather
+than silently wrong. Bump it when an operating rule changes.
+
+**What stays unrepresentable, on purpose.** The code still does not compare
+candidates; "stronger" is the editor's judgement, now written down. Decisions
+are bounded to the three placeable areas — a view about October 7 or the
+support blocks is a `siteRecommendations` line, because the contract has no
+field for placing either and must not grow one. The two support blocks (the
+strip after the news and the closing section) were reconsidered today and
+kept: the 2026-09-07 ruling stands, UX-13 moved the strip rather than removing
+it, and the manual records that as a ruling so the next audit does not file it
+as a bug.
+
+**Alongside, not decided here but recorded:** the card date is `updatedAt`
+when a record was revised, else `publishedAt`, matching the article page; one
+formatter (`lib/format-date.ts`, en-GB, Asia/Jerusalem) replaces the ~20 local
+ones; band anchors, labels and hub links live in `lib/homepage-bands.ts`; the
+October 7, Courage & service and History & context cards show no date because
+their record dates are ingestion dates. The four al-Taher records are an
+editorial merge for a run to do, not a code fix, and a `publicId` is never
+changed to repair a slug. The ChatGPT Scheduled Task prompt is outside the
+repository; it is replaced from the DNA appendix, which now says v2 and
+carries the five pre-run steps.
+
+---
+
 ## 2026-09-07 — Editorial media gets its own public Blob store; the capture store stays private
 
 Production run `chatgpt-daily-2026-09-07-1758-k7m4` succeeded at everything

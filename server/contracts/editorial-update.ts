@@ -72,6 +72,12 @@ export const startEditorialRunSchema = z.object({
      *  validated by the package schema before they reach here. */
     research: z.array(z.unknown()).optional(),
     vetoes: z.array(z.unknown()).optional(),
+    /** v2 only: the editor's homepage review — `wholeSiteHomepageReviewSchema`.
+     *  `z.unknown()` rather than the schema itself because
+     *  `whole-site-update.ts` imports this file, and the package schema has
+     *  already validated the shape before it reaches here. Named so the hash
+     *  and the report see it. */
+    homepageReview: z.unknown().optional(),
   }).optional(),
 }).superRefine((run, ctx) => {
   const keys = run.operations.map(operation => operation.key);

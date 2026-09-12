@@ -227,7 +227,8 @@ gate back without an owner instruction; ordered contracts return after launch.
 **Delivery, in one line.** Baseline `main`; delivery branch `chatgpt-editorial-updates`
 (excluded from Vercel in `vercel.json`); package
 `editorial-updates/<Israel-local-date>-<runId>.json`; contract
-`whole-site-update-v1` (`server/contracts/whole-site-update.ts`); ingest
+`whole-site-update-v2` (`server/contracts/whole-site-update.ts`; v1 is still
+accepted, and only v2 carries `research`, `vetoes` and `homepageReview`); ingest
 `POST /api/internal/editorial-updates/ingest`; status
 `GET /api/internal/editorial-updates/runs/{runId}`. The mechanism is
 `docs/whole-site-updates.md`. The contract is `.strict()` and describes content

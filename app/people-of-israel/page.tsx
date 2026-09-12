@@ -1,5 +1,6 @@
 import { ActivationBand } from '@/components/content';
 import { SITE_URL } from '@/lib/site-config';
+import { formatDay } from '@/lib/format-date';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -46,9 +47,6 @@ export const metadata: Metadata = pageMetadata({
   path: '/people-of-israel',
 });
 
-function dateLabel(value: string) {
-  return new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeZone: 'Asia/Jerusalem' }).format(new Date(value));
-}
 
 /**
  * One record in the merged list, its section as the kicker.
@@ -65,7 +63,7 @@ function RecordRow({ publication }: { publication: PublicPublication }) {
       <div className={styles.recordBody}>
         <p className={styles.recordMeta}>
           <span className={styles.kicker}>{LABELS[publication.section]}</span>
-          <time dateTime={publication.publishedAt}>{dateLabel(publication.publishedAt)}</time>
+          <time dateTime={publication.publishedAt}>{formatDay(publication.publishedAt)}</time>
         </p>
         <h3><Link href={publicationHref(publication.publicId)}>{publication.title}</Link></h3>
         {publication.summary ? <p className={styles.recordSummary}>{publication.summary}</p> : null}

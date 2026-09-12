@@ -1,5 +1,31 @@
 # State
 
+## 2026-09-11 — Remote review by Codex; stale documentation claims corrected
+
+Codex reviewed the repository **remotely**, against `main` on GitHub. A remote
+review reads files; it is not evidence that anything was run. The corrections
+that followed are documentation only — no code, no schema, no `vercel.json`,
+no deploy:
+
+- `AGENTS.md` no longer says `README.md` claims git auto-deploy is not
+  connected; README says it is, as `docs/operations.md` and CLAUDE.md do.
+- `docs/operations.md` and `docs/architecture.md` no longer describe Vercel
+  crons. `vercel.json` has no `crons` array (owner ruling, 2026-09-08), and
+  `.github/workflows/ops-tick.yml` is `workflow_dispatch` only; both documents
+  now say the drain, ingest, embed and maintenance routes run by hand, as
+  `AGENTS.md` does. No schedule was restored.
+- `docs/editorial-dna.md` §12 marks gaps 2 and 3 (research, veto) closed by
+  `whole-site-update-v2`, and gap 11 closed now that
+  `lib/content/fake-resistance-watch.ts` no longer claims a 17-check gate on
+  the whole-site path. The "Open" list in the 2026-09-06 entry below is
+  superseded on those points.
+
+**Not verified by this review, and not to be read as verified:** the current
+CI status on `main`; Safari or a physical iPhone (still open from the
+2026-09-06 mobile entry); and any restore — neither a database backup restore
+nor a `vercel rollback` was exercised. The Production-console bindings in the
+2026-09-04 entry remain PENDING.
+
 ## 2026-09-06 — The editorial DNA is written down; the two top-level briefs now agree with it
 
 The owner issued a binding definition of what this site and this system are.

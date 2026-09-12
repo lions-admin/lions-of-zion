@@ -74,7 +74,7 @@ export type MediaBlockProps = {
   /**
    * `thumb` is a small square plate for list covers. Default `record` is
    * the editorial 16/10 frame. Thumbs must not pick up that strip.
-   * `reading` is the article hero: the reading measure, no plate border.
+   * `reading` is the article hero: the reading measure, on the media plate.
    */
   layout?: "record" | "thumb" | "reading";
 };

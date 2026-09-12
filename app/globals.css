@@ -867,3 +867,57 @@ html:has([data-handoff-blocked]) body {
   letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
 }
+
+/* The media plate (2026-09-11): the mount every editorial still sits in.
+ *
+ * Most of the site's illustrations are drawn on black, and the ground is
+ * #0b0b0b. Framed by `--line` (13% ink) they read as an asset that has not
+ * loaded — a dark rectangle with no edge — which was the single loudest
+ * defect on the live homepage, the News lead and the article hero. The plate
+ * gives the picture an object's edge out of tokens that already exist:
+ * `--line-strong` as the hairline, `--surface-0` behind it while the bytes
+ * are in flight, `--shadow-1` for the lift, and a lit inner edge laid *over*
+ * the picture (an inset shadow on the frame itself paints under its content,
+ * so it would vanish the moment the image landed).
+ *
+ * Same `composes: mediaPlate from global` contract and limits as the roles
+ * above — a single-class top-level rule only. The plate carries no radius
+ * and no aspect ratio: each surface keeps the corner and the crop it already
+ * had, so a square homepage frame stays square. Where a frame cannot compose
+ * (`MediaBlock`'s reading layout is a descendant rule) the same four tokens
+ * are written by hand and point back here.
+ *
+ * Motion lives with the record, not here: a picture scales by 2% when the
+ * *record* it belongs to is hovered or has keyboard focus, and each surface
+ * says which element that is. This rule only supplies the transition, and
+ * the reduced-motion block below removes both halves. */
+.mediaPlate {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  isolation: isolate;
+  background-color: var(--surface-0);
+  border: var(--line-w) solid var(--line-strong);
+  box-shadow: var(--shadow-1);
+}
+
+.mediaPlate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 var(--line-w) var(--edge-hi);
+  pointer-events: none;
+}
+
+.mediaPlate > img {
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mediaPlate > img {
+    transform: none !important;
+    transition: none;
+  }
+}

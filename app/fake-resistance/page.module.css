@@ -38,7 +38,7 @@
   flex-wrap: wrap;
   justify-content: space-between;
   gap: var(--sp-3);
-  color: var(--ink-lo);
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 
@@ -64,12 +64,15 @@
   box-shadow: 0 0 0 3px var(--gold-wash);
 }
 
+/* Same tightening as the news front's lead (2026-09-11): the ceiling from
+   4rem to 3.25rem and the measure from 20ch to 24ch, so a long investigation
+   title sets in fewer lines rather than the same five at a smaller size. */
 .investigation h2 {
-  max-width: 20ch;
+  max-width: 24ch;
   margin: var(--sp-5) 0 var(--sp-5);
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: clamp(2.125rem, 1.2rem + 3.4vw, 4rem);
+  font-size: clamp(2.125rem, 1.2rem + 2.3vw, 3.25rem);
   font-weight: 400;
   line-height: 1.06;
   letter-spacing: -0.028em;

@@ -7,8 +7,10 @@ const COMPACT_LABEL: Record<DonationChannelId, string> = {
 };
 
 /**
- * Direct provider links as one slim, one-line rail at the close of the first
- * band — after the news, before the narratives.
+ * Direct provider links as one rail of gold-outlined chips at the close of the
+ * first band — after the news, before the narratives. The chips were a slim
+ * line of underlined 13px text until the owner's ruling of 2026-09-11 asked
+ * for donations to be prominent; they now draw the header's Support control.
  *
  * It was the cover's last block (owner ruling, 2026-09-07) and it cost the
  * phone cover 44px plus its margin before a single story had been read. The

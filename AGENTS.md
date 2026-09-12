@@ -225,8 +225,10 @@ one is a Vercel *sensitive* var (write-only). `.env.local` holds a real
 connection string but it is the **Preview** branch. Get Production from the
 Neon Console or `neonctl`.
 
-Note: `README.md` still says git auto-deploy is *not* connected — stale.
-`docs/operations.md` and CLAUDE.md carry the correction (2026-09-04).
+`README.md`, `docs/operations.md` and CLAUDE.md all say git auto-deploy is
+connected. The correction landed in `docs/operations.md` and CLAUDE.md on
+2026-09-04 and has since reached `README.md`; this note said README was still
+stale until 2026-09-11.
 
 # Architecture boundaries (lint-enforced, not convention)
 
@@ -251,7 +253,7 @@ which is a plain Markdown file any agent can read.
 
 - `server/core/config.ts` is the only server-runtime file that reads
   `process.env`. Nothing throws at import time — accessors throw at the point
-  of use. `NEXT_PUBLIC_*` values are build-time inlined, not runtime reads.
+of use. `NEXT_PUBLIC_*` values are build-time inlined, not runtime reads.
 - `recordVersion()` in `server/core/versioning.ts` is the **only** write path
   for a versioned entity; nothing else may `UPDATE` a versioned table.
 - `emit()` in `server/core/outbox.ts` writes job intent **inside** the causing
@@ -400,7 +402,7 @@ they will in Neon. Gotchas:
 
 - `maxWorkers: 2` is set in `vitest.config.ts` on purpose; default parallelism
   OOM/times-out the whole suite (110 failures in untouched files). Don't
-  override it.
+override it.
 - PGlite has no pgvector: semantic-search tests skip unless `TEST_DATABASE_URL`
   points at a Postgres that has it. Lexical search is fully covered locally.
 - Hand-written SQL rules go in a new numbered file in `server/db/migrations/`

@@ -571,15 +571,19 @@ function LeadMedia({ media }: { media: EditorialMedia | null }) {
   const disclosure = media.role === "safe-cover" ? "Safe cover" : media.disclosure ?? ROLE_DISCLOSURE[media.role];
   return (
     <figure className={styles.leadMedia}>
-      <Image
-        src={media.src}
-        alt={media.alt}
-        width={media.width}
-        height={media.height}
-        loading="eager"
-        sizes="(max-width: 44.99rem) 100vw, (max-width: 68.75rem) 55vw, 60vw"
-        style={{ objectPosition: `${media.focalPoint.x}% ${media.focalPoint.y}%` }}
-      />
+      {/* The plate is a wrapper, not the image: the picture scales inside it
+          on hover and the edge must not scale with it. */}
+      <span className={styles.leadFrame}>
+        <Image
+          src={media.src}
+          alt={media.alt}
+          width={media.width}
+          height={media.height}
+          loading="eager"
+          sizes="(max-width: 44.99rem) 100vw, (max-width: 68.75rem) 55vw, 60vw"
+          style={{ objectPosition: `${media.focalPoint.x}% ${media.focalPoint.y}%` }}
+        />
+      </span>
       <figcaption>
         {disclosure ? <span className={styles.mediaDisclosure}>{disclosure}</span> : null}
         {media.caption ? <span className={styles.mediaCaption}>{media.caption}</span> : null}

@@ -455,8 +455,10 @@ only when it was genuinely resolved. If an item's source traceability cannot be
 represented without inventing an ID, **veto that item** and record a
 `siteRecommendation` naming the source-ingestion capability that is missing.
 
-**Gap:** the contract has no veto field, so a deliberate refusal and a
-technical failure land in the same report section. See [§12](#12-gaps).
+**Closed gap:** `whole-site-update-v2` carries a `vetoes` array, and the report
+lists it under `VETOED — editorial decisions, not faults`, apart from
+`NOT PUBLISHED — technical failures`. A `whole-site-update-v1` package still
+has no veto field. See [§12](#12-gaps).
 
 ### The site-manager's eye
 
@@ -604,9 +606,10 @@ safe, and the next action. `deliverEditorialRunReport()` emails it to
 `ADMIN_EMAIL` — driven by `TOPICS.editorialRunReport`, which
 `server/modules/editorial-update/repo.ts` emits when a run finishes or fails.
 
-**Gaps:** the recipient is an environment value that has to actually be set;
-"what was researched" is not representable; and a *deliberate* veto is not
-distinguishable from a technical failure. See [§12](#12-gaps).
+**Gaps:** the recipient is an environment value that has to actually be set
+(closed 2026-09-07). "What was researched" and a *deliberate* veto are
+representable in `whole-site-update-v2` (`research`, `vetoes`) and reach the
+report; a v1 package still cannot express either. See [§12](#12-gaps).
 
 ## 11. Launch-period posture
 
@@ -660,26 +663,33 @@ Every item below was verified by reading the code on 2026-09-06. These are
 things the DNA requires that the system does not yet do. Five items that stood
 on this list earlier the same day were closed while this document was being
 written; they are noted at the end so a reader does not go looking for them.
+Items closed since keep their number so references to "gap 2" or "gap 11"
+still resolve, and are marked **Closed** in place.
 
-1. **The report recipient is configuration, not code.**
+1. **Closed 2026-09-07 — see below.** **The report recipient is
+   configuration, not code.**
    `editorialReportEmail()` in `server/core/config.ts` reads
    `EDITORIAL_REPORT_EMAIL` and falls back to `ADMIN_EMAIL`. The address the
    DNA names appears nowhere in the repository and correctly should not — but
    until that variable is set on the Vercel project, every run report goes to
    the admin address instead. `docs/environment.md` is the place it is named.
-2. **"What was researched" is not representable.**
-   `wholeSiteUpdatePackageSchema` carries creates, updates, homepage decisions
-   and `siteRecommendations`, and nothing else. A composer cannot report the
-   ground it covered, the narratives it evaluated and rejected, or the sources
-   it read, so the report's REQUESTED section can only list the operations that
-   were actually delivered.
-3. **A veto is not representable.** There is no veto field on the contract, so
-   the report's NOT PUBLISHED / VETOED section is built from operations that
-   *failed* — a media fetch that 404'd, a target that was not live. A composer
-   that deliberately declined to publish something has only a free-text
-   `siteRecommendations` string, and a reader of the report cannot tell an
-   editorial judgement from a technical error. There is also no way to query
-   what the desk has declined.
+2. **Closed — `whole-site-update-v2` `research`.** This said "what was
+   researched" is not representable, because `wholeSiteUpdatePackageSchema`
+   (v1) carries only creates, updates, homepage decisions and
+   `siteRecommendations`. A v2 package adds `research`
+   (`wholeSiteResearchEntrySchema`: topic, focus, `sourcesReviewed`,
+   conclusion, outcome), stored with the run and printed in the report's
+   `RESEARCHED` section. A v1 package still cannot carry it.
+3. **Closed — `whole-site-update-v2` `vetoes`.** This said a veto is not
+   representable and the report built its NOT PUBLISHED / VETOED section from
+   operations that *failed*. A v2 package adds `vetoes`
+   (`wholeSiteVetoSchema`: key, candidate, reason, section, sources,
+   replacement, `ownerDecisionRequested`), and the report lists them under
+   `VETOED — editorial decisions, not faults`, apart from
+   `NOT PUBLISHED — technical failures`, calling out any veto that requests an
+   owner decision. A v1 package still has only a free-text
+   `siteRecommendations` string. Whether past vetoes can be queried outside
+   the run report was not re-checked.
 4. **October 7 rotates per edition, not "every few minutes".**
    `selectHomepage()` in `server/modules/homepage/selection.ts` rotates the
    `october7` band against display history when a new edition is composed, and
@@ -687,8 +697,10 @@ written; they are noted at the end so a reader does not go looking for them.
    `app/page.tsx` revalidates every 60s but reads the same snapshot. There is
    no sub-edition rotation anywhere in the codebase.
 5. **The homepage edition has no schedule of its own.**
-   `app/api/internal/cron/homepage/route.ts` is not listed in `vercel.json`
-   `crons` — its own header comment says so. An edition is rebuilt when an
+   `app/api/internal/cron/homepage/route.ts` has no schedule: `vercel.json`
+   has carried no `crons` array at all since 2026-09-08. (The route's header
+   comment still says `vercel.json` "carries four cron entries"; that part is
+   stale, its "not scheduled" conclusion is not.) An edition is rebuilt when an
    ingest run finishes (`ensureEdition()` at the end of `processEditorialRun`),
    or by a manual authenticated `GET`. Adding a cron entry is an owner
    decision: `AGENTS.md` forbids adding a scheduled job uninvited.
@@ -718,17 +730,28 @@ written; they are noted at the end so a reader does not go looking for them.
     representation of *why*, and no comparison against what currently occupies
     the position. Omitting a decision leaves the slot alone — which is the
     mechanism — but nothing checks that the omission was the right call.
-11. **`lib/content/fake-resistance-watch.ts` carries a stale claim.** Its
-    header says a Narrative Watch record "has cleared this platform's 17-check
-    automated quality gate". Records delivered through `whole-site-update-v1`
-    clear no such gate — see [§11](#11-launch-period-posture). The surrounding
-    editorial point (a same-day machine finding is not a reviewed case file) is
-    still right; the mechanism named is not. That file is outside this
-    document's ownership and is left for a separate pass.
+11. **Closed 2026-09-07 — `lib/content/fake-resistance-watch.ts`.** Its
+    header said a Narrative Watch record "has cleared this platform's 17-check
+    automated quality gate". It now says a record there "has cleared nothing":
+    it arrives through the whole-site path, which runs no automated quality
+    suite (see [§11](#11-launch-period-posture)), and the comment records that
+    it made the 17-check claim until 2026-09-07. The editorial point — a
+    same-day machine finding is not a reviewed case file — is kept.
 12. **`withDatabaseRole` still has no test.** Carried forward from
     `CLAUDE.md`: `tests/rls.test.ts` proves the policies via `SET LOCAL ROLE`
     in a transaction on PGlite, which is not the pooled session-scope mechanism
     production uses — and every editorial ingest runs through it.
+
+### Closed since, recorded here on 2026-09-11
+
+- **Gap 2 ("what was researched") and gap 3 (a deliberate veto)** are closed by
+  `whole-site-update-v2` (`server/contracts/whole-site-update.ts`), which adds
+  the `research` and `vetoes` arrays; `docs/whole-site-updates.md`
+  "`whole-site-update-v2`: research and vetoes". v1 stays valid and cannot
+  carry either. The "remain open" line in the 2026-09-07 list below is
+  superseded.
+- **Gap 11 (`fake-resistance-watch.ts`)** — the header comment was corrected on
+  2026-09-07 and no longer claims a 17-check gate on the whole-site path.
 
 ### Closed on 2026-09-07
 

@@ -270,8 +270,12 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
             aria-current={current(SUPPORT_LINK.href) ? "page" : undefined}
             onClick={closePanels}
           >
-            <Icon name="support" size={15} strokeWidth={1.5} />
-            {SUPPORT_LINK.label}
+            <Icon name="support" size={16} strokeWidth={1.5} />
+            {/* Owner ruling 2026-09-11: Support Us stays in the bar at every
+                width. Where the word does not fit, the phone makes it
+                screen-reader-only — the same box `.accountLabel` and
+                `.menuLabel` use — and the gold-outlined glyph carries it. */}
+            <span className={styles.supportLabel}>{SUPPORT_LINK.label}</span>
           </Link>
 
           <Link

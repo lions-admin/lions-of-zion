@@ -14,6 +14,14 @@
   color: var(--ink);
 }
 
+/* The reading-progress rule, hung under the fixed header rather than behind
+   it. `ReadingProgress` has drawn a bar on every shell route since SYS-015,
+   but at `top: 0` and `--z-sticky` it sat under the masthead, where no reader
+   ever saw it. This is the same one-line delta `/information-war` passes;
+   the primitive still owns the 2px, the gold, the empty no-JavaScript state
+   and the reduced-motion result. */
+.progressTrack { --progress-top: var(--header-h); }
+
 .article {
   position: relative;
   width: min(var(--reading-w), calc(100% - 2 * var(--family-pad-inline, var(--sp-5))));
@@ -59,16 +67,17 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--sp-2);
+  gap: var(--sp-2) var(--sp-3);
   margin-bottom: var(--sp-3);
 }
 
 /* UX-21. The story's dateline — arena and actor — beside the section badge,
-   at the data step and in the low ink so the badge stays the loudest thing
-   in the row. */
+   at the data step. Full ink since 2026-09-11: in the low ink it all but
+   disappeared on the live page. The badge's gold still makes it the loudest
+   thing in the row. */
 .kickerFacets {
   composes: dataValue from global;
-  color: var(--ink-lo);
+  color: var(--ink);
   text-transform: capitalize;
   overflow-wrap: anywhere;
 }
@@ -87,9 +96,12 @@
   overflow-wrap: anywhere;
 }
 
+/* 3.5rem at 4.5vw set a long headline as a four- and five-line wall above
+   the lede (2026-09-11). The ceiling is now 3rem and the growth slower; the
+   32px floor is unchanged. */
 .article h1 {
   margin: var(--sp-2) 0 var(--sp-4);
-  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  font-size: clamp(2rem, 1.25rem + 2.6vw, 3rem);
   font-weight: var(--t-display-weight);
   line-height: var(--t-display-lh);
   letter-spacing: var(--t-display-tracking);

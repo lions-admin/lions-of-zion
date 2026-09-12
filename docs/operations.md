@@ -113,7 +113,9 @@ explicit owner request.
 
 `npm run briefing:compose` refuses live collection, model drafting and submission.
 `npm run briefing:compose -- --fixture` only validates and prints a historical
-package. This does not disable evidence collection under the ingest cron.
+package. This does not disable evidence collection through the ingest route
+(`/api/internal/cron/ingest`, now run by hand — see
+[Manual operations](#manual-operations-there-are-no-crons)).
 New editorial work uses the ChatGPT whole-site delivery path. The legacy
 external-publish API and `/api/internal/codex/briefing-import` are authenticated tombstones: valid credentials receive
 412 PRECONDITION_FAILED and no package is parsed or published. Historical
@@ -205,45 +207,49 @@ Use additive migrations while old and new deployments can coexist; rollback
 restores application code, not data or schema. A migration ledger and column
 check do not prove that manually altered triggers or policies are intact.
 
-`vercel.json` declares one Queue trigger for the transactional outbox plus four
-technical production schedules. Editorial package execution is emitted through
-that outbox after an authenticated receiver accepts explicit operations; Vercel
-does not start editorial research, drafting, or a daily edition. The outbox
-dispatcher takes the `outbox-dispatch` topic and its `maxDuration` is declared
-in the route file.
-
-```json
-{
-  "crons": [
-    { "path": "/api/internal/cron/ingest", "schedule": "0,30 * * * *" },
-    { "path": "/api/internal/cron/embed", "schedule": "10,40 * * * *" },
-    { "path": "/api/internal/cron/outbox-drain", "schedule": "*/15 * * * *" },
-    { "path": "/api/internal/cron/maintenance", "schedule": "20 3 * * *" }
-  ]
-}
-```
+`vercel.json` declares one Queue trigger for the transactional outbox and **no
+`crons` array** — the four technical schedules were removed by owner ruling on
+2026-09-08. Editorial package execution is emitted through that outbox after an
+authenticated receiver accepts explicit operations; Vercel does not start
+editorial research, drafting, or a daily edition. The outbox dispatcher takes
+the `outbox-dispatch` topic and its `maxDuration` is declared in the route file.
 
 For rolling back a bad production deploy, see
 [`../.ai/ROLLBACK.md`](../.ai/ROLLBACK.md).
 
-### Scheduled work
+### Manual operations: there are no crons
 
-Production schedules are authenticated by `CRON_SECRET`. Ingest
-runs at minutes 0 and 30, embeddings at 10 and 40, the outbox drain every 15
-minutes, and maintenance daily at 03:20 UTC. Every handler is idempotent and
-safe to retry. **No Vercel route starts editorial work.** A
+> **Corrected 2026-09-11.** This section was titled "Scheduled work" and gave
+> four Vercel cron schedules (ingest at minutes 0 and 30, embeddings at 10 and
+> 40, the outbox drain every 15 minutes, maintenance daily at 03:20 UTC).
+> `vercel.json` has carried no `crons` array since 2026-09-08.
+
+Nothing collects, drains the outbox, embeds or reconciles alerts on its own.
+The routes under `app/api/internal/cron/` still exist and still work, and are
+still authenticated by `CRON_SECRET`; they run only when someone runs them:
+
+- from the admin console —
+  `POST /api/v1/admin/console/{sources/collect-sweep, outbox/drain, maintenance/tick}`;
+- from the **Operations tick** workflow (`.github/workflows/ops-tick.yml`),
+  which is `workflow_dispatch` only, takes one of `ingest`, `outbox-drain`,
+  `embed` or `maintenance`, and needs the `CRON_SECRET` and `SITE_URL`
+  repository secrets.
+
+Every handler is idempotent and safe to retry. Do not restore a schedule
+without an owner instruction (see "There are no crons" in
+[`AGENTS.md`](../AGENTS.md)). **No Vercel route starts editorial work.** A
 `whole-site-update-v1` package is fulfilled only when it arrives at
 `POST /api/internal/editorial-updates/ingest`, idempotent on
 `editorial_run.run_key` plus its canonical request hash. The legacy
 `/api/internal/briefing/external-publish` endpoint is an authenticated 412
 tombstone: it does not parse or publish a package.
 
-The drain hands up to 250 rows a tick to the queue, which is 1,000 an hour and
-comfortably more than one edition's load — a brief materializes roughly one
-claim per paragraph and emits a `search.reindex` for each, around 190 rows
-arriving together. A backlog that survives several ticks is therefore a
-dispatch failure, not a throughput limit; check the queue binding before
-raising the number.
+Each drain run hands up to 250 rows to the queue, comfortably more than one
+edition's load — a brief materializes roughly one claim per paragraph and emits
+a `search.reindex` for each, around 190 rows arriving together. With no
+schedule, pending rows wait until a drain is run. A backlog that survives
+several drain runs is therefore a dispatch failure, not a throughput limit;
+check the queue binding before raising the number.
 
 ### Deploying across a delivery run
 
@@ -515,19 +521,22 @@ today, not a bug.
 This deployment has no pgvector, so those are lexical results only. Honest by
 design rather than hidden.
 
-### `embed` cron reports `skipped`
+### `embed` reports `skipped`
 **Stale — the AI Gateway is wired.** This said there is no embedder. The route
 reports the backlog size
-rather than failing — a scheduled job that alarms on a deliberate, known state
-is one people learn to ignore.
+rather than failing — a job that alarms on a deliberate, known state is one
+people learn to ignore.
 
 ### Outbox rows are piling up
-**Stale — it is scheduled.** `vercel.json` runs the drain at `*/15 * * * *` and
-the handler exists. A row that
-fails to dispatch backs off 30s → 2m → 10m → 30m → 1h and is retried, never
-abandoned. The per-tick limit is 250, well above an edition's load, so a
-growing backlog means `dispatch` is failing rather than that the drain is
-behind; the row's `last_error` and `attempts` columns say which.
+**Nothing drains on a schedule.** `vercel.json` has no `crons` array (owner
+ruling, 2026-09-08), so pending rows stay pending until someone runs the drain
+— `outbox-drain` in the **Operations tick** workflow, or
+`POST /api/v1/admin/console/outbox/drain`. This entry said "it is scheduled …
+at `*/15 * * * *`" until 2026-09-11. A row that fails to dispatch backs off
+30s → 2m → 10m → 30m → 1h and is retried on a later drain, never abandoned.
+The per-run limit is 250, well above an edition's load, so a backlog that
+survives a drain means `dispatch` is failing; the row's `last_error` and
+`attempts` columns say which.
 
 ### Semantic-search tests are skipping
 Expected without `TEST_DATABASE_URL`. PGlite has no pgvector, and no package

@@ -1,0 +1,187 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-editorial-2026-09-12-1705-r1",
+  "composer": "ChatGPT scheduled whole-site editorial update",
+  "createdAt": "2026-09-12T14:05:13Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "lebanon-aoun-talks-update",
+      "target": { "canonicalStoryId": "lebanon-ali-al-taher-ridge-2026-09" },
+      "publication": {
+        "title": "Aoun visits south Lebanon as next Israel-Lebanon talks slip to October",
+        "summary": "Lebanese President Joseph Aoun visited Nabatiyeh after Israel's Ali al-Taher operation, while the next U.S.-mediated Israel-Lebanon round was reported postponed until October. The military claims about the ridge remain separately attributed to the IDF.",
+        "body": "September 12 update: Lebanese President Joseph Aoun made a rare visit to Nabatiyeh and nearby southern areas after Israel's operation around the Ali al-Taher ridge. Associated Press reported that the visit was intended to reassure residents amid concern over renewed Israeli attacks and possible further ground activity.\n\nAoun said the Lebanese state remained committed to protecting residents. Reporting from AP and other outlets also says the next U.S.-mediated Israel-Lebanon negotiating round, previously expected this month, has been postponed until October. The diplomatic delay matters because the Ali al-Taher operation sits inside a wider dispute over Israeli withdrawal, Hezbollah disarmament and the implementation of the June framework.\n\nThe underlying military account remains unchanged in evidentiary status. On September 11, the IDF said its forces had completed dismantling more than two kilometers of underground infrastructure beneath the Ali al-Taher ridge, including what it described as a Hezbollah Badr Unit command complex, weapons storage and living quarters. Those are the IDF's operational findings; this desk has not independently surveyed the site.\n\nWhat changed: the story is no longer only about what Israel says it destroyed underground. The immediate political and diplomatic consequence is now clearer: Lebanon's president has gone south in person, residents are pressing for protection, and the next negotiating round has slipped to October. None of those developments independently verifies the IDF's description of the underground complex.\n\nLast checked: September 12, 2026. Watch next: any confirmed new negotiating date, changes to the pilot-zone framework, independently documented site evidence and further official Israeli or Lebanese operational detail.",
+        "changeSummary": "Add September 12 Aoun visit and reported postponement of the next Israel-Lebanon talks to October while keeping the IDF's Ali al-Taher claims separately attributed."
+      },
+      "sources": [
+        {
+          "url": "https://apnews.com/article/867b9fc371b7944264f8647f319520de",
+          "title": "Lebanon's president makes a rare visit to southern city as fears of Israeli attacks grow",
+          "publisher": "Associated Press",
+          "publisherUrl": "https://apnews.com/",
+          "publishedAt": "2026-09-12T00:00:00Z",
+          "language": "en"
+        }
+      ]
+    },
+    {
+      "key": "hormuz-air-defense-windows",
+      "target": { "canonicalStoryId": "iran-us-hormuz-maritime-escalation-2026" },
+      "publication": {
+        "title": "U.S. narrows tanker air-defense windows as Hormuz remains contested",
+        "summary": "A September 12 report says the U.S. is offering two daily air-defense windows to tankers using the Strait of Hormuz after increased Iranian attacks. The detail sharpens the picture of partial passage without establishing normal commercial traffic.",
+        "body": "September 12 update: The Times of Israel, citing Financial Times reporting and emails from the U.S. Maritime Coordination Center, says Washington has reduced to two daily windows the periods in which it offers air defense to oil tankers transiting the Strait of Hormuz. Ships are reportedly advised, but not required, to use those windows.\n\nThe reported change adds operational detail to the September 11 assessment that the United States has made partial progress in reopening passage while the confrontation with Iran remains unresolved. It supports a narrower conclusion than 'Hormuz has reopened': some traffic is moving under constrained conditions, while security support and sailing behavior remain shaped by attack risk.\n\nThe report says the restriction followed increased Iranian attacks on ships transiting at night. This desk has not independently examined the Maritime Coordination Center emails, so the two-window detail remains attributed to the outlets reporting them.\n\nEarlier U.S. military accounts remain relevant context. CENTCOM said in early September that American forces struck Iranian crude carriers after attacks on U.S. warships. Reuters and Kpler data had also shown severe short-term disruption to commercial movement. Those earlier observations should not be read as a live vessel count for September 12.\n\nWhat changed: the story now has a concrete indicator of how passage is being managed rather than only a general description of partial reopening. The evidence still does not establish normalized traffic, a permanent blockade, or identical conditions for every vessel class.\n\nLast checked: September 12, 2026. Next checks: direct U.S. maritime advisories, measured vessel movements, independently verified attacks and any change in the two daily protection windows.",
+        "changeSummary": "Add September 12 reporting that U.S. tanker air-defense support is now concentrated into two daily Hormuz transit windows; distinguish managed passage from normalization."
+      },
+      "sources": [
+        {
+          "url": "https://www.timesofisrael.com/liveblog_entry/us-reduces-air-defense-time-slots-for-tankers-sailing-through-hormuz-report/",
+          "title": "US reduces air defense time slots for tankers sailing through Hormuz — report",
+          "publisher": "The Times of Israel",
+          "publisherUrl": "https://www.timesofisrael.com/",
+          "publishedAt": "2026-09-12T09:32:00+03:00",
+          "language": "en"
+        }
+      ]
+    },
+    {
+      "key": "yemen-bab-al-mandeb-update",
+      "target": { "canonicalStoryId": "yemen-bab-al-mandeb-fighting-2026" },
+      "publication": {
+        "title": "Houthi gains tighten pressure around Bab al-Mandeb, but do not prove a total closure",
+        "summary": "Fresh reporting confirms Houthi control of Mayun/Perim and describes broader gains near the Red Sea chokepoint. The territorial shift raises shipping risk, especially as Hormuz remains disrupted, without by itself proving all commercial passage has stopped.",
+        "body": "September 12 update: Associated Press reporting confirms that Houthi forces captured Mayun, also known as Perim, the island sitting in the Bab al-Mandeb Strait at the entrance to the Red Sea. Other current reporting describes broader Houthi gains around Mokha and the western Yemeni coast.\n\nThe strategic significance has increased because Bab al-Mandeb is an alternative route for Saudi exports at the same time that traffic through the Strait of Hormuz remains under pressure. AP notes that roughly 12% of world goods typically move through Bab al-Mandeb. That makes territorial control around the chokepoint important even before a complete maritime shutdown is demonstrated.\n\nThe evidentiary boundary remains important. Control of Mayun/Perim and nearby territory does not itself prove that every vessel is being stopped, that commercial passage has ceased, or that all shipping faces identical restrictions. Claims of control over the entire maritime passage should be tested against navigation advisories and vessel-movement data, not inferred solely from land or island seizures.\n\nIranian support for the Houthis is well documented in the broader record, but that relationship does not establish Tehran's command of this specific offensive. The immediate facts are the territorial gains reported by officials and news organizations and the resulting increase in exposure for Red Sea shipping.\n\nWhat changed: the story has moved beyond a single-island seizure into a wider chokepoint-risk assessment. The next decisive evidence is operational: vessel movements, insurer and maritime-security advisories, confirmed targeting rules and whether Saudi or allied forces reverse any of the territorial gains.\n\nLast checked: September 12, 2026.",
+        "changeSummary": "Expand the September 11 Mayun/Perim update with September 12 chokepoint context and broader Houthi gains, while preserving the distinction between territorial control and a verified total shipping closure."
+      },
+      "sources": [
+        {
+          "url": "https://www.gpb.org/news/2026/09/12/yemens-houthis-capture-red-sea-island-in-threat-shipping",
+          "title": "Yemen's Houthis capture a Red Sea island in threat to shipping",
+          "publisher": "Associated Press via Georgia Public Broadcasting",
+          "publisherUrl": "https://www.gpb.org/",
+          "publishedAt": "2026-09-12T01:57:00-04:00",
+          "language": "en"
+        },
+        {
+          "url": "https://www.latimes.com/world-nation/story/2026-09-11/yemens-iranian-backed-houthis-seize-island-in-key-strait-opening-new-front-in-iran-war",
+          "title": "Yemen's Iranian-backed Houthis seize an island in a key strait, opening a new front in the Iran war",
+          "publisher": "Los Angeles Times",
+          "publisherUrl": "https://www.latimes.com/",
+          "publishedAt": "2026-09-11T14:01:00-07:00",
+          "language": "en"
+        }
+      ]
+    },
+    {
+      "key": "iraq-saudi-pipeline-network-update",
+      "target": { "canonicalStoryId": "iran-aligned-network-evidence-assessment-2026" },
+      "publication": {
+        "title": "Saudi pipeline attack adds an Iraq-origin incident; responsibility remains unresolved",
+        "summary": "Saudi Arabia says drones launched from Iraq struck its East-West oil pipeline, causing injuries and damage. The incident is relevant to the regional armed-group network, but launch geography does not by itself establish which group ordered the attack or whether Iran directed it.",
+        "body": "## September 12 development\n\nSaudi Arabia's Foreign Ministry says several drones launched from Iraq targeted the Kingdom's East-West oil pipeline in the Riyadh and Madinah regions, causing injuries and damage. Riyadh said it had chosen not to respond at this stage after a request from Iraq's prime minister to give Baghdad an opportunity to prevent further attacks from Iraqi territory.\n\nThe East-West pipeline matters strategically because Saudi Arabia has relied more heavily on routes to the Red Sea while the Strait of Hormuz remains disrupted. An attack on this bypass infrastructure therefore has significance beyond the physical damage at the struck facilities.\n\n## What the incident establishes\n\nThe Saudi statement establishes the Kingdom's official position that the drones were launched from Iraqi territory. Public reporting also says Iraqi authorities opened an investigation. At the time of this update, no group has been established in the reviewed sources as the responsible attacker.\n\nThat distinction matters for this canonical story. Iraq hosts multiple armed groups with different command relationships, political roles and degrees of alignment with Iran. A launch from Iraqi territory is evidence about geography; it is not, on its own, proof that a specific Iran-aligned militia carried out the strike or that Tehran ordered it.\n\n## The wider network remains real\n\nIran's relationships with Hezbollah, Hamas, the Houthis and a range of Iraqi armed groups remain well documented through sanctions records, intelligence assessments and years of public reporting. The IRGC-Quds Force has been a central instrument for many of those relationships. But an established support network should not be used as a shortcut around incident-level attribution.\n\nThe same rule applies to earlier reporting about a possible synchronized multi-front attack. Evidence of shared alignment, financing, training or strategic interests does not automatically establish a single integrated operational headquarters, a common timetable or Iranian command of every action.\n\n## What changed\n\nThe regional network assessment now includes a concrete September 12 incident with strategic energy consequences and an officially stated Iraqi launch origin. The assessment does not upgrade responsibility beyond the evidence reviewed.\n\nLast checked: September 12, 2026. Watch next: results of the Iraqi investigation, any credible claim of responsibility, forensic or launch-site evidence, arrests or government action, and independent evidence tying an organization or command structure to the strike.",
+        "changeSummary": "Add the September 12 Saudi East-West pipeline drone attack as a documented Iraq-origin incident while explicitly separating launch geography from militia or Iranian command attribution."
+      },
+      "sources": [
+        {
+          "url": "https://www.spa.gov.sa/en/N2674116",
+          "title": "Saudi Arabia Strongly Condemns Drone Attack on East-West Pipeline by Drones Launched from Iraq",
+          "publisher": "Saudi Press Agency",
+          "publisherUrl": "https://www.spa.gov.sa/",
+          "official": true,
+          "publishedAt": "2026-09-12T00:49:00+03:00",
+          "language": "en"
+        },
+        {
+          "url": "https://www.abc.net.au/news/2026-09-12/drone-attack-on-saudi-oil-pipeline-from-iraq/107146218",
+          "title": "Saudi Arabia closes oil pipeline after drone attack launched from Iraq",
+          "publisher": "ABC News Australia",
+          "publisherUrl": "https://www.abc.net.au/",
+          "publishedAt": "2026-09-12T09:53:00+10:00",
+          "language": "en"
+        }
+      ]
+    }
+  ],
+  "homepage": {
+    "news": {
+      "lead": { "action": "set", "publication": { "operationKey": "lebanon-aoun-talks-update" } },
+      "secondary": { "action": "set", "publication": { "operationKey": "yemen-bab-al-mandeb-update" } }
+    }
+  },
+  "siteRecommendations": [
+    "Keep the Saudi pipeline attack inside the Iran-aligned network dossier until responsibility is established; create a separate canonical incident only if the Iraqi investigation or a credible claim produces durable incident-specific evidence.",
+    "The live source collector has many disabled feeds and several active feeds have not fetched successfully since September 8; review source-ingestion freshness separately from this editorial run.",
+    "Media debt remains significant. Prioritize high-value live records without heroes in a dedicated media recovery run rather than attaching weak or rights-unclear imagery during breaking-news updates."
+  ],
+  "research": [
+    {
+      "topic": "Israel and Lebanon",
+      "focus": "Ali al-Taher aftermath, Lebanese political response and negotiation timetable",
+      "sourcesReviewed": ["https://apnews.com/article/867b9fc371b7944264f8647f319520de"],
+      "conclusion": "Aoun's visit to Nabatiyeh and the reported postponement of the next Israel-Lebanon round to October materially extend the existing Ali al-Taher developing story.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "Iran and Strait of Hormuz",
+      "focus": "Current tanker passage and U.S. protection arrangements",
+      "sourcesReviewed": ["https://www.timesofisrael.com/liveblog_entry/us-reduces-air-defense-time-slots-for-tankers-sailing-through-hormuz-report/"],
+      "conclusion": "Two reported daily air-defense windows provide a concrete indicator of constrained passage but do not establish normalized traffic.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "Yemen and Bab al-Mandeb",
+      "focus": "Houthi territorial gains and shipping exposure",
+      "sourcesReviewed": ["https://www.gpb.org/news/2026/09/12/yemens-houthis-capture-red-sea-island-in-threat-shipping","https://www.latimes.com/world-nation/story/2026-09-11/yemens-iranian-backed-houthis-seize-island-in-key-strait-opening-new-front-in-iran-war"],
+      "conclusion": "Mayun/Perim control and wider western-coast gains materially increase chokepoint risk, but available evidence does not prove a total maritime closure.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "Iraq and Gulf energy security",
+      "focus": "Drone strike on Saudi East-West pipeline",
+      "sourcesReviewed": ["https://www.spa.gov.sa/en/N2674116","https://www.abc.net.au/news/2026-09-12/drone-attack-on-saudi-oil-pipeline-from-iraq/107146218"],
+      "conclusion": "Saudi Arabia officially says the drones were launched from Iraq. The attack is strategically important but responsibility remains unresolved, so it belongs in the existing regional-network assessment rather than a new attribution-heavy story.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "Fake Resistance",
+      "focus": "New viral claims, synthetic media and recycled narratives since the last run",
+      "conclusion": "No candidate reviewed in this short interval met the evidence threshold for a new or materially updated Fake Resistance record beyond items already live.",
+      "outcome": "no_action"
+    },
+    {
+      "topic": "October 7 archive",
+      "focus": "New primary documentation or official corrections",
+      "conclusion": "No sufficiently strong new primary-source development was identified for an editorial package update. The whole-site package contract also has no October 7 destination, so archive work must use its dedicated curation path when warranted.",
+      "outcome": "no_action"
+    },
+    {
+      "topic": "Israel science, medicine and technology",
+      "focus": "Fresh high-value Israeli research and innovation since the previous edition",
+      "conclusion": "Items found were older announcements or insufficiently new for this edition; no publication was justified merely to fill a category.",
+      "outcome": "no_action"
+    },
+    {
+      "topic": "Antisemitism and campaigns against Israel",
+      "focus": "Material new developments since the last editorial run",
+      "conclusion": "No development reviewed in the interval displaced the currently live higher-priority material or met the threshold for a new canonical record.",
+      "outcome": "no_action"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "veto-new-saudi-pipeline-duplicate",
+      "candidate": "Create a standalone article for the Saudi East-West pipeline drone attack",
+      "reason": "The incident is important, but responsibility is unresolved and it fits the existing Iran-aligned armed-group evidence dossier. Updating that canonical story avoids immediate duplication and avoids adding another important live record without dedicated hero media.",
+      "section": "israel_update",
+      "sources": ["https://www.spa.gov.sa/en/N2674116"],
+      "replacement": "Updated iran-aligned-network-evidence-assessment-2026 with the incident and explicit attribution limits."
+    },
+    {
+      "key": "veto-forced-science-item",
+      "candidate": "Publish an Israeli science or AI item solely to maintain category balance",
+      "reason": "The freshest reviewed candidates were not new enough for this edition. Category balance is not a reason to publish stale or weakly sourced material.",
+      "section": "technology_ai"
+    }
+  ]
+}

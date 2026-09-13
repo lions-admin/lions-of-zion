@@ -204,6 +204,46 @@ export function buildXShareText({ title, text, kind = 'testimony' }: ShareTextSo
   return `\u201c${quote}\u201d\n\n${cta}`;
 }
 
+/**
+ * The caption that travels *with* a shared file.
+ *
+ * A native file share is not a web intent: the receiving app gets the video or
+ * the image plus one plain-text field, and most of them (X among them) drop
+ * `navigator.share`'s separate `url` on Android when `files` is present. So the
+ * link is written into the text rather than passed beside it, and the whole
+ * thing is kept short — the file is the post, this is its label.
+ *
+ * Budget: the 280-weight account, minus the t.co cost of the link, minus the
+ * newline. The title is clipped on a word boundary by `buildShareQuote`, never
+ * mid-word, for the same reason the quote builder exists.
+ */
+export function buildMediaShareText(title: string, url: string): string {
+  const budget = Math.min(X_POST_LIMIT - TCO_URL_WEIGHT - 1, TEASER_QUOTE_MAX);
+  const clean = collapse(title);
+  /* `buildShareQuote` returns '' when not one whole word fits, which a title
+     with no spaces in it — a long CJK line, a single URL-like token — always
+     is. Falling back to the untouched title there would put the whole thing on
+     the post and blow the budget, so the last resort is a weighted hard clip.
+     It is not a mid-word cut in any meaningful sense: there is one word, and it
+     cannot fit. */
+  return `${buildShareQuote(clean, budget) || clipToWeight(clean, budget)}\n${url}`;
+}
+
+/** The longest prefix of `text` weighing no more than `budget`, ellipsis included. */
+function clipToWeight(text: string, budget: number): string {
+  const room = budget - xWeightedLength(ELLIPSIS);
+  if (room <= 0) return '';
+  let total = 0;
+  let out = '';
+  for (const char of text) {
+    const cp = char.codePointAt(0)!;
+    total += WEIGHT_ONE_RANGES.some(([lo, hi]) => cp >= lo && cp <= hi) ? 1 : 2;
+    if (total > room) break;
+    out += char;
+  }
+  return out ? `${out}${ELLIPSIS}` : '';
+}
+
 /** An X post-intent URL with the text prefilled — X fills the composer. */
 export function xIntentUrl(text: string, url: string): string {
   const params = new URLSearchParams({ text, url });

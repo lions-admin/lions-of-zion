@@ -1,0 +1,314 @@
+{
+ "contractVersion": "whole-site-update-v2",
+ "runId": "claude-editorial-illustrations-2026-09-13-r2",
+ "composer": "Claude editorial illustration pass",
+ "createdAt": "2026-09-13T14:40:00.000Z",
+ "creates": [],
+ "updates": [
+  {
+   "key": "naza-media",
+   "target": {
+    "publicId": "reported-claim-the-venice-documentary-naza-shows-i5vx7"
+   },
+   "publication": {
+    "editorialTopic": "AI targeting allegations in Gaza",
+    "changeSummary": "Attached a story-specific editorial illustration for the article and homepage surfaces, disclosed as an illustration and not as documentary evidence. The article text is unchanged."
+   },
+   "media": {
+    "inputUrl": "https://raw.githubusercontent.com/lions-admin/lions-of-zion/chatgpt-editorial-updates/editorial-updates/media/naza-claim-targeting-screen.jpg",
+    "sourceUrl": null,
+    "alt": "Editorial illustration: an empty cinema auditorium, the screen showing a night aerial view of a dense city block overlaid with a military targeting interface of selection boxes, crosshairs and telemetry readouts.",
+    "caption": "Editorial illustration of the claim this record assesses. It is not a targeting screen, not footage from the documentary, and not evidence of any strike; the interface, the coordinates and the city are invented for the illustration.",
+    "credit": "Lions of Zion",
+    "disclosure": "Editorial illustration, not documentary evidence",
+    "role": "editorial-illustration",
+    "focalPoint": {
+     "x": 50,
+     "y": 34
+    },
+    "sensitivity": "safe",
+    "rights": {
+     "status": "cleared",
+     "basis": "Generated in-house",
+     "reference": "Owner-supplied editorial illustration; run claude-editorial-illustrations-2026-09-13-r2; operation naza-media; stored on the delivery branch as naza-claim-targeting-screen.jpg; sha256 c0740cecea603a06ff6865009953708487ac5d2135864595b9ebcace85250636",
+     "clearedAt": "2026-09-13",
+     "surfaces": [
+      "article",
+      "homepage"
+     ]
+    },
+    "generated": true
+   }
+  },
+  {
+   "key": "iran-partners-media",
+   "target": {
+    "publicId": "iran-s-armed-partners-what-funding-weapons-and-c-1c7jr"
+   },
+   "publication": {
+    "editorialTopic": "Iran-aligned armed group relationships",
+    "changeSummary": "Attached a story-specific editorial illustration for the article and homepage surfaces, disclosed as an illustration and not as documentary evidence. The article text is unchanged."
+   },
+   "media": {
+    "inputUrl": "https://raw.githubusercontent.com/lions-admin/lions-of-zion/chatgpt-editorial-updates/editorial-updates/media/iran-armed-partners-relief-map.jpg",
+    "sourceUrl": null,
+    "alt": "Editorial illustration: a relief map of the Middle East on a dark table, lit markers over Lebanon, Gaza, Iraq, Yemen and Iran joined by cords of different thickness, two of them slack and unattached.",
+    "caption": "Editorial illustration of relationships that are documented but uneven. The cords are a visual device, not a chart of any known command structure.",
+    "credit": "Lions of Zion",
+    "disclosure": "Editorial illustration, not documentary evidence",
+    "role": "editorial-illustration",
+    "focalPoint": {
+     "x": 52,
+     "y": 46
+    },
+    "sensitivity": "safe",
+    "rights": {
+     "status": "cleared",
+     "basis": "Generated in-house",
+     "reference": "Owner-supplied editorial illustration; run claude-editorial-illustrations-2026-09-13-r2; operation iran-partners-media; stored on the delivery branch as iran-armed-partners-relief-map.jpg; sha256 2eb38d7e119979a44f5eceb0b9af6e5bc31a85701398a23d620ee234a21116fd",
+     "clearedAt": "2026-09-13",
+     "surfaces": [
+      "article",
+      "homepage"
+     ]
+    },
+    "generated": true
+   }
+  },
+  {
+   "key": "wck-media",
+   "target": {
+    "publicId": "reported-claim-guilt-by-association-why-seven-in-3y6mg"
+   },
+   "publication": {
+    "editorialTopic": "Civilian harm and targeting",
+    "changeSummary": "Attached a story-specific editorial illustration for the article and homepage surfaces, disclosed as an illustration and not as documentary evidence. The article text is unchanged."
+   },
+   "media": {
+    "inputUrl": "https://raw.githubusercontent.com/lions-admin/lions-of-zion/chatgpt-editorial-updates/editorial-updates/media/aid-convoy-coastal-road.jpg",
+    "sourceUrl": null,
+    "alt": "Editorial illustration: overhead view of a single white aid truck marked with a cross on its roof, loaded with sacks, stopped on an empty coastal road in Gaza at dusk between the sea and damaged buildings.",
+    "caption": "Editorial illustration. It does not depict the April 2024 World Central Kitchen convoy, its vehicles or the strike this record assesses.",
+    "credit": "Lions of Zion",
+    "disclosure": "Editorial illustration, not documentary evidence",
+    "role": "editorial-illustration",
+    "focalPoint": {
+     "x": 54,
+     "y": 50
+    },
+    "sensitivity": "safe",
+    "rights": {
+     "status": "cleared",
+     "basis": "Generated in-house",
+     "reference": "Owner-supplied editorial illustration; run claude-editorial-illustrations-2026-09-13-r2; operation wck-media; stored on the delivery branch as aid-convoy-coastal-road.jpg; sha256 02f0272477bada4defdddc43d2a2598718fc97d0653de4c3ebbaecffa50e33f5",
+     "clearedAt": "2026-09-13",
+     "surfaces": [
+      "article",
+      "homepage"
+     ]
+    },
+    "generated": true
+   }
+  },
+  {
+   "key": "adidas-media",
+   "target": {
+    "publicId": "adidas-boycott-narrative-what-the-viral-single-s-5wxlh"
+   },
+   "publication": {
+    "editorialTopic": "Adidas boycott narrative and disability-access service",
+    "changeSummary": "Attached a story-specific editorial illustration for the article and homepage surfaces, disclosed as an illustration and not as documentary evidence. The article text is unchanged."
+   },
+   "media": {
+    "inputUrl": "https://raw.githubusercontent.com/lions-admin/lions-of-zion/chatgpt-editorial-updates/editorial-updates/media/sportswear-shelf-gap.jpg",
+    "sourceUrl": null,
+    "alt": "Editorial illustration: a lit sportswear shop display wall of unbranded trainers, with one empty slot where a pair is missing.",
+    "caption": "Editorial illustration of the single-shoe service at the centre of this narrative. No real shop, product or brand is shown.",
+    "credit": "Lions of Zion",
+    "disclosure": "Editorial illustration, not documentary evidence",
+    "role": "editorial-illustration",
+    "focalPoint": {
+     "x": 50,
+     "y": 42
+    },
+    "sensitivity": "safe",
+    "rights": {
+     "status": "cleared",
+     "basis": "Generated in-house",
+     "reference": "Owner-supplied editorial illustration; run claude-editorial-illustrations-2026-09-13-r2; operation adidas-media; stored on the delivery branch as sportswear-shelf-gap.jpg; sha256 b8236fc84113892292e9e01d96bfd24c46b7a3dd04573d075d4624d08bb7e6ff",
+     "clearedAt": "2026-09-13",
+     "surfaces": [
+      "article",
+      "homepage"
+     ]
+    },
+    "generated": true
+   }
+  },
+  {
+   "key": "unmanned-vessel-media",
+   "target": {
+    "publicId": "iran-says-it-struck-an-unmanned-u-s-vessel-centc-8m6cq"
+   },
+   "publication": {
+    "editorialTopic": "Iran conflict information war",
+    "changeSummary": "Attached a story-specific editorial illustration for the article and homepage surfaces, disclosed as an illustration and not as documentary evidence. The article text is unchanged."
+   },
+   "media": {
+    "inputUrl": "https://raw.githubusercontent.com/lions-admin/lions-of-zion/chatgpt-editorial-updates/editorial-updates/media/unmanned-surface-vessel-at-sea.jpg",
+    "sourceUrl": null,
+    "alt": "Editorial illustration: a low grey unmanned surface vessel under way on open sea at dawn, seen past the radar mast and railing of a warship, thin smoke trailing from its stern.",
+    "caption": "Editorial illustration. It does not depict the vessel named in the Iranian claim, any real unit, or the incident whose outcome this record reports as unverified.",
+    "credit": "Lions of Zion",
+    "disclosure": "Editorial illustration, not documentary evidence",
+    "role": "editorial-illustration",
+    "focalPoint": {
+     "x": 64,
+     "y": 47
+    },
+    "sensitivity": "safe",
+    "rights": {
+     "status": "cleared",
+     "basis": "Generated in-house",
+     "reference": "Owner-supplied editorial illustration; run claude-editorial-illustrations-2026-09-13-r2; operation unmanned-vessel-media; stored on the delivery branch as unmanned-surface-vessel-at-sea.jpg; sha256 942b56e810b527c63fefc4bf3ccd4adfee58d1a0db10617694962bc59f0bca96",
+     "clearedAt": "2026-09-13",
+     "surfaces": [
+      "article",
+      "homepage"
+     ]
+    },
+    "generated": true
+   }
+  },
+  {
+   "key": "gaza-migration-media",
+   "target": {
+    "publicId": "reported-claim-claims-that-israeli-government-pl-nos0i"
+   },
+   "publication": {
+    "editorialTopic": "disinformation and policy verification",
+    "changeSummary": "Attached a story-specific editorial illustration for the article and homepage surfaces, disclosed as an illustration and not as documentary evidence. The article text is unchanged."
+   },
+   "media": {
+    "inputUrl": "https://raw.githubusercontent.com/lions-admin/lions-of-zion/chatgpt-editorial-updates/editorial-updates/media/israeli-cabinet-room-empty.jpg",
+    "sourceUrl": null,
+    "alt": "Editorial illustration: an empty Israeli government press-conference room, a podium with microphones in front of a cabinet table with every chair unoccupied, under television lighting.",
+    "caption": "Editorial illustration of the distinction this record draws between ministerial advocacy and a formal decision. No meeting, statement or document is depicted.",
+    "credit": "Lions of Zion",
+    "disclosure": "Editorial illustration, not documentary evidence",
+    "role": "editorial-illustration",
+    "focalPoint": {
+     "x": 50,
+     "y": 45
+    },
+    "sensitivity": "safe",
+    "rights": {
+     "status": "cleared",
+     "basis": "Generated in-house",
+     "reference": "Owner-supplied editorial illustration; run claude-editorial-illustrations-2026-09-13-r2; operation gaza-migration-media; stored on the delivery branch as israeli-cabinet-room-empty.jpg; sha256 12cd43c2e58bdc668888b7db7ca732fab5ea0995c5e8f0af7d860144acc0f49f",
+     "clearedAt": "2026-09-13",
+     "surfaces": [
+      "article",
+      "homepage"
+     ]
+    },
+    "generated": true
+   }
+  },
+  {
+   "key": "defense-tech-media",
+   "target": {
+    "publicId": "us-israel-defense-technology-cooperation-faces-a-zzynw"
+   },
+   "publication": {
+    "editorialTopic": "US-Israel defense cooperation",
+    "changeSummary": "Attached a story-specific editorial illustration for the article and homepage surfaces, disclosed as an illustration and not as documentary evidence. The article text is unchanged."
+   },
+   "media": {
+    "inputUrl": "https://raw.githubusercontent.com/lions-admin/lions-of-zion/chatgpt-editorial-updates/editorial-updates/media/us-israel-defense-technology.jpg",
+    "sourceUrl": null,
+    "alt": "Editorial illustration: an empty United States congressional committee room on the left joined by a corridor of light to an Israeli defence electronics laboratory bench on the right, with an opened avionics unit under test.",
+    "caption": "Editorial illustration of the two ends of the initiative. No real hearing, facility, programme or hardware is depicted.",
+    "credit": "Lions of Zion",
+    "disclosure": "Editorial illustration, not documentary evidence",
+    "role": "editorial-illustration",
+    "focalPoint": {
+     "x": 50,
+     "y": 50
+    },
+    "sensitivity": "safe",
+    "rights": {
+     "status": "cleared",
+     "basis": "Generated in-house",
+     "reference": "Owner-supplied editorial illustration; run claude-editorial-illustrations-2026-09-13-r2; operation defense-tech-media; stored on the delivery branch as us-israel-defense-technology.jpg; sha256 d17abf66c05f0171f36688171af0c6026f644d46d43afb347b65353bd84f4fa1",
+     "clearedAt": "2026-09-13",
+     "surfaces": [
+      "article",
+      "homepage"
+     ]
+    },
+    "generated": true
+   }
+  },
+  {
+   "key": "shelter-data-media",
+   "target": {
+    "publicId": "using-municipal-shelter-data-what-the-records-sh-6gl78"
+   },
+   "publication": {
+    "editorialTopic": "Municipal shelter data and source verification",
+    "changeSummary": "Attached a story-specific editorial illustration for the article and homepage surfaces, disclosed as an illustration and not as documentary evidence. The article text is unchanged."
+   },
+   "media": {
+    "inputUrl": "https://raw.githubusercontent.com/lions-admin/lions-of-zion/chatgpt-editorial-updates/editorial-updates/media/public-shelter-entrance-map.jpg",
+    "sourceUrl": null,
+    "alt": "Editorial illustration: a public bomb shelter stairwell entrance on an Israeli residential street in daylight, its Hebrew sign reading public shelter, with a hand holding a phone that shows a city map marked with shelter pins.",
+    "caption": "Editorial illustration. The street, the sign and the map pins are invented; readers must confirm any shelter location against their own municipality's published data.",
+    "credit": "Lions of Zion",
+    "disclosure": "Editorial illustration, not documentary evidence",
+    "role": "editorial-illustration",
+    "focalPoint": {
+     "x": 40,
+     "y": 52
+    },
+    "sensitivity": "safe",
+    "rights": {
+     "status": "cleared",
+     "basis": "Generated in-house",
+     "reference": "Owner-supplied editorial illustration; run claude-editorial-illustrations-2026-09-13-r2; operation shelter-data-media; stored on the delivery branch as public-shelter-entrance-map.jpg; sha256 7d3114bd95c69d6552cf36e65689f74c587db10d7325e2f72a3e99b100d0f6fe",
+     "clearedAt": "2026-09-13",
+     "surfaces": [
+      "article",
+      "homepage"
+     ]
+    },
+    "generated": true
+   }
+  }
+ ],
+ "homepage": {},
+ "siteRecommendations": [
+  "Every illustration in this pass is owner-supplied, photorealistic and depicts the subject of its record. Each carries a caption that states what it is not, because a realistic illustration on an evidence-first site has to disprove itself in words.",
+  "Four live photographs are still only indirectly related to their stories and are queued for replacement by story-specific illustrations: the iQFOiL class photo of another sailor, the 2002 Yanbu astronaut photograph, the April 2025 Rafah archival photograph, and the Beaufort Castle photograph.",
+  "Records still without any image after this pass: the H.R. 4795 university-boycott bill, the Iraq helicopter claim, the four daily briefs of September 1 to 8, the shelter-data correction, the Lebanese detainee handover, and the twelve stubs rewritten as pointers."
+ ],
+ "research": [
+  {
+   "topic": "Editorial illustration for records without imagery",
+   "focus": "Eight live records carrying no hero, briefed as concrete scenes rather than abstract metaphors after the first briefs were rejected as unrelated to their stories",
+   "sourcesReviewed": [
+    "https://lionsofzion.io/"
+   ],
+   "conclusion": "Eight photorealistic illustrations were produced to brief and attached, each depicting the actual subject of its record. Every caption names what the image is not, and every rights block records in-house generation with the file hash.",
+   "outcome": "updated"
+  }
+ ],
+ "vetoes": [
+  {
+   "key": "veto-abstract-illustration-briefs",
+   "candidate": "The first set of illustration briefs, built on abstract metaphors such as glowing nodes, translucent layers and empty pedestals",
+   "reason": "Rejected by the owner as having no connection to the content. An image the desk generates itself has no excuse to be generic, so the briefs were rewritten to describe the real place, object and situation of each story. The abstract cinema illustration produced from the first brief was never attached to a record and has been removed from the delivery branch.",
+   "section": "narrative_watch"
+  }
+ ]
+}

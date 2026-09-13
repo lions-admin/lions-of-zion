@@ -103,13 +103,43 @@ function parseLines(text) {
   return out;
 }
 
+/** Hebrew labels for the fallback title, so an empty session never shows a
+ *  raw session filename on a board that reads in Hebrew. */
+const AGENT_WORD = {
+  claude: "Claude", codex: "Codex", grok: "Grok", opencode: "OpenCode",
+  "gemini-agy": "Gemini", "chatgpt-editorial": "ChatGPT", "github-actions": "GitHub Actions",
+  "local-script": "סקריפט מקומי", human: "אדם", unknown: "לא ידוע",
+};
+
+/**
+ * The title a task is imported with.
+ *
+ * A session whose transcript holds no real first prompt — an empty Codex
+ * rollout, a Claude session that opens with "[Request interrupted…]" — used
+ * to fall back to its own filename, which is how 27 rows ended up titled
+ * `rollout-2026-08-30T11-28-40-01a051c8…`. The fallback is a Hebrew sentence
+ * now, and the filename stays in `meta.source`, where it belongs.
+ */
+function importTitle(title, source, agent, whenMs) {
+  const cleaned = String(title ?? "").replace(/\s+/g, " ").trim().slice(0, 300);
+  const useless = !cleaned
+    || /^rollout-\d{4}-\d{2}-\d{2}T/.test(cleaned)
+    || /^\[Request interrupted/i.test(cleaned)
+    || cleaned === basename(source)
+    || cleaned === basename(source, ".jsonl")
+    || /^[0-9a-f-]{20,}$/i.test(cleaned);
+  if (!useless) return cleaned;
+  const day = new Date(whenMs ?? Date.now()).toLocaleDateString("he-IL", { timeZone: "Asia/Jerusalem" });
+  return `סשן ${AGENT_WORD[agent] ?? agent} ללא תמליל — ${day}`;
+}
+
 function task({ source, agent, title, request, summary, kind = "import", createdMs, modifiedMs, links = [], attachments = [], digest = {} }) {
   const key = `import:${sha1(source)}`;
   return {
     taskKey: key,
     source,
     agent,
-    title: String(title ?? basename(source)).replace(/\s+/g, " ").trim().slice(0, 300) || basename(source),
+    title: importTitle(title, source, agent, createdMs ?? modifiedMs),
     request: request ? String(request).slice(0, 4000) : undefined,
     summary: summary ? String(summary).slice(0, 7000) : undefined,
     kind,

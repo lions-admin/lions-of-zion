@@ -98,9 +98,9 @@ const SUMMARY_SYSTEM_PROMPT = [
   "תקבל תקציר של סשן עבודה של סוכן AI: הבקשה המקורית, המילים האחרונות של הסוכן, קבצים שנערכו, קומיטים ומוני כלים.",
   "החזר אך ורק JSON תקין, ללא טקסט לפניו או אחריו וללא גדרות קוד, במבנה:",
   '{"title": string, "request": string, "summary": string, "changes": string, "remaining": string, "blockers": string | null}',
-  "כל השדות בעברית.",
+  "כל השדות בעברית בלבד. טקסט באנגלית בשדה כלשהו הוא תשובה שגויה, למעט מזהים ונתיבים שמותר להשאיר כפי שהם.",
   "title: כותרת קצרה ועניינית של המשימה, עד 12 מילים.",
-  "request: הבקשה המקורית בעברית. אם היא נכתבה באנגלית, תרגם אותה; אם היא כבר בעברית, החזר אותה כפי שהיא.",
+  "request: הבקשה המקורית בעברית. תרגם אותה במלואה גם אם המקור באנגלית — אסור להחזיר אותה באנגלית. אם אין בקשה מזוהה, החזר מחרוזת ריקה.",
   "summary: מה התבקש ומה בוצע בפועל, 3 עד 10 משפטים, קונקרטי ומדויק.",
   'changes: שורות המתחילות ב-"- " עם הקבצים, הקומיטים והתוצרים שהשתנו.',
   'remaining: מה נותר לעשות, או בדיוק "לא נותר דבר" אם הכל הושלם.',
@@ -428,7 +428,12 @@ export function opsTasksService(database: Database, options: OpsTasksServiceOpti
         });
         /* Same rule as the title: an English request is the imported prompt,
            and its verbatim text is on the timeline either way. */
-        const keepRequest = !fields.request || (!!task.request && hasHebrew(task.request));
+        /* A digest built from a session with no real first prompt can carry
+           the task key or a stub like "." as its request; the model then
+           echoes it. Neither is a request, so neither is written. */
+        const junkRequest = (value: string) => value.length < 8 || value === task.taskKey || !/\s/.test(value.trim());
+        const usableRequest = !!fields.request && !junkRequest(fields.request) && hasHebrew(fields.request);
+        const keepRequest = !usableRequest || (!!task.request && hasHebrew(task.request) && !junkRequest(task.request));
         const next = await repo.update(task.id, {
           title: keepTitle || !fields.title ? task.title : fields.title,
           request: keepRequest ? task.request : fields.request,

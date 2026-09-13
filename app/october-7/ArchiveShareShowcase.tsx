@@ -148,11 +148,12 @@ export function ArchiveShareShowcase({
                     {...sample.xMedia}
                     shareTitle={sample.title}
                     shareUrl={sample.url}
+                    xHref={sample.xHref}
                     returnTo={sample.href}
                   />
                 ) : undefined}
                 targets={[
-                  { label: "Post on X", href: sample.xHref },
+                  ...(sample.xMedia ? [] : [{ label: "Post on X", href: sample.xHref }]),
                   { label: "Facebook", href: sample.facebookHref },
                 ]}
               />

@@ -929,6 +929,13 @@ section:first-child > .heading {
 /* The outcome of a copy, seen and announced alike. A status value, so the
    data face; the state colours are the system's own, desaturated for the
    warm palette. */
+/* The media-share control's wrapper: a hook for the in-view prefetch and
+   nothing else, so the flex row lays out the control and its status line
+   exactly as it would bare siblings. */
+.mediaShare {
+  display: contents;
+}
+
 .shareStatus {
   composes: dataValue from global;
   color: var(--ink);

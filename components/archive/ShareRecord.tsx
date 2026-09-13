@@ -3,12 +3,12 @@
 /**
  * The share affordance that closes every archive record.
  *
- * Two different jobs stay deliberately separate:
- *  - "Post on X" is the ordinary X Web Intent. It opens the X composer with
- *    the record text/link and never asks Lions of Zion for account write access.
- *  - Locally held source media gets an additional "Share original …" action
- *    that hands the actual file to the operating-system share sheet so the
- *    reader can choose X, Facebook, or another installed app.
+ * "Post on X" never asks Lions of Zion for account write access. Without
+ * source media it is the ordinary X Web Intent, which opens the composer with
+ * the record text and link. With locally held source media it is
+ * `XMediaPostButton`: the same link, except that on a device able to hand
+ * files to apps it delivers the actual video or image with a short caption
+ * through the operating-system share sheet (owner instruction, 2026-09-13).
  */
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Button, ButtonLink } from '@/components/ui';
@@ -83,24 +83,28 @@ export function ShareRecord({ url, title, xHref, facebookHref, caption, xMedia }
         further.
       </p>
       <div className={styles.shareRow}>
-        <ButtonLink
-          href={xHref}
-          variant="secondary"
-          size="md"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Post on X
-        </ButtonLink>
-
+        {/* One X control. With source media it delivers the file and the
+            caption where the device allows and is the plain composer link
+            everywhere else; without media it is the composer link. */}
         {xMedia ? (
           <XMediaPostButton
             {...xMedia}
             shareTitle={title}
             shareUrl={url}
+            xHref={xHref}
             returnTo={returnTo}
           />
-        ) : null}
+        ) : (
+          <ButtonLink
+            href={xHref}
+            variant="secondary"
+            size="md"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Post on X
+          </ButtonLink>
+        )}
 
         <ButtonLink
           href={facebookHref}

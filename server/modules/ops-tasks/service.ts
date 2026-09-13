@@ -97,9 +97,10 @@ const SUMMARY_SYSTEM_PROMPT = [
   "אתה מסכם משימות פיתוח עבור לוח המשימות התפעולי של lionsofzion.io.",
   "תקבל תקציר של סשן עבודה של סוכן AI: הבקשה המקורית, המילים האחרונות של הסוכן, קבצים שנערכו, קומיטים ומוני כלים.",
   "החזר אך ורק JSON תקין, ללא טקסט לפניו או אחריו וללא גדרות קוד, במבנה:",
-  '{"title": string, "summary": string, "changes": string, "remaining": string, "blockers": string | null}',
+  '{"title": string, "request": string, "summary": string, "changes": string, "remaining": string, "blockers": string | null}',
   "כל השדות בעברית.",
   "title: כותרת קצרה ועניינית של המשימה, עד 12 מילים.",
+  "request: הבקשה המקורית בעברית. אם היא נכתבה באנגלית, תרגם אותה; אם היא כבר בעברית, החזר אותה כפי שהיא.",
   "summary: מה התבקש ומה בוצע בפועל, 3 עד 10 משפטים, קונקרטי ומדויק.",
   'changes: שורות המתחילות ב-"- " עם הקבצים, הקומיטים והתוצרים שהשתנו.',
   'remaining: מה נותר לעשות, או בדיוק "לא נותר דבר" אם הכל הושלם.',
@@ -145,6 +146,7 @@ export function parseAutoSummary(text: string): { fields: OpsTaskAutoSummary; pa
     parsed: false,
     fields: {
       title: "",
+      request: undefined,
       summary: `הסיכום האוטומטי לא התקבל כ-JSON תקין; הטקסט הגולמי של המודל:\n\n${raw}`,
       changes: "- לא זוהו שינויים (פלט המודל לא נותח)",
       remaining: "לא ידוע — פלט המודל לא נותח",
@@ -402,17 +404,34 @@ export function opsTasksService(database: Database, options: OpsTasksServiceOpti
         const repo = opsTasksRepo(tx);
         const task = await repo.byIdForUpdate(existing.id);
         if (!task) throw notFound(`Task ${digest.taskKey}`);
-        const keepTitle = task.title.trim() !== "" && task.title !== task.taskKey;
+        /* The board reads in Hebrew, so a Hebrew title from the model wins —
+           including over a real English one, which is what an imported Claude,
+           Codex or Grok session brings with it (its first prompt). The only
+           title kept is a Hebrew one already on the row: re-summarising must
+           not churn a title a human or an earlier run already settled. */
+        const hasHebrew = (value: string) => /[֐-׿]/.test(value);
+        const keepTitle = task.title.trim() !== "" && task.title !== task.taskKey && hasHebrew(task.title);
         await repo.appendEvent({
           taskId: task.id,
           occurredAt: at,
           kind: "note",
           actorLabel,
           message: `סוכם אוטומטית (${output.model})`,
-          payload: { parsed, model: output.model, costUsd: output.costUsd, source: digest.source ?? null },
+          payload: {
+            parsed,
+            model: output.model,
+            costUsd: output.costUsd,
+            source: digest.source ?? null,
+            /* The verbatim ask, kept where translation cannot reach it. */
+            originalRequest: task.request ?? digest.request ?? null,
+          },
         });
+        /* Same rule as the title: an English request is the imported prompt,
+           and its verbatim text is on the timeline either way. */
+        const keepRequest = !fields.request || (!!task.request && hasHebrew(task.request));
         const next = await repo.update(task.id, {
           title: keepTitle || !fields.title ? task.title : fields.title,
+          request: keepRequest ? task.request : fields.request,
           summary: fields.summary,
           changes: fields.changes,
           remaining: fields.remaining,

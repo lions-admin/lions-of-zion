@@ -254,6 +254,10 @@ export type OpsTaskDigest = z.infer<typeof opsTaskDigestSchema>;
  *  summary, so this one carries its own name. */
 export const opsTaskAutoSummarySchema = z.object({
   title: text(300),
+  /** The original ask, rendered in Hebrew. The verbatim words stay on the
+   *  timeline; this is what the board shows under "הבקשה המקורית", because a
+   *  Hebrew board that quotes an English prompt reads as untranslated. */
+  request: z.string().trim().max(4000).optional(),
   summary: text(16_000),
   changes: text(16_000),
   remaining: text(8000),

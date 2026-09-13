@@ -755,6 +755,10 @@ export const SENTENCE = {
 export const ABSENCE = {
   /* STATE-005: a refused read and a broken one need different first moves,
      and the words are what carry that difference to the operator. */
+  /* The state word the shared `StatusState` primitive would otherwise print
+     in English ("Warning", "Error") inside this Hebrew surface. */
+  kindWarning: "אזהרה",
+  kindError: "שגיאה",
   authTitle: "יש להתחבר כדי לפתוח את הקונסולה",
   authBody:
     "הסשן אינו מחובר, או שתוקפו פג. שום דבר לא תקול — הקונסולה מסרבת לענות לקריאה לא מאומתת, וזה בדיוק תפקידה.",

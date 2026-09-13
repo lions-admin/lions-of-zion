@@ -280,17 +280,17 @@ describe("summarize()", () => {
   const summarizer = () => opsTasksService(db as unknown as Database, { now: () => clock, store, generate });
   const output = (text: string) => ({ text, model: "test/fast", inputTokens: 100, outputTokens: 50, latencyMs: 10, inputHash: "h", costUsd: 0.0001 });
 
-  it("writes the model's Hebrew fields onto the task, keeps a real title, and notes the run", async () => {
+  it("writes the model's Hebrew fields onto the task, translates an English title and request, and notes the run", async () => {
     clock = new Date("2026-09-12T16:50:00.000Z");
     const { taskIds: [id] } = await service().report({ reports: [line({ taskKey: "claude:digest", event: "start", title: "Build the summariser" })] }, ACTOR);
-    generate.mockResolvedValueOnce(output('```json\n{"title":"כותרת מהמודל","summary":"התבקש סיכום. בוצע.","changes":"- server/x.ts","remaining":"לא נותר דבר","blockers":null}\n```'));
+    generate.mockResolvedValueOnce(output('```json\n{"title":"כותרת מהמודל","request":"בנה את זה","summary":"התבקש סיכום. בוצע.","changes":"- server/x.ts","remaining":"לא נותר דבר","blockers":null}\n```'));
     clock = new Date("2026-09-12T16:55:00.000Z");
     const task = await summarizer().summarize({
       taskKey: "claude:digest", request: "build it", lastAssistant: "done", filesEdited: ["server/x.ts"],
       commits: [{ sha: "abc1234", subject: "feat: x" }], toolCounts: { Edit: 3 }, language: "mixed", source: "claude-stop-hook",
     }, ACTOR);
     expect(task).toMatchObject({
-      id, title: "Build the summariser", summary: "התבקש סיכום. בוצע.", changes: "- server/x.ts", remaining: "לא נותר דבר", blockers: null,
+      id, title: "כותרת מהמודל", request: "בנה את זה", summary: "התבקש סיכום. בוצע.", changes: "- server/x.ts", remaining: "לא נותר דבר", blockers: null,
       lastUpdateAt: "2026-09-12T16:55:00.000Z",
     });
     expect(task.meta).toMatchObject({ summarized: { at: "2026-09-12T16:55:00.000Z", model: "test/fast", costUsd: 0.0001, parsed: true } });

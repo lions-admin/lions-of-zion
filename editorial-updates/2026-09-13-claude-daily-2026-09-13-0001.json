@@ -1,0 +1,201 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "claude-daily-2026-09-13-0001",
+  "composer": "Claude",
+  "createdAt": "2026-09-13T16:00:00.000Z",
+  "creates": [
+    {
+      "key": "ali-al-taher-ridge-operation",
+      "publication": {
+        "kind": "news_update",
+        "section": "israel_update",
+        "canonicalStoryId": "ali-al-taher-ridge-operation",
+        "title": "IDF destroys Hezbollah's underground command complex beneath the Ali al-Taher ridge, then withdraws",
+        "summary": "After a months-long operation the IDF's 36th Division demolished a Hezbollah tunnel network beneath the Ali al-Taher ridge in southern Lebanon and withdrew, in what open-source defense analysts describe as a step toward consolidating the ceasefire.",
+        "body": "The Israel Defense Forces has completed an operation, reported under the codename \"Chisel of Flames,\" to dismantle a Hezbollah underground complex beneath the Ali al-Taher ridge in southern Lebanon, according to the IDF and multiple outlets covering the campaign, including the Jerusalem Post, The Times of Israel and the open-source defense outlet FDD's Long War Journal.\n\nAccording to these reports, the IDF's 36th Division identified the site as a central command complex and \"nerve center\" for Hezbollah's Badr Unit, describing it as the last and most significant line of Hezbollah defense in southern Lebanon after roughly two decades of Iranian-backed construction. The IDF says the underground network ran across some 14 tunnel routes totaling about 5.4 kilometers, and that its forces used roughly 1,100 tons of explosives to destroy more than two kilometers of the infrastructure. Israeli forces reported finding command rooms, weapons storage rooms, generators, living quarters and a kitchen inside the complex, and described dozens of entrenched fighters, estimated at around 50, having occupied it during the operation.\n\nThe IDF released footage of the site's destruction and described what remains of the ridge as \"nothing more than a sandbox.\" Israeli forces have since withdrawn from the ridge. The Meir Amit Intelligence and Terrorism Information Center's analysis frames the operation as intended to advance the ceasefire arrangement between Israel and Lebanon by removing a Hezbollah strongpoint near the border rather than as the opening of a new front.\n\nThe operation followed weeks of contested efforts over the ridge, including Hezbollah attacks and stalled handover arrangements, according to Long War Journal's reporting. Hezbollah has continued limited attacks elsewhere along the border since the ridge operation concluded, including drone launches toward IDF positions that Israeli forces say they intercepted.\n\nThis account is drawn from IDF statements as relayed by the cited outlets and from open-source defense analysis; Lions of Zion has not independently verified troop numbers or explosive tonnages beyond what these sources report.",
+        "language": "en",
+        "editorialTopic": "Lebanon front",
+        "topicTags": ["lebanon", "hezbollah", "idf", "ceasefire"]
+      },
+      "sources": [
+        {
+          "url": "https://www.jpost.com/israel-news/defense-news/article-908383",
+          "title": "IDF releases footage of Hezbollah infrastructure below Ali al-Taher ridge after destroying tunnels",
+          "publisher": "The Jerusalem Post"
+        },
+        {
+          "url": "https://www.fdd.org/analysis/2026/09/11/idf-destroys-hezbollah-underground-command-complex-at-ali-al-taher-withdraws-from-ridge/",
+          "title": "IDF destroys Hezbollah underground command complex at Ali al Taher, withdraws from ridge",
+          "publisher": "FDD's Long War Journal"
+        },
+        {
+          "url": "https://www.timesofisrael.com/idf-blows-up-hezbollahs-strategic-complex-beneath-south-lebanons-ali-taher-ridge/",
+          "title": "IDF blows up Hezbollah's 'strategic' complex beneath south Lebanon's Ali Taher Ridge",
+          "publisher": "The Times of Israel"
+        },
+        {
+          "url": "https://www.terrorism-info.org.il/en/dismantling-the-hezbollah-infrastructure-at-the-ali-taher-ridge-to-advance-the-ceasefire-agreement/",
+          "title": "Dismantling the Hezbollah Infrastructure at the Ali Taher Ridge to Advance the Ceasefire Agreement",
+          "publisher": "The Meir Amit Intelligence and Terrorism Information Center"
+        }
+      ]
+    },
+    {
+      "key": "naza-documentary-ai-gaza-claims",
+      "publication": {
+        "kind": "news_update",
+        "section": "narrative_watch",
+        "canonicalStoryId": "naza-documentary-ai-gaza-claims",
+        "title": "Documentary alleges IDF used AI to kill Gaza civilians; IDF says strike decisions were made only by people",
+        "summary": "A documentary by Israeli filmmakers, NAZA, alleges the IDF's targeting process amounted to AI-driven mass-casualty strikes on Gaza civilians. The IDF categorically rejects the allegation and says the anonymous testimonies it relies on cannot be verified.",
+        "body": "A documentary made by Israeli filmmakers, titled \"NAZA,\" premiered at the Venice International Film Festival and, according to The Jerusalem Post and The Times of Israel, received a lengthy standing ovation. The film is reported to allege, based on anonymous testimony from individuals described as having worked within IDF systems, that the military's use of AI-assisted tools in Gaza amounted to indiscriminate or mass-casualty targeting of civilians.\n\nThe IDF Spokesperson's Unit issued a categorical rejection of the film's central claims. According to The Times of Israel, the military said that decisions on selecting and approving strikes were made \"by human personnel only... and not by artificial intelligence,\" and that the documentary relied on anonymous testimonies whose speakers' identities and military roles could not be independently verified.\n\nLions of Zion has not viewed the film or the underlying testimonies and cannot independently confirm either the specific claims made in the documentary or the IDF's characterization of them. Both the film's premiere and the IDF's public rebuttal are independently reported by multiple outlets, but the substantive question — what role, if any, AI-assisted systems played in specific strike decisions — remains contested between the filmmakers and the military and is not resolved by either side's public statements alone.",
+        "language": "en",
+        "editorialTopic": "Information war",
+        "topicTags": ["gaza", "idf", "ai", "documentary"],
+        "narrativeWatchDetails": {
+          "exactClaim": "A documentary titled 'NAZA', made by Israeli filmmakers and premiered at the Venice International Film Festival, alleges that the IDF's use of AI-assisted targeting systems in Gaza amounted to indiscriminate or mass-casualty strikes on civilians, based on anonymous testimony from individuals described as having worked within IDF systems.",
+          "propagators": ["The NAZA documentary's filmmakers", "International press coverage of the Venice premiere"],
+          "arenas": ["Venice International Film Festival", "International news coverage", "Social media discussion of the premiere"],
+          "trendDirection": "new",
+          "israeliPosition": "The IDF Spokesperson's Unit categorically rejected the documentary's claims, stating that decisions to select and approve strikes were made by human personnel only, not by artificial intelligence, and that the anonymous testimonies relied on by the filmmakers could not be verified as to the speakers' identities or military roles.",
+          "securityContext": "The premiere coincided with ongoing IDF operations against Hezbollah in southern Lebanon and continued public scrutiny of Israeli use of AI-assisted decision-support tools in Gaza targeting, a subject the IDF has previously said involves tools that support, rather than replace, human decision-makers.",
+          "supportingEvidenceIds": [],
+          "contradictingEvidenceIds": [],
+          "verificationState": "disputed",
+          "knownUnknowns": [
+            "The identities and military roles of the anonymous individuals whose testimony the documentary relies on have not been independently verified.",
+            "No independently verified account of the specific strike decisions the documentary references has been published by either the filmmakers or the IDF.",
+            "Lions of Zion has not viewed the film itself and relies on secondary press reporting of its claims."
+          ]
+        }
+      },
+      "sources": [
+        {
+          "url": "https://www.timesofisrael.com/idf-rejects-testimonies-in-israeli-made-documentary-about-ai-powered-killing-in-gaza/",
+          "title": "IDF rejects testimonies in Israeli-made documentary about AI-powered killing in Gaza",
+          "publisher": "The Times of Israel"
+        },
+        {
+          "url": "https://www.jpost.com/israel-news/article-908432",
+          "title": "Israeli documentary NAZA wins Venice Jury Prize, challenges IDF Gaza civilian death claims",
+          "publisher": "The Jerusalem Post"
+        }
+      ]
+    },
+    {
+      "key": "technion-drug-free-nanoparticle-breast-cancer",
+      "publication": {
+        "kind": "news_update",
+        "section": "science_medicine",
+        "canonicalStoryId": "technion-drug-free-nanoparticle-breast-cancer",
+        "title": "Technion researchers unveil drug-free nanoparticles that halt aggressive breast cancer tumors",
+        "summary": "Technion bioengineers built biomimetic nanoparticles, called MPsomes, that block tumor-supporting immune cells without delivering any drug, and slowed triple-negative breast cancer growth in mouse models as effectively as existing treatments.",
+        "body": "Researchers at the Technion – Israel Institute of Technology have developed a nanomedicine approach that inhibits aggressive triple-negative breast cancer without delivering any drug, antibody or chemotherapy agent, according to the Technion's own announcement and a peer-reviewed paper in ACS Nano, corroborated by independent coverage from The Times of Israel and EurekAlert.\n\nRather than attacking cancer cells directly, the approach targets the tumor's surrounding environment. Macrophages, white blood cells whose normal role is to protect the body, are often \"hijacked\" by tumors, which use them to support their own growth and blunt the immune system's response. The Technion team's nanoparticles, called MPsomes, act as a biological decoy: they compete with immune cells for binding sites in the tumor microenvironment and block harmful cells' access to the tumor.\n\nIn cell cultures and in preclinical mouse models of triple-negative breast cancer — a form of the disease with limited treatment options — the particles accumulated in high concentrations around tumors and inhibited their growth with effectiveness the researchers describe as comparable to existing treatments. The Technion also reports a manufacturing process capable of producing about 20 milliliters of the nanoparticles per minute, roughly 1.2 liters per hour, a scale the university says supports further development toward clinical use.\n\nThe work has so far been demonstrated in cell cultures and animal models; it has not yet been tested in human clinical trials, and Lions of Zion is not aware of a published timeline for human studies.",
+        "language": "en",
+        "editorialTopic": "Israeli science",
+        "topicTags": ["technion", "cancer-research", "nanomedicine"]
+      },
+      "sources": [
+        {
+          "url": "https://www.technion.ac.il/en/blog/article/medicine-without-drugs-an-israeli-breakthrough-in-nanomedicine/",
+          "title": "Medicine Without Drugs: An Israeli Breakthrough in Nanomedicine",
+          "publisher": "Technion – Israel Institute of Technology",
+          "official": true
+        },
+        {
+          "url": "https://www.eurekalert.org/news-releases/1132444",
+          "title": "Medicine without drugs: An Israeli breakthrough in nanomedicine",
+          "publisher": "EurekAlert!"
+        },
+        {
+          "url": "https://pubs.acs.org/ancac3/article-split/20/8/7001/5151846/Drug-free-Immunotherapeutic-Biomimetic",
+          "title": "Drug-free Immunotherapeutic Biomimetic Nanoparticles for Treating Triple-Negative Breast Cancer",
+          "publisher": "ACS Nano"
+        },
+        {
+          "url": "https://www.timesofisrael.com/israeli-drug-free-nanomedicine-gives-fresh-hope-in-battling-aggressive-breast-cancer/",
+          "title": "Israeli drug-free nanomedicine gives fresh hope in battling aggressive breast cancer",
+          "publisher": "The Times of Israel"
+        }
+      ]
+    }
+  ],
+  "updates": [],
+  "homepage": {},
+  "siteRecommendations": [
+    "This session's outbound network access blocked WebFetch/browsing to every external site, including lionsofzion.io itself and all news domains, and this session held no CHATGPT_AUTOMATION_SECRET. It could not read /api/internal/chatgpt/editorial-context, could not check for duplicate or developing-story canonicals, and could not review current homepage placements before composing this package. No homepage changes were made this run for that reason. Recommend a homepage review pass, per docs/editorial/homepage-operating-manual.md, once an environment with that read access runs the next update.",
+    "No image was sourced or generated for any of this run's three articles: no verified, safely-licensed image URL was located within this session's search results, and no image-generation/upload tool was available to this session. All three publish text-led. Recommend a media-focused follow-up pass to attach hero images.",
+    "Global antisemitism monitoring and the southern-Lebanon civilian-casualty narrative both warrant a dedicated follow-up run with full source-page verification access — see the research ledger and the logged veto below."
+  ],
+  "research": [
+    {
+      "topic": "Lebanon front: IDF operation at the Ali al-Taher ridge",
+      "focus": "Verifying a significant, currently-developing IDF-Hezbollah story for the News & Analysis desk",
+      "sourcesReviewed": [
+        "https://www.jpost.com/israel-news/defense-news/article-908383",
+        "https://www.fdd.org/analysis/2026/09/11/idf-destroys-hezbollah-underground-command-complex-at-ali-al-taher-withdraws-from-ridge/",
+        "https://www.timesofisrael.com/idf-blows-up-hezbollahs-strategic-complex-beneath-south-lebanons-ali-taher-ridge/",
+        "https://www.terrorism-info.org.il/en/dismantling-the-hezbollah-infrastructure-at-the-ali-taher-ridge-to-advance-the-ceasefire-agreement/"
+      ],
+      "conclusion": "Multiple independent outlets and an open-source defense-analysis center corroborate a completed IDF operation destroying a major Hezbollah tunnel network beneath the Ali al-Taher ridge, with consistent specific figures across sources. Published as a News & Analysis update.",
+      "outcome": "published"
+    },
+    {
+      "topic": "NAZA documentary: AI-in-Gaza allegations and the IDF's response",
+      "focus": "A consequential allegation against the IDF, for the mandatory daily Narrative Watch",
+      "sourcesReviewed": [
+        "https://www.timesofisrael.com/idf-rejects-testimonies-in-israeli-made-documentary-about-ai-powered-killing-in-gaza/",
+        "https://www.jpost.com/israel-news/article-908432"
+      ],
+      "conclusion": "The documentary's premiere and the IDF's categorical rejection of its claims are both independently reported real events; the underlying claim about AI-driven strike decisions is not resolved by either side's public statements, so it is recorded as disputed rather than verified or refuted.",
+      "outcome": "published"
+    },
+    {
+      "topic": "Technion drug-free nanoparticle cancer therapy",
+      "focus": "A verifiable, positive Israeli science story for The People of Israel desk",
+      "sourcesReviewed": [
+        "https://www.technion.ac.il/en/blog/article/medicine-without-drugs-an-israeli-breakthrough-in-nanomedicine/",
+        "https://www.eurekalert.org/news-releases/1132444",
+        "https://pubs.acs.org/ancac3/article-split/20/8/7001/5151846/Drug-free-Immunotherapeutic-Biomimetic",
+        "https://www.timesofisrael.com/israeli-drug-free-nanomedicine-gives-fresh-hope-in-battling-aggressive-breast-cancer/"
+      ],
+      "conclusion": "Corroborated by the Technion's own announcement and a peer-reviewed ACS Nano publication, alongside independent press coverage. Published to the science/medicine desk.",
+      "outcome": "published"
+    },
+    {
+      "topic": "Southern-Lebanon civilian-casualty claims against the ceasefire",
+      "focus": "Whether recent Lebanese casualty reporting and UN Secretary-General Guterres' criticism of the IDF's Lebanon campaign amount to a narrative this run could responsibly adjudicate",
+      "sourcesReviewed": [
+        "https://www.jns.org/news/israel-news/idf-rejects-guterres-criticism-of-lebanon-campaign",
+        "https://www.commondreams.org/news/israel-bombing-lebanon-2026",
+        "https://www.ohchr.org/en/documents/country-reports/deaths-and-displacement-lebanon-update-human-rights-situation-lebanon"
+      ],
+      "conclusion": "The underlying casualty reports and the Guterres/IDF dispute appear to be real, ongoing events, but this session had no ability to fetch and cross-check the underlying source pages beyond search-result summaries. Adjudicating a verified/refuted/disputed verdict on live, casualty-related allegations in an active conflict from summaries alone is not a responsible basis for publication, so this was vetoed rather than published under time pressure.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Global antisemitism monitoring",
+      "focus": "A dateable, independently verifiable data point or incident for the mandatory antisemitism desk",
+      "sourcesReviewed": [
+        "https://www.adl.org/resources/article/jewish-community-faces-unprecedentedly-high-threat-environment"
+      ],
+      "conclusion": "Search results referenced a specific New York hate-crime statistic and a named synagogue-assault case, but this session could not fetch the underlying primary sources to confirm the specific figures or names, and this organisation's rule against inventing facts, names or figures applies equally to details a search summary asserts without a verifiable primary source. Nothing was published to this desk this run; recommend a follow-up with page-fetch access.",
+      "outcome": "no_action"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "lebanon-civilian-casualty-narrative",
+      "candidate": "A Narrative Watch record on the claim that Israel is killing civilians in Lebanon in breach of the ceasefire, built on Lebanese Ministry of Health casualty figures and UN Secretary-General Guterres' criticism of the IDF's Lebanon campaign, against the IDF's categorical rejection of that framing.",
+      "reason": "This session's network access blocked fetching the underlying article and report pages beyond search-engine summaries, and a live, casualty-related dispute inside an active conflict is too consequential to adjudicate from summaries alone. Publishing a verified/refuted/disputed verdict without genuinely reading and cross-checking the primary reporting risks getting a serious, contested fact wrong in either direction, which this desk's credibility cannot afford.",
+      "section": "narrative_watch",
+      "sources": [
+        "https://www.jns.org/news/israel-news/idf-rejects-guterres-criticism-of-lebanon-campaign",
+        "https://www.commondreams.org/news/israel-bombing-lebanon-2026",
+        "https://www.ohchr.org/en/documents/country-reports/deaths-and-displacement-lebanon-update-human-rights-situation-lebanon"
+      ],
+      "replacement": "A follow-up run with working page-fetch access should investigate this properly and publish a fully sourced verdict.",
+      "ownerDecisionRequested": true
+    }
+  ]
+}

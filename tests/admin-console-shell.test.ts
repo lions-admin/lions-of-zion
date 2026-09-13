@@ -34,7 +34,7 @@ describe("the shell", () => {
   const page = read("app/admin/page.tsx");
 
   it("offers grouped direct navigation and an initially closed assistant", () => {
-    for (const key of ["overview", "pipeline", "sources", "editorial", "incidents", "costs", "audit", "users", "security", "settings", "environment", "reports", "chat", "prompts", "lineage"]) {
+    for (const key of ["overview", "pipeline", "sources", "editorial", "tasks", "incidents", "costs", "audit", "users", "security", "settings", "environment", "reports", "chat", "prompts", "lineage"]) {
       expect(shell).toContain(`"${key}"`);
     }
     expect(shell).toContain('aria-current={area === key ? "page" : undefined}');

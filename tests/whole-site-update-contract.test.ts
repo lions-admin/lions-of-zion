@@ -84,6 +84,53 @@ describe('whole-site-update-v1 contract', () => {
     expect(anyWholeSiteUpdatePackageSchema.safeParse({ ...v2, vetoes: [{ key: 'a', candidate: 'c', reason: 'r', severity: 'high' }] }).success).toBe(false);
   });
 
+  /* `homepageReview` — DNA §12 gap 10. `homepage` says what moved; this says
+     why, and why the rest stayed. A run that reviewed every band and changed
+     nothing used to be indistinguishable from one that never looked. */
+  const review = {
+    manualVersion: '2026-09-12.1',
+    sectionsReviewed: ['cover', 'news', 'fakeResistance', 'october7', 'people', 'system', 'support'],
+    sectionsChanged: ['news'],
+    decisions: [
+      { area: 'news', position: 'lead', action: 'promote', publication: { operationKey: 'new-story' }, reason: 'Strongest sourced story of the day.' },
+      { area: 'fakeResistance', position: 'lead', action: 'retain', reason: 'Newer is not stronger; the standing investigation still leads.' },
+      { area: 'people', action: 'retain', reason: 'Band reviewed as it stood.' },
+      { area: 'news', position: 'secondary', action: 'veto', reason: 'Candidate rests on a single uncorroborated post.' },
+    ],
+  };
+
+  it('accepts a full homepage review and echoes it typed', () => {
+    const parsed = anyWholeSiteUpdatePackageSchema.parse({ ...v2, homepageReview: review });
+    expect(parsed.contractVersion === 'whole-site-update-v2' && parsed.homepageReview?.manualVersion).toBe('2026-09-12.1');
+    expect(parsed.contractVersion === 'whole-site-update-v2' && parsed.homepageReview?.decisions).toHaveLength(4);
+  });
+
+  it('refuses an invented key inside the review, and a band changed but not reviewed', () => {
+    expect(anyWholeSiteUpdatePackageSchema.safeParse({ ...v2, homepageReview: { ...review, mood: 'confident' } }).success).toBe(false);
+    expect(anyWholeSiteUpdatePackageSchema.safeParse({ ...v2, homepageReview: { ...review, decisions: [{ ...review.decisions[0], score: 9 }] } }).success).toBe(false);
+    expect(anyWholeSiteUpdatePackageSchema.safeParse({ ...v2, homepageReview: { ...review, sectionsReviewed: ['cover'], sectionsChanged: ['news'] } }).success).toBe(false);
+    expect(anyWholeSiteUpdatePackageSchema.safeParse({ ...v2, homepageReview: { ...review, sectionsReviewed: [] } }).success).toBe(false);
+  });
+
+  it('requires a promote or replace at a slot to match a set on that slot', () => {
+    /* `valid` sets news/lead, so a promote there agrees; a promote at people/lead has nothing behind it. */
+    expect(anyWholeSiteUpdatePackageSchema.safeParse({ ...v2, homepageReview: { ...review, decisions: [
+      { area: 'people', position: 'lead', action: 'promote', reason: 'Nothing was set here.' },
+    ] } }).success).toBe(false);
+    expect(anyWholeSiteUpdatePackageSchema.safeParse({ ...v2, homepage: {}, homepageReview: { ...review, decisions: [
+      { area: 'news', position: 'lead', action: 'promote', reason: 'The set was dropped.' },
+    ] } }).success).toBe(false);
+    expect(anyWholeSiteUpdatePackageSchema.safeParse({ ...v2, homepageReview: { ...review, decisions: [
+      { area: 'news', position: 'lead', action: 'demote', reason: 'Set, not removed.' },
+    ] } }).success).toBe(false);
+    expect(anyWholeSiteUpdatePackageSchema.safeParse({
+      ...v2, homepage: { ...valid.homepage, people: { secondary: { action: 'remove' } } },
+      homepageReview: { ...review, sectionsChanged: ['news', 'people'], decisions: [
+        ...review.decisions, { area: 'people', position: 'secondary', action: 'demote', reason: 'Stale after a week.' },
+      ] },
+    }).success).toBe(true);
+  });
+
   it('keeps v1 parsing on its own, and refuses to read a v2 package as one', () => {
     expect(wholeSiteUpdatePackageSchema.safeParse(valid).success).toBe(true);
     expect(wholeSiteUpdatePackageSchema.safeParse(v2).success).toBe(false);
@@ -91,6 +138,8 @@ describe('whole-site-update-v1 contract', () => {
        deployment that predates this contract fails loudly rather than
        publishing with its research and vetoes quietly discarded. */
     expect(wholeSiteUpdatePackageSchema.safeParse({ ...valid, research: [] }).success).toBe(false);
+    expect(wholeSiteUpdatePackageSchema.safeParse({ ...valid, homepageReview: review }).success).toBe(false);
+    expect(anyWholeSiteUpdatePackageSchema.safeParse({ ...valid, homepageReview: review }).success).toBe(false);
   });
 
   it('keeps generated media illustrative and disclosed in both package versions', () => {

@@ -16,6 +16,9 @@ import {
 import styles from "./homepage-journey.module.css";
 import narrativeStyles from "./HomeNarrativesSection.module.css";
 import { FAKE_RESISTANCE_GRAMMAR, FAKE_RESISTANCE_INTRO } from "@/lib/fake-resistance-grammar";
+import { homepageBand } from "@/lib/homepage-bands";
+
+const BAND = homepageBand("fakeResistance");
 
 /**
  * Fake Resistance contains three distinct editorial shapes: Narrative Watch,
@@ -86,7 +89,7 @@ export function HomeNarrativesSection({
                   <span className={styles.verdictLabel}>{statusLabel}</span>
                   <span className={styles.verdictMeaning}>{statusMeaning}</span>
                 </p>
-                <HomeTime date={item.date} includeTime />
+                <HomeTime date={item.date} updatedAt={item.updatedAt} includeTime />
               </header>
               {item.media && (
                 <div className={styles.dossierCover}>
@@ -183,7 +186,7 @@ export function HomeNarrativesSection({
       {/* UX-05. One form for going to the whole section: "All of <Section>"
           with the journey arrow. (VA-63 had settled on "View all"; the verb
           table replaces it everywhere at once.) */}
-      <SectionAction href="/fake-resistance">All of Fake Resistance</SectionAction>
+      <SectionAction href={BAND.hubHref}>All of {BAND.label}</SectionAction>
     </section>
   );
 }

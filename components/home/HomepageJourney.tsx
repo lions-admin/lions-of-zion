@@ -1,4 +1,6 @@
 import type { HomepageEdition } from "@/server/contracts/homepage";
+import { formatEditionDate } from "@/lib/format-date";
+import { HOMEPAGE_BANDS } from "@/lib/homepage-bands";
 import { HomeNewsSection } from "./HomeNewsSection";
 import { HeroSupportStrip } from "./HeroSupportStrip";
 import { HomeNarrativesSection } from "./HomeNarrativesSection";
@@ -28,19 +30,19 @@ export function HomepageJourney({ edition }: { edition: HomepageEdition }) {
     <div className={styles.journey}>
       <header className={styles.edition}>
         <p className={styles.editionLine}>What happened. What is being said about it. How to check.</p>
+        {/* The same words as the cover's edition rail (`app/page.tsx`), from
+            the same formatter: this line printed the raw `2026-09-12` while
+            the cover said "Sat 12 Sept" until 2026-09-12. */}
         <span className={styles.editionDate}>
           {edition.editionDate
-            ? `Edition ${edition.editionDate}`
+            ? `Edition · ${formatEditionDate(edition.editionDate)}`
             : "Edition unavailable"}
           {edition.state === "previous-edition" ? " · Previous edition" : ""}
         </span>
         <nav className={styles.contents} aria-label="In this edition">
-          <a href="#home-news">News & Analysis</a>
-          <a href="#home-narratives">Fake Resistance</a>
-          <a href="#home-archive">October 7</a>
-          <a href="#home-people">The People of Israel</a>
-          <a href="#home-system">Behind the desk</a>
-          <a href="#home-support">Support the work</a>
+          {HOMEPAGE_BANDS.map((band) => (
+            <a key={band.id} href={band.anchor}>{band.label}</a>
+          ))}
         </nav>
       </header>
       <HomeNewsSection section={edition.news} />

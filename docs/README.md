@@ -13,7 +13,8 @@ described as though it works.
 | [`environment.md`](environment.md) | Every environment variable, by name. No values |
 | [`operations.md`](operations.md) | Install, run, verify, CI, deploy, troubleshoot |
 | [`chatgpt-app.md`](chatgpt-app.md) | The ChatGPT app — remote MCP, its tools, its OAuth flow, and why it does not replace the package pipeline |
-| [`whole-site-updates.md`](whole-site-updates.md) | `whole-site-update-v1` — how an externally composed editorial package is delivered and run |
+| [`editorial/homepage-operating-manual.md`](editorial/homepage-operating-manual.md) | The daily homepage manual — every band's route, source, selection and date rule; the lead, the canonical-update rule, media, and the `homepageReview` block a run records. Carries the `Manual version` a run echoes |
+| [`whole-site-updates.md`](whole-site-updates.md) | `whole-site-update-v2` (v1 still accepted) — how an externally composed editorial package is delivered and run |
 | [`briefing-packages.md`](briefing-packages.md) | The legacy `external-briefing-v1` path, kept for historical Daily Brief packages |
 | [`vercel-infrastructure.md`](vercel-infrastructure.md) | Verified Vercel, Neon, Blob, Queue, Cron and AI deployment record |
 

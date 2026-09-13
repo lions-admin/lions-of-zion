@@ -156,6 +156,58 @@ export type WholeSiteVeto = z.infer<typeof wholeSiteVetoSchema>;
 export const wholeSiteResearchSchema = z.array(wholeSiteResearchEntrySchema).max(25).optional();
 export const wholeSiteVetoesSchema = z.array(wholeSiteVetoSchema).max(25).optional();
 
+/* ── homepageReview ─────────────────────────────────────────────────────────
+ *
+ * The third thing the external editor does that the contract could not
+ * represent, recorded in `docs/editorial-dna.md` §12 as gap 10: *why* a
+ * homepage slot changed, and why the others stayed.
+ *
+ * `homepage` above says what moved. It cannot say that the editor looked at
+ * the People band and kept it, that the Fake Resistance lead was held because
+ * newer is not stronger, or that a candidate for the news lead was vetoed off
+ * the cover. A run that never looked at the homepage and a run that reviewed
+ * all seven bands and changed nothing both arrived as an empty `homepage`.
+ * `docs/editorial/homepage-operating-manual.md` now requires the review; this
+ * is where it lands, and `manualVersion` names the edition of the manual the
+ * editor read, so a review made against a stale manual is visible as such.
+ *
+ * `sectionsReviewed` spans every band on the cover, including the four a run
+ * may not place into. `decisions` are bounded to the three placeable areas,
+ * because a decision about October 7 or the support block is a
+ * `siteRecommendations` line, not a placement.
+ */
+
+/** Every band on the homepage, in reading order. Wider than the placeable
+ *  areas on purpose: a review covers the whole cover. */
+export const HOMEPAGE_REVIEW_SECTIONS = ['cover', 'news', 'fakeResistance', 'october7', 'people', 'system', 'support'] as const;
+export type HomepageReviewSection = (typeof HOMEPAGE_REVIEW_SECTIONS)[number];
+
+/**
+ * One editorial decision about one slot.
+ *
+ * `promote` and `replace` put something in a slot and must be matched by a
+ * `set` in `homepage`; `demote` empties one and pairs with a `remove`;
+ * `retain` and `veto` change nothing and are the two the machine could never
+ * infer on its own — the whole reason this block exists.
+ */
+export const wholeSiteHomepageReviewDecisionSchema = z.object({
+  area: z.enum(['news', 'fakeResistance', 'people']),
+  position: z.enum(['lead', 'secondary']).optional(),
+  action: z.enum(['promote', 'replace', 'retain', 'demote', 'veto']),
+  publication: wholeSitePublicationReferenceSchema.optional(),
+  reason: z.string().trim().min(1).max(2_000),
+}).strict();
+export type WholeSiteHomepageReviewDecision = z.infer<typeof wholeSiteHomepageReviewDecisionSchema>;
+
+export const wholeSiteHomepageReviewSchema = z.object({
+  /** The `Manual version:` line of `docs/editorial/homepage-operating-manual.md` the editor worked from. */
+  manualVersion: z.string().trim().min(1).max(100),
+  sectionsReviewed: z.array(z.enum(HOMEPAGE_REVIEW_SECTIONS)).min(1).max(7),
+  sectionsChanged: z.array(z.enum(HOMEPAGE_REVIEW_SECTIONS)).max(7).default([]),
+  decisions: z.array(wholeSiteHomepageReviewDecisionSchema).max(12).default([]),
+}).strict();
+export type WholeSiteHomepageReview = z.infer<typeof wholeSiteHomepageReviewSchema>;
+
 export const wholeSiteUpdateV2PackageSchema = z.object({
   contractVersion: z.literal(WHOLE_SITE_UPDATE_V2_CONTRACT_VERSION),
   runId: keySchema,
@@ -167,6 +219,7 @@ export const wholeSiteUpdateV2PackageSchema = z.object({
   siteRecommendations: z.array(z.string().trim().min(1).max(4_000)).max(50).default([]),
   research: wholeSiteResearchSchema,
   vetoes: wholeSiteVetoesSchema,
+  homepageReview: wholeSiteHomepageReviewSchema.optional(),
 }).strict().superRefine((pkg, ctx) => {
   const operations = [...pkg.creates, ...pkg.updates];
   const keys = operations.map(operation => operation.key);
@@ -190,6 +243,33 @@ export const wholeSiteUpdateV2PackageSchema = z.object({
         ctx.addIssue({ code: 'custom', path: ['homepage', area, position], message: `Unknown package operation "${decision.publication.operationKey}".` });
       }
     }
+  }
+  /* The review must agree with the placements it explains. Kept deliberately
+     narrow: a band cannot be reported as changed without being reviewed; a
+     `promote`/`replace` that names a slot must be matched by a `set` on that
+     slot in `homepage`, and a `demote` that names a slot by a `remove`. A
+     decision without a position is an area-level note (e.g. "retained the
+     People band as it stood") and is not cross-checked. `retain` and `veto`
+     are never cross-checked either — they are precisely the decisions the
+     placements cannot show. */
+  const review = pkg.homepageReview;
+  if (review) {
+    const reviewed = new Set<string>(review.sectionsReviewed);
+    review.sectionsChanged.forEach((section, index) => {
+      if (!reviewed.has(section)) {
+        ctx.addIssue({ code: 'custom', path: ['homepageReview', 'sectionsChanged', index], message: `Section "${section}" is reported as changed but not as reviewed.` });
+      }
+    });
+    review.decisions.forEach((decision, index) => {
+      if (!decision.position) return;
+      const placement = pkg.homepage[decision.area]?.[decision.position];
+      if ((decision.action === 'promote' || decision.action === 'replace') && placement?.action !== 'set') {
+        ctx.addIssue({ code: 'custom', path: ['homepageReview', 'decisions', index], message: `A "${decision.action}" at ${decision.area}/${decision.position} needs a matching "set" in homepage.${decision.area}.${decision.position}.` });
+      }
+      if (decision.action === 'demote' && placement?.action !== 'remove') {
+        ctx.addIssue({ code: 'custom', path: ['homepageReview', 'decisions', index], message: `A "demote" at ${decision.area}/${decision.position} needs a matching "remove" in homepage.${decision.area}.${decision.position}.` });
+      }
+    });
   }
 });
 export type WholeSiteUpdateV2Package = z.infer<typeof wholeSiteUpdateV2PackageSchema>;

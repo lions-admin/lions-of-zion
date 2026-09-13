@@ -12,6 +12,7 @@ import { OverviewPanel } from "./OverviewPanel";
 import { PipelinePanel } from "./PipelinePanel";
 import { SourcesPanel } from "./SourcesPanel";
 import { SystemPanel, type SubArea } from "./SystemPanel";
+import { TasksPanel } from "./TasksPanel";
 import { UsersPanel } from "./UsersPanel";
 import { SignOutButton } from "./SignOutButton";
 import { formatDate } from "./console-primitives";
@@ -24,7 +25,7 @@ export const NAV_GROUPS = [
     ["overview", "תמונת מצב"], ["pipeline", "עיבוד ומהדורות"],
     ["sources", "מקורות"], ["editorial", "כתבות ופרסום"], ["editorial-runs", "מערכת העריכה"],
   ] },
-  { title: "בקרה", entries: [["incidents", "תקלות והתאוששות"], ["costs", "עלויות ושימוש"], ["audit", "יומן פעילות"]] },
+  { title: "בקרה", entries: [["tasks", "משימות ופעילות"], ["incidents", "תקלות והתאוששות"], ["costs", "עלויות ושימוש"], ["audit", "יומן פעילות"]] },
   { title: "ניהול", entries: [
     ["users", "משתמשים והרשאות"], ["security", "אבטחה וחיבורים"],
     ["settings", "הגדרות"], ["environment", "סביבה"], ["reports", "דיווחים"],
@@ -111,7 +112,8 @@ export function OperationsConsole() {
               : area === "sources" ? <SourcesPanel signal={signal} />
                 : area === "editorial" ? <EditorialDesk signal={signal} />
                   : area === "editorial-runs" ? <EditorialRunsPanel signal={signal} />
-                    : area === "users" ? <UsersPanel signal={signal} />
+                    : area === "tasks" ? <TasksPanel signal={signal} />
+                      : area === "users" ? <UsersPanel signal={signal} />
                   : <SystemPanel key={area} signal={signal} sub={area as SubArea} />}
         </div>
       </div>

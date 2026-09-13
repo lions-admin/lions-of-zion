@@ -6,8 +6,10 @@ disable-model-invocation: true
 
 # Sync the journal
 
-The journal is loaded into every session automatically by the `SessionStart`
-hook. That only helps if it is true, so this is the other half.
+The journal is what a new session reads to find where the work stands. No
+hook injects it any more — the machine `SessionStart` hook reports git state
+only — so it is read by choice, and that only helps if it is true. This is
+the other half.
 
 Budget a minute. A journal that costs ten minutes to update gets skipped, and a
 skipped journal is worse than none because it still gets read.
@@ -67,12 +69,16 @@ The split matters:
 A newly discovered trap that will still be true in six months belongs in
 `CLAUDE.md`, not in the journal. If you found one, move it there.
 
-## 5. Confirm the nudge goes quiet
+## 5. Report the round to the operations board
+
+The journal is for the next session; the board is for the owner, now. If the
+round moved the work, close it there too (`docs/ops/task-reporting.md`):
 
 ```bash
-CLAUDE_PROJECT_DIR="$PWD" node .claude/hooks/journal-nudge.mjs
+npm run ops:report -- finish --summary "…" --changes "…" --remaining "…"
 ```
 
-`{"suppressOutput":true}` means the journal is current. A `systemMessage` means
-source files are still newer than `.ai/STATE.md` — either it needs another
-pass, or those edits were throwaway and can be ignored.
+There is no journal-nudge script any more — `.claude/hooks/journal-nudge.mjs`
+was removed with the machine-level hooks, and nothing checks the journal's
+freshness automatically. Reading `git diff --stat` against `.ai/STATE.md` by
+hand is the check.

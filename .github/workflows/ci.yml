@@ -298,3 +298,49 @@ jobs:
             success|skipped) ;;
             *) echo "The smoke test did not pass." >&2; exit 1 ;;
           esac
+
+  # ── Tell the operations board how this commit fared ─────────────────────
+  #
+  # One `ci` event on the task `git:<sha>` — the same key the post-commit
+  # hook reports on, so a commit and its pipeline share one record on
+  # /admin?area=tasks. It never gates anything: `continue-on-error`, and a
+  # missing OPS_REPORT_SECRET is a notice, not a failure. The reporter
+  # contract is docs/ops/task-reporting.md.
+  report-ops:
+    name: report to operations board
+    runs-on: ubuntu-latest
+    needs: [gate, smoke-gate]
+    if: always()
+    continue-on-error: true
+    env:
+      OPS_REPORT_SECRET: ${{ secrets.OPS_REPORT_SECRET }}
+      OPS_REPORT_BASE_URL: https://lionsofzion.io
+    steps:
+      - name: Post the ci event
+        run: |
+          if [ -z "$OPS_REPORT_SECRET" ]; then
+            echo "::notice::OPS_REPORT_SECRET is not set; the operations board was not told about this run."
+            exit 0
+          fi
+          gate="${{ needs.gate.result }}"
+          smoke="${{ needs['smoke-gate'].result }}"
+          status=completed
+          case "$gate $smoke" in *failure*|*cancelled*) status=failed ;; esac
+          run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          body="$(jq -n \
+            --arg taskKey "git:${{ github.sha }}" \
+            --arg eventKey "ci:${{ github.run_id }}:${{ github.run_attempt }}" \
+            --arg status "$status" \
+            --arg message "CI ${{ github.workflow }} #${{ github.run_number }}: gate=$gate smoke=$smoke — $run_url" \
+            --arg url "$run_url" \
+            --arg ref "${{ github.ref_name }}" \
+            --arg sha "${{ github.sha }}" \
+            --arg event "${{ github.event_name }}" \
+            '{reports:[{eventKey:$eventKey, taskKey:$taskKey, agent:"github-actions", environment:"github-actions:ci", reporterVersion:"ci-1", event:"ci", status:$status, message:$message, links:[{label:"CI run", url:$url}], meta:{ref:$ref, sha:$sha, trigger:$event}}]}')"
+          code="$(curl -sS -o /tmp/ops-report.out -w '%{http_code}' --max-time 20 \
+            -H 'content-type: application/json' \
+            -H "x-ops-report-secret: $OPS_REPORT_SECRET" \
+            -X POST "$OPS_REPORT_BASE_URL/api/internal/ops/tasks/report" \
+            --data "$body" || echo 000)"
+          echo "report → HTTP $code"; cat /tmp/ops-report.out || true
+          case "$code" in 2*) ;; *) echo "::warning::operations board did not accept the ci event (HTTP $code)";; esac

@@ -6,6 +6,7 @@ import {editorialMediaSchema} from '@/server/contracts/editorial-media';
 vi.mock('@/lib/publications',()=>({readHomepageSnapshot:vi.fn(),getPublicPublication:vi.fn()}));
 vi.mock('@/lib/content/homepage-adapters',()=>({resolveHomepageReference:vi.fn()}));
 import {resolveHomepageSection} from '@/lib/homepage';
+import {HOMEPAGE_BANDS} from '@/lib/homepage-bands';
 import {HomepageJourney} from '@/components/home/HomepageJourney';
 const asset=editorialMediaSchema.parse(media.assets[0]);
 const base={key:'a',title:'A full headline',href:'/articles/a',date:'2026-09-05T09:00:00Z',summary:'Published summary.',media:asset,sources:[]};
@@ -41,6 +42,33 @@ describe('homepage editorial composition',()=>{
  expect(news.indexOf('A full headline')).toBeLessThan(news.indexOf('All of News &amp; Analysis'));
  expect(news.match(/All of News &amp; Analysis/g)).toHaveLength(1);
  expect(html).toContain('data-rank="lead"');
+ });
+ it('dates a revised record by its revision, said as Updated, and an unrevised one by its publication',()=>{
+ const e=edition();e.news.items[0]={...e.news.items[0],updatedAt:'2026-09-05T14:07:00Z'};
+ const html=renderToStaticMarkup(<HomepageJourney edition={e}/>);
+ const news=html.slice(html.indexOf('data-home-section="news"'),html.indexOf('data-home-section="fakeResistance"'));
+ expect(news).toContain('dateTime="2026-09-05T14:07:00.000Z"');
+ expect(news).toContain('Updated 5 Sept 2026, 17:07 · Israel time');
+ expect(news).not.toContain('5 Sept 2026, 12:00');
+ /* Same instant on both stamps, or no revision at all: no "Updated". */
+ const same=edition();same.news.items[0]={...same.news.items[0],updatedAt:'2026-09-05T09:00:00.000Z'};
+ const plain=renderToStaticMarkup(<HomepageJourney edition={same}/>);
+ expect(plain).not.toContain('Updated ');expect(plain).toContain('5 Sept 2026, 12:00 · Israel time');
+ expect(renderToStaticMarkup(<HomepageJourney edition={edition()}/>)).not.toContain('Updated ');
+ });
+ it('derives the contents line from HOMEPAGE_BANDS, in band order, and names the edition by its day',()=>{
+ const html=renderToStaticMarkup(<HomepageJourney edition={edition()}/>);
+ const nav=html.slice(html.indexOf('aria-label="In this edition"'),html.indexOf('</nav>'));
+ const anchors=[...nav.matchAll(/href="(#[^"]+)"/g)].map(m=>m[1]);
+ expect(anchors).toEqual(HOMEPAGE_BANDS.map(b=>b.anchor));
+ /* Every anchor lands on a section that exists, in the same order. */
+ const targets=anchors.map(a=>html.indexOf(`id="${a.slice(1)}"`));
+ expect(targets.every(i=>i>=0)).toBe(true);expect([...targets].sort((a,b)=>a-b)).toEqual(targets);
+ for(const band of HOMEPAGE_BANDS)expect(nav).toContain(`>${band.label.replace('&','&amp;')}<`);
+ /* One edition date, in the cover's words, never the raw ISO. */
+ expect(html).toContain('Edition · Sat 5 Sept 2026');expect(html).not.toContain('Edition 2026-09-05');
+ const previous=edition();previous.state='previous-edition';
+ expect(renderToStaticMarkup(<HomepageJourney edition={previous}/>)).toContain('Edition · Sat 5 Sept 2026 · Previous edition');
  });
  it('keeps a record without a picture on the page, text-led, with no empty frame',()=>{
  const e=edition();e.news.items[0]={...e.news.items[0],media:null};

@@ -10,6 +10,130 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-12 — One operations task board; every agent reports through the same CLI
+
+Five AI environments, the ChatGPT editorial run, GitHub Actions and local
+scripts all work on this project, and the owner reconstructed "what is
+running, who did it, what is left" from chats and terminals. The owner ruled:
+one Hebrew board inside the control centre (`/admin?area=tasks`), records in
+the Production database behind a new internal secret, screenshots in the
+existing editorial-media Blob store under `ops/`, a one-time import of the
+history, and Codex's `notify` wrapped rather than replaced.
+
+**Why one CLI and not five integrations.** Each tool exposes a different
+surface — Claude and Grok share hook JSON on stdin, Codex has a single
+`notify` slot that was already occupied, OpenCode and Gemini AGY have nothing
+— and an integration per tool would have meant five report formats drifting
+apart. So the only writer is `scripts/ops/report.mjs`, zero-dependency Node
+that spools to `~/.lions-ops/spool/` before it touches the network and never
+exits non-zero. Every adapter — the hook, the Codex wrapper, the git
+post-commit script, the CI job — is a few lines that build one report line
+and hand it to that spool. The contract is `server/contracts/ops-tasks.ts`.
+
+**Why a finish is required and nothing completes a task on its own.** The
+alternative — mark a task done when the session ends, or when a commit lands
+— produces a board that lies in exactly the case the owner cares about: an
+agent that crashed, ran out of context or wandered off. `completed` is
+written only from an explicit `finish`; a session that ends without one gets
+a note, `meta.sessionEnded`, and an "unreported" marker. Reporting is now an
+owner requirement in `.ai/WORKFLOW.md`, which until this entry said the
+opposite.
+
+**What is automatic, what is partial, what is manual.** Automatic: Claude and
+Grok `start`/`progress` (project `.claude/settings.json`, which Grok consumes
+through `[compat.claude] hooks`); Codex `progress` per turn (the `notify`
+wrapper forwards to the original SkyComputerUseClient with the original
+arguments and returns its exit code, so Codex's own behaviour is unchanged
+and the edit is reversible from the comment above it); commits from anyone
+(`~/.config/ai-dev/git-hooks/post-commit`, which fires only when the
+committed repository ships `scripts/ops/git-post-commit.mjs`); CI results on
+`git:<sha>`; the editorial run, read from `editorial_run` rather than written
+twice. Partial: OpenCode and Gemini AGY, which have no hook surface and are
+covered by commits and the manual CLI until they do — the coverage table says
+so rather than pretending. Manual everywhere: the finish, and screenshots
+(`npm run ops:capture`, a before/after pair keyed by `pairKey`).
+
+**Why a Claude finish typed in the shell lands on the hook's task.** Claude's
+Bash does not carry the session id, so the CLI would have invented a second
+key. The hook records the session's task key per working directory under
+`~/.lions-ops/state/current/`, and the CLI reads it back for 36 hours. That
+is a machine-local convention, not a contract, and it is what makes
+"finish from the shell" work without a flag.
+
+**Why the machine files are on the owner's machine only.** The Codex wrapper
+path and the git hook live outside the repository by necessity; they are
+recorded here and in `docs/ops/task-reporting.md`, reversible, and reported
+rather than claimed done anywhere else. The backfill imports
+`docs/reviews`, `docs/audits`, `docs/handoff`, and the Claude, Codex and Grok
+session stores as `import:<sha1>` tasks — dry-run by default, `--apply`
+posts, idempotent through fixed event keys.
+
+The schema is migration `0066`, authored in the backend workstream of the
+same round; nothing here claims any other migration.
+
+---
+
+## 2026-09-12 — The homepage has an operating manual and the run records its homepage review
+
+The owner saw the news lead say *"Aoun visits south Lebanon…"* over a card
+dated 10 Sept, two days before the visit. The record was right — one canonical,
+rewritten on 12 Sept with the development, exactly the shape the DNA asks for —
+but the card showed `publishedAt` and nothing else, so a correctly updated
+story read as stale. Around it sat four separate published records on the same
+tunnel event, three date renderings on one screen, and a contents nav with six
+hand-typed anchors. No document told a daily editor what any band on the
+homepage *is*: where it links, where its content comes from, who selects it,
+or what its date means.
+
+Two decisions, one narrow and one written.
+
+**The run records its homepage review.** `docs/editorial-dna.md` §12 gap 10
+said "do not displace what is stronger" was unenforceable by construction: the
+contract could say a slot was set or removed, never *why*, and a run that
+reviewed the whole cover and kept it was indistinguishable from a run that
+never looked. `whole-site-update-v2` gains an optional `homepageReview` —
+`manualVersion`, `sectionsReviewed`, `sectionsChanged`, and up to twelve
+decisions, each `promote`, `replace`, `retain`, `demote` or `veto` with a
+reason. The validator cross-checks a promote/replace against a `set` and a
+demote against a `remove`; `retain` and `veto` are deliberately not checked,
+because they are the two things the placements cannot show. The report prints
+it under `HOMEPAGE REVIEW`, and a v2 run without one says so.
+
+The narrow place is the same one the v2 entry below found: `delivery` in
+`server/contracts/editorial-update.ts`. A field absent from that whitelist is
+stripped before `editorialInputHash`, so two runs differing only in their
+review would hash identically and the second would be refused as a replay. It
+is named there. No migration — `editorial_run.request` and `.report` are jsonb.
+
+**The manual is versioned, and the version is a contract field.**
+`docs/editorial/homepage-operating-manual.md` carries `Manual version:
+2026-09-12.1` on its second line and the run echoes it verbatim. That is what
+makes a review composed against a stale manual visible in the report rather
+than silently wrong. Bump it when an operating rule changes.
+
+**What stays unrepresentable, on purpose.** The code still does not compare
+candidates; "stronger" is the editor's judgement, now written down. Decisions
+are bounded to the three placeable areas — a view about October 7 or the
+support blocks is a `siteRecommendations` line, because the contract has no
+field for placing either and must not grow one. The two support blocks (the
+strip after the news and the closing section) were reconsidered today and
+kept: the 2026-09-07 ruling stands, UX-13 moved the strip rather than removing
+it, and the manual records that as a ruling so the next audit does not file it
+as a bug.
+
+**Alongside, not decided here but recorded:** the card date is `updatedAt`
+when a record was revised, else `publishedAt`, matching the article page; one
+formatter (`lib/format-date.ts`, en-GB, Asia/Jerusalem) replaces the ~20 local
+ones; band anchors, labels and hub links live in `lib/homepage-bands.ts`; the
+October 7, Courage & service and History & context cards show no date because
+their record dates are ingestion dates. The four al-Taher records are an
+editorial merge for a run to do, not a code fix, and a `publicId` is never
+changed to repair a slug. The ChatGPT Scheduled Task prompt is outside the
+repository; it is replaced from the DNA appendix, which now says v2 and
+carries the five pre-run steps.
+
+---
+
 ## 2026-09-07 — Editorial media gets its own public Blob store; the capture store stays private
 
 Production run `chatgpt-daily-2026-09-07-1758-k7m4` succeeded at everything

@@ -201,6 +201,72 @@ describe('a whole-site package from ChatGPT', () => {
     expect(text.indexOf('VETOED — editorial decisions')).toBeLessThan(text.indexOf('NOT PUBLISHED — technical failures'));
   }, 120000);
 
+  /* `homepageReview` — the editor's account of the cover, beside what the
+     machine moved. It has to survive the same narrow waist as research and
+     vetoes, and the report has to say when a v2 run left it out. */
+  it('carries a v2 homepage review into the run report, and names its absence', async () => {
+    /* No creates: the review lives in `delivery`, and publishing the fixture a
+       third time would only trip the duplicate detector on shared sources. A
+       homepage-only package naming a live record by publicId is a valid v2
+       package, and the homepage stage is not what this test exercises. */
+    const v2Fixture = (suffix: string) => ({
+      contractVersion: 'whole-site-update-v2', runId: `fixture-${suffix}`, composer: 'ChatGPT', createdAt: '2026-09-12T04:00:00.000Z',
+      homepage: { news: { lead: { action: 'set', publication: { publicId: 'lebanon-strikes-abc123' } } } },
+    });
+    const store = editorialRepo(db as unknown as Database);
+    const finish = async (compiled: ReturnType<typeof compileWholeSiteUpdate>) => {
+      const run = await store.start(compiled, 'external:ChatGPT');
+      const worker = await store.claim(run.id);
+      await store.finish(run.id, worker!.leaseToken!, {
+        status: 'completed',
+        publications: { created: 0, updated: 0, failed: 0, requested: 0 },
+        homepageReview: compiled.delivery?.homepageReview ?? null,
+        errors: [],
+      });
+      return store.get(run.id);
+    };
+
+    const reviewed = anyWholeSiteUpdatePackageSchema.parse({
+      ...v2Fixture('reviewed'),
+      homepageReview: {
+        manualVersion: '2026-09-12.1',
+        sectionsReviewed: ['cover', 'news', 'fakeResistance', 'october7', 'people', 'system', 'support'],
+        sectionsChanged: ['news'],
+        decisions: [
+          { area: 'news', position: 'lead', action: 'promote', publication: { publicId: 'lebanon-strikes-abc123' }, reason: 'Strongest sourced story of the day.' },
+          { area: 'fakeResistance', position: 'lead', action: 'retain', reason: 'Newer is not stronger; the standing investigation still leads.' },
+        ],
+      },
+    });
+    const compiled = compileWholeSiteUpdate(reviewed);
+    /* The same narrow waist as research and vetoes: `startEditorialRunSchema`
+       strips what `delivery` does not name, and the input hash runs over the
+       parsed input. */
+    expect(compiled.delivery?.homepageReview).toMatchObject({ manualVersion: '2026-09-12.1' });
+    const stored = await finish(compiled);
+    expect((stored.report as { homepageReview?: { decisions?: unknown[] } }).homepageReview?.decisions).toHaveLength(2);
+    const { text } = composeEditorialRunReport(stored);
+    expect(text).toContain('HOMEPAGE REVIEW');
+    expect(text).toContain('Manual version: 2026-09-12.1');
+    expect(text).toContain('Sections changed: news');
+    expect(text).toContain('Newer is not stronger; the standing investigation still leads.');
+    expect(text).toContain('News & Analysis / lead · promote · Strongest sourced story of the day. (lebanon-strikes-abc123)');
+    expect(text).not.toContain('No homepage review recorded');
+    expect(text.indexOf('HOMEPAGE REVIEW')).toBeGreaterThan(text.indexOf('\nHOMEPAGE\n'));
+
+    const unreviewed = anyWholeSiteUpdatePackageSchema.parse(v2Fixture('unreviewed'));
+    const unreviewedCompiled = compileWholeSiteUpdate(unreviewed);
+    expect(unreviewedCompiled.delivery?.homepageReview).toBeNull();
+    const unreviewedText = composeEditorialRunReport(await finish(unreviewedCompiled)).text;
+    expect(unreviewedText).toContain('No homepage review recorded — docs/editorial/homepage-operating-manual.md requires one.');
+  }, 120000);
+
+  it('prints no homepage review block for a v1 run', () => {
+    const raw = JSON.parse(readFileSync(join(process.cwd(), 'tests/fixtures/whole-site-package.json'), 'utf8'));
+    const compiled = compileWholeSiteUpdate(wholeSiteUpdatePackageSchema.parse(raw));
+    expect('homepageReview' in (compiled.delivery ?? {})).toBe(false);
+  });
+
   it('still validates a v1 package unchanged', () => {
     const raw = JSON.parse(readFileSync(join(process.cwd(), 'tests/fixtures/whole-site-package.json'), 'utf8'));
     expect(wholeSiteUpdatePackageSchema.safeParse(raw).success).toBe(true);

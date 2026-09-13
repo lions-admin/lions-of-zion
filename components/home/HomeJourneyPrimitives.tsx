@@ -7,6 +7,7 @@ import type {
   HomePreview,
 } from "@/server/contracts/homepage";
 import { previewSentences } from "@/lib/preview-sentences";
+import { ISRAEL_TIME_SUFFIX, formatDateTime, formatDay } from "@/lib/format-date";
 import styles from "./homepage-journey.module.css";
 
 /**
@@ -195,28 +196,37 @@ export function HomeSources({ sources }: { sources: HomeSource[] }) {
   );
 }
 
+/**
+ * The card's date, revision-aware. A developing story revised at 17:07 is
+ * dated by that revision, said as "Updated …", so the card does not read as
+ * this morning's; a record never revised is dated by its publication. The
+ * `<time>` carries the instant the words describe. Static kinds pass no
+ * `updatedAt` on purpose: an archive record's revision stamp is an ingestion
+ * date, and printing it would mislead.
+ */
 export function HomeTime({
   date,
+  updatedAt,
   includeTime = false,
 }: {
   date: string;
+  updatedAt?: string;
   includeTime?: boolean;
 }) {
-  const parsed = new Date(date);
-  if (Number.isNaN(parsed.getTime()))
+  const published = new Date(date);
+  if (Number.isNaN(published.getTime()))
     return <span className={styles.meta}>{date}</span>;
+  const revised = updatedAt ? new Date(updatedAt) : null;
+  const shown =
+    revised && !Number.isNaN(revised.getTime()) && revised.getTime() !== published.getTime()
+      ? revised
+      : null;
+  const at = (shown ?? published).toISOString();
   return (
-    <time className={styles.meta} dateTime={parsed.toISOString()}>
-      {new Intl.DateTimeFormat("en-GB", {
-        timeZone: "Asia/Jerusalem",
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        ...(includeTime
-          ? ({ hour: "2-digit", minute: "2-digit" } as const)
-          : {}),
-      }).format(parsed)}
-      {includeTime ? " · Israel time" : ""}
+    <time className={styles.meta} dateTime={at}>
+      {shown ? "Updated " : ""}
+      {includeTime ? formatDateTime(at) : formatDay(at)}
+      {includeTime ? ISRAEL_TIME_SUFFIX : ""}
     </time>
   );
 }

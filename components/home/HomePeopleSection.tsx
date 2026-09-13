@@ -1,6 +1,9 @@
 import type { HomepageEdition } from '@/server/contracts/homepage';
 import { HomeMedia, HomeSources, JourneyLink, PREVIEW_BUDGET, PreviewText, SectionAction, SectionHeading, SectionState, rankOf } from './HomeJourneyPrimitives';
 import styles from './homepage-journey.module.css';
+import { homepageBand } from '@/lib/homepage-bands';
+
+const BAND = homepageBand('people');
 
 /** One public chapter for people, work and context. Legacy collections stay
  * addressable at their existing routes while the homepage gives them one home. */
@@ -14,7 +17,8 @@ export function HomePeopleSection({ people, heroes, history }: {
     <p className={styles.sectionIntro}>People and the work they do: courage, science, invention and the context that makes each record legible.</p>
     <div className={styles.peopleStack}>
     {live.length ? <div className={styles.featureSpread}>{live.map((item, index) => <article key={item.key} data-rank={rankOf(index)}>
-      <HomeMedia media={item.media} portrait={item.category === 'People' || item.category === 'Courage & Service'} />
+      {/* The frame is decided at the source (`homepage-adapters.ts`) from the record's section, not by comparing label strings here. */}
+      <HomeMedia media={item.media} portrait={item.portrait} />
       <div><p className={styles.kicker}>{item.category}</p><h3>{item.title}</h3><p className={styles.summary}><PreviewText text={item.summary} budget={PREVIEW_BUDGET[rankOf(index)]} /></p><HomeSources sources={item.sources} />{/* UX-05: the verb is derived from the record's section (`cta`); a snapshot serialized before the field existed reads it as the story it is. */}<JourneyLink href={item.href}>{item.cta ?? "Read the story"}</JourneyLink></div>
     </article>)}</div> : null}
     {heroes.items.length ? <div className={styles.legacyPeople}><p className={styles.kicker}>Courage &amp; service</p><div className={styles.peopleSpread}>{heroes.items.map((item, index) => <article key={item.key} data-rank={rankOf(index)}>
@@ -27,6 +31,6 @@ export function HomePeopleSection({ people, heroes, history }: {
     {!live.length && !hasLegacy && people ? <SectionState section={people} /> : null}
     </div>
     {/* UX-05. One form for going to the whole section: "All of <Section>" with the journey arrow. */}
-      <SectionAction href="/people-of-israel">All of The People of Israel</SectionAction>
+      <SectionAction href={BAND.hubHref}>All of {BAND.label}</SectionAction>
   </section>;
 }

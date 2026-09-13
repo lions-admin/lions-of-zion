@@ -1,5 +1,6 @@
 import { ActivationBand } from "@/components/content";
 import { SITE_URL } from "@/lib/site-config";
+import { formatDay } from "@/lib/format-date";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EditorialShell } from "@/components/site/EditorialShell";
@@ -17,9 +18,6 @@ const description = "See the claim. See what it was built from. Take the sourced
 export const metadata: Metadata = pageMetadata({
   title: "Fake Resistance", description, path: "/fake-resistance",
 });
-function dateLabel(value: string) {
-  return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "Asia/Jerusalem" }).format(new Date(value));
-}
 /** "7 records" beside a section head — or nothing, when the read that would
  *  have counted them failed. Never `0` for a desk nobody could read. */
 function SectionCount({ settled, count, noun }: { settled: boolean; count: number; noun: string }) {
@@ -64,7 +62,7 @@ export default async function Page() {
         />
         <div className={styles.front}>
           <section className={styles.investigation} aria-labelledby="investigation-heading">
-            <div className={styles.eyebrow}><span>Latest investigation</span>{featured ? <time dateTime={featured.updatedAt}>{dateLabel(featured.updatedAt)}</time> : null}</div>
+            <div className={styles.eyebrow}><span>Latest investigation</span>{featured ? <time dateTime={featured.updatedAt}>{formatDay(featured.updatedAt)}</time> : null}</div>
             {featured ? <>
               <h2 id="investigation-heading"><Link href={`/fake-resistance/cases/${featured.slug}`}>{featured.title}</Link></h2>
               <p className={styles.question}>{featured.question}</p>
@@ -110,7 +108,7 @@ export default async function Page() {
           <p className={styles.disclosure}>Published investigations into coordinated influence — state-aligned, networked and anti-Western operations — kept apart from the claims they circulate.</p>
           {influence.status === "rejected" ? <p role="alert">Influence investigations are temporarily unavailable.</p>
             : influenceItems.length ? <div className={styles.researchGrid}>{influenceItems.slice(0, 3).map(item => <article key={item.publicId}>
-                <time dateTime={item.publishedAt}>{dateLabel(item.publishedAt)}</time>
+                <time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time>
                 <h3><Link href={publicationHref(item.publicId)}>{item.title}</Link></h3>
                 {item.summary ? <p>{item.summary}</p> : null}
                 <Link className={styles.action} href={publicationHref(item.publicId)}>Open the investigation <span aria-hidden="true">→</span></Link>
@@ -124,7 +122,7 @@ export default async function Page() {
             <Link href="/fake-resistance/social-media">All investigations <span aria-hidden="true">→</span></Link>
           </header>
           <div className={styles.researchGrid}>{otherCases.slice(0,3).map(item => <article key={item.slug}>
-            <time dateTime={item.updatedAt}>{dateLabel(item.updatedAt)}</time>
+            <time dateTime={item.updatedAt}>{formatDay(item.updatedAt)}</time>
             <h3><Link href={`/fake-resistance/cases/${item.slug}`}>{item.title}</Link></h3>
             <p>{item.question}</p>
             <Link className={styles.action} href={`/fake-resistance/cases/${item.slug}`}>Open the investigation <span aria-hidden="true">→</span></Link>

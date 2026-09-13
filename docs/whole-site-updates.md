@@ -1,4 +1,9 @@
-# Whole-site editorial updates (`whole-site-update-v1` and `v2`)
+# Whole-site editorial updates (`whole-site-update-v2`, and `v1` still accepted)
+
+`whole-site-update-v2` is the current contract: it is what every live package
+declares and the only version that carries `research`, `vetoes` and
+`homepageReview`. `v1` still validates unchanged and is documented where the
+two differ.
 
 The current delivery path for editorial work. A composer working **outside this
 repository** produces one JSON package describing new articles, updates to
@@ -244,14 +249,22 @@ the current field list rather than trusting this shape:
   "mediaWarnings": [ { "operationKey": "…", "message": "…",
                         "publicationProceededWithoutNewMedia": true } ],
   "errors": [ { "operationKey": "…", "stage": "publication", "message": "…", "recovery": "…" } ],
-  "siteRecommendations": ["…"]
+  "siteRecommendations": ["…"],
+  "homepageReview": { "manualVersion": "2026-09-12.1",
+                      "sectionsReviewed": ["cover", "news", "fakeResistance", "october7", "people", "system", "support"],
+                      "sectionsChanged": ["cover", "news"],
+                      "decisions": [ { "area": "news", "position": "lead", "action": "replace",
+                                       "publication": { "publicId": "…" }, "reason": "…" },
+                                     { "area": "fakeResistance", "position": "lead", "action": "retain",
+                                       "reason": "…" } ] }
 }
 ```
 
 `byCategory` is keyed by `publication.section`, so it says which desk actually
 received something — a run total does not. `homepage.changes` lists only the
-slots this run moved. `stage` on an error is one of `media`, `publication`,
-`homepage`, `report`.
+slots this run moved; `homepageReview` is the editor's own account of every
+slot, copied from the package (`null` when the package carried none). `stage`
+on an error is one of `media`, `publication`, `homepage`, `report`.
 
 To resume, take the run's **internal id** (the `id` field the ingest response
 returned, or `GET /api/v1/admin/editorial-update`) and, signed in as the admin:
@@ -281,7 +294,7 @@ identifier never means two things.
 
 | Field | Rule |
 | --- | --- |
-| `contractVersion` | literal `"whole-site-update-v1"` |
+| `contractVersion` | literal `"whole-site-update-v2"` (current) or `"whole-site-update-v1"`; the version selects the schema |
 | `runId` | trimmed, 1–200 characters; the idempotency key |
 | `composer` | trimmed, 1–200 characters; recorded as `external:<composer>` |
 | `createdAt` | ISO 8601 datetime |
@@ -289,6 +302,7 @@ identifier never means two things.
 | `updates` | array, max 100, defaults `[]` |
 | `homepage` | object, defaults `{}` |
 | `siteRecommendations` | array of strings 1–4,000 chars, max 50, defaults `[]` |
+| `research`, `vetoes`, `homepageReview` | **v2 only**, all optional — see "`whole-site-update-v2`" below. On a v1 package each is an unknown key and a rejection |
 
 Package-wide rules, all in the schema's `superRefine`:
 
@@ -357,11 +371,11 @@ applied, the edition is still recomposed, and the run reports `partial`. A
 homepage reference to an operation that did not complete is reported the same
 way.
 
-### `whole-site-update-v2`: research and vetoes
+### `whole-site-update-v2`: research, vetoes and the homepage review
 
-A package may declare `"contractVersion": "whole-site-update-v2"` and carry two
-extra top-level arrays. Everything else is identical to v1, and v1 packages keep
-validating unchanged.
+A package may declare `"contractVersion": "whole-site-update-v2"` and carry
+three extra top-level fields. Everything else is identical to v1, and v1
+packages keep validating unchanged.
 
 - **`research`** — up to 25 entries of `{ topic, focus?, sourcesReviewed?,
   conclusion, outcome }`, where `outcome` is `published`, `updated`, `vetoed` or
@@ -380,6 +394,55 @@ sets `ownerDecisionRequested` is called out for the owner by name.
 A v2 package may carry only research or only vetoes and still be complete — a
 run that studied the day and published nothing has reported something. That is
 the one rule v1 does not share.
+
+- **`homepageReview`** (since 2026-09-12) — the editor's account of the
+  homepage, made against
+  [`editorial/homepage-operating-manual.md`](editorial/homepage-operating-manual.md).
+  `homepage` says *what* moved; this says why, and why the rest stayed.
+  `wholeSiteHomepageReviewSchema`:
+
+  | Field | Rule |
+  | --- | --- |
+  | `manualVersion` | string 1–100: the manual's `Manual version:` line, verbatim |
+  | `sectionsReviewed` | 1–7 of `cover`, `news`, `fakeResistance`, `october7`, `people`, `system`, `support` (`HOMEPAGE_REVIEW_SECTIONS`) |
+  | `sectionsChanged` | same vocabulary, ≤ 7, defaults `[]`; must be a subset of `sectionsReviewed` |
+  | `decisions` | ≤ 12 of `{ area, position?, action, publication?, reason }`, defaults `[]` |
+  | `decisions[].area` | `news`, `fakeResistance` or `people` — the placeable areas only |
+  | `decisions[].position` | `lead` or `secondary`; absent means an area-level note |
+  | `decisions[].action` | `promote`, `replace`, `retain`, `demote` or `veto` |
+  | `decisions[].publication` | a homepage reference (`publicId`, `canonicalStoryId` or `operationKey`, exactly one); optional |
+  | `decisions[].reason` | string 1–2,000; printed in the report |
+
+  The `superRefine` cross-checks it against `homepage`: a `promote` or
+  `replace` that names a position needs a `set` on that slot, a `demote` needs
+  a `remove`, and a section cannot be reported changed without being reviewed.
+  `retain` and `veto` are never cross-checked — they are exactly the decisions
+  the placements cannot show. Decisions are bounded to the three placeable
+  areas because a decision about October 7 or the support blocks is a
+  `siteRecommendations` line, not a placement.
+
+  ```json
+  "homepageReview": {
+    "manualVersion": "2026-09-12.1",
+    "sectionsReviewed": ["cover", "news", "fakeResistance", "october7", "people", "system", "support"],
+    "sectionsChanged": ["cover", "news"],
+    "decisions": [
+      { "area": "news", "position": "lead", "action": "replace",
+        "publication": { "operationKey": "al-taher-aoun-visit" },
+        "reason": "Real development of the story already in the slot; the canonical was updated, not duplicated." },
+      { "area": "fakeResistance", "position": "lead", "action": "retain",
+        "reason": "Today's candidate is thinner than the live investigation; newer is not stronger." }
+    ]
+  }
+  ```
+
+  It survives to the stored report as `homepageReview` (the delivery
+  whitelist in `server/contracts/editorial-update.ts` names it, so it also
+  enters `editorialInputHash`), prints under `HOMEPAGE REVIEW` after
+  `HOMEPAGE` in `composeEditorialRunReport()` — one line per decision — and a
+  v2 run that carried none prints `No homepage review recorded`. The
+  `--dry-run` line reports `homepageReview=yes|no`. A complete filled package
+  is in the manual's §10.
 
 ### Internal UUIDs are never invented
 

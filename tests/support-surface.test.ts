@@ -145,7 +145,10 @@ describe("donation channels are links to the provider, never embedded widgets", 
   it("closes the homepage on the same two links and names the band in the contents line", () => {
     const journey = read("components/home/HomepageJourney.tsx");
     expect(journey).toContain("<HomeSupportSection />");
-    expect(journey).toContain('href="#home-support"');
+    // The contents nav is map-driven since 2026-09-12: the anchor comes from
+    // `HOMEPAGE_BANDS`, whose support entry is pinned in lib/homepage-bands.ts.
+    expect(journey).toContain("HOMEPAGE_BANDS");
+    expect(read("lib/homepage-bands.ts")).toContain('anchor: "#home-support"');
     const section = read("components/home/HomeSupportSection.tsx");
     expect(section).toContain("DONATION_CHANNELS");
     expect(section).toContain('id="home-support"');

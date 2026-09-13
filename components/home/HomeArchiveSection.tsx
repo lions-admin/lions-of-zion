@@ -11,6 +11,9 @@ import {
   rankOf,
 } from "./HomeJourneyPrimitives";
 import styles from "./homepage-journey.module.css";
+import { homepageBand } from "@/lib/homepage-bands";
+
+const BAND = homepageBand("october7");
 
 /** A record whose excerpt is only its own title again is not printed twice. */
 const sameText = (a: string, b: string) =>
@@ -73,7 +76,7 @@ export function HomeArchiveSection({
       <SectionState section={section} />
       {/* UX-05. One form for going to the whole section: "All of <Section>"
           with the journey arrow. */}
-      <SectionAction href="/october-7">All of October 7</SectionAction>
+      <SectionAction href={BAND.hubHref}>All of {BAND.label}</SectionAction>
     </section>
   );
 }

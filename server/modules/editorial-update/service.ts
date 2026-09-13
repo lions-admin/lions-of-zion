@@ -126,7 +126,7 @@ export function compileWholeSiteUpdate(pkg: AnyWholeSiteUpdatePackage): StartEdi
       homepage: pkg.homepage,
       siteRecommendations: pkg.siteRecommendations,
       ...(pkg.contractVersion === 'whole-site-update-v2'
-        ? { research: pkg.research ?? [], vetoes: pkg.vetoes ?? [] }
+        ? { research: pkg.research ?? [], vetoes: pkg.vetoes ?? [], homepageReview: pkg.homepageReview ?? null }
         : {}),
     },
   });
@@ -409,6 +409,7 @@ export async function processEditorialRun(raw: unknown): Promise<void> {
            report has to be able to tell them apart. */
         research: completedState.request.delivery?.research ?? [],
         vetoes: completedState.request.delivery?.vetoes ?? [],
+        homepageReview: completedState.request.delivery?.homepageReview ?? null,
       });
       await kickOutboxAfterRun();
     } catch (cause) {
@@ -470,6 +471,12 @@ type StoredReport = {
   siteRecommendations?: string[];
   research?: Array<{ topic?: string; focus?: string; conclusion?: string; outcome?: string; sourcesReviewed?: string[] }>;
   vetoes?: Array<{ key?: string; candidate?: string; reason?: string; section?: string; replacement?: string; ownerDecisionRequested?: boolean; sources?: string[] }>;
+  homepageReview?: {
+    manualVersion?: string;
+    sectionsReviewed?: string[];
+    sectionsChanged?: string[];
+    decisions?: Array<{ area?: string; position?: string; action?: string; reason?: string; publication?: { publicId?: string; canonicalStoryId?: string; operationKey?: string } }>;
+  } | null;
 };
 
 type StoredRun = Awaited<ReturnType<ReturnType<typeof editorialRepo>['get']>>;
@@ -571,6 +578,30 @@ export function composeEditorialRunReport(run: StoredRun): { subject: string; te
     lines.push('  The homepage edition was not recomposed.');
   }
   lines.push('  October 7 rotates on its own and is never written by a run.');
+
+  /* The editor's review of the cover, beside what the machine moved. A v2 run
+     is expected to carry one — the operating manual requires it — so its
+     absence is said outright. A v1 run predates the field and prints nothing. */
+  const review = report.homepageReview ?? delivery?.homepageReview ?? null;
+  if (delivery?.contractVersion === 'whole-site-update-v2') {
+    lines.push('', 'HOMEPAGE REVIEW');
+    if (review && typeof review === 'object') {
+      const typed = review as NonNullable<StoredReport['homepageReview']>;
+      lines.push(
+        `  Manual version: ${typed.manualVersion ?? 'not recorded'}`,
+        `  Sections reviewed: ${typed.sectionsReviewed?.length ? typed.sectionsReviewed.join(', ') : 'none'}`,
+        `  Sections changed: ${typed.sectionsChanged?.length ? typed.sectionsChanged.join(', ') : 'none'}`,
+      );
+      for (const decision of typed.decisions ?? []) {
+        const reference = decision.publication?.publicId ?? decision.publication?.canonicalStoryId ?? decision.publication?.operationKey;
+        const slot = `${HOMEPAGE_AREA_LABELS[decision.area ?? ''] ?? decision.area ?? '?'}${decision.position ? ` / ${decision.position}` : ''}`;
+        lines.push(`  · ${slot} · ${decision.action ?? '?'} · ${decision.reason ?? ''}${reference ? ` (${reference})` : ''}`);
+      }
+      if (!typed.decisions?.length) lines.push('  No slot decisions recorded.');
+    } else {
+      lines.push('  No homepage review recorded — docs/editorial/homepage-operating-manual.md requires one.');
+    }
+  }
 
   lines.push('', 'MEDIA',
     `  Fetched and stored: ${report.media?.prepared ?? 0} · reused from a previous attempt: ${report.media?.reused ?? 0} · editorial illustrations: ${report.media?.generated ?? 0}`,

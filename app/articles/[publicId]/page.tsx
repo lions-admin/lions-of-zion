@@ -4,6 +4,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { SITE_URL } from "@/lib/site-config";
 import { supersededBy } from "@/lib/superseded-publications";
 import { stripSourceDump } from "@/lib/source-dump";
+import { formatDateTime, formatDay, formatSourceDay } from "@/lib/format-date";
 import { facebookShareUrl, xIntentUrl } from "@/lib/content/share-text";
 import { absoluteMediaUrl, articleHeroMedia } from "@/lib/content/homepage-media";
 import {
@@ -346,8 +347,8 @@ export default async function ArticlePage({ params }: Props) {
 
         <section className={styles.facts} aria-label="Publication facts">
           <PublicationMeta
-            publishedAt={formatDate(article.publishedAt)}
-            updatedAt={article.updatedAt !== article.publishedAt ? formatDate(article.updatedAt) : undefined}
+            publishedAt={formatDateTime(article.publishedAt)}
+            updatedAt={article.updatedAt !== article.publishedAt ? formatDateTime(article.updatedAt) : undefined}
             authorship={PUBLICATION_PROVENANCE[publicationProvenance(article)].label}
             sourceCount={sourceState === "listed" || sourceState === "unsourced" ? article.sources.length : undefined}
           />
@@ -474,7 +475,7 @@ export default async function ArticlePage({ params }: Props) {
                     )}
                     <span className={styles.sourceMeta}>
                       {source.publisher}
-                      {source.publishedAt ? ` · ${formatSourceDate(source.publishedAt)}` : ""}
+                      {source.publishedAt ? ` · ${formatSourceDay(source.publishedAt)}` : ""}
                     </span>
                   </li>
                 ))}
@@ -684,18 +685,3 @@ function wordSimilarity(first: string, second: string): number {
   return intersection / (a.size + b.size - intersection);
 }
 
-function formatSourceDate(value: string): string {
-  return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(value));
-}
-
-function formatDay(value: string): string {
-  return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "Asia/Jerusalem" }).format(new Date(value));
-}
-
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat("en", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Asia/Jerusalem",
-  }).format(new Date(value));
-}

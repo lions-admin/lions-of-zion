@@ -279,6 +279,7 @@ export function ReadGate<T>({
       <StatusState
         status={absenceStatus("auth-required")}
         className={styles.consoleState}
+        kindLabel={ABSENCE.kindWarning}
         eyebrow="סשן"
         title={ABSENCE.authTitle}
         description={ABSENCE.authBody}
@@ -292,6 +293,7 @@ export function ReadGate<T>({
       <StatusState
         status={absenceStatus("unavailable")}
         className={styles.consoleState}
+        kindLabel={ABSENCE.kindError}
         eyebrow="לא זמין"
         title={ABSENCE.unavailableTitle(what)}
         description={ABSENCE.unavailableBody}
@@ -308,6 +310,7 @@ export function ReadGate<T>({
       <StatusState
         status={absenceStatus("unavailable")}
         className={styles.consoleState}
+        kindLabel={ABSENCE.kindError}
         title={ABSENCE.failedTitle(what)}
         description={`${state.message}${state.staleAt ? ` הנתונים הקודמים נקראו ב־${formatDate(state.staleAt)} ואינם מעודכנים.` : ""}`}
         actionText={ABSENCE.failedAction}

@@ -76,6 +76,14 @@ export function absenceStatus(cause: AbsenceCause): StatusKind {
 export interface StatusStateProps {
   status?: StatusKind;
   eyebrow?: string;
+  /**
+   * The word for the state itself — "Warning", "Error". It defaults to the
+   * English `STATUS_LABEL`, which is right on the public site and wrong in
+   * the operations console: that surface is `lang="he" dir="rtl"` and every
+   * other word in it comes from `app/admin/lexicon.ts`. A shared primitive
+   * cannot know which surface it is on, so the caller says.
+   */
+  kindLabel?: string;
   title: string;
   /**
    * Where this state sits in the page's heading order. It defaults to `3`,
@@ -96,6 +104,7 @@ export interface StatusStateProps {
 export function StatusState({
   status,
   eyebrow,
+  kindLabel,
   title,
   headingLevel = 3,
   description,
@@ -122,7 +131,7 @@ export function StatusState({
         <div className={styles.mark} aria-hidden="true">
           {icon ?? <span className={styles.indicator} />}
         </div>
-        {status ? <span className={styles.kind}>{STATUS_LABEL[status]}</span> : null}
+        {status ? <span className={styles.kind}>{kindLabel ?? STATUS_LABEL[status]}</span> : null}
         {shownEyebrow ? <span className={styles.eyebrow}>{shownEyebrow}</span> : null}
         <Heading className={styles.title}>{title}</Heading>
         {description ? <p className={styles.description}>{description}</p> : null}

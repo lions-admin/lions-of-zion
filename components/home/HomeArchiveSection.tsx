@@ -43,6 +43,11 @@ export function HomeArchiveSection({
             key={item.key}
             data-kind={item.kind}
             data-home-record={item.key}
+            data-measure-id={`home-october-7-${item.key}`}
+            data-measure-section="october-7"
+            data-measure-content={item.key}
+            data-measure-type="publication"
+            data-measure-card
             data-rank={rankOf(index)}
           >
             <HomeMedia media={item.media} />

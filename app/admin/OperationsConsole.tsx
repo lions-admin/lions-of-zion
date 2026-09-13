@@ -13,6 +13,7 @@ import { PipelinePanel } from "./PipelinePanel";
 import { SourcesPanel } from "./SourcesPanel";
 import { SystemPanel, type SubArea } from "./SystemPanel";
 import { TasksPanel } from "./TasksPanel";
+import { MeasurementPanel, type MeasureArea } from "./MeasurementPanel";
 import { UsersPanel } from "./UsersPanel";
 import { SignOutButton } from "./SignOutButton";
 import { formatDate } from "./console-primitives";
@@ -30,6 +31,18 @@ export const NAV_GROUPS = [
     ["users", "משתמשים והרשאות"], ["security", "אבטחה וחיבורים"],
     ["settings", "הגדרות"], ["environment", "סביבה"], ["reports", "דיווחים"],
     ["chat", "שיחות ציבוריות"], ["prompts", "הנחיות למודלים"], ["lineage", "שרשרת המקורות"],
+  ] },
+  { title: "מדידה", entries: [
+    ["measure-now", "מצב עכשיו"],
+    ["measure-today", "תמונת היום"],
+    ["measure-content", "תוכן"],
+    ["measure-home", "דף הבית"],
+    ["measure-audience", "קהל והפצה"],
+    ["measure-paths", "מסלולי גלישה"],
+    ["measure-search", "חיפוש והעוזר"],
+    ["measure-ux", "חוויית שימוש"],
+    ["measure-errors", "תקלות וביצועים"],
+    ["measure-insights", "תובנות"],
   ] },
 ] as const;
 
@@ -114,6 +127,7 @@ export function OperationsConsole() {
                   : area === "editorial-runs" ? <EditorialRunsPanel signal={signal} />
                     : area === "tasks" ? <TasksPanel signal={signal} />
                       : area === "users" ? <UsersPanel signal={signal} />
+                        : area.startsWith("measure-") ? <MeasurementPanel signal={signal} area={area as MeasureArea} />
                   : <SystemPanel key={area} signal={signal} sub={area as SubArea} />}
         </div>
       </div>

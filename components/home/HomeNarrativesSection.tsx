@@ -80,6 +80,11 @@ export function HomeNarrativesSection({
               key={item.key}
               className={`${styles.investigation} ${hasMedia ? "" : narrativeStyles.textLed}`}
               data-home-record={item.key}
+              data-measure-id={`home-fake-resistance-${item.key}`}
+              data-measure-section="fake-resistance"
+              data-measure-content={item.key}
+              data-measure-type="publication"
+              data-measure-card
               data-rank={rankOf(index)}
               data-kind={item.kind}
               data-has-media={hasMedia ? "true" : "false"}

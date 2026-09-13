@@ -18,6 +18,7 @@ import "./tailwind.css";
 import "./globals.css";
 import { PublicSessionProvider } from "@/components/auth/PublicSessionProvider";
 import { Analytics } from "@vercel/analytics/next";
+import { MeasurementRoot } from "@/components/measurement";
 
 /*
  * Three faces, three jobs — see the token block in `globals.css` (SYS-003).
@@ -171,6 +172,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             other page (UX-08). It lives in `SiteHeader` now — the bar is fixed
             too, so the argument still holds, and there is nothing left to
             cover the footer with. */}
+        <MeasurementRoot />
         <Analytics />
       </body>
     </html>

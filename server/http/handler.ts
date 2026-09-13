@@ -107,6 +107,7 @@ export const PUBLIC_V1 = [
   ["GET", /^\/api\/v1\/published-publications(?:\/[^/]+)?$/],
   ["POST", /^\/api\/v1\/reports$/],
   ["POST", /^\/api\/v1\/volunteer-interest$/],
+  ["POST", /^\/api\/v1\/measurement\/collect$/],
   ["GET", /^\/api\/v1\/chat\/threads$/],
   ["POST", /^\/api\/v1\/chat\/threads$/],
   ["GET", /^\/api\/v1\/chat\/threads\/[^/]+\/messages$/],

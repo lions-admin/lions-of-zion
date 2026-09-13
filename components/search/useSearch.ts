@@ -42,6 +42,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { SearchHit, SearchResult } from "@/server/contracts/search";
 import { ApiProblem, isAbort, requestJson } from "./http";
 
+function measureSearch(name: string, detail: Record<string, unknown>) {
+  try {
+    window.dispatchEvent(new CustomEvent("lz:measure", { detail: { name, ...detail } }));
+  } catch {
+    /* ignore */
+  }
+}
+
+
 /**
  * The user-visible search contract. `fallback` is a successful lexical-only
  * answer, not an error and not an empty state. Keeping it explicit prevents a
@@ -141,6 +150,10 @@ export function useSearch(initialQuery = "", composing = false): UseSearch {
           );
           setAnswers((current) => new Map(current).set(trimmed, result));
           setCarried(result);
+          measureSearch(result.hits.length === 0 ? "search_zero_results" : "search_query", {
+            query_redacted: trimmed.slice(0, 120).replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[email]"),
+            payload: { result_count: result.hits.length, zero_results: result.hits.length === 0 },
+          });
         } catch (cause) {
           if (isAbort(cause)) return;
           setFailure({

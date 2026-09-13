@@ -77,6 +77,8 @@ system are** — an owner ruling recorded 2026-09-06. It outranks this file and
 every other document here; where one of them contradicts it, the other one is
 wrong. Read it before any editorial, routing, homepage or media work.
 
+First-party browsing measurement: [`docs/measurement.md`](docs/measurement.md).
+
 Operational reference lives in `docs/architecture.md`, `docs/api.md`,
 `docs/data-model.md`, `docs/environment.md`, `docs/operations.md`,
 `docs/whole-site-updates.md`, `docs/briefing-packages.md`, and

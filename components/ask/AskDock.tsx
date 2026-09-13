@@ -49,6 +49,8 @@ export function AskDock({ current = false }: AskDockProps) {
         aria-haspopup={current ? undefined : "dialog"}
         aria-expanded={current ? undefined : open}
         aria-controls={current ? undefined : panelId}
+        data-measure-id="ask-open"
+        data-measure-event="ask_open"
         onClick={(event) => {
           if (current) return;
           // Keep native navigation available before hydration and for new-tab gestures.

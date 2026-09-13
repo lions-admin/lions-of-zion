@@ -419,7 +419,7 @@ export default async function ArticlePage({ params }: Props) {
 
         {showsInvestigationExplorer ? <InvestigationExplorer record={article} /> : null}
 
-        <div className={styles.body}>
+        <div className={styles.body} data-measure-id="article-body" data-measure-section="article">
           {passages.map((passage) => (
             <section className={styles.passage} key={passage.position}>
               <div className={styles.passageMain}>
@@ -451,7 +451,7 @@ export default async function ArticlePage({ params }: Props) {
             is the disclosure, not a gap in the page. If such a record ever does
             carry sources, they are shown normally rather than denied. */}
         {sourceState === "analysis" ? (
-          <section className={styles.sources} id="sources">
+          <section className={styles.sources} id="sources" data-measure-id="article-sources" data-measure-section="article">
             <h2>Why this record cites no source</h2>
             <p>
               This is Lions of Zion&rsquo;s own assessment, published deliberately without a
@@ -460,7 +460,7 @@ export default async function ArticlePage({ params }: Props) {
             </p>
           </section>
         ) : (
-          <section className={styles.sources} id="sources">
+          <section className={styles.sources} id="sources" data-measure-id="article-sources" data-measure-section="article">
             <h2>Public sources</h2>
             {sourceState === "listed" ? (
               <ol className={styles.sourceStack}>

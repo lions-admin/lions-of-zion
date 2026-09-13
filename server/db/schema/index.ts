@@ -20,3 +20,4 @@ export * from "./external-briefing";
 export * from "./homepage";
 export * from "./editorial-update";
 export * from "./ops-tasks";
+export * from "./measurement";

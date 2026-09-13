@@ -45,6 +45,12 @@ export function HomeNewsSection({
             key={item.key}
             data-home-record={item.key}
             data-rank={rankOf(index)}
+            data-measure-id={`home-news-${item.key}`}
+            data-measure-section="news"
+            data-measure-content={item.key}
+            data-measure-type="publication"
+            data-measure-placement={`news:${rankOf(index)}`}
+            data-measure-card
           >
             <HomeMedia media={item.media} lead={index === 0} />
             <div className={styles.newsBody}>

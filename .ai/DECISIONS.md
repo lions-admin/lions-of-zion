@@ -10,6 +10,69 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-12 — One operations task board; every agent reports through the same CLI
+
+Five AI environments, the ChatGPT editorial run, GitHub Actions and local
+scripts all work on this project, and the owner reconstructed "what is
+running, who did it, what is left" from chats and terminals. The owner ruled:
+one Hebrew board inside the control centre (`/admin?area=tasks`), records in
+the Production database behind a new internal secret, screenshots in the
+existing editorial-media Blob store under `ops/`, a one-time import of the
+history, and Codex's `notify` wrapped rather than replaced.
+
+**Why one CLI and not five integrations.** Each tool exposes a different
+surface — Claude and Grok share hook JSON on stdin, Codex has a single
+`notify` slot that was already occupied, OpenCode and Gemini AGY have nothing
+— and an integration per tool would have meant five report formats drifting
+apart. So the only writer is `scripts/ops/report.mjs`, zero-dependency Node
+that spools to `~/.lions-ops/spool/` before it touches the network and never
+exits non-zero. Every adapter — the hook, the Codex wrapper, the git
+post-commit script, the CI job — is a few lines that build one report line
+and hand it to that spool. The contract is `server/contracts/ops-tasks.ts`.
+
+**Why a finish is required and nothing completes a task on its own.** The
+alternative — mark a task done when the session ends, or when a commit lands
+— produces a board that lies in exactly the case the owner cares about: an
+agent that crashed, ran out of context or wandered off. `completed` is
+written only from an explicit `finish`; a session that ends without one gets
+a note, `meta.sessionEnded`, and an "unreported" marker. Reporting is now an
+owner requirement in `.ai/WORKFLOW.md`, which until this entry said the
+opposite.
+
+**What is automatic, what is partial, what is manual.** Automatic: Claude and
+Grok `start`/`progress` (project `.claude/settings.json`, which Grok consumes
+through `[compat.claude] hooks`); Codex `progress` per turn (the `notify`
+wrapper forwards to the original SkyComputerUseClient with the original
+arguments and returns its exit code, so Codex's own behaviour is unchanged
+and the edit is reversible from the comment above it); commits from anyone
+(`~/.config/ai-dev/git-hooks/post-commit`, which fires only when the
+committed repository ships `scripts/ops/git-post-commit.mjs`); CI results on
+`git:<sha>`; the editorial run, read from `editorial_run` rather than written
+twice. Partial: OpenCode and Gemini AGY, which have no hook surface and are
+covered by commits and the manual CLI until they do — the coverage table says
+so rather than pretending. Manual everywhere: the finish, and screenshots
+(`npm run ops:capture`, a before/after pair keyed by `pairKey`).
+
+**Why a Claude finish typed in the shell lands on the hook's task.** Claude's
+Bash does not carry the session id, so the CLI would have invented a second
+key. The hook records the session's task key per working directory under
+`~/.lions-ops/state/current/`, and the CLI reads it back for 36 hours. That
+is a machine-local convention, not a contract, and it is what makes
+"finish from the shell" work without a flag.
+
+**Why the machine files are on the owner's machine only.** The Codex wrapper
+path and the git hook live outside the repository by necessity; they are
+recorded here and in `docs/ops/task-reporting.md`, reversible, and reported
+rather than claimed done anywhere else. The backfill imports
+`docs/reviews`, `docs/audits`, `docs/handoff`, and the Claude, Codex and Grok
+session stores as `import:<sha1>` tasks — dry-run by default, `--apply`
+posts, idempotent through fixed event keys.
+
+The schema is migration `0066`, authored in the backend workstream of the
+same round; nothing here claims any other migration.
+
+---
+
 ## 2026-09-12 — The homepage has an operating manual and the run records its homepage review
 
 The owner saw the news lead say *"Aoun visits south Lebanon…"* over a card

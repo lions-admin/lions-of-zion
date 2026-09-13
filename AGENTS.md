@@ -63,6 +63,35 @@ npm run main:update                           # publish this AI's branch -> main
 `eslint.config.mjs` states them as errors, so a violation fails the gate rather
 than waiting for review. Read that file before moving code between layers.
 
+# Task reporting
+
+Every task, from every one of the five agents, ends with a report to the
+owner's operations board — `/admin?area=tasks` — through one CLI:
+
+```bash
+npm run ops:report -- finish --summary "…" --changes "…" --remaining "…" --blockers "…" --next "…"
+```
+
+**The finish is required, by owner ruling (2026-09-12), and it is the only
+thing that marks a task completed.** Nothing completes a task automatically:
+a session that ends without a finish stays `running` and the board says so.
+Do not send one for work that was not done and verified.
+
+What is automatic differs by agent, and the board's coverage table says which.
+Claude and Grok get `start` and `progress` from the hooks in
+`.claude/settings.json`; Codex gets a `progress` per turn from the wrapped
+`notify`; every commit by anyone reaches the board through the global git
+`post-commit` hook; CI posts its result. OpenCode and Gemini AGY have no hook
+surface, so for them the commit hook and the CLI are the whole coverage.
+
+Visual work attaches a before/after pair (`npm run ops:capture`); anything
+else says "אין צילום רלוונטי". Reports are spooled locally first and never fail
+a hook, a commit or a pipeline when the site is unreachable. The contract —
+when to report, what a finish must contain, task keys, parent tasks, the
+per-environment table — is
+[`docs/ops/task-reporting.md`](docs/ops/task-reporting.md); the Claude/Grok
+short form is `.claude/skills/ops-report/SKILL.md`.
+
 # Branches: one permanent branch per AI identity
 
 **The AI identity determines the branch. The task does not, and neither does

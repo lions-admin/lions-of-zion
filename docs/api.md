@@ -119,6 +119,7 @@ the authenticated actor and fails closed.
 | `cron` | `Authorization: Bearer $CRON_SECRET`, which Vercel signs automatically |
 | `internal` | `x-internal-secret: $INTERNAL_API_SECRET` |
 | `editorial` | `x-editorial-update-secret: $EDITORIAL_UPDATE_INGEST_SECRET`, compared in constant time |
+| `ops-report` | `x-ops-report-secret: $OPS_REPORT_SECRET`, compared in constant time; registers the fixed actor `service:ops-reporter` |
 | `queue` | invoked by a Vercel Queue trigger; no public URL, so no guard to write |
 
 ---
@@ -426,13 +427,29 @@ Never call these from a browser.
 | POST | `/api/internal/queue/outbox-dispatch` | `queue` | Deliver one outbox message from the `outbox-dispatch` queue topic (`maxDuration` 300 — see note below) |
 | POST | `/api/internal/editorial-updates/ingest` | `editorial` | Receive a `whole-site-update-v1` package and start its durable run |
 | GET | `/api/internal/editorial-updates/runs/{runId}` | `editorial` | Machine-readable state of one delivery run, addressed by the package's own `runId` |
+| POST | `/api/internal/ops/tasks/report` | `ops-report` | A batch of task-board report lines (`opsReportBatchSchema`, 1–200); 202 `{accepted, taskIds}`, accepted whole or not at all |
+| POST | `/api/internal/ops/tasks/attachments` | `ops-report` | One screenshot or file, base64 (`opsAttachmentUploadSchema`), stored under `ops/attachments/`; 201 `{attachment}` |
+| GET | `/api/v1/admin/console/tasks` | `actor` | The task board: filters, keyset page, summary counts, reporter coverage (`opsTaskListQuerySchema` → `opsTaskListSchema`) |
+| GET, PATCH | `/api/v1/admin/console/tasks/{id}` | `actor` | One task with its timeline, attachments and children; `PATCH` sets a manual status with a note (`opsTaskPatchSchema`, audit `ops_task.patch` under `system`) |
 | GET, POST | `/api/v1/admin/editorial-update` | `actor` | List recent package-delivery runs; an authenticated receiver may create a run only from explicit operations |
 | GET, POST | `/api/v1/admin/editorial-update/{id}` | `actor` | Read one run's state; `{"action":"resume"}` requeues a failed or partial run |
 
-The last two are `/api/v1/`, not `/api/internal/`, and are listed here because
-they belong to the same delivery story. Both call `requireActor()`, so they sit
+The `/api/v1/admin/console/tasks` pair and the editorial-update pair are
+`/api/v1/`, not `/api/internal/`, and are listed here because each belongs to
+the same story as the internal route above it. Both call `requireActor()`, so they sit
 behind `authenticateAdmin()` like every other `/api/v1/` route outside
 `PUBLIC_V1`.
+
+### The operations task board
+
+Guard `ops-report`: `requireOpsReportSecret()` in `server/http/internal-guard.ts`
+— a constant-time SHA-256 comparison of the `x-ops-report-secret` header
+against `OPS_REPORT_SECRET`, refusing an empty header, then registering the
+fixed actor `service:ops-reporter`. The label is never read from the request;
+which *agent* reported is a validated field of the report body. The two routes
+match the `/api/internal/ops/` prefix in `SERVICE_PREFIXES`, so they run as
+`app_service` with identity `service:ops-reporter`. Contract:
+`server/contracts/ops-tasks.ts`; module: `server/modules/ops-tasks`.
 
 ### The whole-site editorial receiver
 

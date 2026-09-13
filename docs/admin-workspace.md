@@ -18,6 +18,7 @@ closes, so closing it does not discard a conversation or a pending operation.
 | Work | pipeline | Stage state, editions, draft preview, quality checks, job retry, processing controls, reruns and drilldowns |
 | Work | sources | Search/family/health filters, fetch history, verify/enable/disable, catalog sync and collection sweep |
 | Work | editorial | All publications, filtering/paging, edit/preview, lifecycle transitions, homepage placement, versions/rollback, archive/delete, narratives |
+| Control | tasks | Operational task board: every reporting environment's tasks with status, timeline, narrative, links and attachments; keyset paging, per-task drawer, manual status marks with a required note, and the reporting-coverage roster (connected only on a recorded `lastSeenAt`) |
 | Control | incidents | Alerts, failed/stuck/quarantined jobs, outbox, maintenance and existing recovery operations |
 | Control | costs | Budgets, model/surface/kind/time breakdown, recorded vs estimated search cost |
 | Control | audit | Filtered audit history and per-record details |

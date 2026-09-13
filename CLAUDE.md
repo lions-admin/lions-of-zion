@@ -57,6 +57,19 @@ Two consequences worth holding before pushing:
   endpoint `ep-old-feather-…`); Production is the Neon `main` branch on a
   different endpoint. Get it from the Neon Console, or authenticate `neonctl`.
 
+## Task reporting
+
+**Every task ends with a finish report to the operations board**
+(`/admin?area=tasks`), by owner ruling of 2026-09-12:
+`npm run ops:report -- finish --summary … --changes … --remaining … --blockers … --next …`.
+The hooks in `.claude/settings.json` already send `start` and `progress` for
+this session, and the git `post-commit` hook records commits; the finish is
+the one step that is yours, and it is the only thing that marks a task
+completed. Visual changes attach a before/after pair through
+`npm run ops:capture`. The shared contract is
+[`docs/ops/task-reporting.md`](docs/ops/task-reporting.md); the short form is
+the `ops-report` skill.
+
 ## Reference documentation
 
 **`docs/editorial-dna.md` is the binding definition of what this site and this

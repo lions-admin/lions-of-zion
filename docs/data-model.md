@@ -117,6 +117,7 @@ drizzle-kit's snapshot (see `0021`).
 | `0060_editorial_publication_provenance` | `publication.editorial_run_id` / `editorial_operation_key`; the provenance constraint and the publish gate accept **either** provenance pair; `public_publication_corrections()` learns to show an editorial-run correction |
 | `0061_romantic_moon_knight` | `publication.topic_tags text[]` |
 | `0062_whole_site_editorial_delivery` | `publication.canonical_story_id` with a partial unique index; `homepage_placement` replacing `homepage_feature`, migrating only slots whose publication still belongs to the area |
+| `0066_ops_tasks` | `ops_task`, `ops_task_event`, `ops_task_attachment`, `ops_reporter` — the operations task board: append-only timeline, trigger-written status history, RLS for `app_staff`/`app_service` only |
 
 ---
 
@@ -262,6 +263,37 @@ discovery within a section without adding another destination.
 `0050`), the `external-briefing-v1` ingest's idempotency ledger, unique on
 `run_id`. Independent of `editorial_run`: the two receivers share nothing.
 
+**The operations task board** — `ops_task`, `ops_task_event`,
+`ops_task_attachment`, `ops_reporter` (migration `0066`). One record per task
+from every agent — the five AI environments, the ChatGPT editorial run,
+GitHub Actions, local scripts, humans — written through
+`POST /api/internal/ops/tasks/report` and read by the console's
+"משימות ופעילות" area. A task is addressed by a stable `task_key` the reporter
+chooses (`claude:<session>`, `git:<sha>`, `import:<hash>`); `parent_id` files a
+sub-action under its parent. Three rules live in SQL:
+
+- **A task is never auto-completed.** `reported_finish` is set only by a
+  `finish` report; a session that closes silently stays `running` and the
+  console derives `unreported` from `meta.sessionEnded`. Nothing in the
+  database or the service promotes it.
+- **`ops_task_event` is append-only** (`reject_mutation()`), and
+  `record_ops_task_transition()` writes a `status` event on every status
+  change of `ops_task` — unless the same transaction already recorded that
+  transition itself, which it detects by `created_at = now()` (the shared
+  transaction timestamp), so the service's `finished` event and the trigger's
+  `status` event never both appear for one change. `ops_task_event_key_once`
+  is a partial unique index on `(task_id, event_key)`: a reporter's retry key,
+  and what makes a replayed spool line a no-op.
+- **`ops_task_attachment.url` is self-hosted** — the same regex as
+  `editorial_media_is_self_hosted`; objects live in the public editorial Blob
+  store under `ops/attachments/<taskId>/<sha256>.<ext>`.
+
+`ops_reporter` is one row per agent, upserted on every report, and is what
+the console's coverage panel reads: who has actually reported, and when.
+`editorial_run` rows are **merged read-side** into the same list as agent
+`chatgpt-editorial` (`task_key = editorial:<run_key>`), so the ChatGPT run
+appears on the board without a second write path.
+
 **Infrastructure** — `outbox`, `rate_limit`
 
 ---
@@ -362,7 +394,7 @@ Enforced by `reject_mutation()` and its siblings, not by convention:
 
 `audit_log`, `entity_version`, `item_status_transition`, `source_fetch`,
 `evidence_provenance`, `ai_run`, `prompt_registry`, `chat_tool_run`,
-`report_status_history`, `narrative_observation`.
+`report_status_history`, `narrative_observation`, `ops_task_event`.
 
 `item_assessment` is immutable once written (`enforce_assessment_immutability()`);
 a changed verdict is a new row that supersedes the old one. That supersession

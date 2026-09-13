@@ -30,6 +30,7 @@ import {
   editorialUpdateIngestSecret,
   externalBriefingIngestSecret,
   internalApiSecret,
+  opsReportSecret,
 } from "@/server/core/config";
 
 export function requireCron(request: Request): void {
@@ -101,4 +102,30 @@ export function requireCodexBriefingImportSecret(request: Request): void {
   if (!supplied || !timingSafeEqual(suppliedHash, expectedHash)) {
     throw new ApiError("UNAUTHENTICATED", "This route requires the Codex briefing import secret.");
   }
+}
+
+/**
+ * The task-board reporters.
+ *
+ * Every agent hook, the git post-commit hook, the CI job and the reporter CLI
+ * post here with one secret that can do exactly one thing: append to the
+ * operations board. It is deliberately not any of the secrets above — those
+ * deliver packages or operate on editorial state, and a reporter lives on a
+ * developer machine where it can leak.
+ *
+ * The actor label is fixed here, never read from the request, for the same
+ * reason as the ChatGPT guard: a caller that could name its own actor could
+ * file its events under someone else. Which *agent* reported is a field in
+ * the report body, validated against the contract's enum, and recorded on
+ * the task — not on the actor.
+ */
+export function requireOpsReportSecret(request: Request): void {
+  const supplied = request.headers.get("x-ops-report-secret") ?? "";
+  const expected = opsReportSecret();
+  const suppliedHash = createHash("sha256").update(supplied).digest();
+  const expectedHash = createHash("sha256").update(expected).digest();
+  if (!supplied || !timingSafeEqual(suppliedHash, expectedHash)) {
+    throw new ApiError("UNAUTHENTICATED", "This route requires the operations report secret.");
+  }
+  registerActor(request, { label: "service:ops-reporter", userId: null });
 }

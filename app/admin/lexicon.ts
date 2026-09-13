@@ -212,6 +212,155 @@ export const REPORT_STATUS_LABEL: Record<string, string> = {
   rejected: "נדחה",
 };
 
+/* ── Operational tasks (the task board) ───────────────────────────────── */
+
+/* A task is a `משימה` — feminine, so its states inflect that way: `רצה`,
+   `חסומה`, `הושלמה`. Distinct from `JOB_STATE_LABEL`, whose subject is a
+   queue job and is masculine. The wire value stays Latin; see rule 2. */
+export const TASK_STATUS_LABEL: Record<string, string> = {
+  queued: "בתור",
+  running: "בביצוע",
+  waiting: "ממתינה לסיכום",
+  blocked: "חסומה",
+  completed: "הושלמה",
+  failed: "נכשלה",
+  cancelled: "בוטלה",
+};
+
+/* The reporting environments. Product and tool names stay as they are
+   written everywhere else — a reader greps the logs for `codex`, not for a
+   transliteration. Only the human and unknown actors get a Hebrew word. */
+export const TASK_AGENT_LABEL: Record<string, string> = {
+  claude: "Claude",
+  codex: "Codex",
+  grok: "Grok",
+  opencode: "OpenCode",
+  "gemini-agy": "Gemini AGY",
+  "chatgpt-editorial": "מערכת העריכה (ChatGPT)",
+  "github-actions": "GitHub Actions",
+  "local-script": "סקריפט מקומי",
+  human: "אדם",
+  unknown: "לא ידוע",
+};
+
+export const TASK_KIND_LABEL: Record<string, string> = {
+  code: "קוד",
+  editorial: "עריכה",
+  design: "עיצוב",
+  ops: "תפעול",
+  research: "מחקר",
+  review: "סקירה",
+  import: "ייבוא",
+  other: "אחר",
+};
+
+/* One line on the progress timeline. Masculine, because the subject is an
+   `אירוע`. */
+export const TASK_EVENT_LABEL: Record<string, string> = {
+  started: "התחלה",
+  progress: "התקדמות",
+  status: "שינוי מצב",
+  note: "הערה",
+  attachment: "צירוף",
+  finished: "סיום",
+  heartbeat: "אות חיים",
+  commit: "קומיט",
+  ci: "בדיקות CI",
+  import: "ייבוא",
+};
+
+export const ATTACHMENT_KIND_LABEL: Record<string, string> = {
+  screenshot: "צילום מסך",
+  before: "לפני",
+  after: "אחרי",
+  artifact: "תוצר",
+  file: "קובץ",
+};
+
+/* The board's recurring words. Kept apart from `T` so a task-board word
+   never collides with a queue-job word that happens to share its English —
+   `T.job` is "משימה" for a queue job, and the board calls its rows the same
+   thing on purpose: to the owner they are the same noun. */
+export const TASKS = {
+  areaLabel: "משימות ופעילות",
+  areaTitle: "מה רץ, מי עשה מה, ומה נשאר",
+  areaNote: "כל סביבת עבודה מדווחת לכאן על המשימות שלה. משימה מסומנת כהושלמה רק כשהסביבה דיווחה סיום — הלוח לעולם אינו משלים משימה בעצמו.",
+  what: "לוח המשימות",
+  detailWhat: "פירוט המשימה",
+  task: "משימה",
+  tasks: "משימות",
+  /* Summary strip */
+  running: "בביצוע",
+  blocked: "חסומות",
+  waiting: "ממתינות לסיכום",
+  completedToday: "הושלמו היום",
+  unreported: "לא דיווח",
+  unreportedNote: "הסשן הסתיים בלי דיווח סיום",
+  /* Filters */
+  filterAgent: "סוכן",
+  filterStatus: "מצב",
+  filterKind: "סוג",
+  filterFrom: "מתאריך",
+  filterTo: "עד תאריך",
+  filterSearch: "חיפוש",
+  filterAll: "הכול",
+  filterLabel: "סינון לוח המשימות",
+  more: "עוד",
+  endOfList: "זו המשימה הישנה ביותר שהסינון מגיע אליה.",
+  empty: "אין משימות תואמות. הקריאה הצליחה; הסינון הוציא כל שורה, או שעדיין לא דווחה משימה.",
+  /* Row markers */
+  stale: "ללא עדכון 30+ דק׳",
+  imported: "יובא",
+  attachments: "תוצרים",
+  lastUpdate: "עדכון אחרון",
+  openDetail: "פתיחת פירוט המשימה",
+  closeDetail: "סגירת פירוט המשימה",
+  /* Detail sections */
+  environment: "סביבה",
+  taskKey: "מפתח משימה",
+  started: "התחילה",
+  finished: "הסתיימה",
+  request: "הבקשה המקורית",
+  goal: "המטרה",
+  summary: "מה בוצע",
+  changes: "מה השתנה",
+  remaining: "מה נותר",
+  blockers: "חסמים",
+  nextStep: "הצעד הבא",
+  noNarrative: "הסביבה עדיין לא דיווחה מה בוצע, מה השתנה או מה נותר.",
+  links: "קישורים",
+  timeline: "ציר התקדמות",
+  timelineEmpty: "עדיין לא נרשם אירוע.",
+  gallery: "גלריה",
+  noCaptureFinished: "אין צילום רלוונטי",
+  noCapturePending: "טרם צורפו תוצרים",
+  openImage: "פתיחת התמונה בחלון חדש",
+  pair: "לפני ואחרי",
+  children: "פעולות משנה",
+  childrenEmpty: "אין פעולות משנה.",
+  /* Manual actions */
+  manualActions: "פעולות ידניות",
+  manualNote: "פעולה ידנית נרשמת בציר ההתקדמות עם ההערה, ואינה מחליפה דיווח של הסביבה.",
+  markCancelled: "סמן כבוטל",
+  markCompleted: "סמן כהושלם ידנית",
+  markBlocked: "סמן כחסום",
+  note: "הערה",
+  noteRequired: "שורה אחת, לציר ההתקדמות. חובה.",
+  needNote: "נדרשת הערה כדי לשנות מצב ידנית. שום דבר לא שונה.",
+  patchFailure: "לא ניתן לשנות את מצב המשימה.",
+  /* Coverage */
+  coverage: "כיסוי דיווח",
+  coverageNote: "מי באמת מדווח. סביבה נחשבת מחוברת רק אם התקבל ממנה דיווח; שורה בלי זמן היא שורה שלא דיווחה מעולם.",
+  coverageEnvironment: "סביבה",
+  coverageLastSeen: "דיווח אחרון",
+  coverageState: "מצב",
+  coverageMissing: "מה חסר",
+  connected: "מחובר",
+  quiet: "שקט מעל יממה",
+  notConnected: "לא מחובר",
+  partial: "חלקי מתוכנן",
+} as const;
+
 /* ── The recurring nouns, so twelve files spell them the same ─────────── */
 
 export const T = {

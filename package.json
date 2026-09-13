@@ -58,7 +58,10 @@
     "audit:ui": "node scripts/ui-audit.mjs",
     "audit:interaction": "node scripts/ci-smoke.mjs",
     "homepage:catalog": "node --conditions=react-server --import tsx scripts/homepage/build-catalog.ts",
-    "schema:check": "tsx scripts/check-deployment-schema.ts"
+    "schema:check": "tsx scripts/check-deployment-schema.ts",
+    "ops:report": "node scripts/ops/report.mjs",
+    "ops:capture": "node scripts/ops/capture.mjs",
+    "ops:backfill": "node scripts/ops/backfill.mjs"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.107",

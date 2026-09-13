@@ -463,6 +463,13 @@
       "when": 1788878677320,
       "tag": "0065_briefing_job_discarded_state",
       "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "7",
+      "when": 1789226577810,
+      "tag": "0066_ops_tasks",
+      "breakpoints": true
     }
   ]
 }

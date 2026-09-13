@@ -118,3 +118,36 @@ export async function storeEditorialImage(
   });
   return { url: blob.url, contentType: blob.contentType };
 }
+
+/**
+ * A task-board attachment — a screenshot, a before/after pair, a file an
+ * agent wants on the record — stored beside the editorial images on the same
+ * public store, under its own prefix.
+ *
+ * Public for the same reason as `storeEditorialImage`: the console renders
+ * it with a plain `<img>`, and a private object would not load. What keeps
+ * that narrow is the same shape too — `server/modules/ops-tasks` decodes the
+ * upload, refuses anything outside a short list of content types, caps the
+ * size and derives the pathname from the sha256 of the bytes
+ * (`ops/attachments/<taskId>/<sha256>.<ext>`), so an overwrite can only ever
+ * replace byte-identical content and a replayed upload is a no-op. The
+ * prefix guard means a caller cannot publish into `publications/media/`
+ * through this door, nor an editorial image into `ops/`.
+ */
+export async function storeOpsAttachment(
+  pathname: string,
+  data: ArrayBuffer | Buffer,
+  contentType: string,
+): Promise<StoredBlob> {
+  if (!pathname.startsWith("ops/attachments/")) {
+    throw new Error("Task-board attachments must use the isolated ops/attachments prefix.");
+  }
+  const blob = await put(pathname, data, {
+    access: "public",
+    addRandomSuffix: false,
+    allowOverwrite: true,
+    contentType,
+    ...editorialMediaBlobOptions(),
+  });
+  return { url: blob.url, contentType: blob.contentType };
+}

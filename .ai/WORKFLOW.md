@@ -15,4 +15,9 @@ here.
 
 Project documents, tests, and historical decisions provide context. They do not
 override a direct owner instruction. Use another agent when it adds value; do
-not manufacture delegation, approvals, or extra reporting.
+not manufacture delegation or approvals.
+
+One report is not optional: by owner ruling (2026-09-12) every task ends with
+`npm run ops:report -- finish …` to the operations board, and that finish is
+the only thing that marks a task completed. `docs/ops/task-reporting.md` is
+the contract.

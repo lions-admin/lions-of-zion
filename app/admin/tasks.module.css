@@ -1,0 +1,82 @@
+/* The task board's own geometry — only what admin.module.css and
+   workspace.module.css do not already carry: the row grid, the drawer's
+   fact list, the timeline, the gallery and its before/after pairs, and the
+   coverage table's wrapping cell. Colour, type and spacing tokens come from
+   the [data-surface="admin"] overlay in app/globals.css; nothing is defined
+   here. */
+
+/* ── Rows ── */
+.taskList { list-style: none; padding: 0; margin: 0 0 16px; border-top: 1px solid var(--line); }
+.taskList > li { border-bottom: 1px solid var(--line); }
+.taskRow {
+  display: grid; width: 100%; grid-template-columns: 128px minmax(0,1fr) 168px minmax(0,auto);
+  align-items: center; gap: 16px; background: none; color: var(--ink-hi);
+  padding: 14px 12px; border: 0; text-align: start; font: inherit; min-height: 64px;
+}
+.taskRow:hover { background: var(--surface-2); }
+.rowStatus { display: flex; }
+.rowMain { min-width: 0; }
+.rowMain strong { font-weight: 500; display: block; overflow-wrap: anywhere; }
+.rowMain small, .rowMeta small { display: block; font-size: 12px; color: var(--ink-lo); margin-top: 4px; }
+.rowMeta { display: grid; gap: 2px; font-variant-numeric: tabular-nums; }
+.rowMarkers { display: flex; flex-wrap: wrap; gap: 6px; justify-content: end; min-width: 0; }
+.rowMarkers:empty { display: none; }
+
+/* ── Detail drawer ── */
+.detail { display: grid; gap: 24px; min-width: 0; }
+.detailHead { display: grid; gap: 14px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.detailPills { display: flex; flex-wrap: wrap; gap: 8px; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px 18px; margin: 0; }
+.facts div { min-width: 0; }
+.facts dt { font-size: 12px; color: var(--ink-lo); margin-bottom: 3px; }
+.facts dd { margin: 0; font-size: 14px; overflow-wrap: anywhere; }
+.mono { font-family: var(--face-data); font-size: 13px; unicode-bidi: isolate; direction: ltr; display: inline-block; }
+.section { display: grid; gap: 10px; min-width: 0; }
+.narrative { display: grid; gap: 14px; margin: 0; }
+.narrative dt { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.narrative dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; }
+.linkList { margin: 0; padding-inline-start: 18px; display: grid; gap: 6px; }
+.linkList a { color: var(--gold); overflow-wrap: anywhere; }
+
+/* ── Timeline ── */
+.timeline { list-style: none; margin: 0; padding: 0; border-inline-start: 2px solid var(--line); display: grid; gap: 14px; }
+.timeline li { display: grid; grid-template-columns: 132px minmax(0,1fr); gap: 12px; padding-inline-start: 14px; position: relative; }
+.timeline li::before { content: ""; position: absolute; inset-inline-start: -6px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--ink-lo); }
+.statusEvent::before { background: var(--gold); }
+.statusEvent .eventBody strong { color: var(--gold); }
+.eventWhen { font-size: 12px; color: var(--ink-lo); font-variant-numeric: tabular-nums; padding-top: 2px; }
+.eventBody { display: grid; gap: 3px; min-width: 0; }
+.eventBody strong { font-weight: 500; font-size: 14px; }
+.fromTo { font-weight: 400; color: var(--ink); }
+.eventMessage { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; }
+.eventBody small { font-size: 12px; color: var(--ink-lo); }
+
+/* ── Gallery ── */
+.gallery { display: grid; gap: 18px; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius-1); }
+.singles { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.figure { margin: 0; display: grid; gap: 6px; min-width: 0; }
+.figure a { display: block; aspect-ratio: 16 / 10; background: var(--surface-1); border: 1px solid var(--line); border-radius: var(--radius-1); overflow: hidden; }
+.figure img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.fileTile { display: grid; place-items: center; height: 100%; font-family: var(--face-data); font-size: 12px; color: var(--ink-lo); }
+.figure figcaption { font-size: 12px; color: var(--ink-lo); display: grid; gap: 2px; overflow-wrap: anywhere; }
+.figure figcaption strong { color: var(--ink); font-weight: 600; }
+
+/* ── Actions and coverage ── */
+.actions { padding-top: 16px; border-top: 1px solid var(--line); }
+.coverageTable th[scope="row"] { font-weight: 500; }
+.coverageTable th[scope="row"] small { display: block; font-weight: 400; }
+.coverageTable td small { display: block; margin-top: 4px; }
+.missingCell { white-space: normal; min-width: 240px; max-width: 520px; font-size: 13px; color: var(--ink); }
+
+@media (max-width: 900px) {
+  .taskRow { grid-template-columns: 110px minmax(0,1fr); }
+  .rowMeta, .rowMarkers { grid-column: 2; justify-content: start; }
+  .pair { grid-template-columns: minmax(0,1fr); }
+}
+@media (max-width: 600px) {
+  .taskRow { grid-template-columns: minmax(0,1fr); gap: 7px; }
+  .rowMeta, .rowMarkers { grid-column: auto; }
+  .timeline li { grid-template-columns: minmax(0,1fr); gap: 4px; }
+  .facts { grid-template-columns: minmax(0,1fr); }
+}

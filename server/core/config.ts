@@ -269,6 +269,12 @@ export const codexBriefingImportSecret = (): string =>
  *  it, and a rotation of either must not grant the other. */
 export const chatgptAutomationSecret = (): string =>
   required("CHATGPT_AUTOMATION_SECRET", "the ChatGPT editorial automation guard");
+/** The task-board reporters' secret — every agent hook, the git post-commit
+ *  hook, the CI job and the reporter CLI share it. Its own variable so a
+ *  reporter on a developer machine never holds a secret that could deliver a
+ *  package or operate on editorial state. */
+export const opsReportSecret = (): string =>
+  required("OPS_REPORT_SECRET", "the operations task-board report guard");
 /** Vercel sets this automatically once the env var of the same name is
  *  configured, and signs every cron invocation with it. Unset locally, which
  *  is why the guard treats "unset" as "refuse", never as "allow". */

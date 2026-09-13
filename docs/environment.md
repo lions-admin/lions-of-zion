@@ -289,6 +289,25 @@ and `.fail`, so a crashed run reports the stage it died at. That topic sat in
 cycle, during which every report was written and stored but never sent; if
 reports stop arriving again, check `TOPICS` in `server/core/outbox.ts` first.
 
+### `OPS_REPORT_SECRET`
+Shared with every task-board reporter: the Claude/Grok hook adapter, the Codex
+notify wrapper, the git `post-commit` hook, the reporter CLI
+(`scripts/ops/report.mjs`) and the CI `report-ops` job. It authorizes
+`POST /api/internal/ops/tasks/report` and `POST /api/internal/ops/tasks/attachments`
+through `x-ops-report-secret`, and nothing else — a reporter lives on a
+developer machine, so it must not hold a secret that can deliver a package or
+operate on editorial state.
+
+Read through `opsReportSecret()` in `server/core/config.ts`, which is
+`required()` — an unset value throws at the point of use, so the route answers
+500 rather than accepting anything. `requireOpsReportSecret()` compares SHA-256
+digests in constant time, refuses an empty header outright, and registers the
+fixed actor `service:ops-reporter`.
+
+Lives in Vercel (Production + Preview, sensitive), in
+`~/.config/ai-dev/ops-report.env` on the development machine, and as the
+GitHub Actions repository secret of the same name for the CI job.
+
 ### `CHATGPT_AUTOMATION_SECRET`
 Guards `/api/internal/chatgpt/*` — the scheduled ChatGPT editor's read and
 control interface — through `x-chatgpt-automation-secret`, compared with

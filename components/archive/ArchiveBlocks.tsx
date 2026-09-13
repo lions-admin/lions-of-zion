@@ -666,6 +666,8 @@ function MediaActions({
         locale={locale}
         assetUrl={href}
         medium={item.type}
+        shareTitle={shareTitle}
+        shareUrl={shareUrl}
         returnTo={returnTo}
         compact
       />

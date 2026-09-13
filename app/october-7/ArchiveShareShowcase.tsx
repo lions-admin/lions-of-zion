@@ -143,7 +143,14 @@ export function ArchiveShareShowcase({
                 shareTitle={sample.title}
                 text={sample.shareText}
                 copyLabel={isStory ? "Copy the testimony to share" : "Copy the record to share"}
-                actions={sample.xMedia ? <XMediaPostButton {...sample.xMedia} returnTo={sample.href} /> : undefined}
+                actions={sample.xMedia ? (
+                  <XMediaPostButton
+                    {...sample.xMedia}
+                    shareTitle={sample.title}
+                    shareUrl={sample.url}
+                    returnTo={sample.href}
+                  />
+                ) : undefined}
                 targets={[
                   { label: "Post on X", href: sample.xHref },
                   { label: "Facebook", href: sample.facebookHref },

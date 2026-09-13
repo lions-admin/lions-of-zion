@@ -93,7 +93,14 @@ export function ShareRecord({ url, title, xHref, facebookHref, caption, xMedia }
           Post on X
         </ButtonLink>
 
-        {xMedia ? <XMediaPostButton {...xMedia} returnTo={returnTo} /> : null}
+        {xMedia ? (
+          <XMediaPostButton
+            {...xMedia}
+            shareTitle={title}
+            shareUrl={url}
+            returnTo={returnTo}
+          />
+        ) : null}
 
         <ButtonLink
           href={facebookHref}

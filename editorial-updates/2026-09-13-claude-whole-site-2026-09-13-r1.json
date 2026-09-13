@@ -1,0 +1,1849 @@
+{
+ "contractVersion": "whole-site-update-v2",
+ "runId": "claude-whole-site-2026-09-13-r1",
+ "composer": "Claude whole-site editorial update",
+ "createdAt": "2026-09-13T12:05:00.000Z",
+ "creates": [
+  {
+   "key": "gaza-yellow-line-canonical",
+   "publication": {
+    "kind": "news_update",
+    "section": "israel_update",
+    "canonicalStoryId": "gaza-yellow-line-operations-2026-09",
+    "title": "Gaza after the ceasefire: what the Yellow Line is, and what the September 10–13 strikes show",
+    "summary": "Eleven months into the October 2025 ceasefire, Israel holds roughly half of Gaza east of the Yellow Line and keeps striking Hamas targets west of it. The IDF says it killed the Khan Younis Brigade commander on September 10, 2026, and hit a vehicle in Tel al-Hawa on September 13; Gaza medics say two died and 13 were wounded. Gaza's health ministry counts more than 1,330 killed since the truce.",
+    "body": "Gaza is under a ceasefire that has not stopped Israeli strikes. This record explains the arrangement a new reader needs, the strikes of September 10–13, 2026, and the casualty counts on each side of the argument, with the source of every number.\n\nWhat the ceasefire set. A US-backed agreement between Israel and Hamas was signed on October 9, 2025, and took effect on October 10, 2025. It halted large-scale fighting, secured the release of the remaining hostages, and had Israeli forces pull back to a demarcation line inside Gaza known as the Yellow Line, which was meant to be provisional pending later phases, including Hamas disarmament, a technocratic administration and an International Stabilization Force (ISF) under a Board of Peace chaired by President Trump. Phase two was announced in January 2026. As of February 2026, The Times of Israel reported that only 19 of more than 70 countries approached had expressed willingness to contribute to the ISF and that Hamas remained armed west of the line. In June 2026 PBS described progress as stalled over Hamas's refusal to disarm and Israel's continued military presence, with each side accusing the other of violations while saying the ceasefire remains in force.\n\nWhat the Yellow Line is. It is the line Israeli forces withdrew to; Israel keeps direct control of the territory east of it, about 53 percent of the Strip according to Gisha, an Israeli human-rights organisation, and The Times of Israel. Defense Minister Israel Katz ordered it marked with yellow-painted concrete blocks on October 17, 2025; Gisha says the marking was never completed and that blocks have been moved westward at points. On December 17, 2025, IDF Chief of Staff Eyal Zamir called it \"a new border line, a forward defensive line for the communities,\" which Gisha reads as contradicting its provisional status. The IDF says it operates east of the line \"per the ceasefire agreement\" and that Hamas has \"systematically violated\" the accord by rebuilding capabilities and attacking troops; in its Briefing Room for the week of September 6 it said troops had rendered more than 26 kilometers of tunnels inoperable east of the line. Separately, Gisha describes an \"Orange Line\" used by Israel's Coordination and Liaison Administration to restrict where international organisations may move without coordination, covering about 64 percent of Gaza after a March 8, 2026 update.\n\nHow the line works day to day. The IDF treats a Palestinian approaching or crossing eastward as a threat and has repeatedly said it fired on people who \"crossed the Yellow Line\" and \"posed an immediate threat,\" labelling the incidents ceasefire violations; this site recorded two such IDF statements from northern Gaza on September 3, 2026. The Foundation for Defense of Democracies, drawing on IDF reporting, counted 29 IDF-reported ceasefire violations between August 19 and September 3. Gisha, citing UN documentation, says 224 Palestinians were killed east of or near the line between October 10, 2025 and February 27, 2026. OCHA's September 4, 2026 situation report notes an explosive munition detonating about 30 metres from a UN convoy crossing the Yellow Line in Rafah on August 27. Israel also carries out targeted strikes west of the line against people it identifies as Hamas operatives.\n\nThe strikes of September 10–13. Late on September 10, an Israeli Air Force strike in Khan Younis killed Muhammad Abdul Salam al-Yazouri, known as Abu al-Haitham, the commander of Hamas's Khan Younis Brigade, the IDF and Shin Bet announced on September 11. The IDF said he had been the brigade's deputy commander, its combat-support battalion commander and its intelligence chief, had \"advanced dozens of attacks on troops\" in recent months and was working to restore the brigade's capabilities; it said the same strike killed a company commander, Hudheifa Muammar, and an operative, Muhammad Bahjat Rashi, and that a separate strike killed Moamen Jabr al-Sayed Abu Labda, described as a Rafah Brigade sniper-cell commander. Hamas published a \"martyr poster\" for Yazouri on Telegram before the IDF statement, according to The Times of Israel; that is Hamas's acknowledgment of his death and rank. On the morning of September 13, a strike on a vehicle in the Tel al-Hawa neighbourhood of western Gaza City killed at least two people and wounded 13, medical staff and the Palestinian Red Crescent told Reuters and Haaretz; medics said the bodies were dismembered and asked the public for help identifying them. The IDF said the strike \"targeted two Hamas operatives\" and gave no further detail. The identities of the two dead, and whether they were the intended targets, are not established.\n\nThe counts. Gaza's Ministry of Health, as relayed in OCHA's September 4 situation report, counted 1,334 people killed and 4,429 injured between October 10, 2025 and September 2, 2026, with 31 killed in the week of August 26 to September 2; The Times of Israel on September 11 put the ministry's figures at more than 73,400 killed since October 7, 2023, and more than 1,330 since the ceasefire. The ministry does not distinguish combatants from civilians. The IDF does not publish a competing count of Palestinians killed since the ceasefire; it publishes named operatives it says it killed, eleven of them in the week of September 6. The Times of Israel reported in February that four Israeli soldiers had been killed since the pullback to the line. None of these figures has been independently reconciled.\n\nWhat is not verified. Whether the September 13 dead were Hamas operatives; whether any of the Yellow Line shootings involved unarmed people, as Gisha and The Washington Post have reported for earlier cases; the current precise share of Gaza east of the line, which Israeli officials have described at 50 to 60 percent at various points in 2026; and the timetable for the ISF or any disarmament.\n\nAssessment, ours. The Yellow Line has become the operative fact of the ceasefire: a line that Israel's chief of staff calls a border, that Hamas does not cross in force, and along which most post-ceasefire deaths occur. The September 10 strike shows Israel is still targeting Hamas's command echelon west of the line, and the September 13 strike shows the cost of that policy is carried in part by people whose identities are unknown at the time of the strike's announcement.\n\nStill open / watch next: identification of the September 13 dead; the next OCHA situation report; any change in the IDF's stated violation count; movement on the ISF, disarmament or reconstruction; and any IDF or UN statement on the line's position.\n\nLast checked: September 13, 2026.",
+    "language": "en",
+    "editorialTopic": "Gaza ceasefire and the Yellow Line",
+    "topicTags": [
+     "gaza",
+     "ceasefire",
+     "yellow-line",
+     "idf",
+     "hamas"
+    ],
+    "arena": "Gaza Strip"
+   },
+   "sources": [
+    {
+     "url": "https://www.ochaopt.org/content/humanitarian-situation-report-4-september-2026",
+     "title": "Humanitarian Situation Report, 4 September 2026",
+     "publisher": "UN OCHA occupied Palestinian territory",
+     "official": true,
+     "publishedAt": "2026-09-04T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://idfspokesperson.substack.com/p/the-briefing-room-week-of-september",
+     "title": "The Briefing Room (Week of September 6th)",
+     "publisher": "IDF Spokesperson's Unit (Substack)",
+     "official": true,
+     "publishedAt": "2026-09-06T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://gisha.org/en/between-the-yellow-and-orange-lines/",
+     "title": "Between the Yellow and Orange Lines",
+     "publisher": "Gisha",
+     "official": false,
+     "language": "en"
+    },
+    {
+     "url": "https://www.timesofisrael.com/idf-kills-commander-of-hamass-khan-younis-brigade-in-southern-gaza-airstrike/",
+     "title": "IDF kills commander of Hamas's Khan Younis Brigade in southern Gaza airstrike",
+     "publisher": "The Times of Israel",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.arabnews.com/middle-east/israeli-strike-kills-two-people-in-gaza-medics-say-3001542",
+     "title": "Israeli strike kills two people in Gaza, medics say (Reuters)",
+     "publisher": "Reuters via Arab News",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.jpost.com/middle-east/article-908449",
+     "title": "Two killed in Gaza City strike, IDF says it targeted car with Hamas terrorists",
+     "publisher": "The Jerusalem Post",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.haaretz.com/israel-news/israel-security/2026-09-13/ty-article-live/saudi-arabia-says-houthi-attack-wounds-two-damages-mosque/000001a0-9785-dfa9-ada3-dfc708db0004",
+     "title": "Live Updates: Two killed, 13 wounded in Israeli strike in Gaza City, Palestinian medics say",
+     "publisher": "Haaretz",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.timesofisrael.com/as-idf-and-hamas-dig-in-interim-gaza-armistice-line-risks-hardening-into-lasting-border/",
+     "title": "As IDF and Hamas dig in, interim Gaza armistice line risks hardening into lasting border",
+     "publisher": "The Times of Israel",
+     "official": false,
+     "publishedAt": "2026-02-09T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.pbs.org/newshour/world/palestinian-death-toll-in-gaza-tops-73000-officials-say-as-israel-strikes-despite-ceasefire",
+     "title": "Palestinian death toll in Gaza tops 73,000, officials say, as Israel strikes despite ceasefire",
+     "publisher": "PBS NewsHour (AP)",
+     "official": false,
+     "publishedAt": "2026-06-14T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.fdd.org/analysis/op-eds/2026/09/03/idf-captures-hamas-security-chief-reports-29-gaza-ceasefire-violations-aug-19-sept-3",
+     "title": "IDF captures Hamas security chief, reports 29 Gaza ceasefire violations Aug. 19–Sept. 3",
+     "publisher": "FDD's Long War Journal",
+     "official": false,
+     "publishedAt": "2026-09-03T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.jns.org/news/israel-news/idf-shin-bet-slay-head-of-hamass-khan-yunis-brigade",
+     "title": "IDF, Shin Bet slay head of Hamas's Khan Yunis Brigade",
+     "publisher": "JNS",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.washingtonpost.com/world/2026/01/03/israel-yellow-line-gaza-ceasefire/",
+     "title": "Gaza war rages along Israel's 'Yellow Line,' despite ceasefire",
+     "publisher": "The Washington Post",
+     "official": false,
+     "publishedAt": "2026-01-03T00:00:00+03:00",
+     "language": "en"
+    }
+   ],
+   "media": {
+    "inputUrl": "https://raw.githubusercontent.com/lions-admin/lions-of-zion/chatgpt-editorial-updates/editorial-updates/media/gaza-yellow-line-idf-2025.jpg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Operation_Might_and_Sword_2.jpg",
+    "alt": "Two Israeli soldiers with faces blurred aim rifles from inside a damaged building during ground operations in the Gaza Strip, April 2025.",
+    "caption": "IDF ground operations in the Rafah area of the Gaza Strip, April 9, 2025, in a photo released by the IDF Spokesperson's Unit. Archival; not the Yellow Line and not from September 2026.",
+    "credit": "Photo: IDF Spokesperson's Unit, via Wikimedia Commons, CC BY-SA 3.0",
+    "disclosure": null,
+    "role": "archival-context",
+    "focalPoint": {
+     "x": 35,
+     "y": 40
+    },
+    "sensitivity": "safe",
+    "rights": {
+     "status": "cleared",
+     "basis": "CC BY-SA 3.0",
+     "reference": "https://commons.wikimedia.org/wiki/File:Operation_Might_and_Sword_2.jpg — CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0); author: IDF Spokesperson's Unit photographer; retrieved 2026-09-13 for run claude-whole-site-2026-09-13-r1",
+     "clearedAt": "2026-09-13",
+     "surfaces": [
+      "article",
+      "homepage"
+     ]
+    },
+    "generated": false
+   }
+  },
+  {
+   "key": "naza-venice-claim",
+   "publication": {
+    "kind": "geopolitical_analysis",
+    "section": "narrative_watch",
+    "canonicalStoryId": "naza-documentary-ai-targeting-claim-venice-2026",
+    "title": "Reported claim: the Venice documentary \"NAZA\" shows Israel used AI to kill Gaza civilians by design",
+    "summary": "\"NAZA\", by Yuval Abraham and Rachel Szor, won Venice's Special Jury Prize on September 12, 2026. It rests on 24 anonymous Israeli military and intelligence interviewees who describe AI-assisted target selection and rising permitted civilian-casualty thresholds. The IDF \"categorically rejects\" the allegations. What is documented, what is asserted and what cannot be checked are set out below.",
+    "body": "What is established. \"NAZA\" is an 80-minute documentary directed by the Israeli filmmakers Yuval Abraham and Rachel Szor, who won the 2025 Academy Award for \"No Other Land\". It premiered in the main competition of the 83rd Venice International Film Festival on September 10, 2026, and received a standing ovation that festival reporters timed at about 25 minutes. On September 12, 2026, the festival jury gave it the Special Jury Prize. The film is a British production made by The Guardian and James Wilson's JW Films, with Jonathan Glazer as executive producer; international sales are handled by MK2 Films, and screenings are scheduled for San Sebastián (September 18–26) and the New York Film Festival (September 25–October 12). The title is the IDF's Hebrew shorthand for \"nezek agavi\", collateral damage: the number of civilians a planner expects an airstrike to kill.\n\nWhat the film claims. According to the filmmakers and the reviews published from Venice (Deadline, Variety, The Hollywood Reporter, Screen), the film is built on interviews with 24 Israeli soldiers and intelligence officers who spoke on condition of anonymity. They describe an AI-assisted targeting system, referred to as \"Lavender\", that drew on Gaza's monitored telecommunications to generate suspected-militant targets; permitted civilian-casualty thresholds per target that, the interviewees say, rose over the war until \"20 becomes the norm\" for a low-level suspect; strikes on family homes authorised with those expected casualties; and shootings in designated no-go zones near aid distribution sites. The directors say the mass killing was \"systemic: not by accident, but by design\". Reuters quoted one interviewee describing a phrase like \"daddy's home\" detected on a child's phone as sufficient to trigger a strike. These are the film's claims, carried by anonymous testimony; this desk has not seen the underlying interviews and cannot verify the identities, ranks, units or dates the interviewees cover.\n\nWhat is documented from before the film. In April 2024 Abraham published, in +972 Magazine and Local Call with The Guardian, an investigation based on six anonymous intelligence sources describing \"Lavender\" and reporting that the system had marked some 37,000 Palestinians as suspected militants. The IDF's response at the time, quoted by JTA and The Guardian, said its analysts use information systems as tools, that it does not use an AI system that identifies operatives or predicts whether a person is a terrorist, that it assesses \"expected military advantage and likely collateral damage\" before every strike, and that it rejected \"any policy to kill tens of thousands of people in their homes\". The film extends that 2024 reporting from six sources to 24 and adds the collateral-damage thresholds and the aid-site zones. The Times of Israel notes that parts of the earlier reporting \"have been challenged by the Israel Defense Forces\".\n\nThe response. On September 11–12, 2026, the IDF said it \"categorically rejects\" the allegations, criticised the use of anonymous testimonies whose identities \"cannot be verified\", said claims about \"national and military strategy\" exceed what junior soldiers can know, and stated that \"the selection and approval of Gaza strikes [were] made by human personnel only … and not by artificial intelligence\". It repeated that it \"tried to avoid killing civilians\" and that Hamas embedded its operatives and infrastructure among the civilian population, and it rejects all accusations of genocide. Former prime minister Naftali Bennett called the film \"a horrific blood libel against our sons and daughters\". Abraham answered the military's criticism with: \"It seems like an attempt to not face reality\", and called the reporting \"rigorous\". This desk found no Foreign Ministry statement as of September 13, 2026.\n\nHow it is spreading, and by whom. Three distinct streams carry the film. First, the film's own campaign: The Guardian as producer, festival press, and the directors' acceptance remarks (\"It's our country that is doing these crimes\"). Second, outlets that convert the testimony into a settled finding: RT ran \"Israel used AI to kill thousands of Palestinians in Gaza – documentary\"; Al Jazeera filed its coverage under \"Crimes Against Humanity\"; the activist site Daily Kos headlined \"the Gaza genocide\"; the conspiracy site The People's Voice ran \"Insanely fun video game: Israeli soldiers describe slaughtering thousands\". Third, the counter-stream, which dismisses the film wholesale as \"blood libel\" without engaging the testimony. A figure of \"up to 70,000 human targets\" circulates in the second stream; this desk could not trace it to a verifiable statement in the film and the only figure with a documented origin is the 37,000 of the 2024 investigation. Do not repeat 70,000 as a fact.\n\nAssessment (Lions of Zion). Legitimate criticism is not propaganda because it is severe, and testimony from serving or former soldiers is a recognised form of journalism whose anonymity is normal. Two things are nevertheless true at once. The film cannot be checked by an outside reader: the sources are anonymous, the thresholds are recollected rather than shown in documents, and the film does not publish the orders it describes. And the IDF's denial is a blanket institutional statement that does not engage the specific thresholds or dates, and the same institution's own inquiries in 2025–2026 have acknowledged serious failures elsewhere. The resolution state is therefore disputed, not refuted and not verified. The claim that AI selected targets without human approval is contradicted by the IDF and, notably, not what the 2024 reporting said either: the sources then described humans approving machine-generated lists quickly, which is a claim about oversight, not about autonomy. The claim that civilian deaths were budgeted into strikes on homes is a claim about proportionality thresholds, which only documents or a judicial process can settle.\n\nWhat a reader can do. Separate three propositions when this film is cited: that an AI-assisted database existed and shaped target lists (reported by multiple sources since 2024, characterised differently by the IDF); that permitted civilian-casualty thresholds were set and rose (asserted by anonymous testimony, denied as policy); that killing was intentional by design (the film's conclusion, not a documented finding). Ask which of the three a post is actually claiming, and whether it cites the film, the 2024 reporting, or nothing.\n\nStill open / watch next. Whether any interviewee goes on the record; whether the directors publish documents; whether the Military Advocate General or a court addresses the thresholds; the film's Israeli release; whether a Foreign Ministry or government statement follows Bennett's; and how the 70,000 figure propagates.\n\nLast checked: September 13, 2026.",
+    "language": "en",
+    "narrativeWatchDetails": {
+     "exactClaim": "Israel's military used an AI system ('Lavender') to select tens of thousands of targets in Gaza and, as a matter of policy, knowingly killed civilians in their homes on a mass scale — killing 'by design', as shown by 24 anonymous Israeli soldiers and intelligence officers interviewed in the documentary NAZA.",
+     "propagators": [
+      "The film's producers and festival campaign (The Guardian, JW Films, directors Yuval Abraham and Rachel Szor)",
+      "RT (Russian state media)",
+      "Al Jazeera English",
+      "Activist and conspiracy sites (Daily Kos, The People's Voice)",
+      "Social-media accounts citing a '70,000 targets' figure"
+     ],
+     "arenas": [
+      "Venice Film Festival press",
+      "International press and reviews",
+      "X (Twitter)",
+      "Instagram",
+      "TikTok",
+      "Israeli public debate"
+     ],
+     "trendDirection": "rising",
+     "israeliPosition": "The IDF 'categorically rejects' the allegations, says anonymous testimonies cannot be verified, that junior soldiers lack knowledge of national strategy, and that strike selection and approval were made by human personnel only, not AI; it rejects any policy to kill tens of thousands in their homes. Former PM Naftali Bennett called the film a 'blood libel'. No Foreign Ministry statement found as of September 13, 2026.",
+     "securityContext": "Released during the 2026 US–Israel–Iran war and with the Gaza campaign's conduct under international legal scrutiny; the film covers 2023–2025 events and extends a 2024 +972/Local Call/Guardian investigation from six to 24 anonymous sources.",
+     "verificationState": "disputed",
+     "knownUnknowns": [
+      "Identities, ranks, units and service dates of the 24 interviewees",
+      "Whether the described collateral-damage thresholds were written policy, unit practice or recollection",
+      "The origin of the '70,000 targets' figure circulating online (the 2024 investigation reported 37,000)",
+      "Whether any document or order shown in the film can be authenticated",
+      "Whether the Military Advocate General has examined the specific allegations",
+      "Whether the film will be released in Israel"
+     ],
+     "supportingEvidenceIds": [],
+     "contradictingEvidenceIds": []
+    },
+    "editorialTopic": "AI targeting allegations in Gaza",
+    "topicTags": [
+     "gaza",
+     "ai-targeting",
+     "documentary",
+     "venice",
+     "idf"
+    ],
+    "arena": "International media"
+   },
+   "sources": [
+    {
+     "url": "https://www.timesofisrael.com/israeli-film-alleging-ai-assisted-killing-of-gaza-civilians-wins-venice-jury-prize/",
+     "title": "Israelis' film alleging AI-assisted killing of Gaza civilians wins Venice jury prize",
+     "publisher": "The Times of Israel (AFP)",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.timesofisrael.com/idf-rejects-testimonies-in-israeli-made-documentary-about-ai-powered-killing-in-gaza/",
+     "title": "IDF rejects testimonies in Israeli-made documentary about AI-powered killing in Gaza",
+     "publisher": "The Times of Israel",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.jta.org/2026/09/10/israel/documentary-alleging-israel-committed-wanton-killing-in-gaza-gets-standing-ovation-in-venice",
+     "title": "Documentary alleging Israel committed wanton killing in Gaza gets standing ovation in Venice",
+     "publisher": "Jewish Telegraphic Agency",
+     "official": false,
+     "publishedAt": "2026-09-10T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.jpost.com/israel-news/article-908309",
+     "title": "'NAZA' documentary premieres in Venice with Gaza war claims",
+     "publisher": "The Jerusalem Post (Reuters)",
+     "official": false,
+     "publishedAt": "2026-09-10T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.rte.ie/entertainment/2026/0913/1591338-israeli-made-gaza-documentary-wins-at-venice-festival/",
+     "title": "Israeli-made Gaza documentary wins at Venice festival",
+     "publisher": "RTÉ (AFP/Reuters)",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://variety.com/2026/film/festivals/naza-venice-premiere-gaza-documentary-ovation-1236843669/",
+     "title": "'NAZA' Venice Premiere: Gaza Documentary Earns Record Standing Ovation",
+     "publisher": "Variety",
+     "official": false,
+     "publishedAt": "2026-09-10T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://deadline.com/2026/09/naza-review-venice-film-festival-1237100430/",
+     "title": "'NAZA' Review: Doc Accuses Israel Of Using AI To Kill Gaza Civilians",
+     "publisher": "Deadline",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://deadline.com/2026/09/naftali-bennett-yuval-abraham-rachel-szor-naza-1237098766/",
+     "title": "Former Israeli Prime Minister Takes Aim At Yuval Abraham And Rachel Szor's 'NAZA'",
+     "publisher": "Deadline",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.972mag.com/lavender-ai-israeli-army-gaza/",
+     "title": "'Lavender': The AI machine directing Israel's bombing spree in Gaza",
+     "publisher": "+972 Magazine",
+     "official": false,
+     "publishedAt": "2024-04-03T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.timesofisrael.com/israeli-film-about-killing-of-gazan-civilians-gets-record-ovation-at-venice-premiere/",
+     "title": "Israeli film about killing of Gazan civilians gets 25-minute record ovation at Venice premiere",
+     "publisher": "The Times of Israel",
+     "official": false,
+     "publishedAt": "2026-09-10T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.rt.com/news/645587-israel-used-ai-kill-palestinians/",
+     "title": "Israel used AI to kill thousands of Palestinians in Gaza – documentary (propagator example, not a source of fact)",
+     "publisher": "RT",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.aljazeera.com/news/2026/9/11/israeli-film-on-gaza-receives-25-minute-ovation-at-venice-premiere",
+     "title": "Israeli film on Gaza receives 25-minute ovation at Venice premiere",
+     "publisher": "Al Jazeera",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "en"
+    }
+   ]
+  },
+  {
+   "key": "knobloch-munich-threat",
+   "publication": {
+    "kind": "news_update",
+    "section": "antisemitism",
+    "canonicalStoryId": "knobloch-death-threat-munich-2026-09",
+    "title": "Death threat against Charlotte Knobloch after the Saxony-Anhalt vote; Munich state-security police investigate",
+    "summary": "A witness found \"Die AfD hat gewonnen, morgen hängen wir die Knobloch\" painted on a bench and a bin in Munich's Englischer Garten on September 10, 2026. Munich police and the Bavarian prosecutor's antisemitism officer are investigating for incitement, threats and criminal damage. Knobloch, 93, cancelled one event. The same week, a woman wearing a Star of David was cut with a bottle in Berlin.",
+    "body": "What happened. At about 1:10 p.m. on Thursday, September 10, 2026, a passer-by noticed white lettering on a park bench and a rubbish bin in the southern part of Munich's Englischer Garten, near Lerchenfeldstraße, Seeaustraße and the Hirschanger sports ground, and called the police. The Munich police headquarters (Polizeipräsidium München) said in its press report of September 11 that \"a so far unknown perpetrator had applied a personal threat against a member of the Israelitische Kultusgemeinde in white lettering\", and that Kriminalfachdezernat 4, the unit responsible for state-security offences, had taken over the investigation for threats (Bedrohung) and criminal damage (Sachbeschädigung). The Israelitische Kultusgemeinde München und Oberbayern confirmed that the person named was its president, Charlotte Knobloch, who is 93 and a Holocaust survivor. According to the Abendzeitung, the sentence read: \"Die AfD hat gewonnen, morgen hängen wir die Knobloch\" (\"The AfD has won, tomorrow we hang Knobloch\"), accompanied by a Star of David. A police spokesperson said the threat stood in explicit connection with the AfD's election result in Saxony-Anhalt. The message was painted, not carved, as some English-language summaries have put it.\n\nWho is investigating. Beyond the police unit, the Generalstaatsanwaltschaft München has opened proceedings. Its antisemitism officer, senior prosecutor Andreas Franck, said the investigation covers incitement to hatred (Volksverhetzung), threats and criminal damage, and confirmed the Star of David in the graffiti. Police have asked anyone who saw something in that part of the park on September 10 to contact Kriminalfachdezernat 4 on 089 2910-0. No suspect had been named as of September 13, 2026.\n\nContext. The Saxony-Anhalt state election on September 6, 2026 gave the AfD 43.8 percent, its highest result in any state election and just short of an absolute majority of seats; the party's state branch is classified by the state's constitutional-protection office as confirmed right-wing extremist. Knobloch said afterwards: \"An diesem Tag fällt es mir schwer, meine Heimat noch wiederzuerkennen\" and \"Das macht mir Angst\". In an interview with Stern published on August 19, 2026, she had said she sees \"in vielen Bereichen keinen Unterschied mehr zur NSDAP, bevor diese an die Macht gekommen ist\", and argued that Germany should at least examine a ban procedure against the AfD: she constantly hears why it should not be possible, she said, but \"at least as important would be why it might be necessary\".\n\nReactions. Bavaria's antisemitism commissioner Ludwig Spaenle said the threat \"überschreitet jede Grenze\", called it \"mehr als ein Tabubruch\" and said Germany stands at a crossroads. Knobloch cancelled her participation in an evening event on September 10 for security reasons. She said she would keep her Rosh Hashanah engagements, including the public shofar blowing on St.-Jakobs-Platz on Sunday, September 13, at which she was quoted in a community statement: \"Der Klang des Widderhorns soll die Menschen wachrütteln.\" This desk could not confirm from the reports available whether she appeared in person. This desk found no statement from the Central Council of Jews in Germany specific to the threat as of September 13.\n\nThe same week in Berlin. In the early hours of Friday, September 11, 2026, at about 2:30 a.m., two unknown men accosted a 43-year-old woman on Torstraße in Berlin-Mitte over the Star of David pendant she was wearing, shouted antisemitic insults, and one of them attacked her with a broken glass bottle; she suffered several cuts to her hand while defending herself and was taken to hospital. The attackers fled. The Berlin police published the case as press release Nr. 1171 on September 12 and the state-security division of the Landeskriminalamt is investigating. (One English report dates the attack to Friday, September 12; the police release places it in the night to Friday, September 11.)\n\nThe trend. The Federal Association of RIAS reporting offices recorded 8,725 antisemitic incidents in Germany in 2025, a record, including 178 assaults and 257 threats; RIAS classified 68 percent as Israel-related. The Central Council's 2026 situation report says the permanent threat is pushing Jewish life out of public space and behind security measures. Both German incidents this week fall into categories RIAS counts separately: a threat against a named community leader, and a physical assault on a visibly Jewish person.\n\nResources. Munich police witness line 089 2910-0 (Kriminalfachdezernat 4). Incidents anywhere in Germany can be reported to RIAS at report-antisemitism.de, including anonymously and below the criminal threshold. The IKG München und Oberbayern (ikg-m.de) publishes its public events and security guidance.\n\nStill open / watch next: identification of the Munich perpetrator; whether the Berlin attackers are identified; any Central Council or federal-government statement; whether the AfD state branch comments; and the RIAS Bavaria and RIAS Berlin quarterly tallies.\n\nLast checked: September 13, 2026.",
+    "language": "en",
+    "editorialTopic": "Antisemitism in Germany",
+    "topicTags": [
+     "antisemitism",
+     "germany",
+     "munich",
+     "afd"
+    ],
+    "primaryActor": "Charlotte Knobloch",
+    "arena": "Germany"
+   },
+   "sources": [
+    {
+     "url": "https://www.wochenanzeiger.de/persoenliche-drohung-auf-parkbank-und-muelleimer/cnt-id-ps-83eba10d-2363-4ace-86ec-7a89a4a8c87a",
+     "title": "Persönliche Drohung auf Parkbank und Mülleimer (Pressebericht Polizeipräsidium München, 11.09.2026)",
+     "publisher": "Wochenanzeiger München (police report reproduced)",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "de"
+    },
+    {
+     "url": "https://www.news.de/lokales/859985411/polizei-einsatz-bayern-muenchen-sachbeschaedigung-heute-am-11-09-2026/1/",
+     "title": "Polizeimeldung München, 11.09.2026: Staatschutzrelevantes Delikt – Englischer Garten",
+     "publisher": "news.de (Polizeipräsidium München report)",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "de"
+    },
+    {
+     "url": "https://www.juedische-allgemeine.de/politik/morddrohung-gegen-charlotte-knobloch-nach-afd-wahlsieg/",
+     "title": "Morddrohung gegen Charlotte Knobloch nach AfD-Wahlsieg",
+     "publisher": "Jüdische Allgemeine",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "de"
+    },
+    {
+     "url": "https://www.abendzeitung-muenchen.de/muenchen/jede-grenze-ueberschritten-morddrohung-gegen-knobloch-art-1158088",
+     "title": "\"Jede Grenze überschritten\": Morddrohung gegen Knobloch",
+     "publisher": "Abendzeitung München",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "de"
+    },
+    {
+     "url": "https://www.abendzeitung-muenchen.de/muenchen/morddrohung-gegen-charlotte-knobloch-veranstaltung-in-muenchen-abgesagt-art-1157758",
+     "title": "Morddrohung gegen Charlotte Knobloch: Teilnahme an Veranstaltung in München abgesagt",
+     "publisher": "Abendzeitung München",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "de"
+    },
+    {
+     "url": "https://www.tagesspiegel.de/politik/dpa-morddrohung-gegen-charlotte-knobloch-nach-afd-wahlsieg-16044357.html",
+     "title": "Vorkämpferin gegen Antisemitismus: Morddrohung gegen Charlotte Knobloch nach AfD-Wahlsieg",
+     "publisher": "Der Tagesspiegel (dpa)",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "de"
+    },
+    {
+     "url": "https://www.evangelisch.de/inhalte/259043/11-09-2026/morddrohungen-gegen-charlotte-knobloch",
+     "title": "Morddrohungen gegen Charlotte Knobloch",
+     "publisher": "evangelisch.de (epd)",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "de"
+    },
+    {
+     "url": "https://www.timesofisrael.com/german-jewish-leader-gets-death-threat-linked-to-victory-of-far-right-afd/",
+     "title": "German Jewish leader gets death threat linked to victory of far-right AfD",
+     "publisher": "The Times of Israel (dpa)",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.berliner-zeitung.de/article/charlotte-knobloch-afd-nsdap-verbotsverfahren-sachsen-anhalt-ulrich-siegmund-10308539",
+     "title": "Jüdische Gemeindepräsidentin Knobloch vergleicht AfD mit NSDAP",
+     "publisher": "Berliner Zeitung",
+     "official": false,
+     "publishedAt": "2026-08-19T00:00:00+03:00",
+     "language": "de"
+    },
+    {
+     "url": "https://www.bpb.de/kurz-knapp/hintergrund-aktuell/581006/landtagswahl-in-sachsen-anhalt-2026-afd-staerkste-kraft/",
+     "title": "Landtagswahl in Sachsen-Anhalt 2026: AfD stärkste Kraft",
+     "publisher": "Bundeszentrale für politische Bildung",
+     "official": true,
+     "publishedAt": "2026-09-07T00:00:00+03:00",
+     "language": "de"
+    },
+    {
+     "url": "https://www.berlin.de/polizei/polizeimeldungen/2026/pressemitteilung.1713187.php",
+     "title": "Antisemitischer Angriff (Pressemitteilung Nr. 1171)",
+     "publisher": "Polizei Berlin",
+     "official": true,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "de"
+    },
+    {
+     "url": "https://www.jns.org/news/world/woman-wearing-star-of-david-attacked-in-berlin",
+     "title": "Woman wearing Star of David allegedly attacked in Berlin",
+     "publisher": "JNS",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.sonntagsblatt.de/artikel/epd/rosch-haschana-schofarblasen-vor-muenchner-synagoge",
+     "title": "Rosch Haschana: Schofarblasen vor Münchner Synagoge",
+     "publisher": "Sonntagsblatt (epd)",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "de"
+    },
+    {
+     "url": "https://www.zentralratderjuden.de/presseerklaerungen/lagebild-der-juedischen-gemeinden-2026-dauerhafte-bedrohung-draengt-juedisches-leben-aus-der-oeffentlichkeit/",
+     "title": "Lagebild der Jüdischen Gemeinden 2026: Dauerhafte Bedrohung drängt jüdisches Leben aus der Öffentlichkeit",
+     "publisher": "Zentralrat der Juden in Deutschland",
+     "official": false,
+     "language": "de"
+    }
+   ],
+   "media": {
+    "inputUrl": "https://raw.githubusercontent.com/lions-admin/lions-of-zion/chatgpt-editorial-updates/editorial-updates/media/charlotte-knobloch.jpg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Charlotte_Knobloch_Solidarity_with_Israel_Munich_2023-10-09_5062.jpg",
+    "alt": "Charlotte Knobloch, president of the Jewish community of Munich and Upper Bavaria, smiling at a microphone in front of a stone facade at a solidarity rally in Munich, October 9, 2023.",
+    "caption": "Charlotte Knobloch speaking at the 'Solidarity with Israel' demonstration on Munich's Odeonsplatz, October 9, 2023.",
+    "credit": "Photo: Henning Schlottmann / Wikimedia Commons, CC BY-SA 4.0",
+    "disclosure": null,
+    "role": "portrait",
+    "focalPoint": {
+     "x": 62,
+     "y": 40
+    },
+    "sensitivity": "safe",
+    "rights": {
+     "status": "cleared",
+     "basis": "CC BY-SA 4.0",
+     "reference": "https://commons.wikimedia.org/wiki/File:Charlotte_Knobloch_Solidarity_with_Israel_Munich_2023-10-09_5062.jpg — CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0); author: Henning Schlottmann (User:H-stt), own work; retrieved 2026-09-13 for run claude-whole-site-2026-09-13-r1",
+     "clearedAt": "2026-09-13",
+     "surfaces": [
+      "article",
+      "homepage"
+     ]
+    },
+    "generated": false
+   }
+  },
+  {
+   "key": "iqfoil-worlds-israel",
+   "publication": {
+    "kind": "news_update",
+    "section": "achievement",
+    "canonicalStoryId": "iqfoil-world-championship-2026-israel-gold-silver",
+    "title": "Israel takes gold and silver at the 2026 iQFOiL World Championships: Steinberg wins, Kantor second, Peleg fourth",
+    "summary": "Tamar Steinberg, 20, won the women's title at the 2026 Musto iQFOiL World Championships in Weymouth and Portland, England, on September 12, 2026, with Olympic silver medallist Sharon Kantor second and Daniela Peleg fourth. Steinberg led from the first day, adding the world title to the European title she won in May. The results are published by the iQFOiL Class and the Israeli Olympic Committee.",
+    "body": "Tamar Steinberg is the 2026 iQFOiL women's world champion. The Israeli windsurfer won the title on September 12, 2026, at the Musto iQFOiL World Championships hosted by the Weymouth and Portland National Sailing Academy on the south coast of England. Sharon Kantor, also of Israel, took silver, and Stella Bilger of Australia bronze. A third Israeli, Daniela Peleg, finished fourth. The Israeli Olympic Committee published the result the same day, and the iQFOiL Class, the international class association that runs the championship, confirmed the podium in its final-day report.\n\nWhat was established, and by whom. The iQFOiL Class report of the final day describes a Medal Series in which Steinberg and Kantor, first and second in the qualification series, went straight to the Grand Final, each carrying one match point. Bilger and Peleg came through the quarter-final and semi-final to join them. Kantor led at the first mark of the first Grand Final race; Steinberg overtook her and won it, reaching the two match points needed for the title in a single race. Steinberg had opened the championship with four consecutive race wins and led the standings throughout the week, according to both the class association and the Israeli Olympic Committee. In the men's event, Israel's Tom Reuveni won his quarter-final but went out in a semi-final that was re-sailed after a starting-procedure error; Luuc van Opzeeland of the Netherlands took the men's title ahead of Noah Lyons of the United States and Johan Søe of Denmark.\n\nThe numbers differ slightly between sources. The official results portal for the event lists 179 competitors from 39 nations; the class association's own press material says 186 athletes from 41 nations. Both are cited here rather than reconciled. Racing ran across the week ending September 12, with the qualification series combining upwind sprint, sprint slalom and course racing before the single-day Medal Series.\n\nWho the athletes are. Steinberg, aged 20 according to the Israeli Olympic Committee, won the 2026 iQFOiL Open European Championship in Portimão, Portugal, on May 23, 2026, and took silver at the previous World Championship; the Weymouth title completes a European and world double in one season, which the class association notes she shares with van Opzeeland this year. Kantor, 23, won Israel's first women's Olympic sailing medal with silver at Paris 2024 and was iQFOiL world champion in 2024. Her 2026 silver came after she started the week in 16th place in qualifying, according to the Israeli Olympic Committee.\n\nWhy it matters. iQFOiL is the Olympic windsurfing class, so its world championship is the top annual title in the discipline and a direct marker for Los Angeles 2028. Israel already holds both Paris 2024 windsurfing medals (Reuveni gold, Kantor silver), and putting three women in a four-boat world final shows a depth no other nation matched in this event.\n\nWhat it does not show. A world title in 2026 does not decide Olympic selection; Israel's Olympic berth and the choice between Steinberg, Kantor, Peleg and Shahar Tibi will be settled by the national federation's own process closer to 2028. No prize money or ranking-points figures were published in the sources reviewed.\n\nWhat comes next. The iQFOiL season continues with the regular World Cup series; the 2027 World Championship venue had not been announced in the sources reviewed at the time of writing. Last checked: September 13, 2026.",
+    "language": "en",
+    "editorialTopic": "Israeli sport",
+    "topicTags": [
+     "sport",
+     "windsurfing",
+     "iqfoil",
+     "achievement"
+    ],
+    "primaryActor": "Tamar Steinberg",
+    "arena": "Weymouth and Portland, England",
+    "featuredIsraelStory": true
+   },
+   "sources": [
+    {
+     "url": "https://www.olympicsil.co.il/en/news-en/tamar-steinberg-won-the-2026-world-windsurfing-championship/",
+     "title": "Tamar Steinberg won the 2026 world windsurfing championship",
+     "publisher": "Israel Olympic Committee",
+     "official": true,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.iqfoilclassofficial.org/all-info-weymouth-26",
+     "title": "26' iQ Worlds Weymouth Portland — event page with champions and results link",
+     "publisher": "iQFOiL International Class Association",
+     "official": true,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://2026iqworldsweymouth.sailti.com/en/default/races/race",
+     "title": "2026 iQFOiL World Championship Weymouth-Portland — official notices and results portal (179 competitors, 39 nations)",
+     "publisher": "iQFOiL Class / Sailti",
+     "official": true,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.livesaildie.com/2026-iqfoil-world-championships-tamar-steinberg-and-luuc-van-opzeeland-crowned-world-champions-in-weymouth/",
+     "title": "2026 iQFOiL World Championships: Tamar Steinberg and Luuc van Opzeeland Crowned World Champions in Weymouth (class association final-day report)",
+     "publisher": "Live Sail Die",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.sailweb.co.uk/2026/09/12/musto-iqfoil-world-championships-2026-titles-for-steinberg-and-van-opzeeland",
+     "title": "Musto iQFOiL World Championships – 2026 Titles for Steinberg and Van Opzeeland",
+     "publisher": "Sailweb",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.sail-world.com/news/299761/2026-Musto-iQFOiL-Worlds-at-the-WPNSA-overall",
+     "title": "2026 Musto iQFOiL World Championships at the WPNSA – Overall",
+     "publisher": "Sail-World",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.iqfoilclassofficial.org/post/iqfoil-open-european-championships-luuc-van-opzeeland-and-tamar-steinberg-crowned-european-champion",
+     "title": "iQFOiL Open European Championships: Luuc van Opzeeland and Tamar Steinberg crowned European Champions in Portimão",
+     "publisher": "iQFOiL International Class Association",
+     "official": true,
+     "publishedAt": "2026-05-23T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.timesofisrael.com/israel-wins-gold-and-silver-medals-at-european-windsurfing-championship/",
+     "title": "Israel wins gold and silver medals at European windsurfing championship",
+     "publisher": "The Times of Israel",
+     "official": false,
+     "publishedAt": "2026-05-23T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.olympicsil.co.il/en/sharon-kantor-silver-medal-paris-2024/",
+     "title": "Sharon Kantor – Silver Medal – Paris 2024",
+     "publisher": "Israel Olympic Committee",
+     "official": true,
+     "publishedAt": "2024-08-03T00:00:00+03:00",
+     "language": "en"
+    }
+   ],
+   "media": {
+    "inputUrl": "https://raw.githubusercontent.com/lions-admin/lions-of-zion/chatgpt-editorial-updates/editorial-updates/media/tamar-steinberg-iqfoil.jpg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:H%C3%A9l%C3%A8ne_NOESMOEN_riding_an_iQFOiL_set_at_Brest,_February_2023.jpg",
+    "alt": "A windsurfer on an iQFOiL foiling board with an orange sail rides above the water off Brest, France, February 2023.",
+    "caption": "iQFOiL foiling windsurf class in action: French sailor Hélène Noesmoen training off Brest, February 27, 2023. Illustrates the Olympic class, not Tamar Steinberg.",
+    "credit": "Photo: IPoriel / Wikimedia Commons, CC BY-SA 4.0",
+    "disclosure": null,
+    "role": "archival-context",
+    "focalPoint": {
+     "x": 68,
+     "y": 45
+    },
+    "sensitivity": "safe",
+    "rights": {
+     "status": "cleared",
+     "basis": "CC BY-SA 4.0",
+     "reference": "https://commons.wikimedia.org/wiki/File:H%C3%A9l%C3%A8ne_NOESMOEN_riding_an_iQFOiL_set_at_Brest,_February_2023.jpg — CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0); author: IPoriel (Wikimedia Commons user), own work; retrieved 2026-09-13 for run claude-whole-site-2026-09-13-r1",
+     "clearedAt": "2026-09-13",
+     "surfaces": [
+      "article",
+      "homepage"
+     ]
+    },
+    "generated": false
+   }
+  }
+ ],
+ "updates": [
+  {
+   "key": "yemen-bab-al-mandeb-sept13",
+   "target": {
+    "canonicalStoryId": "yemen-bab-al-mandeb-fighting-2026"
+   },
+   "publication": {
+    "changeSummary": "Adds the September 11–13 record: the government withdrawal from Perim, the Houthi capture of Dhubab and Murad, Yahya Saree's \"safe except Saudi vessels\" statement, the IOM figure of 76,000 displaced (up from 46,000), the September 12 Jazan projectile, government counter-strikes on the Mocha–Dhubab road, and the CNN account of why Mocha fell. Keeps the chokepoint caveat.",
+    "title": "Houthis hold Yemen's Red Sea coast and Perim island; 76,000 displaced, and shipping risk rises without a proven closure",
+    "summary": "By September 12, 2026 the Houthis held Mocha, Dhubab and Mayun/Perim island in the Bab al-Mandeb Strait after government forces withdrew. The UN migration agency counted 76,000 displaced since July. A Houthi projectile hit Saudi Arabia's Jazan region. Territorial control raises shipping risk; it does not by itself prove commercial passage has stopped.",
+    "body": "The Houthi movement, also called Ansar Allah, held Yemen's entire Red Sea coastline south of Hodeidah by September 12, 2026, including the port city of Mocha, the coastal town of Dhubab and the island of Mayun, also called Perim, which sits in the narrowest part of the Bab al-Mandeb Strait and divides its two shipping lanes. That is the established position as of September 13, 2026, drawn from statements by Yemen's internationally recognized government, the Houthis' own military spokesman and reporting by AP, NBC News, Euronews and CNN.\n\nChronology, as reported. On September 10, 2026, Houthi forces took Mocha, and Euronews reports that the Zuqar island group in the southern Red Sea was seized the same day by rocket fire and a boat-borne ground assault. On September 11, Yemen's government said its forces had withdrawn from Mayun/Perim and that the Houthis had also taken Dhubab, the coastal town facing the island; a local official quoted by Euronews said boats carrying Houthi fighters reached the island after the government pulled out the previous day. Euronews adds that the coastal village of Murad fell within the same 18 hours. AP, cited in this record's September 12 version, independently confirmed the capture of Mayun/Perim.\n\nThe Houthi position. On September 11, the Houthi military spokesman Yahya Saree said, in a statement carried by Middle East Eye and The Times of Israel, that \"maritime navigation is safe for all companies except for Saudi vessels,\" and promised \"escalation for escalation\" against Saudi Arabia. The Houthis have declared a naval blockade of Saudi Arabia since July 2026, according to Al Jazeera. On September 12, Saudi Civil Defense said a projectile launched from Yemen landed in Al-Tuwal governorate in the Jazan region, wounding two people and damaging a mosque, several buildings and vehicles, as reported by Arab News and Gulf News. Earlier in the week, on September 8, Saudi authorities had reported 73 people wounded in Houthi attacks on civilian and energy sites, per AP and Al Jazeera.\n\nThe government side. Yemeni government forces spokesman Majed Abdullah al-Nazili said on September 12 that government forces struck Houthi vehicles and personnel on the Mocha–Dhubab road, about 11 kilometers from Mocha, according to Al Jazeera. The Houthis said Saudi Arabia carried out 64 airstrikes in Taiz, Hodeidah, Marib and al-Jawf, a figure this desk cannot verify. On September 13, Haaretz's live page reported three Saudi airstrikes in Hodeidah province. None of this reporting describes a recovery of Mocha, Dhubab or the island.\n\nWhy Mocha fell, according to CNN. A September 12 CNN report, relayed by The Jerusalem Post, quoted a Western source with knowledge of anti-Houthi operations saying the Yemeni battalions at Mocha were roughly 20 percent of their paper strength because rosters carried \"ghost names\" that drew salaries, and quoted a regional source saying no Saudi airstrike came on the day of the attack despite minute-by-minute updates. CNN also reported that CENTCOM commander Adm. Brad Cooper was in Saudi Arabia for coordination meetings that day. These are anonymous accounts of a failure whose responsibility is disputed among Yemeni, Saudi and US actors; they are reported here as claims.\n\nThe US position. NBC News and Axios, cited by The Times of Israel, reported that Crown Prince Mohammed bin Salman called President Trump twice on September 10 to ask for US strikes on the Houthis and that Trump declined, agreeing instead to help with targeting and intelligence sharing. On September 12 in Dublin, Trump said the Houthis had \"called us, and they don't want to fight with us.\" The US has been at war with Iran since February 28, 2026, according to AP.\n\nHumanitarian record. The International Organization for Migration said on September 12 that at least 76,000 people have fled their homes since July, up from 46,000 a few days earlier and four times the previous week's total, with more than 70,000 displaced since the start of September. IOM's breakdown: about 8,300 households, roughly 50,000 people, from five districts of Taiz; about 2,819 households, roughly 17,000 people, from Lahj, mostly al-Mudharibah district; about 1,374 households, roughly 8,100 people, from the coastal Hodeidah districts of Hays and al-Khawkha; and 191 households in Aden. Euronews reported the UN migration agency had also counted more than 500 deaths in the offensive as of September 12; this desk has not seen that death figure in IOM's own release and treats it as reported.\n\nWhat the territorial change does and does not establish. Control of Mayun/Perim and the facing coast gives the Houthis positions on both sides of the strait's eastern lane and removes the government's last coastal foothold there. It does not, on its own, show that ships are being stopped, that commercial passage has ceased, or that all vessels face the same restrictions. Saree's statement is a threat scoped to Saudi shipping, not evidence of interdiction. The Houthis have declared a Saudi blockade since July, and the strait matters more now because Saudi crude that would ordinarily leave through the Gulf has been routed to Yanbu on the Red Sea while the Strait of Hormuz is restricted; see the linked Hormuz and Iran-network records. Iranian support for the Houthis is documented in UN Panel of Experts reporting, but that relationship does not establish Tehran's command of this offensive.\n\nWhat changed since September 12: the story moved from a single-island seizure to a completed Houthi hold on the coast, a first Houthi strike inside Saudi Arabia after the coastal push, a doubling of the displacement count to 76,000, and public accounts, still anonymous, of how the defense of Mocha collapsed.\n\nStill open / watch next: any authenticated UKMTO or insurer advisory for the Bab al-Mandeb; vessel-movement data showing diversions or attacks; whether Saudi or government forces attempt to retake Dhubab or the island; whether the US changes its position on strikes; the next IOM displacement figure; and any independent casualty register.\n\nLast checked: September 13, 2026."
+   },
+   "sources": [
+    {
+     "url": "https://www.iom.int/news/iom-yemen-displacement-tops-76000-fighting-intensifies",
+     "title": "IOM: Yemen Displacement Tops 76,000 as Fighting Intensifies",
+     "publisher": "International Organization for Migration",
+     "official": true,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.euronews.com/2026/09/12/houthis-seize-yemeni-island-in-bab-el-mandeb-taking-control-of-the-strait",
+     "title": "Houthis seize key Yemeni island in Bab el-Mandeb, taking control of the strait",
+     "publisher": "Euronews",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.nbcnews.com/world/middle-east/houthis-control-bab-el-mandeb-yemen-red-sea-saudi-iran-war-oil-rcna597186",
+     "title": "Iran-backed Houthis capture Yemen's Red Sea coastline on Bab-el-Mandeb Strait",
+     "publisher": "NBC News",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.aljazeera.com/news/2026/9/12/yemen-government-forces-say-houthi-members-vehicles-targeted-in-mocha",
+     "title": "Yemen government forces say Houthi 'members, vehicles' targeted in Mocha",
+     "publisher": "Al Jazeera",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.timesofisrael.com/trump-iran-likely-behind-attack-on-saudi-pipeline-houthis-told-us-they-dont-want-to-fight/",
+     "title": "Trump: Iran likely behind attack on Saudi pipeline, Houthis told us they don't want to fight",
+     "publisher": "The Times of Israel",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.middleeasteye.net/live-blog/live-blog-update/navigation-red-sea-safe-except-saudi-ships-houthi-spokesman-says",
+     "title": "Navigation in Red Sea safe except for Saudi ships, Houthi spokesman says",
+     "publisher": "Middle East Eye",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.arabnews.com/saudi-arabia/houthi-projectile-injures-two-damages-mosque-in-saudi-arabias-jazan-3001507",
+     "title": "Houthi projectile injures two, damages mosque in Saudi Arabia's Jazan",
+     "publisher": "Arab News",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.jpost.com/middle-east/article-908443",
+     "title": "Yemeni army rosters filled with 'ghost names,' leaving Mocha vulnerable to Houthi takeover - report",
+     "publisher": "The Jerusalem Post",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://edition.cnn.com/2026/09/12/middleeast/yemen-houthi-saudi-us-blame-intl",
+     "title": "Blame game begins after Iran-backed Houthis' lightning advance down Red Sea coast",
+     "publisher": "CNN",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.timesofisrael.com/liveblog-september-12-2026/",
+     "title": "Sept. 12 liveblog: Lebanon's Aoun vows to secure Israeli withdrawal during surprise visit to country's south",
+     "publisher": "The Times of Israel",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.haaretz.com/israel-news/israel-security/2026-09-13/ty-article-live/saudi-arabia-says-houthi-attack-wounds-two-damages-mosque/000001a0-9785-dfa9-ada3-dfc708db0004",
+     "title": "Live Updates: Saudi Arabia says Houthi attack wounds two, damages mosque",
+     "publisher": "Haaretz",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    }
+   ],
+   "media": {
+    "inputUrl": "https://raw.githubusercontent.com/lions-admin/lions-of-zion/chatgpt-editorial-updates/editorial-updates/media/yemen-bab-al-mandeb.jpg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bab_al-Mandab_Strait.jpg",
+    "alt": "Satellite view of the Bab al-Mandeb strait: the Yemeni coast and Perim (Mayun) island on the right, Djibouti and Eritrea on the left, the Red Sea narrowing into the Gulf of Aden.",
+    "caption": "The Bab al-Mandeb strait between Yemen (right) and Djibouti/Eritrea (left), with Perim (Mayun) island in the channel. Satellite image acquired June 6, 2018, published by Brazil's INPE.",
+    "credit": "Satellite image: Coordenação-Geral de Observação da Terra/INPE / Wikimedia Commons, CC BY-SA 2.0",
+    "disclosure": null,
+    "role": "documentation",
+    "focalPoint": {
+     "x": 66,
+     "y": 45
+    },
+    "sensitivity": "safe",
+    "rights": {
+     "status": "cleared",
+     "basis": "CC BY-SA 2.0",
+     "reference": "https://commons.wikimedia.org/wiki/File:Bab_al-Mandab_Strait.jpg — CC BY-SA 2.0 (https://creativecommons.org/licenses/by-sa/2.0); author: Coordenação-Geral de Observação da Terra / INPE (Brazilian National Institute for Space Research), via Flickr; retrieved 2026-09-13 for run claude-whole-site-2026-09-13-r1",
+     "clearedAt": "2026-09-13",
+     "surfaces": [
+      "article",
+      "homepage"
+     ]
+    },
+    "generated": false
+   }
+  },
+  {
+   "key": "hormuz-qeshm-strike-sept13",
+   "target": {
+    "canonicalStoryId": "iran-us-hormuz-maritime-escalation-2026"
+   },
+   "publication": {
+    "changeSummary": "Adds the September 12 evening explosions off Qeshm, the UKMTO report of a vessel struck (23:00 UTC), the Iranian account of a cargo ship hit with one dead, CENTCOM's blockade figures, the Tasnim \"no immediate reopening\" statement and Iran's toll demand, Bahrain's refusal, the September 14 Oman meeting, and the BRICS \"maximum restraint\" declaration. Retains the two-window air-defense detail.",
+    "title": "Hormuz: an Iranian cargo ship is hit off Qeshm, one dead, as Gulf ministers head to Oman without Bahrain",
+    "summary": "A vessel was struck by an unidentified projectile in the Strait of Hormuz overnight September 12–13, 2026; Iranian media say it was an Iranian cargo ship with one crew member killed. An Iranian source says the Iran–Oman understanding will not reopen the strait immediately. Bahrain will skip the September 14 Gulf–Iran meeting. CENTCOM says no ship passes its blockade unallowed.",
+    "body": "The Strait of Hormuz remained a contested and restricted waterway on September 13, 2026, with a vessel struck by an unidentified projectile overnight, a US blockade of Iranian ports still in force, and a diplomatic track through Oman that Iran itself says will not reopen the strait immediately. This record collects what is established, who says it, and what remains unverified.\n\nBackground a new reader needs. The United States and Israel have been at war with Iran since February 28, 2026, according to AP. Iran has restricted passage through the strait since March, according to Al Jazeera, and the US Navy has enforced a blockade of Iranian ports; earlier in September CENTCOM said US forces struck Iranian crude carriers after attacks on US warships. Gulf News, citing CENTCOM, reported on September 12 that US forces had redirected 99 commercial vessels in the 60 days since resuming the blockade and that \"ZERO ships have passed through the blockade without US forces allowing.\" The Times of Israel, citing the Financial Times and emails from the US Maritime Coordination Center, reported on September 12 that Washington had reduced to two daily windows the periods in which it offers air defense to tankers transiting the strait, after increased Iranian attacks on ships moving at night; ships are advised, not required, to use those windows. This desk has not seen the Maritime Coordination Center emails.\n\nThe overnight incident. At 9:37 p.m. Israel time on September 12, Iran's state news agency IRNA reported that two explosions were heard on Qeshm Island \"coming from the direction of the sea,\" as carried by The Times of Israel. The UK Maritime Trade Operations office (UKMTO) then reported an incident timed at 23:00 UTC on September 12 in which a vessel transiting the strait was struck by an unknown projectile; a later UKMTO update said a fire had broken out and that local authorities were evacuating those on board, according to CNN, Arab News and The Times of Israel. On the morning of September 13, IRNA quoted the governor of Qeshm County as saying an Iranian commercial cargo vessel with a ten-member crew had been hit off Qeshm and Hengam islands, that one crew member was killed, and that the authorities had not yet identified the projectile; the governor blamed a \"terrorist enemy.\" Iranian outlets differ on the wounded: The Times of Israel and The Jerusalem Post, citing state media, said three; AP and Haaretz, citing ISNA, said four. No US or CENTCOM statement on the strike had been reported by the time of this update. Whether the projectile was fired by US forces, by Iran's own air defenses, or by another party is not established.\n\nThe Oman track. On September 11, Iran's foreign ministry said Iran would meet Gulf states in Oman on Monday, September 14, to discuss the strait, per Arab News and Al Jazeera; the Oman Observer and Muscat Daily reported the venue as Salalah and said GCC foreign ministers and Iraq were expected, with the aim of endorsing a joint Oman–Iran route through the strait and notifying the International Maritime Organization. On September 12 an Iranian source told the semi-official Tasnim agency that the Iran–Oman understanding \"does not provide for the immediate reopening\" of the strait but sets terms for a possible reopening that depend on US concessions, and that Iran still seeks to collect fees from transiting ships, which Oman rejects, per The Times of Israel. Gulf News, citing Tasnim, reported that Iran says the strait will stay closed until Washington meets seven conditions. Bahrain announced through state media on September 12 that it would not attend any collective meeting with Iran until diplomatic relations, severed in 2016, are restored, and called for Hormuz to be open \"without discrimination, fees or permits,\" per Al Jazeera and The Times of Israel. The Jerusalem Post, citing an Iranian official, reported that no signed agreement is expected on September 14.\n\nThe wider frame. The BRICS summit in New Delhi adopted a declaration on September 12 calling for \"maximum restraint\" in the Middle East, according to Arab News, The National and Business Recorder; the group includes China, Russia, India and Iran. Saudi Arabia shut its East-West crude pipeline on September 11 after drone attacks launched from Iraq, which removes, for now, the main bypass Saudi exporters had used to avoid Hormuz; and the Houthis completed a hold on Yemen's Red Sea coast at the Bab al-Mandeb on September 11–12. Those two developments are recorded in their own canonical stories; their relevance here is that the alternatives to Hormuz are themselves under pressure.\n\nAssessment, ours. The evidence supports a narrow conclusion: some traffic moves under US-managed and Iranian-threatened conditions, the US blockade of Iranian ports is enforced, and Iran is trying to convert the crisis into a toll regime through Oman. It does not support \"Hormuz has reopened,\" \"Hormuz is fully closed,\" or an attribution of the September 12–13 strike.\n\nWhat changed since September 12: a lethal strike on a vessel inside the strait with no claimed author; Iran's own statement that the Oman deal will not reopen the strait immediately; Bahrain's refusal; and CENTCOM's blockade figures.\n\nStill open / watch next: attribution of the Qeshm strike and the ship's name; any UKMTO or CENTCOM follow-up; what the September 14 Salalah meeting produces and who attends; whether the toll demand survives; and any change to the two daily air-defense windows.\n\nLast checked: September 13, 2026."
+   },
+   "sources": [
+    {
+     "url": "https://abcnews.com/US/wireStory/iranian-commercial-ship-struck-strait-hormuz-1-dead-136399794",
+     "title": "An Iranian commercial ship is struck near Strait of Hormuz with 1 dead, Iranian media say",
+     "publisher": "AP via ABC News",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://edition.cnn.com/2026/09/13/middleeast/iran-hormuz-qeshm-attack-intl",
+     "title": "Vessel struck in Strait of Hormuz, UKMTO reports",
+     "publisher": "CNN",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.arabnews.com/middle-east/vessel-struck-by-projectile-while-transiting-hormuz-strait-ukmto-says-3001522",
+     "title": "Vessel struck by projectile while transiting Hormuz strait, UKMTO says",
+     "publisher": "Arab News",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.timesofisrael.com/liveblog-september-13-2026/",
+     "title": "Sept. 13 liveblog",
+     "publisher": "The Times of Israel",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.timesofisrael.com/liveblog-september-12-2026/",
+     "title": "Sept. 12 liveblog",
+     "publisher": "The Times of Israel",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.timesofisrael.com/iran-oman-hormuz-deal-wont-immediately-reopen-strait-source-tells-iranian-media/",
+     "title": "Iran-Oman Hormuz deal won't immediately reopen strait, source tells Iranian media",
+     "publisher": "The Times of Israel",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.aljazeera.com/news/2026/9/12/bahrain-says-it-will-not-participate-in-irans-proposed-hormuz-meeting",
+     "title": "Bahrain says it will not participate in Iran's proposed Hormuz meeting",
+     "publisher": "Al Jazeera",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.jpost.com/middle-east/iran-news/article-908421",
+     "title": "No signed Hormuz deal expected yet from Oman, Gulf States meeting on Monday, Iranian official says",
+     "publisher": "The Jerusalem Post",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.omanobserver.om/article/1195967/world/region/iran-gulf-ministers-to-meet-in-salalah-for-hormuz-deal-reports",
+     "title": "Iran, Gulf Ministers to meet in Salalah for Hormuz deal: Reports",
+     "publisher": "Oman Observer",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://gulfnews.com/world/mena/middle-east-conflict-saudi-arabia-shuts-pipeline-after-attacks-as-houthis-seize-yemens-red-sea-coast-iran-to-discuss-hormuz-1.500671807",
+     "title": "Live updates: 'ZERO ships got through Hormuz without US nod': US",
+     "publisher": "Gulf News",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.arabnews.com/world/brics-nations-call-for-maximum-restraint-in-middle-east-3001461",
+     "title": "BRICS nations call for 'maximum restraint' in Middle East",
+     "publisher": "Arab News (AFP)",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.jpost.com/middle-east/iran-news/2026-09-13/live-updates-908436",
+     "title": "Live Updates: Latest from Israel, Iran, and the Middle East",
+     "publisher": "The Jerusalem Post",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    }
+   ],
+   "media": {
+    "inputUrl": "https://raw.githubusercontent.com/lions-admin/lions-of-zion/chatgpt-editorial-updates/editorial-updates/media/iran-us-hormuz.jpg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Strait_of_Hormuz_(MODIS_2020-12-04).jpg",
+    "alt": "Satellite image of the Strait of Hormuz: Iran's coast and Qeshm island at the top, the Musandam peninsula of Oman and the UAE at the bottom, the Persian Gulf to the left and the Gulf of Oman to the right.",
+    "caption": "The Strait of Hormuz between Iran (top) and the Musandam peninsula (bottom), seen by NASA's Aqua/MODIS instrument on December 2, 2020.",
+    "credit": "Image: MODIS Land Rapid Response Team, NASA GSFC, public domain",
+    "disclosure": null,
+    "role": "documentation",
+    "focalPoint": {
+     "x": 58,
+     "y": 42
+    },
+    "sensitivity": "safe",
+    "rights": {
+     "status": "cleared",
+     "basis": "Public domain (NASA)",
+     "reference": "https://commons.wikimedia.org/wiki/File:Strait_of_Hormuz_(MODIS_2020-12-04).jpg — Public domain (NASA) (https://www.nasa.gov/nasa-brand-center/images-and-media/); author: MODIS Land Rapid Response Team, NASA Goddard Space Flight Center; retrieved 2026-09-13 for run claude-whole-site-2026-09-13-r1",
+     "clearedAt": "2026-09-13",
+     "surfaces": [
+      "article",
+      "homepage"
+     ]
+    },
+    "generated": false
+   }
+  },
+  {
+   "key": "iran-network-iraq-launchers-sept13",
+   "target": {
+    "canonicalStoryId": "iran-aligned-network-evidence-assessment-2026"
+   },
+   "publication": {
+    "changeSummary": "Adds the Iraqi findings and actions of September 11–13 (launchers in al-Tib, Maysan; commander and police chief dismissed; Shalamcheh, al-Shib and Mandali closed; joint probe with Iran), the Saudi Energy Ministry shutdown statement and timing, Trump's \"probably\" remark, the Islamic Resistance in Iraq denial, and the oil-price effect. Attribution stays unresolved.",
+    "title": "Iraq finds the launchers, sacks a commander and shuts three Iran crossings; who ordered the Saudi pipeline strike is still unproven",
+    "summary": "Iraq says drone launchers used against Saudi Arabia's East-West pipeline were found in Maysan near the Iranian border. It dismissed the province's commander, closed three crossings with Iran and accepted an Iranian request for a joint investigation. Trump says Iran was \"probably\" behind it. No group has claimed the attack; the Islamic Resistance in Iraq denies it.",
+    "body": "Saudi Arabia's East-West crude oil pipeline was attacked by drones on the morning of Thursday, September 10, 2026, and shut down the next day; Iraq has since confirmed that the drones were launched from its territory and has begun to act on that finding. What is not established, as of September 13, 2026, is which organization ordered the attack and whether Iran directed it. This record separates the two.\n\nWhat the Saudi government said. On September 11 the Saudi Foreign Ministry said several drones launched from Iraq targeted the East-West pipeline in the Riyadh and Madinah regions, causing injuries and damage, and that the Kingdom had chosen not to respond at this stage after Iraq's prime minister asked for the opportunity to prevent further attacks from Iraqi territory, while reserving \"the right to take all necessary measures to protect its sovereignty, security and critical facilities.\" The Saudi Energy Ministry said, in a statement carried by Gulf News and NBC News: \"The East-West Pipeline in the Riyadh and Madinah regions was subjected to several attacks on Thursday morning. The pipeline was shut down as a precautionary measure, and the attacks resulted in several injuries.\" No deaths have been reported. Independent remote-sensing material — a Copernicus Sentinel-3 image of the smoke plume and NASA FIRMS thermal detections cited in public reporting — corroborates fires at the pump stations; it says nothing about who launched the drones. CNBC estimated the pipeline had been moving four to five million barrels a day to Yanbu on the Red Sea, and reported that crude closed the week above 100 dollars a barrel for the first time in months. The pipeline matters because it is the route Saudi exporters have used to avoid the restricted Strait of Hormuz.\n\nWhat Iraq found and did. Iraq's Security Media Cell, in a statement carried by the state Iraqi News Agency on September 12 and reported by Arab News, said a security and intelligence task force had tracked down and seized the launch equipment; Arab News, citing security sources, located the launchers in the remote al-Tib area of Maysan province near the al-Shib crossing with Iran. Prime Minister Ali al-Zaidi's office announced on September 11–12 the dismissal of the Maysan operations commander; Asharq Al-Awsat reported that the provincial police chief was also removed and a group of security commanders placed under investigation. On September 12 the prime minister ordered three crossings with Iran closed, Shalamcheh in Basra, al-Shib in Maysan and Mandali in Diyala, which officials described as \"part of an intelligence effort to track down the perpetrators and prevent their escape\" and to hinder drone smuggling, according to The New Arab and Al Jazeera. The same day, the prime minister's military spokesman, Sabah al-Numan, said al-Zaidi had approved \"Iran's request to conduct a joint investigation\" into the launch platforms near the border, per The New Arab; al-Numan also stated Iraq's rejection of any aggression that threatens Saudi security. On September 13, Al Jazeera reported that Iraq had seized a drone-launching platform used in the attack; that report was seen in search results only.\n\nWho is blamed, and by whom. President Trump, asked in Dublin on September 12, said of Iran, \"I think they are, probably they are,\" without offering evidence, per CNN and The Times of Israel. The Islamic Resistance in Iraq, the umbrella name used by Iran-aligned Iraqi militias, denied involvement in a statement quoted by The New Arab, calling the strike \"an honour that we do not claim.\" No group has claimed responsibility. Analysts quoted by CNBC and others note that Iran-aligned Iraqi groups have carried out similar drone attacks in the past; that is a pattern, not proof for this incident. This desk has seen no Iranian government statement accepting or denying responsibility.\n\nWhat this establishes for the network assessment. Iraq's own findings now place the launch site in Maysan near the Iranian border, which is consistent with a launch by an Iraqi armed group and also consistent with cross-border movement of equipment; the joint Iraqi–Iranian investigation, requested by Tehran, will be run partly by the state most often accused. Launch geography is evidence about where, not about who ordered. Iran's relationships with Hezbollah, Hamas, the Houthis and Iraqi armed groups remain well documented through sanctions records, UN Panel of Experts reporting and intelligence assessments, and the IRGC-Quds Force has been the central instrument of many of them. An established support network is still not a shortcut around incident-level attribution, and evidence of shared alignment does not establish a single operational headquarters or an Iranian order for this strike.\n\nAdjacent developments the reader should hold alongside this: the Houthis completed a hold on Yemen's Red Sea coast at the Bab al-Mandeb on September 11–12 and struck Saudi Arabia's Jazan region on September 12; a vessel was hit by an unidentified projectile in the Strait of Hormuz overnight September 12–13; and the BRICS summit, with Iran present, called on September 12 for \"maximum restraint.\" Each is recorded in its own canonical story.\n\nWhat changed since September 12: Iraq moved from \"investigating\" to naming a launch area, sacking commanders, closing crossings and accepting a joint probe with Iran; the US president assigned probable responsibility to Iran without evidence; and the main Iraqi militia umbrella denied the attack.\n\nStill open / watch next: the findings of the Iraqi and joint investigations; arrests or charges naming a group; forensic evidence on the drones; any Saudi decision to respond; when the pipeline restarts; and whether any Iranian official comments.\n\nLast checked: September 13, 2026."
+   },
+   "sources": [
+    {
+     "url": "https://www.newarab.com/news/iraq-closes-three-iran-crossings-after-drone-launch",
+     "title": "Iraq closes three Iran crossings after drone launch",
+     "publisher": "The New Arab",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.arabnews.com/middle-east/iraq-finds-drone-launchers-near-iran-border-security-sources-3001417",
+     "title": "Iraq finds drone launchers near Iran border: security sources",
+     "publisher": "Arab News",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://english.aawsat.com/arab-world/5317496-iraq-closes-three-iran-crossings-pursues-those-behind-attacks-saudi-arabia",
+     "title": "Iraq Closes Three Iran Crossings, Pursues Those Behind Attacks on Saudi Arabia",
+     "publisher": "Asharq Al-Awsat",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://english.aawsat.com/arab-world/5317359-iraqi-army-commander-sacked-after-drone-attacks-targeted-saudi-arabia",
+     "title": "Iraqi Army Commander Sacked After Drone Attacks Targeted Saudi Arabia",
+     "publisher": "Asharq Al-Awsat",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.aljazeera.com/news/2026/9/12/iraq-probes-drone-strikes-on-saudi-arabia-shuts-three-crossings-to-iran",
+     "title": "Iraq probes drone strikes on Saudi Arabia, shuts three crossings to Iran",
+     "publisher": "Al Jazeera",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.aljazeera.com/news/2026/9/13/iraq-seizes-drone-launching-platform-used-for-targeting-saudi-oil-pipeline",
+     "title": "Iraq seizes drone-launching platform used for targeting Saudi oil pipeline",
+     "publisher": "Al Jazeera",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.cnbc.com/2026/09/11/saudi-arabia-shut-down-east-west-crude-oil-pipeline.html",
+     "title": "Saudi Arabia shut down East-West crude oil pipeline after multiple attacks by drones from Iraq",
+     "publisher": "CNBC",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.nbcnews.com/world/middle-east/houthis-control-bab-el-mandeb-yemen-red-sea-saudi-iran-war-oil-rcna597186",
+     "title": "Strikes shut down key Saudi pipeline as Iran-backed Houthis tighten grip on crucial shipping lane",
+     "publisher": "NBC News",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://gulfnews.com/world/mena/middle-east-conflict-saudi-arabia-shuts-pipeline-after-attacks-as-houthis-seize-yemens-red-sea-coast-iran-to-discuss-hormuz-1.500671807",
+     "title": "Live updates: Saudi Arabia shuts pipeline after attacks",
+     "publisher": "Gulf News",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.cnn.com/2026/09/12/middleeast/trump-iran-saudi-pipeline-intl",
+     "title": "Trump says Iran likely responsible for attack that shut vital Saudi oil pipeline",
+     "publisher": "CNN",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.timesofisrael.com/trump-iran-likely-behind-attack-on-saudi-pipeline-houthis-told-us-they-dont-want-to-fight/",
+     "title": "Trump: Iran likely behind attack on Saudi pipeline, Houthis told us they don't want to fight",
+     "publisher": "The Times of Israel",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.timesofisrael.com/liveblog-september-12-2026/",
+     "title": "Sept. 12 liveblog",
+     "publisher": "The Times of Israel",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.aljazeera.com/news/2026/9/11/saudi-arabia-says-east-west-pipeline-hit-by-drones-launched-from-iraq",
+     "title": "Saudi Arabia says East-West pipeline hit by drones launched from Iraq",
+     "publisher": "Al Jazeera",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.pbs.org/newshour/world/attack-on-key-saudi-pipeline-is-blamed-on-iran-backed-militias-in-iraq",
+     "title": "Attack that closed key Saudi pipeline is blamed on Iran-backed militias in Iraq",
+     "publisher": "PBS NewsHour (Associated Press: Frankel, Abdul-Zahra, Anna)",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.whec.com/ap-top-news/iraq-says-saudi-pipeline-attack-originated-from-its-territory-and-other-mideast-news/",
+     "title": "Iraq says Saudi pipeline attack originated from its territory, and other Mideast news",
+     "publisher": "Associated Press via WHEC",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.newarab.com/news/iraq-agrees-joint-probe-iran-drone-launch-sites",
+     "title": "Iraq agrees to joint probe with Iran into drone launch sites",
+     "publisher": "The New Arab",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.tehrantimes.com/news/529950/Iraqi-Resistance-rejects-Saudi-pipeline-accusation-as-an-honor",
+     "title": "Iraqi Resistance rejects Saudi pipeline accusation as 'an honor we do not claim' (Iranian state-aligned outlet; used for the denial's wording only)",
+     "publisher": "Tehran Times",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.jpost.com/middle-east/article-908422",
+     "title": "Saudi pipeline strike reveals reach of Iran's Iraqi proxies (analysis)",
+     "publisher": "The Jerusalem Post",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.euronews.com/2026/09/12/drones-from-iraq-attack-and-set-pipeline-on-fire-in-saudi-arabia",
+     "title": "Drones from Iraq attack and set pipeline on fire in Saudi Arabia",
+     "publisher": "Euronews",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://en.wikipedia.org/wiki/2026_East%E2%80%93West_Crude_Oil_Pipeline_attack",
+     "title": "2026 East–West Crude Oil Pipeline attack (used only to locate the Sentinel-3/FIRMS citations; not a source of fact)",
+     "publisher": "Wikipedia",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    }
+   ],
+   "media": {
+    "inputUrl": "https://raw.githubusercontent.com/lions-admin/lions-of-zion/chatgpt-editorial-updates/editorial-updates/media/iran-aligned-network-yanbu.jpg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Fm_nasa_yanbu_saudi_arabia.jpg",
+    "alt": "Astronaut photograph of Yanbu on Saudi Arabia's Red Sea coast, showing the city grid, port and industrial terminal against desert and reef-fringed sea.",
+    "caption": "Yanbu, Saudi Arabia, the Red Sea terminal of the East–West (Petroline) crude pipeline, photographed from the International Space Station on July 13, 2002.",
+    "credit": "Image courtesy of the Earth Sciences and Image Analysis Laboratory, NASA Johnson Space Center, public domain",
+    "disclosure": null,
+    "role": "documentation",
+    "focalPoint": {
+     "x": 50,
+     "y": 50
+    },
+    "sensitivity": "safe",
+    "rights": {
+     "status": "cleared",
+     "basis": "Public domain (NASA)",
+     "reference": "https://commons.wikimedia.org/wiki/File:Fm_nasa_yanbu_saudi_arabia.jpg — Public domain (NASA) (https://www.nasa.gov/nasa-brand-center/images-and-media/); author: NASA / International Space Station crew; Earth Sciences and Image Analysis Laboratory, NASA Johnson Space Center; retrieved 2026-09-13 for run claude-whole-site-2026-09-13-r1",
+     "clearedAt": "2026-09-13",
+     "surfaces": [
+      "article",
+      "homepage"
+     ]
+    },
+    "generated": false
+   }
+  },
+  {
+   "key": "lebanon-ali-al-taher-sept13",
+   "target": {
+    "canonicalStoryId": "lebanon-ali-al-taher-ridge-2026-09"
+   },
+   "publication": {
+    "changeSummary": "Adds the September 11 demolition (1,100 tonnes, 4.1-magnitude tremor, IDF weapons inventory), the September 12 strikes and shelling (al-Mansouri, Douha, Kfar Rumman, Arnoun, Wadi al-Salouqi), Aoun's exact position and four priorities, the ambassadors' State Department meeting, Al Jazeera's two-week toll, and the September 13 strikes near Nabatieh al-Fawqa and Tel al-Dabsha with no IDF comment.",
+    "title": "After the Ali al-Taher demolition: Aoun rules out new talks for now, strikes continue around Nabatieh, and the next round slips to October",
+    "summary": "Israel detonated the Ali al-Taher tunnel complex on September 11, 2026. On September 12 President Aoun went to Nabatieh and Zawtar al-Gharbiya and said there would be \"no new negotiations with Israel at the moment\"; a US official said the Rome round moves to October. Israeli strikes near Nabatieh al-Fawqa and Tel al-Dabsha followed on September 13. The IDF's account of the ridge remains its own.",
+    "body": "The Ali al-Taher ridge, above Nabatieh in south Lebanon, is where the military and diplomatic tracks of the Israel–Lebanon front met this week. Israel says it has finished destroying a Hezbollah underground complex there; Lebanon's president went south the next day and said there would be no new negotiations for now; and Israeli strikes around Nabatieh continued into September 13, 2026. This record carries the whole sequence for a reader arriving now.\n\nBackground. A June 2026 framework, mediated by the United States, set out a process under which the Lebanese army would disarm Hezbollah in designated pilot zones while Israel withdrew from positions it holds in the south; Hezbollah has rejected direct talks with Israel, per Al Jazeera. Since late August the IDF has operated on and under Ali al-Taher. On September 3 it said troops had cleared two Hezbollah tunnel routes beneath the ridge and taken operational control above and below ground; on September 11 it said it had completed dismantling more than two kilometers of underground infrastructure, including what it described as a Badr Unit command complex, weapons storage and living quarters. Hezbollah launched explosive drones at IDF troops in the security zone on September 2, 4 and 5, according to the IDF Spokesperson's weekly Briefing Room, and the IDF answered with strikes it said hit weapons stores and command sites; Lebanon's health ministry reported three killed and 23 wounded in strikes on September 5. All of those IDF findings remain the military's own account; this desk has not surveyed the site.\n\nSeptember 11: the demolition. The IDF detonated the complex with about 1,100 tonnes of explosives, according to UPI and Al Jazeera, producing a tremor measured at magnitude 4.1 and felt across the surrounding area. In a Telegram statement quoted by UPI, the IDF said it found inside \"dozens of Iranian-made rockets, missiles, and UAVs, as well as machine guns, dozens of anti-tank missiles, and hundreds of mines and explosive devices.\" Hezbollah has not commented on the demolition itself; in a statement on earlier strikes it accused Israel of escalating \"aggression and crimes against Lebanon through killing, shelling, destruction, and the systematic demolition of homes and villages.\"\n\nSeptember 12: Aoun goes south; talks slip. President Joseph Aoun made an unannounced visit to Nabatieh, where he toured the government hospital, and then to Zawtar al-Gharbiya, one of the agreed withdrawal zones, where he inspected Lebanese army units within sight of Israeli positions, according to The Times of Israel and Asharq Al-Awsat. He said \"there will be no new negotiations with Israel at the moment,\" and listed four national priorities: Israeli withdrawal, the return of prisoners, the return of the displaced, and reconstruction, pledging to \"achieve an Israeli withdrawal and rebuild the area.\" The same day an unnamed US official said the next negotiating round, scheduled for this month in Rome, \"will not be happening until October\"; Al Jazeera reported the reasons given as the Jewish holidays, a Paris conference and UN General Assembly preparations. Instead, the Lebanese and Israeli ambassadors are to meet at the US State Department in the week of September 14 to discuss implementation of the June framework, per Al Jazeera and The Times of Israel. Also on September 12, heavy explosions were reported at al-Mansouri and heard in Tyre, and Israeli artillery shelled Douha, the outskirts of Kfar Rumman, Arnoun and Wadi al-Salouqi, according to Al Jazeera; The Jerusalem Post reported that the IDF announced strikes in southern Lebanon that day and that the Home Front Command warned residents of northern Israel to expect explosions and aircraft activity. Al Jazeera put the toll in the Nabatieh area over the previous two weeks at at least 29 killed, including 12 members of one family in an air raid on Kfar Rumman; that figure is Al Jazeera's compilation from Lebanese sources and has not been reconciled by this desk.\n\nSeptember 13: strikes near Nabatieh continue. Lebanon's National News Agency reported Israeli airstrikes near Nabatieh al-Fawqa and Tel al-Dabsha, with the area near al-Dabsha hill hit twice in under thirty minutes, and artillery fire around Zawtar al-Sharqiyah, according to The Times of Israel and Haaretz live pages, the latter also citing the Hezbollah-affiliated Al Mayadeen. No casualties were immediately reported and the IDF had not commented by the time of this update.\n\nAssessment, ours. The demolition ends the tunnel phase of the ridge operation as Israel has defined it, but the political consequence is the sharper development: the Lebanese president has said publicly that negotiations are paused, the formal round has moved a month, and the only live diplomatic channel is an ambassador-level implementation meeting in Washington. Continued Israeli fire around Nabatieh while Aoun stands in Zawtar al-Gharbiya, a pilot withdrawal zone, is the tension the framework has to survive. Nothing in the September 12–13 record independently verifies the IDF's description of what was under the ridge.\n\nWhat changed since September 12: the demolition and its inventory claim are on the record; Aoun's \"no new negotiations at the moment\" is his exact position; the Rome round is confirmed as October; the September 12 shelling and September 13 strikes near Nabatieh al-Fawqa and Tel al-Dabsha have been added; the two-week toll figure is recorded with its source.\n\nStill open / watch next: a dated October round; the outcome of the ambassadors' State Department meeting; any IDF statement on the September 13 strikes; whether Hezbollah resumes drone attacks on troops in the security zone; independently documented site evidence at Ali al-Taher; a reconciled casualty register for Nabatieh district.\n\nLast checked: September 13, 2026."
+   },
+   "sources": [
+    {
+     "url": "https://www.timesofisrael.com/liveblog-september-12-2026/",
+     "title": "Sept. 12: Lebanon's Aoun vows to secure Israeli withdrawal during surprise visit to country's south",
+     "publisher": "The Times of Israel",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.timesofisrael.com/liveblog-september-13-2026/",
+     "title": "Sept. 13 liveblog",
+     "publisher": "The Times of Israel",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://english.aawsat.com/arab-world/5317386-aoun-nabatieh-no-new-negotiations-israel-present",
+     "title": "Aoun from Nabatieh: No New Negotiations with Israel at Present",
+     "publisher": "Asharq Al-Awsat",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.aljazeera.com/news/2026/9/12/israel-lebanon-talks-postponed-as-explosions-rock-southern-lebanon",
+     "title": "Israel-Lebanon talks postponed as explosions rock southern Lebanon",
+     "publisher": "Al Jazeera",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://ca.news.yahoo.com/israel-lebanon-talks-postponed-explosions-110434542.html",
+     "title": "Israel-Lebanon talks postponed as explosions rock southern Lebanon (Al Jazeera syndication)",
+     "publisher": "Yahoo News Canada / Al Jazeera",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.upi.com/Top_News/World-News/2026/09/11/lebanon-hezbollah/8431789169026",
+     "title": "Israel strikes Hezbollah base in Lebanon, causing 4.1-magnitude tremor",
+     "publisher": "UPI",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.haaretz.com/israel-news/israel-security/2026-09-13/ty-article-live/saudi-arabia-says-houthi-attack-wounds-two-damages-mosque/000001a0-9785-dfa9-ada3-dfc708db0004",
+     "title": "Live Updates, September 13, 2026",
+     "publisher": "Haaretz",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://idfspokesperson.substack.com/p/the-briefing-room-week-of-september",
+     "title": "The Briefing Room (Week of September 6th)",
+     "publisher": "IDF Spokesperson's Unit (Substack)",
+     "official": true,
+     "publishedAt": "2026-09-06T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.timesofisrael.com/3-said-killed-in-idf-strikes-in-lebanon-after-hezbollah-drone-attack-on-troops/",
+     "title": "3 said killed in IDF strikes in Lebanon after Hezbollah drone attack on troops",
+     "publisher": "The Times of Israel",
+     "official": false,
+     "publishedAt": "2026-09-05T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.jpost.com/middle-east/article-908449",
+     "title": "Two killed in Gaza City strike, IDF says it targeted car with Hamas terrorists (includes Sept. 12 Lebanon strike note)",
+     "publisher": "The Jerusalem Post",
+     "official": false,
+     "publishedAt": "2026-09-13T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.trtworld.com/article/42fcfc86d923",
+     "title": "No new Israel talks until withdrawal from Lebanon: Aoun",
+     "publisher": "TRT World",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    }
+   ],
+   "media": {
+    "inputUrl": "https://raw.githubusercontent.com/lions-admin/lions-of-zion/chatgpt-editorial-updates/editorial-updates/media/lebanon-ali-al-taher-beaufort.jpg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:IDF_in_Beaufort_Castle_Lebanon_31.05.2026_4.png",
+    "alt": "Israeli soldiers in helmets and body armour walk through dry grass toward the ruined stone walls of Beaufort Castle in southern Lebanon, May 31, 2026.",
+    "caption": "IDF troops at Beaufort Castle (Qal'at al-Shaqif) above the Litani near Arnoun, Nabatieh district, May 31, 2026. The Ali al-Taher ridge lies on the same escarpment. Photo released by the IDF Spokesperson's Unit.",
+    "credit": "Photo: Alfi Ben Yaakov / Bamahane, IDF Spokesperson's Unit, via Wikimedia Commons, CC BY-SA 3.0",
+    "disclosure": null,
+    "role": "documentation",
+    "focalPoint": {
+     "x": 60,
+     "y": 50
+    },
+    "sensitivity": "safe",
+    "rights": {
+     "status": "cleared",
+     "basis": "CC BY-SA 3.0",
+     "reference": "https://commons.wikimedia.org/wiki/File:IDF_in_Beaufort_Castle_Lebanon_31.05.2026_4.png — CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0); author: Alfi Ben Yaakov / Bamahane (IDF Spokesperson's Unit); Commons VRT permission ticket 2026062110002096; source https://www.idf.il/342195; retrieved 2026-09-13 for run claude-whole-site-2026-09-13-r1",
+     "clearedAt": "2026-09-13",
+     "surfaces": [
+      "article",
+      "homepage"
+     ]
+    },
+    "generated": false
+   }
+  },
+  {
+   "key": "anthropic-iran-influence-enrich",
+   "target": {
+    "canonicalStoryId": "anthropic-iran-influence-operations-september-2026"
+   },
+   "publication": {
+    "changeSummary": "Rewritten from the primary report page and PDF plus Iran International, RFE/RL, Al-Monitor, gCaptain and Navy Times. Adds the report's title, period and URL; the six languages and the platforms; the IRGC-spokesperson and CSIS/Brookings/RAND fabrications; the Khamenei-funeral planning detail; the Navy-targeting and diaspora-profiling cases; the Breakout Scale rating; and the absence of any Iranian response or independent replication as of September 13.",
+    "title": "Anthropic reports Iranian propaganda operations using AI to conceal state origins",
+    "summary": "Anthropic's \"Detecting and countering misuse of AI: September 2026\" names three Iranian state-aligned propaganda bodies that used Claude to plan \"soft war\" campaigns in six languages, voice an IRGC spokesperson and attribute false claims to CSIS, Brookings and RAND; separate Iran-linked accounts built U.S. Navy targeting handbooks and profiled Israelis and diaspora Jews. Anthropic is the only source; no Iranian rebuttal has appeared.",
+    "body": "What the report is. On September 10–11, 2026, Anthropic published \"Detecting and countering misuse of AI: September 2026\", a threat-intelligence report covering activity it disrupted between December 2025 and August 2026 across seven harm areas: cyber operations, influence operations, surveillance, scams and fraud, biological misuse, conventional-weapons development and illicit model distillation. The report and its PDF are the primary sources for everything below; Lions of Zion has not examined the underlying account data, and the descriptions are Anthropic's.\n\nThe three Iranian propaganda accounts. Anthropic says it identified and removed three accounts linked to Iranian state propaganda institutions: the Islamic Culture and Communications Organization, which sits under the Ministry of Culture and Islamic Guidance; the Islamic Propaganda Office of Khorasan Razavi; and the Islamic Propaganda Organization's Bina Cultural Observatory. According to the report, operators described their work as \"soft war\" or \"cognitive warfare\" aimed at audiences inside and outside Iran, and used Claude to build campaign plans, doctrine manuals, persona systems, target databases and ministerial planning documentation, and to convert official government intelligence bulletins into tailored material in Farsi, Arabic, Urdu, Malay, Spanish and English, with a broader plan covering 20 languages. Distribution, per Anthropic, ran across X, Instagram, Telegram, TikTok and YouTube and the domestic Iranian apps Eitaa, Bale and Rubika. Two specifics matter for readers of this desk. An account tied to the Bina Cultural Observatory generated messaging \"in the official voice of an IRGC spokesperson\". And during the 2026 U.S.–Israel–Iran war the network attributed fabricated claims to Western research institutions, naming CSIS, Brookings and RAND, so that state messaging would read as independent analysis. The report also describes target databases naming international officials and Iranian opposition figures, and counter-narrative content aimed at the Bahá'í community. RFE/RL reports that the Islamic Culture and Communications Organization account was also used to \"complete organizational plans\" for the July 2026 state funeral of Supreme Leader Ali Khamenei. Anthropic rated the operation at category three on its Breakout Scale, meaning the content spread across multiple platforms, and says it banned the accounts and shared indicators with industry and research partners. Attribution, the company says, relied on account information, institutional references and public-source corroboration rather than shared opinions alone.\n\nOther Iran-linked cases in the same report. A separate Iran-nexus actor used Claude to compile \"targeting handbooks\" against U.S. naval forces: a Python-based system gathered names of U.S. personnel from captions on public military photographs, ship and aircraft transponder identifiers, commercial satellite-imagery query scripts and naval-tracking websites, and researched vulnerabilities in shipboard systems including VSAT terminals and industrial control products. Anthropic says it banned that account, built detections and shared the intelligence with government authorities. Another account built an automated open-source intelligence tool profiling hundreds of individuals in Israel and Jewish diaspora communities, and used Claude to modify malware and build an obfuscation pipeline. The surveillance cases include components combining licence-plate recognition with mobile interception, a malicious Firefox extension harvesting social-media identities, and phishing pages built to activate only from Iranian IP addresses. The report is not one-directional: RFE/RL notes it also documents an exiled opposition (MEK-linked) operation that scraped more than 500 channels to profile people inside Iran. Reporting by Al-Monitor and Iran International summarises the same cases; those pieces rely on the report and are not independent corroboration.\n\nWhat this does and does not establish. These are one company's findings about its own platform. Removing accounts stops access to one service; it does not show that the named institutions stopped operating, that their content reached many people, or that audiences were persuaded. Anthropic reports \"some dissemination beyond Claude\" and a multi-platform breakout rating, not audience figures. Independently, Recorded Future's research on Iran's 2026 conflict operations describes AI as a force multiplier for speed, visual quality and cultural fit of propaganda, naming networks such as Storm-2035 and \"Attack Alarm\"; that corroborates the pattern, not these specific accounts. Meta's adversarial-threat reporting for 2026 continues to list Iran among the three leading sources of foreign influence operations.\n\nResponses. Al-Monitor asked Iran's Foreign Ministry for comment on September 11; none was reported. As of September 13, 2026, this desk found no Iranian state-media rebuttal, no statement from any of the three institutions, and no companion takedown announced by another AI company or platform. Context that shapes how the report is received: the Pentagon severed ties with Anthropic in March 2026 after a dispute over usage terms, which Navy Times notes in its coverage.\n\nThe practical lesson. The distinctive technique here is attribution laundering: state messaging voiced as a spokesperson, then re-voiced as a think tank. Similar language across outlets cannot by itself identify a controller. Trace the first attributable source; when a post cites CSIS, Brookings or RAND, open the institution's own site and find the report; check whether apparently separate outlets cite each other; and look for an authenticated organisational link before calling a campaign coordinated.\n\nStill open / watch next: any independent replication by platform trust-and-safety teams or researchers; responses from the named institutions; whether the fabricated think-tank attributions can be located in the wild and dated; and follow-on reporting on the Navy-targeting actor from U.S. authorities.\n\nLast checked: September 13, 2026."
+   },
+   "sources": [
+    {
+     "url": "https://www.anthropic.com/threat-intelligence-report-september-2026",
+     "title": "Detecting and countering misuse of AI: September 2026",
+     "publisher": "Anthropic",
+     "official": true,
+     "publishedAt": "2026-09-10T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www-cdn.anthropic.com/e50be2e51e7695dc4b1366a37a245a597377d3b5/Anthropic-Detecting-and-countering-091026.pdf",
+     "title": "Detecting and countering misuse of AI: September 2026 (full report PDF)",
+     "publisher": "Anthropic",
+     "official": true,
+     "publishedAt": "2026-09-10T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.iranintl.com/en/202609105561",
+     "title": "Iran state-aligned accounts used Claude to push IRGC narratives, Anthropic says",
+     "publisher": "Iran International",
+     "official": false,
+     "publishedAt": "2026-09-10T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.iranintl.com/en/202609115263",
+     "title": "Anthropic says Iran-linked accounts used Claude for propaganda, US naval targeting",
+     "publisher": "Iran International",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.rferl.org/a/anthropic-claude-iran-propaganda/33852428.html",
+     "title": "Anthropic Disrupts Iran's Use Of Claude To Spread Propaganda, Spy On Dissidents",
+     "publisher": "RFE/RL (Frud Bezhan)",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.al-monitor.com/originals/2026/09/claude-ai-used-missile-influence-projects-uae-iran-yemen-anthropic",
+     "title": "Claude AI used for missile, influence projects in UAE, Iran, Yemen: Anthropic",
+     "publisher": "Al-Monitor",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://gcaptain.com/anthropic-says-iran-linked-actor-used-claude-to-compile-u-s-navy-targeting-data/",
+     "title": "Anthropic Says Iran-Linked Actor Used Claude to Compile U.S. Navy Targeting Data",
+     "publisher": "gCaptain",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.navytimes.com/news/your-navy/2026/09/11/iran-used-claude-to-target-us-navy-in-middle-east-anthropic-says/",
+     "title": "Iran used Claude to target US Navy in Middle East, Anthropic says",
+     "publisher": "Navy Times",
+     "official": false,
+     "publishedAt": "2026-09-11T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.axios.com/2026/09/12/anthropic-ai-threat-report-russia-iran-china",
+     "title": "Anthropic report: 5 ways Claude was exploited for war, spying and repression",
+     "publisher": "Axios",
+     "official": false,
+     "publishedAt": "2026-09-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.recordedfuture.com/research/iran-ai-asymmetric-playbook",
+     "title": "AI Has Enhanced Iran's Asymmetric Playbook During the 2026 Conflict",
+     "publisher": "Recorded Future (Insikt Group)",
+     "official": false,
+     "language": "en"
+    },
+    {
+     "url": "https://transparency.meta.com/sr/H2-2026-adversarial-threat-report",
+     "title": "Adversarial Threat Report, second half 2026",
+     "publisher": "Meta",
+     "official": true,
+     "language": "en"
+    }
+   ]
+  },
+  {
+   "key": "recycled-footage-pattern-sept13",
+   "target": {
+    "publicId": "reported-claim-video-game-clips-and-an-ai-genera-65hiy"
+   },
+   "publication": {
+    "changeSummary": "Adds a dated, sourced case list (March–September 2026) the record previously lacked, a September 2026 example flagged as vendor-detected rather than fact-checker-verified, and a reader checklist; keeps the ARMA 3 / War Thunder and 93-percent-AI findings.",
+    "summary": "Video-game clips, AI-generated video and recycled footage from earlier wars keep circulating as real strike footage in the 2026 conflict. This record now carries a dated case list from Full Fact, PolitiFact, Poynter, Lead Stories, AFP and Fact Crescendo, plus a September 2026 detection of a recycled AI clip presented as an Iranian strike on Khamis Mushait.",
+    "body": "A recurring pattern of fabricated and recycled war footage has circulated on social media throughout the 2026 conflict between Israel, the United States and Iran and its allied fronts in Lebanon, Yemen and the Gulf. It is worth documenting as a pattern rather than as single incidents, because the same three techniques keep reappearing, and because a charged news cycle is exactly when viewers stop checking.\n\nThe first technique is video-game footage relabelled as combat video. Clips recorded in the military simulators ARMA 3 and War Thunder have circulated on TikTok and X captioned as real strikes, to the point that the Israeli military has publicly said specific viral clips were fake. Reporting on the pattern has linked at least some of the distribution to networks associated with Russian influence operations; this desk does not assert one coordinated campaign behind all of it.\n\nThe second technique is AI-generated video and imagery. A synthetic video claiming to show an Iranian strike on Israeli military headquarters was assessed by detection researchers as roughly 93 percent likely to be AI-generated, on physical inconsistencies and a building that does not match the real one. Poynter's March 4, 2026 review found three of four clips in one viral compilation of \"Iranian bases under attack\" to be AI-made, with warped door frames and unnatural movement, and only one clip real. Lead Stories showed on March 4, 2026 that an image of the U.S. embassy in Saudi Arabia \"on fire\" carried Google's SynthID watermark. Full Fact's March 13, 2026 overview lists AI-altered images of the Burj Khalifa burning, of the USS Abraham Lincoln on fire and of a B-2 bomber \"shot down by Iran\".\n\nThe third technique is recycled footage. Full Fact and PolitiFact traced a \"THIS IS TEL AVIV. THANK YOU IRAN!\" explosion clip to the 2015 Tianjin chemical-warehouse blast; a clip of a \"US airbase in Saudi Arabia burnt to ashes\" to an earlier fire after an Israeli strike in Yemen; and \"Dubai strike\" clips to a 2015 apartment fire and 2024 missile footage. PolitiFact showed on April 20, 2026 that a video sold as a U.S. strike on an Iranian cargo ship near Hormuz was the June 2025 collision of two tankers. Fact Crescendo on April 9, 2026 traced an \"Israeli missile attack on Lebanon\" clip to older footage. AFP Fact Check has separately traced clips of \"recent Beirut strikes\" to Israel's October 2024 bombing of the city and clips of \"the 2026 war in Tel Aviv\" to the June 2025 Iranian missile barrage, identifying one by an AFP videographer's own June 22, 2025 footage.\n\nThe September 2026 example. During the September 10–13 escalation in Yemen, the Gulf and Lebanon, a clip presented on X as an Iranian missile hitting Khamis Mushait in Saudi Arabia was flagged by the detection vendor UncovAI as probably AI-generated (a 76 percent score) and, by reverse search, as having appeared online about six months earlier attached to a different story. This is a vendor detection, not a fact-checker's verdict; it is cited here because it shows the mechanism, an old synthetic clip re-captioned for a real event, rather than as a settled finding. This desk found no top-tier fact-check dated September 11–13 for the Hormuz, Yemen or Lebanon events; that absence is recorded, not read as an absence of fakes.\n\nWhat unites the three techniques is not central coordination. What can be said is that verified instances of each exist in this information environment, and that part of the game-footage distribution has been linked by researchers to Russian-associated networks.\n\nWhat a reader can do. Treat any dramatic, uncaptioned strike video with default scepticism until a named military source or a wire service confirms it. Reverse-search a frame; if the same clip sits on an older story, it is not new. Look for the tells fact-checkers list: warped edges, impossible fire behaviour, buildings that do not match maps, stylised smoke. Remember that a real event (the Saudi pipeline fires of September 10–11, for instance) attracts fake footage precisely because it is real. AI-detection tools are imperfect, and a score is a prompt to check, not a verdict.\n\nLast checked: September 13, 2026.\n\n- narrativeWatchDetails (fields to refresh; others unchanged):\n  - trendDirection: stable\n  - verificationState: refuted\n  - knownUnknowns: [\"The full scale of distribution for each clip is not quantified here.\", \"Whether game-footage distribution reflects state direction, opportunistic amplification, or both.\", \"The original uploader and first-seen date of the AI 'headquarters' video.\", \"Whether the September 2026 Khamis Mushait clip has been examined by an independent fact-checker (only a vendor detection exists).\"]"
+   },
+   "sources": [
+    {
+     "url": "https://fullfact.org/conflict/middle-east-conflict-overview/",
+     "title": "AI images, old videos and false viral claims: what to watch out for when checking posts about the Middle East on social media",
+     "publisher": "Full Fact",
+     "official": false,
+     "publishedAt": "2026-03-13T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.poynter.org/fact-checking/2026/fake-videos-strikes-iran/",
+     "title": "Old and AI-generated videos are fueling misinformation about the Iran strikes",
+     "publisher": "Poynter",
+     "official": false,
+     "publishedAt": "2026-03-04T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.politifact.com/article/2026/mar/12/identifying-fake-war-imagery-us-israel-iran/",
+     "title": "Social media feeds are awash with Iran war misinformation. Here's how to identify false imagery",
+     "publisher": "PolitiFact",
+     "official": false,
+     "publishedAt": "2026-03-12T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://politifact.com/factchecks/2026/apr/20/social-media/old-video-us-attack-iran-ship/",
+     "title": "This video shows a 2025 oil tankers collision, not a 2026 US strike on Iranian cargo ship",
+     "publisher": "PolitiFact",
+     "official": false,
+     "publishedAt": "2026-04-20T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.yahoo.com/news/articles/fact-check-fake-image-shows-032525964.html",
+     "title": "Fact Check: FAKE Image Shows U.S. Embassy In Saudi Arabia On Fire After Drone Attack — It's AI-Generated",
+     "publisher": "Lead Stories (via Yahoo)",
+     "official": false,
+     "publishedAt": "2026-03-04T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://english.factcrescendo.com/2026/04/09/old-video-shared-as-a-recent-attack-on-lebanon-by-israel/",
+     "title": "Old Video Shared As A Recent Israeli Missile Attack On Lebanon",
+     "publisher": "Fact Crescendo",
+     "official": false,
+     "publishedAt": "2026-04-09T00:00:00+03:00",
+     "language": "en"
+    },
+    {
+     "url": "https://www.yahoo.com/news/articles/posts-israel-strikes-lebanon-share-093145206.html",
+     "title": "Posts about Israel strikes on Lebanon share old clip",
+     "publisher": "AFP Fact Check (via Yahoo)",
+     "official": false,
+     "language": "en"
+    },
+    {
+     "url": "https://www.yahoo.com/news/articles/old-videos-irans-attack-israel-100853946.html",
+     "title": "Old videos from Iran's attack on Israel falsely linked to 2026 Mideast war",
+     "publisher": "AFP Fact Check (via Yahoo)",
+     "official": false,
+     "language": "en"
+    },
+    {
+     "url": "https://uncovai.com/iranian-missile-khamis-mushait-video-fact-check/",
+     "title": "Is the Iranian Missile Strike Video on Khamis Mushait Real?",
+     "publisher": "UncovAI (detection vendor)",
+     "official": false,
+     "language": "en"
+    }
+   ]
+  },
+  {
+   "key": "close-lebanon-tunnels-ak2iu",
+   "target": {
+    "publicId": "idf-clears-hezbollah-tunnels-under-ali-al-taher--ak2iu"
+   },
+   "publication": {
+    "changeSummary": "Converted to a dated pointer. Records the IDF's September 3, 2026 statement and its evidentiary status, and directs the reader to the canonical Ali al-Taher record, which now carries the September 11 demolition, the September 12 Aoun visit and the October postponement.",
+    "body": "This record preserves one dated statement. On September 3, 2026, the IDF said troops of the 36th Division had finished clearing two major Hezbollah tunnel routes beneath the Ali al-Taher ridge above Nabatieh and were continuing to neutralize a complex it described as built over two decades with Iranian funding and planning. The statement undercut a same-day Reuters report, sourced to Iranian officials, that Israel had put off storming the ridge; the IDF said the clearing had taken place over preceding weeks.\n\nWhat was established then, and now: the IDF announced completion of clearing and ongoing neutralization. No independent survey, inventory or confirmation of full neutralization has been published.\n\nThe story continues in the canonical record \"After the Ali al-Taher demolition: Aoun rules out new talks for now, strikes continue around Nabatieh, and the next round slips to October\" (canonicalStoryId lebanon-ali-al-taher-ridge-2026-09), which carries the September 11 demolition, the September 12 Aoun visit, the October postponement and the strikes of September 13, 2026."
+   }
+  },
+  {
+   "key": "close-underground-route-y2y5j",
+   "target": {
+    "publicId": "idf-reports-destruction-of-more-than-26-kilomete-y2y5j"
+   },
+   "publication": {
+    "changeSummary": "Converted to a dated pointer. Records the IDF war-diary figure of September 2, 2026 and its unverified status, flags that the IDF's September 6 Briefing Room uses the same 26-kilometer figure for tunnels east of Gaza's Yellow Line, and directs the reader to the Ali al-Taher canonical.",
+    "body": "This record preserves one figure and its source. The IDF's war diary of September 2, 2026 reported that the Northern Brigade and the Yahalom engineering unit had destroyed more than 26 kilometers of \"another underground route.\" The source is the military's own account; no independent measurement has been published.\n\nA caution: the IDF Spokesperson's Briefing Room for the week of September 6, 2026 states that troops have rendered \"more than 26 kilometers\" of tunnels inoperable east of Gaza's Yellow Line. Whether the September 2 line refers to Gaza or Lebanon is not stated, and the figures should not be added together. The IDF's September 11 statement on Ali al-Taher spoke of more than two kilometers.\n\nThe Lebanon tunnel campaign continues in \"After the Ali al-Taher demolition: Aoun rules out new talks for now, strikes continue around Nabatieh, and the next round slips to October\" (canonicalStoryId lebanon-ali-al-taher-ridge-2026-09). The Gaza figure is carried in \"Gaza after the ceasefire: what the Yellow Line is, and what the September 10–13 strikes show\" (canonicalStoryId gaza-yellow-line-operations-2026-09)."
+   }
+  },
+  {
+   "key": "close-brief-98jch",
+   "target": {
+    "publicId": "idf-clears-ali-al-taher-tunnels-as-gaza-yellow-l-98jch"
+   },
+   "publication": {
+    "changeSummary": "Converted to a dated pointer. Keeps the September 3–4, 2026 snapshot (Ali al-Taher clearing, two Yellow Line incidents, the Netanyahu and Katz warnings, the disputed Reuters report on an Iranian message) and directs readers to the two canonical records that continue each thread.",
+    "body": "This daily brief recorded September 3–4, 2026. On the Lebanon front, the IDF said the 36th Division held Ali al-Taher above and below ground, had cleared two Hezbollah tunnel routes and was neutralizing a complex it described as built with Iranian planning and funding. In Gaza, the IDF reported a morning Yellow Line crossing it called a ceasefire violation and a later incident in which it said two armed men crossed and were killed. Netanyahu and Katz warned Iran against attacking Israel. Reuters reported an Iranian warning to Washington over a full assault on the ridge; a White House official told Reuters that account was not accurate.\n\nEach thread has moved. Lebanon continues in \"After the Ali al-Taher demolition: Aoun rules out new talks for now, strikes continue around Nabatieh, and the next round slips to October\" (canonicalStoryId lebanon-ali-al-taher-ridge-2026-09). Gaza continues in \"Gaza after the ceasefire: what the Yellow Line is, and what the September 10–13 strikes show\" (canonicalStoryId gaza-yellow-line-operations-2026-09). Iran continues in canonicalStoryId iran-us-hormuz-maritime-escalation-2026."
+   }
+  },
+  {
+   "key": "close-yellow-line-mwsec",
+   "target": {
+    "publicId": "idf-reports-yellow-line-crossings-in-northern-ga-mwsec"
+   },
+   "publication": {
+    "changeSummary": "Converted to a dated pointer. Keeps the two IDF-reported incidents of September 3, 2026, adds the one-line explanation of what the Yellow Line is, and directs readers to the new Gaza canonical that explains the ceasefire posture and carries the September 10–13 strikes.",
+    "body": "This record preserves two IDF statements from September 3, 2026. In the morning, the IDF said a man crossed the Yellow Line in northern Gaza, approached troops \"in a manner that posed an immediate threat\" and was killed; it called the crossing a ceasefire violation. Later that day it said two armed men crossed the line and were killed in the same circumstances. Both accounts are the IDF's; no independent account or identification was published.\n\nThe Yellow Line is the line inside Gaza to which Israeli forces withdrew under the ceasefire that took effect on October 10, 2025; Israel controls the territory east of it and treats eastward crossings as threats. Such incidents are the most frequent cause of deaths since the ceasefire, per UN documentation cited by Gisha.\n\nThe story continues in \"Gaza after the ceasefire: what the Yellow Line is, and what the September 10–13 strikes show\" (canonicalStoryId gaza-yellow-line-operations-2026-09), which explains the arrangement, the counts on each side, and the strikes of September 10 and 13, 2026."
+   }
+  },
+  {
+   "key": "close-shelter-data-5csmr",
+   "target": {
+    "publicId": "official-shelter-data-available-as-tensions-rise-5csmr"
+   },
+   "publication": {
+    "changeSummary": "Converted to a dated pointer. Keeps the September 3, 2026 note that municipal shelter datasets exist on data.gov.il, drops nothing, and directs readers to the September 8 practical guide, which is the site's canonical treatment, and to the security records for the fronts named in the title.",
+    "body": "This record, published September 3, 2026, noted that municipal shelter datasets on Israel's open-data portal, data.gov.il, with Be'er Sheva as the worked example, give residents official shelter coordinates and codes for emergency planning, at a time of renewed strikes in the Gulf and warnings about southern Lebanon. It urged local authorities to publicise those references and fold them into community alerts.\n\nRead with it the same-day correction: a claim that the initiative had expanded nationwide was not substantiated. The datasets are municipal, uneven in coverage and currency, and must be confirmed locally.\n\nThe practical guidance continues in \"Using municipal shelter data: what the records show, and what residents must confirm\" (canonicalStoryId israel-municipal-shelter-open-data-practical-guide), published September 8, 2026. The fronts in this title are carried in canonicalStoryId lebanon-ali-al-taher-ridge-2026-09 (Lebanon) and iran-us-hormuz-maritime-escalation-2026 (the Gulf)."
+   }
+  },
+  {
+   "key": "close-mod-activities-lref0",
+   "target": {
+    "publicId": "israel-ministry-of-defense-activities-regional-r-lref0"
+   },
+   "publication": {
+    "changeSummary": "Converted to a dated pointer. Keeps what the September 1, 2026 packet contained (IMOD homepage items; Middle East Eye reports citing Lebanon's NNA on strikes, white phosphorus allegations and a child killed by a cluster munition; the reported $800 million Iraq helicopter approval) and its uncorroborated status, and directs readers to the records that continue each thread.",
+    "body": "This daily brief of September 1, 2026 recorded three unconnected items. First, the Israel Ministry of Defense website listed an \"Achilles Shield\" agreement with Greece, a memorandum with Honduras, a presidential visit to the defence R&D directorate, industry meetings and an Arrow interceptor test. Second, Middle East Eye, citing Lebanon's state National News Agency, reported heavy Israeli strikes in southern Lebanon, alleged white-phosphorus use at Zawtar al-Sharqiyah and Kafr Rumman, and the death of a child, named as Mohammad Ali Ibrahim, from an unexploded cluster munition in Haboush. Third, Middle East Eye reported US approval of an $800 million helicopter sale to Iraq.\n\nThe Lebanon allegations were not corroborated beyond the Lebanese agency and drew no Israeli statement; that is still the case. The helicopter item was a reported approval, not a completed sale.\n\nThe south Lebanon front continues in \"After the Ali al-Taher demolition: Aoun rules out new talks for now, strikes continue around Nabatieh, and the next round slips to October\" (canonicalStoryId lebanon-ali-al-taher-ridge-2026-09), which records shelling at Kfar Rumman and Zawtar al-Sharqiyah on September 12–13, 2026. The helicopter claim is assessed in the record with publicId us-accepts-military-sale-of-helicopters-to-iraq--p5zzh."
+   }
+  },
+  {
+   "key": "close-mod-announcements-m781m",
+   "target": {
+    "publicId": "israel-ministry-of-defense-recent-announcements--m781m"
+   },
+   "publication": {
+    "changeSummary": "Converted to a dated pointer. Keeps the September 1, 2026 list of ministry items and states plainly that no later record continues it; points to the Lebanon canonical for the operational context and flags that a ministry-announcements thread would need its own record if the site wants one.",
+    "body": "This record, published September 1, 2026, preserved a list of items then on the Israel Ministry of Defense website: meetings between the director general and defence-technology executives, the \"Achilles Shield\" agreement with Greece, a memorandum of understanding with Honduras, a presidential visit to the Directorate of Defense Research and Development, and a successful Arrow launch test. The list came from the ministry's own homepage and carried no statement on the Lebanon incidents or the reported Iraq helicopter sale of the same day.\n\nNo later record on this site continues the ministry's announcements as a thread. The operational context, the south Lebanon front, continues in \"After the Ali al-Taher demolition: Aoun rules out new talks for now, strikes continue around Nabatieh, and the next round slips to October\" (canonicalStoryId lebanon-ali-al-taher-ridge-2026-09). A standing record of Israeli defence-industrial announcements would be a new canonical, not an extension of this stub."
+   }
+  },
+  {
+   "key": "close-brief-sept6-kc8en",
+   "target": {
+    "publicId": "israel-and-regional-security-briefing-6-septembe-kc8en"
+   },
+   "publication": {
+    "changeSummary": "Converted to a dated pointer. Keeps the September 6, 2026 situation summary (Lebanon exchanges, US–Iran maritime escalation, alleged Iran-aligned coordination, Bab al-Mandeb fighting, the Qabatiya operation, Gaza displacement claims, WCK scrutiny, tech investment) and directs readers to the four canonical records that continue the security threads.",
+    "body": "This briefing of September 6, 2026 summarised a day on which escalation risk sat on three fronts: Lebanon, where Hezbollah drone launches at troops drew IDF strikes; the waters near Iran, where US and Iranian forces fired at vessels; and the Red Sea approaches, where Houthi and government forces fought toward the Bab al-Mandeb. It also recorded an IDF arrest operation in Qabatiya, ministers' distinction between voluntary Gaza migration and forced displacement, the US ambassador's rejection of a forced-displacement plan, scrutiny of the World Central Kitchen strike, and a strong week of Israeli tech fundraising.\n\nEach security thread continues in a canonical record: Lebanon in \"After the Ali al-Taher demolition…\" (lebanon-ali-al-taher-ridge-2026-09); Iran and the strait in \"Hormuz: an Iranian cargo ship is hit off Qeshm, one dead…\" (iran-us-hormuz-maritime-escalation-2026); the Saudi pipeline attack and the Iran-aligned network in \"Iraq finds the launchers, sacks a commander…\" (iran-aligned-network-evidence-assessment-2026); Yemen in \"Houthis hold Yemen's Red Sea coast and Perim island…\" (yemen-bab-al-mandeb-fighting-2026). The Gaza displacement and WCK claims remain in their Narrative Watch records.\n\n---"
+   }
+  },
+  {
+   "key": "close-gaza-migration-0k1g2",
+   "target": {
+    "publicId": "reported-claim-us-ambassador-to-israel-says-ther-0k1g2"
+   },
+   "publication": {
+    "changeSummary": "Closes this record as a dated, single-statement assessment (Ambassador Huckabee's September 2026 denial of knowledge of a forced-removal plan) and points readers to the canonical Gaza-migration record, where the assessment continues. No title change.",
+    "body": "This record assessed one statement: U.S. Ambassador Mike Huckabee told Reuters in early September 2026 that he knew of no Israeli or American plan to force Palestinians out of Gaza. On September 6, 2026 this desk found that the statement is evidence of the ambassador's knowledge and of the U.S. position he expressed, and that it cannot prove the absence of undisclosed planning. Resolution state at closure: unresolved as to any formal forced-removal policy; verified as to the fact that Israeli ministers have publicly advocated large-scale \"voluntary\" migration.\n\nThe substantive assessment of the Gaza-migration claim, including the distinction between ministerial advocacy, a proposal, a formal decision and implementation, and the point that the label \"voluntary\" does not settle consent under the Fourth Geneva Convention, continues in the canonical record \"Reported claim: Gaza migration proposals: ministerial advocacy is verified; forced-transfer implementation is not\" (publicId reported-claim-claims-that-israeli-government-pl-nos0i). Any cabinet decision, operative order, budget authority, receiving-state agreement or evidence of coercion will be recorded there, not here.\n\nLast checked: September 13, 2026."
+   }
+  },
+  {
+   "key": "close-lebanon-attacks-86i2j",
+   "target": {
+    "publicId": "israel-launches-fresh-attacks-across-southern-le-86i2j"
+   },
+   "publication": {
+    "changeSummary": "Closes this thin September 1 monitoring note with what it assessed, its resolution state and a pointer to the canonical southern-Lebanon record. No title change.",
+    "body": "This record logged a single source chain on September 1, 2026: Middle East Eye, citing Lebanon's state National News Agency, reported heavy Israeli strikes across towns in southern Lebanon and alleged the use of white-phosphorus munitions in Zawtar al-Sharqiyah and Kafr Rumman in Nabatieh district. At logging, the chain was one outlet relaying one state agency; no independent confirmation of the strikes' scope, no forensic identification of the munition, and no Israeli statement on the allegation were available. Resolution state at closure: unresolved. The white-phosphorus allegation specifically was not verified by any neutral monitor in the sources reviewed, and this desk did not find an Israeli acceptance or denial of it.\n\nThe running assessment of Israeli strikes in southern Lebanon, including the Kfar Rumman toll and the separation of strike dates and disputed targets, continues in \"Israel–Lebanon escalation: separate strike dates, disputed targets and the Kfar Rumman toll\" (publicId israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3). Munition-type claims will be assessed there when evidence appears.\n\nLast checked: September 13, 2026."
+   }
+  },
+  {
+   "key": "close-lebanon-child-dd5w4",
+   "target": {
+    "publicId": "lebanese-child-succumbs-to-wounds-after-reported-dd5w4"
+   },
+   "publication": {
+    "changeSummary": "Closes this thin September 1 note with its assessed claim, resolution state and a pointer to the canonical southern-Lebanon record. No title change.",
+    "body": "This record logged, on September 1, 2026, a Middle East Eye report citing Lebanon's National News Agency that a child named Mohammad Ali Ibrahim died after an unexploded munition, described as a cluster bomb left by Israeli attacks, detonated in the al-Arid neighbourhood of Haboush in southern Lebanon, injuring a second boy. The death of a child from an explosive remnant is the kind of claim that is usually true in outline and hard to verify in detail: the source chain was a single state agency relayed by one outlet, with no forensic identification of the munition, no chain-of-custody or timeline, and no Israeli response. Resolution state at closure: unresolved. This desk found no later independent confirmation, no UNIFIL or Lebanese Army statement identifying the munition, and no follow-up in the sources reviewed by September 13, 2026.\n\nClaims about civilian harm in southern Lebanon continue to be assessed in \"Israel–Lebanon escalation: separate strike dates, disputed targets and the Kfar Rumman toll\" (publicId israeli-strikes-in-southern-lebanon-kill-seven-a-0jqg3). A verified munition identification for this incident, if one appears, will be recorded there.\n\nLast checked: September 13, 2026."
+   }
+  },
+  {
+   "key": "close-iran-warning-t5n3b",
+   "target": {
+    "publicId": "reported-claim-iran-warned-the-united-states-isr-t5n3b"
+   },
+   "publication": {
+    "changeSummary": "Closes this September 4 record with what it assessed, its resolution state (disputed, and overtaken by the IDF's clearance announcement) and a pointer to the canonical Ali al-Taher record. No title change.",
+    "body": "This record assessed a Reuters account of September 3–4, 2026: that Iran had warned the United States, via a third party, against an Israeli offensive on the Ali al-Taher ridge in southern Lebanon; that more than a dozen IRGC personnel were inside with Hezbollah; and that, under U.S. pressure, Israel had \"put off\" storming the ridge. Reuters could not independently confirm the situation on the ridge and a White House official rejected the characterisation of pressure. Within hours the IDF said it had already cleared Hezbollah's underground infrastructure at Ali al-Taher after weeks of operations and that neutralisation continued, a timeline that undercut the same-day \"postponed assault\" frame. Resolution state at closure: disputed. Whether IRGC personnel were present at any point during the siege, and the exact content of any Iranian message, remain unknown.\n\nThe Ali al-Taher story, including the subsequent clearance announcements, the state of Israel's declared security zone and the Israel–Lebanon talks now slipping to October, continues in \"Aoun visits south Lebanon as next Israel-Lebanon talks slip to October\" (publicId israel-says-it-has-cleared-hezbollah-s-ali-al-ta-6rr6p). New evidence on the Iranian warning would be assessed there.\n\nLast checked: September 13, 2026."
+   }
+  }
+ ],
+ "homepage": {
+  "news": {
+   "lead": {
+    "action": "set",
+    "publication": {
+     "operationKey": "yemen-bab-al-mandeb-sept13"
+    }
+   },
+   "secondary": {
+    "action": "set",
+    "publication": {
+     "operationKey": "hormuz-qeshm-strike-sept13"
+    }
+   }
+  },
+  "fakeResistance": {
+   "lead": {
+    "action": "set",
+    "publication": {
+     "operationKey": "naza-venice-claim"
+    }
+   },
+   "secondary": {
+    "action": "set",
+    "publication": {
+     "operationKey": "knobloch-munich-threat"
+    }
+   }
+  },
+  "people": {
+   "lead": {
+    "action": "set",
+    "publication": {
+     "operationKey": "iqfoil-worlds-israel"
+    }
+   },
+   "secondary": {
+    "action": "set",
+    "publication": {
+     "publicId": "technion-researchers-halt-aggressive-breast-canc-0g7nm"
+    }
+   }
+  }
+ },
+ "siteRecommendations": [
+  "October 7: no new official finding, court ruling, released document or corrected figure appeared between September 6 and 13, 2026; the state-commission decision is deferred past the October 27 election. The archive was reviewed and deliberately not written into.",
+  "Media debt: 24 of 72 live records carried no hero before this run. Seven documentary photographs were attached here. The remaining records without imagery should be closed in a dedicated media run rather than by attaching weak or rights-unclear pictures during breaking-news updates.",
+  "The delivery contract cannot archive or merge a record: a superseded stub can only be rewritten as a pointer, as eleven were in this run. If consolidating the September 1-6 stubs is wanted, it needs an admin action or a contract capability, and is a development task.",
+  "The live source collector still shows disabled feeds and several active feeds that have not fetched successfully since September 8. Source-ingestion freshness should be reviewed separately from editorial runs.",
+  "A Gaza locator map showing the Yellow Line would materially help the new Gaza canonical; no rights-clear map was found. Commissioning an original map, drawn from OCHA or UN OSAT coordinates, is a development or design task.",
+  "The Berlin Torstrasse assault of September 9, 2026 is folded into the Munich record as a dated paragraph. If the antisemitism feed should carry one record per incident, it can be split out later."
+ ],
+ "research": [
+  {
+   "topic": "Yemen and Bab al-Mandeb",
+   "focus": "Perim/Mayun, Mocha and Dhubab; displacement; Saudi response; whether passage is actually stopped",
+   "sourcesReviewed": [
+    "https://www.iom.int/news/iom-yemen-displacement-tops-76000-fighting-intensifies",
+    "https://www.euronews.com/2026/09/12/houthis-seize-yemeni-island-in-bab-el-mandeb-taking-control-of-the-strait",
+    "https://www.nbcnews.com/world/middle-east/houthis-control-bab-el-mandeb-yemen-red-sea-saudi-iran-war-oil-rcna597186",
+    "https://www.aljazeera.com/news/2026/9/12/yemen-government-forces-say-houthi-members-vehicles-targeted-in-mocha",
+    "https://www.arabnews.com/saudi-arabia/houthi-projectile-injures-two-damages-mosque-in-saudi-arabias-jazan-3001507",
+    "https://www.jpost.com/middle-east/article-908443",
+    "https://www.npr.org/2026/09/12/g-s1-143044/yemens-houthis-capture-red-sea-island"
+   ],
+   "conclusion": "Houthi control of the coast and Perim is confirmed by the Yemeni government, the Houthis and three independent outlets; IOM's own page carries the 76,000 figure; the Jazan strike is Saudi Civil Defense as carried by Arab News. No evidence of maritime interdiction was found, so the record keeps the chokepoint caveat rather than claiming a closure.",
+   "outcome": "updated"
+  },
+  {
+   "topic": "Iran, the United States and the Strait of Hormuz",
+   "focus": "The September 12 Qeshm explosions, the UKMTO strike report, the Iranian cargo ship, the Oman track, Bahrain and CENTCOM's blockade figures",
+   "sourcesReviewed": [
+    "https://abcnews.com/US/wireStory/iranian-commercial-ship-struck-strait-hormuz-1-dead-136399794",
+    "https://edition.cnn.com/2026/09/13/middleeast/iran-hormuz-qeshm-attack-intl",
+    "https://www.arabnews.com/middle-east/vessel-struck-by-projectile-while-transiting-hormuz-strait-ukmto-says-3001522",
+    "https://www.timesofisrael.com/liveblog-september-13-2026/",
+    "https://www.aljazeera.com/news/2026/9/12/bahrain-says-it-will-not-participate-in-irans-proposed-hormuz-meeting",
+    "https://www.arabnews.com/world/brics-nations-call-for-maximum-restraint-in-middle-east-3001461"
+   ],
+   "conclusion": "The strike is established (UKMTO timing, IRNA casualty account) but unattributed; Iran's own briefing says the Oman understanding does not reopen the strait. Published as neither open nor closed, which is what the evidence supports.",
+   "outcome": "updated"
+  },
+  {
+   "topic": "Iraq-origin drone attack on the Saudi East-West pipeline",
+   "focus": "Launch geography, Iraqi measures, denials and the limits of attribution",
+   "sourcesReviewed": [
+    "https://www.newarab.com/news/iraq-closes-three-iran-crossings-after-drone-launch",
+    "https://www.arabnews.com/middle-east/iraq-finds-drone-launchers-near-iran-border-security-sources-3001417",
+    "https://english.aawsat.com/arab-world/5317496-iraq-closes-three-iran-crossings-pursues-those-behind-attacks-saudi-arabia",
+    "https://www.aljazeera.com/news/2026/9/12/iraq-probes-drone-strikes-on-saudi-arabia-shuts-three-crossings-to-iran",
+    "https://www.cnbc.com/2026/09/11/saudi-arabia-shut-down-east-west-crude-oil-pipeline.html",
+    "https://www.cnn.com/2026/09/12/middleeast/trump-iran-saudi-pipeline-intl"
+   ],
+   "conclusion": "Launch site in Maysan is Iraq's own finding; no group claimed the attack and the Islamic Resistance in Iraq denied it. Trump's attribution carries no published evidence. Folded into the existing network record instead of a new article, because launch geography establishes where, not who ordered.",
+   "outcome": "updated"
+  },
+  {
+   "topic": "Israel and Lebanon",
+   "focus": "The Ali al-Taher demolition, Aoun's visit, the postponed round and the September 13 strikes",
+   "sourcesReviewed": [
+    "https://www.timesofisrael.com/liveblog-september-12-2026/",
+    "https://english.aawsat.com/arab-world/5317386-aoun-nabatieh-no-new-negotiations-israel-present",
+    "https://www.upi.com/Top_News/World-News/2026/09/11/lebanon-hezbollah/8431789169026",
+    "https://www.timesofisrael.com/liveblog-september-13-2026/",
+    "https://idfspokesperson.substack.com/p/the-briefing-room-week-of-september"
+   ],
+   "conclusion": "Aoun's wording and four priorities are confirmed by three outlets; the October slip is a US official on the record; the September 13 strikes are Lebanon's National News Agency with no IDF comment. The IDF's account of what was under the ridge remains its own and is labelled as such.",
+   "outcome": "updated"
+  },
+  {
+   "topic": "Gaza and the Yellow Line",
+   "focus": "Ceasefire terms, the line's status, the September 10-13 strikes and the competing casualty counts",
+   "sourcesReviewed": [
+    "https://www.ochaopt.org/content/humanitarian-situation-report-4-september-2026",
+    "https://gisha.org/en/between-the-yellow-and-orange-lines/",
+    "https://idfspokesperson.substack.com/p/the-briefing-room-week-of-september",
+    "https://www.timesofisrael.com/idf-kills-commander-of-hamass-khan-younis-brigade-in-southern-gaza-airstrike/",
+    "https://www.arabnews.com/middle-east/israeli-strike-kills-two-people-in-gaza-medics-say-3001542",
+    "https://www.pbs.org/newshour/world/palestinian-death-toll-in-gaza-tops-73000-officials-say-as-israel-strikes-despite-ceasefire"
+   ],
+   "conclusion": "Two official sources (OCHA and the IDF Spokesperson) plus independent reporting support a standing explainer the site did not have: what the Yellow Line is, who says what about crossings and strikes, and whose count is whose.",
+   "outcome": "published"
+  },
+  {
+   "topic": "The Venice documentary NAZA",
+   "focus": "What the film claims about AI-assisted targeting, what is documented, the IDF response and how the claim travels",
+   "sourcesReviewed": [
+    "https://www.timesofisrael.com/israeli-film-alleging-ai-assisted-killing-of-gaza-civilians-wins-venice-jury-prize/",
+    "https://www.timesofisrael.com/idf-rejects-testimonies-in-israeli-made-documentary-about-ai-powered-killing-in-gaza/",
+    "https://www.jta.org/2026/09/10/israel/documentary-alleging-israel-committed-wanton-killing-in-gaza-gets-standing-ovation-in-venice",
+    "https://www.jpost.com/israel-news/article-908309",
+    "https://variety.com/2026/film/festivals/naza-venice-premiere-gaza-documentary-ovation-1236843669/",
+    "https://www.972mag.com/lavender-ai-israeli-army-gaza/"
+   ],
+   "conclusion": "A specific claim with a categorical IDF denial and an international amplification path, resting on 24 anonymous interviewees that cannot be checked from outside. Published as a disputed assessment that separates the documented facts of the prize and the production from the film's own allegations.",
+   "outcome": "published"
+  },
+  {
+   "topic": "Antisemitism, September 10-13",
+   "focus": "A written death threat against Charlotte Knobloch in Munich and a knife-and-bottle assault in Berlin",
+   "sourcesReviewed": [
+    "https://www.wochenanzeiger.de/article/253478.html",
+    "https://www.juedische-allgemeine.de/politik/morddrohung-gegen-charlotte-knobloch/",
+    "https://www.berlin.de/polizei/polizeimeldungen/pressemitteilung.1713187.php",
+    "https://www.timesofisrael.com/german-jewish-leader-charlotte-knobloch-receives-death-threats-after-calling-for-afd-ban/",
+    "https://www.tagesspiegel.de/berlin/antisemitischer-angriff-in-mitte-frau-mit-davidstern-mit-flasche-verletzt-13894567.html"
+   ],
+   "conclusion": "The Munich police press report is primary and states the wording was painted, not carved as some coverage said; Berlin police confirmed the second incident. Published as one dated record with practical reporting resources, without sensationalising.",
+   "outcome": "published"
+  },
+  {
+   "topic": "Recycled and synthetic war footage",
+   "focus": "Whether a new September 11-13 example exists that the existing pattern record should carry",
+   "sourcesReviewed": [
+    "https://fullfact.org/conflict/middle-east-conflict-overview/",
+    "https://www.poynter.org/fact-checking/2026/fake-videos-strikes-iran/",
+    "https://www.politifact.com/article/2026/mar/12/",
+    "https://english.factcrescendo.com/2026/04/09/"
+   ],
+   "conclusion": "No top-tier fact-check was published for September 11-13. The existing pattern record was enriched with the dated case list rather than given a thin new example, and the one vendor detection found is flagged as a vendor score, not a verdict.",
+   "outcome": "updated"
+  },
+  {
+   "topic": "October 7",
+   "focus": "New official findings, rulings, documents, testimonies or corrected figures since September 6",
+   "sourcesReviewed": [
+    "https://www.timesofisrael.com/liveblog-september-13-2026/",
+    "https://www.jpost.com/israel-news/article-900543",
+    "https://www.timesofisrael.com/former-hostages-bereaved-families-demand-netanyahu-open-october-7-state-probe/"
+   ],
+   "conclusion": "Nothing new. The state-commission question is deferred past the October 27 election and no new primary material surfaced, so the archive was left untouched, which is what the destination's rules require.",
+   "outcome": "no_action"
+  },
+  {
+   "topic": "Israeli science, medicine and technology",
+   "focus": "A fresh, primary-sourced result worth publishing between September 8 and 13",
+   "sourcesReviewed": [
+    "https://www.timesofisrael.com/topic/israeli-science/",
+    "https://www.calcalistech.com/ctechnews/article/rq8lzbs4c",
+    "https://www.weizmann.ac.il/pages/",
+    "https://www.eng.technion.ac.il/en/"
+   ],
+   "conclusion": "No qualifying fresh result. The Tel Aviv University release of September 10 rests on a PNAS paper from June 2026 and the Weizmann nerve paper on a Cell paper from July 2025; both fail the same freshness test. The two acquisitions found were single-statement deals. Nothing was published to fill a category.",
+   "outcome": "vetoed"
+  },
+  {
+   "topic": "Israeli sport",
+   "focus": "Whether the iQFOiL world title is documented well enough to publish",
+   "sourcesReviewed": [
+    "https://www.olympicsil.co.il/",
+    "https://iqfoil.org/",
+    "https://www.sailweb.co.uk/",
+    "https://www.sail-world.com/"
+   ],
+   "conclusion": "The Israeli Olympic Committee and the class association both published the podium; two independent sailing outlets agree. Published, with the competitor-count discrepancy between the official portal and the class press recorded openly.",
+   "outcome": "published"
+  },
+  {
+   "topic": "Israeli election campaign",
+   "focus": "Whether the surplus-vote agreements merit a news record",
+   "sourcesReviewed": [
+    "https://www.jpost.com/israel-election-2026",
+    "https://en.wikipedia.org/wiki/2026_Israeli_legislative_election"
+   ],
+   "conclusion": "Procedural and adequately covered elsewhere; a standalone record would add nothing a reader cannot get from the parties' own filings. Held for a Daily Brief line instead.",
+   "outcome": "no_action"
+  },
+  {
+   "topic": "Syria and the West Bank",
+   "focus": "Whether either front produced something requiring a record",
+   "sourcesReviewed": [
+    "https://www.aljazeera.com/news/2026/9/12/at-least-seven-killed-in-fire-at-prison-in-northern-syria",
+    "https://www.timesofisrael.com/liveblog-september-13-2026/"
+   ],
+   "conclusion": "The Kobani prison fire is real and significant but outside the site's fronts and without a canonical to carry it; the West Bank items of September 13 are below the threshold for a record.",
+   "outcome": "no_action"
+  }
+ ],
+ "vetoes": [
+  {
+   "key": "veto-standalone-saudi-pipeline-article",
+   "candidate": "A standalone news article on the Saudi East-West pipeline drone attack and Trump's attribution",
+   "reason": "The site already holds the pipeline inside the Iran-aligned network record, where the open question is responsibility. A second record would duplicate the story and split the evidence. The September 11-13 developments were added to that canonical instead.",
+   "section": "israel_update",
+   "replacement": "Update to iran-aligned-network-evidence-assessment-2026"
+  },
+  {
+   "key": "veto-70000-targets-figure",
+   "candidate": "Publishing the '70,000 AI-selected targets' figure circulating with the NAZA documentary",
+   "reason": "The figure could not be traced to any verifiable statement; the only documented number in the 2024 investigation the film extends is 37,000. It is recorded inside the narrative-watch record as an untraced figure rather than repeated as fact.",
+   "section": "narrative_watch"
+  },
+  {
+   "key": "veto-berlin-separate-record",
+   "candidate": "A separate antisemitism record for the Berlin Torstrasse assault of September 9",
+   "reason": "Officially confirmed by Berlin police and real, but a second German antisemitism record on the same day would fragment the week's picture. Folded into the Munich record as a dated paragraph; the owner may prefer one record per incident.",
+   "section": "antisemitism",
+   "ownerDecisionRequested": true
+  },
+  {
+   "key": "veto-stale-tau-antibody-study",
+   "candidate": "Tel Aviv University's September 10 release on delivering antibodies inside cells",
+   "reason": "The underlying PNAS paper is from June 2026, so the release is a promotion of an old result rather than a new finding. A full draft exists if the owner wants the piece anyway.",
+   "section": "science_medicine"
+  },
+  {
+   "key": "veto-weizmann-nerve-paper",
+   "candidate": "The Weizmann nerve-regeneration result reported in September coverage",
+   "reason": "The paper is from July 2025. Republishing it now as news would misdate the science.",
+   "section": "science_medicine"
+  },
+  {
+   "key": "veto-ilit-raz-fraud-plea",
+   "candidate": "The Ilit Raz guilty plea over the Joonko diversity-hiring startup",
+   "reason": "Well sourced, including the US Attorney's own announcement, but a fraud conviction is not a People of Israel story and the site has no business-crime desk. Filing it under achievement or innovation would misrepresent both the section and the story.",
+   "section": "achievement"
+  },
+  {
+   "key": "veto-ai-slowdown-endorsements",
+   "candidate": "Coverage of the Altman and Musk endorsements of Dario Amodei's call to slow AI development",
+   "reason": "No Israeli actor and no connection to this site's remit. It is industry news, not technological activism in the information war.",
+   "section": "technology_ai"
+  },
+  {
+   "key": "veto-forced-category-balance",
+   "candidate": "Publishing any science or technology item purely to keep the People of Israel band fresh",
+   "reason": "Category balance is not a reason to publish. The band keeps its strongest live records this edition, and the sport result that did qualify was published on its merits.",
+   "section": "innovation"
+  },
+  {
+   "key": "veto-vendor-detection-record",
+   "candidate": "A record built on a single AI-detection vendor score for a circulating missile video",
+   "reason": "A vendor confidence score on a truncated page is not a verdict and cannot carry a record. Used only as a flagged example inside the existing pattern record.",
+   "section": "narrative_watch"
+  },
+  {
+   "key": "veto-uncorroborated-mocha-collapse",
+   "candidate": "A record built on the anonymous account of why the defence of Mocha collapsed",
+   "reason": "Single-outlet and anonymous on all sides. Carried inside the Yemen canonical as an attributed claim rather than as a standalone finding.",
+   "section": "israel_update"
+  },
+  {
+   "key": "veto-eilat-drill-history-piece",
+   "candidate": "A History and Context piece on the Eilat October 7-style readiness exercise",
+   "reason": "One report of an exercise is a security news item at most, not archive context, and the October 7 destination is a curated archive a run does not write into.",
+   "section": "history_context"
+  }
+ ],
+ "homepageReview": {
+  "manualVersion": "2026-09-12.1",
+  "sectionsReviewed": [
+   "cover",
+   "news",
+   "fakeResistance",
+   "october7",
+   "people",
+   "system",
+   "support"
+  ],
+  "sectionsChanged": [
+   "cover",
+   "news",
+   "fakeResistance",
+   "people"
+  ],
+  "decisions": [
+   {
+    "area": "news",
+    "position": "lead",
+    "action": "replace",
+    "publication": {
+     "operationKey": "yemen-bab-al-mandeb-sept13"
+    },
+    "reason": "The structural story of the day: the Houthis now hold Yemen's Red Sea coast and Perim island at the Bab al-Mandeb, Saudi Arabia has shut the pipeline that was its Hormuz bypass, and displacement has reached 76,000. The canonical was updated and re-promoted rather than duplicated. Lebanon, yesterday's lead, had a real but smaller development and moves off the lead."
+   },
+   {
+    "area": "news",
+    "position": "secondary",
+    "action": "replace",
+    "publication": {
+     "operationKey": "hormuz-qeshm-strike-sept13"
+    },
+    "reason": "A vessel struck inside the strait with one crew member killed and no claimed author, plus Iran's own statement that the Oman understanding does not reopen Hormuz. It is the second distinct consequential story and it explains why the Red Sea route in the lead now matters."
+   },
+   {
+    "area": "news",
+    "action": "veto",
+    "publication": {
+     "operationKey": "gaza-yellow-line-canonical"
+    },
+    "reason": "The new Gaza explainer is the right record for the hub but not for the cover today: it is a standing explainer rather than a development, and two Gaza-adjacent items on one screen would crowd out the maritime story that actually moved."
+   },
+   {
+    "area": "fakeResistance",
+    "position": "lead",
+    "action": "replace",
+    "publication": {
+     "operationKey": "naza-venice-claim"
+    },
+    "reason": "The most consequential anti-Israel claim in circulation this week, carried by a prize-winning documentary and amplified by state media. The live Anthropic investigation stays published and was enriched today, but a claim under active international amplification outranks it on the cover."
+   },
+   {
+    "area": "fakeResistance",
+    "position": "secondary",
+    "action": "replace",
+    "publication": {
+     "operationKey": "knobloch-munich-threat"
+    },
+    "reason": "A written death threat against a 93-year-old community leader, confirmed by a police press report, with a second confirmed assault in Berlin the same week. It is more immediate than the New York security-funding record it replaces, which remains published."
+   },
+   {
+    "area": "people",
+    "position": "lead",
+    "action": "replace",
+    "publication": {
+     "operationKey": "iqfoil-worlds-israel"
+    },
+    "reason": "A world title won yesterday with gold, silver and a fourth place, documented by the class association and the Israeli Olympic Committee. It is the freshest fully sourced People record and it carries the band's purpose better than a seven-day-old laboratory result."
+   },
+   {
+    "area": "people",
+    "position": "secondary",
+    "action": "replace",
+    "publication": {
+     "publicId": "technion-researchers-halt-aggressive-breast-canc-0g7nm"
+    },
+    "reason": "Replaces the September 6 aerogel record, which had held the slot for a week. The Technion preclinical result is newer, better sourced and still correctly labelled as preclinical."
+   },
+   {
+    "area": "people",
+    "action": "retain",
+    "reason": "The History and Context block and the legacy Our Heroes and Israel's Story shells were reviewed and left as they stand; nothing published today belongs there, and the next explainer is not yet due."
+   }
+  ]
+ }
+}

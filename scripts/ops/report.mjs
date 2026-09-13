@@ -6,6 +6,7 @@
  *   npm run ops:report -- progress --message "…"
  *   npm run ops:report -- finish --summary "…" --changes "…" [--status failed]
  *   npm run ops:report -- attach --file shot.png --attachment-kind after --pair hero
+ *   npm run ops:report -- digest --task KEY --transcript PATH   # server writes the Hebrew summary
  *   npm run ops:report -- flush | whoami
  *
  * The contract it speaks is `server/contracts/ops-tasks.ts`; the doc every
@@ -50,8 +51,14 @@ const AI_BRANCHES = { claude: "ai/claude", grok: "ai/grok", codex: "ai/codex", o
 
 /* Field limits from the contract. Truncating here beats a 400 that would
    strand the spool. */
-const LIMITS = { title: 300, request: 4000, goal: 2000, summary: 8000, changes: 8000, remaining: 4000, blockers: 4000, nextStep: 2000, message: 4000, environment: 300, eventKey: 120, taskKey: 200 };
+const LIMITS = { title: 300, request: 4000, goal: 2000, summary: 16000, changes: 8000, remaining: 4000, blockers: 4000, nextStep: 2000, message: 4000, environment: 300, eventKey: 120, taskKey: 200 };
 const META_MAX_BYTES = 8 * 1024;
+/* `hooksInventory` on a report line: what the reporter can see of its own
+   automation. Sized by the contract; the collector already truncates, this is
+   the last guard before a 400. */
+const HOOKS_INVENTORY_MAX_BYTES = 64 * 1024;
+/* Digest limits — the `summarize` route's contract. */
+export const DIGEST_LIMITS = { request: 6000, lastAssistant: 12000, priorAssistant: 6000, filesEdited: 200, commits: 100, taskKey: 200 };
 const BATCH_SIZE = 200;
 export const DEFAULT_TIMEOUT_MS = 8000;
 
@@ -60,6 +67,8 @@ const CONTENT_TYPES = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "ima
 export const OPS_HOME = process.env.LIONS_OPS_HOME?.trim() || join(homedir(), ".lions-ops");
 export const SPOOL_DIR = join(OPS_HOME, "spool");
 export const REJECTED_DIR = join(SPOOL_DIR, "rejected");
+export const DIGEST_SPOOL_DIR = join(OPS_HOME, "spool-digests");
+export const DIGEST_REJECTED_DIR = join(DIGEST_SPOOL_DIR, "rejected");
 export const STATE_DIR = join(OPS_HOME, "state");
 export const CAPTURES_DIR = join(OPS_HOME, "captures");
 const SECRET_FILE = join(homedir(), ".config", "ai-dev", "ops-report.env");
@@ -243,6 +252,10 @@ export function buildReport(event, fields = {}, { identity = resolveIdentity(), 
   }
   const meta = boundedMeta(fields.meta);
   if (meta && Object.keys(meta).length) report.meta = meta;
+  if (fields.hooksInventory && typeof fields.hooksInventory === "object" && Array.isArray(fields.hooksInventory.tools) && fields.hooksInventory.tools.length) {
+    if (Buffer.byteLength(JSON.stringify(fields.hooksInventory)) <= HOOKS_INVENTORY_MAX_BYTES) report.hooksInventory = fields.hooksInventory;
+    else note("hooksInventory over 64KB; dropped from this line");
+  }
   return report;
 }
 
@@ -281,6 +294,224 @@ async function post(path, body, { baseUrl, secret, timeoutMs = DEFAULT_TIMEOUT_M
 
 export const postReports = (reports, config) => post("/api/internal/ops/tasks/report", { reports }, config);
 export const postAttachment = (attachment, config) => post("/api/internal/ops/tasks/attachments", attachment, config);
+/** The summarize route: the server turns a digest into a Hebrew summary with a model and updates the task. */
+export const postDigest = (digest, config = loadConfig()) => post("/api/internal/ops/tasks/summarize", digest, { timeoutMs: DEFAULT_TIMEOUT_MS, ...config });
+
+/* ── digests ───────────────────────────────────────────────────────────── */
+
+/** Rough language tag for the summarizer: which script the owner wrote in. */
+export function detectLanguage(...texts) {
+  const text = texts.filter(Boolean).join("\n");
+  const hebrew = (text.match(/[֐-׿]/g) ?? []).length;
+  const latin = (text.match(/[A-Za-z]/g) ?? []).length;
+  if (!hebrew && !latin) return undefined;
+  if (hebrew && !latin) return "he";
+  if (latin && !hebrew) return "en";
+  const ratio = hebrew / (hebrew + latin);
+  return ratio > 0.8 ? "he" : ratio < 0.2 ? "en" : "mixed";
+}
+
+/**
+ * Clip a digest to the summarize contract. Missing or empty fields are
+ * dropped rather than sent blank, and the schema is strict, so nothing else
+ * is passed through.
+ */
+export function boundDigest(digest) {
+  const out = { taskKey: clip(digest.taskKey, DIGEST_LIMITS.taskKey) };
+  for (const name of ["request", "lastAssistant", "priorAssistant"]) {
+    const value = digest[name];
+    if (value != null && String(value).trim()) out[name] = clip(String(value).trim(), DIGEST_LIMITS[name]);
+  }
+  if (Array.isArray(digest.filesEdited) && digest.filesEdited.length) {
+    out.filesEdited = [...new Set(digest.filesEdited.map((f) => String(f).slice(0, 500)))].slice(0, DIGEST_LIMITS.filesEdited);
+  }
+  if (Array.isArray(digest.commits) && digest.commits.length) {
+    out.commits = digest.commits.filter((c) => c?.sha).map((c) => ({ sha: String(c.sha).slice(0, 64), subject: String(c.subject ?? "").slice(0, 300) })).slice(0, DIGEST_LIMITS.commits);
+  }
+  if (digest.toolCounts && typeof digest.toolCounts === "object" && Object.keys(digest.toolCounts).length) {
+    out.toolCounts = Object.fromEntries(Object.entries(digest.toolCounts).slice(0, 60).map(([k, v]) => [String(k).slice(0, 80), Number(v) || 0]));
+  }
+  const language = digest.language ?? detectLanguage(out.request, out.lastAssistant);
+  if (["he", "en", "mixed"].includes(language)) out.language = language;
+  if (digest.source) out.source = clip(digest.source, 200);
+  return out;
+}
+
+const MAX_TRANSCRIPT_BYTES = 96 * 1024 * 1024;
+const EDIT_TOOLS = new Set(["Edit", "Write", "MultiEdit", "NotebookEdit"]);
+
+/** Text parts of a Claude message, tool calls excluded. */
+function claudeText(content) {
+  if (typeof content === "string") return content;
+  if (!Array.isArray(content)) return "";
+  return content.filter((p) => p?.type === "text" && p.text).map((p) => p.text).join("\n");
+}
+
+/* Prompts a tool wrote for itself, not the owner. Mirrored in backfill.mjs. */
+const SYSTEM_PREFIXES = ["Base directory for this skill", "Based on the user's message below", "The following is the Codex agent history", "⟦TEMPO_SEED_CONTEXT⟧", "# Schedule Cloud Agents", "# AGENTS.md"];
+export const looksLikeSystemPrompt = (text) => /^\s*</.test(text) || SYSTEM_PREFIXES.some((prefix) => text.startsWith(prefix)) || text.includes("<command-name>") || text.includes("<local-command");
+
+/** `git log` since a moment, as the digest's `commits`. Never throws. */
+export function commitsSince(cwd, sinceIso, untilIso) {
+  if (!cwd || !sinceIso) return [];
+  const args = ["log", `--since=${sinceIso}`, "--format=%h %s", "--no-merges", `--max-count=${DIGEST_LIMITS.commits}`];
+  if (untilIso) args.splice(2, 0, `--until=${untilIso}`);
+  const out = git(args, cwd);
+  if (!out) return [];
+  return out.split("\n").filter(Boolean).map((line) => {
+    const space = line.indexOf(" ");
+    return space === -1 ? { sha: line, subject: "" } : { sha: line.slice(0, space), subject: line.slice(space + 1) };
+  });
+}
+
+/**
+ * A digest from a Claude Code transcript (`transcript_path`, JSONL): the first
+ * owner prompt, the last two assistant texts, every file an edit tool
+ * touched, tool counts, and the commits made since the session began in the
+ * session's own directory. Sidechains (sub-agents) are skipped — their parent
+ * turn carries the result.
+ */
+export function buildDigestFromTranscript(path, { taskKey, withCommits = true } = {}) {
+  const digest = { taskKey, source: "claude-transcript", filesEdited: [], toolCounts: {}, commits: [] };
+  let raw;
+  try {
+    if (statSync(path).size > MAX_TRANSCRIPT_BYTES) throw new Error("transcript too large");
+    raw = readFileSync(path, "utf8");
+  } catch (error) {
+    digest.error = error?.message ?? String(error);
+    return digest;
+  }
+  let firstAt = null;
+  let lastAt = null;
+  let cwd = null;
+  let sessionId = null;
+  const assistantTexts = [];
+  const files = new Set();
+  for (const line of raw.split("\n")) {
+    if (!line.startsWith("{")) continue;
+    let entry;
+    try {
+      entry = JSON.parse(line);
+    } catch {
+      continue;
+    }
+    if (entry.isSidechain) continue;
+    if (entry.sessionId && !sessionId) sessionId = entry.sessionId;
+    if (entry.cwd && !cwd) cwd = entry.cwd;
+    if (entry.timestamp && (entry.type === "user" || entry.type === "assistant")) {
+      if (!firstAt) firstAt = entry.timestamp;
+      lastAt = entry.timestamp;
+    }
+    if (entry.type === "user") {
+      if (digest.request) continue;
+      const content = entry.message?.content;
+      if (Array.isArray(content) && content.some((p) => p?.type === "tool_result")) continue;
+      const text = claudeText(content).trim();
+      if (text && !looksLikeSystemPrompt(text)) digest.request = text;
+      continue;
+    }
+    if (entry.type !== "assistant") continue;
+    const content = entry.message?.content;
+    const text = claudeText(content).trim();
+    if (text) assistantTexts.push(text);
+    if (!Array.isArray(content)) continue;
+    for (const part of content) {
+      if (part?.type !== "tool_use") continue;
+      const name = String(part.name ?? "tool");
+      digest.toolCounts[name] = (digest.toolCounts[name] ?? 0) + 1;
+      if (EDIT_TOOLS.has(name)) {
+        const file = part.input?.file_path ?? part.input?.notebook_path;
+        if (file) files.add(String(file));
+      }
+    }
+  }
+  digest.lastAssistant = assistantTexts.at(-1);
+  digest.priorAssistant = assistantTexts.length > 1 ? assistantTexts.at(-2) : undefined;
+  digest.filesEdited = [...files];
+  digest.sessionId = sessionId;
+  digest.cwd = cwd;
+  digest.startedAt = firstAt;
+  digest.endedAt = lastAt;
+  if (withCommits && cwd && firstAt) digest.commits = commitsSince(cwd, firstAt);
+  if (!digest.taskKey && sessionId) digest.taskKey = `claude:${sessionId}`;
+  return digest;
+}
+
+export function writeDigestSpool(digest) {
+  ensureDir(DIGEST_SPOOL_DIR);
+  const file = join(DIGEST_SPOOL_DIR, `${Date.now()}-${randomUUID()}.json`);
+  writeFileSync(file, JSON.stringify(boundDigest(digest)));
+  return file;
+}
+
+export function digestSpoolFiles() {
+  if (!existsSync(DIGEST_SPOOL_DIR)) return [];
+  return readdirSync(DIGEST_SPOOL_DIR).filter((name) => name.endsWith(".json")).sort().map((name) => join(DIGEST_SPOOL_DIR, name));
+}
+
+/**
+ * Send every spooled digest, oldest first. A digest is a full replacement of
+ * the task's summary, so order only matters per task and a stop at the first
+ * transport failure keeps it. Never throws.
+ */
+export async function flushDigests({ config = loadConfig(), timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
+  const files = digestSpoolFiles();
+  const result = { sent: 0, remaining: files.length, rejected: 0, error: null };
+  if (!files.length) return result;
+  if (!config.secret) {
+    result.error = "no OPS_REPORT_SECRET (env or ~/.config/ai-dev/ops-report.env)";
+    return result;
+  }
+  for (const file of files) {
+    const digest = readJson(file);
+    if (!digest?.taskKey) {
+      rejectTo(DIGEST_REJECTED_DIR, [file], "unreadable digest");
+      result.rejected += 1;
+      continue;
+    }
+    try {
+      const response = await postDigest(digest, { ...config, timeoutMs });
+      if (response.ok) {
+        unlinkSync(file);
+        result.sent += 1;
+      } else if (isRejection(response.status)) {
+        rejectTo(DIGEST_REJECTED_DIR, [file], `${response.status} ${response.text}`);
+        result.rejected += 1;
+      } else {
+        result.error = `${response.status} ${response.text}`.trim();
+        break;
+      }
+    } catch (error) {
+      result.error = describeError(error);
+      break;
+    }
+  }
+  result.remaining = digestSpoolFiles().length;
+  return result;
+}
+
+/**
+ * Post one digest now; on any failure other than a rejection, spool it so
+ * the next flush retries. Returns what happened; never throws.
+ */
+export async function sendDigest(digest, { config = loadConfig(), timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
+  const bounded = boundDigest(digest);
+  if (!bounded.taskKey) return { sent: false, spooled: false, error: "digest has no taskKey" };
+  if (!config.secret) {
+    const file = writeDigestSpool(bounded);
+    return { sent: false, spooled: true, file, error: "no OPS_REPORT_SECRET" };
+  }
+  try {
+    const response = await postDigest(bounded, { ...config, timeoutMs });
+    if (response.ok) return { sent: true, spooled: false, status: response.status, text: response.text };
+    if (isRejection(response.status)) return { sent: false, spooled: false, status: response.status, error: `${response.status} ${response.text}`.trim() };
+    const file = writeDigestSpool(bounded);
+    return { sent: false, spooled: true, file, status: response.status, error: `${response.status} ${response.text}`.trim() };
+  } catch (error) {
+    const file = writeDigestSpool(bounded);
+    return { sent: false, spooled: true, file, error: describeError(error) };
+  }
+}
 
 /* ── spool ─────────────────────────────────────────────────────────────── */
 
@@ -306,11 +537,12 @@ function describeError(error) {
    a rejected batch is moved aside so the rest of the spool keeps flowing. */
 const isRejection = (status) => status === 400 || status === 413 || status === 422;
 
-function reject(files, why) {
-  ensureDir(REJECTED_DIR);
-  for (const file of files) renameSync(file, join(REJECTED_DIR, basename(file)));
-  note(`${files.length} line(s) rejected by the server (${why}); moved to ${REJECTED_DIR}`);
+function rejectTo(dir, files, why) {
+  ensureDir(dir);
+  for (const file of files) renameSync(file, join(dir, basename(file)));
+  note(`${files.length} line(s) rejected by the server (${why}); moved to ${dir}`);
 }
+const reject = (files, why) => rejectTo(REJECTED_DIR, files, why);
 
 /**
  * Flush everything spooled, oldest first, stopping at the first transport
@@ -428,6 +660,8 @@ const FLAG_NAMES = {
   pair: "pairKey",
   "content-type": "contentType",
   agent: "agent",
+  transcript: "transcript",
+  language: "language",
 };
 
 export function parseArgs(argv) {
@@ -457,12 +691,13 @@ export function parseArgs(argv) {
 
 function usage() {
   return [
-    "usage: report.mjs <start|progress|status|note|finish|heartbeat|attach|flush|whoami> [flags]",
+    "usage: report.mjs <start|progress|status|note|finish|heartbeat|attach|digest|flush|whoami> [flags]",
     "  --task KEY --parent KEY --title T --request R --goal G --kind code|editorial|design|ops|research|review|import|other",
     "  --status queued|running|waiting|blocked|completed|failed|cancelled",
     "  --summary S --changes C --remaining R --blockers B --next N --message M",
     "  --link label=url (repeatable)  --meta key=value (repeatable)",
     "  attach: --file PATH --attachment-kind screenshot|before|after|artifact|file [--caption C] [--pair KEY]",
+    "  digest: --task KEY --transcript PATH | --file digest.json  [--language he|en|mixed]  (server writes the Hebrew summary)",
     "  env: OPS_REPORT_SECRET, OPS_REPORT_BASE_URL, OPS_TASK_KEY, LIONS_AI  (or ~/.config/ai-dev/ops-report.env)",
   ].join("\n");
 }
@@ -496,7 +731,31 @@ export async function main(argv = process.argv.slice(2)) {
   if (command === "flush") {
     const result = await flushSpool({ config });
     console.log(`flushed ${result.sent}, rejected ${result.rejected}, remaining ${result.remaining}${result.error ? ` — ${result.error}` : ""}`);
+    const digests = await flushDigests({ config });
+    if (digests.sent || digests.rejected || digests.remaining) {
+      console.log(`digests: sent ${digests.sent}, rejected ${digests.rejected}, remaining ${digests.remaining}${digests.error ? ` — ${digests.error}` : ""}`);
+    }
     return 0;
+  }
+
+  if (command === "digest") {
+    let digest;
+    if (args.file) {
+      digest = readJson(args.file);
+      if (!digest) throw new Error(`cannot read ${args.file} as JSON`);
+      digest.taskKey = args.taskKey ?? digest.taskKey ?? chosen.taskKey;
+    } else if (args.transcript) {
+      digest = buildDigestFromTranscript(args.transcript, { taskKey: args.taskKey ?? chosen.taskKey });
+      if (digest.error) throw new Error(`cannot read transcript: ${digest.error}`);
+    } else {
+      throw new Error("digest needs --transcript PATH or --file digest.json");
+    }
+    if (args.language) digest.language = args.language;
+    const bounded = boundDigest(digest);
+    const sizes = Object.entries(bounded).map(([k, v]) => `${k}=${typeof v === "string" ? v.length : Array.isArray(v) ? v.length : typeof v === "object" ? Object.keys(v).length : v}`).join(" ");
+    const result = await sendDigest(bounded, { config });
+    console.log(`${result.sent ? "summarized" : result.spooled ? "spooled digest" : "digest rejected"} → ${bounded.taskKey} (${sizes})${result.error ? ` — ${result.error}` : ""}`);
+    return result.sent || result.spooled ? 0 : 1;
   }
 
   if (command === "attach") {

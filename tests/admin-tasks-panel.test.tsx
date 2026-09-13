@@ -6,16 +6,20 @@ import {
   COVERAGE_ROSTER,
   CoverageTable,
   Gallery,
+  HooksSection,
+  LONG_MESSAGE,
   TaskNarrative,
   TaskRowList,
   Timeline,
+  activeHookCount,
   environmentShort,
   groupAttachments,
   mergeCoverage,
+  parseProse,
   taskTone,
   tasksQuery,
 } from "@/app/admin/TasksPanel";
-import type { OpsAttachmentRow, OpsEventRow, OpsReporterRow, OpsTaskRow } from "@/server/contracts/ops-tasks";
+import type { OpsAttachmentRow, OpsEventRow, OpsHooksInventory, OpsReporterRow, OpsTaskRow } from "@/server/contracts/ops-tasks";
 import { TASKS, TASK_AGENT_LABEL, TASK_STATUS_LABEL } from "@/app/admin/lexicon";
 
 /**
@@ -180,10 +184,92 @@ describe("the timeline and the narrative", () => {
 
   it("shows only the narrative sections the environment reported, or one absence line", () => {
     const html = renderToStaticMarkup(<TaskNarrative task={task({ summary: "Wrote the panel", remaining: "Tests" })} />);
-    expect(html).toContain(TASKS.summary);
+    expect(html).toContain(TASKS.fullReport);
     expect(html).toContain(TASKS.remaining);
     expect(html).not.toContain(TASKS.blockers);
     expect(renderToStaticMarkup(<TaskNarrative task={task()} />)).toContain(TASKS.noNarrative);
+  });
+
+  it("renders a narrative in full: paragraphs keep their line breaks and `- ` lines become one list", () => {
+    const text = "First line\nsecond line\n\n- one\n- two\n* three\n\nTail";
+    expect(parseProse(text)).toEqual([
+      { kind: "paragraph", text: "First line\nsecond line" },
+      { kind: "list", items: ["one", "two", "three"] },
+      { kind: "paragraph", text: "Tail" },
+    ]);
+    const html = renderToStaticMarkup(<TaskNarrative task={task({ summary: text })} />);
+    expect(html.match(/<li>/g)).toHaveLength(3);
+    expect(html).toContain("<li>one</li>");
+    expect(html).toContain("First line\nsecond line");
+    /* No markdown: anything richer than a bullet is shown as typed. */
+    expect(renderToStaticMarkup(<TaskNarrative task={task({ summary: "**bold** and `code`" })} />)).toContain("**bold** and `code`");
+    const css = read("app/admin/tasks.module.css");
+    expect(css).toMatch(/\.prose p \{[^}]*white-space: pre-wrap/);
+  });
+
+  it("clips a timeline message behind a toggle only past the long threshold", () => {
+    const event = (id: string, message: string): OpsEventRow =>
+      ({ id, taskId: "t1", eventKey: null, occurredAt: "2026-09-12T08:00:00Z", kind: "progress", actorLabel: "service:ops-reporter:claude", fromStatus: null, toStatus: null, message, payload: null, createdAt: "2026-09-12T08:00:00Z" });
+    const short = renderToStaticMarkup(<Timeline events={[event("s", "x".repeat(LONG_MESSAGE))]} />);
+    expect(short).not.toContain(TASKS.showAll);
+    const long = renderToStaticMarkup(<Timeline events={[event("l", "y".repeat(LONG_MESSAGE + 1))]} />);
+    expect(long).toContain(TASKS.showAll);
+    expect(long).toContain('aria-expanded="false"');
+    /* The full text is in the markup either way; the clip is CSS, never a substring. */
+    expect(long).toContain("y".repeat(LONG_MESSAGE + 1));
+  });
+});
+
+describe("the hooks inventory", () => {
+  const inventory: OpsHooksInventory = {
+    collectedAt: new Date().toISOString(),
+    hostname: "daniels-mac",
+    agent: "claude",
+    tools: [
+      {
+        id: "claude", label: "Claude Code", status: "active", configPath: "/w/claude/.claude/settings.json",
+        hooks: [
+          { event: "SessionStart", command: "node scripts/ops/report.mjs start", source: ".claude/settings.json", timeout: 30 },
+          { event: "Stop", command: "node scripts/ops/report.mjs finish", source: ".claude/settings.json", enabled: false, note: "off while testing" },
+        ],
+      },
+      { id: "opencode", label: "OpenCode", status: "partial", note: "git post-commit only", hooks: [{ event: "post-commit", command: "ops-report commit", source: "~/.config/ai-dev/git-hooks" }] },
+      { id: "gemini", label: "Gemini", status: "none", note: "no hook surface", hooks: [] },
+    ],
+  };
+
+  it("counts tools and enabled hooks, and renders a card per tool in inventory order", () => {
+    expect(activeHookCount(inventory)).toBe(2);
+    const html = renderToStaticMarkup(<HooksSection inventory={inventory} />);
+    expect(html).toContain(TASKS.hooksCount(3, 2));
+    expect(html).toContain("daniels-mac");
+    expect(html).toContain(TASK_AGENT_LABEL.claude);
+    expect(html.match(/data-tool="/g)).toHaveLength(3);
+    expect(html.indexOf('data-tool="claude"')).toBeLessThan(html.indexOf('data-tool="opencode"'));
+    expect(html.indexOf('data-tool="opencode"')).toBeLessThan(html.indexOf('data-tool="gemini"'));
+    /* The hook row: event, a left-to-right command, source and timeout. */
+    expect(html).toContain("SessionStart");
+    expect(html).toContain('dir="ltr">node scripts/ops/report.mjs start</code>');
+    expect(html).toContain("30s");
+    expect(html).toContain('data-enabled="false"');
+    expect(html).toContain(TASKS.hookDisabled);
+    expect(html).toContain("/w/claude/.claude/settings.json");
+  });
+
+  it("says partial and none in words, and a hookless tool is one line, not an empty table", () => {
+    const html = renderToStaticMarkup(<HooksSection inventory={inventory} />);
+    expect(html).toContain(`data-status="active"`);
+    expect(html).toContain(TASKS.hookToolActive);
+    expect(html).toContain(TASKS.hookToolPartial);
+    expect(html).toContain(TASKS.hookToolNone);
+    expect(html).toContain("no hook surface");
+    expect(html.match(/<table /g)).toHaveLength(2);
+  });
+
+  it("shows one absence line when no reporter has sent an inventory yet", () => {
+    const html = renderToStaticMarkup(<HooksSection inventory={null} />);
+    expect(html).toContain(TASKS.hooksNone);
+    expect(html).not.toContain("<table");
   });
 });
 

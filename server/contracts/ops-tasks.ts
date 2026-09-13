@@ -132,6 +132,48 @@ const metaSchema = z.record(z.string(), z.unknown()).refine(
   { message: `meta must serialize to at most ${OPS_META_MAX_BYTES} bytes.` },
 );
 
+/* ── Hooks inventory ────────────────────────────────────────────────────── */
+
+/**
+ * A machine-collected description of every hook and automation in every AI
+ * tool on a reporter's machine. It travels on any report line, is stored on
+ * that agent's `ops_reporter` row as `meta.hooksInventory` (replaced whole,
+ * never deep-merged), and the board list returns the newest one across all
+ * reporters. Never hand-written: the reporter collects it.
+ */
+export const OPS_HOOK_TOOL_STATUSES = ["active", "partial", "none"] as const;
+export type OpsHookToolStatus = (typeof OPS_HOOK_TOOL_STATUSES)[number];
+
+export const OPS_HOOKS_INVENTORY_MAX_BYTES = 65_536;
+
+export const opsHookEntrySchema = z.object({
+  event: z.string().trim().min(1).max(80),
+  command: z.string().trim().min(1).max(600),
+  source: z.string().trim().min(1).max(300),
+  timeout: z.number().int().positive().max(3600).optional(),
+  enabled: z.boolean().optional(),
+  note: z.string().trim().max(300).optional(),
+}).strict();
+export type OpsHookEntry = z.infer<typeof opsHookEntrySchema>;
+
+export const opsHookToolSchema = z.object({
+  id: z.string().trim().min(1).max(40),
+  label: z.string().trim().min(1).max(80),
+  status: z.enum(OPS_HOOK_TOOL_STATUSES),
+  configPath: z.string().trim().max(300).optional(),
+  note: z.string().trim().max(600).optional(),
+  hooks: z.array(opsHookEntrySchema).max(60),
+}).strict();
+export type OpsHookTool = z.infer<typeof opsHookToolSchema>;
+
+export const opsHooksInventorySchema = z.object({
+  collectedAt: z.iso.datetime(),
+  hostname: z.string().trim().min(1).max(120),
+  agent: z.enum(OPS_AGENTS),
+  tools: z.array(opsHookToolSchema).min(1).max(20),
+}).strict().refine((value) => JSON.stringify(value).length <= OPS_HOOKS_INVENTORY_MAX_BYTES, "inventory too large");
+export type OpsHooksInventory = z.infer<typeof opsHooksInventorySchema>;
+
 /* ── Write side ─────────────────────────────────────────────────────────── */
 
 /** One report line. A batch is `{ reports: OpsReport[] }`. */
@@ -154,15 +196,18 @@ export const opsReportSchema = z.object({
   /** With `status`: the new status. With `finish`: defaults to `completed`
    *  unless given (`failed`, `cancelled`). */
   status: z.enum(OPS_TASK_STATUSES).optional(),
-  summary: text(8000).optional(),
-  changes: text(8000).optional(),
-  remaining: text(4000).optional(),
+  /** The full explanation, in Hebrew, needs room: these are text columns. */
+  summary: text(16_000).optional(),
+  changes: text(16_000).optional(),
+  remaining: text(8000).optional(),
   blockers: text(4000).optional(),
   nextStep: text(2000).optional(),
   /** progress / note / commit / ci text. */
   message: text(4000).optional(),
   links: z.array(opsLinkSchema).max(50).optional(),
   meta: metaSchema.optional(),
+  /** Any event may carry it; it lands on the reporter, not the task. */
+  hooksInventory: opsHooksInventorySchema.optional(),
 }).strict();
 export type OpsReport = z.infer<typeof opsReportSchema>;
 
@@ -184,6 +229,37 @@ export const opsAttachmentUploadSchema = z.object({
   eventKey: text(120).optional(),
 }).strict();
 export type OpsAttachmentUpload = z.infer<typeof opsAttachmentUploadSchema>;
+
+/* ── Automatic Hebrew summary ───────────────────────────────────────────── */
+
+/**
+ * What a reporter hands the server-side summariser: the request, the
+ * assistant's last words, and the mechanical record of the session. The
+ * model key never leaves the server; the reporter sends material only.
+ */
+export const opsTaskDigestSchema = z.object({
+  taskKey: text(200),
+  request: text(6000).optional(),
+  lastAssistant: text(12_000).optional(),
+  priorAssistant: text(6000).optional(),
+  filesEdited: z.array(text(300)).max(200).optional(),
+  commits: z.array(z.object({ sha: text(40), subject: text(200) }).strict()).max(100).optional(),
+  toolCounts: z.record(z.string(), z.number().int().nonnegative()).optional(),
+  language: z.enum(["he", "en", "mixed"]).optional(),
+  source: text(300).optional(),
+}).strict();
+export type OpsTaskDigest = z.infer<typeof opsTaskDigestSchema>;
+
+/** The model's answer, parsed. `opsTaskSummarySchema` is the board's count
+ *  summary, so this one carries its own name. */
+export const opsTaskAutoSummarySchema = z.object({
+  title: text(300),
+  summary: text(16_000),
+  changes: text(16_000),
+  remaining: text(8000),
+  blockers: z.string().trim().max(4000).nullable().optional(),
+});
+export type OpsTaskAutoSummary = z.infer<typeof opsTaskAutoSummarySchema>;
 
 /* ── Read side ──────────────────────────────────────────────────────────── */
 
@@ -302,6 +378,8 @@ export const opsTaskListSchema = z.object({
   tasks: z.array(opsTaskRowSchema),
   nextBefore: isoDate.nullable(),
   coverage: z.array(opsReporterRowSchema),
+  /** The newest `collectedAt` across every reporter, or null when none has reported one. */
+  hooksInventory: opsHooksInventorySchema.nullable(),
 });
 export type OpsTaskList = z.infer<typeof opsTaskListSchema>;
 

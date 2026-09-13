@@ -28,6 +28,8 @@ import {
   type OpsAgent,
   type OpsAttachmentRow,
   type OpsEventRow,
+  type OpsHookTool,
+  type OpsHooksInventory,
   type OpsManualStatus,
   type OpsReporterRow,
   type OpsTaskDetail,
@@ -160,6 +162,68 @@ export function CoverageTable({ coverage }: { coverage: readonly OpsReporterRow[
   );
 }
 
+/* ── Hooks inventory ───────────────────────────────────────────────────── */
+
+const hookToolTone = (status: OpsHookTool["status"]): PillTone => (status === "active" ? "ok" : status === "partial" ? "warn" : "neutral");
+const hookToolWord = (status: OpsHookTool["status"]) =>
+  status === "active" ? TASKS.hookToolActive : status === "partial" ? TASKS.hookToolPartial : TASKS.hookToolNone;
+
+/** Hooks the inventory says are switched on: `enabled` absent counts as on,
+ *  because a collector that does not know the flag reports the hook as found. */
+export const activeHookCount = (inventory: OpsHooksInventory) =>
+  inventory.tools.reduce((sum, tool) => sum + tool.hooks.filter((hook) => hook.enabled !== false).length, 0);
+
+function HookToolCard({ tool }: { tool: OpsHookTool }) {
+  const bare = tool.status === "none" && tool.hooks.length === 0;
+  return (
+    <article className={own.hookCard} data-tool={tool.id} data-status={tool.status}>
+      <div className={own.hookCardHead}>
+        <strong>{tool.label}</strong>
+        <Pill tone={hookToolTone(tool.status)}>{hookToolWord(tool.status)}</Pill>
+      </div>
+      {tool.configPath ? <code className={own.mono}><bdi>{tool.configPath}</bdi></code> : null}
+      {tool.note ? <p className={styles.muted}>{tool.note}</p> : null}
+      {bare ? null : (
+        <div className={styles.tableWrap}>
+          <table className={`${styles.table} ${own.hookTable}`}>
+            <thead>
+              <tr>
+                <th scope="col">{TASKS.hookEvent}</th>
+                <th scope="col">{TASKS.hookCommand}</th>
+                <th scope="col">{TASKS.hookSource}</th>
+                <th scope="col">{TASKS.hookTimeout}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tool.hooks.map((hook, index) => (
+                <tr key={`${hook.event}-${index}`} data-enabled={hook.enabled === false ? "false" : "true"}>
+                  <th scope="row"><bdi>{hook.event}</bdi>{hook.enabled === false ? <small className={styles.plainSmall}>{TASKS.hookDisabled}</small> : null}</th>
+                  <td><code className={own.hookCommand} dir="ltr">{hook.command}</code>{hook.note ? <small className={styles.plainSmall}>{hook.note}</small> : null}</td>
+                  <td><bdi>{hook.source}</bdi></td>
+                  <td>{hook.timeout ? `${hook.timeout}s` : "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </article>
+  );
+}
+
+export function HooksSection({ inventory }: { inventory: OpsHooksInventory | null | undefined }) {
+  if (!inventory) return <EmptyLine>{TASKS.hooksNone}</EmptyLine>;
+  return (
+    <div className={own.hooks}>
+      <p className={styles.muted}>{TASKS.hooksCollected(formatAgo(inventory.collectedAt), inventory.hostname, agentWord(inventory.agent))}</p>
+      <p className={own.hooksCount}>{TASKS.hooksCount(inventory.tools.length, activeHookCount(inventory))}</p>
+      <div className={own.hooksGrid}>
+        {inventory.tools.map((tool) => <HookToolCard key={tool.id} tool={tool} />)}
+      </div>
+    </div>
+  );
+}
+
 /* ── Rows ──────────────────────────────────────────────────────────────── */
 
 export function TaskRow({ task, onOpen }: { task: OpsTaskRow; onOpen?: (task: OpsTaskRow) => void }) {
@@ -269,6 +333,70 @@ export function Gallery({ attachments, finished }: { attachments: readonly OpsAt
   );
 }
 
+/* ── Prose ─────────────────────────────────────────────────────────────── */
+
+export type ProseBlock = { kind: "paragraph"; text: string } | { kind: "list"; items: string[] };
+
+/**
+ * A narrative field, split into the two shapes a report actually uses: runs
+ * of `- ` lines become one list, everything else is a paragraph that keeps
+ * its line breaks. No markdown library — the reporter writes plain text with
+ * bullets, and anything richer would be rendered literally, which is the
+ * right failure for a report an operator has to trust verbatim.
+ */
+export function parseProse(text: string): ProseBlock[] {
+  const blocks: ProseBlock[] = [];
+  let paragraph: string[] = [];
+  let list: string[] | null = null;
+  const flushParagraph = () => { if (paragraph.length) { blocks.push({ kind: "paragraph", text: paragraph.join("\n") }); paragraph = []; } };
+  const flushList = () => { if (list) { blocks.push({ kind: "list", items: list }); list = null; } };
+  for (const raw of text.replace(/\r\n?/g, "\n").split("\n")) {
+    const line = raw.trimEnd();
+    const bullet = /^\s*[-*•]\s+(.*)$/.exec(line);
+    if (bullet) { flushParagraph(); (list ??= []).push(bullet[1]); continue; }
+    flushList();
+    if (!line.trim()) { flushParagraph(); continue; }
+    paragraph.push(line);
+  }
+  flushParagraph();
+  flushList();
+  return blocks;
+}
+
+export function Prose({ text }: { text: string }) {
+  const blocks = parseProse(text);
+  return (
+    <div className={own.prose}>
+      {blocks.map((block, index) =>
+        block.kind === "list" ? (
+          <ul key={index} className={own.proseList}>{block.items.map((item, i) => <li key={i}>{item}</li>)}</ul>
+        ) : (
+          <p key={index}>{block.text}</p>
+        ),
+      )}
+    </div>
+  );
+}
+
+/** A message longer than this is clipped behind a toggle; shorter ones are
+ *  shown in full with no control at all, so a short timeline stays short. */
+export const LONG_MESSAGE = 600;
+
+export function EventMessage({ message }: { message: string }) {
+  const [open, setOpen] = useState(false);
+  const long = message.length > LONG_MESSAGE;
+  return (
+    <span className={own.eventMessage}>
+      <span className={long && !open ? own.clipped : undefined}>{message}</span>
+      {long ? (
+        <button type="button" className={own.expandButton} aria-expanded={open} onClick={() => setOpen((current) => !current)}>
+          {open ? TASKS.showLess : TASKS.showAll}
+        </button>
+      ) : null}
+    </span>
+  );
+}
+
 /* ── Timeline ──────────────────────────────────────────────────────────── */
 
 export function Timeline({ events }: { events: readonly OpsEventRow[] }) {
@@ -288,7 +416,7 @@ export function Timeline({ events }: { events: readonly OpsEventRow[] }) {
                   <span className={own.fromTo}> {event.fromStatus ? statusWord(event.fromStatus) : "—"} ← {event.toStatus ? statusWord(event.toStatus) : "—"}</span>
                 ) : null}
               </strong>
-              {event.message ? <span className={own.eventMessage}>{event.message}</span> : null}
+              {event.message ? <EventMessage message={event.message} /> : null}
               {event.actorLabel ? <small><bdi>{event.actorLabel}</bdi></small> : null}
             </span>
           </li>
@@ -304,7 +432,7 @@ export function Timeline({ events }: { events: readonly OpsEventRow[] }) {
 const NARRATIVE: ReadonlyArray<[keyof Pick<OpsTaskRow, "request" | "goal" | "summary" | "changes" | "remaining" | "blockers" | "nextStep">, string]> = [
   ["request", TASKS.request],
   ["goal", TASKS.goal],
-  ["summary", TASKS.summary],
+  ["summary", TASKS.fullReport],
   ["changes", TASKS.changes],
   ["remaining", TASKS.remaining],
   ["blockers", TASKS.blockers],
@@ -319,7 +447,7 @@ export function TaskNarrative({ task }: { task: OpsTaskRow }) {
       {present.map(([key, label]) => (
         <div key={key}>
           <dt>{label}</dt>
-          <dd>{task[key]}</dd>
+          <dd><Prose text={task[key] ?? ""} /></dd>
         </div>
       ))}
     </dl>
@@ -365,7 +493,7 @@ function TaskDetailBody({ detail, onOpenChild, onChanged }: { detail: OpsTaskDet
       </div>
 
       <section className={own.section} aria-labelledby={`task-${task.id}-narrative`}>
-        <h3 id={`task-${task.id}-narrative`} className={styles.sectionLabel}>{TASKS.request} · {TASKS.summary} · {TASKS.remaining}</h3>
+        <h3 id={`task-${task.id}-narrative`} className={styles.sectionLabel}>{TASKS.request} · {TASKS.fullReport} · {TASKS.remaining}</h3>
         <TaskNarrative task={task} />
       </section>
 
@@ -552,6 +680,11 @@ export function TasksPanel({ signal }: { signal: number }) {
               <div className={styles.panel}>
                 <PanelTitle>{TASKS.coverage}</PanelTitle>
                 <CoverageTable coverage={value.coverage} />
+              </div>
+
+              <div className={styles.panel} data-section="hooks">
+                <PanelTitle>{TASKS.hooks}</PanelTitle>
+                <HooksSection inventory={value.hooksInventory} />
               </div>
             </>
           );

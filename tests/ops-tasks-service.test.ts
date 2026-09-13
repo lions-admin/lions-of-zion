@@ -11,7 +11,7 @@ import type { Database } from "@/server/db/client";
 import { auditLog, editorialRun, opsTaskEvent } from "@/server/db/schema";
 import { opsTasksService } from "@/server/modules/ops-tasks/service";
 import { allowedManualTransition, deriveFlags, eventKindFor, israelDayStart, STALE_AFTER_MINUTES } from "@/server/modules/ops-tasks/rules";
-import type { OpsReport } from "@/server/contracts/ops-tasks";
+import { opsHooksInventorySchema, opsReportSchema, type OpsHooksInventory, type OpsReport } from "@/server/contracts/ops-tasks";
 
 let db: TestDatabase;
 let clock = new Date("2026-09-12T10:00:00.000Z");
@@ -215,6 +215,110 @@ describe("list()", () => {
     expect((await service().list({ from: "2026-09-13" })).tasks).toHaveLength(0);
     expect((await service().list({ to: "2026-09-12", q: "Page 1" })).tasks).toHaveLength(1);
     expect(byStatus.summary.completedToday).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe("hooks inventory", () => {
+  const inventory = (agent: OpsHooksInventory["agent"], collectedAt: string, note: string): OpsHooksInventory => ({
+    collectedAt,
+    hostname: "mac",
+    agent,
+    tools: [{
+      id: "claude-code", label: "Claude Code", status: "active", configPath: "~/.claude/settings.json", note,
+      hooks: [{ event: "Stop", command: "node scripts/ops/report.mjs finish", source: "~/.claude/settings.json", timeout: 60, enabled: true }],
+    }],
+  });
+
+  it("stores the inventory on the reporter and the list returns it", async () => {
+    clock = new Date("2026-09-12T16:30:00.000Z");
+    const first = inventory("claude", "2026-09-12T16:29:00.000Z", "first");
+    await service().report({ reports: [line({ taskKey: "claude:hooks", event: "note", message: "inventory", hooksInventory: first })] }, ACTOR);
+    const list = await service().list({});
+    expect(list.hooksInventory).toEqual(first);
+    expect(list.coverage.find((reporter) => reporter.agent === "claude")?.meta).toMatchObject({ hooksInventory: first });
+
+    /* A line without one leaves the stored inventory in place. */
+    await service().report({ reports: [line({ taskKey: "claude:hooks", event: "progress", message: "no inventory" })] }, ACTOR);
+    expect((await service().list({})).hooksInventory).toEqual(first);
+  });
+
+  it("returns the newest collectedAt across agents and replaces, never deep-merges, per agent", async () => {
+    clock = new Date("2026-09-12T16:40:00.000Z");
+    const codex = inventory("codex", "2026-09-12T16:39:00.000Z", "codex newer");
+    await service().report({ reports: [line({ taskKey: "codex:hooks", agent: "codex", event: "start", hooksInventory: codex })] }, ACTOR);
+    expect((await service().list({})).hooksInventory).toEqual(codex);
+
+    /* An older inventory from another agent does not win. */
+    const stale = inventory("grok", "2026-09-12T16:00:00.000Z", "grok older");
+    await service().report({ reports: [line({ taskKey: "grok:hooks", agent: "grok", event: "start", hooksInventory: stale })] }, ACTOR);
+    expect((await service().list({})).hooksInventory).toEqual(codex);
+
+    /* The same agent reporting again replaces its inventory whole. */
+    const replaced: OpsHooksInventory = { ...inventory("codex", "2026-09-12T16:41:00.000Z", "codex replaced"), tools: [{ id: "codex", label: "Codex", status: "none", hooks: [] }] };
+    await service().report({ reports: [line({ taskKey: "codex:hooks", agent: "codex", event: "progress", hooksInventory: replaced })] }, ACTOR);
+    const list = await service().list({});
+    expect(list.hooksInventory).toEqual(replaced);
+    expect(list.coverage.find((reporter) => reporter.agent === "codex")?.meta).toEqual({ hooksInventory: replaced });
+  });
+
+  it("rejects an oversized or malformed inventory at the contract", () => {
+    const huge = { ...inventory("claude", "2026-09-12T16:00:00.000Z", "x"), tools: Array.from({ length: 20 }, (_, i) => ({
+      id: `tool-${i}`, label: "Tool", status: "active" as const, note: "n".repeat(600),
+      hooks: Array.from({ length: 10 }, () => ({ event: "Stop", command: "c".repeat(600), source: "s".repeat(300), note: "m".repeat(300) })),
+    })) };
+    expect(JSON.stringify(huge).length).toBeGreaterThan(65_536);
+    expect(opsHooksInventorySchema.safeParse(huge).success).toBe(false);
+    expect(opsReportSchema.safeParse(line({ taskKey: "k", event: "note", hooksInventory: huge })).success).toBe(false);
+    expect(opsHooksInventorySchema.safeParse({ ...inventory("claude", "2026-09-12T16:00:00.000Z", "x"), tools: [] }).success).toBe(false);
+    expect(opsHooksInventorySchema.safeParse({ ...inventory("claude", "2026-09-12T16:00:00.000Z", "x"), extra: 1 }).success).toBe(false);
+    expect(opsHooksInventorySchema.safeParse({ ...inventory("claude", "2026-09-12T16:00:00.000Z", "x"), tools: [{ id: "t", label: "T", status: "off", hooks: [] }] }).success).toBe(false);
+  });
+});
+
+describe("summarize()", () => {
+  const generate = vi.fn();
+  const summarizer = () => opsTasksService(db as unknown as Database, { now: () => clock, store, generate });
+  const output = (text: string) => ({ text, model: "test/fast", inputTokens: 100, outputTokens: 50, latencyMs: 10, inputHash: "h", costUsd: 0.0001 });
+
+  it("writes the model's Hebrew fields onto the task, keeps a real title, and notes the run", async () => {
+    clock = new Date("2026-09-12T16:50:00.000Z");
+    const { taskIds: [id] } = await service().report({ reports: [line({ taskKey: "claude:digest", event: "start", title: "Build the summariser" })] }, ACTOR);
+    generate.mockResolvedValueOnce(output('```json\n{"title":"כותרת מהמודל","summary":"התבקש סיכום. בוצע.","changes":"- server/x.ts","remaining":"לא נותר דבר","blockers":null}\n```'));
+    clock = new Date("2026-09-12T16:55:00.000Z");
+    const task = await summarizer().summarize({
+      taskKey: "claude:digest", request: "build it", lastAssistant: "done", filesEdited: ["server/x.ts"],
+      commits: [{ sha: "abc1234", subject: "feat: x" }], toolCounts: { Edit: 3 }, language: "mixed", source: "claude-stop-hook",
+    }, ACTOR);
+    expect(task).toMatchObject({
+      id, title: "Build the summariser", summary: "התבקש סיכום. בוצע.", changes: "- server/x.ts", remaining: "לא נותר דבר", blockers: null,
+      lastUpdateAt: "2026-09-12T16:55:00.000Z",
+    });
+    expect(task.meta).toMatchObject({ summarized: { at: "2026-09-12T16:55:00.000Z", model: "test/fast", costUsd: 0.0001, parsed: true } });
+    const call = generate.mock.calls[0]![0] as { profile: string; kind: string; prompt: string; system: string; tags: string[] };
+    expect(call).toMatchObject({ profile: "fast", kind: "summarize", tags: ["ops-tasks", "summarize"] });
+    expect(call.prompt).toContain("abc1234 feat: x");
+    expect(call.system).toContain("JSON");
+    const detail = await service().detail(id!);
+    expect(detail.events[0]).toMatchObject({ kind: "note", message: "סוכם אוטומטית (test/fast)", actorLabel: ACTOR });
+  });
+
+  it("replaces a placeholder title, falls back to raw text on malformed output, and refuses an unknown task", async () => {
+    clock = new Date("2026-09-12T17:05:00.000Z");
+    await service().report({ reports: [line({ taskKey: "codex:untitled", agent: "codex", event: "start" })] }, ACTOR);
+    generate.mockResolvedValueOnce(output("I could not produce JSON, sorry."));
+    const task = await summarizer().summarize({ taskKey: "codex:untitled", lastAssistant: "whatever" }, ACTOR);
+    expect(task.title).toBe("codex:untitled");
+    expect(task.summary).toContain("I could not produce JSON, sorry.");
+    expect(task.summary).toMatch(/JSON/);
+    expect(task.meta).toMatchObject({ summarized: { parsed: false } });
+
+    generate.mockResolvedValueOnce(output('{"title":"כותרת","summary":"סיכום","changes":"- a","remaining":"לא נותר דבר"}'));
+    const retitled = await summarizer().summarize({ taskKey: "codex:untitled" }, ACTOR);
+    expect(retitled.title).toBe("כותרת");
+    expect(retitled.blockers).toBeNull();
+
+    await expect(summarizer().summarize({ taskKey: "nobody:here" }, ACTOR)).rejects.toThrow(/not found/);
+    await expect(summarizer().summarize({ taskKey: "codex:untitled", extra: 1 }, ACTOR)).rejects.toThrow();
   });
 });
 

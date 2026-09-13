@@ -359,6 +359,24 @@ export const TASKS = {
   quiet: "שקט מעל יממה",
   notConnected: "לא מחובר",
   partial: "חלקי מתוכנן",
+  /* Full report */
+  fullReport: "מה בוצע (דוח מלא)",
+  showAll: "הצג הכל",
+  showLess: "צמצם",
+  /* Hooks inventory */
+  hooks: "הוקים ואוטומציות",
+  hooksNone: "טרם התקבל מלאי הוקים — הוא נשלח בתחילת כל סשן של Claude או Grok",
+  hooksCollected: (ago: string, hostname: string, agent: string) => `נאסף ${ago} ממחשב ${hostname} על ידי ${agent}`,
+  hooksCount: (tools: number, hooks: number) => `${tools} כלים, ${hooks} הוקים פעילים`,
+  hookToolActive: "פעיל",
+  hookToolPartial: "חלקי",
+  hookToolNone: "אין הוקים",
+  hookEvent: "אירוע",
+  hookCommand: "פקודה",
+  hookSource: "מקור",
+  hookTimeout: "timeout",
+  hookDisabled: "מושבת",
+  hookConfigPath: "קובץ הגדרה",
 } as const;
 
 /* ── The recurring nouns, so twelve files spell them the same ─────────── */

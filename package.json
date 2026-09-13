@@ -61,7 +61,9 @@
     "schema:check": "tsx scripts/check-deployment-schema.ts",
     "ops:report": "node scripts/ops/report.mjs",
     "ops:capture": "node scripts/ops/capture.mjs",
-    "ops:backfill": "node scripts/ops/backfill.mjs"
+    "ops:backfill": "node scripts/ops/backfill.mjs",
+    "ops:hooks": "node scripts/ops/hooks-inventory.mjs",
+    "ops:summarize": "node scripts/ops/summarize.mjs"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.107",

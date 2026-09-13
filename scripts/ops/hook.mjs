@@ -12,20 +12,33 @@
  * a prompt or a stop.
  *
  * What each event becomes:
- *   session-start  → `start` with a placeholder title; the first prompt names it
+ *   session-start  → `start` with a placeholder title and the machine's
+ *                    `hooksInventory` (scripts/ops/hooks-inventory.mjs)
  *   prompt         → first prompt: title + request. Later prompts: a `note`
- *   stop           → `progress` with the last assistant text and `git diff --stat`
+ *   stop           → `progress` whose `summary` is the last assistant text and
+ *                    whose `changes` is `git diff --stat` plus the changed
+ *                    paths, so a running task always carries a current
+ *                    explanation of where it stands
  *   subagent-stop  → `note`
- *   session-end    → `note` "ended without a finish" + meta.sessionEnded, unless
- *                    a finish was recorded for this task. Status is left alone:
- *                    a task is completed only by an explicit finish.
+ *   session-end    → a digest of the transcript (first prompt, last two
+ *                    assistant texts, files edited, commits, tool counts)
+ *                    POSTed to the summarize route, where a model writes the
+ *                    Hebrew summary. Unreachable → spooled under
+ *                    `~/.lions-ops/spool-digests/` for the next flush. Then,
+ *                    unless a finish was recorded, a `note` "ended without a
+ *                    finish". Status is left alone: a task is completed only
+ *                    by an explicit finish.
  */
 import { execFileSync } from "node:child_process";
 import { readFileSync, statSync, openSync, readSync, closeSync } from "node:fs";
 import { basename } from "node:path";
-import { defaultTaskKey, readTaskState, rememberCurrentSession, reportEvent, resolveIdentity, writeTaskState } from "./report.mjs";
+import { buildDigestFromTranscript, commitsSince, defaultTaskKey, readTaskState, rememberCurrentSession, reportEvent, resolveIdentity, sendDigest, writeTaskState } from "./report.mjs";
 
 const HOOK_TIMEOUT_MS = 5000;
+const DIGEST_TIMEOUT_MS = 8000;
+const SUMMARY_MAX = 16000;
+const CHANGES_MAX = 8000;
+const CHANGED_FILES_MAX = 40;
 
 function readStdin() {
   try {
@@ -35,13 +48,30 @@ function readStdin() {
   }
 }
 
-function diffStat(cwd) {
+function gitOut(args, cwd) {
   try {
-    const out = execFileSync("git", ["diff", "--stat", "HEAD"], { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 3000 }).trim();
-    return out ? out.split("\n").at(-1).trim() : "no uncommitted changes";
+    return execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 3000 }).trim();
   } catch {
     return null;
   }
+}
+
+function diffStat(cwd) {
+  const out = gitOut(["diff", "--stat", "HEAD"], cwd);
+  if (out == null) return null;
+  return out ? out.split("\n").at(-1).trim() : "no uncommitted changes";
+}
+
+/** The `changes` field: the stat summary line, then up to 40 changed paths (tracked and untracked). */
+function changesText(cwd) {
+  const stat = diffStat(cwd);
+  if (stat == null) return null;
+  const tracked = (gitOut(["diff", "--name-only", "HEAD"], cwd) ?? "").split("\n").filter(Boolean);
+  const untracked = (gitOut(["ls-files", "--others", "--exclude-standard"], cwd) ?? "").split("\n").filter(Boolean);
+  const files = [...new Set([...tracked, ...untracked])];
+  const lines = [`git diff --stat: ${stat}`, ...files.slice(0, CHANGED_FILES_MAX).map((f) => `- ${f}`)];
+  if (files.length > CHANGED_FILES_MAX) lines.push(`- … ועוד ${files.length - CHANGED_FILES_MAX} קבצים`);
+  return lines.join("\n").slice(0, CHANGES_MAX);
 }
 
 /** Last assistant text in a Claude transcript, reading only the file's tail. */
@@ -76,6 +106,16 @@ function lastAssistantText(transcriptPath, maxChars = 1500) {
   return null;
 }
 
+async function collectInventory(identity) {
+  try {
+    const { collectHooksInventory } = await import("./hooks-inventory.mjs");
+    return collectHooksInventory({ repoRoot: process.env.CLAUDE_PROJECT_DIR || identity.cwd, agent: identity.agent });
+  } catch (error) {
+    process.stderr.write(`[ops-hook] hooks inventory skipped: ${error?.message ?? error}\n`);
+    return undefined;
+  }
+}
+
 async function run(subcommand, input) {
   const cwd = input.cwd || process.cwd();
   const sessionId = input.session_id || null;
@@ -88,12 +128,14 @@ async function run(subcommand, input) {
   switch (subcommand) {
     case "session-start": {
       rememberCurrentSession(cwd, { taskKey, sessionId, agent: identity.agent });
-      writeTaskState(taskKey, { started: true, titled: false, finished: false, prompts: 0 });
+      writeTaskState(taskKey, { started: true, startedAt: new Date().toISOString(), titled: false, finished: false, prompts: 0 });
+      const hooksInventory = await collectInventory(identity);
       await reportEvent("start", {
         title: `סשן ${identity.agent} – ${basename(cwd)}`,
         kind: "code",
         status: "running",
         meta: { ...baseMeta, source: input.source },
+        hooksInventory,
       }, options);
       return;
     }
@@ -112,13 +154,13 @@ async function run(subcommand, input) {
       return;
     }
     case "stop": {
-      const parts = [];
-      const text = lastAssistantText(input.transcript_path);
-      if (text) parts.push(text);
-      const stat = diffStat(cwd);
-      if (stat) parts.push(`git diff --stat: ${stat}`);
-      if (!parts.length) parts.push("turn ended");
-      await reportEvent("progress", { message: parts.join("\n\n"), meta: baseMeta }, options);
+      const text = lastAssistantText(input.transcript_path, SUMMARY_MAX);
+      const changes = changesText(cwd);
+      const message = [text ? text.slice(0, 1500) : null, changes ? changes.split("\n")[0] : null].filter(Boolean).join("\n\n") || "turn ended";
+      const fields = { message, meta: baseMeta };
+      if (text) fields.summary = text;
+      if (changes) fields.changes = changes;
+      await reportEvent("progress", fields, options);
       return;
     }
     case "subagent-stop": {
@@ -126,6 +168,16 @@ async function run(subcommand, input) {
       return;
     }
     case "session-end": {
+      if (input.transcript_path) {
+        const digest = buildDigestFromTranscript(input.transcript_path, { taskKey });
+        if (digest.error) process.stderr.write(`[ops-hook] digest skipped: ${digest.error}\n`);
+        else if (digest.lastAssistant || digest.request) {
+          if (!digest.commits?.length && state.startedAt) digest.commits = commitsSince(cwd, state.startedAt);
+          const result = await sendDigest(digest, { timeoutMs: DIGEST_TIMEOUT_MS });
+          if (!result.sent) process.stderr.write(`[ops-hook] digest ${result.spooled ? "spooled" : "rejected"}: ${result.error ?? ""}\n`);
+          writeTaskState(taskKey, { digestSentAt: result.sent ? new Date().toISOString() : undefined, digestSpooled: result.spooled || undefined });
+        }
+      }
       if (state.finished) return;
       await reportEvent("note", {
         message: "הסשן הסתיים ללא דוח סיום",

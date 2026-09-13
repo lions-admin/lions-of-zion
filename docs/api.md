@@ -429,6 +429,7 @@ Never call these from a browser.
 | GET | `/api/internal/editorial-updates/runs/{runId}` | `editorial` | Machine-readable state of one delivery run, addressed by the package's own `runId` |
 | POST | `/api/internal/ops/tasks/report` | `ops-report` | A batch of task-board report lines (`opsReportBatchSchema`, 1–200); 202 `{accepted, taskIds}`, accepted whole or not at all |
 | POST | `/api/internal/ops/tasks/attachments` | `ops-report` | One screenshot or file, base64 (`opsAttachmentUploadSchema`), stored under `ops/attachments/`; 201 `{attachment}` |
+| POST | `/api/internal/ops/tasks/summarize` | `ops-report` | A session digest (`opsTaskDigestSchema`); the server asks the AI Gateway (`fast`, kind `summarize`) for a Hebrew title/summary/changes/remaining/blockers (`opsTaskAutoSummarySchema`), writes them onto the existing task (404 otherwise) with a `note` event and `meta.summarized`; 200 `{task}` |
 | GET | `/api/v1/admin/console/tasks` | `actor` | The task board: filters, keyset page, summary counts, reporter coverage (`opsTaskListQuerySchema` → `opsTaskListSchema`) |
 | GET, PATCH | `/api/v1/admin/console/tasks/{id}` | `actor` | One task with its timeline, attachments and children; `PATCH` sets a manual status with a note (`opsTaskPatchSchema`, audit `ops_task.patch` under `system`) |
 | GET, POST | `/api/v1/admin/editorial-update` | `actor` | List recent package-delivery runs; an authenticated receiver may create a run only from explicit operations |
@@ -450,6 +451,11 @@ which *agent* reported is a validated field of the report body. The two routes
 match the `/api/internal/ops/` prefix in `SERVICE_PREFIXES`, so they run as
 `app_service` with identity `service:ops-reporter`. Contract:
 `server/contracts/ops-tasks.ts`; module: `server/modules/ops-tasks`.
+Any report line may carry `hooksInventory` (`opsHooksInventorySchema`, a
+machine-collected description of every hook in every AI tool on that
+machine); it is stored whole on the reporting agent's `ops_reporter.meta`, and
+the list returns the newest one across all reporters as `hooksInventory`
+(`null` until one has been reported).
 
 ### The whole-site editorial receiver
 

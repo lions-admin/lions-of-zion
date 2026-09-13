@@ -34,7 +34,18 @@
 .section { display: grid; gap: 10px; min-width: 0; }
 .narrative { display: grid; gap: 14px; margin: 0; }
 .narrative dt { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
-.narrative dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; }
+.narrative dd { margin: 0; overflow-wrap: anywhere; line-height: 1.6; }
+
+/* ── Prose: a report rendered in full, line breaks and bullets kept ── */
+.prose { display: grid; gap: 8px; min-width: 0; }
+.prose p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; }
+.proseList { margin: 0; padding-inline-start: 20px; display: grid; gap: 4px; }
+.proseList li { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.55; }
+.clipped { display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+.expandButton {
+  justify-self: start; background: none; border: 0; padding: 2px 0; margin-top: 2px;
+  font: inherit; font-size: 12px; color: var(--gold); cursor: pointer; text-decoration: underline;
+}
 .linkList { margin: 0; padding-inline-start: 18px; display: grid; gap: 6px; }
 .linkList a { color: var(--gold); overflow-wrap: anywhere; }
 
@@ -48,7 +59,7 @@
 .eventBody { display: grid; gap: 3px; min-width: 0; }
 .eventBody strong { font-weight: 500; font-size: 14px; }
 .fromTo { font-weight: 400; color: var(--ink); }
-.eventMessage { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; }
+.eventMessage { display: grid; gap: 2px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; min-width: 0; }
 .eventBody small { font-size: 12px; color: var(--ink-lo); }
 
 /* ── Gallery ── */
@@ -68,6 +79,22 @@
 .coverageTable th[scope="row"] small { display: block; font-weight: 400; }
 .coverageTable td small { display: block; margin-top: 4px; }
 .missingCell { white-space: normal; min-width: 240px; max-width: 520px; font-size: 13px; color: var(--ink); }
+
+/* ── Hooks inventory ── */
+.hooks { display: grid; gap: 12px; min-width: 0; }
+.hooksCount { margin: 0; font-size: 13px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.hooksGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 14px; }
+.hookCard { display: grid; gap: 8px; min-width: 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius-1); background: var(--surface-1); }
+.hookCardHead { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.hookCardHead strong { font-weight: 600; font-size: 14px; }
+.hookCard p { margin: 0; font-size: 13px; }
+.hookTable th[scope="row"] { font-weight: 500; white-space: nowrap; }
+.hookTable th[scope="row"] small, .hookTable td small { display: block; font-weight: 400; margin-top: 3px; white-space: normal; }
+.hookTable td { white-space: normal; vertical-align: top; }
+.hookCommand {
+  display: block; font-family: var(--face-data); font-size: 12px; line-height: 1.5;
+  unicode-bidi: isolate; direction: ltr; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; min-width: 200px; max-width: 560px;
+}
 
 @media (max-width: 900px) {
   .taskRow { grid-template-columns: 110px minmax(0,1fr); }

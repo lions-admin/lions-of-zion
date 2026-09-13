@@ -64,6 +64,74 @@ npm run ops:report -- attach --file shot.png --attachment-kind after --pair hero
 כשאין מה לצלם — שינוי בשרת, במסמך, בסקריפט — כותבים ב-`finish`:
 `--meta screenshots="אין צילום רלוונטי"`. לא משמיטים בשקט.
 
+## סיכום אוטומטי בעברית בסוף הסשן
+
+`finish` נשאר חובה, אבל משימה שהסשן שלה נגמר לא נשארת בלי הסבר. שני מנגנונים
+דואגים לזה, ושניהם עוברים דרך `scripts/ops/hook.mjs`:
+
+1. **בכל סוף תור (`Stop`)** ה-hook שולח `progress` שבו `summary` הוא הטקסט
+   האחרון של הסוכן (עד 16,000 תווים) ו-`changes` הוא שורת הסיכום של
+   `git diff --stat` ועד 40 נתיבים של קבצים שהשתנו. כך משימה רצה תמיד נושאת
+   הסבר עדכני, גם אם הסוכן יתנתק ברגע הבא.
+2. **בסיום הסשן (`SessionEnd`)** ה-hook בונה **תמצית (digest)** מהתמליל
+   (`transcript_path`): הבקשה הראשונה של הבעלים, שני הטקסטים האחרונים של
+   הסוכן, כל קובץ ש-`Edit`/`Write`/`MultiEdit` נגעו בו, ספירת כלים, והקומיטים
+   מאז תחילת הסשן (`git log --since`). התמצית נשלחת ל-
+   `POST /api/internal/ops/tasks/summarize` (אותה כותרת `x-ops-report-secret`),
+   **והשרת** — לא הסקריפט — מפעיל מודל שכותב כותרת, סיכום, שינויים, מה נשאר
+   ומה תקוע בעברית, ומעדכן את המשימה. שום דבר בצד הלקוח לא מנסח את הסיכום.
+
+התמצית מוגבלת לפי חוזה השרת: בקשה ≤6,000 תווים, טקסט אחרון ≤12,000, טקסט
+קודם ≤6,000, ≤200 קבצים, ≤100 קומיטים. `language` (`he`/`en`/`mixed`)
+מזוהה מהטקסט. כשהשרת לא זמין התמצית נשמרת ב-`~/.lions-ops/spool-digests/`
+ו-`npm run ops:report -- flush` שולח גם אותה (אחרי תור הדיווחים הרגיל).
+תמצית שנדחתה (400/413/422) עוברת ל-`spool-digests/rejected/`.
+
+אותה תמצית אפשר לבקש ידנית, לכל משימה ולכל תמליל:
+
+```bash
+npm run ops:report -- digest --task claude:<session> --transcript ~/.claude/projects/<dir>/<session>.jsonl
+npm run ops:report -- digest --file digest.json            # תמצית שבנית בעצמך
+npm run ops:summarize -- --task KEY --transcript PATH       # אותו דבר, CLI דק
+npm run ops:summarize -- --task KEY --transcript PATH --dry-run   # מדפיס את התמצית, לא שולח
+npm run ops:summarize -- --all-imported --only-missing      # כל ההיסטוריה שיובאה, בלי מה שכבר סוכם
+```
+
+`ops:backfill -- --apply --summarize` עושה את זה לכל משימה מיובאת אחרי
+הייבוא (שלוש במקביל, שורת התקדמות כל עשרים), ו-`--only-missing` מדלג על
+מפתחות שכבר רשומים ב-`~/.lions-ops/state/summarized.json`. הייבוא עצמו
+כותב עכשיו `summary` = הטקסט האחרון של הסוכן ו-`changes` = הקבצים
+והקומיטים, מתמלילי Claude (JSONL), Codex (`~/.codex/sessions`, כולל
+`custom_tool_call`/`apply_patch`) ו-Grok (`chat_history.jsonl`); עבור
+`docs/reviews/*/REPORT.md` גוף הדוח הוא הטקסט האחרון.
+
+## הוקים ואוטומציות (hooksInventory)
+
+בפתיחת סשן (`SessionStart`) ה-hook מצרף לשורת ה-`start` שדה `hooksInventory`:
+מה באמת מחובר במכונה ובריפו, כפי שנאסף ברגע זה, לא כפי שמתועד. הלוח מציג
+אותו במקטע **"הוקים ואוטומציות"** של המשימה, ו-`npm run ops:hooks` מדפיס
+אותו כ-JSON (`--summary` לשורה אחת לכלי). האוסף הוא
+`scripts/ops/hooks-inventory.mjs`, ללא תלויות, ולעולם לא זורק: קובץ חסר הוא
+`status: "none"` עם הערה שאומרת מה חסר.
+
+| כלי (`id`) | מה נקרא | מצב |
+| --- | --- | --- |
+| `claude-machine` | `~/.claude/settings.json` — כל אירוע × פקודה × timeout | `active` כשיש hooks |
+| `claude-project` | `<repo>/.claude/settings.json` — ה-hooks שמדווחים ללוח | `active` |
+| `grok` | `~/.grok/config.toml` `[compat.claude] hooks` — אם true, אותם hooks של Claude עם ציון compat; כשהקובץ חסר: ברירת המחדל המתועדת (true), וההערה אומרת שזו הנחה | `active` / `none` |
+| `codex` | שורת ה-`notify` ב-`~/.codex/config.toml` → אירוע `turn-ended` | `active` כשהיא מצביעה על `scripts/ops/codex-notify.mjs`, אחרת `partial` |
+| `opencode` | `~/.config/opencode/opencode.json` plugins/hooks | `none` — "אין ממשק hooks; מדווח רק דרך קומיטים ו-CLI" |
+| `gemini-agy` | `~/.gemini/settings.json` hooks | `none`, אותה הערה |
+| `git` | תיקיית `core.hooksPath` — כל קובץ בר-הרצה הוא אירוע (post-commit, pre-push) | `active` כשיש post-commit |
+| `github-actions` | `.github/workflows/*.yml` — הטריגרים ב-`on:` כאירועים, שמות ה-jobs כפקודה | `active` |
+| `vercel` | `vercel.json` — `ignoreCommand`, `git.deploymentEnabled`, `experimentalTriggers`, crons | `active` |
+| `mcp` | `.mcp.json` — כל שרת הוא אירוע, הפקודה או ה-URL שלו | `active` |
+
+הצורה היא זו של החוזה: עד 20 כלים, עד 60 hooks לכלי, פקודה עד 600 תווים,
+הכול מתחת ל-64KB (האוסף מקצר הערות ופקודות אם צריך). המטרה היא שהבעלים
+יראה בלוח, לצד כל משימה, אילו אוטומציות היו פעילות כשהיא רצה — ולא יצטרך
+לפתוח חמישה קובצי הגדרות כדי לענות "למה Codex לא דיווח start".
+
 ## משימת-אב ופעולות משנה
 
 משימה גדולה שמתפצלת — סוכני-משנה, כמה סבבים, כמה קומיטים — נשארת רשומה
@@ -120,7 +188,7 @@ git hook או שלב CI לא נכשל בגלל דיווח. הניסיון הבא
 
 | סביבה | `start` / `progress` | קומיטים | `finish` | דרגת חיבור | מה מחבר אותה |
 | --- | --- | --- | --- | --- | --- |
-| Claude Code | אוטומטי — hooks ב-`.claude/settings.json` (SessionStart, UserPromptSubmit, Stop, SubagentStop, SessionEnd) | אוטומטי — git post-commit | **ידני** — `npm run ops:report -- finish` | אוטומטי (חוץ מ-finish) | ה-hooks מגיעים עם ה-checkout |
+| Claude Code | אוטומטי — hooks ב-`.claude/settings.json` (SessionStart עם `hooksInventory`, UserPromptSubmit, Stop עם `summary`+`changes`, SubagentStop, SessionEnd עם תמצית לסיכום בעברית) | אוטומטי — git post-commit | **ידני** — `npm run ops:report -- finish`; הסיכום האוטומטי של השרת ממלא את הפער אבל אינו מסמן `completed` | אוטומטי (חוץ מ-finish) | ה-hooks מגיעים עם ה-checkout |
 | Grok | אוטומטי — אותם hooks (`[compat.claude] hooks = true`) | אוטומטי | **ידני** | אוטומטי (חוץ מ-finish) | אותו קובץ hooks |
 | Codex | אוטומטי — `notify` ב-`~/.codex/config.toml` עטוף ב-`scripts/ops/codex-notify.mjs`; מדווח `progress` בסוף כל תור עם ההודעה האחרונה | אוטומטי | **ידני** | חלקי (רק סוף-תור, אין SessionStart) | עטיפת ה-notify במכונה של הבעלים; הנתיב הוא ה-checkout הראשי `Documents/lions-of-zion` |
 | OpenCode | **ידני** בלבד | אוטומטי | **ידני** | חלקי | אין לכלי משטח hooks. עד שיהיה — הקומיטים וה-CLI הידני הם הכיסוי |
@@ -144,21 +212,27 @@ git hook או שלב CI לא נכשל בגלל דיווח. הניסיון הבא
 
 ```bash
 npm run ops:report -- whoami
-npm run ops:report -- start --title "…" --request "…" --kind code|editorial|design|ops|research|review|other
+npm run ops:report -- start --title "…" --request "…" --kind code|editorial|design|ops|research|review|import|other
 npm run ops:report -- progress --message "…"
 npm run ops:report -- status --status blocked --message "…"
 npm run ops:report -- note --message "…"
 npm run ops:report -- finish --summary "…" --changes "…" --remaining "…" --blockers "…" --next "…" [--status failed] [--link label=url]
 npm run ops:report -- attach --file PATH --attachment-kind screenshot|before|after|artifact|file [--caption "…"] [--pair KEY]
-npm run ops:report -- flush
+npm run ops:report -- digest --task KEY --transcript PATH | --file digest.json   # סיכום בעברית מהשרת
+npm run ops:report -- flush     # שולח את תור הדיווחים וגם את תור התמציות
 npm run ops:capture -- --url URL [--url URL2] [--widths 1280,390] --kind before|after|screenshot [--pair KEY] [--task KEY]
-npm run ops:backfill            # dry run
-npm run ops:backfill -- --apply # ייבוא היסטוריה חד-פעמי
+npm run ops:hooks [-- --summary]                    # מה מחובר במכונה ובריפו, כ-JSON
+npm run ops:summarize -- --task KEY --transcript PATH [--dry-run]
+npm run ops:summarize -- --all-imported [--only-missing]
+npm run ops:backfill                                # dry run
+npm run ops:backfill -- --apply [--summarize]       # ייבוא היסטוריה חד-פעמי, ואופציונלית סיכום של כל משימה
+npm run ops:backfill -- --summarize --only-missing  # רק סיכומים, בלי לייבא שוב
 ```
 
 דגלים משותפים: `--task KEY`, `--parent KEY`, `--meta k=v` (חוזר),
 `--link label=url` (חוזר). משתני סביבה: `OPS_REPORT_SECRET`,
 `OPS_REPORT_BASE_URL`, `OPS_TASK_KEY`, `LIONS_AI`, `LIONS_OPS_HOME`
-(ברירת מחדל `~/.lions-ops`).
+(ברירת מחדל `~/.lions-ops`; תחתיו `spool/`, `spool-digests/`,
+`state/summarized.json`).
 
 </div>

@@ -7,11 +7,13 @@
  * unit-tested directly.
  */
 
-import type {
-  OpsEventKind,
-  OpsManualStatus,
-  OpsReportEvent,
-  OpsTaskStatus,
+import {
+  opsHooksInventorySchema,
+  type OpsEventKind,
+  type OpsHooksInventory,
+  type OpsManualStatus,
+  type OpsReportEvent,
+  type OpsTaskStatus,
 } from "@/server/contracts/ops-tasks";
 
 /** A running or waiting task with nothing heard for this long is stale. */
@@ -83,6 +85,21 @@ export function statusImpliedBy(event: OpsReportEvent, given: OpsTaskStatus | un
   if (event === "finish") return "completed";
   if (event === "start") return "running";
   return null;
+}
+
+/**
+ * The newest hooks inventory across every reporter's `meta.hooksInventory`,
+ * by `collectedAt`. A stored value that no longer parses (an older shape) is
+ * skipped rather than failing the whole list.
+ */
+export function newestHooksInventory(reporters: ReadonlyArray<{ meta: Record<string, unknown> }>): OpsHooksInventory | null {
+  let newest: OpsHooksInventory | null = null;
+  for (const reporter of reporters) {
+    const parsed = opsHooksInventorySchema.safeParse(reporter.meta.hooksInventory);
+    if (!parsed.success) continue;
+    if (!newest || Date.parse(parsed.data.collectedAt) > Date.parse(newest.collectedAt)) newest = parsed.data;
+  }
+  return newest;
 }
 
 /** How an `editorial_run` status reads on this board. */

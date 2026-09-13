@@ -23,19 +23,24 @@ import { createHash } from "node:crypto";
 import type { Database } from "@/server/db/client";
 import { writeAudit, type Actor } from "@/server/core/audit";
 import { storeOpsAttachment } from "@/server/core/blob";
+import { generate as gatewayGenerate, type GenerateInput, type GenerateOutput } from "@/server/core/ai/gateway";
 import {
   OPS_ATTACHMENT_MAX_BYTES,
   opsAttachmentRowSchema,
   opsAttachmentUploadSchema,
   opsReportAcceptedSchema,
   opsReportBatchSchema,
+  opsTaskAutoSummarySchema,
   opsTaskDetailSchema,
+  opsTaskDigestSchema,
   opsTaskListQuerySchema,
   opsTaskListSchema,
   opsTaskPatchSchema,
   opsTaskRowSchema,
   type OpsAttachmentRow,
   type OpsReport,
+  type OpsTaskAutoSummary,
+  type OpsTaskDigest,
   type OpsReportAccepted,
   type OpsTaskDetail,
   type OpsTaskList,
@@ -45,7 +50,7 @@ import {
 import type { opsTask } from "@/server/db/schema";
 import { ApiError, notFound } from "@/server/http/responses";
 import { opsTasksRepo, shapeAttachment, shapeTask, type Executor } from "./repo";
-import { allowedManualTransition, eventKindFor, isTerminalStatus, statusImpliedBy } from "./rules";
+import { allowedManualTransition, eventKindFor, isTerminalStatus, newestHooksInventory, statusImpliedBy } from "./rules";
 
 const EXTENSION: Record<string, string> = {
   "image/png": "png",
@@ -77,15 +82,81 @@ function fieldsOf(report: OpsReport): Partial<TaskInsert> {
   return out;
 }
 
+/** The gateway's surface, as the summariser needs it. */
+export type Generator = (input: GenerateInput) => Promise<GenerateOutput>;
+
 export type OpsTasksServiceOptions = {
   /** Injected by tests; production uses the wall clock. */
   now?: () => Date;
   store?: typeof storeOpsAttachment;
+  /** Injected by tests; production uses the AI Gateway. */
+  generate?: Generator;
 };
+
+const SUMMARY_SYSTEM_PROMPT = [
+  "אתה מסכם משימות פיתוח עבור לוח המשימות התפעולי של lionsofzion.io.",
+  "תקבל תקציר של סשן עבודה של סוכן AI: הבקשה המקורית, המילים האחרונות של הסוכן, קבצים שנערכו, קומיטים ומוני כלים.",
+  "החזר אך ורק JSON תקין, ללא טקסט לפניו או אחריו וללא גדרות קוד, במבנה:",
+  '{"title": string, "summary": string, "changes": string, "remaining": string, "blockers": string | null}',
+  "כל השדות בעברית.",
+  "title: כותרת קצרה ועניינית של המשימה, עד 12 מילים.",
+  "summary: מה התבקש ומה בוצע בפועל, 3 עד 10 משפטים, קונקרטי ומדויק.",
+  'changes: שורות המתחילות ב-"- " עם הקבצים, הקומיטים והתוצרים שהשתנו.',
+  'remaining: מה נותר לעשות, או בדיוק "לא נותר דבר" אם הכל הושלם.',
+  "blockers: מה חסם או עדיין חוסם, או null.",
+  "אל תמציא דבר שאינו בתקציר. שמור מזהים, נתיבי קבצים, שמות פונקציות, קומיטים ומונחים טכניים באנגלית כפי שהם.",
+].join("\n");
+
+/** The digest as the model reads it: labelled sections, absent ones omitted. */
+function digestPrompt(digest: OpsTaskDigest): string {
+  const parts: string[] = [`taskKey: ${digest.taskKey}`];
+  if (digest.source) parts.push(`source: ${digest.source}`);
+  if (digest.language) parts.push(`language of the material: ${digest.language}`);
+  if (digest.request) parts.push(`## הבקשה המקורית\n${digest.request}`);
+  if (digest.priorAssistant) parts.push(`## הודעה קודמת של הסוכן\n${digest.priorAssistant}`);
+  if (digest.lastAssistant) parts.push(`## ההודעה האחרונה של הסוכן\n${digest.lastAssistant}`);
+  if (digest.filesEdited?.length) parts.push(`## קבצים שנערכו\n${digest.filesEdited.map((file) => `- ${file}`).join("\n")}`);
+  if (digest.commits?.length) parts.push(`## קומיטים\n${digest.commits.map((commit) => `- ${commit.sha} ${commit.subject}`).join("\n")}`);
+  if (digest.toolCounts && Object.keys(digest.toolCounts).length) {
+    parts.push(`## מוני כלים\n${Object.entries(digest.toolCounts).map(([tool, n]) => `- ${tool}: ${n}`).join("\n")}`);
+  }
+  return parts.join("\n\n");
+}
+
+/**
+ * The model's text, read defensively: code fences stripped, the outermost
+ * object extracted, then checked against the contract. Anything else keeps
+ * the raw text as the summary and says so, rather than losing the call.
+ */
+export function parseAutoSummary(text: string): { fields: OpsTaskAutoSummary; parsed: boolean } {
+  const stripped = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+  const start = stripped.indexOf("{");
+  const end = stripped.lastIndexOf("}");
+  if (start !== -1 && end > start) {
+    try {
+      const result = opsTaskAutoSummarySchema.safeParse(JSON.parse(stripped.slice(start, end + 1)));
+      if (result.success) return { fields: result.data, parsed: true };
+    } catch {
+      /* fall through to the raw fallback */
+    }
+  }
+  const raw = stripped.slice(0, 15_000) || "(empty model output)";
+  return {
+    parsed: false,
+    fields: {
+      title: "",
+      summary: `הסיכום האוטומטי לא התקבל כ-JSON תקין; הטקסט הגולמי של המודל:\n\n${raw}`,
+      changes: "- לא זוהו שינויים (פלט המודל לא נותח)",
+      remaining: "לא ידוע — פלט המודל לא נותח",
+      blockers: null,
+    },
+  };
+}
 
 export function opsTasksService(database: Database, options: OpsTasksServiceOptions = {}) {
   const now = options.now ?? (() => new Date());
   const store = options.store ?? storeOpsAttachment;
+  const generate = options.generate ?? gatewayGenerate;
 
   /** Find or create the task a key names, locked for this transaction. */
   async function ensureTask(
@@ -185,7 +256,9 @@ export function opsTasksService(database: Database, options: OpsTasksServiceOpti
       reporterVersion: report.reporterVersion ?? null,
       lastSeenAt: at,
       lastTaskId: task.id,
-      meta: {},
+      /* `touchReporter` merges shallowly, so an inventory replaces the last
+         one whole; a line without one leaves the stored one in place. */
+      meta: report.hooksInventory ? { hooksInventory: report.hooksInventory } : {},
     });
 
     return task.id;
@@ -280,7 +353,8 @@ export function opsTasksService(database: Database, options: OpsTasksServiceOpti
       const tasks = merged.slice(0, query.limit);
       const nextBefore = merged.length > query.limit ? tasks.at(-1)!.lastUpdateAt : null;
       const running = summary.running + editorial.filter((task) => task.status === "running").length;
-      return opsTaskListSchema.parse({ summary: { ...summary, running }, tasks, nextBefore, coverage });
+      const hooksInventory = newestHooksInventory(coverage);
+      return opsTaskListSchema.parse({ summary: { ...summary, running }, tasks, nextBefore, coverage, hooksInventory });
     },
 
     async detail(id: string): Promise<OpsTaskDetail> {
@@ -299,6 +373,61 @@ export function opsTasksService(database: Database, options: OpsTasksServiceOpti
       ]);
       const task = shapeTask(record, { eventCount: events.length, attachmentCount: attachments.length }, at);
       return opsTaskDetailSchema.parse({ task, events, attachments, children });
+    },
+
+    /**
+     * A Hebrew summary of a session, written by the model on the server so
+     * the gateway key never reaches a reporter. The task must already exist:
+     * a digest describes a session, it does not open one. The title is only
+     * replaced when nothing better than the key was ever reported.
+     */
+    async summarize(raw: unknown, actorLabel: string): Promise<OpsTaskRow> {
+      const digest = opsTaskDigestSchema.parse(raw);
+      const existing = await opsTasksRepo(database).byKey(digest.taskKey);
+      if (!existing) throw notFound(`Task ${digest.taskKey}`);
+
+      const output = await generate({
+        profile: "fast",
+        kind: "summarize",
+        system: SUMMARY_SYSTEM_PROMPT,
+        prompt: digestPrompt(digest),
+        dataClass: "internal",
+        maxOutputTokens: 1500,
+        tags: ["ops-tasks", "summarize"],
+      });
+      const { fields, parsed } = parseAutoSummary(output.text);
+      const at = now();
+
+      const updated = await database.transaction(async (tx) => {
+        const repo = opsTasksRepo(tx);
+        const task = await repo.byIdForUpdate(existing.id);
+        if (!task) throw notFound(`Task ${digest.taskKey}`);
+        const keepTitle = task.title.trim() !== "" && task.title !== task.taskKey;
+        await repo.appendEvent({
+          taskId: task.id,
+          occurredAt: at,
+          kind: "note",
+          actorLabel,
+          message: `סוכם אוטומטית (${output.model})`,
+          payload: { parsed, model: output.model, costUsd: output.costUsd, source: digest.source ?? null },
+        });
+        const next = await repo.update(task.id, {
+          title: keepTitle || !fields.title ? task.title : fields.title,
+          summary: fields.summary,
+          changes: fields.changes,
+          remaining: fields.remaining,
+          blockers: fields.blockers ?? null,
+          meta: {
+            ...(task.meta ?? {}),
+            summarized: { at: at.toISOString(), model: output.model, costUsd: output.costUsd, parsed },
+          },
+          lastUpdateAt: at > task.lastUpdateAt ? at : task.lastUpdateAt,
+          updatedAt: at,
+        });
+        const counts = await repo.counts([task.id]);
+        return shapeTask(next, counts.get(task.id)!, at);
+      });
+      return opsTaskRowSchema.parse(updated);
     },
 
     /** A human's override, audited under `system` because it touches no

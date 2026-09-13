@@ -3,6 +3,7 @@ import "server-only";
 import { db } from "@/server/db/client";
 import { search } from "@/server/modules/search";
 import { ai } from "@/server/modules/ai";
+import { measurement } from "@/server/modules/measurement";
 import { assertWithinBudget } from "@/server/core/ai/gateway";
 import { answerFromDocuments } from "./answerer";
 import { chatService, type ChatService } from "./service";
@@ -21,7 +22,17 @@ export const chat = (): ChatService =>
     answer: answerFromDocuments,
     retrieve: async (query, limit) => (await search().search({ q: query, limit })).hits,
     guardBudget: () => assertWithinBudget((since) => ai().spendSince(since)),
+    /* Each turn's outcome, latency and cost, as first-party measurement
+       events on the reader's own visit. Redaction happens in there. */
+    recordOutcome: (context, outcome) => measurement().recordAskOutcome(context, outcome),
   });
 
-export { chatService, CHAT_SYSTEM_PROMPT, type ChatService, type Answerer, type Retriever } from "./service";
+export {
+  chatService,
+  CHAT_SYSTEM_PROMPT,
+  type ChatService,
+  type Answerer,
+  type Retriever,
+  type AskOutcomeRecorder,
+} from "./service";
 export { splitCitations } from "./answerer";

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   measurementCollectSchema,
   measurementEventNameSchema,
@@ -124,5 +124,61 @@ describe("measurement ingest persistence", () => {
     const rows = (audience.data as { rows: Array<{ source: string }> }).rows;
     expect(rows.some((r) => r.source === "unknown" || r.source === "")).toBe(true);
     expect(rows.every((r) => r.source !== "direct")).toBe(true);
+  });
+});
+
+describe("collector guards", () => {
+  async function load() {
+    const { startCollector } = await import("@/components/measurement/collector");
+    const { measurementHeaders } = await import("@/components/measurement/headers");
+    const { readTaggedSource } = await import("@/components/measurement/source");
+    return { startCollector, measurementHeaders, readTaggedSource };
+  }
+
+  function stubBrowser(opts: { pathname?: string; dnt?: string; gpc?: boolean; admin?: boolean }) {
+    const fetch = vi.fn(async () => new Response(null));
+    vi.stubGlobal("window", { location: { pathname: opts.pathname ?? "/", search: "" } });
+    vi.stubGlobal("document", {
+      querySelector: (selector: string) => (opts.admin && selector.includes("data-surface") ? {} : null),
+      documentElement: { querySelector: () => null },
+    });
+    vi.stubGlobal("navigator", { doNotTrack: opts.dnt, globalPrivacyControl: opts.gpc });
+    vi.stubGlobal("fetch", fetch);
+    return fetch;
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("does not start, send, or expose ids on the admin surface", async () => {
+    const { startCollector, measurementHeaders } = await load();
+    for (const opts of [{ pathname: "/admin" }, { admin: true }]) {
+      const fetch = stubBrowser(opts);
+      expect(startCollector()).toBeNull();
+      expect(fetch).not.toHaveBeenCalled();
+      expect(measurementHeaders()).toEqual({});
+    }
+  });
+
+  it("honours DNT and GPC: no collector, no send, no ids for Ask", async () => {
+    const { startCollector, measurementHeaders } = await load();
+    for (const opts of [{ dnt: "1" }, { gpc: true }]) {
+      const fetch = stubBrowser(opts);
+      expect(startCollector()).toBeNull();
+      expect(fetch).not.toHaveBeenCalled();
+      expect(measurementHeaders()).toEqual({});
+    }
+  });
+
+  it("reads tagged links and leaves an untagged one without a source", async () => {
+    const { readTaggedSource } = await load();
+    expect(readTaggedSource("?ref=telegram&m=social")).toEqual({
+      source: "telegram",
+      medium: "social",
+      campaign: undefined,
+      content_link: undefined,
+    });
+    expect(readTaggedSource("").source).toBeUndefined();
   });
 });

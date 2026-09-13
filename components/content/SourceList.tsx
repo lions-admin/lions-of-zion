@@ -39,6 +39,8 @@ export function SourceList({ sources }: SourceListProps) {
   if (!sources.length) return null;
 
   return (
+    /* Opening a cited source is `evidence_open` wherever the list sits; the
+       record it counts against comes from the page (docs/measurement.md). */
     <ol className={styles.sourceList}>
       {sources.map((source, index) => (
         <li key={source.id}>
@@ -48,7 +50,7 @@ export function SourceList({ sources }: SourceListProps) {
           <div className={styles.sourceBody}>
             {source.kind ? <span className={styles.sourceKind}>{source.kind}</span> : null}
             {source.url ? (
-              <a href={source.url} target="_blank" rel="noreferrer">
+              <a href={source.url} target="_blank" rel="noreferrer" data-measure-event="evidence_open">
                 {source.label} <span aria-hidden="true">↗︎</span>
               </a>
             ) : (
@@ -68,6 +70,7 @@ export function SourceList({ sources }: SourceListProps) {
                     href={source.archiveUrl}
                     target="_blank"
                     rel="noreferrer"
+                    data-measure-event="evidence_open"
                   >
                     Archived copy <span aria-hidden="true">↗︎</span>
                   </a>

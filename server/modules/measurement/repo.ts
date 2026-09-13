@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, desc, eq, gte, lt, sql, type SQL } from "drizzle-orm";
+import { and, desc, eq, gte, lt, sql, type AnyColumn, type SQL } from "drizzle-orm";
 import type { Database } from "@/server/db/client";
 import {
   measurementEvent,
@@ -122,19 +122,72 @@ export function measurementRepo(db: Database) {
         await this.bumpVisitCount(input.visitorId);
         return { created: true };
       }
+      /* A visit may exist before the browser's first collect — `ensureVisit`
+         files a bare one when a server event (Ask) lands first. So every
+         descriptive field fills a gap and never overwrites, and an unknown
+         source is upgraded once a known one arrives: the other order would
+         leave a tagged visit reading "unknown" for good. */
+      const fill = (column: AnyColumn, value: string | null | undefined) =>
+        sql`COALESCE(${column}, ${value ?? null})`;
+      const upgradeSource = !input.sourceUnknown;
       await db
         .update(measurementVisit)
         .set({
           lastPath: input.lastPath ?? input.entryPath ?? null,
           endedAt: at,
-          country: sql`COALESCE(${measurementVisit.country}, ${input.country ?? null})`,
-          region: sql`COALESCE(${measurementVisit.region}, ${input.region ?? null})`,
-          city: sql`COALESCE(${measurementVisit.city}, ${input.city ?? null})`,
+          entryPath: fill(measurementVisit.entryPath, input.entryPath),
+          referrer: fill(measurementVisit.referrer, input.referrer),
+          medium: fill(measurementVisit.medium, input.medium),
+          campaign: fill(measurementVisit.campaign, input.campaign),
+          contentLink: fill(measurementVisit.contentLink, input.contentLink),
+          device: fill(measurementVisit.device, input.device),
+          os: fill(measurementVisit.os, input.os),
+          browser: fill(measurementVisit.browser, input.browser),
+          locale: fill(measurementVisit.locale, input.locale),
+          viewport: fill(measurementVisit.viewport, input.viewport),
+          ...(upgradeSource
+            ? {
+                source: sql`CASE WHEN ${measurementVisit.sourceUnknown} THEN ${input.source} ELSE ${measurementVisit.source} END`,
+                sourceUnknown: false,
+              }
+            : {}),
+          country: fill(measurementVisit.country, input.country),
+          region: fill(measurementVisit.region, input.region),
+          city: fill(measurementVisit.city, input.city),
           isStaff: sql`${measurementVisit.isStaff} OR ${input.isStaff}`,
           isBot: sql`${measurementVisit.isBot} OR ${input.isBot}`,
         })
         .where(eq(measurementVisit.visitId, input.visitId));
       return { created: false };
+    },
+
+    /**
+     * A visit row for a server event, created only if the browser has not
+     * filed one yet — never an update. Source stays unknown until the
+     * browser's collect upgrades it in `upsertVisit`.
+     */
+    async ensureVisit(
+      input: { visitId: string; visitorId: string; entryPath: string | null },
+      at: Date,
+    ): Promise<{ created: boolean }> {
+      const inserted = await db
+        .insert(measurementVisit)
+        .values({
+          visitId: input.visitId,
+          visitorId: input.visitorId,
+          startedAt: at,
+          entryPath: input.entryPath,
+          lastPath: input.entryPath,
+          source: "unknown",
+          sourceUnknown: true,
+          isStaff: false,
+          isBot: false,
+        })
+        .onConflictDoNothing({ target: measurementVisit.visitId })
+        .returning({ visitId: measurementVisit.visitId });
+      if (inserted.length === 0) return { created: false };
+      await this.bumpVisitCount(input.visitorId);
+      return { created: true };
     },
 
     async insertEvents(rows: EventInsert[]): Promise<number> {
@@ -289,11 +342,14 @@ export function measurementRepo(db: Database) {
     async contentStats(filters: MeasurementConsoleFilter) {
       const audience = this.visitAudienceFilter(filters);
       const time = this.eventTimeFilter(filters);
+      /* One row per content id. A record is seen as a homepage card, a hub
+         card and its own page; grouping by section as well split it into as
+         many rows, with the views on one and the clicks on another. */
       const result = await db.execute(sql`
         SELECT
           e.content_id,
-          e.section,
-          e.content_type,
+          max(e.section) AS section,
+          max(e.content_type) AS content_type,
           count(*) FILTER (WHERE e.name = 'page_view') AS views,
           count(*) FILTER (WHERE e.name = 'exposure') AS exposures,
           count(*) FILTER (WHERE e.name LIKE 'click_%') AS clicks,
@@ -307,7 +363,7 @@ export function measurementRepo(db: Database) {
         WHERE e.content_id IS NOT NULL
           ${audience ? sql`AND ${audience}` : sql``}
           ${time ? sql`AND ${time}` : sql``}
-        GROUP BY e.content_id, e.section, e.content_type
+        GROUP BY e.content_id
         ORDER BY views DESC
         LIMIT 200
       `);

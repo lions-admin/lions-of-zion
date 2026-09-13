@@ -80,7 +80,9 @@ describe("purpose-led site navigation", () => {
       ),
     );
     expect(html).not.toContain("Sign in");
-    expect(html).toMatch(/<a class="[^"]*account[^"]*" aria-current="page" href="\/account">/);
+    /* `[^>]*` around the href: the link also carries its measurement id,
+       which `Link` renders ahead of `href`. */
+    expect(html).toMatch(/<a class="[^"]*account[^"]*" aria-current="page"[^>]* href="\/account"[^>]*>/);
   });
 
   it("keeps footer labels aligned and marks nested archive pages current", () => {

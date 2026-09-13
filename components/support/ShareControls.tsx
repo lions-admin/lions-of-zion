@@ -162,7 +162,7 @@ export function ShareControls({
           <ButtonLink
             key={target.href}
             href={target.href}
-            data-measure-id={`share-intent-${target.label}`}
+            data-measure-id={`share-intent-${target.label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
             data-measure-event="share_click"
             variant="secondary"
             size="md"

@@ -50,6 +50,7 @@ import { Badge, type BadgeStatus, BADGE_GRAMMAR } from "@/components/ui/Badge";
 import { Breadcrumb } from "@/components/site/Breadcrumb";
 import { InvestigationExplorer } from "@/components/evidence/InvestigationExplorer";
 import { Card, CardDescription, CardEyebrow, CardTitle } from "@/components/ui/Card";
+import { measurePublicationCard, measureSection } from "@/components/measurement/attrs";
 import styles from "./article.module.css";
 
 type Props = { params: Promise<{ publicId: string }> };
@@ -265,6 +266,7 @@ export default async function ArticlePage({ params }: Props) {
     <MediaBlock
       layout="reading"
       aspectRatio="8 / 5"
+      measureId="article-media"
       /* The line that says what this image is not stays outside the control
          below it, at every width and with any credit string. */
       disclosure={mediaDisclosure(articleMedia)}
@@ -312,7 +314,17 @@ export default async function ArticlePage({ params }: Props) {
       progressTrackClassName={styles.progressTrack}
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <article className={styles.article} id="page-content">
+      {/* `data-measure-page` names what this page is about, so its page view,
+          its share sheet and its source clicks are all counted against this
+          record. The section is derived from `publication.section`. */}
+      <article
+        className={styles.article}
+        id="page-content"
+        data-measure-page=""
+        data-measure-content={article.publicId}
+        data-measure-type="publication"
+        data-measure-section={measureSection(article.section)}
+      >
         <Breadcrumb
           className={styles.breadcrumb}
           trail={[parent]}
@@ -368,7 +380,8 @@ export default async function ArticlePage({ params }: Props) {
                 not as documented fact. The claim it answers is stated in full below.
               </p>
             ) : null}
-            <p className={styles.verdictLine}>
+            {/* Seen for a second at half height: the reader reached the verdict. */}
+            <p className={styles.verdictLine} data-measure-id="article-verdict" data-measure-exposure="verdict_reached">
               <Badge status={details.verificationState}>
                 {VERIFICATION_STATES[details.verificationState].label}
               </Badge>
@@ -381,7 +394,7 @@ export default async function ArticlePage({ params }: Props) {
                 <dt>Evidence basis</dt>
                 <dd>{isAnalysis ? ANALYSIS_AUTHOR : "Cited public sources"}</dd>
               </div>
-              <div>
+              <div data-measure-id="article-claim" data-measure-exposure="claim_exposure">
                 <dt>Exact claim</dt>
                 <dd>{details.exactClaim}</dd>
               </div>
@@ -419,7 +432,7 @@ export default async function ArticlePage({ params }: Props) {
 
         {showsInvestigationExplorer ? <InvestigationExplorer record={article} /> : null}
 
-        <div className={styles.body} data-measure-id="article-body" data-measure-section="article">
+        <div className={styles.body} data-measure-id="article-body">
           {passages.map((passage) => (
             <section className={styles.passage} key={passage.position}>
               <div className={styles.passageMain}>
@@ -451,7 +464,7 @@ export default async function ArticlePage({ params }: Props) {
             is the disclosure, not a gap in the page. If such a record ever does
             carry sources, they are shown normally rather than denied. */}
         {sourceState === "analysis" ? (
-          <section className={styles.sources} id="sources" data-measure-id="article-sources" data-measure-section="article">
+          <section className={styles.sources} id="sources" data-measure-id="article-sources">
             <h2>Why this record cites no source</h2>
             <p>
               This is Lions of Zion&rsquo;s own assessment, published deliberately without a
@@ -460,14 +473,14 @@ export default async function ArticlePage({ params }: Props) {
             </p>
           </section>
         ) : (
-          <section className={styles.sources} id="sources" data-measure-id="article-sources" data-measure-section="article">
+          <section className={styles.sources} id="sources" data-measure-id="article-sources">
             <h2>Public sources</h2>
             {sourceState === "listed" ? (
               <ol className={styles.sourceStack}>
                 {article.sources.map((source, index) => (
                   <li key={source.url ?? source.title + index}>
                     {source.url ? (
-                      <a href={source.url} target="_blank" rel="noreferrer">
+                      <a href={source.url} target="_blank" rel="noreferrer" data-measure-event="evidence_open">
                         {source.title} <span aria-hidden="true">↗︎</span>
                       </a>
                     ) : (
@@ -500,7 +513,7 @@ export default async function ArticlePage({ params }: Props) {
         )}
 
         {details ? (
-          <section className={styles.unknowns}>
+          <section className={styles.unknowns} data-measure-id="article-unknowns">
             <h2>Known unknowns</h2>
             {details.knownUnknowns.length ? (
               <KnownUnknownPanel unknowns={details.knownUnknowns} />
@@ -558,9 +571,10 @@ export default async function ArticlePage({ params }: Props) {
           <h2>Keep reading</h2>
           {continuations.length ? (
             <ul className={styles.relatedList}>
-              {continuations.map((next) => (
+              {continuations.map((next, index) => (
                 <li key={next.publicId}>
-                  <Card href={`/articles/${next.publicId}`} variant="row">
+                  <Card href={`/articles/${next.publicId}`} variant="row"
+                    {...measurePublicationCard("article-next", next, `next:${index + 1}`)}>
                     <CardEyebrow>{continuationEyebrow(next.section, next.reason, desk.label)}</CardEyebrow>
                     <CardTitle as="h3">{next.title}</CardTitle>
                     {next.summary ? <CardDescription>{next.summary}</CardDescription> : null}
@@ -572,7 +586,7 @@ export default async function ArticlePage({ params }: Props) {
           {/* UX-05 / UX-11. The verb table's hub link, on a target that clears
               44px: it was a bare 22px line at the foot of every article. */}
           <p className={styles.relatedSubhead}>
-            <Link className={styles.deskLink} href={desk.href}>
+            <Link className={styles.deskLink} href={desk.href} data-measure-id="article-desk-link">
               All of {desk.label} <span aria-hidden="true">→</span>
             </Link>
           </p>

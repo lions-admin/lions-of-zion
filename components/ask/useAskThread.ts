@@ -40,6 +40,7 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { ChatMessageView } from "@/server/contracts/chat";
 import { ApiProblem, isAbort, requestJson } from "@/components/search/http";
+import { measurementHeaders } from "@/components/measurement/headers";
 import { readThread, readThreadOnServer, subscribeToThread, writeThread } from "./thread-store";
 
 export type AskStatus = "idle" | "restoring" | "submitting" | "loading" | "error";
@@ -199,7 +200,9 @@ export function useAskThread(): UseAskThread {
         const path = `/api/v1/chat/threads/${encodeURIComponent(id)}/messages`;
         await requestJson<ChatMessageView>(path, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          /* The visit ids let the server file this turn's outcome against
+             the reader's visit; the question itself is never measured raw. */
+          headers: { "Content-Type": "application/json", ...measurementHeaders() },
           body: JSON.stringify({ content }),
           signal: controller.signal,
         });

@@ -1,6 +1,7 @@
 import { handler, parseBody } from "@/server/http/handler";
 import { created, ok } from "@/server/http/responses";
 import { postMessageSchema } from "@/server/contracts/chat";
+import { measurementContextFromHeaders } from "@/server/contracts/measurement";
 import { requireActor } from "@/server/core/auth/actor";
 import { chat } from "@/server/modules/chat";
 import { bucketFor, CHAT_MESSAGES, CHAT_MESSAGES_DAILY } from "@/server/core/rate-limit";
@@ -35,6 +36,6 @@ export const POST = handler(async (request, _ctx, { params }: { params: Promise<
   await rateLimit(bucketFor(request, "chat-day"), CHAT_MESSAGES_DAILY);
   const actor = requireActor(request);
   const input = await parseBody(request, postMessageSchema);
-  const message = await chat().ask(id, input, actor);
+  const message = await chat().ask(id, input, actor, measurementContextFromHeaders(request.headers));
   return created(message, `/api/v1/chat/threads/${id}/messages`);
 });

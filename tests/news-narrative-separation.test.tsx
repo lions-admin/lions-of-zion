@@ -50,7 +50,11 @@ describe("news-first reading hierarchy", () => {
     const item = story("narrative_watch", "Reported claim: an unverified allegation");
     item.narrativeWatchDetails = { exactClaim: "an unverified allegation", propagators: [], arenas: ["X"], trendDirection: "unclear", israeliPosition: null, securityContext: null, supportingEvidenceIds: [], contradictingEvidenceIds: [], verificationState: "unresolved", knownUnknowns: [], evidenceBasis: "analysis" };
     const output = await html(<NarrativeRecord item={item} />);
-    expect(output.indexOf("Unresolved")).toBeLessThan(output.indexOf("an unverified allegation"));
+    /* Reading order is text order. The fixture's publicId is its title, and
+       the card's `data-measure-content` attribute carries the publicId — so
+       the raw markup names the claim before any visible word does. */
+    const text = output.replace(/<[^>]*>/g, " ");
+    expect(text.indexOf("Unresolved")).toBeLessThan(text.indexOf("an unverified allegation"));
     expect(output).toContain("no finding has been reached");
     expect(output).toContain("no source cited");
   });

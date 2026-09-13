@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { listBriefingPublications } from "@/lib/publications";
 import { SECTIONS_BY_HOMEPAGE_SECTION, publicationCta } from "@/lib/publication-routing";
+import { measurePublicationCard } from "@/components/measurement/attrs";
 import { isArticleSafeMedia, type EditorialMedia } from "@/server/contracts/editorial-media";
 import { isAnalysisBasis } from "@/server/contracts/publication";
 import { EditorialShell } from "@/components/site/EditorialShell";
@@ -432,7 +433,7 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
             actionText="Try again" actionHref="/geopolitical-brief" />
         ) : lead ? (
           <div className={styles.newsFront} data-sidebar={sidebarUpdates.length || briefing ? "" : undefined}>
-            <article className={styles.newsLead}>
+            <article className={styles.newsLead} {...measurePublicationCard("brief-lead", lead, "news:lead")}>
               <p className={styles.liveEyebrow}>
                 <span className={styles.leadFlag}>Latest story</span>
                 <time dateTime={lead.publishedAt}>{formatDateTime(lead.publishedAt)}</time>
@@ -450,10 +451,11 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
               <aside className={styles.newsSidebar} aria-label="More updates">
                 <h2>More updates</h2>
                 <ol className={styles.newsTimeline}>
-                  {sidebarUpdates.map((item) => {
+                  {sidebarUpdates.map((item, index) => {
                     const media = hubMedia(item);
                     return (
-                      <li key={item.publicId} className={media ? styles.timelineWithMedia : undefined}>
+                      <li key={item.publicId} className={media ? styles.timelineWithMedia : undefined}
+                        {...measurePublicationCard("brief-update", item, `news:update-${index + 1}`)}>
                         <div>
                           <time dateTime={item.publishedAt}>{formatDateTime(item.publishedAt)}</time>
                           <h3><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h3>
@@ -484,7 +486,7 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
         </section>
       ) : null}
       {earlierUpdates.length ? (
-        <PublicationSection title="Earlier updates" stories={groupByCanonicalStory(earlierUpdates)} />
+        <PublicationSection title="Earlier updates" surface="brief-earlier" stories={groupByCanonicalStory(earlierUpdates)} />
       ) : null}
 
       <aside className={styles.watchBridge} aria-label="Separate narrative coverage">
@@ -495,12 +497,13 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
           <h2>Looking for what is being claimed?</h2>
           <p>Circulating claims, their assessment status and disinformation research live on the dedicated narrative desk, kept separate from the news.</p>
         </div>
-        <ButtonLink href="/fake-resistance" variant="secondary" size="md" rightIcon={<span aria-hidden="true">↗︎</span>}>
+        <ButtonLink href="/fake-resistance" variant="secondary" size="md" rightIcon={<span aria-hidden="true">↗︎</span>}
+          data-measure-id="brief-to-fake-resistance">
           Fake Resistance
         </ButtonLink>
       </aside>
 
-      <details className={styles.newsArchive} id="news-archive" open={filtering}>
+      <details className={styles.newsArchive} id="news-archive" open={filtering} data-measure-id="brief-archive" data-measure-section="news">
         <summary>
           <span className={styles.archiveTitle}>
             <span>News archive</span>
@@ -527,7 +530,7 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
             actors={uniqueValues(current, "primaryActor")} topics={uniqueValues(current, "editorialTopic")}
             arenas={uniqueValues(current, "arena")} />
           {archiveUnavailable ? <StatusState status={absenceStatus("unavailable")} title="The archive could not be loaded." description="Please try this selection again later." />
-            : archiveStories.length ? <PublicationSection title={filtering ? "Matching reports" : "Recent reporting"} stories={archiveStories} />
+            : archiveStories.length ? <PublicationSection title={filtering ? "Matching reports" : "Recent reporting"} surface="brief-archive" stories={archiveStories} />
             : <StatusState {...emptyArchiveState(filtering, current.length)} />}
         </div>
       </details>
@@ -611,7 +614,7 @@ function Thumbnail({ media, className, sizes }: { media: EditorialMedia; classNa
 }
 
 function Briefing({ item, headingId }: { item: Publication; headingId?: string }) {
-  return <div id="daily-brief" className={styles.briefingContent}>
+  return <div id="daily-brief" className={styles.briefingContent} {...measurePublicationCard("brief-daily", item, "news:daily-brief")}>
     <p className={styles.liveEyebrow}>
       <span className={styles.briefingFlag}>The daily briefing</span>
       <time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time>
@@ -636,20 +639,27 @@ function uniqueValues(publications: Publication[], key: "primaryActor" | "editor
  * now is: the archive answers "how many things happened", and a developing
  * story that was revised four times is one of them.
  */
-function PublicationSection({ title, stories, narrative = false }: { title: string; stories: StoryGroup<Publication>[]; narrative?: boolean }) {
+function PublicationSection({ title, surface, stories, narrative = false }: {
+  title: string;
+  /** The measurement surface: every card is `<surface>-<publicId>`. */
+  surface: string;
+  stories: StoryGroup<Publication>[];
+  narrative?: boolean;
+}) {
   return (
     <section className={styles.liveSection}>
       <div className={styles.liveSectionHead}>
         <h2>{title}</h2>
         <p data-numeric="">{stories.length} {stories.length === 1 ? "story" : "stories"}</p>
       </div>
-      <ol className={styles.liveList}>{stories.map((story) => {
+      <ol className={styles.liveList}>{stories.map((story, index) => {
         const item = story.latest;
         const media = hubMedia(item);
         return (
         <li key={item.publicId}>
           {/* Nested Read-record control: the row is a surface, not a link. */}
-          <Card variant="row" as="article" className={media ? `${styles.liveRow} ${styles.liveRowMedia}` : styles.liveRow}>
+          <Card variant="row" as="article" className={media ? `${styles.liveRow} ${styles.liveRowMedia}` : styles.liveRow}
+            {...measurePublicationCard(surface, item, `${surface}:${index + 1}`)}>
             <CardHeader className={styles.liveRowHeader}>
               <CardEyebrow>
                 {rowStatus(item, narrative)}

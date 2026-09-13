@@ -4,25 +4,40 @@
  * Mounts the first-party browsing collector on the public site only.
  * Skips when an admin surface is present. Failures are swallowed inside
  * the collector so the site never breaks.
+ *
+ * The root layout does not remount on a client-side navigation, so the path
+ * is watched here: the first path starts the collector (which records its
+ * own page view), every later one is a `pageView`. Without this, a visit that
+ * arrived on the homepage and read three articles recorded one page view.
  */
-import { useEffect } from "react";
-import { startCollector } from "./collector";
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
+import { startCollector, type MeasurementCollector } from "./collector";
 
 export function MeasurementRoot() {
+  const pathname = usePathname();
+  const collector = useRef<MeasurementCollector | null>(null);
+
   useEffect(() => {
-    let collector: ReturnType<typeof startCollector> = null;
     try {
-      collector = startCollector();
+      if (!collector.current) collector.current = startCollector();
+      else collector.current.pageView();
     } catch {
-      collector = null;
+      /* ignore — measurement must never break the site */
     }
-    return () => {
+  }, [pathname]);
+
+  useEffect(
+    () => () => {
       try {
-        collector?.stop();
+        collector.current?.stop();
       } catch {
         /* ignore */
       }
-    };
-  }, []);
+      collector.current = null;
+    },
+    [],
+  );
+
   return null;
 }

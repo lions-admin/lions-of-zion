@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useId, useState } from "react";
 import { XMediaPostButton } from "@/components/archive/XMediaPostButton";
 import { ShareSheet } from "@/components/content/ShareSheet";
+import { measureCard } from "@/components/measurement/attrs";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import styles from "./page.module.css";
@@ -84,10 +85,10 @@ export function ArchiveShareShowcase({
             <span>From the archive <span className={styles.sampleCount}>{index + 1} / {samples.length}</span></span>
             {samples.length > 1 && (
               <div>
-                <button type="button" onClick={() => move(-1)} aria-label={`Previous ${label}`} aria-controls={slideId}>
+                <button type="button" onClick={() => move(-1)} aria-label={`Previous ${label}`} aria-controls={slideId} data-measure-id={`o7-${kind}-previous`}>
                   <Icon name="arrow-right" size={17} className={styles.previousIcon} />
                 </button>
-                <button type="button" className={styles.nextButton} onClick={() => move(1)} aria-controls={slideId}>
+                <button type="button" className={styles.nextButton} onClick={() => move(1)} aria-controls={slideId} data-measure-id={`o7-${kind}-next`}>
                   {isStory ? "More testimony" : "More records"} <Icon name="arrow-right" size={17} />
                 </button>
               </div>
@@ -96,7 +97,11 @@ export function ArchiveShareShowcase({
           {/* Polite, because every change here is the reader's own: the
               region announces the account they just asked for, and nothing
               else ever changes it. */}
-          <div id={slideId} className={styles.sample}>
+          {/* The sample, the share sheet inside it and its links are all
+              counted against the record on show — `<kind>:<id>`, the
+              homepage's own key shape. */}
+          <div id={slideId} className={styles.sample}
+            {...measureCard({ id: `o7-${kind}-${sample.id}`, section: "october-7", content: `${kind}:${sample.id}`, type: kind, placement: `october-7:${kind}` })}>
             <div className={styles.sampleReading} aria-live="polite" aria-atomic="true">
               <div className={styles.sampleType}>
                 <Icon name={isStory ? "actor" : sample.medium === "video" ? "film" : sample.medium === "image" ? "photo" : "document"} size={22} />
@@ -128,6 +133,7 @@ export function ArchiveShareShowcase({
                 aria-haspopup="dialog"
                 aria-expanded={sheetOpen}
                 onClick={() => setSheetOpen(true)}
+                data-measure-id={`o7-${kind}-share-open`}
               >
                 {isStory ? "Share this testimony" : "Share this record"}
               </Button>

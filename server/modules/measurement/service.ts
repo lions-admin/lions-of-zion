@@ -4,13 +4,18 @@ import { createHash } from "node:crypto";
 import { siteRevision } from "@/server/core/config";
 import type { Database } from "@/server/db/client";
 import type {
+  AskOutcome,
   MeasurementCollect,
   MeasurementConsoleFilter,
   MeasurementConsoleResponse,
   MeasurementEventName,
+  MeasurementRequestContext,
   MeasurementScreen,
 } from "@/server/contracts/measurement";
-import { measurementConsoleResponseSchema } from "@/server/contracts/measurement";
+import {
+  MEASUREMENT_PAYLOAD_KEYS,
+  measurementConsoleResponseSchema,
+} from "@/server/contracts/measurement";
 import {
   clientEventToInsert,
   measurementRepo,
@@ -68,6 +73,35 @@ export function redactQuery(raw: string | null | undefined, max = 120): string |
 export function hashQuery(raw: string | null | undefined): string | null {
   if (!raw?.trim()) return null;
   return createHash("sha256").update(raw.trim().toLowerCase()).digest("hex").slice(0, 32);
+}
+
+/** A server-side event, before attribution. */
+export type ServerEvent = {
+  name: MeasurementEventName;
+  pagePath?: string | null;
+  contentId?: string | null;
+  section?: string | null;
+  /** Redacted again at the sink — pass raw or redacted, never both. */
+  queryRedacted?: string | null;
+  payload?: Record<string, unknown>;
+};
+
+const PAYLOAD_KEYS = new Set<string>(MEASUREMENT_PAYLOAD_KEYS);
+
+/** The same allowlist the collect contract enforces, applied to server
+ *  events by dropping rather than refusing: an outcome is still worth
+ *  recording without the key a caller got wrong. */
+function allowlistedPayload(
+  payload: Record<string, unknown> | undefined,
+): Record<string, string | number | boolean | null> {
+  const out: Record<string, string | number | boolean | null> = {};
+  for (const [key, value] of Object.entries(payload ?? {})) {
+    if (!PAYLOAD_KEYS.has(key)) continue;
+    if (typeof value === "string") out[key] = value.slice(0, 500);
+    else if (typeof value === "number" && Number.isFinite(value)) out[key] = value;
+    else if (typeof value === "boolean" || value === null) out[key] = value;
+  }
+  return out;
 }
 
 function stampEventTime(clientTime: number | undefined, now: Date): Date {
@@ -153,7 +187,9 @@ export function measurementService(db: Database) {
         });
       }
       rows.push(
-        clientEventToInsert(event, {
+        /* Redacted again here: the browser redacts before sending, but the
+           endpoint is public and the sink is where the rule must hold. */
+        clientEventToInsert({ ...event, query_redacted: redactQuery(event.query_redacted) ?? undefined }, {
           visitId: body.visit_id,
           visitorId: body.visitor_id,
           siteRevision: revision,
@@ -166,47 +202,117 @@ export function measurementService(db: Database) {
     return { accepted };
   }
 
-  async function recordServerEvent(input: {
-    visitId?: string | null;
-    visitorId?: string | null;
-    name: MeasurementEventName;
-    pagePath?: string;
-    contentId?: string;
-    section?: string;
-    queryRedacted?: string | null;
-    payload?: Record<string, unknown>;
-  }): Promise<void> {
-    /* Server events without a browser visit still need ids — synthesize ephemeral ones. */
-    const visitorId = input.visitorId?.trim() || `server:${createHash("sha256").update(String(Date.now())).digest("hex").slice(0, 16)}`;
-    const visitId = input.visitId?.trim() || `server-visit:${visitorId}`;
+  /**
+   * Events only the server can know — an Ask turn's outcome, latency, cost.
+   *
+   * Recorded against the reader's own browser visit, or not at all. The
+   * earlier draft synthesized a visitor per call when none was sent, which
+   * would have counted every API call as a person on the audience and today
+   * screens. An unattributed turn still has its model call in `ai_run`, which
+   * the search screen reads beside these events. DNT/GPC records nothing.
+   *
+   * Free text is redacted here, at the sink, whatever the caller passed, and
+   * payload keys outside `MEASUREMENT_PAYLOAD_KEYS` are dropped — so a raw
+   * question cannot reach the table by a caller's mistake.
+   */
+  async function recordServerEvents(
+    context: {
+      visitId?: string | null;
+      visitorId?: string | null;
+      pagePath?: string | null;
+      optOut?: boolean;
+    },
+    events: ServerEvent[],
+  ): Promise<{ accepted: number }> {
+    if (context.optOut) return { accepted: 0 };
+    const visitId = context.visitId?.trim();
+    const visitorId = context.visitorId?.trim();
+    if (!visitId || !visitorId || events.length === 0) return { accepted: 0 };
+
     const now = new Date();
     await repo.upsertVisitor(visitorId, now);
-    await repo.upsertVisit(
-      {
-        visitId,
-        visitorId,
-        entryPath: input.pagePath ?? null,
-        lastPath: input.pagePath ?? null,
-        source: "unknown",
-        sourceUnknown: true,
-        isStaff: false,
-        isBot: false,
-      },
-      now,
-    );
-    await repo.insertEvents([
-      {
+    /* Never overwrites a visit the browser already filed; if this arrives
+       first, the browser's collect fills in source and device afterwards. */
+    await repo.ensureVisit({ visitId, visitorId, entryPath: context.pagePath ?? null }, now);
+    const revision = siteRevision();
+    const accepted = await repo.insertEvents(
+      events.map((event) => ({
         occurredAt: now,
         visitId,
         visitorId,
-        name: input.name,
-        pagePath: input.pagePath ?? null,
-        contentId: input.contentId ?? null,
-        section: input.section ?? null,
-        queryRedacted: input.queryRedacted ?? null,
-        payload: input.payload ?? {},
-        siteRevision: siteRevision(),
-        clientOrServer: "server",
+        name: event.name,
+        pagePath: event.pagePath ?? context.pagePath ?? null,
+        contentId: event.contentId ?? null,
+        section: event.section ?? null,
+        queryRedacted: redactQuery(event.queryRedacted ?? null),
+        payload: allowlistedPayload(event.payload),
+        siteRevision: revision,
+        clientOrServer: "server" as const,
+      })),
+    );
+    return { accepted };
+  }
+
+  async function recordServerEvent(
+    input: ServerEvent & {
+      visitId?: string | null;
+      visitorId?: string | null;
+      optOut?: boolean;
+    },
+  ): Promise<{ accepted: number }> {
+    const { visitId, visitorId, optOut, ...event } = input;
+    return recordServerEvents({ visitId, visitorId, optOut }, [event]);
+  }
+
+  /**
+   * One Ask turn, as `ask_success` + `ask_latency` + `ask_cost`, or as
+   * `ask_fail`. The question arrives only to be redacted and hashed; the raw
+   * text is never written.
+   */
+  async function recordAskOutcome(
+    context: MeasurementRequestContext,
+    outcome: AskOutcome,
+  ): Promise<{ accepted: number }> {
+    const base = {
+      section: "ask",
+      queryRedacted: outcome.question,
+    };
+    const hashed = hashQuery(outcome.question);
+    if (!outcome.ok) {
+      return recordServerEvents(context, [
+        {
+          ...base,
+          name: "ask_fail",
+          payload: {
+            success: false,
+            error_class: outcome.errorClass,
+            status: outcome.stage,
+            latency_ms: outcome.latencyMs,
+            hashed_query: hashed,
+          },
+        },
+      ]);
+    }
+    return recordServerEvents(context, [
+      {
+        ...base,
+        name: "ask_success",
+        payload: {
+          success: true,
+          latency_ms: outcome.latencyMs,
+          result_count: outcome.cited,
+          hashed_query: hashed,
+        },
+      },
+      {
+        name: "ask_latency",
+        section: "ask",
+        payload: { latency_ms: outcome.latencyMs, duration_ms: outcome.modelLatencyMs, model: outcome.model },
+      },
+      {
+        name: "ask_cost",
+        section: "ask",
+        payload: { cost_usd: outcome.costUsd, model: outcome.model },
       },
     ]);
   }
@@ -312,7 +418,17 @@ export function measurementService(db: Database) {
     return repo.prune();
   }
 
-  return { collect, recordServerEvent, consoleScreen, prune, resolveTrafficSource, redactQuery, hashQuery };
+  return {
+    collect,
+    recordServerEvent,
+    recordServerEvents,
+    recordAskOutcome,
+    consoleScreen,
+    prune,
+    resolveTrafficSource,
+    redactQuery,
+    hashQuery,
+  };
 }
 
 export type MeasurementService = ReturnType<typeof measurementService>;

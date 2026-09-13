@@ -12,6 +12,7 @@ import {
 } from "./HomeJourneyPrimitives";
 import styles from "./homepage-journey.module.css";
 import { homepageBand } from "@/lib/homepage-bands";
+import { measureContentId } from "@/components/measurement/attrs";
 
 const BAND = homepageBand("october7");
 
@@ -45,7 +46,7 @@ export function HomeArchiveSection({
             data-home-record={item.key}
             data-measure-id={`home-october-7-${item.key}`}
             data-measure-section="october-7"
-            data-measure-content={item.key}
+            data-measure-content={measureContentId(item.key)}
             data-measure-type="publication"
             data-measure-card
             data-rank={rankOf(index)}

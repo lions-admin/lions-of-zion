@@ -165,6 +165,70 @@ export const measurementCollectSchema = z
   });
 export type MeasurementCollect = z.infer<typeof measurementCollectSchema>;
 
+/**
+ * Request headers that attribute a server-side outcome (Ask) to the browser
+ * visit that caused it. Sent only by a running collector — never minted by the
+ * request that carries them — and ignored when the browser says DNT or GPC.
+ */
+export const MEASUREMENT_VISIT_HEADER = "x-lz-visit";
+export const MEASUREMENT_VISITOR_HEADER = "x-lz-visitor";
+export const MEASUREMENT_PATH_HEADER = "x-lz-path";
+
+const measurementIdSchema = z.string().trim().min(8).max(80).regex(/^[A-Za-z0-9_:-]+$/);
+
+export type MeasurementRequestContext = {
+  visitId: string | null;
+  visitorId: string | null;
+  pagePath: string | null;
+  /** DNT: 1 or Sec-GPC: 1 — record nothing for this request. */
+  optOut: boolean;
+};
+
+/** Parse the measurement context of a request. Malformed ids read as absent. */
+export function measurementContextFromHeaders(headers: Headers): MeasurementRequestContext {
+  const optOut = headers.get("dnt") === "1" || headers.get("sec-gpc") === "1";
+  const id = (name: string) => {
+    const parsed = measurementIdSchema.safeParse(headers.get(name) ?? "");
+    return parsed.success ? parsed.data : null;
+  };
+  const path = headers.get(MEASUREMENT_PATH_HEADER);
+  return {
+    visitId: optOut ? null : id(MEASUREMENT_VISIT_HEADER),
+    visitorId: optOut ? null : id(MEASUREMENT_VISITOR_HEADER),
+    pagePath: !optOut && path?.startsWith("/") ? path.slice(0, 2000) : null,
+    optOut,
+  };
+}
+
+/**
+ * What one Ask turn came to. Only the server knows whether an answer was
+ * produced, so these are server events — the browser never claims one.
+ * `question` travels here only to be redacted and hashed by the measurement
+ * module; it is never stored as given.
+ */
+export type AskOutcome =
+  | {
+      ok: true;
+      question: string;
+      /** End to end, from the turn's start to the answer being filed. */
+      latencyMs: number;
+      /** The model call alone, as the gateway reported it. */
+      modelLatencyMs: number;
+      model: string;
+      costUsd: number;
+      /** Citations that survived the retrieval check. */
+      cited: number;
+    }
+  | {
+      ok: false;
+      question: string;
+      latencyMs: number;
+      /** The `ApiError` code, lower-cased, or `internal`. */
+      errorClass: string;
+      /** Where the turn stopped: `thread`, `unavailable`, `budget`, `model`, `persist`. */
+      stage: string;
+    };
+
 export const measurementConsoleFilterSchema = z.object({
   from: z.string().datetime().optional(),
   to: z.string().datetime().optional(),

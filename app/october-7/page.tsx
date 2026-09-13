@@ -183,7 +183,7 @@ export default async function Page() {
           <h2 id="explore-archive">Explore the archive</h2>
         </header>
         <nav className={styles.archiveEntries} aria-label="Choose an archive collection">
-          <Link className={styles.archiveEntry} href="/october-7/testimonies">
+          <Link className={styles.archiveEntry} href="/october-7/testimonies" data-measure-id="o7-entry-testimonies">
             <span className={styles.entryKind}>Testimony collection</span>
             <span className={styles.entryTitle}>Survivor Stories</span>
             <span className={styles.entryDescription}>First-person accounts from survivors and witnesses.</span>
@@ -191,7 +191,7 @@ export default async function Page() {
             <span className={styles.entryAction}>Read survivor stories <Icon name="arrow-right" size={19} /></span>
           </Link>
 
-          <Link className={styles.archiveEntry} href="/october-7/documentation">
+          <Link className={styles.archiveEntry} href="/october-7/documentation" data-measure-id="o7-entry-documentation">
             <span className={styles.entryKind}>Source record collection</span>
             <span className={styles.entryTitle}>Documented Records</span>
             <span className={styles.entryDescription}>Archived videos, images and source records preserved with provenance and context.</span>
@@ -210,7 +210,7 @@ export default async function Page() {
 
       <p className={styles.sharingNote}>Graphic media stays covered in previews. Share the record — the original is one click behind the warning.</p>
 
-      <details className={styles.categoryBrowser}>
+      <details className={styles.categoryBrowser} data-measure-id="o7-categories">
         <summary>Browse documentation by category <span>{groups.length} categories</span></summary>
         <ul>
           {groups.map((group) => (

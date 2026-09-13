@@ -77,6 +77,12 @@ export type MediaBlockProps = {
    * `reading` is the article hero: the reading measure, on the media plate.
    */
   layout?: "record" | "thumb" | "reading";
+  /**
+   * First-party measurement id (docs/measurement.md). The figure reports an
+   * exposure when half of it has been on screen for a second, and the
+   * provenance disclosure reports `open`/`close` as `<id>-provenance`.
+   */
+  measureId?: string;
 };
 
 /**
@@ -97,6 +103,7 @@ export function MediaBlock({
   className = "",
   aspectRatio,
   layout = "record",
+  measureId,
 }: MediaBlockProps) {
   const hasCaption = Boolean(caption || credit || provenance || disclosure);
   /* Something readable always stays outside the control. A picture whose
@@ -127,6 +134,7 @@ export function MediaBlock({
         .filter(Boolean)
         .join(" ")}
       data-layout={layout}
+      data-measure-id={measureId}
       style={style}
     >
       <div className={styles.frame}>{children}</div>
@@ -135,7 +143,10 @@ export function MediaBlock({
           {disclosure ? <span className={styles.disclosure}>{disclosure}</span> : null}
           {caption ? <span className={styles.captionText}>{caption}</span> : null}
           {expandsProvenance ? (
-            <details className={styles.provenanceDetails}>
+            <details
+              className={styles.provenanceDetails}
+              data-measure-id={measureId ? `${measureId}-provenance` : undefined}
+            >
               <summary>{provenanceLabel}</summary>
               <div className={styles.provenanceBody}>{creditRow}</div>
             </details>

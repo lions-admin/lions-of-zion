@@ -17,6 +17,7 @@ import {
   SECTIONS_BY_HOMEPAGE_SECTION,
 } from '@/lib/publication-routing';
 import { pageMetadata } from '@/lib/page-metadata';
+import { measureCard, measurePublicationCard } from '@/components/measurement/attrs';
 import type { PublicPublication } from '@/server/contracts/publication';
 import type { PublicationSection } from '@/server/contracts/enums';
 import styles from './page.module.css';
@@ -56,10 +57,11 @@ export const metadata: Metadata = pageMetadata({
  * reader the section was unfinished. One list, newest first, with the section
  * named on each entry, carries the same information without the empty rooms.
  */
-function RecordRow({ publication }: { publication: PublicPublication }) {
+function RecordRow({ publication, rank }: { publication: PublicPublication; rank: number }) {
   const image = publication.media;
   return <li>
-    <article className={image ? `${styles.record} ${styles.recordWithMedia}` : styles.record}>
+    <article className={image ? `${styles.record} ${styles.recordWithMedia}` : styles.record}
+      {...measurePublicationCard('people-record', publication, `people:${rank}`)}>
       <div className={styles.recordBody}>
         <p className={styles.recordMeta}>
           <span className={styles.kicker}>{LABELS[publication.section]}</span>
@@ -89,7 +91,8 @@ function RecordRow({ publication }: { publication: PublicPublication }) {
 function Profile({ profile, featured = false }: { profile: HeroProfile; featured?: boolean }) {
   const media = homepageMedia(`hero:${profile.id}`, profile.mediaRef);
   const href = `/our-heroes#${profile.id}`;
-  return <article className={styles.profile} data-featured={featured ? '' : undefined}>
+  return <article className={styles.profile} data-featured={featured ? '' : undefined}
+    {...measureCard({ id: `people-hero-${profile.id}`, section: 'people', content: `hero:${profile.id}`, type: 'profile', placement: featured ? 'heroes:lead' : undefined })}>
     {media ? <figure className={styles.portrait}>
       <span className={styles.portraitFrame}>
         <Image
@@ -184,7 +187,7 @@ export default async function Page() {
             {records.length ? <p className={styles.sectionCount}><span data-numeric="">{records.length}</span> {records.length === 1 ? 'record' : 'records'}</p> : null}
           </header>
           {shown.length
-            ? <ol className={styles.recordList}>{shown.map(publication => <RecordRow key={publication.publicId} publication={publication} />)}</ol>
+            ? <ol className={styles.recordList}>{shown.map((publication, index) => <RecordRow key={publication.publicId} publication={publication} rank={index + 1} />)}</ol>
             : <p className={styles.empty}>No records have been published here yet. The profiles above and the story below are the standing collection.</p>}
           {records.length > shown.length
             ? <Link className={styles.sectionLink} href="/updates">Everything published, every section <span aria-hidden="true">→</span></Link>
@@ -201,7 +204,7 @@ export default async function Page() {
           <p className={styles.historyLede}>Context is part of the evidence. The timeline keeps every cited chapter and anchor at its original address.</p>
           {/* Numbered because a timeline is sequential: the numeral is the
               chapter's place in the story, not a rank. */}
-          <ol className={styles.chapters}>{history.chapters.slice(0, 4).map((chapter, index) => <li key={chapter.id}><Link href={`/israels-story#${chapter.id}`}><span>{String(index + 1).padStart(2, '0')}</span>{chapter.title}</Link></li>)}</ol>
+          <ol className={styles.chapters} data-measure-id="people-history-chapters" data-measure-section="people">{history.chapters.slice(0, 4).map((chapter, index) => <li key={chapter.id}><Link href={`/israels-story#${chapter.id}`}><span>{String(index + 1).padStart(2, '0')}</span>{chapter.title}</Link></li>)}</ol>
           <Link className={styles.sectionLink} href="/israels-story">All of Israel’s Story <span aria-hidden="true">→</span></Link>
         </section>
       </div>

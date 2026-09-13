@@ -32,3 +32,21 @@ export function readOrCreateVisitId(): string {
     return newId("s");
   }
 }
+
+/**
+ * The ids of the collector that is actually running, or null.
+ *
+ * Set by `startCollector` and cleared by its `stop`, so it is null whenever
+ * the collector declined to start — DNT/GPC, the admin surface — and holds the
+ * in-memory ids when storage is blocked. Read-only for everyone else: nothing
+ * outside the collector may mint a measurement id.
+ */
+let active: { visitId: string; visitorId: string } | null = null;
+
+export function setActiveIds(ids: { visitId: string; visitorId: string } | null): void {
+  active = ids;
+}
+
+export function activeIds(): { visitId: string; visitorId: string } | null {
+  return active;
+}

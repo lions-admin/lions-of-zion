@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import {
   Archivo_Narrow,
   IBM_Plex_Sans,
@@ -172,7 +173,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             other page (UX-08). It lives in `SiteHeader` now — the bar is fixed
             too, so the argument still holds, and there is nothing left to
             cover the footer with. */}
-        <MeasurementRoot />
+        {/* It reads the pathname; the boundary keeps a route whose path is
+            only known at request time from holding the layout back for it. */}
+        <Suspense fallback={null}>
+          <MeasurementRoot />
+        </Suspense>
         <Analytics />
       </body>
     </html>

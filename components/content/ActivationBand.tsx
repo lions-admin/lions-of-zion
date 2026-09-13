@@ -71,6 +71,8 @@ export function ActivationBand({
     <aside
       className={[styles.band, className].filter(Boolean).join(' ')}
       aria-labelledby={headingId}
+      /* Its exposure is "the reader reached the end of the record". */
+      data-measure-id="activation-band"
     >
       <h2 id={headingId} className={styles.heading}>{heading}</h2>
       <p className={styles.lead}>{ACTIVATION_LEAD}</p>
@@ -81,6 +83,8 @@ export function ActivationBand({
             variant="primary"
             size="md"
             leftIcon={<Icon name="source" size={16} />}
+            data-measure-id="activation-trace-sources"
+            data-measure-event="sources_open"
           >
             Trace the sources
           </ButtonLink>
@@ -97,6 +101,7 @@ export function ActivationBand({
             aria-haspopup="dialog"
             aria-expanded={sheetOpen}
             onClick={() => setSheetOpen(true)}
+            data-measure-id="activation-share-open"
           >
             Share the sourced record
           </Button>
@@ -106,6 +111,7 @@ export function ActivationBand({
           variant="secondary"
           size="md"
           leftIcon={<Icon name="correction" size={16} />}
+          data-measure-id="activation-report"
         >
           Report a claim
         </ButtonLink>

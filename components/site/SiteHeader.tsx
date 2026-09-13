@@ -189,26 +189,26 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
   const renderNavigation = () => (
     <div className={styles.navigationContent}>
       <div className={styles.menuLayout}>
-        <nav aria-label="Reporting and evidence">
+        <nav aria-label="Reporting and evidence" data-measure-id="header-menu-reporting" data-measure-exposure="none">
           <p className={styles.menuGroupLabel}>Reporting & evidence</p>
           {REPORTING_LINKS.map((link) => renderMenuLink(link, true))}
         </nav>
-        <nav aria-label="People and purpose">
+        <nav aria-label="People and purpose" data-measure-id="header-menu-people" data-measure-exposure="none">
           <p className={styles.menuGroupLabel}>People & purpose</p>
           {ABOUT_LINKS.map((link) => renderMenuLink(link))}
         </nav>
       </div>
       <div className={styles.menuUtilities}>
-        <nav aria-label="Standards and account">
+        <nav aria-label="Standards and account" data-measure-id="header-menu-reference" data-measure-exposure="none">
           {REFERENCE_LINKS.map((link) => <Link key={link.href} href={link.href}
             aria-current={current(link.href) ? "page" : undefined} onClick={closePanels}>{link.label}</Link>)}
         </nav>
-        <nav className={styles.menuTools} aria-label="Search and conversation">
+        <nav className={styles.menuTools} aria-label="Search and conversation" data-measure-id="header-menu-tools" data-measure-exposure="none">
           <Link href="/search" onClick={closePanels}>Search</Link>
           <Link href="/ask" onClick={closePanels}>Ask the desk</Link>
         </nav>
       </div>
-      <Link href={SUPPORT_LINK.href} className={styles.menuSupport} onClick={closePanels}>
+      <Link href={SUPPORT_LINK.href} className={styles.menuSupport} onClick={closePanels} data-measure-id="header-menu-support" data-measure-exposure="none">
         Support the work <span aria-hidden="true">→</span>
       </Link>
     </div>
@@ -220,14 +220,18 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
       className={styles.header}
       data-home={home || undefined}
       data-scrolled={scrolled || undefined}
+      /* Every click in the bar is `click_nav`, the brand and the support
+         link included. Nothing here reports an exposure: the bar is on
+         screen on every page, so one would only restate the page view. */
+      data-measure-nav=""
     >
       <div className={styles.bar}>
-        <Link href="/" className={styles.brand} onClick={closePanels}>
+        <Link href="/" className={styles.brand} onClick={closePanels} data-measure-id="header-brand" data-measure-exposure="none">
           <span className={styles.brandName}>Lions of Zion</span>
           <span className={styles.brandRole}>Evidence, not narratives</span>
         </Link>
 
-        <nav className={styles.barNav} aria-label="Sections">
+        <nav className={styles.barNav} aria-label="Sections" data-measure-id="header-sections" data-measure-exposure="none">
           {BAR_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -258,6 +262,8 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
             aria-expanded={filesOpen}
             aria-controls={filesPanelId}
             data-here={hereInDrawer || undefined}
+            data-measure-id="header-menu-toggle"
+            data-measure-exposure="none"
             onClick={() => setFilesOpen((open) => !open)}
           >
             Menu
@@ -269,6 +275,8 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
             className={styles.support}
             aria-current={current(SUPPORT_LINK.href) ? "page" : undefined}
             onClick={closePanels}
+            data-measure-id="header-support"
+            data-measure-exposure="none"
           >
             <Icon name="support" size={16} strokeWidth={1.5} />
             {/* Owner ruling 2026-09-11: Support Us stays in the bar at every
@@ -283,6 +291,8 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
             className={styles.account}
             aria-current={current(ACCOUNT_LINK.href) ? "page" : undefined}
             onClick={closePanels}
+            data-measure-id="header-account"
+            data-measure-exposure="none"
           >
             {/* One slot, one size, whichever mark is in it — the bar may not
                 reflow when the session check lands. */}

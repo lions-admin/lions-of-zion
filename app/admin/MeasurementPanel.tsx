@@ -10,6 +10,8 @@ import type { MeasurementConsoleResponse, MeasurementScreen } from "@/server/con
 import { AreaHead, PanelTitle, ReadGate, formatDate } from "./console-primitives";
 import { Stat, StatGrid } from "./_command/StatusCards";
 import { useConsoleRead } from "./useConsoleRead";
+import { StatusState, absenceStatus } from "@/components/ui/StatusState";
+import { ABSENCE } from "./lexicon";
 import styles from "./admin.module.css";
 
 export type MeasureArea =
@@ -49,6 +51,10 @@ const AREA_META: Record<MeasureArea, { label: string; title: string; note: strin
   "measure-errors": { label: "תקלות וביצועים", title: "תקלות ו־Web Vitals", note: "חריגות, שגיאות מדיה ו־404." },
   "measure-insights": { label: "תובנות", title: "תובנות מחושבות", note: "בלי טענת סיבתיות. מדגם קטן מסומן במפורש." },
 };
+
+/** The two absences, never merged and never shown as a zero. */
+const NOT_CONNECTED_HE = "המדידה לא מחוברת";
+const NO_DATA_YET_HE = "אין עדיין נתונים מאז הפעלת המדידה";
 
 function num(v: unknown): number {
   const n = Number(v);
@@ -94,17 +100,33 @@ export function MeasurementPanel({ signal, area }: { signal: number; area: Measu
           <label>מזהה ביקור <input value={visitId} onChange={(e) => setVisitId(e.target.value)} placeholder="visit_id" dir="ltr" /></label>
         ) : null}
       </div>
+      {/* An endpoint that cannot answer is "not connected", not a zero: the
+          measured-day numbers are simply not shown (docs/measurement.md).
+          Sign-in and permission states stay ReadGate's, which names them. */}
+      {read.state.kind === "failed" || read.state.kind === "unavailable" ? (
+        <StatusState
+          status={absenceStatus("unavailable")}
+          className={styles.consoleState}
+          kindLabel={ABSENCE.kindError}
+          eyebrow="מדידה"
+          title={NOT_CONNECTED_HE}
+          description={read.state.kind === "failed" ? read.state.message : "שירות המדידה לא ענה לבקשה."}
+          actionText={ABSENCE.failedAction}
+          onAction={read.reload}
+        />
+      ) : (
       <ReadGate state={read.state} what={meta.label} reload={read.reload}>
         {(value) => {
           if (value.empty === "not_connected") {
-            return <p className={styles.muted} role="status">{value.messageHe ?? "המדידה לא מחוברת"}</p>;
+            return <p className={styles.muted} role="status">{value.messageHe ?? NOT_CONNECTED_HE}</p>;
           }
           if (value.empty === "no_data_yet") {
-            return <p className={styles.muted} role="status">{value.messageHe ?? "אין עדיין נתונים מאז הפעלת המדידה"}</p>;
+            return <p className={styles.muted} role="status">{value.messageHe ?? NO_DATA_YET_HE}</p>;
           }
           return <ScreenBody area={area} value={value} />;
         }}
       </ReadGate>
+      )}
     </section>
   );
 }

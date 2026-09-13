@@ -20,6 +20,7 @@ import { recordChatRun } from "@/server/modules/ai";
 import { chatRepo } from "./repo";
 import type { Actor } from "@/server/core/audit";
 import type { ChatMessageView, CreateThread, PostMessage, RetrievedDocument } from "@/server/contracts/chat";
+import type { AskOutcome, MeasurementRequestContext } from "@/server/contracts/measurement";
 import type { ChatThread } from "@/server/db/schema";
 
 type Tx = Parameters<typeof setIdentity>[0];
@@ -63,12 +64,194 @@ export const CHAT_SYSTEM_PROMPT = [
   "your answer. Omitting the caveats is worse than omitting the finding.",
 ].join(" ");
 
+/** Where a turn's outcome goes — first-party measurement, injected like the
+ *  answerer so a chat test can observe it and no chat test needs it. */
+export type AskOutcomeRecorder = (
+  context: MeasurementRequestContext,
+  outcome: AskOutcome,
+) => Promise<unknown>;
+
+const NO_CONTEXT: MeasurementRequestContext = { visitId: null, visitorId: null, pagePath: null, optOut: false };
+
 export function chatService(
   db: unknown,
-  opts: { answer?: Answerer; retrieve?: Retriever; guardBudget?: () => Promise<void> } = {},
+  opts: {
+    answer?: Answerer;
+    retrieve?: Retriever;
+    guardBudget?: () => Promise<void>;
+    recordOutcome?: AskOutcomeRecorder;
+  } = {},
 ) {
   const run = db as unknown as Runner;
   const repo = chatRepo(db);
+
+  /* Measurement never fails a turn: a recorder that throws is swallowed here
+     rather than in every caller. A turn with no visit to file it against, or
+     from a reader who said DNT/GPC, is not recorded at all. */
+  async function recordOutcome(context: MeasurementRequestContext, outcome: AskOutcome) {
+    if (!opts.recordOutcome || context.optOut || !context.visitId || !context.visitorId) return;
+    try {
+      await opts.recordOutcome(context, outcome);
+    } catch {
+      /* ignore — the turn's own result is what the reader is waiting for */
+    }
+  }
+
+  /**
+   * One full turn. See `turn` below for the order of writes; this wrapper only
+   * times it and records how it ended.
+   */
+  async function ask(
+    threadId: string,
+    input: PostMessage,
+    actor: Actor,
+    measure: MeasurementRequestContext = NO_CONTEXT,
+  ): Promise<ChatMessageView> {
+    const startedAt = Date.now();
+    const stage = { current: "thread" };
+    try {
+      const { message, answer } = await turn(threadId, input, actor, stage);
+      await recordOutcome(measure, {
+        ok: true,
+        question: input.content,
+        latencyMs: Date.now() - startedAt,
+        modelLatencyMs: answer.latencyMs,
+        model: answer.model,
+        costUsd: answer.costUsd,
+        cited: message.citations.length,
+      });
+      return message;
+    } catch (error) {
+      await recordOutcome(measure, {
+        ok: false,
+        question: input.content,
+        latencyMs: Date.now() - startedAt,
+        errorClass: error instanceof ApiError ? error.code.toLowerCase() : "internal",
+        stage: stage.current,
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * The turn itself.
+   *
+   * Not one transaction: the model call sits in the middle and can take
+   * tens of seconds, and holding a Postgres transaction open across it
+   * would be the same mistake ingestion avoids in Phase 3. Each write is
+   * its own unit, ordered so that nothing references something that does
+   * not exist yet. `stage` names where it got to, for the failure record.
+   */
+  async function turn(
+    threadId: string,
+    input: PostMessage,
+    actor: Actor,
+    stage: { current: string },
+  ): Promise<{ message: ChatMessageView; answer: Awaited<ReturnType<Answerer>> }> {
+    const thread = await repo.threadById(threadId);
+    if (!thread) throw notFound("Thread");
+    stage.current = "unavailable";
+    if (!opts.answer) {
+      throw new ApiError(
+        "NOT_IMPLEMENTED",
+        "No AI gateway is configured, so chat cannot answer. Link the Vercel project and pull its OIDC environment.",
+      );
+    }
+    const retrieve = opts.retrieve;
+    if (!retrieve) {
+      throw new ApiError("NOT_IMPLEMENTED", "No retriever is configured for chat.");
+    }
+
+    stage.current = "budget";
+    await opts.guardBudget?.();
+    stage.current = "persist";
+    const history = (await repo.messages(threadId))
+      .slice(-2)
+      .map((m) => ({ role: m.role, content: m.content.slice(0, 600) }));
+
+    await run.transaction(async (tx) => {
+      await setIdentity(tx as Tx, actor.label);
+      await chatRepo(tx).addMessage({ threadId, role: "user", content: input.content });
+    });
+
+    /* Retrieval first, and recorded first — the citation trigger reads
+       `chat_tool_run`, so the answer cannot be filed with citations until
+       this row exists. */
+    const startedAt = Date.now();
+    let hits: { documentId: string }[] = [];
+    let toolStatus: "ok" | "error" = "ok";
+    try {
+      hits = await retrieve(input.content, 3);
+    } catch {
+      toolStatus = "error";
+    }
+
+    await repo.recordToolRun({
+      threadId,
+      tool: "search",
+      input: { query: input.content, limit: 3 },
+      output: { count: hits.length },
+      resultDocumentIds: hits.map((h) => h.documentId),
+      status: toolStatus,
+      latencyMs: Date.now() - startedAt,
+    });
+
+    const documents = await repo.documentsFor(hits.map((h) => h.documentId));
+    stage.current = "model";
+    const answer = await opts.answer({ question: input.content, history, documents });
+    stage.current = "persist";
+
+    /* Drop any citation naming something not retrieved, rather than letting
+       the insert fail and lose the whole answer. The database would refuse
+       it either way; this turns a hard failure into a recorded answer with
+       the fabricated citation stripped, which is the more useful outcome
+       and leaves the tool run as evidence of what was actually available. */
+    const retrievable = new Set(documents.map((d) => d.documentId));
+    const citations = answer.citations.filter((c) => retrievable.has(c.documentId));
+
+    const message = await run.transaction(async (tx) => {
+      await setIdentity(tx as Tx, actor.label);
+      const txRepo = chatRepo(tx);
+
+      /* The turn's cost lands in the same ledger as every other model call,
+         rather than a parallel one only chat knows about. */
+      const aiRunId = await recordChatRun(tx, {
+        model: answer.model,
+        inputTokens: answer.inputTokens,
+        outputTokens: answer.outputTokens,
+        costUsd: answer.costUsd,
+        latencyMs: answer.latencyMs,
+        actor,
+      });
+
+      const message = await txRepo.addMessage({
+        threadId,
+        role: "assistant",
+        content: answer.text,
+        aiRunId,
+      });
+
+      await txRepo.attachToolRuns(threadId, message.id);
+      await txRepo.addCitations(message.id, citations);
+
+      /* Read the citations back rather than re-shaping the ones just
+         written: it is the same resolution the transcript performs, so a
+         client that renders the POST response and a client that re-fetches
+         the transcript cannot disagree about what a citation points at. */
+      const stored = await txRepo.citationsFor([message.id]);
+
+      return {
+        id: message.id,
+        threadId,
+        seq: message.seq,
+        role: "assistant" as const,
+        content: message.content,
+        citations: stored[message.id] ?? [],
+        createdAt: message.createdAt.toISOString(),
+      };
+    });
+    return { message, answer };
+  }
 
   return {
     listThreads: (limit = 25) => repo.listThreads(limit),
@@ -99,114 +282,7 @@ export function chatService(
       }));
     },
 
-    /**
-     * One full turn.
-     *
-     * Not one transaction: the model call sits in the middle and can take
-     * tens of seconds, and holding a Postgres transaction open across it
-     * would be the same mistake ingestion avoids in Phase 3. Each write is
-     * its own unit, ordered so that nothing references something that does
-     * not exist yet.
-     */
-    async ask(threadId: string, input: PostMessage, actor: Actor): Promise<ChatMessageView> {
-      const thread = await repo.threadById(threadId);
-      if (!thread) throw notFound("Thread");
-      if (!opts.answer) {
-        throw new ApiError(
-          "NOT_IMPLEMENTED",
-          "No AI gateway is configured, so chat cannot answer. Link the Vercel project and pull its OIDC environment.",
-        );
-      }
-      const retrieve = opts.retrieve;
-      if (!retrieve) {
-        throw new ApiError("NOT_IMPLEMENTED", "No retriever is configured for chat.");
-      }
-
-      await opts.guardBudget?.();
-      const history = (await repo.messages(threadId))
-        .slice(-2)
-        .map((m) => ({ role: m.role, content: m.content.slice(0, 600) }));
-
-      await run.transaction(async (tx) => {
-        await setIdentity(tx as Tx, actor.label);
-        await chatRepo(tx).addMessage({ threadId, role: "user", content: input.content });
-      });
-
-      /* Retrieval first, and recorded first — the citation trigger reads
-         `chat_tool_run`, so the answer cannot be filed with citations until
-         this row exists. */
-      const startedAt = Date.now();
-      let hits: { documentId: string }[] = [];
-      let toolStatus: "ok" | "error" = "ok";
-      try {
-        hits = await retrieve(input.content, 3);
-      } catch {
-        toolStatus = "error";
-      }
-
-      await repo.recordToolRun({
-        threadId,
-        tool: "search",
-        input: { query: input.content, limit: 3 },
-        output: { count: hits.length },
-        resultDocumentIds: hits.map((h) => h.documentId),
-        status: toolStatus,
-        latencyMs: Date.now() - startedAt,
-      });
-
-      const documents = await repo.documentsFor(hits.map((h) => h.documentId));
-      const answer = await opts.answer({ question: input.content, history, documents });
-
-      /* Drop any citation naming something not retrieved, rather than letting
-         the insert fail and lose the whole answer. The database would refuse
-         it either way; this turns a hard failure into a recorded answer with
-         the fabricated citation stripped, which is the more useful outcome
-         and leaves the tool run as evidence of what was actually available. */
-      const retrievable = new Set(documents.map((d) => d.documentId));
-      const citations = answer.citations.filter((c) => retrievable.has(c.documentId));
-
-      return run.transaction(async (tx) => {
-        await setIdentity(tx as Tx, actor.label);
-        const txRepo = chatRepo(tx);
-
-        /* The turn's cost lands in the same ledger as every other model call,
-           rather than a parallel one only chat knows about. */
-        const aiRunId = await recordChatRun(tx, {
-          model: answer.model,
-          inputTokens: answer.inputTokens,
-          outputTokens: answer.outputTokens,
-          costUsd: answer.costUsd,
-          latencyMs: answer.latencyMs,
-          actor,
-        });
-
-        const message = await txRepo.addMessage({
-          threadId,
-          role: "assistant",
-          content: answer.text,
-          aiRunId,
-        });
-
-        await txRepo.attachToolRuns(threadId, message.id);
-        await txRepo.addCitations(message.id, citations);
-
-        /* Read the citations back rather than re-shaping the ones just
-           written: it is the same resolution the transcript performs, so a
-           client that renders the POST response and a client that re-fetches
-           the transcript cannot disagree about what a citation points at. */
-        const stored = await txRepo.citationsFor([message.id]);
-
-        return {
-          id: message.id,
-          threadId,
-          seq: message.seq,
-          role: "assistant" as const,
-          content: message.content,
-          citations: stored[message.id] ?? [],
-          createdAt: message.createdAt.toISOString(),
-        };
-      });
-    },
+    ask,
 
     /** The set a citation may draw from — the same thing the trigger checks,
      *  exposed so a client can show what the answer had available. */

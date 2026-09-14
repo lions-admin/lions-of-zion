@@ -1,0 +1,53 @@
+-- Measurement: give `app_public` the SELECT policy its writes depend on.
+--
+-- Migration 0067 granted `app_public` SELECT, INSERT and UPDATE on the
+-- measurement tables and then created INSERT and UPDATE policies for it — but
+-- no SELECT policy. With RLS enabled and no SELECT policy, the grant is inert:
+-- the role can see no row at all.
+--
+-- That is not merely a read problem, and this is the part that made it hard to
+-- see. `INSERT ... ON CONFLICT` has to look the conflicting row up through the
+-- arbiter index before it can decide between inserting and updating, so under
+-- RLS it needs a SELECT policy *whatever the outcome* — including when no row
+-- conflicts, and including `ON CONFLICT DO NOTHING`. PostgreSQL reports the
+-- refusal as `42501 new row violates row-level security policy`, which reads
+-- like a WITH CHECK failure on the row being written and sends you looking at
+-- the INSERT policy, where nothing is wrong.
+--
+-- Measured against Production on 2026-09-14, as `app_public`:
+--
+--   plain INSERT, new id                     -> OK
+--   INSERT ... ON CONFLICT DO UPDATE, new id -> 42501
+--   INSERT ... ON CONFLICT DO NOTHING        -> 42501
+--   UPDATE ... WHERE visitor_id = …          -> OK
+--   the same upsert, with this policy present -> OK
+--
+-- The effect was that `upsertVisitor` — the first write in the collect path —
+-- failed for every public visitor, so the whole request failed and nothing was
+-- recorded. The מדידה screens were not broken; they were reading an almost
+-- empty warehouse, because the browsing they were meant to show had been
+-- rejected at the door since the feature went live.
+--
+-- Why no test and no Preview run caught it: RLS here is enabled but NOT forced
+-- (`relforcerowsecurity = false`), and a table's owner bypasses non-forced RLS.
+-- The test harness and a local database both connect as the owner, so the
+-- upsert takes the bypass and passes. Only a connection that actually switches
+-- to `app_public` — which is what the deployed request does — sees the policy
+-- at all. A future measurement table needs a SELECT policy for `app_public` if
+-- anything writes to it with ON CONFLICT, and that cannot be verified anywhere
+-- that runs as the owner.
+--
+-- Scope. `USING (true)` matches the existing measurement policies and does not
+-- widen what is reachable: `app_public` is the role the server adopts for an
+-- unauthenticated request, no public route selects from these tables, and the
+-- SELECT grant was already there since 0067. `measurement_events` is left
+-- alone deliberately — it is append-only, written with a plain INSERT and
+-- never read by the public path, so it keeps INSERT as its only public policy.
+--
+-- Applied by hand to Production on 2026-09-14 ahead of this file, to stop the
+-- ongoing loss of every visit; this migration is what makes the same state
+-- reproducible everywhere else.
+
+CREATE POLICY measurement_visitors_public_read ON measurement_visitors FOR SELECT TO app_public USING (true);--> statement-breakpoint
+CREATE POLICY measurement_visits_public_read ON measurement_visits FOR SELECT TO app_public USING (true);--> statement-breakpoint
+CREATE POLICY measurement_presence_public_read ON measurement_presence FOR SELECT TO app_public USING (true);

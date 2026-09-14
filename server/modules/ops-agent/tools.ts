@@ -48,6 +48,7 @@ import {
   updatePublicationSchema,
 } from "@/server/contracts/publication";
 import type { EntityType } from "@/server/contracts/enums";
+import { featuredSlotNameSchema, type FeaturedSlotName } from "@/server/contracts/featured-slots";
 import type { Actor } from "@/server/core/audit";
 import type { OpsToolContext } from "./context";
 
@@ -351,6 +352,21 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
     run: (ctx, args) => ctx.publications.list(listPublicationsSchema.parse(args)),
     summarise: counted("publications"),
   }),
+  define("get_featured_slots", {
+    label: "מצב האזורים המתחלפים",
+    description:
+      "The six evergreen homepage slots with no placement area of their own — October 7 testimony and "
+      + "documentation, Courage & service, Fallen, and History & context (primary and secondary) — each "
+      + "with its current pick, when it was chosen, its dwell against the 2-to-4-day rotation window, and "
+      + "any active pin. Use this before deciding whether to pin or release one.",
+    input: none,
+    consequence: () => "Reads featured-slot state. Changes nothing.",
+    target: () => "Featured slots",
+    entityType: "system",
+    entityId: () => null,
+    run: (ctx) => ctx.featuredSlots.state(),
+    summarise: counted("slots"),
+  }),
 
   define("resolve_alert", {
     label: "סימון התראה כטופלה",
@@ -434,6 +450,46 @@ export const OPS_TOOL_DEFINITIONS: OpsToolDefinition[] = [
         actor,
       ),
     summarise: () => "homepage placement set",
+  }),
+  define("pin_featured_slot", {
+    label: "נעילת אזור מתחלף",
+    description:
+      "Holds one of the six featured slots (October 7 testimony/documentation, Courage & service, Fallen, "
+      + "History & context primary/secondary) at a named candidate key, with a reason, until released or an "
+      + "optional expiry date. A pinned key missing from the slot's own candidate pool is ignored on the "
+      + "next refresh rather than breaking the slot.",
+    input: z.object({
+      slot: featuredSlotNameSchema,
+      key: z.string().trim().min(1).max(200),
+      reason: z.string().trim().min(1).max(2000),
+      expires: z.string().date().optional(),
+    }).strict(),
+    consequence: (args) => `The ${String(args.slot)} slot on the public homepage is held at "${String(args.key)}" until released${args.expires ? ` or ${String(args.expires)}` : ""}.`,
+    target: (args) => `Featured slot ${String(args.slot)}`,
+    entityType: "system",
+    entityId: (args) => (typeof args.slot === "string" ? args.slot : null),
+    run: (ctx, args, actor) =>
+      ctx.featuredSlots.pin(
+        args.slot as FeaturedSlotName,
+        String(args.key),
+        String(args.reason),
+        args.expires === undefined ? undefined : String(args.expires),
+        actor.label,
+      ),
+    summarise: () => "featured slot pinned",
+  }),
+  define("release_featured_slot", {
+    label: "שחרור אזור מתחלף",
+    description:
+      "Clears an existing pin on one of the six featured slots, returning it to ordinary dwell-and-diversity "
+      + "rotation on the next refresh.",
+    input: z.object({ slot: featuredSlotNameSchema }).strict(),
+    consequence: (args) => `The ${String(args.slot)} slot returns to automatic rotation.`,
+    target: (args) => `Featured slot ${String(args.slot)}`,
+    entityType: "system",
+    entityId: (args) => (typeof args.slot === "string" ? args.slot : null),
+    run: (ctx, args) => ctx.featuredSlots.release(args.slot as FeaturedSlotName),
+    summarise: () => "featured slot released",
   }),
   define("run_health_check", {
     label: "בדיקת תקינות עמוקה",

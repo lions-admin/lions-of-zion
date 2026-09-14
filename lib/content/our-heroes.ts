@@ -100,6 +100,116 @@ const PROFILES: HeroProfile[] = [
       },
     ],
   },
+  {
+    id: 'youssef-ziadna',
+    name: 'Youssef Ziadna',
+    role: 'Rescuer',
+    meta: '47 · Minibus driver, Rahat',
+    summary:
+      'A Bedouin citizen of Israel who drives a minibus for hire, Ziadna was called by a regular customer as the attack on the Nova festival began and drove directly into it. He packed his 14-seat van far past capacity, cut through dirt roads to avoid the ambushed main route, and made repeated trips, ferrying an estimated 30 people to safety while dodging gunfire.',
+    sources: [
+      {
+        id: 'toi-ziadna',
+        label: 'Bedouin bus driver credited with saving 30 Israelis from Hamas’s outdoor party massacre',
+        kind: 'The Times of Israel',
+        url: 'https://www.timesofisrael.com/bedouin-bus-driver-credited-with-saving-30-israelis-from-hamass-outdoor-party-massacre/',
+      },
+      {
+        id: 'jta-ziadna',
+        label: 'This Bedouin bus driver is credited with saving 30 people from the outdoor party massacre',
+        kind: 'Jewish Telegraphic Agency',
+        url: 'https://www.jta.org/2023/10/19/israel/this-bedouin-bus-driver-is-credited-with-saving-30-people-from-the-outdoor-party-massacre',
+      },
+    ],
+  },
+  {
+    id: 'remo-salman-el-hozayel',
+    name: 'Sgt. Remo Salman El-Hozayel',
+    role: 'Rescuer',
+    meta: 'Israel Police, on duty at the Nova festival',
+    summary:
+      'A Bedouin Muslim police officer from Rahat, El-Hozayel was working his first private-event security shift at the Nova festival when the attack began — and learned within minutes that his own brother had been shot. He spent the following hours packing an abandoned car with festivalgoers and driving them out in repeated trips, credited alongside a colleague and a civilian with getting an estimated 200 people to safety.',
+    sources: [
+      {
+        id: 'jns-el-hozayel',
+        label: 'How a Bedouin Muslim saved 200 lives at Nova',
+        kind: 'JNS',
+        url: 'https://www.jns.org/how-a-bedouin-muslim-saved-200-lives-at-nova/',
+      },
+      {
+        id: 'jc-el-hozayel',
+        label: 'Bedouin policeman who saved lives at Nova festival to run Jerusalem Marathon',
+        kind: 'The Jewish Chronicle',
+        url: 'https://www.thejc.com/news/israel/bedouin-policeman-who-saved-lives-at-nova-festival-to-run-jerusalem-marathon-dwrwdqhp',
+      },
+    ],
+  },
+  {
+    id: 'amit-mann',
+    name: 'Amit Mann',
+    role: 'Fallen',
+    meta: '22 · Magen David Adom paramedic, Kibbutz Be’eri',
+    summary:
+      'A Magen David Adom paramedic who dreamed of becoming a doctor, Mann grabbed her medical kit and ran under fire to the Be’eri clinic as terrorists stormed the kibbutz, then spent more than seven hours treating the wounded as the fighting closed in around the building. When the defenders inside ran out of ammunition, she stepped outside with her hands raised in the hope that her role would be recognized; she was shot, and terrorists then threw grenades into the clinic and killed those inside.',
+    sources: [
+      {
+        id: 'toi-mann',
+        label: 'Paramedic Amit Mann, 22: Sacrificed herself to protect patients',
+        kind: 'The Times of Israel',
+        url: 'https://www.timesofisrael.com/paramedic-amit-mann-22-sacrificed-herself-to-protect-patients/',
+      },
+      {
+        id: 'afmda-mann',
+        label: 'Paramedic Amit Mann, 22: Sacrificed herself to protect patients',
+        kind: 'American Friends of Magen David Adom',
+        url: 'https://afmda.org/news/amit-mann-obit/',
+      },
+    ],
+  },
+  {
+    id: 'inbal-rabin-lieberman',
+    name: 'Inbal Rabin-Lieberman',
+    role: 'Fighter',
+    meta: '26 · Security coordinator, Kibbutz Nir Am',
+    summary:
+      'Appointed Nir Am’s civilian security coordinator less than a year earlier, Rabin-Lieberman was woken by the morning’s sirens, opened the kibbutz armory and called her twelve-member security team to arms. Her squad held a three-hour battle at the gate until army forces arrived; Nir Am was one of the few Gaza-border communities Hamas never breached, and none of its residents were killed or taken that day.',
+    sources: [
+      {
+        id: 'jpost-rabin-lieberman',
+        label: 'Inbal Rabin-Lieberman: The heroine of Kibbutz Nir Am',
+        kind: 'The Jerusalem Post',
+        url: 'https://www.jpost.com/israel-news/defense-news/article-767920',
+      },
+      {
+        id: 'wiki-rabin-lieberman',
+        label: 'Inbal Rabin-Lieberman',
+        kind: 'Wikipedia',
+        url: 'https://en.wikipedia.org/wiki/Inbal_Rabin-Lieberman',
+      },
+    ],
+  },
+  {
+    id: 'ran-gvili',
+    name: 'Master Sgt. Ran Gvili',
+    role: 'Fallen',
+    meta: '24 · Yasam special patrol unit, Israel Police',
+    summary:
+      'On medical leave with a broken shoulder, Gvili put on his uniform when the attack began and drove toward the fighting in the western Negev. He fought his way into Kibbutz Alumim, was shot twice and kept fighting until he was killed; his body was taken into Gaza and was not returned to Israel until January 2026, more than two years later.',
+    sources: [
+      {
+        id: 'toi-gvili',
+        label: 'Master Sgt. Ran Gvili, 24: Motorcycle-loving cop ‘united the country’',
+        kind: 'The Times of Israel',
+        url: 'https://www.timesofisrael.com/master-sgt-ran-gvili-24-motorcycle-loving-cop-united-the-country/',
+      },
+      {
+        id: 'wiki-gvili',
+        label: 'Ran Gvili',
+        kind: 'Wikipedia',
+        url: 'https://en.wikipedia.org/wiki/Ran_Gvili',
+      },
+    ],
+  },
 ];
 
 const EDITION: OurHeroesEdition = {

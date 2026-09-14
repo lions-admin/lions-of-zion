@@ -46,6 +46,7 @@ import type {
   TransitionPublication,
   UpdatePublication,
 } from "@/server/contracts/publication";
+import type { FeaturedSlotName, FeaturedSlotState } from "@/server/contracts/featured-slots";
 
 /** The console's read model and recovery actions, as the agent sees them. */
 export interface ConsoleReads {
@@ -86,10 +87,20 @@ export interface SourceOps {
   syncCatalog(actor: Actor): Promise<{ created: number; updated: number }>;
 }
 
+/** The six evergreen homepage slots (October 7, Courage & service, Fallen,
+ *  History & context) that have no `homepage` placement area of their own —
+ *  see `server/modules/featured-slots`. */
+export interface FeaturedSlotOps {
+  state(): Promise<FeaturedSlotState[]>;
+  pin(slot: FeaturedSlotName, key: string, reason: string, expires: string | undefined, actor: string): Promise<void>;
+  release(slot: FeaturedSlotName): Promise<void>;
+}
+
 export interface OpsToolContext {
   console: ConsoleReads;
   publications: PublicationOps;
   sources: SourceOps;
+  featuredSlots: FeaturedSlotOps;
   health(request?: Request): Promise<unknown>;
   /** The request being served, for the reads that vary by it. */
   request?: Request;

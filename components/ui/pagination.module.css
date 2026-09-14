@@ -29,6 +29,21 @@
   display: flex;
 }
 
+/* Every step in the row — Previous, a page number, Next — gets a resting
+   hairline so it reads as a control before a pointer ever touches it. The
+   shared `toolbar` button variant only draws a border on hover/active, which
+   left every page number and both ends looking like plain text at rest;
+   doubled for the same out-of-order-safe reason `.current.current` is. */
+.step.step,
+.page.page {
+  border-color: var(--line);
+}
+
+.step.step:hover:not(.disabled),
+.page.page:hover {
+  border-color: var(--control-line);
+}
+
 /* The page numbers, wider than the ends so a three-digit page still reads as
    one control rather than as a squeeze. */
 .page {
@@ -43,8 +58,17 @@
   }
 }
 
-.current {
+/* Three cues, not one: fill, border and weight, so "which page am I on" does
+   not depend on distinguishing gold from ink at a glance (or at all, for a
+   reader who cannot). Doubled to out-specificity the shared button variant's
+   own `border`/`background` shorthands regardless of stylesheet order — the
+   same trick `.correctionContext.correctionContext` uses in
+   `content.module.css`. */
+.current.current {
   color: var(--gold-hi);
+  font-weight: 700;
+  background: var(--gold-wash);
+  border-color: var(--gold-line-strong);
 }
 
 /* A step that has nowhere to go is present and inert, not missing: removing

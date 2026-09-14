@@ -69,9 +69,9 @@ export function ArchiveShareShowcase({
   return (
     <section className={styles.archiveFeature} data-kind={kind} aria-labelledby={headingId}>
       <header className={styles.featureHeading}>
-        <p className={styles.eyebrow}>{isStory ? "Featured testimony" : "Featured source record"}</p>
+        <p className={styles.eyebrow}>{isStory ? "From the testimony archive" : "From the documentation archive"}</p>
         <h2 id={headingId}>{isStory ? "Featured survivor story" : "Featured documented record"}</h2>
-        <p>{isStory ? "A first-person account selected from the testimony archive." : "A preserved record selected from the documentation archive."}</p>
+        <p>{isStory ? "One account, shown here before you browse the rest." : "One record, shown here before you browse the rest."}</p>
         {/* UX-05 / UX-23. The verb table's hub link. The count it used to
             carry is printed once, on the collection card above. */}
         <Link className={styles.browseLink} href={archiveHref} aria-label={`All ${count} ${isStory ? "survivor stories" : "documented records"}`}>

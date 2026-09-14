@@ -16,6 +16,7 @@ import {
   PUBLICATION_SECTION_LABELS,
   SECTIONS_BY_HOMEPAGE_SECTION,
 } from '@/lib/publication-routing';
+import { previewSentences } from '@/lib/preview-sentences';
 import { pageMetadata } from '@/lib/page-metadata';
 import { measureCard, measurePublicationCard } from '@/components/measurement/attrs';
 import type { PublicPublication } from '@/server/contracts/publication';
@@ -88,9 +89,16 @@ function RecordRow({ publication, rank }: { publication: PublicPublication; rank
  * the summary with its sources beside it — stays at `/our-heroes#<id>`; this
  * band opens the door and says who is behind it.
  */
+/** The card's name and role are its anchor; a full biography already lives at
+ *  the profile's own address, so the hub only ever shows a preview of it —
+ *  the same sentence-budget technique the homepage's cards use
+ *  (`lib/preview-sentences.ts`), sized for this card's own measure. */
+const PROFILE_SUMMARY_BUDGET = 210;
+
 function Profile({ profile, featured = false }: { profile: HeroProfile; featured?: boolean }) {
   const media = homepageMedia(`hero:${profile.id}`, profile.mediaRef);
   const href = `/our-heroes#${profile.id}`;
+  const { shown, hidden } = previewSentences(profile.summary, PROFILE_SUMMARY_BUDGET);
   return <article className={styles.profile} data-featured={featured ? '' : undefined}
     {...measureCard({ id: `people-hero-${profile.id}`, section: 'people', content: `hero:${profile.id}`, type: 'profile', placement: featured ? 'heroes:lead' : undefined })}>
     {media ? <figure className={styles.portrait}>
@@ -114,7 +122,7 @@ function Profile({ profile, featured = false }: { profile: HeroProfile; featured
       <p className={styles.kicker}>{profile.role}</p>
       <h3><Link href={href}>{profile.name}</Link></h3>
       <p className={styles.profileMeta}>{profile.meta}</p>
-      <p className={styles.profileSummary}>{profile.summary}</p>
+      <p className={styles.profileSummary}>{shown}{hidden ? <span className={styles.profileSummaryRest}> {hidden}</span> : null}</p>
       <Link className={styles.read} href={href}>Read their story <span aria-hidden="true">→</span></Link>
     </div>
   </article>;
@@ -130,6 +138,11 @@ const RECORDS_PER_SECTION = 25;
 /** How many merged records the hub lists before pointing at `/updates`. */
 const RECORDS_SHOWN = 24;
 
+/** How many live History & Context records the `#history` section lists
+ *  above the preserved chapters — a rail, not the full desk (which is what
+ *  `#new-records` and `/updates` are already for). */
+const HISTORY_RECORDS_SHOWN = 6;
+
 export default async function Page() {
   const [sectionResults, heroes, history] = await Promise.all([
     Promise.all(PEOPLE_SECTIONS.map(section =>
@@ -141,6 +154,13 @@ export default async function Page() {
      exactly one section, so the merge cannot list anything twice. */
   const records = sectionResults.flat().sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
   const shown = records.slice(0, RECORDS_SHOWN);
+  /* `#new-records` already lists these newest-first across every People
+     section — this is the same records filtered to one, for the `#history`
+     rail. A record appearing in both lists is not a duplicate bug: they are
+     two different labeled contexts (VA-16's own "current work" list and this
+     section's "live, not yet part of the preserved collection"), the same
+     way a live feature can appear on the homepage and on this hub already. */
+  const liveHistory = records.filter((publication) => publication.section === 'history_context');
   const profiles = [heroes.featured, ...heroes.profiles];
   /* When this hub last changed: the newest live record, or the preserved
      collection's own edition when nothing live has been published yet. */
@@ -197,14 +217,25 @@ export default async function Page() {
         <section id="history" className={styles.history} aria-labelledby="history-title">
           <header className={styles.sectionHead}>
             <div>
-              <p className={styles.kicker}>Preserved collection</p>
+              <p className={styles.kicker}>Live and preserved</p>
               <h2 id="history-title">History &amp; context</h2>
             </div>
           </header>
-          <p className={styles.historyLede}>Context is part of the evidence. The timeline keeps every cited chapter and anchor at its original address.</p>
-          {/* Numbered because a timeline is sequential: the numeral is the
-              chapter's place in the story, not a rank. */}
-          <ol className={styles.chapters} data-measure-id="people-history-chapters" data-measure-section="people">{history.chapters.slice(0, 4).map((chapter, index) => <li key={chapter.id}><Link href={`/israels-story#${chapter.id}`}><span>{String(index + 1).padStart(2, '0')}</span>{chapter.title}</Link></li>)}</ol>
+          <p className={styles.historyLede}>Context is part of the evidence: new records as they publish, and the timeline that keeps every cited chapter at its original address.</p>
+          {/* New `history_context` publications, labeled as what they are —
+              current work, not yet part of the preserved collection below.
+              `records` already fetched every People section; this is that
+              same list narrowed to one. */}
+          {liveHistory.length ? <div className={styles.historyGroup}>
+            <p className={styles.kicker}>New records</p>
+            <ol className={styles.recordList}>{liveHistory.slice(0, HISTORY_RECORDS_SHOWN).map((publication, index) => <RecordRow key={publication.publicId} publication={publication} rank={index + 1} />)}</ol>
+          </div> : null}
+          <div className={styles.historyGroup}>
+            <p className={styles.kicker}>Preserved collection</p>
+            {/* Numbered because a timeline is sequential: the numeral is the
+                chapter's place in the story, not a rank. */}
+            <ol className={styles.chapters} data-measure-id="people-history-chapters" data-measure-section="people">{history.chapters.slice(0, 4).map((chapter, index) => <li key={chapter.id}><Link href={`/israels-story#${chapter.id}`}><span>{String(index + 1).padStart(2, '0')}</span>{chapter.title}</Link></li>)}</ol>
+          </div>
           <Link className={styles.sectionLink} href="/israels-story">All of Israel’s Story <span aria-hidden="true">→</span></Link>
         </section>
       </div>

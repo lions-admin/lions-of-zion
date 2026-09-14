@@ -13,6 +13,7 @@ import { generateWithTools } from "@/server/core/ai/gateway";
 import { deepHealth } from "@/server/core/deep-health";
 import { adminConsole } from "@/server/modules/admin-console";
 import { publications } from "@/server/modules/publications";
+import { featuredSlots } from "@/server/modules/featured-slots";
 import { ingest, syncBriefingSourceCatalog } from "@/server/modules/sources";
 import { opsAgentService, type OpsAgentService } from "./service";
 import type { OpsToolContext } from "./context";
@@ -40,6 +41,11 @@ export function opsToolContext(request?: Request): OpsToolContext {
     sources: {
       verify: (sourceId, actor) => ingest(sourceId, actor),
       syncCatalog: (actor) => syncBriefingSourceCatalog(actor),
+    },
+    featuredSlots: {
+      state: () => featuredSlots().state(),
+      pin: (slot, key, reason, expires, actor) => featuredSlots().pin(slot, key, reason, expires, actor),
+      release: (slot) => featuredSlots().release(slot),
     },
     health: (probeRequest) => deepHealth(probeRequest),
     request,

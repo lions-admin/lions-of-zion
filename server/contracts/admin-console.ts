@@ -783,6 +783,7 @@ export const OPS_TOOLS = [
   "search_audit",
   "get_publication",
   "list_publications",
+  "get_featured_slots",
   /* operate — reversible */
   "resolve_alert",
   "verify_source",
@@ -790,6 +791,8 @@ export const OPS_TOOLS = [
   "set_source_active",
   "update_publication",
   "set_homepage_placement",
+  "pin_featured_slot",
+  "release_featured_slot",
   "run_health_check",
   /* operate — irreversible, always confirmed */
   "publish_publication",

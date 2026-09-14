@@ -67,6 +67,11 @@ function stubContext(overrides: Partial<OpsToolContext> = {}): OpsToolContext & 
       verify: note("sources.verify", { fetch: { status: "success", itemsSeen: 12 } }),
       syncCatalog: note("sources.syncCatalog", { created: 1, updated: 0 }),
     },
+    featuredSlots: {
+      state: note("featuredSlots.state", []),
+      pin: note("featuredSlots.pin", undefined),
+      release: note("featuredSlots.release", undefined),
+    },
     health: note("health", { status: "ok" }),
     ...overrides,
   } as unknown as OpsToolContext & { calls: string[] };

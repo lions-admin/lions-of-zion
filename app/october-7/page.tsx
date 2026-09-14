@@ -187,7 +187,10 @@ export default async function Page() {
             <span className={styles.entryKind}>Testimony collection</span>
             <span className={styles.entryTitle}>Survivor Stories</span>
             <span className={styles.entryDescription}>First-person accounts from survivors and witnesses.</span>
-            <span className={styles.entryCount}>{storyCount} stories</span>
+            <span className={styles.entryCount}>
+              <span className={styles.entryCountNumber}>{storyCount}</span>
+              <span className={styles.entryCountUnit}>stories held</span>
+            </span>
             <span className={styles.entryAction}>Read survivor stories <Icon name="arrow-right" size={19} /></span>
           </Link>
 
@@ -195,7 +198,10 @@ export default async function Page() {
             <span className={styles.entryKind}>Source record collection</span>
             <span className={styles.entryTitle}>Documented Records</span>
             <span className={styles.entryDescription}>Archived videos, images and source records preserved with provenance and context.</span>
-            <span className={styles.entryCount}>{recordCount} records</span>
+            <span className={styles.entryCount}>
+              <span className={styles.entryCountNumber}>{recordCount}</span>
+              <span className={styles.entryCountUnit}>records held</span>
+            </span>
             <span className={styles.entryAction}>Explore documented records <Icon name="arrow-right" size={19} /></span>
           </Link>
         </nav>

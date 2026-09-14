@@ -6,9 +6,16 @@ export type HomepagePublicationPlacement = {
   position: 'lead' | 'secondary';
   key: string;
 };
+/** The three sections a featured slot can force. October 7, heroes and
+ * israelsStory have no `homepage_placement` area of their own — this is the
+ * one seam by which `server/modules/featured-slots` supplies their picks
+ * without duplicating its dwell/diversity logic here. */
+export type ForcedSelections = Partial<Record<'heroes' | 'israelsStory' | 'october7', string[]>>;
+
 /** Membership is frozen by the store. This function never runs during a page GET. */
 export function selectHomepage(candidates: HomeReference[], date: string, history: DisplayHistory,
-  overrides: HomeOverrides, placements: HomepagePublicationPlacement[] = []): HomeSelection {
+  overrides: HomeOverrides, placements: HomepagePublicationPlacement[] = [],
+  forcedSelections: ForcedSelections = {}): HomeSelection {
   const pins = overrides.pins.filter(p => !p.expires || p.expires >= date).sort((a,b)=>a.order-b.order).map(p=>p.key);
   const breaking = overrides.breakingNews && overrides.breakingNews.expires >= date ? overrides.breakingNews.keys : [];
   const unique = [...new Map(candidates.map(c=>[c.key,c])).values()];
@@ -17,6 +24,24 @@ export function selectHomepage(candidates: HomeReference[], date: string, histor
   const cutoffDate = cutoff.toISOString().slice(0,10);
   const selected = new Set<string>();
   for (const section of homeSections) {
+    /* A featured slot already decided this section's occupants — dwell,
+       diversity and pins all happened there. Map its keys straight through
+       and skip the pool-sort below entirely. A key the catalogue does not
+       (yet) recognise — the slot rotated ahead of a stale catalogue rebuild
+       — is dropped rather than trusted blindly, and the section falls back
+       to automatic selection below for whatever positions that leaves open. */
+    const forcedKeys = (forcedSelections as Record<string, string[] | undefined>)[section];
+    if (forcedKeys) {
+      const resolved = forcedKeys
+        .map(key => unique.find(c => c.key === key && c.section === section))
+        .filter((c): c is HomeReference => Boolean(c) && !selected.has(c!.key));
+      if (resolved.length === forcedKeys.length) {
+        selection[section] = resolved;
+        resolved.forEach(c => selected.add(c.key));
+        continue;
+      }
+      // Fall through to automatic selection — a forced key was missing.
+    }
     const areaPlacements = placements.filter(placement => placement.area === section);
     const sectionPins = [...areaPlacements.sort((a, b) => a.position === b.position ? 0 : a.position === 'lead' ? -1 : 1).map(placement => placement.key),
       ...(section==='news'?breaking:[]),

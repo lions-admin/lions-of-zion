@@ -26,6 +26,25 @@ import { adminConsole } from "@/server/modules/admin-console";
 import { editorialUpdateService } from "@/server/modules/editorial-update/service";
 import { homepageService } from "@/server/modules/homepage/service";
 import { publicationService } from "@/server/modules/publications/service";
+import { featuredSlotsService } from "@/server/modules/featured-slots/service";
+import { FEATURED_SLOT_RULES, type FeaturedSlotState } from "@/server/contracts/featured-slots";
+
+/** The dwell/warning view of a featured slot, shared by `homepage()` and
+ *  `editorialContext()` so the two never describe the same slot differently. */
+function describeFeaturedSlot(slot: FeaturedSlotState, now: number) {
+  const dwellDays = slot.selectedAt ? (now - Date.parse(slot.selectedAt)) / 86_400_000 : null;
+  const pastMax = dwellDays !== null && dwellDays >= FEATURED_SLOT_RULES.maxDays;
+  return {
+    slot: slot.slot,
+    currentKey: slot.currentKey,
+    selectedAt: slot.selectedAt,
+    dwellDays: dwellDays === null ? null : Math.round(dwellDays * 10) / 10,
+    pin: slot.pin,
+    warning: pastMax
+      ? `The ${slot.slot} slot has held "${slot.currentKey}" past the ${FEATURED_SLOT_RULES.maxDays}-day rotation window.`
+      : null,
+  };
+}
 /* The registry and its context type directly, not the module index: the
    index also binds the AI gateway and the deep-health probe, which this
    adapter never uses and a test should not have to stand up. */
@@ -200,12 +219,16 @@ export function chatgptAutomationService(database: Database, context: OpsToolCon
       };
     },
 
-    /** The homepage as it currently stands: the edition and its placements. */
+    /** The homepage as it currently stands: the edition, its placements, and
+     *  the six evergreen slots (October 7, Courage & service, Fallen,
+     *  History & context) that have no placement area of their own. */
     async homepage() {
-      const [edition, pins] = await Promise.all([
+      const [edition, pins, slots] = await Promise.all([
         homepageService(database).read().catch(() => null),
         publicationService(database).publicHomepagePins(),
+        featuredSlotsService(database).state(),
       ]);
+      const now = Date.now();
       return {
         edition: edition
           ? { editionDate: edition.editionDate, revision: edition.revision, generatedAt: edition.generatedAt }
@@ -220,6 +243,7 @@ export function chatgptAutomationService(database: Database, context: OpsToolCon
           publishedAt: pin.publication.publishedAt,
           url: publicationHref(pin.publication.publicId),
         })),
+        featuredSlots: slots.map(slot => describeFeaturedSlot(slot, now)),
       };
     },
 
@@ -259,6 +283,7 @@ export function chatgptAutomationService(database: Database, context: OpsToolCon
         byCategory: report.byCategory ?? null,
         urls: report.urls ?? [],
         homepage: report.homepage ?? null,
+        featured: isV2 ? (report.featured ?? []) : null,
         media: report.media ?? null,
         mediaWarnings: report.mediaWarnings ?? [],
         siteRecommendations: report.siteRecommendations ?? [],
@@ -307,12 +332,15 @@ export function chatgptAutomationService(database: Database, context: OpsToolCon
     ): Promise<ChatgptEditorialContext> {
       const console_ = adminConsole();
       const store = publicationService(database);
-      const [live, placements, edition, runs] = await Promise.all([
+      const [live, placements, edition, runs, slotStates] = await Promise.all([
         store.listBriefingPublic({ limit: options.limit }),
         store.publicHomepagePins(),
         homepageService(database).read().catch(() => null),
         editorialUpdateService(database).listRecent().catch(() => []),
+        featuredSlotsService(database).state(),
       ]);
+      const now = Date.now();
+      const featuredSlotsOut = slotStates.map(slot => describeFeaturedSlot(slot, now));
 
       const summaryByPublicId = await store.editorialSummaryByPublicIds(live.map(row => row.publicId));
       const placementByPublicId = new Map(
@@ -362,6 +390,7 @@ export function chatgptAutomationService(database: Database, context: OpsToolCon
       }
       const withoutMedia = summaries.filter(entry => !entry.hasMedia).length;
       if (withoutMedia) warnings.push(`${withoutMedia} of the ${summaries.length} live records carry no hero image.`);
+      for (const slot of featuredSlotsOut) if (slot.warning) warnings.push(slot.warning);
 
       const extras: Record<string, unknown> = {};
       for (const extra of options.include) {
@@ -386,6 +415,7 @@ export function chatgptAutomationService(database: Database, context: OpsToolCon
           : null,
         publications: summaries,
         canonicalStories,
+        featuredSlots: featuredSlotsOut,
         runs: runs.map(run => {
           const report = (run.report ?? {}) as { publications?: { created?: number; updated?: number; failed?: number } };
           return {

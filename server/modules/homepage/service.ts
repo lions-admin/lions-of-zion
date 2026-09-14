@@ -7,9 +7,10 @@ import { publicationService } from '@/server/modules/publications';
 import { homeSections, homeCatalogSchema, homeOverridesSchema, homeSnapshotSchema, israelEditionDate, type HomeReference } from '@/server/contracts/homepage';
 import { editorialMediaSchema, isArticleSafeMedia, isHomepageSafeMedia } from '@/server/contracts/editorial-media';
 import { publicationHomepageKind, publicationHomepageSection, publicationHref } from '@/lib/publication-routing';
+import { featuredSlotsService, type FeaturedSlotName } from '@/server/modules/featured-slots';
 import { homepageRepo } from './repo';
 import { catalogSourceRevision } from './catalog';
-import { selectHomepage, type HomepagePublicationPlacement } from './selection';
+import { selectHomepage, type ForcedSelections, type HomepagePublicationPlacement } from './selection';
 
 const readJson=async(name:string)=>JSON.parse(await readFile(join(process.cwd(),'content-packages/homepage',name),'utf8'));
 export async function homepageInputs(db:Database, now=new Date()) {
@@ -26,7 +27,14 @@ export async function homepageInputs(db:Database, now=new Date()) {
     service.listBriefingPublic({limit:100}), service.publicHomepagePins(),
   ]);
   const live=new Map([...automatic,...pins.map(p=>p.publication)].map(p=>[p.publicId,p]));
-  const candidates:HomeReference[]=catalog.candidates.filter(c=>c.mediaId!==null&&safeIds.has(c.mediaId));
+  // A static candidate with no picture is not dropped — the same owner
+  // ruling (2026-09-07) applied to live publications below now applies here:
+  // one carrying a mediaId must still resolve to a homepage-safe asset, but
+  // the absence of one is not itself disqualifying. Before this the archive
+  // and heroes pools were starved to the handful of records someone had
+  // curated a cover for — 2 october7 candidates, 3 heroes, 7 chapters — which
+  // is why the homepage never actually rotated them.
+  const candidates:HomeReference[]=catalog.candidates.filter(c=>c.mediaId===null||safeIds.has(c.mediaId));
   // A live publication reaches the homepage with or without a picture. Until
   // 2026-09-07 a record was admitted only with a hero cleared for the homepage
   // surface, and a placement naming any other record silently fell through to
@@ -48,6 +56,20 @@ export async function homepageInputs(db:Database, now=new Date()) {
     position: pin.position,
     key: `publication:${pin.publication.publicId}`,
   }));
+  // October 7, Courage & service, Fallen and History & context have no
+  // `homepage_placement` area of their own (docs/editorial-dna.md: "October
+  // 7 is not placeable"). `featured-slots` owns their dwell/diversity/pin
+  // decisions instead; refreshing it here means every caller of
+  // `ensureEdition` — the editorial ingest, the homepage cron route, and (via
+  // its own `ensureEdition` call) the maintenance tick — picks up a rotation
+  // for free, and never a page GET.
+  const { changed: slotChanges, states: slotStates } = await featuredSlotsService(db).refresh(now);
+  const slotKey = (slot: FeaturedSlotName) => slotStates.get(slot) ?? undefined;
+  const forcedSelections: ForcedSelections = {
+    heroes: [slotKey('heroes.courage'), slotKey('heroes.fallen')].filter((k): k is string => Boolean(k)),
+    israelsStory: [slotKey('history.primary'), slotKey('history.secondary')].filter((k): k is string => Boolean(k)),
+    october7: [slotKey('october7.testimony'), slotKey('october7.documentation')].filter((k): k is string => Boolean(k)),
+  };
   const overrideRevision=JSON.stringify(Object.fromEntries(homeSections.map(section=>[section,
     createHash('sha256').update(JSON.stringify({
       placements:placements.filter(placement=>placement.area===section).map(placement=>`${placement.position}:${placement.key}`),
@@ -60,8 +82,11 @@ export async function homepageInputs(db:Database, now=new Date()) {
       // and folding it in would rebuild every band on every catalogue touch.
       // Sorted so query order cannot invent a revision on its own.
       live:liveCandidates.filter(c=>c.section===section).map(c=>`${c.key}|${c.version}|${c.date}|${c.mediaId}`).sort(),
+      // A featured-slot pick for this section — folded in the same way, so a
+      // rotation with no placement/live change is still a new revision.
+      featured:(forcedSelections as Record<string,string[]|undefined>)[section]??[],
     })).digest('hex')])));
-  return {catalog,candidates,overrides,placements,overrideRevision,date};
+  return {catalog,candidates,overrides,placements,forcedSelections,overrideRevision,date,slotChanges};
 }
 export function homepageService(db:Database, loadInputs=homepageInputs){return {
   read: (date=israelEditionDate())=>homepageRepo(db).latest(date),
@@ -73,7 +98,7 @@ export function homepageService(db:Database, loadInputs=homepageInputs){return {
       const existing=await r.latest(input.date);
       if(existing?.editionDate===input.date&&existing.overrideRevision===input.overrideRevision)return existing;
       const history=await r.history(input.date);
-      const selection=selectHomepage(input.candidates,input.date,history,input.overrides,input.placements);
+      const selection=selectHomepage(input.candidates,input.date,history,input.overrides,input.placements,input.forcedSelections);
       if(existing?.editionDate===input.date){
         const before=JSON.parse(existing.overrideRevision) as Record<string,string>;
         const after=JSON.parse(input.overrideRevision) as Record<string,string>;
@@ -85,6 +110,7 @@ export function homepageService(db:Database, loadInputs=homepageInputs){return {
           ...input.overrides.pins.filter(p=>!p.expires||p.expires>=input.date).map(p=>`${p.section}: ${p.reason}`),
           ...(input.overrides.breakingNews && input.overrides.breakingNews.expires>=input.date ? [`Breaking news: ${input.overrides.breakingNews.reason}`] : []),
           ...(input.placements.length ? [`Publication editorial placements: ${input.placements.map(placement=>`${placement.area}/${placement.position}:${placement.key}`).join(', ')}`] : []),
+          ...(input.slotChanges.length ? [`Featured-slot rotation: ${input.slotChanges.map(c=>`${c.slot} -> ${c.to} (${c.reason})`).join('; ')}`] : []),
         ].join(' · '),selection});
       await r.append(snapshot,input.overrideRevision);return snapshot;
     });

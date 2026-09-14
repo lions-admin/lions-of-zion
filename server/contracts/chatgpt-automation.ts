@@ -147,6 +147,20 @@ export const chatgptEditorialContextSchema = z.object({
     created: z.number().int().nonnegative(), updated: z.number().int().nonnegative(),
     failed: z.number().int().nonnegative(),
   })),
+  /** The six evergreen slots with no `homepage` placement area of their own
+   *  — October 7 testimony/documentation, Courage & service, Fallen, History
+   *  & context. A run may pin or release one through the package's
+   *  `featured` block; it is never placed. */
+  featuredSlots: z.array(z.object({
+    slot: z.string(),
+    currentKey: z.string().nullable(),
+    selectedAt: z.string().nullable(),
+    dwellDays: z.number().nullable(),
+    pin: z.object({
+      key: z.string(), reason: z.string(), expires: z.string().optional(), setBy: z.string(), setAt: z.string(),
+    }).nullable(),
+    warning: z.string().nullable(),
+  })),
   /** Computed, not stored: what a human would notice at a glance. */
   warnings: z.array(z.string()),
   extras: z.record(z.string(), z.unknown()),

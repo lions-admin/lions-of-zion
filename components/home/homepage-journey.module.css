@@ -43,7 +43,7 @@
 .kicker { margin: 0 0 10px; color: var(--ink-lo); font: 400 var(--t-kicker, 0.8125rem)/1.6 var(--face-text); letter-spacing: .015em; }
 .editorial > .sectionAction { grid-area: action; justify-self: end; margin: 0 0 24px; }
 .editorial > .sectionIntro { grid-area: intro; }
-.editorial > :is(.newsSpread, .narrativeSpread, .archiveSpread, .peopleSpread, .historySpread, .peopleStack) { grid-area: spread; }
+.editorial > :is(.newsSpread, .narrativeSpread, .archiveSpread, .historySpread, .peopleStack) { grid-area: spread; }
 .editorial > .availability { grid-area: state; }
 .sectionIntro { margin: -10px 0 22px; max-width: 60ch; font-size: 16px; line-height: 1.6; color: var(--ink); }
 .sectionAction { margin: 0; }
@@ -98,7 +98,8 @@
 .newsSpread > article[data-rank="companion"] { transition: border-color var(--dur-fast) var(--ease-out); }
 .newsSpread > article[data-rank="companion"]:hover { border-color: var(--line-strong); }
 @media (prefers-reduced-motion: no-preference) {
-  :is(.newsSpread, .narrativeSpread, .featureSpread, .peopleSpread, .historySpread) article:is(:hover, :has(a:focus-visible)) .frame img { transform: scale(1.02); }
+  :is(.newsSpread, .narrativeSpread, .featureSpread, .historySpread) article:is(:hover, :has(a:focus-visible)) .frame img,
+  .heroCard:is(:hover, :has(a:focus-visible)) .frame img { transform: scale(1.02); }
 }
 .framePlaceholder { position: absolute; inset: auto 12px 10px; z-index: 0; color: var(--ink-lo); font: 500 13px/1.4 var(--face-text); }
 .figure img { display: block; width: 100%; height: auto; aspect-ratio: 16/10; object-fit: cover; }
@@ -181,21 +182,31 @@
 .archiveSpread > article[data-kind="testimony"] h3 { max-width: 28ch; }
 .archiveSpread > article[data-kind="documentation"] h3 { font-size: clamp(25px, 2.1vw, 32px); }
 .archiveSpread > article[data-kind="documentation"] .figure img { aspect-ratio: 4/3; }
-.witness { margin: 0; font-size: 16px; font-weight: 500; line-height: 1.5; }
-.warning { margin: 14px 0 0; padding-left: 14px; border-left: 2px solid var(--gold-dim); color: var(--ink); font-size: 14px; line-height: 1.6; }
+/* The witness's name is an attribution, one step quieter than the headline
+   it precedes, not a second headline of its own. */
+.witness { margin: 0; color: var(--ink-lo); font: 500 13px/1.5 var(--face-text); letter-spacing: .02em; text-transform: uppercase; }
+/* A labeled callout, not another paragraph: the label reads first so the
+   note is unmistakably a warning before its text is, and the extra bottom
+   margin keeps the action below it from reading as part of the same block. */
+.warning { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 10px; margin: 14px 0 20px; padding-left: 14px; border-left: 2px solid var(--gold-dim); color: var(--ink); font-size: 14px; line-height: 1.6; }
+.warningLabel { flex: 0 0 auto; color: var(--gold-hi); font: 600 13px/1.4 var(--face-text); text-transform: uppercase; letter-spacing: .04em; }
+/* The one primary action on the card: a step heavier than the shared `.link`
+   default so it does not blend into the note above it. */
+.archiveSpread .link { margin-top: 4px; font-weight: 600; }
 
-/* Portraits share a baseline, with each name beside its face. */
-.peopleSpread { display: grid; grid-template-columns: 1fr 1fr; gap: var(--journey-gap); }
-.peopleSpread article { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1fr); align-content: start; gap: 0 24px; }
-.peopleSpread .figure { grid-column: 1; margin: 0 0 4px; }
+/* Portraits share a baseline, with the name beside the face. Each hero pick
+   is its own card now (`.heroBlock`), so the card holds one portrait and one
+   name rather than a row of them. */
+.heroCard { display: grid; grid-template-columns: minmax(0, 280px) minmax(0, 1fr); align-content: start; gap: 0 32px; }
+.heroCard .figure { grid-column: 1; margin: 0 0 4px; }
 .portrait img { aspect-ratio: 4/5; }
-.personIntro { align-self: center; }
-.personIntro h3 { margin: 8px 0 12px; font-size: clamp(27px, 2.65vw, 42px); line-height: 1.06; }
+.personIntro { align-self: start; }
+.personIntro h4 { margin: 8px 0 10px; font-family: var(--face-display); font-weight: 400; letter-spacing: -.02em; text-wrap: pretty; overflow-wrap: break-word; font-size: clamp(24px, 2.3vw, 34px); line-height: 1.1; }
 .personIntro .kicker { letter-spacing: .065em; }
 .personIntro .meta { margin: 0; font-family: var(--face-text); font-size: 13px; }
-.peopleSpread article > :is(.summary, .sources, .link) { grid-column: 1/-1; }
-.peopleSpread .link { justify-self: start; }
-.peopleSpread .summary { margin-top: 14px; }
+.heroCard > :is(.summary, .sources, .link) { grid-column: 1/-1; }
+.heroCard .link { justify-self: start; margin-top: var(--sp-2); font-weight: 600; }
+.heroCard .summary { margin-top: 14px; }
 
 /* Historical plates keep their own dates. */
 .history { border-top: 1px solid var(--journey-rule); }
@@ -214,8 +225,15 @@
 .featureSpread article:first-child { padding-right: var(--journey-gap); border-right: 1px solid var(--journey-rule); }
 .featureSpread .figure { margin: 0; }
 .featureSpread h3 { margin: 0; font-size: var(--journey-story); line-height: 1.1; }
-.legacyPeople { margin-top: var(--sp-5); padding-top: var(--sp-5); border-top: 1px solid var(--journey-rule); }
-.legacyPeople > .kicker { margin: 0 0 var(--sp-5); }
+/* Two clearly separate records, not one repeated card template: each of
+   Courage & service and Fallen gets its own heading, and the second is set
+   off with its own rule and a left-hand marker rather than only a different
+   word above it (owner note, VA-64). */
+.legacyPeople { display: grid; gap: var(--sp-6); margin-top: var(--sp-5); padding-top: var(--sp-5); border-top: 1px solid var(--journey-rule); }
+.heroBlock { display: grid; gap: var(--sp-4); }
+.heroBlock + .heroBlock { padding-top: var(--sp-6); border-top: 1px solid var(--journey-rule); }
+.heroBlockHeading { margin: 0; color: var(--ink-hi); font-family: var(--face-display); font-weight: 400; letter-spacing: -.01em; font-size: clamp(19px, 1.7vw, 24px); }
+.heroBlockFallen { padding-left: var(--journey-gap); border-left: 2px solid var(--line-strong); }
 .contextShelf { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: var(--journey-gap); margin-top: var(--sp-5); padding-top: var(--sp-5); border-top: 1px solid var(--journey-rule); }
 .contextShelf h3 { max-width: 15ch; margin: var(--sp-2) 0 var(--sp-3); font-size: clamp(30px, 3.5vw, 48px); line-height: 1.07; }
 .contextShelf > div > p:last-child { max-width: 43ch; color: var(--ink); font-size: 15px; line-height: 1.65; }
@@ -303,27 +321,30 @@
   .newsSpread h3 { font-size: clamp(27px, 3.2vw, 35px); }
   .archiveSpread { grid-template-columns: 1.15fr 1fr; gap: 24px; }
   .archiveSpread h3 { font-size: 29px; }
-  .peopleSpread article { grid-template-columns: 1fr; }
-  .peopleSpread .figure { max-width: 340px; }
+  /* Stacked from here down (portrait above, text at full width): the side-
+     by-side split at this card's full section width made the text column
+     narrow enough to wrap into many short lines, which read as "too long"
+     rather than as one readable paragraph. Stacking gives the text the full
+     measure and never reverts to a side-by-side split at any narrower
+     width — the ~400px case the split was cramped at. */
+  .heroCard { grid-template-columns: 1fr; }
+  .heroCard .figure { max-width: 340px; }
   .featureSpread { grid-template-columns: 1fr 1fr; }
   .featureSpread article:first-child { padding-right: var(--sp-5); }
   .personIntro { margin-top: 16px; }
-  .personIntro h3 { font-size: 35px; }
+  .personIntro h4 { font-size: 35px; }
 }
 @media (max-width: 819px) {
   .editorial { grid-template-columns: 1fr; grid-template-areas: "head" "intro" "spread" "state" "action"; }
   .editorial > .sectionAction { justify-self: start; margin: 18px 0 0; }
   .sectionAction .link { font-size: 15px; }
-  .archiveSpread, .peopleSpread { grid-template-columns: 1fr; }
-  .archiveSpread { gap: 26px; }
+  .archiveSpread { grid-template-columns: 1fr; gap: 26px; }
   .archiveSpread > article[data-kind="documentation"] { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); column-gap: 24px; }
   .archiveSpread > article[data-kind="documentation"] > .figure { grid-row: span 7; }
-  .peopleSpread { gap: 26px; }
   .featureSpread, .contextShelf { grid-template-columns: 1fr; }
   .featureSpread article:first-child { padding: 0 0 var(--sp-5); border-right: 0; border-bottom: 1px solid var(--journey-rule); }
-  .peopleSpread article { grid-template-columns: minmax(0, 38%) minmax(0, 1fr); }
   .personIntro { margin: 0; }
-  .personIntro h3 { font-size: clamp(29px, 4.2vw, 39px); }
+  .personIntro h4 { font-size: clamp(29px, 4.2vw, 39px); }
   .systemHead { grid-template-columns: 1fr; gap: 20px; }
   .systemHead > p { max-width: 60ch; }
   .supportHead { grid-template-columns: 1fr; gap: 20px; }
@@ -364,10 +385,11 @@
   .archiveSpread > article[data-kind="documentation"] .figure img { aspect-ratio: 16/10; }
   .archiveSpread > article[data-kind="documentation"] h3 { font-size: 27px; }
   .warning { font-size: 14px; }
-  .peopleSpread article { column-gap: 20px; }
   .contextShelf { gap: var(--sp-5); }
-  .personIntro h3 { font-size: clamp(27px, 6.5vw, 35px); }
-  .peopleSpread article + article { border-top: 1px solid var(--journey-rule); padding-top: 22px; }
+  .personIntro h4 { font-size: clamp(27px, 6.5vw, 35px); }
+  .heroBlockHeading { font-size: clamp(18px, 5vw, 22px); }
+  .heroCard .figure { max-width: 220px; }
+  .heroBlockFallen { padding-left: var(--sp-5); }
   .historySpread { grid-template-columns: 1fr; gap: 26px; }
   .historySpread article + article { border-top: 1px solid var(--journey-rule); padding-top: 20px; }
   .historySpread .figure img { aspect-ratio: 16/9; }
@@ -412,8 +434,7 @@
   .newsSpread > article[data-rank="companion"] { grid-template-columns: 1fr; }
   .newsSpread > article[data-rank="companion"] .figure { max-width: none; }
   .newsSpread > article[data-rank="companion"] .figure img { aspect-ratio: 16/9; }
-  .peopleSpread article { column-gap: 14px; }
-  .personIntro h3 { font-size: 26px; }
+  .personIntro h4 { font-size: 26px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .journey *, .journey *::before, .journey *::after { animation: none !important; transition: none; scroll-behavior: auto; }

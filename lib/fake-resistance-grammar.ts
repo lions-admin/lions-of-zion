@@ -61,5 +61,10 @@ export const FAKE_RESISTANCE_GRAMMAR: Readonly<
 };
 
 /** The desk's own standfirst has to cover all three, not just claims. */
+/* Names the three kinds and stops. It used to gloss each one as well —
+   "assessed against evidence", "reported as events", "with their findings and
+   their limits" — which is a taxonomy lesson standing between the reader and
+   the first claim, and every card already states its own kind in its kicker.
+   The three names stay because they are what the band is; the glosses went. */
 export const FAKE_RESISTANCE_INTRO =
-  "Three kinds of record sit here: claims in circulation, assessed against evidence; documented incidents, reported as events; and influence investigations, with their findings and their limits. Each says which it is.";
+  "Claims in circulation, documented incidents and influence investigations. Each record says which it is, and what its evidence supports.";

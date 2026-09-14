@@ -545,7 +545,7 @@ section labels and keep mono strictly for machine values: dates, counts,
 keys) and sweep the consumers. This is the sweep that turns "dashboard" into
 "publication" and it pairs with UX-10 and UX-15.
 
-### UX-32 · `IMPROVE` · C · `READY` — Solid-filled buttons
+### UX-32 · `IMPROVE` · C · `PARTLY DONE (homepage, 2026-09-14)` — Solid-filled buttons
 
 Only the October 7 share primaries are solid amber; everywhere else the
 primary action is an underlined text link with an arrow. Decide the button
@@ -554,6 +554,18 @@ and use it: solid for the one primary action on a task surface (Ask send,
 Support cards' action, share sheet primary), outline for secondary, link for
 navigation. Then the October 7 stack (UX-22) and the article share bar
 (UX-19) follow the same rule.
+
+**Homepage half done, 2026-09-14.** The button hierarchy is now decided and
+applied for the homepage, but through `JourneyLink`'s three declared roles
+rather than through `components/ui/Button` — the homepage imports neither
+`Button` nor `CardCta`, and giving it a fourth control vocabulary to satisfy
+this entry would have made the problem this entry describes worse. The one
+primary action per record is the only boxed link on the page, the way out to a
+hub is quieter, and a list row that is its own title is quieter still. What is
+**not** done is the rest of the sentence above: the October 7 stack (UX-22),
+the article share bar (UX-19) and the Ask surface still make their own choices,
+and the homepage's roles and `components/ui/Button` are still two systems that
+have not been reconciled. Reconciling them is the remaining work here.
 
 ---
 

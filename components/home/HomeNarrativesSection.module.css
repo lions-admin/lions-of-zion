@@ -1,11 +1,17 @@
-.textLed {
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-areas:
-    "status"
-    "body";
-}
+/* The reading measure for a claim with no picture, where the body spans the
+   whole card instead of sharing the row with a cover. It used to be written
+   as `.textLed .dossierBody`; the `.textLed` shape itself is now driven off
+   `[data-has-media="false"]` in the journey stylesheet, which owns the rest
+   of this grid, so only the measure is left here.
 
-.textLed .dossierBody {
+   Deliberately unscoped, and it must stay that way: `.investigation` is a
+   class in the *journey* stylesheet, and CSS Modules hashes class names per
+   file — writing `.investigation[data-has-media="false"] .dossierBody` here
+   compiles to a hashed `.investigation` that is on no element, so the rule
+   silently never matches. The cap is inert on a media-led card anyway: that
+   body shares its row with a cover and is about 780px at a 1440 viewport,
+   well under 58rem, so the measure only bites where it was always meant to. */
+.dossierBody {
   max-width: 58rem;
 }
 

@@ -15,8 +15,14 @@ describe("direct-entry cinematic home", () => {
     const system = readFileSync("components/home/HomeSystemSection.tsx", "utf8");
     expect(system).toContain("autoOpen={false}");
     expect(page).not.toContain("SignalRotator");
-    expect(page).toContain('href="/information-war"');
     expect(page).toContain('href="/geopolitical-brief"');
+    /* The how-it-works destination is asserted on the system band, not on the
+       cover. It used to be a second link in `app/page.tsx` — a 13px grey
+       string with no affordance, beneath the primary action, pointing at the
+       same place the system band already points. The cover now carries one
+       action, so the literal left `page.tsx`; the destination did not leave
+       the homepage, and this asserts the band that renders it. */
+    expect(system).toContain('href="/information-war"');
   });
 
   it("keeps the server-rendered home accessible before JavaScript", () => {

@@ -103,25 +103,17 @@ export default async function Page() {
               <span>Find it, check it, share it.</span>
             </p>
 
-            {/* The two reading paths, on one row wherever the measure allows
-                it and stacked where it does not. They were two stacked blocks
-                costing 110px of a phone cover; the edition rail below needs
-                that space more than the gap between them did (VA-10). News is
-                primary; the system story is the optional path — quieter by
-                design: smaller, lower in tone, no arrow of its own, so "Read
-                the latest" keeps the one arrow. */}
-            <div className={styles.coverPaths}>
-              <div className={styles.actions}>
-                <JourneyLink href="/geopolitical-brief">Read the latest</JourneyLink>
-              </div>
-              <div className={styles.secondaryActions}>
-                {/* VA-51. This link said "Why this work matters" while the
-                    chrome called the same destination "How it works" and its
-                    tab called it something else again. One name now. */}
-                <Link className={styles.storyLink} href="/information-war">
-                  How it works
-                </Link>
-              </div>
+            {/* One action, and it is the only boxed control on the cover.
+                There were two: this one and a 13px grey "How it works" string
+                beside it with no border, no underline and no arrow — a link a
+                reader could not tell from the sentence above it, pointing at a
+                destination the system band lower down already offers under the
+                same name. A second path that is invisible is not a second
+                path; it is noise beside the first one, so the cover keeps the
+                action and `/information-war` keeps its one entrance in the
+                system band. */}
+            <div className={styles.actions}>
+              <JourneyLink href="/geopolitical-brief">Read the latest</JourneyLink>
             </div>
             {/* The edition rail: the bottom band of the cover, and the reason
                 a reader no longer has to scroll to learn what happened today.

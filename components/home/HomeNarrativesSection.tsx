@@ -79,7 +79,12 @@ export function HomeNarrativesSection({
           return (
             <article
               key={item.key}
-              className={`${styles.investigation} ${hasMedia ? "" : narrativeStyles.textLed}`}
+              /* The text-led shape is driven off `data-has-media` in the
+                 journey stylesheet rather than off a second class: the card's
+                 grid areas changed with the reading order, and one file should
+                 own them. `HomeNarrativesSection.module.css` keeps the two
+                 rules that are genuinely local to this card. */
+              className={styles.investigation}
               data-home-record={item.key}
               data-measure-id={`home-fake-resistance-${item.key}`}
               data-measure-section="fake-resistance"
@@ -90,23 +95,50 @@ export function HomeNarrativesSection({
               data-kind={item.kind}
               data-has-media={hasMedia ? "true" : "false"}
             >
+              {/* The verdict sits directly above the claim it judges, and
+                  nothing else comes between them.
+
+                  It used to open the card and then be separated from the
+                  claim by five elements — the timestamp, the cover picture,
+                  its disclosure, the "Credit" toggle and the kicker — so on a
+                  phone an unrefuted anti-Israel claim was read with its
+                  "Disputed" already scrolled off the top. On a desk whose
+                  whole purpose is refuting disinformation that is the one
+                  order that must never ship.
+
+                  Two lines of framing stand above the claim and no more: the
+                  kind of object this is, and the verdict on it. They are not
+                  chrome — they are what makes the claim safe to read at all,
+                  which is why the headline-first rule the other bands follow
+                  stops here. The timestamp, which *is* chrome, moved below
+                  the picture with the rest of the byline. */}
               <header className={styles.dossierStatus}>
+                <p className={styles.kicker}>{kicker}</p>
                 <p className={styles.verdict} data-tone={status?.tone ?? "neutral"}>
                   <span className={styles.verdictLabel}>{statusLabel}</span>
                   <span className={styles.verdictMeaning}>{statusMeaning}</span>
                 </p>
-                <HomeTime date={item.date} updatedAt={item.updatedAt} includeTime />
               </header>
+              {/* A claim is set at `--journey-aside`, the size of a heading
+                  *inside* a record, and never at `--journey-lead` or
+                  `--journey-story`. A sentence this desk is refuting must not
+                  out-typeset the reporting it sits beside: at 390px the claim
+                  was the second-largest text on the whole page, beaten only
+                  by the band's own `h2`. The cap is in the stylesheet, on
+                  `[data-kind="watch"]`, so it holds for every claim rather
+                  than for the ones an author remembered. */}
+              <h3>
+                <a href={item.href}>{heading}</a>
+              </h3>
               {item.media && (
                 <div className={styles.dossierCover}>
                   <HomeMedia media={item.media} />
                 </div>
               )}
               <div className={`${styles.dossier} ${narrativeStyles.dossierBody}`}>
-                <p className={styles.kicker}>{kicker}</p>
-                <h3>
-                  <a href={item.href}>{heading}</a>
-                </h3>
+                <div className={styles.byline}>
+                  <HomeTime date={item.date} updatedAt={item.updatedAt} includeTime />
+                </div>
                 {item.kind === "case" && distinctQuestion && (
                   <div className={narrativeStyles.researchQuestion}>
                     <span>Research question</span>

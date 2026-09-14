@@ -484,6 +484,13 @@
       "when": 1789400000000,
       "tag": "0068_featured_slots",
       "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "7",
+      "when": 1789410000000,
+      "tag": "0069_measurement_public_select_policy",
+      "breakpoints": true
     }
   ]
 }

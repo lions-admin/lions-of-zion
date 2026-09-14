@@ -10,6 +10,52 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-14 — A grant is not a policy: measurement lost every public visit
+
+The מדידה screens looked broken. They were not: they were reading an almost
+empty warehouse, because every public visit had been rejected at the door since
+the feature went live.
+
+Migration 0067 gave `app_public` a SELECT **grant** on the measurement tables
+and INSERT and UPDATE **policies** — but no SELECT policy. Under RLS a grant
+without a policy shows the role nothing, and that is not only a read problem:
+`INSERT ... ON CONFLICT` must find the conflicting row through the arbiter
+index before it can choose between inserting and updating, so it needs a SELECT
+policy *whatever the outcome* — when nothing conflicts, and for
+`ON CONFLICT DO NOTHING` too. `upsertVisitor` is the first write in the collect
+path, so the whole request failed.
+
+**The error message points at the wrong policy.** PostgreSQL reports this as
+`42501 new row violates row-level security policy`, which reads as a WITH CHECK
+failure on the row being written and sends you to the INSERT policy, where
+nothing is wrong. Measured against Production as `app_public`: a plain INSERT
+of a new id succeeded, the same INSERT with `ON CONFLICT DO UPDATE` failed, and
+`ON CONFLICT DO NOTHING` failed; adding the SELECT policy made all of them
+pass.
+
+**Why nothing caught it, and the part worth remembering.** RLS on these tables
+is enabled but **not forced**, and a table's owner bypasses non-forced RLS. The
+PGlite harness and a local database both connect as the owner, so the upsert
+takes the bypass and passes; Preview passed for the same reason. Only a
+connection that actually switches to `app_public` — the deployed request — ever
+meets the policy. **A test that exercises RLS by connecting as the owner is not
+testing RLS.** The regression test added here is therefore static: it reads the
+migration text and asserts a SELECT policy exists for every measurement table
+the public path upserts into. Making it a runtime test would have reproduced
+the blind spot rather than closed it.
+
+`measurement_events` keeps INSERT as its only public policy: it is append-only,
+written with a plain INSERT, and never read by the public path. The fix does
+not widen anything else — no public route selects from these tables, and the
+SELECT grant was already there.
+
+Production was repaired by hand before the migration existed, to stop the
+ongoing loss; `0069_measurement_public_select_policy.sql` is what makes the
+state reproducible, and its drizzle receipt was inserted by hand so the
+deployment schema preflight still counts what it expects.
+
+---
+
 ## 2026-09-14 — The homepage states link role and heading rank; it does not infer them
 
 The owner's verdict on the homepage was that it is built badly, does not

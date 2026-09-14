@@ -8,6 +8,17 @@ import styles from './investigation-explorer.module.css';
 
 type Stage = { id: string; label: string; title: string; body: string; sources?: PublicPublicationDetail['sources']; items?: string[] };
 
+/**
+ * The catalog event a stage reports when a reader opens it (docs/measurement.md):
+ * the two source stages are `sources_open`, the finding is `verdict_reached`,
+ * and the rest are a plain `open`. Opening a source itself is `evidence_open`.
+ */
+const STAGE_EVENT: Record<string, string> = {
+  origin: 'sources_open',
+  evidence: 'sources_open',
+  finding: 'verdict_reached',
+};
+
 function uniqueSources(sources: PublicPublicationDetail['sources']) {
   return sources.filter((source, index) => sources.findIndex(candidate => candidate.url === source.url && candidate.title === source.title) === index);
 }
@@ -47,18 +58,19 @@ export function InvestigationExplorer({ record }: { record: PublicPublicationDet
   ];
   const active = stages[selected]!;
 
-  return <section className={styles.explorer} aria-labelledby="evidence-explorer-title">
+  return <section className={styles.explorer} aria-labelledby="evidence-explorer-title" data-measure-id="evidence-explorer">
     <header><p>Follow the evidence</p><h2 id="evidence-explorer-title">From claim to record</h2><span>Each stage is a reading path through this published investigation.</span></header>
     <div className={styles.desktop}>
       <div className={styles.stages} role="tablist" aria-label="Investigation stages">
-        {stages.map((stage, index) => <button key={stage.id} role="tab" aria-selected={selected === index} aria-controls={`evidence-panel-${stage.id}`} id={`evidence-tab-${stage.id}`} onClick={() => setSelected(index)}>
+        {stages.map((stage, index) => <button key={stage.id} role="tab" aria-selected={selected === index} aria-controls={`evidence-panel-${stage.id}`} id={`evidence-tab-${stage.id}`} onClick={() => setSelected(index)}
+          data-measure-event={STAGE_EVENT[stage.id] ?? 'open'} data-measure-placement={`stage:${stage.id}`}>
           <span>{String(index + 1).padStart(2, '0')}</span>{stage.label}
         </button>)}
       </div>
       <StagePanel stage={active} id={`evidence-panel-${active.id}`} labelledBy={`evidence-tab-${active.id}`} />
     </div>
     <ol className={styles.mobile} aria-label="Evidence journey in reading order">
-      {stages.map((stage, index) => <li key={stage.id}><details open={index === 0}><summary><span>{String(index + 1).padStart(2, '0')}</span>{stage.label}</summary><StageContents stage={stage} /></details></li>)}
+      {stages.map((stage, index) => <li key={stage.id}><details open={index === 0} data-measure-event={STAGE_EVENT[stage.id] ?? 'open'} data-measure-placement={`stage:${stage.id}`}><summary><span>{String(index + 1).padStart(2, '0')}</span>{stage.label}</summary><StageContents stage={stage} /></details></li>)}
     </ol>
   </section>;
 }
@@ -68,5 +80,5 @@ function StagePanel({ stage, id, labelledBy }: { stage: Stage; id: string; label
 }
 
 function StageContents({ stage }: { stage: Stage }) {
-  return <><h3>{stage.title}</h3><p>{stage.body}</p>{stage.items?.length ? <ul>{stage.items.map(item => <li key={item}>{item}</li>)}</ul> : null}{stage.sources?.length ? <ol className={styles.sources}>{stage.sources.map((source, index) => <li key={source.url ?? `${source.title}-${index}`}><a href={source.url ?? undefined} target={source.url ? '_blank' : undefined} rel={source.url ? 'noreferrer' : undefined}>{source.title}</a><span>{source.publisher}{source.publishedAt ? ` · ${formatSourceDay(source.publishedAt)}` : ''}</span></li>)}</ol> : null}</>;
+  return <><h3>{stage.title}</h3><p>{stage.body}</p>{stage.items?.length ? <ul>{stage.items.map(item => <li key={item}>{item}</li>)}</ul> : null}{stage.sources?.length ? <ol className={styles.sources}>{stage.sources.map((source, index) => <li key={source.url ?? `${source.title}-${index}`}><a href={source.url ?? undefined} target={source.url ? '_blank' : undefined} rel={source.url ? 'noreferrer' : undefined} data-measure-event="evidence_open">{source.title}</a><span>{source.publisher}{source.publishedAt ? ` · ${formatSourceDay(source.publishedAt)}` : ''}</span></li>)}</ol> : null}</>;
 }

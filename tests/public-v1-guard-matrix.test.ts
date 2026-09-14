@@ -128,6 +128,7 @@ const PUBLIC_SAMPLES: { method: string; path: string; query?: string; note: stri
   },
   { method: "POST", path: "/api/v1/reports", note: "anonymous report submission" },
   { method: "POST", path: "/api/v1/volunteer-interest", note: "volunteer interest submission" },
+  { method: "POST", path: "/api/v1/measurement/collect", note: "first-party measurement ingest" },
   { method: "GET", path: "/api/v1/chat/threads", note: "chat thread list" },
   { method: "POST", path: "/api/v1/chat/threads", note: "chat thread creation" },
   {
@@ -214,7 +215,7 @@ describe("PUBLIC_V1 — coverage completeness", () => {
     /* Not a restatement of the array — a review gate. Growing the anonymous
        surface is a security decision, so it has to be a deliberate edit here
        rather than a line that slipped through in a feature branch. */
-    expect(PUBLIC_V1.length).toBe(9);
+    expect(PUBLIC_V1.length).toBe(10);
   });
 });
 
@@ -468,6 +469,7 @@ const REVIEWED_PUBLIC_ENDPOINTS = [
   "GET /api/v1/search",
   "POST /api/v1/chat/threads",
   "POST /api/v1/chat/threads/sample-id/messages",
+  "POST /api/v1/measurement/collect",
   "POST /api/v1/reports",
   "POST /api/v1/volunteer-interest",
 ];

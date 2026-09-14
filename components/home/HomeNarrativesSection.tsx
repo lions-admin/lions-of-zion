@@ -17,6 +17,7 @@ import styles from "./homepage-journey.module.css";
 import narrativeStyles from "./HomeNarrativesSection.module.css";
 import { FAKE_RESISTANCE_GRAMMAR, FAKE_RESISTANCE_INTRO } from "@/lib/fake-resistance-grammar";
 import { homepageBand } from "@/lib/homepage-bands";
+import { measureContentId } from "@/components/measurement/attrs";
 
 const BAND = homepageBand("fakeResistance");
 
@@ -80,6 +81,11 @@ export function HomeNarrativesSection({
               key={item.key}
               className={`${styles.investigation} ${hasMedia ? "" : narrativeStyles.textLed}`}
               data-home-record={item.key}
+              data-measure-id={`home-fake-resistance-${item.key}`}
+              data-measure-section="fake-resistance"
+              data-measure-content={measureContentId(item.key)}
+              data-measure-type="publication"
+              data-measure-card
               data-rank={rankOf(index)}
               data-kind={item.kind}
               data-has-media={hasMedia ? "true" : "false"}

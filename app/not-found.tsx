@@ -18,7 +18,7 @@ export default function NotFound() {
   return (
     <>
       <SiteHeader />
-      <main className={styles.page} id="page-content" tabIndex={-1}>
+      <main className={styles.page} id="page-content" tabIndex={-1} data-measure-id="not-found">
         <div className={styles.shell}>
           <header className={styles.notice}>
             <p className={styles.code}>

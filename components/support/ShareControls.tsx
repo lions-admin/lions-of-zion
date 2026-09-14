@@ -132,6 +132,8 @@ export function ShareControls({
       <div className={styles.row}>
         <Button
           type="button"
+          data-measure-id="share-copy"
+          data-measure-event="share_copy"
           variant={copyVariant}
           size="md"
           leftIcon={<Icon name="document" size={16} />}
@@ -143,6 +145,8 @@ export function ShareControls({
         {canShare ? (
           <Button
             type="button"
+            data-measure-id="share-click"
+            data-measure-event="share_click"
             variant="secondary"
             size="md"
             leftIcon={<Icon name="share" size={16} />}
@@ -158,6 +162,8 @@ export function ShareControls({
           <ButtonLink
             key={target.href}
             href={target.href}
+            data-measure-id={`share-intent-${target.label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+            data-measure-event="share_click"
             variant="secondary"
             size="md"
             target="_blank"

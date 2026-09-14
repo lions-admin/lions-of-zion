@@ -706,7 +706,7 @@ export const drainOutboxResultSchema = z.object({
 export type DrainOutboxResult = z.infer<typeof drainOutboxResultSchema>;
 
 export const maintenanceTickResultSchema = z.object({
-  maintenance: z.object({ rateLimits: count, idempotencyKeys: count }),
+  maintenance: z.object({ rateLimits: count, idempotencyKeys: count, measurementEvents: count.optional(), measurementPresence: count.optional() }),
   briefingJobs: z.object({
     recovered: count,
     configurationRecovered: count,

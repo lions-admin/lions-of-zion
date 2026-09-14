@@ -452,6 +452,7 @@ override it.
 
 | | |
 | --- | --- |
+| [`docs/measurement.md`](docs/measurement.md) | First-party browsing measurement — events, admin מדידה, retention |
 | [`docs/editorial-dna.md`](docs/editorial-dna.md) | **What this site and system are** — the owner's binding definition. Outranks everything below |
 | [`CLAUDE.md`](CLAUDE.md) | The working brief and the invariants (imports this file) |
 | [`docs/architecture.md`](docs/architecture.md) | System map, enforced boundaries, known gaps |

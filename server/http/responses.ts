@@ -67,6 +67,6 @@ export function problem(error: ApiError, requestId: string): Response {
         ...(error.errors ? { errors: error.errors } : {}),
       },
     },
-    { status, headers: { "Content-Type": "application/problem+json" } },
+    { status, headers: { "Content-Type": "application/problem+json", "x-request-id": requestId } },
   );
 }

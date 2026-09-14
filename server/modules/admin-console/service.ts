@@ -553,7 +553,7 @@ export type AdminConsoleOptions = {
    *  call them; tests inject stubs, because those exports bind their own
    *  connection and a test database is never reachable through `db()`. */
   drain?: (opts: { limit?: number }) => Promise<DrainResult>;
-  runPrune?: () => Promise<{ rateLimits: number; idempotencyKeys: number }>;
+  runPrune?: () => Promise<{ rateLimits: number; idempotencyKeys: number; measurementEvents?: number; measurementPresence?: number }>;
   recoverBriefingJobs?: () => Promise<{
     recovered: number;
     configurationRecovered: number;

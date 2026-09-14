@@ -7,6 +7,7 @@ import { isAnalysisBasis } from "@/server/contracts/publication";
 import { VERIFICATION_STATES } from "@/components/live/publication-labels";
 import styles from "./narrative-record.module.css";
 import { publicationCta } from "@/lib/publication-routing";
+import { measurePublicationCard } from "@/components/measurement/attrs";
 import { formatDateTime } from "@/lib/format-date";
 
 /**
@@ -24,7 +25,12 @@ const IMAGE_NOTE: Partial<Record<EditorialMedia["role"], string>> = {
 const DEFAULT_IMAGE_NOTE = "Context image — not evidence for the claim";
 
 /** Status precedes the claim so a circulating allegation is never styled as news. */
-export function NarrativeRecord({ item, compact = false }: { item: PublicPublication; compact?: boolean }) {
+export function NarrativeRecord({ item, compact = false, surface = compact ? "fr-watch" : "watch" }: {
+  item: PublicPublication;
+  compact?: boolean;
+  /** Measurement surface: the hub's compact excerpt, or the full listing. */
+  surface?: string;
+}) {
   const details = item.narrativeWatchDetails;
   const status = details ? VERIFICATION_STATES[details.verificationState] : null;
   const title = item.title.replace(/^(Reported claim|Analysis):\s*/, "");
@@ -32,7 +38,7 @@ export function NarrativeRecord({ item, compact = false }: { item: PublicPublica
      record that trusts its input is where an uncleared image surfaces first. */
   const media = item.media && isArticleSafeMedia(item.media) ? item.media : null;
   return (
-    <article className={[styles.record, compact ? styles.compact : ""].join(" ")}>
+    <article className={[styles.record, compact ? styles.compact : ""].join(" ")} {...measurePublicationCard(surface, item)}>
       <div className={styles.meta}>
         <span className={styles.status} data-tone={status?.tone ?? "neutral"}>{status?.label ?? "Assessment unavailable"}</span>
         <time dateTime={item.publishedAt}>{formatDateTime(item.publishedAt)}</time>

@@ -133,7 +133,9 @@ export function SectionPage({
           </div>
         ) : null}
 
-        <article className={styles.panel} id="page-content">
+        {/* The route id is the measurement section for everything on the
+            page that does not name its own (docs/measurement.md). */}
+        <article className={styles.panel} id="page-content" data-measure-section={id}>
           <header>
             {kicker ? <p className={styles.kicker}>{kicker}</p> : null}
             <h1 className={styles.title}>{title}</h1>
@@ -208,7 +210,10 @@ export function SectionBlock({
     <Reveal as="section" className={styles.block}>
       {/* The tick that used to sit beside this heading was a counterweight to
           tracked capitals. A sentence-case serif heading carries itself. */}
-      <div className={styles.blockHeading}>
+      {/* Measured at the heading, not the section: a section taller than two
+          screens is never half visible, so its exposure would never fire.
+          The heading's exposure is "the reader got this far". */}
+      <div className={styles.blockHeading} data-measure-id={anchor ? `block-${anchor}` : undefined}>
         <h2 id={anchor}>{heading}</h2>
       </div>
       {children}

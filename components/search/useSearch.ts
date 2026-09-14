@@ -41,6 +41,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { SearchHit, SearchResult } from "@/server/contracts/search";
 import { ApiProblem, isAbort, requestJson } from "./http";
+import { redactQuery } from "@/components/measurement/redact";
+
+function measureSearch(name: string, detail: Record<string, unknown>) {
+  try {
+    window.dispatchEvent(new CustomEvent("lz:measure", { detail: { name, ...detail } }));
+  } catch {
+    /* ignore */
+  }
+}
+
 
 /**
  * The user-visible search contract. `fallback` is a successful lexical-only
@@ -106,6 +116,8 @@ export function useSearch(initialQuery = "", composing = false): UseSearch {
   const [carried, setCarried] = useState<SearchResult | null>(null);
 
   const controller = useRef<AbortController | null>(null);
+  /** The last query measured from this box, for `search_refine`. */
+  const measuredQuery = useRef<string | null>(null);
 
   const trimmed = query.trim();
   const answer = answers.get(trimmed);
@@ -141,6 +153,18 @@ export function useSearch(initialQuery = "", composing = false): UseSearch {
           );
           setAnswers((current) => new Map(current).set(trimmed, result));
           setCarried(result);
+          /* Every answered query is a `search_query`; an empty answer is
+             also a `search_zero_results`, and a query after an earlier one in
+             the same box is a `search_refine`. The text only ever leaves
+             redacted — truncated, emails and phone numbers stripped. */
+          const detail = {
+            query_redacted: redactQuery(trimmed) ?? undefined,
+            payload: { result_count: result.hits.length, zero_results: result.hits.length === 0 },
+          };
+          measureSearch("search_query", detail);
+          if (result.hits.length === 0) measureSearch("search_zero_results", detail);
+          if (measuredQuery.current && measuredQuery.current !== trimmed) measureSearch("search_refine", detail);
+          measuredQuery.current = trimmed;
         } catch (cause) {
           if (isAbort(cause)) return;
           setFailure({

@@ -30,6 +30,8 @@ export const SEARCH_QUERIES: RateLimitPolicy = { limit: 120, windowSeconds: 60 }
 export const CHAT_MESSAGES: RateLimitPolicy = { limit: 10, windowSeconds: 60 };
 export const CHAT_MESSAGES_DAILY: RateLimitPolicy = { limit: 100, windowSeconds: 86_400 };
 export const PUBLIC_API_READS: RateLimitPolicy = { limit: 600, windowSeconds: 60 };
+/** First-party browsing measurement ingest — cheap ceiling per IP. */
+export const MEASUREMENT_COLLECT: RateLimitPolicy = { limit: 120, windowSeconds: 60 };
 export const ADMIN_MUTATIONS: RateLimitPolicy = { limit: 30, windowSeconds: 60 };
 /** Outbound collection is deliberately constrained independently from public
  * traffic. These are shared Postgres buckets, so concurrent Functions cannot

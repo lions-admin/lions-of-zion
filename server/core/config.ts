@@ -320,6 +320,11 @@ export const adminEmail = (): string =>
 export const editorialReportEmail = (): string =>
   process.env.EDITORIAL_REPORT_EMAIL?.trim().toLowerCase() || adminEmail();
 export const siteUrl = (): string => process.env.NEXT_PUBLIC_SITE_URL ?? "https://lionsofzion.io";
+
+/** Deployed git SHA when present (Vercel), else null. Used to stamp measurement events. */
+export const siteRevision = (): string | null =>
+  process.env.VERCEL_GIT_COMMIT_SHA?.trim() || null;
+
 export const googleWorkspaceSmtpUser = (): string =>
   required("GOOGLE_WORKSPACE_SMTP_USER", "Google Workspace email delivery").trim().toLowerCase();
 export const googleWorkspaceSmtpAppPassword = (): string =>

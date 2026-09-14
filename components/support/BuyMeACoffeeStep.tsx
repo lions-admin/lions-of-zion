@@ -38,6 +38,7 @@ export function BuyMeACoffeeStep() {
         target="_blank"
         rel="noreferrer"
         leftIcon={<Icon name="coffee" size={16} strokeWidth={1.5} />}
+        data-measure-id="support-donate-coffee"
       >
         Buy the desk a coffee
       </ButtonLink>

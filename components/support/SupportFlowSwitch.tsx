@@ -120,6 +120,8 @@ export function SupportFlowSwitch({ flows }: { flows: readonly SupportFlow[] }) 
               type="button"
               className={styles.choiceButton}
               data-emphasis={flow.emphasis === 'primary' ? 'primary' : undefined}
+              data-measure-id={`support-choose-${flow.id}`}
+              data-measure-section="support"
               onClick={() => open(flow.id)}
             >
               {flow.icon ? (
@@ -164,6 +166,7 @@ export function SupportFlowSwitch({ flows }: { flows: readonly SupportFlow[] }) 
               variant="text"
               size="sm"
               className={styles.flowBack}
+              data-measure-id={`support-back-${flow.id}`}
               onClick={() => close(flow.id)}
             >
               Choose another way

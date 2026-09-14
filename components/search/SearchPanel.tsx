@@ -233,7 +233,7 @@ export function SearchPanel({
   const status = resultStatus(state, hits.length, answered);
 
   return (
-    <div className={styles.panel} data-variant={variant} data-search-state={state}>
+    <div className={styles.panel} data-variant={variant} data-search-state={state} data-measure-id="search-panel" data-measure-section="search">
       <div className={styles.queryRow}>
         <FieldShell fieldId={inputId} label="Search the site" className={styles.queryField}>
           <div className={styles.queryControl}>

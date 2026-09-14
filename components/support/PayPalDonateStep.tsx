@@ -147,7 +147,7 @@ export function PayPalDonateStep() {
             PayPal’s own page — nothing about a card is typed here, and this
             site never sees it.
           </p>
-          <Button type="button" variant="primary" size="md" onClick={() => setStep("loading")}>
+          <Button type="button" variant="primary" size="md" onClick={() => setStep("loading")} data-measure-id="support-donate-paypal">
             Continue to PayPal
           </Button>
         </div>
@@ -189,7 +189,7 @@ export function PayPalDonateStep() {
               a failure this page is never told about. */}
           <p className={styles.fallback}>
             If PayPal’s button does not appear or its window is blocked, open{" "}
-            <a className={styles.fallbackLink} href={PAYPAL_DIRECT_URL} target="_blank" rel="noreferrer">
+            <a className={styles.fallbackLink} href={PAYPAL_DIRECT_URL} target="_blank" rel="noreferrer" data-measure-id="support-donate-paypal-direct">
               the PayPal payment page
             </a>{" "}
             directly.

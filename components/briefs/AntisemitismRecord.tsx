@@ -2,13 +2,19 @@ import Link from "next/link";
 import type { PublicPublication } from "@/server/contracts/publication";
 import styles from "./antisemitism-record.module.css";
 import { publicationCta } from "@/lib/publication-routing";
+import { measurePublicationCard } from "@/components/measurement/attrs";
 import { formatDay } from "@/lib/format-date";
 
 /** A documented record, kept visually and semantically distinct from a circulating claim. */
-export function AntisemitismRecord({ item, compact = false }: { item: PublicPublication; compact?: boolean }) {
+export function AntisemitismRecord({ item, compact = false, surface = compact ? "fr-antisemitism" : "antisemitism" }: {
+  item: PublicPublication;
+  compact?: boolean;
+  /** Measurement surface: the hub's compact excerpt, or the full listing. */
+  surface?: string;
+}) {
   const date = formatDay(item.publishedAt);
   return (
-    <article className={[styles.record, compact ? styles.compact : ""].join(" ")}>
+    <article className={[styles.record, compact ? styles.compact : ""].join(" ")} {...measurePublicationCard(surface, item)}>
       <div className={styles.meta}>
         <span>Antisemitism record</span>
         <time dateTime={item.publishedAt}>{date}</time>

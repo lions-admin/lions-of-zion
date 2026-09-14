@@ -10,6 +10,7 @@ import { getAntisemitismFeed, getInfluenceInvestigationFeed, getNarrativeWatchFe
 import { NarrativeRecord } from "@/components/briefs/NarrativeRecord";
 import { AntisemitismRecord } from "@/components/briefs/AntisemitismRecord";
 import { publicationHref } from "@/lib/publication-routing";
+import { measureCard, measurePublicationCard } from "@/components/measurement/attrs";
 import styles from "./page.module.css";
 import { pageMetadata } from "@/lib/page-metadata";
 
@@ -61,7 +62,8 @@ export default async function Page() {
           ]}
         />
         <div className={styles.front}>
-          <section className={styles.investigation} aria-labelledby="investigation-heading">
+          <section className={styles.investigation} aria-labelledby="investigation-heading"
+            {...(featured ? measureCard({ id: `fr-case-lead-${featured.slug}`, section: "fake-resistance", content: `case:${featured.slug}`, type: "case", placement: "fake-resistance:lead" }) : {})}>
             <div className={styles.eyebrow}><span>Latest investigation</span>{featured ? <time dateTime={featured.updatedAt}>{formatDay(featured.updatedAt)}</time> : null}</div>
             {featured ? <>
               <h2 id="investigation-heading"><Link href={`/fake-resistance/cases/${featured.slug}`}>{featured.title}</Link></h2>
@@ -107,7 +109,7 @@ export default async function Page() {
           </header>
           <p className={styles.disclosure}>Published investigations into coordinated influence — state-aligned, networked and anti-Western operations — kept apart from the claims they circulate.</p>
           {influence.status === "rejected" ? <p role="alert">Influence investigations are temporarily unavailable.</p>
-            : influenceItems.length ? <div className={styles.researchGrid}>{influenceItems.slice(0, 3).map(item => <article key={item.publicId}>
+            : influenceItems.length ? <div className={styles.researchGrid}>{influenceItems.slice(0, 3).map(item => <article key={item.publicId} {...measurePublicationCard("fr-influence", item)}>
                 <time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time>
                 <h3><Link href={publicationHref(item.publicId)}>{item.title}</Link></h3>
                 {item.summary ? <p>{item.summary}</p> : null}
@@ -121,14 +123,15 @@ export default async function Page() {
             <SectionCount settled count={cases.length} noun="investigation" />
             <Link href="/fake-resistance/social-media">All investigations <span aria-hidden="true">→</span></Link>
           </header>
-          <div className={styles.researchGrid}>{otherCases.slice(0,3).map(item => <article key={item.slug}>
+          <div className={styles.researchGrid}>{otherCases.slice(0,3).map(item => <article key={item.slug}
+            {...measureCard({ id: `fr-case-${item.slug}`, section: "fake-resistance", content: `case:${item.slug}`, type: "case" })}>
             <time dateTime={item.updatedAt}>{formatDay(item.updatedAt)}</time>
             <h3><Link href={`/fake-resistance/cases/${item.slug}`}>{item.title}</Link></h3>
             <p>{item.question}</p>
             <Link className={styles.action} href={`/fake-resistance/cases/${item.slug}`}>Open the investigation <span aria-hidden="true">→</span></Link>
           </article>)}</div>
         </section> : null}
-        <nav className={styles.depth} aria-label="Explore the research">
+        <nav className={styles.depth} aria-label="Explore the research" data-measure-id="fr-depth-nav" data-measure-section="fake-resistance">
           <Link href="/fake-resistance/network"><span>Connections &amp; amplification</span><strong>The influence network</strong><span aria-hidden="true">↗︎</span></Link>
           <Link href="/fake-resistance/playbook"><span>Recognise the techniques</span><strong>The manipulation playbook</strong><span aria-hidden="true">↗︎</span></Link>
         </nav>

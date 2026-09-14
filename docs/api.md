@@ -9,7 +9,7 @@ until 2026-08-27. `DATABASE_URL` is provisioned, and `server/http/handler.ts`
 engages RLS per request via `withDatabaseRole`.
 
 **The guard column below understates the lockdown.** `PUBLIC_V1` in
-`handler.ts` is the authority and it is **exactly nine entries**:
+`handler.ts` is the authority and it is **exactly ten entries**:
 
 ```
 GET  /api/v1/search
@@ -17,6 +17,7 @@ GET  /api/v1/published-items
 GET  /api/v1/published-publications        (one pattern, with or without /{publicId})
 POST /api/v1/reports
 POST /api/v1/volunteer-interest
+POST /api/v1/measurement/collect
 GET  /api/v1/chat/threads
 POST /api/v1/chat/threads
 GET  /api/v1/chat/threads/{id}/messages
@@ -24,7 +25,14 @@ POST /api/v1/chat/threads/{id}/messages
 ```
 
 This paragraph said "seven" until 2026-09-06, omitting
-`published-publications` and `volunteer-interest`.
+`published-publications` and `volunteer-interest`, and "nine" until
+2026-09-13, omitting `measurement/collect`.
+
+`POST /chat/threads/{id}/messages` also reads three optional headers —
+`x-lz-visit`, `x-lz-visitor`, `x-lz-path` — which file the turn's outcome
+(`ask_success`/`ask_fail`/`ask_latency`/`ask_cost`) against the reader's
+first-party measurement visit. `DNT: 1` or `Sec-GPC: 1` records nothing. See
+[`measurement.md`](measurement.md).
 
 Every other `/api/v1/` route runs through `authenticateAdmin()` and fails
 closed. **Twelve rows marked `anon` in the tables below are in fact

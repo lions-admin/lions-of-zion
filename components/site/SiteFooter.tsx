@@ -29,17 +29,19 @@ export function SiteFooter({ activeSection, home = false }: SiteFooterProps) {
   const furtherLinks = REFERENCE_LINKS.filter((link) => !TRUST_HREFS.has(link.href));
 
   return (
-    <footer className={`${styles.footer}${home ? ` ${styles.home}` : ""}`}>
+    /* The footer's exposure is "the reader reached the end of the page";
+       its links are `click_nav` wherever they sit. */
+    <footer className={`${styles.footer}${home ? ` ${styles.home}` : ""}`} data-measure-id="footer" data-measure-nav="">
       <div className={styles.inner}>
         <div className={styles.identity}>
-          <Link href="/" className={styles.brand}>
+          <Link href="/" className={styles.brand} data-measure-id="footer-brand" data-measure-exposure="none">
             <span className={styles.brandName}>Lions of Zion</span>
             <span className={styles.brandRole}>Evidence, not narratives</span>
           </Link>
           <p className={styles.statement}>{SITE_DESCRIPTION}</p>
         </div>
 
-        <nav className={styles.reference} aria-label="Reference">
+        <nav className={styles.reference} aria-label="Reference" data-measure-id="footer-reference" data-measure-exposure="none">
           <ul className={styles.trustList}>
             {trustLinks.map((link) => (
               <li key={link.href}>
@@ -69,7 +71,7 @@ export function SiteFooter({ activeSection, home = false }: SiteFooterProps) {
         </nav>
       </div>
 
-      <nav className={styles.files} aria-label="Sections">
+      <nav className={styles.files} aria-label="Sections" data-measure-id="footer-sections" data-measure-exposure="none">
         <p className={styles.filesLabel}>Explore</p>
         <ul className={styles.fileList}>
           {SECTION_LINKS.map((link) => (
@@ -90,7 +92,7 @@ export function SiteFooter({ activeSection, home = false }: SiteFooterProps) {
         <p className={styles.copyright}>© {year} Lions of Zion</p>
         {/* `#page-content` is the same anchor `EditorialShell`'s skip link
             targets, so this works with no JavaScript and no extra markup. */}
-        <a className={styles.toTop} href="#page-content">
+        <a className={styles.toTop} href="#page-content" data-measure-id="footer-to-top" data-measure-exposure="none">
           Back to the top
           <span aria-hidden="true"> ↑</span>
         </a>

@@ -154,6 +154,10 @@ function SearchHitOption({
         className={`${styles.hit} ${styles.hitInert}`}
         data-active={active ? "" : undefined}
         data-entity-type={hit.entityType}
+      data-measure-id={`search-result-${hit.documentId}`}
+      data-measure-event="search_result_click"
+      data-measure-section="search"
+      data-measure-content={hit.publicId ?? hit.entityId}
         onPointerMove={() => onHover(index)}
       >
         {inner}

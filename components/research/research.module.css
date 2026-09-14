@@ -474,3 +474,73 @@
 .dataTable td {
   font-family: var(--face-data);
 }
+
+/* ---------- research prose blocks ----------
+   The list structure `research-prose.ts` recovers from the packets' flattened
+   paragraphs. A lead sentence keeps the paragraph's own type; the items sit
+   under it as a list, so three findings inside one sentence become three
+   things a reader can scan. Sizes come from the site's type roles — this file
+   declares no heading scale of its own. */
+
+.proseLead {
+  max-width: var(--measure-reading);
+  margin: var(--sp-5) 0 0;
+  color: var(--ink);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  text-wrap: pretty;
+}
+
+.proseOrdered,
+.proseBulleted {
+  max-width: var(--measure-reading);
+  margin: var(--sp-3) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--sp-4);
+}
+
+.proseOrdered {
+  counter-reset: prose-item;
+}
+
+.proseOrdered > li,
+.proseBulleted > li {
+  position: relative;
+  padding-left: var(--sp-7);
+  color: var(--ink);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  text-wrap: pretty;
+}
+
+.proseOrdered > li {
+  counter-increment: prose-item;
+}
+
+.proseOrdered > li::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--gold);
+  content: counter(prose-item, decimal-leading-zero);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: var(--t-body-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+/* A rule rather than a bullet glyph: the same mark the section uses for a
+   bridge row, so a list of observations reads as this desk's furniture and not
+   as a word processor's. */
+.proseBulleted > li::before {
+  position: absolute;
+  top: calc(var(--t-body-lh) * 0.5em);
+  left: var(--sp-3);
+  width: var(--sp-3);
+  border-top: var(--line-w) solid var(--data-ember);
+  content: "";
+}

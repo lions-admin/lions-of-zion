@@ -50,10 +50,26 @@ describe("projectItem", () => {
       entityId: "11111111-1111-1111-1111-111111111111",
       title: "Border incident reported",
       body: "The war did not stay at the border.\nA short summary.",
+      summary: "A short summary.",
       language: "en",
       publicId: "border-incident-reported-a1b2c",
       href: null,
     });
+  });
+
+  it("stores the summary separately from the body, so a result can be read", () => {
+    /* The body is the matcher's copy — the claim and the summary joined, which
+       is what a reader pastes into the box. `summary` is the display copy, and
+       it is the same sentence the record shows everywhere else on the site.
+       `SearchResults` printed the destination *path* in that slot until
+       2026-09-14. */
+    const projected = projectItem(item());
+    expect(projected.summary).toBe("A short summary.");
+    expect(projected.summary).not.toMatch(/^\//);
+  });
+
+  it("offers no summary rather than an empty one when the record has none", () => {
+    expect(projectItem(item({ summary: null })).summary).toBeNull();
   });
 
   it("keeps the item's public id but offers no destination, because it has none", () => {
@@ -98,6 +114,13 @@ describe("projectEvidence", () => {
   it("offers neither a public id nor a destination — evidence is reached through its item", () => {
     expect(projectEvidence(evidenceRow())).toMatchObject({ publicId: null, href: null });
   });
+
+  it("offers no summary — the excerpt is evidence's substance, not a description of it", () => {
+    /* Repeating the excerpt as a standfirst would present a quotation as the
+       desk's own account of it. Moot for a reader, who is never shown evidence
+       at all, and not moot for the staff surfaces that reuse this projection. */
+    expect(projectEvidence(evidenceRow()).summary).toBeNull();
+  });
 });
 
 describe("the destination a hit resolves to", () => {
@@ -115,6 +138,16 @@ describe("the destination a hit resolves to", () => {
     const projected = projectPublication(publicationRow({ briefingRunId: null }));
     expect(projected.publicId).toBe("what-we-know-about-the-border-incident-x9y8z");
     expect(projected.href).toBeNull();
+  });
+
+  it("carries the publication's standfirst for display, and still matches on it", () => {
+    /* The two are not redundant. `body` is what the tsvectors index — the
+       summary joined to the article, because a reader searches the words of
+       both. `summary` is what a result row *shows*, and it is the same
+       sentence the record shows on its own page. */
+    const projected = projectPublication(publicationRow());
+    expect(projected.summary).toBe("The standfirst.");
+    expect(projected.body).toBe("The standfirst.\nThe reporting so far.");
   });
 
   it("resolves every publication kind the same way", () => {

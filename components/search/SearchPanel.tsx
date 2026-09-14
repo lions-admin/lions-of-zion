@@ -51,10 +51,13 @@ import { FieldShell } from "@/components/ui/Field";
 import { StatusState } from "@/components/ui/StatusState";
 import fieldStyles from "@/components/ui/field.module.css";
 import { politeLive } from "@/components/ui/live-region";
+import { SearchFilters } from "./SearchFilters";
+import { SearchPager } from "./SearchPager";
 import { SearchResults } from "./SearchResults";
 import { resultStatus } from "./vocabulary";
-import { useSearch } from "./useSearch";
+import { useSearch, type SearchScope } from "./useSearch";
 import { ApiProblem } from "./http";
+import type { EntityType } from "@/server/contracts/enums";
 import styles from "./search.module.css";
 
 /**
@@ -78,6 +81,9 @@ const EMPTY_RECENTS: string[] = [];
 export interface SearchPanelProps {
   variant: "overlay" | "page";
   initialQuery?: string;
+  /** The kind filter and page a linked result set arrived with, already
+   *  validated by the server component that read them. */
+  initialScope?: SearchScope;
   autoFocus?: boolean;
   /** Called when the reader leaves — Escape on an empty query, or a result
    *  opened. The page variant passes nothing. */
@@ -85,26 +91,64 @@ export interface SearchPanelProps {
   /** Mirrors the query into the address bar on `/search`, so a result set is
    *  linkable and survives a reload. */
   onQueryChange?: (query: string) => void;
+  /**
+   * Mirrors the kind filter and the page number alongside the query, so a
+   * linked result set is the one the reader was actually looking at.
+   *
+   * Separate from `onQueryChange` rather than folded into it because the two
+   * fire on different rhythms — the query on every keystroke, this on a
+   * deliberate click — and because the overlay wants neither.
+   */
+  onScopeChange?: (scope: { entityType: EntityType | null; page: number }) => void;
 }
+
+const NO_SCOPE: SearchScope = {};
 
 export function SearchPanel({
   variant,
   initialQuery = "",
+  initialScope = NO_SCOPE,
   autoFocus = false,
   onDismiss,
   onQueryChange,
+  onScopeChange,
 }: SearchPanelProps) {
   const router = useRouter();
   const [composing, setComposing] = useState(false);
-  const { query, setQuery, answered, hits, state, semantic, problem, retry } = useSearch(initialQuery, composing);
+  const {
+    query,
+    setQuery,
+    answered,
+    hits,
+    state,
+    semantic,
+    problem,
+    retry,
+    entityType,
+    setEntityType,
+    facets,
+    total,
+    totalIsFloor,
+    page,
+    answeredOffset,
+    pageCount,
+    setPage,
+  } = useSearch(initialQuery, composing, initialScope);
   const recents = useSyncExternalStore(subscribeRecents, readRecents, () => EMPTY_RECENTS);
 
   /* The selection resets when a new result set lands. Adjusted during render
      rather than in an effect: React runs the extra pass before painting, so
      nothing flashes, and the alternative is the cascading render that
-     `react-hooks/set-state-in-effect` refuses. */
-  const [selection, setSelection] = useState({ query: answered, index: 0 });
-  if (selection.query !== answered) setSelection({ query: answered, index: 0 });
+     `react-hooks/set-state-in-effect` refuses.
+
+     The key is the whole answer — query, kind and page — not the query alone.
+     Page two of "October 7" answers the same query as page one, so a key of
+     `answered` would carry the seventh row's highlight onto a page that has
+     three, and the reader would find the selection already somewhere they did
+     not put it. */
+  const answerKey = JSON.stringify([answered, entityType, page]);
+  const [selection, setSelection] = useState({ key: answerKey, index: 0 });
+  if (selection.key !== answerKey) setSelection({ key: answerKey, index: 0 });
 
   /* Clamped here, so a shorter result set can never leave the selection
      pointing past the end — and `aria-activedescendant` can never name an id
@@ -200,9 +244,40 @@ export function SearchPanel({
     [handleChange, remember],
   );
 
+  /* Focus returns to the input on both of these.
+
+     For the pager it is a correctness fix rather than a nicety: the step
+     buttons are really `disabled` at the ends, so clicking "Next" onto the last
+     page would disable the control the reader had just activated and drop focus
+     to the document body. The combobox pattern already says focus belongs in
+     the input — from there the reader can arrow straight into the new page. */
+  const pickKind = useCallback(
+    (next: EntityType | null) => {
+      setEntityType(next);
+      onScopeChange?.({ entityType: next, page: 0 });
+      inputRef.current?.focus();
+    },
+    [setEntityType, onScopeChange],
+  );
+
+  const goToPage = useCallback(
+    (next: number) => {
+      setPage(next);
+      onScopeChange?.({ entityType, page: next });
+      inputRef.current?.focus();
+    },
+    [setPage, onScopeChange, entityType],
+  );
+
   const trimmed = query.trim();
   const tooShort = trimmed.length === 1;
   const showingStale = state === "loading" && hits.length > 0;
+  /* "There is an answer on screen", which includes the previous one held while
+     the next loads. The filter row and the pager are chrome belonging to the
+     answer, and unmounting them for the 300ms of a page change would make the
+     list jump under the reader's pointer each time they used one. */
+  const answering =
+    state === "results" || state === "fallback" || state === "no-results" || showingStale;
   const body = useMemo(() => {
     if (state === "error" && problem) {
       return <PanelProblem problem={problem} onRetry={retry} />;
@@ -220,17 +295,30 @@ export function SearchPanel({
     return null;
   }, [state, problem, retry, trimmed, tooShort, hits.length, answered, semantic, recents, fillQuery]);
 
+  /* The count and the matcher, rendered above the list — see `resultStatus`
+     in `vocabulary.ts` for why they are not in the footer any more. The range
+     is passed so a paged answer says which part of itself is on screen. */
+  const status = resultStatus(state, hits.length, answered, {
+    offset: answeredOffset,
+    total,
+    totalIsFloor,
+  });
+
   /* Counts and invalid-query only. Loading is visible, not announced.
-     Blocking errors are the assertive notice, not this region. */
+     Blocking errors are the assertive notice, not this region.
+
+     It reads the same sentence the status line does, rather than composing a
+     second one: they described the same answer in two wordings, and a paged
+     answer made them disagree outright — "10 results" spoken over "Showing
+     11–20 of 34" on screen. Typographic quotes and the en dash go, because a
+     screen reader pronounces them. */
   const liveMessage = tooShort
     ? "Query too short"
-    : trimmed && (state === "results" || state === "fallback" || state === "no-results")
-      ? `${hits.length} ${hits.length === 1 ? "result" : "results"}${answered ? ` for ${answered}` : ""}.`
-      : "";
-
-  /* The count and the matcher, rendered above the list — see `resultStatus`
-     in `vocabulary.ts` for why they are not in the footer any more. */
-  const status = resultStatus(state, hits.length, answered);
+    : trimmed && status.count
+      ? `${status.count.replace(/[“”]/g, "").replace("–", " to ")}.`
+      : trimmed && state === "no-results"
+        ? `No results${answered ? ` for ${answered}` : ""}.`
+        : "";
 
   return (
     <div className={styles.panel} data-variant={variant} data-search-state={state} data-measure-id="search-panel" data-measure-section="search">
@@ -300,6 +388,18 @@ export function SearchPanel({
         </p>
       ) : null}
 
+      {/* Between the count and the list, where a filter belongs: it narrows the
+          number above it and the rows below it, and it renders only when there
+          is more than one kind to choose between. */}
+      {answering && !tooShort ? (
+        <SearchFilters
+          facets={facets}
+          selected={entityType}
+          onSelect={pickKind}
+          label={answered ? `Filter results for ${answered} by kind` : "Filter results by kind"}
+        />
+      ) : null}
+
       {body}
 
       <p className={styles.srOnly} {...politeLive}>
@@ -319,12 +419,23 @@ export function SearchPanel({
             onDismiss?.();
           }}
           stale={showingStale}
+          offset={answeredOffset}
         />
       ) : (
         /* The listbox must exist for `aria-controls` to resolve even when it
            is empty, or the combobox points at nothing. */
         <div id={listboxId} role="listbox" aria-label="Results" className={styles.emptyListbox} />
       )}
+
+      {answering && !tooShort ? (
+        <SearchPager
+          page={page}
+          pageCount={pageCount}
+          onSelect={goToPage}
+          label={answered ? `Result pages for ${answered}` : "Result pages"}
+          busy={showingStale}
+        />
+      ) : null}
 
       {/* The footer is the keyboard grammar and nothing else: the matcher
           sentence that used to share it now rides with the count, above the

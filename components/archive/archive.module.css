@@ -146,6 +146,146 @@ section:first-child > .heading {
   text-wrap: pretty;
 }
 
+/* The standing note — the advisory's anatomy with the ember withheld. Same
+   box, same label geometry, a neutral hairline on the left instead of the
+   ember one: it is a fact about how the archive is held, not a danger, and
+   the ramp's one reserved meaning is not spent on it. */
+.note {
+  margin: var(--sp-5) 0 var(--sp-6);
+  padding: var(--sp-4) var(--sp-5);
+  border: var(--line-w) solid var(--line);
+  border-left: var(--line-w-thick) solid var(--line-strong);
+  border-radius: var(--radius-2);
+  background: var(--surface-1);
+}
+
+.noteLabel {
+  composes: kickerLabel from global;
+  margin: 0 0 var(--sp-2);
+  color: var(--ink-lo);
+}
+
+.noteText {
+  margin: 0;
+  max-width: var(--measure-narrow);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+/* ---------- index: the apparatus above the first record ----------
+ *
+ * Counts, provenance and the advisory, each set as what it is rather than as
+ * one undifferentiated run of body prose. See `ArchiveIntro` for why — in
+ * short, the prose version put the first record 1,271px down a 844px phone.
+ */
+
+.intro {
+  margin-bottom: var(--sp-5);
+}
+
+/* Counts and provenance, bound into one block so the grid below can put them
+   opposite the advisory instead of stacking all three. `min-width: 0` is the
+   load-bearing declaration and the same one `.witnessBody`, `.exhibitBody` and
+   `.facetRow` carry: a grid item's `min-width` is `auto`, so without it this
+   column refuses to shrink below the provenance line's longest unbreakable
+   run — "Hamas-Massacre.net" — and pushes the advisory's track out of the
+   measure the `minmax()` reserved for it. */
+.introSummary {
+  min-width: 0;
+}
+
+/* The advisory's own bottom margin serves a record page, where prose follows
+   it. Here the block below is the filter bar and this wrapper already owns the
+   gap, so the two do not both pay for it. */
+.intro > .advisory:last-child,
+.intro > .note:last-child {
+  margin-bottom: 0;
+}
+
+/* Above 760px the counts and the notice stand side by side rather than in a
+   column. Stacked, they pushed the first record to 944px on a 900px desktop —
+   the same defect the phone had, one screen wider. The measure is what decides
+   the breakpoint: below it the advisory's text drops under 40 characters a
+   line, which is where a notice stops being readable and starts being a
+   ragged strip. */
+@media (min-width: 760px) {
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(15rem, 18rem);
+    align-items: start;
+    gap: var(--sp-5);
+  }
+
+  .intro > .advisory,
+  .intro > .note {
+    margin-block: 0;
+  }
+}
+
+/* The counts, as data. A row rather than a sentence: the eye takes three
+   value/label pairs in one fixation and never parses them as a clause.
+   Sized to hold documentation's three pairs — the longest set either archive
+   has — on one line at 360px, which is where the wrap would otherwise cost
+   more than the line is worth. */
+.introFacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-3);
+  margin: 0 0 var(--sp-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.introFact {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--sp-1);
+}
+
+/* A middot between the pairs, drawn rather than typed, so each string in the
+   markup stays a fact and not a fact plus punctuation. */
+.introFact + .introFact::before {
+  content: '·';
+  margin-right: var(--sp-2);
+  color: var(--line-strong);
+}
+
+/* The number carries the weight; the unit beside it stays quiet. One step of
+   ink is the whole hierarchy here — no second colour, no rule, no plate. */
+.introFactValue {
+  font-family: var(--face-data);
+  font-size: var(--t-small);
+  line-height: 1.3;
+  font-weight: 600;
+  color: var(--ink-hi);
+}
+
+/* The data face rather than the kicker's text face, and the tight tracking:
+   with the label set at 13px in the text face the three documentation pairs
+   measured 386px against a 358px column and wrapped to two lines, which is
+   28px of a phone spent on a line break in a row of three numbers. One word
+   each, so the uppercase is inside this file's own rule. */
+.introFactLabel {
+  composes: dataMeta from global;
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+/* Where the holding came from and how it is kept. One muted line at the
+   caption step: it is the apparatus, and the apparatus is read once. */
+.introProvenance {
+  margin: 0;
+  max-width: var(--measure-reading);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  font-weight: var(--t-caption-weight);
+  color: var(--ink-lo);
+  text-wrap: pretty;
+}
+
 .material {
   /* The seam where the page's language changes. No box of its own — the
      record's own words carry no frame — it exists so `lang`/`dir` have an
@@ -402,17 +542,22 @@ section:first-child > .heading {
 /* ---------- index: controls ---------- */
 
 .index {
-  margin-top: var(--sp-6);
+  margin-top: var(--sp-5);
 }
 
 .controls {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-4);
-  padding-bottom: var(--sp-5);
+  gap: var(--sp-3);
+  padding-bottom: var(--sp-4);
   border-bottom: var(--line-w) solid var(--line);
 }
 
+/* The label sits *beside* the field, not above it. Its own line cost 30px of
+   a 844px phone to say what the placeholder says again two centimetres to the
+   right; the basis below is what lets it stay inline down to 320px. A real
+   `<label>` either way — a placeholder is not a label, it disappears on the
+   first keystroke, and the summary line below is this field's description. */
 .searchField {
   display: flex;
   flex-wrap: wrap;
@@ -435,7 +580,7 @@ section:first-child > .heading {
    and the hairline stepping up on hover and to gold on focus beside the
    global ring. */
 .searchInput {
-  flex: 1 1 16rem;
+  flex: 1 1 9rem;
   min-height: var(--control-h);
   padding: 0 var(--sp-3);
   /* A control boundary (A11Y-004: measured 1.28:1 against a floor of 3). */
@@ -465,7 +610,12 @@ section:first-child > .heading {
   outline-offset: 1px;
 }
 
+/* The legend sits beside the chips, not above them — see the note in
+   `ArchiveIndex` on why this stopped being a `fieldset`. */
 .facets {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
   min-width: 0;
   margin: 0;
   padding: 0;
@@ -473,8 +623,8 @@ section:first-child > .heading {
 }
 
 .facetLegend {
+  flex: none;
   padding: 0;
-  margin-bottom: var(--sp-2);
   font-family: var(--face-data);
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
@@ -488,19 +638,93 @@ section:first-child > .heading {
   display: flex;
   flex-wrap: wrap;
   gap: var(--sp-2);
+  min-width: 0;
+}
+
+/* The legend goes back above the chips above 760px, and only there. Inline it
+   costs 77px off *every* wrapped row, and at that width the seven category
+   chips wrap to three of them; below the breakpoint the rail is a single line
+   and the same legend costs nothing.
+
+   This block sits *after* `.facets` rather than beside the `.intro` grid that
+   shares its breakpoint: a media query adds no specificity, so an override
+   written earlier in the file loses to the base rule and the legend rendered
+   centred over the chips. */
+@media (min-width: 760px) {
+  .facets {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--sp-1);
+  }
 }
 
 @media (max-width: 540px) {
-  /* Six or seven chips at the sm button's default horizontal padding wrap
-     into a tall, gappy stack on a phone. Tightening the row's own gap and the
-     chip's inline padding fits more of it per line without shrinking the
-     44px-floored tap target itself. */
+  /*
+   * The chips become one scrolling rail rather than a seven-line stack.
+   *
+   * Measured, because the arithmetic is the whole argument: documentation's
+   * seven categories run to "Rockets Striking Civilian Areas" and each chip
+   * holds the 44px coarse-pointer floor, so at 390px they wrapped to seven
+   * lines — 336px, two-fifths of the viewport, spent on a control the reader
+   * has not asked for yet, directly above the list they came for. One rail is
+   * 44px. That single change is most of what puts the first record on screen.
+   *
+   * Nothing is hidden behind a disclosure and nothing shrinks: every chip
+   * keeps its box and its label, the rail scrolls with a finger or a Tab (the
+   * browser scrolls a focused chip into view), and the mask fades the right
+   * edge so a cut-off chip reads as "there is more" rather than as the end of
+   * the row. The mask is self-hiding — with few enough chips to fit there is
+   * nothing under the gradient to fade.
+   *
+   * `overflow-x: auto` forces `overflow-y` to compute to `auto` as well, so
+   * the block padding is not decoration: it is the room the 2px focus ring at
+   * `--focus-offset` needs, and the negative margin gives it back to the
+   * layout so the rail still measures 44px in the column.
+   */
   .facetRow {
-    gap: var(--sp-1) var(--sp-2);
+    flex-wrap: nowrap;
+    gap: var(--sp-2);
+    padding-block: 5px;
+    margin-block: -5px;
+    padding-inline-end: var(--sp-5);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    /* No `scroll-snap-type`. It was here and it broke keyboard reveal: Tabbing
+       to a chip made the browser scroll it into view and snap then pulled the
+       rail back to the nearest snap point, so a focused chip could sit outside
+       the rail entirely. Measured by tabbing the row — snap is a nicety, a
+       control you cannot see when it is focused is not. */
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+    mask-image: linear-gradient(
+      to right,
+      var(--ink-hi) calc(100% - var(--sp-5)),
+      transparent 100%
+    );
   }
 
+  /* `flex: none` stops the rail squeezing chips, and `nowrap` stops the label
+     breaking inside one: with the row no longer wrapping, "The Nova Party
+     Massacre" folded onto two lines inside its own box and took the count pill
+     with it, which is a 66px chip saying the same thing worse. */
   .facet {
-    padding-inline: var(--sp-2);
+    flex: none;
+    padding-inline: var(--sp-3);
+  }
+
+  /* Two classes, not one, and deliberately: `.button` in `button.module.css`
+     sets `white-space: normal` and `max-width: 100%` at the same specificity
+     as `.facet`, and which of the two wins depends on the order the bundler
+     happens to emit the two modules in. Qualifying by the row settles it.
+
+     Both overrides are load-bearing in a scroller. `normal` folded the label
+     onto two lines inside its own box; `100%` is a cap against the *rail*, not
+     the viewport, so with the fold prevented three of the seven chips measured
+     wider than their own border and spilled the label past it. In a row that
+     scrolls, a chip is as wide as its words. */
+  .facetRow .facet {
+    max-width: none;
+    white-space: nowrap;
   }
 
   .facetCount {
@@ -509,11 +733,21 @@ section:first-child > .heading {
 }
 
 /* The shared `filter` button variant owns the box, the states and the gold
-   wash when pressed. Two overrides, both required by the type rules: a
+   wash when pressed. Three overrides, all required by the type rules: a
    category runs to five words ("Terrorists Raiding the Streets") and
    uppercase plus tracking is reserved for labels of two or fewer, so these
-   step back to the text face in sentence case. */
-.facet {
+   step back to the text face in sentence case.
+
+   Qualified by `.facetRow`, and that is the whole point. `.filter` sets the
+   data face, uppercase and the tracked step at exactly the specificity `.facet`
+   had, so which of the two won came down to the order the bundler emitted two
+   CSS modules in — and it was `.filter` that won: this rule was written on
+   2026-08 and the chips have been shipping mono and uppercase ever since,
+   against the comment above them. Measured, that cost more than a voice: at
+   390px "Rockets Striking Civilian Areas" set in tracked mono uppercase is
+   333px wide against a 279px filter rail, so the chip could not be brought
+   fully into view at all. The text face in sentence case fits. */
+.facetRow .facet {
   font-family: var(--face-text);
   font-size: var(--t-caption);
   letter-spacing: 0;
@@ -532,9 +766,11 @@ section:first-child > .heading {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: none;
   min-width: 1.7em;
   margin-left: var(--sp-2);
   padding: 0 var(--sp-1);
+  white-space: nowrap;
   border-radius: var(--radius-1);
   background: color-mix(in srgb, var(--ink-hi) 9%, transparent);
   font-family: var(--face-data);
@@ -566,7 +802,7 @@ section:first-child > .heading {
   align-items: baseline;
   justify-content: space-between;
   gap: var(--sp-2) var(--sp-4);
-  margin: var(--sp-4) 0 var(--sp-5);
+  margin: var(--sp-3) 0 var(--sp-4);
 }
 
 /* A sentence, so the text face — but a secondary one: it is a status line
@@ -677,6 +913,14 @@ section:first-child > .heading {
   color: var(--gold);
 }
 
+/* The account's own headline, and the row's link text. Clamped at three lines
+   for the same reason the excerpt is clamped at two: a handful of source
+   headlines run long enough to make one row four times the height of its
+   neighbour, and a list whose rows have no common rhythm cannot be scanned.
+   The underline is the link affordance — the row-wide hover tint says
+   "interactive" to a pointer and says nothing at all to a finger, so the one
+   piece of text a reader would tap carries a decoration of its own that
+   resolves to gold on hover and focus. */
 .witnessTitle {
   font-family: var(--face-display);
   font-size: var(--t-h3);
@@ -686,6 +930,21 @@ section:first-child > .heading {
   color: var(--ink-hi);
   text-wrap: balance;
   overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-decoration-thickness: from-font;
+  text-underline-offset: 0.18em;
+  transition: text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.recordLink:hover .witnessTitle,
+.recordLink:focus-visible .witnessTitle {
+  text-decoration-color: var(--gold);
 }
 
 /* Two lines of the account's own words, then silence. The clamp is layout
@@ -813,15 +1072,26 @@ section:first-child > .heading {
   font-weight: var(--t-data-weight);
 }
 
-.exhibitMedium + .exhibitCategory::before {
+/* The separator belongs to the medium, not to the category. As the category's
+   `::before` it wrapped with it, so a phone-width row that broke between the
+   two facts opened its second line with an orphaned middot. Attached to the
+   left-hand fact it can only ever end a line. */
+.exhibitMedium:has(+ .exhibitCategory)::after {
   content: '·';
-  margin-right: var(--sp-2);
+  margin-left: var(--sp-2);
   color: var(--line-strong);
 }
 
 /* The caption the source wrote. Sentence-shaped and often long, so it is set
    at the small step in the text face rather than in the display face: it is a
-   description of an exhibit, not the headline of an article. */
+   description of an exhibit, not the headline of an article.
+   Clamped at three lines, because the source's captions run from four words to
+   296 characters and unclamped they made one row eight lines tall beside a
+   one-line neighbour — a 24-row window with no common rhythm, which is a list
+   a reader reads rather than scans. The whole caption is one tap away.
+   The underline is the link affordance: on a phone there is no hover, so the
+   row's tint cue does not exist and the caption has to look tappable on its
+   own. */
 .exhibitTitle {
   font-family: var(--face-text);
   font-size: var(--t-small);
@@ -829,6 +1099,21 @@ section:first-child > .heading {
   color: var(--ink-hi);
   text-wrap: pretty;
   overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-decoration-thickness: from-font;
+  text-underline-offset: 0.18em;
+  transition: text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.recordLink:hover .exhibitTitle,
+.recordLink:focus-visible .exhibitTitle {
+  text-decoration-color: var(--gold);
 }
 
 .exhibitArrow {
@@ -879,22 +1164,28 @@ section:first-child > .heading {
 
 /* ---------- responsive rows ---------- */
 
-/* Below 540px the four-column exhibit row no longer fits a caption: number,
-   plate, gaps and arrow left ~120px of measure at 320. The number moves under
-   the plate, the arrow — decorative and `aria-hidden` — goes, and the body
-   takes the width. */
+/* Below 540px the four-column exhibit row no longer fits a caption at the
+   desktop measure: number, plate, gaps and arrow left ~120px at 320. The
+   number moves under the plate and the body takes the width.
+
+   The arrow stays. It was dropped here as "decorative", which was true of its
+   *hover* animation and false of the arrow itself: this is the only width at
+   which there is no pointer to hover, so the row's tint and border cues never
+   fire and the arrow is the one standing mark that the row goes somewhere. It
+   costs 14px of a measure that has ~230px left at 359. */
 @media (max-width: 540px) {
   .recordList[data-variant='documentation'] .recordLink {
-    grid-template-columns: var(--thumb-w) minmax(0, 1fr);
+    grid-template-columns: var(--thumb-w) minmax(0, 1fr) auto;
     grid-template-areas:
-      'thumb body'
-      'num body';
+      'thumb body arrow'
+      'num body arrow';
     align-items: start;
+    column-gap: var(--sp-3);
     row-gap: var(--sp-2);
   }
 
   .exhibitArrow {
-    display: none;
+    align-self: center;
   }
 
   .recordList[data-variant='testimony'] .recordLink {

@@ -5,7 +5,27 @@
 .status[data-tone="warn"] { color: var(--gold-hi); }
 .status[data-tone="ok"] { color: var(--ink-hi); }
 .label { display: block; font: 13px/1.6 var(--face-data); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-lo); margin: var(--sp-4) 0 var(--sp-2); }
-.record h3 { font: 400 clamp(1.4rem, 2.5vw, 2rem)/1.18 var(--face-display); margin: 0; color: var(--ink-hi); max-width: 35ch; }
+/* THE CLAIM CAP — by kind, not by call site.
+   A claim under examination is a heading *inside* a record, and it must never
+   out-typeset the verdict on it or the heading of the section carrying it. It
+   used to be `clamp(1.4rem, 2.5vw, 2rem)`, which at 390px computes to 22.4px
+   against a section heading of 22px: measured on /fake-resistance/watch, the
+   sentence this desk exists to refute was the largest text in its own section.
+   Same failure the homepage had, same answer — the cap lives here, on the
+   component that renders every claim, so it holds for all of them rather than
+   for the ones an author remembered. `--t-h3` is fixed at 1.375rem and is by
+   definition never larger than `--t-h2`, at any width.
+   Do not reintroduce a page-private clamp here (app/globals.css, SYS-004). */
+.record h3 {
+  margin: 0;
+  max-width: 35ch;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+}
 .record h3 a { text-decoration: none; }
 .record h3 a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .15em; }
 .meaning { margin: var(--sp-3) 0; color: var(--ink-hi); font-size: 15px; }
@@ -17,7 +37,8 @@
 .record a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 
 .compact { padding-block: 16px; }
-.compact h3 { font-size: 21px; line-height: 1.2; }
+/* The compact excerpt carries no size of its own: one kind, one cap. It was
+   21px here, a second scale a reader could not read rank from. */
 .compact .label { margin-top: 10px; }
 .compact .meaning { font-size: 14px; margin-block: 10px 0; }
 .compact .read { margin-top: 4px; }

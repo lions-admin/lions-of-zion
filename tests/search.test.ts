@@ -363,7 +363,22 @@ describe("the embedding backlog", () => {
        With the arm claimed live and an embedder that throws, the query must
        still answer — lexically, and say so. */
     const db = await freshDatabase();
-    await seedDocs(db, [["Hezbollah drone attack in the north", "The IDF said two soldiers were wounded.", "en"]]);
+    /* A *publication with a destination*, not a bare seeded document: since the
+       owner ruling of 2026-09-14 the reader audience drops every hit it cannot
+       open, so an unaddressable row would make this assert nothing about the
+       degradation it is here to test. */
+    await searchRepo(db).upsert(
+      projectPublication({
+        id: crypto.randomUUID(),
+        publicId: "hezbollah-drone-attack-in-the-north-k3j4h",
+        briefingRunId: crypto.randomUUID(),
+        kind: "news_update",
+        title: "Hezbollah drone attack in the north",
+        summary: "The IDF said two soldiers were wounded.",
+        body: "The IDF said two soldiers were wounded.",
+        language: "en",
+      }),
+    );
     await db.execute(
       sql`CREATE OR REPLACE FUNCTION search_has_semantic_arm() RETURNS boolean
           LANGUAGE sql STABLE AS $$ SELECT true $$`,

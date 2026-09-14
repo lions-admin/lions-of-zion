@@ -31,7 +31,7 @@ import { EditorialShell } from '@/components/site/EditorialShell';
 import { Reveal } from '@/components/motion/Reveal';
 import { Breadcrumb } from '@/components/site/Breadcrumb';
 import { getSectionPageNode } from '@/lib/site-navigation';
-import { SectionToc } from './SectionToc';
+import { SectionToc, SectionTocControl } from './SectionToc';
 import styles from './sections.module.css';
 
 export interface SectionPageProps {
@@ -42,12 +42,8 @@ export interface SectionPageProps {
   tagline?: string;
   /** The journey step above the title — "The record" on October 7 (UX-02). */
   kicker?: string;
-  /** `muted`: the backdrop nearly holds its breath (October 7). */
-  register?: 'default' | 'muted' | 'silent';
   /** `ember`: data accents take the hostile-stream ramp (Fake Resistance). */
   accent?: 'gold' | 'ember';
-  /** `quiet`: a dimmer scan behind the page, for long reading. */
-  surface?: 'default' | 'quiet';
   /**
    * Some hub pages are clearer without an auto-generated contents rail.
    * Defaults to true so existing section pages keep their established behavior.
@@ -76,9 +72,7 @@ export function SectionPage({
   title,
   tagline,
   kicker,
-  register = 'default',
   accent = 'gold',
-  surface = 'default',
   withToc = true,
   aside,
   breadcrumb,
@@ -91,14 +85,13 @@ export function SectionPage({
   if (!node) throw new Error(`SectionPage: unknown section id "${id}"`);
   const lede = tagline ?? node.description;
 
-  const pageClass = [
-    styles.page,
-    /* The scan mask only needs rail width when a rail actually exists. */
-    withToc || aside ? styles.withRails : '',
-    register === 'muted' ? styles.registerMuted : '',
-    accent === 'ember' ? styles.accentEmber : '',
-    surface === 'quiet' ? styles.surfaceQuiet : '',
-  ].join(' ');
+  /* One accent modifier, and that is the whole list. `.withRails`,
+     `.registerMuted` and `.surfaceQuiet` used to join it; each of the three
+     existed only to tune the scan backdrop's mask or its row opacity, and all
+     three went with it on 2026-09-14. */
+  const pageClass = [styles.page, accent === 'ember' ? styles.accentEmber : '']
+    .join(' ')
+    .trim();
 
   const shellClass = [styles.shell, aside ? styles.shellWithAside : '']
     .join(' ')
@@ -107,8 +100,11 @@ export function SectionPage({
   return (
     <EditorialShell
       routeId={id}
-      register={register}
       className={pageClass}
+      /* `.topProgressTrack` hides the fixed top bar at ≥1220px, where the
+         contents rail carries its own depth line — two readings of the same
+         number on one screen is one too many. Without a rail there is no
+         second reading, so the bar stays. `DocPage` derives it the same way. */
       progressTrackClassName={withToc ? styles.topProgressTrack : undefined}
     >
       <div className={shellClass}>
@@ -142,6 +138,11 @@ export function SectionPage({
             <p className={styles.lede}>{lede}</p>
             <div className={styles.ledeRule} aria-hidden="true" />
           </header>
+          {/* The contents list, under the page's own header rather than above
+              it. Below 1220px this is the only contents there is; at and
+              above it the rail in the margin takes over and this is hidden.
+              `DocPage` mounts it in exactly the same slot. */}
+          {withToc ? <SectionTocControl /> : null}
           {/* `data-toc-source` scopes the rail's heading scan to the page body,
               so it can never pick up an h2 from the chat modal or the rail. */}
           <div className={styles.body} data-toc-source>

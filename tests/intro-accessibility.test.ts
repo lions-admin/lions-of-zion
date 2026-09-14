@@ -1,40 +1,33 @@
 /**
- * The scan backdrop's accessibility and interaction contract.
+ * The accessibility and interaction contract of the layers *behind* a reader.
  *
  * The requirement came from `fixhomeTODO.md`, deleted 2026-09-05 once the
  * particle entrance it planned was retired. What it asked for survives here:
- * the backdrop must never block interaction, and must stay out of the
- * accessibility tree. This file is now the only statement of that contract.
+ * a decorative layer must never block interaction, never enter the
+ * accessibility tree, never move without being asked, and never spend the
+ * foreground's contrast budget.
  *
- * Four things are pinned here, all of them source-level, because all four are
- * properties of the stylesheet and the markup rather than of a running page:
+ * Until 2026-09-14 the layer this file was mostly about was the scan
+ * backdrop — sixteen drifting rows of the monitoring corpus behind every
+ * reading page. That is retired; `tests/scan-backdrop-retired.test.ts` pins
+ * its absence. What is left behind a reader is two things, and both are
+ * checked here:
  *
- *  1. the layer is out of the accessibility tree, out of the hit test and out
- *     of the clipboard — root and every descendant;
- *  2. nothing in the scan block claims a z-index, so it cannot rise above the
- *     `--z-raised` content layer, the `--z-header` masthead, or a dialog;
- *  3. `prefers-reduced-motion: reduce` composes a frame rather than freezing
- *     one — every drift animation is switched off and every row is given its
- *     own sampled rest position, with the loud rows stepped back to dim;
- *  4. the composited contrast of each route family's profile, recomputed from
- *     the numbers the stylesheet and `scanProfiles.ts` actually carry.
+ *  1. **the page ground** — `--scan-ground` over `--site-ground-photo`, a
+ *     still texture that composites nothing on top of itself, so the ink
+ *     tokens are read straight against it;
+ *  2. **the home hero's video layer** — pointer-inert, out of the
+ *     accessibility tree, and not downloaded at all under reduced motion.
  *
- * (4) is the one that earns its keep. The backdrop paints light text behind
- * light text, so every point of row opacity is spent out of the foreground's
- * contrast budget, and the budget is small: `--ink-lo` — captions, metadata,
- * TOC links, the home file numbers — reads 4.93:1 on the brightest pixel of
- * `--scan-ground` before the scan adds anything at all. The helper below
- * recomputes the composite from first principles so that raising an intensity
- * in `scanProfiles.ts`, the 0.1 ceiling in the stylesheet, or the mask's 25%
- * dim fails this suite instead of a review.
+ * The contrast block earns its keep. `--ink-lo` — captions, metadata, TOC
+ * links — is the binding token, and it reads against the brightest pixel the
+ * ground can produce rather than against a flat `--ground`. The helpers
+ * recompute that from the tokens the stylesheet actually carries, so changing
+ * a ground gradient fails this suite instead of a review.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import {
-  FAMILY_SCAN_PROFILES,
-  HOME_SCAN_PROFILE,
-} from "@/components/sections/scanProfiles";
 
 const ROOT = process.cwd();
 const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8");
@@ -42,11 +35,6 @@ const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8");
 const sections = read("components/sections/sections.module.css");
 const globals = read("app/globals.css");
 const home = read("app/home.module.css");
-const backdropSource = read("components/sections/ScanBackdrop.tsx");
-
-/** Declarations only. These rules are about what the CSS does, and this file's
- *  prose — like the stylesheet's — names the properties it is ruling out. */
-const stripComments = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, "");
 
 /* ------------------------------------------------------------------ colour */
 
@@ -99,134 +87,54 @@ const GOLD = token("--gold");
 const BLACK = [0, 0, 0] as const;
 
 /**
- * The ground a row composites onto, from `--scan-ground` in `app/globals.css`:
- * a 1px-in-9 rule at `rgba(228, 224, 215, 0.027)` under a radial highlight at
- * `rgba(246, 243, 235, 0.055)`.
+ * The ground a page is read on, recomposed from `--scan-ground` in
+ * `app/globals.css`: a 1px-in-9 rule at `rgba(228, 224, 215, 0.027)` under a
+ * radial highlight at `rgba(246, 243, 235, 0.055)`.
  *
- * `edge` is the brightest pixel outside the highlight — the rails, the page
- * margins, the foot of the home hero. `peak` is the brightest pixel anywhere:
- * a rule line at the radial's centre, 50%/26% of the viewport, which is
- * `background-attachment: fixed` and therefore the spot every line of an
- * article scrolls through.
+ * `GROUND_PEAK` is the brightest pixel anywhere — a rule line at the radial's
+ * centre, 50%/26% of the viewport, which is `background-attachment: fixed`
+ * and therefore the spot every line of an article scrolls through. It is the
+ * worst case for every foreground token, so it is the only one worth pinning.
  */
 const GROUND_EDGE = composite([228, 224, 215], 0.027, BLACK);
 const GROUND_PEAK = composite([246, 243, 235], 0.055, GROUND_EDGE);
-
-/* ------------------------------------------- the numbers, read from source */
-
-/** `opacity: calc(0.2 * var(--register, 1) * var(--scan-intensity, 1))`. */
-const ROW_OPACITY_CEILING = (() => {
-  const m = sections.match(/opacity:\s*calc\(([\d.]+)\s*\*\s*var\(--register/);
-  if (!m) throw new Error("no row opacity ceiling in sections.module.css");
-  return Number(m[1]);
-})();
-
-/** `.rowField`'s mask: `--dim: color-mix(in srgb, black 25%, transparent)`. */
-const MASK_DIM = (() => {
-  const m = sections.match(/--dim:\s*color-mix\(in srgb, black (\d+)%, transparent\)/);
-  if (!m) throw new Error("no mask dim in sections.module.css");
-  return Number(m[1]) / 100;
-})();
-
-/** Per-page dimmers that stack under a family profile. */
-function registerMultiplier(className: "registerMuted" | "surfaceQuiet"): number {
-  const m = sections.match(new RegExp(`\\.${className} \\.row \\{[^}]*--register:\\s*([\\d.]+)`));
-  if (!m) throw new Error(`no --register for .${className}`);
-  return Number(m[1]);
-}
-
-/**
- * The composited background a foreground is read against.
- *
- * `intensity` and `register` are the profile's; `masked` says whether the
- * surface sits inside `--content-w`, where `.rowField`'s mask multiplies the
- * row down; `row` is the colour the backdrop paints — the loud verified row
- * (`var(--ink)`) is the brightest of the four and therefore the worst case.
- */
-export function scannedBackground({
-  intensity,
-  register = 1,
-  masked,
-  ground,
-  row = INK,
-}: {
-  intensity: number;
-  register?: number;
-  masked: boolean;
-  ground: Rgb;
-  row?: Rgb;
-}): { alpha: number; rgb: Rgb } {
-  const alpha = ROW_OPACITY_CEILING * register * intensity * (masked ? MASK_DIM : 1);
-  return { alpha, rgb: composite(row, alpha, ground) };
-}
 
 const AA_BODY = 4.5;
 const AA_UI = 3;
 
 /* ------------------------------------------------------------------- tests */
 
-describe("the scan layer is inert: no tree, no hit test, no clipboard", () => {
-  it("marks the backdrop root aria-hidden and gives every row a non-focusable span", () => {
-    expect(backdropSource).toMatch(/<div\b[\s\S]*?aria-hidden="true"/);
-    /* Rows are spans, so `aria-hidden` on the root is not defeated by a
-       focusable descendant — the one case where the attribute is ignored. */
-    expect(backdropSource).toMatch(/<span\s+key=\{row\.key\}/);
-    expect(backdropSource).not.toMatch(/tabIndex|<a |<button |href=/);
-    expect(backdropSource).not.toMatch(/role="/);
-  });
-
-  it("takes the root and every descendant out of the pointer and the selection", () => {
-    const rule = sections.slice(
-      sections.indexOf(".backdrop {"),
-      sections.indexOf(".backdrop[data-speed"),
-    );
-    expect(rule).toMatch(/pointer-events:\s*none/);
-    expect(rule).toMatch(/user-select:\s*none/);
-    /* Both are inherited, but stated on the subtree so one `pointer-events:
-       auto` on a row cannot quietly repeal the invariant. */
-    expect(sections).toMatch(/\.backdrop \*\s*\{[^}]*pointer-events:\s*none/);
-    expect(sections).toMatch(/\.backdrop \*\s*\{[^}]*user-select:\s*none/);
-    /* Nothing anywhere in the module puts them back. */
-    expect(stripComments(sections)).not.toMatch(/pointer-events:\s*auto/);
-  });
-
-  it("clips itself and never becomes a scroll container for the document", () => {
-    expect(sections).toMatch(/\.backdrop \{[^}]*position:\s*fixed/);
-    expect(sections).toMatch(/\.backdrop \{[^}]*overflow:\s*hidden/);
-    expect(sections).toMatch(/\.rowField \{[^}]*overflow:\s*hidden/);
-  });
-
-  it("starts below the masthead rather than compositing through it", () => {
-    expect(sections).toMatch(/\.rowField \{[^}]*inset:\s*var\(--header-h\) 0 0/);
-  });
-});
-
-describe("the scan layer cannot rise above content, chrome or a dialog", () => {
-  /** Everything from the backdrop comment down to the content layer. */
-  const scanBlock = sections.slice(
-    sections.indexOf("/* The scan, behind everything."),
-    sections.indexOf(".shell {"),
-  );
-
-  it("claims no z-index of its own", () => {
-    expect(stripComments(scanBlock)).not.toMatch(/z-index/);
-  });
-
-  it("is overpainted by the content layer, the masthead and the skip link", () => {
-    expect(sections).toMatch(/\.shell \{[^}]*z-index:\s*var\(--z-raised\)/);
-    const shell = read("components/site/editorial-shell.module.css");
-    expect(shell).toMatch(/z-index:\s*var\(--z-overlay\)/);
-    /* The ladder the backdrop sits at the bottom of. */
-    for (const [name, value] of [
-      ["--z-raised", 10],
-      ["--z-header", 200],
-      ["--z-modal", 500],
+describe("the reading ground is read against directly, nothing composited over it", () => {
+  it("keeps body, caption and metadata text at AA on the brightest pixel of the ground", () => {
+    /* `--ink-lo` is the binding token: captions, `.tocLink`, `.tocNumber`,
+       `.sideRailInner dt`, at `--t-caption` and `--t-data`, so 4.5 and not 3.
+       With the scan retired these have the whole budget rather than the
+       0.43 of ratio that was left after a drifting row took its share. */
+    for (const [name, ink] of [
+      ["--ink-lo", INK_LO],
+      ["--ink", INK],
+      ["--ink-hi", INK_HI],
+      ["--gold", GOLD],
     ] as const) {
-      expect(globals).toMatch(new RegExp(`${name}:\\s*${value};`));
+      expect(contrastRatio(ink, GROUND_PEAK), name).toBeGreaterThanOrEqual(AA_BODY);
     }
   });
 
-  it("renders behind the home hero inside a layer that is itself pointer-inert", () => {
+  it("keeps an input's control boundary at 3:1 against the surround it sits in", () => {
+    /* `--control-line` is `rgba(246, 243, 235, 0.4)` over the field's own
+       `--surface-2`; the ground is what surrounds it. */
+    const border = composite([246, 243, 235], 0.4, token("--surface-2"));
+    expect(contrastRatio(border, GROUND_PEAK)).toBeGreaterThanOrEqual(AA_UI);
+  });
+
+  it("still paints that ground, and the quiet variant under the institution family", () => {
+    expect(globals).toMatch(/background-image:\s*var\(--scan-ground\)/);
+    expect(globals).toMatch(/body:has\(\[data-family="institution"\]\) \{[^}]*--scan-ground-quiet/);
+  });
+});
+
+describe("the home hero's moving layer cannot rise, catch a pointer, or be announced", () => {
+  it("renders behind the hero inside a layer that is itself pointer-inert", () => {
     /* 2026-09-06: the hero's background stack no longer uses a numbered
        z-index ladder. `.fieldLayer` is a negative-z-index positioned
        descendant of `.hero`, which `isolation: isolate` turns into its own
@@ -234,18 +142,17 @@ describe("the scan layer cannot rise above content, chrome or a dialog", () => {
        positioned descendant *below* every ordinary in-flow, non-positioned
        descendant of that context. `.masthead` is exactly that (no `position`
        of its own), so it paints above `.fieldLayer` with no z-index of its
-       own needed. There is no `.signalRail` in the current hero. */
+       own needed. */
     expect(home).toMatch(/\.hero \{[^}]*isolation:\s*isolate/);
     expect(home).toMatch(/\.fieldLayer \{[^}]*z-index:\s*-1/);
     expect(home).toMatch(/\.fieldLayer \{[^}]*pointer-events:\s*none/);
     expect(home).not.toMatch(/\.masthead \{[^}]*position:/);
     /* The layer's contents, in paint order. A video is not pointer-inert by
-       default the way a canvas of glyphs was — it has native controls and is
-       focusable — so the `pointer-events: none` on the layer above is now
-       load-bearing rather than tidy, and the elements carry `tabIndex={-1}`
-       and `aria-hidden` of their own. Poster, video and scrim carry no
-       z-index at all and stack purely by source order — poster first, then
-       `<HeroVideo>`, then the scrim — inside that same layer. */
+       default — it has native controls and is focusable — so the
+       `pointer-events: none` above is load-bearing rather than tidy, and the
+       elements carry `tabIndex={-1}` and `aria-hidden` of their own. Poster,
+       video and scrim carry no z-index at all and stack purely by source
+       order inside that same layer. */
     const page = read("app/page.tsx");
     expect(page).toMatch(/<div className=\{styles\.posterField\} \/>[\s\S]*?<HeroVideo[\s\S]*?<div className=\{styles\.heroScrim\} \/>/);
     for (const selector of [".posterField", ".heroVideo", ".heroScrim"]) {
@@ -255,184 +162,58 @@ describe("the scan layer cannot rise above content, chrome or a dialog", () => {
     expect(hero.match(/aria-hidden="true"/g)?.length).toBe(2);
     expect(hero.match(/tabIndex=\{-1\}/g)?.length).toBe(2);
   });
+
+  it("is overpainted by the content layer, the masthead and the skip link", () => {
+    expect(sections).toMatch(/\.shell \{[^}]*z-index:\s*var\(--z-raised\)/);
+    const shell = read("components/site/editorial-shell.module.css");
+    expect(shell).toMatch(/z-index:\s*var\(--z-overlay\)/);
+    for (const [name, value] of [
+      ["--z-raised", 10],
+      ["--z-header", 200],
+      ["--z-modal", 500],
+    ] as const) {
+      expect(globals).toMatch(new RegExp(`${name}:\\s*${value};`));
+    }
+  });
 });
 
-describe("reduced motion composes a frame instead of freezing one", () => {
-  const reduced = sections.slice(sections.indexOf("@media (prefers-reduced-motion: reduce)"));
-
-  it("exists, and is not scoped to a page, a family or a speed", () => {
-    expect(reduced.length).toBeGreaterThan(0);
-    /* `.row`, bare: the home band carries `speed="slow"`, so a rule written
-       against `[data-speed="still"]` alone would leave it drifting. */
-    expect(reduced).toMatch(/^\s*\.row \{/m);
-  });
-
-  it("switches off every drift animation the module defines", () => {
-    /* The only two infinite animations on a row. */
-    const drifts = [...sections.matchAll(/animation:\s*(drift\w+)\s/g)].map(([, name]) => name);
-    expect(new Set(drifts)).toEqual(new Set(["driftRight", "driftLeft"]));
-    expect(reduced).toMatch(/\.row \{\s*animation:\s*none;/);
-    expect(sections).toMatch(/\.backdrop\[data-speed="still"\] \.row \{\s*animation:\s*none;/);
-  });
-
-  it("stands each row at its own sampled rest position", () => {
-    expect(reduced).toMatch(/transform:\s*translateX\(calc\(\(100vw - 100%\) \* var\(--rest, 0\) \/ 100\)\)/);
-    /* The rest position is sampled per row on the server, not zero. */
-    expect(backdropSource).toMatch(/rest:\s*\(rng\(\) \* 100\)\.toFixed\(1\)/);
-    expect(backdropSource).toMatch(/'--rest' as string\]:\s*row\.rest/);
-  });
-
-  it("steps the loud rows back to the dim colour of their stream", () => {
-    expect(reduced).toMatch(/\.rowLoud\.rowVerified \{ color: var\(--data-blue-dim\); \}/);
-    expect(reduced).toMatch(/\.rowLoud\.rowHostile \{ color: var\(--data-ember-dim\); \}/);
-  });
-
-  it("leaves the home's own moving layer still as well", () => {
-    /* The home's moving layer is the hero video now, and stillness there is
-       not a paused animation but an absent source: the effect returns before
-       either element is given one, so a reader who asked for stillness does
-       not download 30MB of video to hold on frame one. `.posterField` is what
-       they see, and it is painted by the stylesheet with no script at all. */
+describe("reduced motion is honoured by every layer that still moves", () => {
+  it("leaves the home's moving layer still — and undownloaded", () => {
+    /* Stillness here is not a paused animation but an absent source: the
+       effect returns before either element is given one, so a reader who
+       asked for stillness does not download 30MB of video to hold on frame
+       one. `.posterField` is what they see, and it is painted by the
+       stylesheet with no script at all. */
     const hero = read("components/sections/HeroVideo.tsx");
     expect(hero).toContain('window.matchMedia("(prefers-reduced-motion: reduce)")');
     expect(hero).toMatch(/if \(reduced\.matches\) \{[\s\S]*?return;/);
     expect(hero).toMatch(/preload="none"/);
     expect(home).toMatch(/\.posterField \{[^}]*background:\s*var\(--hero-poster-tall\)/);
-    /* The entrance's own scan still answers to the profile. */
-    expect(HOME_SCAN_PROFILE.density).toBe("low");
-    expect(["slow", "still"]).toContain(HOME_SCAN_PROFILE.speed);
-  });
-});
-
-describe("composited contrast — the scan against real content, not the hero title", () => {
-  it("reads its constants out of the stylesheet rather than restating them", () => {
-    /* 0.2, 0.85 and 0.75 since UX-25 (2026-09-08); they were 0.1, 0.7 and
-       0.45. Under the old three a muted desk page composited its rows at
-       0.0225 unmasked, which at 1440 read as a grey smear at the page edges
-       rather than as a line of text. The AA cases below are what bound the
-       new numbers from above; this pin is what stops them drifting quietly
-       in either direction. */
-    expect(ROW_OPACITY_CEILING).toBeCloseTo(0.2, 5);
-    expect(MASK_DIM).toBeCloseTo(0.25, 5);
-    expect(registerMultiplier("surfaceQuiet")).toBeCloseTo(0.85, 5);
-    expect(registerMultiplier("registerMuted")).toBeCloseTo(0.75, 5);
-    /* The brightest thing the backdrop paints is a loud verified row, in
-       `--ink`. Every threshold below is computed against that row. */
-    expect(sections).toMatch(/\.rowLoud\.rowVerified \{ color: var\(--ink\); \}/);
   });
 
-  /**
-   * Reading routes. Every surface a reader reads sits inside `--content-w`:
-   * `.withRails` widens the mask over both rails at the 1220px breakpoint, and
-   * below it the rails are `display: none` and everything is in the measure
-   * column. So the masked composite is the one that has to clear AA.
-   */
-  it.each([
-    ["desk", FAMILY_SCAN_PROFILES.desk.intensity],
-    ["dossier", FAMILY_SCAN_PROFILES.dossier.intensity],
-    ["institution", FAMILY_SCAN_PROFILES.institution.intensity],
-  ])("keeps body, caption and metadata text at AA on the %s family", (_family, intensity) => {
-    const { rgb } = scannedBackground({ intensity, masked: true, ground: GROUND_PEAK });
-    /* `--ink-lo` is the binding token: captions, `.tocLink`, `.tocNumber`,
-       `.sideRailInner dt`, at `--t-caption` and `--t-data`, so 4.5 and not 3. */
-    expect(contrastRatio(INK_LO, rgb)).toBeGreaterThanOrEqual(AA_BODY);
-    expect(contrastRatio(INK, rgb)).toBeGreaterThanOrEqual(AA_BODY);
-    expect(contrastRatio(INK_HI, rgb)).toBeGreaterThanOrEqual(AA_BODY);
-    expect(contrastRatio(GOLD, rgb)).toBeGreaterThanOrEqual(AA_BODY);
-  });
-
-  it("keeps an input's control boundary at 3:1 against the surround it sits in", () => {
-    /* `--control-line` is `rgba(246, 243, 235, 0.4)` over the field's own
-       `--surface-2`; the scan is outside the field, in what surrounds it. */
-    const border = composite([246, 243, 235], 0.4, token("--surface-2"));
-    for (const intensity of [
-      FAMILY_SCAN_PROFILES.desk.intensity,
-      FAMILY_SCAN_PROFILES.dossier.intensity,
-      FAMILY_SCAN_PROFILES.institution.intensity,
+  it("stills the reading shell's entrance and every transition in its navigation", () => {
+    const reduced = sections.slice(sections.indexOf("@media (prefers-reduced-motion: reduce)"));
+    expect(reduced.length).toBeGreaterThan(0);
+    /* The one entrance the module declares, and the rail/aside that ride it. */
+    expect(reduced).toMatch(/\.panel,\s*\.tocRail,\s*\.sideRail \{\s*animation:\s*none/);
+    /* Every transition in the contents control and rail. */
+    for (const name of [
+      "depthValue",
+      "tocLink",
+      "tocLinkActive",
+      "tocControlChevron",
+      "tocSheetLink",
+      "tocSheetLinkActive",
     ]) {
-      const { rgb } = scannedBackground({ intensity, masked: true, ground: GROUND_PEAK });
-      expect(contrastRatio(border, rgb)).toBeGreaterThanOrEqual(AA_UI);
+      expect(reduced, name).toContain(`.${name}`);
     }
-  });
-
-  /**
-   * The home is the one route whose mask is narrower than its chrome:
-   * `.scanDock` sets `--content-w` to the masthead's 48rem column, while
-   * `.fileIndex` runs the full `--chrome-w` below it. So the eight file
-   * numbers (`.fileNo`, `--ink-lo` at `--t-data`) meet the band unmasked.
-   */
-  it("keeps the home file index at AA against an unmasked band", () => {
-    const { rgb } = scannedBackground({
-      intensity: HOME_SCAN_PROFILE.intensity,
-      masked: false,
-      ground: GROUND_EDGE,
-    });
-    expect(contrastRatio(INK_LO, rgb)).toBeGreaterThanOrEqual(AA_BODY);
-    expect(contrastRatio(INK, rgb)).toBeGreaterThanOrEqual(AA_BODY);
-
-    const masthead = scannedBackground({
-      intensity: HOME_SCAN_PROFILE.intensity,
-      masked: true,
-      ground: GROUND_PEAK,
-    });
-    expect(contrastRatio(INK_HI, masthead.rgb)).toBeGreaterThanOrEqual(AA_BODY);
-  });
-
-  it("holds AA on every page dimmer a family profile can stack with", () => {
-    for (const intensity of Object.values(FAMILY_SCAN_PROFILES).map((p) => p.intensity)) {
-      for (const register of [1, registerMultiplier("surfaceQuiet"), registerMultiplier("registerMuted")]) {
-        const { rgb } = scannedBackground({ intensity, register, masked: true, ground: GROUND_PEAK });
-        expect(contrastRatio(INK_LO, rgb), `intensity ${intensity} register ${register}`)
-          .toBeGreaterThanOrEqual(AA_BODY);
-      }
-    }
-  });
-
-  /**
-   * The floor of the range, recorded rather than enforced. A muted
-   * institution page composites at 0.045 unmasked and 0.0113 through the mask —
-   * subdued to keep reading surfaces quiet, but no longer below the point
-   * where a row stops reading as text (UX-25: it was 0.0135 and 0.0034).
-   * This pins that it is the faintest combination the map can produce, so a
-   * future edit that makes something quieter still has to say so here.
-   */
-  it("records the faintest combination the map can produce", () => {
-    const faintest = scannedBackground({
-      intensity: FAMILY_SCAN_PROFILES.institution.intensity,
-      register: registerMultiplier("registerMuted"),
-      masked: false,
-      ground: GROUND_EDGE,
-    });
-    expect(faintest.alpha).toBeCloseTo(0.045, 4);
-    for (const profile of [...Object.values(FAMILY_SCAN_PROFILES), HOME_SCAN_PROFILE]) {
-      expect(profile.intensity).toBeGreaterThanOrEqual(
-        FAMILY_SCAN_PROFILES.institution.intensity,
-      );
-    }
-  });
-
-  /**
-   * The guard the whole file exists for. These are the effective opacities the
-   * audit measured against; a profile raised past them puts `--ink-lo` under
-   * 4.5:1 somewhere a reader reads, so the number moves only with a new
-   * measurement in this file.
-   */
-  it("pins the audited effective opacities", () => {
-    /* A hair of tolerance, because floating-point products are not exact. */
-    const effective = (intensity: number) => ROW_OPACITY_CEILING * intensity - 1e-9;
-    expect(effective(FAMILY_SCAN_PROFILES.desk.intensity)).toBeLessThanOrEqual(0.17);
-    expect(effective(FAMILY_SCAN_PROFILES.dossier.intensity)).toBeLessThanOrEqual(0.153);
-    expect(effective(FAMILY_SCAN_PROFILES.institution.intensity)).toBeLessThanOrEqual(0.102);
-    expect(effective(HOME_SCAN_PROFILE.intensity)).toBeLessThanOrEqual(0.102);
+    expect(reduced).toMatch(/transition:\s*none/);
+    expect(reduced).toMatch(/.tocControlTrigger\[aria-expanded="true"\] .tocControlChevron \{\s*transform:\s*none/);
   });
 });
 
-describe("no interaction on or behind the scan depends on hover alone", () => {
+describe("no interaction in the reading shell depends on hover alone", () => {
   it("pairs every hover state in the reading shell with focus-visible or a static one", () => {
-    /* The rails and the table of contents are the only interactive things the
-       backdrop sits behind; each hover rule is a colour delta over a state
-       that is already legible, and focus is drawn by the global
-       `:focus-visible` outline plus these. */
     expect(sections).toMatch(/\.tocSheetLink:hover,\s*\.tocSheetLink:active,\s*\.tocSheetLink:focus-visible/);
     expect(sections).toMatch(/\.tocSheetLink:focus-visible,\s*\.tocSheetLinkActive:focus-visible/);
     expect(sections).toMatch(/\.page a:focus-visible/);
@@ -444,17 +225,14 @@ describe("no interaction on or behind the scan depends on hover alone", () => {
        `.ctaPrimary` button — it is the same `JourneyLink` every other record
        and section action on the homepage uses (`homepage-journey.module.css`
        `.link`), which is a plainer, single interaction vocabulary for the
-       whole page rather than a one-off CTA component. The invariant this
-       test protects — no interaction here depends on `:hover` alone — is
-       checked against that shared class instead. */
+       whole page rather than a one-off CTA component. */
     const journey = read("components/home/homepage-journey.module.css");
     expect(journey).toMatch(/\.link:hover,\s*\.link:focus-visible/);
     expect(journey).toMatch(/\.link:hover svg,\s*\.link:focus-visible svg/);
     /* The hero's remaining link list — the no-JavaScript one — changes colour
-       on focus as well as on hover. It is the only link set left in this
-       stylesheet since the file index was removed as a duplicate of the
-       header's, and it is precisely the set a keyboard without a pointer
-       reaches, so hover-only styling here would be the worst place for it. */
+       on focus as well as on hover. It is precisely the set a keyboard
+       without a pointer reaches, so hover-only styling here would be the
+       worst place for it. */
     expect(home).toMatch(/\.noscriptNav a:hover,\s*\.noscriptNav a:focus-visible/);
   });
 });
@@ -488,7 +266,7 @@ describe("the no-JavaScript home still shows a readable band over the static gro
        script runs and stays when none ever does. */
     expect(home).toMatch(/\.posterField \{[^}]*background:\s*var\(--hero-poster-tall\)/);
     expect(globals).toMatch(/--hero-poster-tall:\s*url\(/);
-    /* And the rest of the site keeps the scan texture over its own still. */
+    /* And the rest of the site keeps the ground texture over its own still. */
     expect(globals).toMatch(/background-image:\s*var\(--scan-ground\)/);
     expect(globals).toMatch(/body::before \{[\s\S]{0,400}?var\(--site-ground-photo\)/);
   });

@@ -19,9 +19,21 @@ import {
   SUPPORT_LINK,
   isCurrentChromeLink,
   isSectionOffBar,
-  type ChromeLink,
 } from "./navigation-model";
+import { ChromeLinkGroup } from "./ChromeLink";
 import styles from "./site-header.module.css";
+
+/**
+ * The two tools, as chrome links rather than as a hand-written pair.
+ *
+ * They are destinations like any other and belong in the same component; they
+ * are not in `navigation-model.ts` because nothing outside this panel lists
+ * them, and putting them there would put them in the colophon's index too.
+ */
+const TOOL_LINKS = [
+  { label: "Search", href: "/search", description: "Find a published record." },
+  { label: "Ask the desk", href: "/ask", description: "Put a question to the record." },
+] as const;
 
 interface SiteHeaderProps {
   /**
@@ -170,47 +182,55 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
      for. `known` still decides whether the mark may show initials. */
   const accountLabel = ACCOUNT_LINK.label;
 
-  const renderMenuLink = (link: ChromeLink, primary = false) => (
-    <Link key={link.href} href={link.href}
-      className={primary ? styles.primaryMenuLink : styles.secondaryMenuLink}
-      aria-current={current(link.href) ? "page" : undefined} onClick={closePanels}>
-      <span className={styles.menuLinkTitle}>{link.label}</span>
-      {/* → and not ↗: every destination here is on this site. ↗ is the
-          glyph readers know as "leaves the site" and the footer's PayPal and
-          coffee links use it that way; it was on every internal link too until
-          2026-09-08 (UX-09). */}
-      <span className={styles.menuLinkArrow} aria-hidden="true">→</span>
-      <span className={styles.menuLinkDescription}>{link.description}</span>
-    </Link>
-  );
-
-  // The same hierarchy in the desktop dropdown and mobile dialog. The
-  // always-rendered dropdown remains the no-JavaScript navigation fallback.
+  /*
+   * The same hierarchy in the desktop drawer and the mobile dialog, and every
+   * cell in it is the shared `ChromeLink` — the same anchor the colophon
+   * draws, with the same current-page rule, the same focus ring and the same
+   * 44px floor. The always-rendered drawer remains the no-JavaScript
+   * navigation fallback; see the contract at the top of this file.
+   */
   const renderNavigation = () => (
     <div className={styles.navigationContent}>
       <div className={styles.menuLayout}>
-        <nav aria-label="Reporting and evidence" data-measure-id="header-menu-reporting" data-measure-exposure="none">
-          <p className={styles.menuGroupLabel}>Reporting & evidence</p>
-          {REPORTING_LINKS.map((link) => renderMenuLink(link, true))}
-        </nav>
-        <nav aria-label="People and purpose" data-measure-id="header-menu-people" data-measure-exposure="none">
-          <p className={styles.menuGroupLabel}>People & purpose</p>
-          {ABOUT_LINKS.map((link) => renderMenuLink(link))}
-        </nav>
+        <ChromeLinkGroup
+          label="Reporting & evidence"
+          links={REPORTING_LINKS}
+          current={current}
+          density="detail"
+          size="feature"
+          onNavigate={closePanels}
+          measureId="header-menu-reporting"
+        />
+        <ChromeLinkGroup
+          label="People & purpose"
+          links={ABOUT_LINKS}
+          current={current}
+          density="detail"
+          size="standard"
+          onNavigate={closePanels}
+          measureId="header-menu-people"
+        />
       </div>
       <div className={styles.menuUtilities}>
-        <nav aria-label="Standards and account" data-measure-id="header-menu-reference" data-measure-exposure="none">
-          {REFERENCE_LINKS.map((link) => <Link key={link.href} href={link.href}
-            aria-current={current(link.href) ? "page" : undefined} onClick={closePanels}>{link.label}</Link>)}
-        </nav>
-        <nav className={styles.menuTools} aria-label="Search and conversation" data-measure-id="header-menu-tools" data-measure-exposure="none">
-          <Link href="/search" onClick={closePanels}>Search</Link>
-          <Link href="/ask" onClick={closePanels}>Ask the desk</Link>
-        </nav>
+        <ChromeLinkGroup
+          label="Standards and account"
+          hiddenLabel
+          links={REFERENCE_LINKS}
+          current={current}
+          className={`${styles.menuRow} ${styles.menuReference}`}
+          onNavigate={closePanels}
+          measureId="header-menu-reference"
+        />
+        <ChromeLinkGroup
+          label="Search and conversation"
+          hiddenLabel
+          links={TOOL_LINKS}
+          current={current}
+          className={styles.menuRow}
+          onNavigate={closePanels}
+          measureId="header-menu-tools"
+        />
       </div>
-      <Link href={SUPPORT_LINK.href} className={styles.menuSupport} onClick={closePanels} data-measure-id="header-menu-support" data-measure-exposure="none">
-        Support the work <span aria-hidden="true">→</span>
-      </Link>
     </div>
   );
 

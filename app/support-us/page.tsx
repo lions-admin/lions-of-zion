@@ -167,7 +167,7 @@ const FLOWS: SupportFlow[] = [
 
 export default function Page() {
   return (
-    <SectionPage id="support-us" surface="quiet" title="Support Us" tagline={TAGLINE}>
+    <SectionPage id="support-us" title="Support Us" tagline={TAGLINE}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(SUPPORT_US_JSON_LD) }}

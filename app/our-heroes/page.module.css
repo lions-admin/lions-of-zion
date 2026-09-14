@@ -102,6 +102,18 @@
 /* ---- the records ---- */
 
 .records {
+  /* The portrait column, and the gap it costs the story beside it. One
+     value each, read by both seams below, so the record's measure and the
+     picture's width cannot drift apart.
+
+     11rem is where the two ends of this meet, measured rather than picked:
+     the panel is 694px at 1440, and at 13rem the story fell to 41 characters
+     a line — the same failure this file's `.sources` note already warns
+     about, and the reason the record is not split into story + citations.
+     At 11rem it holds 46, and the picture is still 176 × 220. */
+  --portrait-w: 11rem;
+  --portrait-gap: var(--sp-5);
+
   display: flex;
   flex-direction: column;
   margin-top: var(--sp-7);
@@ -116,12 +128,82 @@
   overflow-wrap: anywhere;
 }
 
-/* The featured record's whole distinction: one step of type. */
-.featuredName.featuredName {
+/* The featured record's whole distinction: one step of type. It reads off a
+   data attribute rather than a second class because there is no second
+   composition here to name — `dossier` around one person was exactly the
+   packaging hierarchy this page dropped. */
+.record[data-featured] > .name.name {
   font-size: var(--t-h2);
   font-weight: var(--t-h2-weight);
   line-height: var(--t-h2-lh);
   letter-spacing: var(--t-h2-tracking);
+}
+
+/* ---- the portrait ---- */
+
+/* Three of the eight profiles have a cleared picture; the registry is the
+   same one the homepage and `/people-of-israel` read, keyed `hero:<id>`, so
+   this page cannot show a face those surfaces would not.
+
+   Nothing here moves. `/people-of-israel` scales a record's picture by 2%
+   while the record is hovered or focused, and that is right for a hub of
+   live records; it is not right for a page of people most of whom were
+   killed. The plate supplies the edge and the loading ground and nothing
+   else. */
+.portrait {
+  display: grid;
+  gap: var(--sp-2);
+  inline-size: min(100%, 15rem);
+  min-width: 0;
+  margin: 0 0 var(--sp-5);
+}
+
+.portraitFrame {
+  composes: mediaPlate from global;
+  border-radius: var(--radius-2);
+}
+
+/* 4/5, the same plate `/people-of-israel` crops these three files to, so one
+   face is one shape across the site. The crop is taken at the asset's own
+   focal point (set inline by the page), never at the centre of the file. */
+.portraitFrame img {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+/* Three lines at most, in three voices: a disclosure is a label, a caption
+   is read, a credit is a machine value. The caption is what says the Aner
+   Shapira picture is a memorial mural rather than a photograph of him — on a
+   page of people, what the picture *is* is not a detail to leave in the
+   `alt` attribute. */
+.portraitCaption {
+  display: grid;
+  gap: var(--sp-1);
+  min-width: 0;
+  color: var(--ink-lo);
+}
+
+.portraitCaptionText {
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+.portraitCredit {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  overflow-wrap: anywhere;
+}
+
+.portraitDisclosure {
+  composes: dataLabel from global;
+  color: var(--gold);
 }
 
 .meta {
@@ -168,31 +250,82 @@
   margin-bottom: var(--sp-3);
 }
 
-@media (min-width: 1220px) {
-  /* The zero-width second column is the whole trick: the note is placed
-     in it and overflows into the page margin, so column one keeps the
-     full reading measure. Both compositions are declared because
-     `Card.row` is already a grid and the record must stay one here. */
-  .record.record,
-  .featured.featured {
+/* From the tablet seam the picture takes a column of its own and the record
+   reads across: a face, and the name level with it. Below the seam it stays
+   stacked — a 13rem picture beside a phone's column would leave the story
+   about thirty characters a line.
+
+   Only a record that actually has a picture becomes two columns. A row that
+   reserves a column for an image it has not got reads as a broken layout
+   rather than a plain one, which is the same rule `/people-of-israel`'s
+   record list already keeps. */
+@media (min-width: 45rem) {
+  .record[data-portrait].record {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 0;
+    grid-template-columns: var(--portrait-w) minmax(0, 1fr);
+    /* The trailing `1fr` is where the slack goes. The portrait column —
+       picture, caption and credit — is often taller than the name, the meta
+       and the story beside it; without a track to absorb the surplus, grid
+       shares it out among the three auto rows and opens a hole between the
+       meta line and the paragraph it belongs to. */
+    grid-template-rows: auto auto auto auto 1fr;
+    column-gap: var(--portrait-gap);
   }
 
-  .record.record > .name,
-  .featured.featured > .name {
+  .record[data-portrait] > .portrait {
+    grid-column: 1;
+    grid-row: 1 / 6;
+    inline-size: auto;
+    align-self: start;
+    margin-bottom: 0;
+  }
+
+  .record[data-portrait] > .name {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .record[data-portrait] > .header {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .record[data-portrait] > .story {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .record[data-portrait] > .sources {
+    grid-column: 2;
+    grid-row: 4;
+  }
+}
+
+@media (min-width: 1220px) {
+  /* The zero-width last column is the whole trick: the note is placed
+     in it and overflows into the page margin, so the reading column keeps
+     its full measure. Declared here because `Card.row` is already a grid
+     and the record must stay one. */
+  .record.record {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 0;
+    /* Three text rows and a track for the slack — see the note at the
+       tablet seam; here the citations have left the column, so the picture
+       is taller than what is left beside it more often, not less. */
+    grid-template-rows: auto auto auto 1fr;
+  }
+
+  .record.record > .name {
     grid-column: 1;
     grid-row: 1;
   }
 
-  .record.record > .header,
-  .featured.featured > .header {
+  .record.record > .header {
     grid-column: 1;
     grid-row: 2;
   }
 
-  .record.record > .story,
-  .featured.featured > .story {
+  .record.record > .story {
     grid-column: 1;
     grid-row: 3;
   }
@@ -200,13 +333,36 @@
   /* Row three, not row one: the sources sit beside the story they
      support rather than beside the name. `marginNote` supplies the
      width and the offset; this only says which row. */
-  .record.record > .sources,
-  .featured.featured > .sources {
+  .record.record > .sources {
     grid-column: 2;
     grid-row: 3;
     margin-top: 0;
     padding-top: 0;
     border-top: 0;
+  }
+
+  /* With a picture the record is three columns — the portrait, the reading
+     column, and the zero-width margin the citations stand in. The text keeps
+     its rows; only the column numbers move. */
+  .record[data-portrait].record {
+    grid-template-columns: var(--portrait-w) minmax(0, 1fr) 0;
+    column-gap: var(--portrait-gap);
+  }
+
+  .record[data-portrait] > .portrait {
+    grid-column: 1;
+    grid-row: 1 / 5;
+  }
+
+  .record[data-portrait] > .name,
+  .record[data-portrait] > .header,
+  .record[data-portrait] > .story {
+    grid-column: 2;
+  }
+
+  .record[data-portrait] > .sources {
+    grid-column: 3;
+    grid-row: 3;
   }
 
   /* Gold stays scarce. In the column the kicker is a divider between the
@@ -218,10 +374,12 @@
   }
 }
 
-/* The consent boundary's standfirst. Local rather than composed from War
-   Update's `.advisory`: the two say different things. A data label, a
-   left rule and the italic reading voice — a limit on what the page
-   claims, not chrome a reader may skip. The label is this block's one gold. */
+/* The consent boundary's standfirst, at the foot of the page since
+   2026-09-14 — see the note in `page.tsx` for why it is no longer the first
+   thing a mourner meets. Local rather than composed from War Update's
+   `.advisory`: the two say different things. A data label, a left rule and
+   the italic reading voice — a limit on what the page claims, not chrome a
+   reader may skip. The label is this block's one gold. */
 .standfirst {
   margin: var(--sp-5) 0 0;
   padding: 0 0 0 var(--sp-4);

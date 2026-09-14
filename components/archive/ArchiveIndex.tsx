@@ -315,8 +315,13 @@ export function ArchiveIndex({
           than eight dead controls above a truncated one. */}
       <div className={styles.controls} data-needs-js="">
         <div className={styles.searchField}>
+          {/* "Find in this archive" took a line of its own on a phone to
+              restate the placeholder beside it. "Find" sits inline at every
+              width down to 320px and is still a real `<label>` — the field
+              keeps a name after the first keystroke, which a placeholder
+              does not. */}
           <label className={styles.searchLabel} htmlFor={inputId}>
-            Find in this archive
+            Find
           </label>
           <input
             id={inputId}
@@ -351,8 +356,20 @@ export function ArchiveIndex({
         </div>
 
         {facets.length > 1 ? (
-          <fieldset className={styles.facets}>
-            <legend className={styles.facetLegend}>{facetLegend}</legend>
+          /* A named `role="group"` rather than `fieldset`/`legend`, which is
+             what this was. The two are equivalent to assistive technology for
+             a set of toggle buttons — these are not form fields — and a
+             `<legend>` is the one element CSS cannot lay out as a flex item
+             in any engine, so it was forced onto a line of its own. Inline, it
+             costs nothing and the whole filter reads as one bar. */
+          <div
+            className={styles.facets}
+            role="group"
+            aria-labelledby={`${inputId}-facets`}
+          >
+            <span className={styles.facetLegend} id={`${inputId}-facets`}>
+              {facetLegend}
+            </span>
             <div className={styles.facetRow}>
               {facets.map((option) => (
                 <Button
@@ -363,13 +380,28 @@ export function ArchiveIndex({
                   className={styles.facet}
                   isActive={facet === option.value}
                   onClick={() => onFacet(option.value)}
+                  /* Below 540px this row is a horizontal scroller, and the
+                     browser does not reliably bring a focused child of one
+                     into view: measured in headed Chrome, tabbing from the
+                     search field to the second category left it 143px past the
+                     rail's right edge with `scrollLeft` still at 0, which is a
+                     focused control the reader cannot see. Asking explicitly
+                     is deterministic and costs nothing where the row wraps
+                     instead — `nearest` scrolls nothing that is already in
+                     view. */
+                  onFocus={(event) =>
+                    event.currentTarget.scrollIntoView({
+                      block: 'nearest',
+                      inline: 'nearest',
+                    })
+                  }
                 >
                   {option.label}
                   <span className={styles.facetCount}>{option.count}</span>
                 </Button>
               ))}
             </div>
-          </fieldset>
+          </div>
         ) : null}
       </div>
 

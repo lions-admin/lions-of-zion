@@ -10,17 +10,12 @@
    own and the skip link's. */
 
 .page {
-  /* Two inherited contracts the shell's `ScanBackdrop` reads out of whichever
-     page class it lands inside. `components/sections/sections.module.css`
-     sets both on its own `.page`, and its selectors are scoped to that hashed
-     class — so a page built directly on `EditorialShell` has to declare them
-     or the scan runs unmasked and at full strength behind the reading column.
-     Custom properties inherit, which is what makes this work across modules:
-
-       --content-w  the column `.rowField` masks the drifting rows out of.
-       --register   the institution family's quieted scan (SYS-002). */
-  --content-w: min(var(--family-measure, var(--measure-reading)), 100%);
-  --register: 0.2;
+  /* `--content-w` and `--register` were declared here until 2026-09-14. Both
+     existed only so the shell's ambient `ScanBackdrop` would mask and dim
+     itself correctly behind this page's reading column — a page built
+     directly on `EditorialShell` had to restate them or the scan ran
+     unmasked and at full strength. The backdrop is retired, so neither has a
+     reader; nothing else in this file or any other referenced them. */
 
   min-height: 100dvh;
   /* The masthead is fixed, so the document starts below it. */

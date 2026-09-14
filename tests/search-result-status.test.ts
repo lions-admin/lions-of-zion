@@ -63,6 +63,44 @@ describe("resultStatus", () => {
     );
   });
 
+  it("says which window of a paged answer is on screen", () => {
+    /* "25 results" was a true statement about the response and a false one
+       about the reader's situation: nineteen could not be opened and the
+       twenty-five were all there would ever be, because nothing could page.
+       Both halves are honest now. */
+    expect(
+      resultStatus("results", 10, "October 7", { offset: 10, total: 34, totalIsFloor: false }).count,
+    ).toBe("Showing 11\u201320 of 34 results for \u201cOctober 7\u201d");
+  });
+
+  it("counts a short last page by what is actually on it", () => {
+    expect(
+      resultStatus("results", 4, "October 7", { offset: 30, total: 34, totalIsFloor: false }).count,
+    ).toBe("Showing 31\u201334 of 34 results for \u201cOctober 7\u201d");
+  });
+
+  it("keeps the plain count when the whole answer fits on one page", () => {
+    /* No pager renders, so "Showing 1\u20137 of 7" would be arithmetic about a
+       control the reader cannot see. */
+    expect(
+      resultStatus("results", 7, "Haifa", { offset: 0, total: 7, totalIsFloor: false }).count,
+    ).toBe("7 results for \u201cHaifa\u201d");
+  });
+
+  it("says a ceiling is a floor rather than printing it as a total", () => {
+    /* Retrieval has a candidate ceiling. "of 200" would be an invented number
+       of the same kind as showing the RRF score as a confidence. */
+    expect(
+      resultStatus("results", 10, "Israel", { offset: 0, total: 200, totalIsFloor: true }).count,
+    ).toBe("Showing 1\u201310 of at least 200 results for \u201cIsrael\u201d");
+  });
+
+  it("leaves an empty answer to the empty state, paged or not", () => {
+    expect(
+      resultStatus("no-results", 0, "Haifa", { offset: 0, total: 0, totalIsFloor: false }).count,
+    ).toBeNull();
+  });
+
   it("claims no matcher at all when the search failed", () => {
     /* A request that did not complete matched nothing. Printing "matching on
        words and names" above "The search failed" describes a capability the

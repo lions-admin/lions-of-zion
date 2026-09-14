@@ -163,10 +163,26 @@
   font-variant-numeric: tabular-nums;
 }
 
-@media (min-width: 1220px) {
-  .sectionNav {
-    display: none;
-  }
+/* This used to be `@media (min-width: 1220px) { .sectionNav { display: none } }`.
+   The strip deferred to the shell's sticky contents rail above the rails
+   breakpoint, on the correct argument that two navigators on one screen are
+   one too many. That contract ended on 2026-09-14: the shell moved its
+   contents control from above the `<h1>` to under the page header, where it
+   landed directly on this strip, and the page answered by turning the shell's
+   off entirely (`withToc={false}`, app/fake-resistance/cases/[slug]/page.tsx).
+
+   With the shell's rail gone at every width, deferring above 1220px left the
+   page with no contents navigation at all there — measured at 1440x900: the
+   strip computed `display: none` and no rail replaced it. So the strip now
+   renders at every width and is the page's single contents surface, which is
+   also the better of the two: it is built from `caseSections()` — the sections
+   this case actually has — and it marks the one being read, where the shell's
+   is a scrape of whatever headings happen to be present. */
+
+.sectionNav {
+  /* Kept explicit so a future `display: none` here is a decision, not a
+     leftover. One contents landmark, at every width. */
+  display: block;
 }
 
 /* ── Shared small labels ───────────────────────────────────────────────── */
@@ -1256,6 +1272,23 @@
   text-wrap: pretty;
 }
 
+/* The measurements behind the finding, no longer inside the same sentence as
+   it. The claim keeps the lede voice above; this is the corroboration, set
+   quieter and separated so a reader can take the finding and stop. */
+.survives > .survivesEvidence {
+  max-width: var(--measure-reading);
+  margin: var(--sp-3) 0 0;
+  padding-left: var(--sp-4);
+  border-left: var(--line-w) solid var(--line);
+  color: var(--ink-lo);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  font-weight: 400;
+  line-height: var(--t-small-lh);
+  letter-spacing: normal;
+  text-wrap: pretty;
+}
+
 .survivesLabel {
   composes: dataLabel from global;
   color: var(--data-ember-peak);
@@ -1295,6 +1328,89 @@
   font-weight: var(--t-data-weight);
   line-height: var(--t-small-lh);
   font-variant-numeric: tabular-nums;
+}
+
+.storyCorroboration {
+  max-width: var(--measure-reading);
+  margin: var(--sp-4) 0 0;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+/* ── The network's double refutation ───────────────────────────────────── */
+
+.storyQuestion {
+  max-width: var(--measure-reading);
+  margin: 0 0 var(--sp-5);
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+.storyQuestionLabel {
+  composes: dataLabel from global;
+  display: block;
+  margin-bottom: var(--sp-1);
+  color: var(--ink-lo);
+}
+
+/* Numbered because the research numbers them, and set apart from each other
+   so two refusals do not read as one paragraph — which is exactly what the
+   flattened source text did. */
+.refutations {
+  counter-reset: refutation;
+  margin: var(--sp-5) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--sp-5);
+}
+
+.refutations > li {
+  counter-increment: refutation;
+  position: relative;
+  padding-left: var(--sp-7);
+  min-width: 0;
+}
+
+.refutations > li::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--data-ember-peak);
+  content: counter(refutation, decimal-leading-zero);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The claim, at the h3 role. A refutation is a heading inside the finding and
+   never competes with the page title: the site's one heading scale sets these
+   sizes, and this file declares no clamp of its own. */
+.refutationLabel {
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  text-wrap: balance;
+}
+
+.refutationStatement {
+  max-width: var(--measure-reading);
+  margin: var(--sp-2) 0 0;
+  color: var(--ink);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  text-wrap: pretty;
 }
 
 /* ── Unknowns ──────────────────────────────────────────────────────────── */

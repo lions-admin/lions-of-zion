@@ -11,6 +11,7 @@ import {
 import { firstArchiveSourceMedia } from '@/lib/content/archive-share';
 import { buildXShareText, facebookShareUrl, xIntentUrl } from '@/lib/content/share-text';
 import { ArchiveBlocks, type ArchiveSensitivity } from './ArchiveBlocks';
+import { ArchiveAdvisory } from './ArchiveIntro';
 import { ShareRecord } from './ShareRecord';
 import styles from './archive.module.css';
 
@@ -231,17 +232,11 @@ export function ArchiveRecord({
           decided not to look should learn that at the top of the page and not
           by scrolling into it. */}
       {gated > 0 ? (
-        <aside className={styles.advisory} aria-labelledby="record-advisory">
-          <p className={styles.advisoryLabel} id="record-advisory">
-            <span className={styles.advisoryMark} aria-hidden="true" />
-            Content advisory
-          </p>
-          <p className={styles.advisoryText}>
-            {sensitivity.note} This record holds {describeHeld(held, sensitivity.gate)}.
-            {gated === 1 ? ' It stays' : ' They stay'} covered until you choose to open{' '}
-            {gated === 1 ? 'it' : 'them'}; nothing here plays by itself.
-          </p>
-        </aside>
+        <ArchiveAdvisory labelId="record-advisory">
+          {sensitivity.note} This record holds {describeHeld(held, sensitivity.gate)}.
+          {gated === 1 ? ' It stays' : ' They stay'} covered until you choose to open{' '}
+          {gated === 1 ? 'it' : 'them'}; nothing here plays by itself.
+        </ArchiveAdvisory>
       ) : null}
 
       {/* The record's own words, declared in the record's own language.

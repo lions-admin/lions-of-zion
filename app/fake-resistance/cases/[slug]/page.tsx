@@ -17,7 +17,13 @@ import {
   UnknownsPanel,
   caseSections,
 } from '@/components/investigation';
-import { CadenceFigure, EvidenceStrip, LagFigure, OverturnedList } from '@/components/research';
+import {
+  CadenceFigure,
+  EvidenceStrip,
+  LagFigure,
+  OverturnedList,
+  splitClaimFromEvidence,
+} from '@/components/research';
 import {
   caseParams,
   getCase,
@@ -170,10 +176,20 @@ export default async function Page({ params }: Params) {
       <SectionPage
         id="fake-resistance"
         accent="ember"
-        surface="quiet"
         breadcrumb={[publicationHubCrumb('fakeResistance')]}
         title={shortTitle(record.title)}
         tagline={lead}
+        /* This page brings its own contents list — `InvestigationSectionNav`,
+           the numbered pill strip that names the case's real sections — so the
+           shell's generic one is turned off rather than stacked on top of it.
+           Before the shells were reworked on 2026-09-14 the shell's control
+           sat above the `<h1>`, far enough from the strip that the duplication
+           was easy to miss; once it moved under the page header the two landed
+           directly on each other. Measured at 390x844: two `<nav>` landmarks,
+           "On this page" and "Sections of this case", listing the identical
+           ten sections. Turning the shell's off also stops the wide-viewport
+           rail repeating the same list a third time. */
+        withToc={false}
         aside={<EntityInspector variant="rail" />}
       >
         <script
@@ -270,14 +286,30 @@ export default async function Page({ params }: Params) {
           ) : null}
 
           <ol className={styles.bottomLine}>
-            {record.bottomLine.map((point) => (
+            {record.bottomLine.map((point) => {
+              /* Claim, then numbers — not both in one breath. Each point is
+                 written as a bold finding followed immediately by the
+                 measurements behind it: on `hinkle-machine`, "**The '70%'
+                 figure is dead; the production-cell coupling is not.**" and
+                 then "287 of Hinkle's 790 non-retweet posts (36.3%) … median
+                 lag 512 s ≈ 8.5 min; p25 95 s; p75 1261 s; max 23.7 h" in the
+                 same paragraph. The finding was first and then instantly
+                 drowned. `splitClaimFromEvidence` separates the two and leaves
+                 a short point alone. */
+              const { claim, evidence } = splitClaimFromEvidence(point.text);
+              return (
               <li key={point.text.slice(0, 40)}>
                 {/* The point and its sources are siblings, so above 1220px the
                     citation moves into the right margin beside the claim it
                     supports — `marginNote`, content.module.css. */}
                 <div className={styles.pointMain}>
-                  <p>
-                    <ResearchText>{point.text}</ResearchText>
+                  {claim ? (
+                    <p className={styles.pointClaim}>
+                      <ResearchText>{claim}</ResearchText>
+                    </p>
+                  ) : null}
+                  <p className={claim ? styles.pointEvidence : undefined}>
+                    <ResearchText>{evidence}</ResearchText>
                   </p>
                 </div>
                 {point.sources.length > 0 ? (
@@ -286,7 +318,8 @@ export default async function Page({ params }: Params) {
                   </div>
                 ) : null}
               </li>
-            ))}
+              );
+            })}
           </ol>
 
           {/* What was looked at, beside what was concluded from it. It sits

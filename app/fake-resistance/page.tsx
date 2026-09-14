@@ -45,7 +45,7 @@ export default async function Page() {
     ...(influence.status === "fulfilled" ? influenceItems.map((item) => item.publishedAt) : []),
   ].sort().at(-1);
   return (
-    <EditorialShell routeId="fake-resistance" register="silent" showProgress={false} className={styles.page}>
+    <EditorialShell routeId="fake-resistance" showProgress={false} className={styles.page}>
       <div className={styles.hub}>
         <HubMasthead
           kicker="What is being said about it"

@@ -21,7 +21,6 @@ export default function ArticleNotFound() {
   return (
     <EditorialShell
       routeId="articles"
-      register="muted"
       showProgress={false}
       className={styles.page}
     >

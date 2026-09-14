@@ -127,7 +127,6 @@ export default async function Page() {
       id="fake-resistance"
       breadcrumb={[publicationHubCrumb('fakeResistance')]}
       accent="ember"
-      surface="quiet"
       title="Official narrative engineering"
       tagline={TAGLINE}
     >

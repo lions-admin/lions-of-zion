@@ -268,16 +268,16 @@
   --async-empty: var(--ink);
   --async-disabled: var(--ink-lo);
 
-  /* Glass is a leftover HUD ramp. New chrome prefers rules + surfaces.
-     Kept so existing modules do not re-literalise. Do not add new glass. */
-  --glass-top: rgba(150, 147, 140, 0.22);
-  --glass-middle: rgba(45, 44, 42, 0.29);
-  --glass-bottom: rgba(8, 8, 8, 0.64);
-  --glass-raised-top: rgba(115, 112, 105, 0.28);
-  --glass-raised-bottom: rgba(4, 4, 4, 0.88);
-  --glass-edge: rgba(246, 243, 235, 0.28);
-  --glass-inner: rgba(255, 255, 255, 0.25);
-  --glass-shadow: rgba(0, 0, 0, 0.58);
+  /* The eight `--glass-*` tokens were deleted on 2026-09-14. They were a
+     leftover HUD ramp that globals.css had told people not to use since the
+     V3 system landed, with nothing enforcing the sentence — so surfaces went
+     on drawing three-stop gradients and backdrop blur long after every other
+     plate had become flat with a hairline. The last two readers went this
+     round (the search panel and the site header), which is what finally let
+     the definitions go. Do not reintroduce them: `--surface-0..3`,
+     `--line`/`--line-strong` and `--shadow-1..3` cover every case they did,
+     and `tests/glass-retirement.test.ts` no longer guards this because there
+     is nothing left to guard. */
 
   /* --- Radius / elevation (SYS-006) ---
      Default grouping is a 1px rule and spacing, not a card.

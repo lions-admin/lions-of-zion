@@ -404,7 +404,15 @@
   line-height: var(--t-caption-lh);
 }
 
+/* A source citation is a target a thumb has to hit, so it carries the 44px
+   floor like any other control. It is laid out as a flex box rather than given
+   vertical padding: padding would push the rows apart even where a long title
+   already wraps past 44px, and the point is a floor, not a gap. Measured at
+   390px before this: 39px. */
 .rungSources a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-h);
   min-width: 0;
   color: var(--ink-hi);
   text-decoration: underline;
@@ -412,6 +420,11 @@
   text-underline-offset: 0.2em;
   overflow-wrap: anywhere;
   transition: text-decoration-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.rungSources a:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
 }
 
 .rungSources a:hover {

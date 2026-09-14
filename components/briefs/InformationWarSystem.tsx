@@ -11,7 +11,7 @@ const REPORT_NODES = ["A", "B", "C", "D", "E"].map((letter, index) => ({ letter,
 
 export function InformationWarSystem() {
   return (
-    <EditorialShell routeId="information-war" register="silent" className={styles.page} progressTrackClassName={styles.progressTrack}>
+    <EditorialShell routeId="information-war" className={styles.page} progressTrackClassName={styles.progressTrack}>
       <section className={styles.hero} id="page-content" aria-labelledby="war-heading">
         <div className={styles.heroTopline}><p className={styles.eyebrow}>Lions of Zion / Israeli-built information-integrity technology</p><a href="#system">Explore the architecture <span aria-hidden="true">↘</span></a></div>
         <div className={styles.heroGrid}>

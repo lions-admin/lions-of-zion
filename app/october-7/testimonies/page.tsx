@@ -1,5 +1,11 @@
 import type { Metadata } from 'next';
-import { ArchiveFullIndex, ArchiveIndex, type ArchiveFacet } from '@/components/archive';
+import {
+  ArchiveFullIndex,
+  ArchiveIndex,
+  ArchiveIntro,
+  ArchiveNote,
+  type ArchiveFacet,
+} from '@/components/archive';
 import { DocPage } from '@/components/sections/DocPage';
 import {
   getRecordDigests,
@@ -78,26 +84,38 @@ export default async function Page() {
       routeId="october-7"
       // Both indexes and every record share this route, so each supplies the
       // seed that makes its slice of the corpus its own.
-      backdropSeed="october-7/testimonies"
-      register="silent"
       title="Testimonies"
       tagline={TAGLINE}
       breadcrumb={[{ href: '/october-7', label: 'October 7' }]}
     >
-      <p>
-        {records.length} accounts, archived from October7.org and reproduced as
-        published — their text, their images and their credits unaltered.
-        {languages > 1
-          ? ` Most are available in ${languages} languages; each record carries its own.`
-          : null}
-      </p>
-      <p>
-        These are people describing what happened to them. They are held here
-        rather than linked to, so the record survives whatever happens to any
-        one site. Each entry below names the witness, when the account was
-        published, how much of it the archive holds, and which languages it
-        exists in.
-      </p>
+      {/* Same split as the documentation index: the counts are data, the
+          provenance is one muted line, and the sentence that says what these
+          accounts *are* keeps a box of its own. It is not an ember advisory —
+          nothing here is graphic and spending the danger ramp on a statement
+          about custody is how a real warning stops being believed. */}
+      <ArchiveIntro
+        facts={[
+          { value: String(records.length), label: 'accounts' },
+          ...(languages > 1
+            ? [{ value: String(languages), label: 'languages' }]
+            : []),
+        ]}
+        provenance={
+          <>
+            Archived from October7.org and reproduced as published — their text,
+            their images and their credits unaltered.
+            {languages > 1 ? ' Most exist in several languages, and e' : ' E'}ach
+            row below names its witness, when the account was published, how
+            much of it is held, and the languages it carries.
+          </>
+        }
+      >
+        <ArchiveNote labelId="testimonies-note" label="What is held here">
+          These are people describing what happened to them. They are held here
+          rather than linked to, so the record survives whatever happens to any
+          one site.
+        </ArchiveNote>
+      </ArchiveIntro>
 
       <ArchiveIndex
         variant="testimony"
@@ -106,7 +124,7 @@ export default async function Page() {
         facets={facets}
         facetLegend="Language"
         searchLabel="Testimonies"
-        searchHint="Filter by witness, place or words in the account"
+        searchHint="Witness, place or words in the account"
       />
 
       <ArchiveFullIndex

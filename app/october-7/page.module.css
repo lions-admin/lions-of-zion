@@ -18,8 +18,11 @@
 .explorerHeading h2 {
   margin: 0;
   color: var(--ink-hi);
-  font: 400 clamp(30px, 3.4vw, 42px)/1.04 var(--face-display);
-  letter-spacing: -.028em;
+  font-family: var(--face-display);
+  font-size: var(--t-h2);
+  line-height: var(--t-h2-lh);
+  font-weight: var(--t-h2-weight);
+  letter-spacing: var(--t-h2-tracking);
   text-wrap: balance;
 }
 .archiveEntries {
@@ -88,8 +91,11 @@
 }
 .entryTitle {
   color: var(--ink-hi);
-  font: 400 clamp(28px, 3vw, 38px)/1.04 var(--face-display);
-  letter-spacing: -.025em;
+  font-family: var(--face-display);
+  font-size: var(--t-h2);
+  line-height: var(--t-h2-lh);
+  font-weight: var(--t-h2-weight);
+  letter-spacing: var(--t-h2-tracking);
   text-wrap: balance;
 }
 .entryDescription {
@@ -111,8 +117,10 @@
 }
 .entryCountNumber {
   color: var(--gold-hi);
-  font: 400 clamp(22px, 2.6vw, 27px)/1 var(--face-display);
-  letter-spacing: -.02em;
+  font-family: var(--face-display);
+  font-size: var(--t-figure);
+  line-height: 1;
+  font-weight: var(--t-figure-weight);
   font-variant-numeric: tabular-nums;
 }
 .entryCountUnit {
@@ -160,8 +168,11 @@
 .featureHeading h2 {
   margin: 8px 0 12px;
   color: var(--ink-hi);
-  font: 400 clamp(29px, 3vw, 38px)/1.08 var(--face-display);
-  letter-spacing: -.025em;
+  font-family: var(--face-display);
+  font-size: var(--t-h2);
+  line-height: var(--t-h2-lh);
+  font-weight: var(--t-h2-weight);
+  letter-spacing: var(--t-h2-tracking);
   text-wrap: balance;
 }
 .featureHeading > p:not(.eyebrow) {
@@ -261,6 +272,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  /* `flex: none` and not only a width: at 359px the row's default shrink took
+     the back arrow to 43px, one pixel under the coarse-pointer floor the width
+     was written to hold. */
+  flex: none;
   width: 44px;
   min-height: 44px;
   border: 0;
@@ -309,8 +324,11 @@
 }
 .sampleReading h3 {
   margin: 0;
-  font: 400 clamp(25px, 2.65vw, 32px)/1.15 var(--face-display);
-  letter-spacing: -.02em;
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  line-height: var(--t-h3-lh);
+  font-weight: var(--t-h3-weight);
+  letter-spacing: var(--t-h3-tracking);
 }
 .sampleReading h3 a {
   color: var(--ink-hi);
@@ -376,13 +394,21 @@
   outline-offset: 4px;
 }
 
+/* The graphic-media disclosure, which now leads the showcases instead of
+   closing them. A rule *above* it said "that was the end of something"; the
+   sentence has to say "this is what is about to happen", so the rule moves to
+   the left edge, in the ember the archive reserves for exactly this, and the
+   type steps up from 12px muted — a disclosure a reader is meant to act on
+   cannot be the quietest thing on the page. */
 .sharingNote {
-  margin: 28px 0 0;
+  margin: 28px 0 22px;
   max-width: 82ch;
-  padding-top: 18px;
-  border-top: 1px solid var(--line);
-  color: var(--ink-lo);
-  font: 400 12px/1.65 var(--face-text);
+  padding: var(--sp-3) var(--sp-4);
+  border-left: var(--line-w-thick) solid
+    color-mix(in oklab, var(--data-ember) 34%, transparent);
+  color: var(--ink);
+  font: 400 var(--t-caption) / var(--t-caption-lh) var(--face-text);
+  text-wrap: pretty;
 }
 .categoryBrowser {
   margin-top: 18px;
@@ -498,9 +524,6 @@
     left: 18px;
     right: 18px;
   }
-  .entryTitle {
-    font-size: clamp(31px, 9vw, 38px);
-  }
   .entryDescription {
     max-width: 40ch;
     font-size: 15px;
@@ -509,9 +532,7 @@
     grid-template-columns: 1fr;
     gap: 44px;
   }
-  .featureHeading h2 { font-size: 34px; }
   .featureHeading > p:not(.eyebrow) { max-width: 44ch; }
-  .sampleReading h3 { font-size: clamp(28px, 7vw, 35px); }
   .sampleReading h3 a {
     -webkit-line-clamp: 3;
     line-clamp: 3;
@@ -526,8 +547,6 @@
 }
 
 @media (max-width: 480px) {
-  .explorerHeading h2 { font-size: 32px; }
-  .featureHeading h2 { font-size: 31px; }
   .categoryBrowser summary > span {
     display: block;
     margin: 4px 0 0 20px;

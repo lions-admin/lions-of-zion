@@ -5,7 +5,12 @@
  * Dossier: investigations, October 7, articles, story, heroes.
  * Institution: methodology, corrections, We Are, Support, account.
  *
- * Family changes density, scan strength, and measure — never colour.
+ * Family changes density and measure — never colour. It set scan strength
+ * too until the ambient scan backdrop was retired on 2026-09-14.
+ *
+ * `"war-update"` sat in `DESK` until then. `/war-update` has been a permanent
+ * redirect since 2026-09-05, so no page has ever rendered with that route id
+ * and the entry answered a question nobody asks.
  */
 export type RouteFamily = "desk" | "dossier" | "institution";
 
@@ -15,7 +20,6 @@ const DESK = new Set([
   "fact-check",
   "search",
   "ask",
-  "war-update",
 ]);
 
 const INSTITUTION = new Set([

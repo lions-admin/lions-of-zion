@@ -1,5 +1,11 @@
 import type { Metadata } from 'next';
-import { ArchiveFullIndex, ArchiveIndex, type ArchiveFacet } from '@/components/archive';
+import {
+  ArchiveAdvisory,
+  ArchiveFullIndex,
+  ArchiveIndex,
+  ArchiveIntro,
+  type ArchiveFacet,
+} from '@/components/archive';
 import { DocPage } from '@/components/sections/DocPage';
 import { getRecordDigests, withCoverThumbs } from '@/lib/content/archive';
 import {
@@ -50,24 +56,37 @@ export default async function Page() {
       routeId="october-7"
       // Both indexes and every record share this route, so each supplies the
       // seed that makes its slice of the corpus its own.
-      backdropSeed="october-7/documentation"
-      register="silent"
       title="Documentation"
       tagline={TAGLINE}
       breadcrumb={[{ href: '/october-7', label: 'October 7' }]}
     >
-      <p>
-        {records.length} records archived from Hamas-Massacre.net — {films} films
-        and {photographs} photographs — in English and Spanish, kept in the
-        categories the source filed them under. Each is reproduced as published,
-        with its credits intact.
-      </p>
-      <p>
-        Every record here is graphic. It is documentation of a massacre, and it
-        is presented as documentation — described, dated and filed, so that what
-        it shows can be checked rather than argued about. No film or photograph
-        on this site is shown until you ask for it, and nothing plays by itself.
-      </p>
+      {/* Every fact the two opening paragraphs carried is still here; what
+          changed is which of them is prose. The counts are counts, so they are
+          set as data; the filing policy is provenance, so it is one muted
+          line; the warning is a warning, so it keeps the ember box the record
+          pages use rather than arriving as a fourth paragraph of body text a
+          reader has already started skimming past. */}
+      <ArchiveIntro
+        facts={[
+          { value: groupDigits(records.length), label: 'records' },
+          { value: groupDigits(films), label: 'films' },
+          { value: groupDigits(photographs), label: 'photographs' },
+        ]}
+        provenance={
+          <>
+            Archived from Hamas-Massacre.net in English and Spanish, kept in the
+            categories the source filed them under and reproduced as published,
+            with credits intact — documentation of a massacre presented as
+            documentation, described, dated and filed, so that what it shows can
+            be checked rather than argued about.
+          </>
+        }
+      >
+        <ArchiveAdvisory labelId="documentation-advisory">
+          Every record here is graphic. No film or photograph on this site is
+          shown until you ask for it, and nothing plays by itself.
+        </ArchiveAdvisory>
+      </ArchiveIntro>
 
       {/* The sticky category jump is gone: it moved the page without changing
           what was on it, so a reader still had 335 equally-weighted rows below
@@ -80,7 +99,7 @@ export default async function Page() {
         facets={facets}
         facetLegend="Category"
         searchLabel="Documentation"
-        searchHint="Filter by description, place or category"
+        searchHint="Description, place or category"
       />
 
       <ArchiveFullIndex
@@ -92,4 +111,8 @@ export default async function Page() {
       />
     </DocPage>
   );
+}
+
+function groupDigits(value: number): string {
+  return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }

@@ -42,8 +42,14 @@
   z-index: var(--z-modal);
 }
 
+/* `--glass-bottom` was a HUD-era token — an absolute `rgba(8, 8, 8, 0.64)`
+   that answered to no palette and therefore survived the palette unification
+   unchanged. The scrim is now mixed from the page's own ground, so it tracks
+   the one grade the site has instead of sitting a shade off it. The alpha is
+   what the blur needs to work: fully opaque, and there is nothing behind to
+   blur. */
 .dialog::backdrop {
-  background: var(--glass-bottom);
+  background: color-mix(in oklab, var(--ground) 72%, transparent);
   backdrop-filter: blur(10px) saturate(0.85);
 }
 
@@ -202,6 +208,62 @@
   max-inline-size: var(--measure-caption);
 }
 
+/* ── The kind filter ──────────────────────────────────────────────────── */
+
+/* Between the count and the list: it narrows the number above it and the rows
+   below it, so it sits between the two things it changes.
+ *
+ * The chips are `Button variant="filter"`, which is the site's filter grammar
+ * already — the data face, uppercase, and a gold wash when pressed. What is
+ * added here is the count that rides inside each chip and the border weight
+ * that marks the pressed one, so the state is not carried by colour alone.
+ */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-5) 0;
+}
+
+.panel[data-variant="page"] .filters {
+  padding-inline: 0;
+}
+
+.filtersLabel {
+  composes: dataLabel from global;
+  color: var(--ink-lo);
+  padding-inline-end: var(--sp-1);
+}
+
+/* `Button` wraps its children in a single `.content` span, so a `gap` on the
+   control separates the icon slots and not the label from the count inside it.
+   Measured in the browser: the chips read "ALL15", "BRIEFS1". The space goes on
+   the count. */
+.filterCount {
+  margin-inline-start: var(--sp-2);
+}
+
+/* The pressed chip, said twice: `Button` already swaps the plate and the ink,
+   and this thickens its edge. A reader who cannot separate the gold wash from
+   the neutral one still sees which chip is on — and `aria-pressed`, which
+   `Button` emits from `isActive`, says it a third time to a screen reader. */
+.filterChip[aria-pressed="true"] {
+  border-width: var(--line-w-thick);
+}
+
+.filterCount {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+}
+
+/* The count is metadata beside a label, not part of it: a screen reader should
+   hear "Briefs, 1" and not "Briefs1". The space above does that visually; this
+   keeps the two from being read as one token. */
+.filterCount::before {
+  content: " ";
+}
+
 /* ── Results ──────────────────────────────────────────────────────────── */
 
 .results {
@@ -320,22 +382,21 @@
   overflow-wrap: anywhere;
 }
 
-.results .hitDestination {
+/* The record's own standfirst, where it has one — prose, and set as prose.
+   This slot held the destination *path* until 2026-09-14, which is why it
+   carried `overflow-wrap: anywhere`: a 60-character slug with no spaces in it
+   had to be broken somewhere. A sentence does not, so the line clamps to three
+   lines instead of letting one long result push the next three off the screen,
+   and words break only where words break. */
+.results .hitSummary {
   max-width: none;
-  overflow-wrap: anywhere;
-}
-
-/* The honest half of the result list: this record is in the index and has no
-   page to open. Stated, never hidden and never linked to a 404. */
-.hitUnreachable {
-  display: inline;
-  padding: 0 var(--sp-2);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-1);
-  color: var(--ink-lo);
-  text-transform: none;
-  letter-spacing: 0;
-  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  text-wrap: pretty;
 }
 
 .results .hitCta {
@@ -386,6 +447,72 @@
 .hit:focus-visible {
   outline: var(--focus-outline);
   outline-offset: calc(var(--focus-offset) * -1);
+}
+
+/* ── The pager ────────────────────────────────────────────────────────── */
+
+/* Under the list, where a reader arrives at it having read the page.
+ *
+ * Buttons rather than the site's `Pagination` links — see `SearchPager.tsx` for
+ * why — but the same row grammar: the ends stay in place and go inert rather
+ * than disappearing, and the elision is `pageWindow`'s.
+ */
+.pager {
+  display: flex;
+  justify-content: center;
+  padding: var(--sp-4) var(--sp-5);
+  border-top: var(--line-w) solid var(--line-soft);
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.panel[data-variant="page"] .pager {
+  padding-inline: 0;
+  border-top-color: var(--line);
+}
+
+/* Dimmed with the list it belongs to while the next page is in flight. */
+.pager[data-busy] {
+  opacity: 0.45;
+}
+
+.pagerList {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pagerPage {
+  min-inline-size: var(--control-h-sm);
+  font-family: var(--face-data);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--t-data-tracking);
+}
+
+/* The page the reader is on, marked three ways and by colour last: a heavier
+   weight, a gold rule under the number, and `aria-current="page"` in the
+   accessibility tree. */
+.pagerPage[aria-current="page"] {
+  color: var(--ink-hi);
+  font-weight: 700;
+  box-shadow: inset 0 calc(var(--line-w-thick) * -1) 0 0 var(--gold);
+}
+
+.pagerStep {
+  font-family: var(--face-data);
+  letter-spacing: var(--t-data-tracking);
+}
+
+.pagerGap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: var(--sp-5);
+  color: var(--ink-lo);
 }
 
 /* ── Notices: primer, empty, error ────────────────────────────────────── */
@@ -594,6 +721,8 @@
 @media (scripting: none) {
   .suggestions,
   .pulse,
+  .filters,
+  .pager,
   .foot {
     display: none;
   }
@@ -625,9 +754,26 @@
   .primer,
   .status,
   .resultStatus,
+  .filters,
+  .pager,
   .foot,
   .queryRow {
     padding-inline: var(--sp-4);
+  }
+
+  /* The step labels go and the arrows stay. At 320 the full row — Previous, up
+     to five numbers, Next — wraps to three lines and the numbers, which are the
+     part a thumb aims at, end up in the middle of it. The arrows keep their
+     44px targets and their accessible names (`aria-label` on the control), so
+     nothing is lost but the two words. */
+  .pagerStepLabel {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .results .hit {
@@ -635,14 +781,15 @@
     min-block-size: var(--control-h);
   }
 
-  /* VA-17. The narrow order is query field, result status, whatever notice
-     the state is in, the results — and nothing after them. It is already the
-     DOM order, and this pins it: an edit that moves a node cannot put the
-     documentation back above the answer without moving a number here too.
-     Everything unnamed (the primer, the notices, the empty and error states,
-     the live region) falls between the status and the list. */
+  /* VA-17. The narrow order is query field, result status, the kind filter,
+     whatever notice the state is in, the results, the pager — and nothing
+     after them. It is already the DOM order, and this pins it: an edit that
+     moves a node cannot put the documentation back above the answer without
+     moving a number here too. Everything unnamed (the primer, the notices, the
+     empty and error states, the live region) falls between the filter and the
+     list. */
   .panel > * {
-    order: 3;
+    order: 4;
   }
 
   .panel > .queryRow {
@@ -653,13 +800,24 @@
     order: 2;
   }
 
+  .panel > .filters {
+    order: 3;
+  }
+
   .panel > .results,
   .panel > .emptyListbox {
-    order: 4;
+    order: 5;
+  }
+
+  /* Directly under the list it pages, and above the footer that is removed
+     below — the pager is the one piece of chrome after the results that a
+     phone reader genuinely needs. */
+  .panel > .pager {
+    order: 6;
   }
 
   .panel > .foot {
-    order: 5;
+    order: 7;
     /* Not reordered — removed. The footer holds arrow keys, Return and
        Escape, and a phone has none of the three, so below the results it
        would still be documentation for a keyboard that is not there. The

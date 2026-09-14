@@ -48,7 +48,6 @@ export default async function Page() {
     <SectionPage
       id="fake-resistance"
       accent="ember"
-      surface="quiet"
       breadcrumb={[publicationHubCrumb('fakeResistance')]}
       title="The playbook"
       tagline={TAGLINE}

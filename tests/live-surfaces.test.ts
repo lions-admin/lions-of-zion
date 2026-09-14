@@ -10,12 +10,15 @@
  * stamp, a "just now" — any of them fails the build.
  *
  * Content assertions render the components directly rather than the routes.
- * `DocPage` mounts `ScanBackdrop`, whose corpus genuinely contains strings like
- * "LIVE HASHTAG: #GazaUnderAttack" — real monitored material, and nothing to do
- * with these pages. Matching against the whole route would either fail on the
- * backdrop or force the tripwire to be loosened until it caught nothing. Route
- * tests below cover the wiring the components cannot: query building, the
- * cursor, and the two failure states.
+ * That began as a workaround: `DocPage` mounted `ScanBackdrop`, whose corpus
+ * genuinely contains strings like "LIVE HASHTAG: #GazaUnderAttack" — real
+ * monitored material, and nothing to do with these pages — so matching against
+ * the whole route would either fail on the backdrop or force the tripwire to be
+ * loosened until it caught nothing. That backdrop was retired on 2026-09-14 and
+ * the hazard with it; rendering the components is still the right scope, because
+ * it is the components that own this copy. Route tests below cover the wiring
+ * the components cannot: query building, the cursor, and the two failure
+ * states.
  */
 import { describe, expect, it, vi } from "vitest";
 import { renderToReadableStream } from "react-dom/server";

@@ -166,6 +166,33 @@
   line-height: var(--t-body-lh);
 }
 
+/* The claim, separated from the run of statistics that used to follow it in
+   the same paragraph. It is set at the lede role in the display face — a
+   finding, not a heading, and never larger than the section head above it:
+   this file declares no type scale of its own. */
+.pointMain > .pointClaim {
+  max-width: var(--measure-reading);
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-lede);
+  font-weight: var(--t-lede-weight);
+  line-height: var(--t-lede-lh);
+  letter-spacing: var(--t-lede-tracking);
+  text-wrap: pretty;
+}
+
+/* The measurements behind it. Same measure, quieter voice, its own block —
+   so a reader can take the finding and stop, or read on for the numbers. */
+.pointMain > .pointEvidence {
+  max-width: var(--measure-reading);
+  margin-top: var(--sp-3);
+  padding-left: var(--sp-4);
+  border-left: var(--line-w) solid var(--line);
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
 .pointSources {
   composes: marginNote from '../../../../components/content/content.module.css';
 }

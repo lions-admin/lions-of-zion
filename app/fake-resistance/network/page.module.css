@@ -142,14 +142,116 @@
 }
 
 /* The test behind an inferred edge, set as data rather than prose: it is a
-   row of measurements a reader checks, not a sentence they read. */
+   row of measurements a reader checks, not a sentence they read.
+
+   It was one sentence — "p = 0.0010 · circular-shift null · n = 790 · …" —
+   which is the page's density problem in miniature: a claim and the numbers
+   that establish it read as one undifferentiated line. Each measurement now
+   carries its own label, so the claim above stays a claim. */
 .edgeTest {
-  margin: var(--sp-2) 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-5);
+  margin: var(--sp-3) 0 0;
   font-family: var(--face-data);
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
-  color: var(--ink-lo);
+  color: var(--ink);
   overflow-wrap: anywhere;
+}
+
+.edgeTest > div {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.edgeTest dt {
+  color: var(--ink-lo);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.edgeTest dd {
+  margin: 0;
+  color: var(--ink-hi);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── The coordination ledger ───────────────────────────────────────────────
+   119 tested pairs, behind a deliberate disclosure rather than in front of
+   the limitations that qualify them. Native `<details>`: it opens with
+   scripting off, and the print rule below opens it on paper. */
+
+.ledger {
+  margin: var(--sp-5) 0 0;
+  border-top: var(--line-w) solid var(--line-strong);
+}
+
+.ledger > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-4);
+  min-height: var(--control-h);
+  padding: var(--sp-4) 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+.ledger > summary::-webkit-details-marker {
+  display: none;
+}
+
+.ledger > summary::after {
+  order: -1;
+  align-self: center;
+  color: var(--gold);
+  content: "+";
+  font-family: var(--face-data);
+  font-size: var(--t-body);
+  line-height: 1;
+}
+
+.ledger[open] > summary::after {
+  content: "\2212";
+}
+
+.ledger > summary:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+.ledgerTitle {
+  color: var(--ink-hi);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
+.ledgerNote {
+  max-width: var(--measure-reading);
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+@media print {
+  /* Every disclosure prints open, and the toggle glyph goes. The content rule
+     is the one that does the work: a closed `<details>` hides its non-summary
+     children through the UA's own `content-visibility`, which a `display`
+     declaration on the `<details>` itself does not reach. */
+  .ledger > ul {
+    display: block;
+    content-visibility: visible;
+  }
+
+  .ledger > summary::after {
+    display: none;
+  }
 }
 
 .edgeNote {

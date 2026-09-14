@@ -316,7 +316,6 @@ export function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
       routeId="geopolitical-brief"
       className={styles.page}
       showProgress={false}
-      register="silent"
     >
       <div className={styles.liveLayout}>
         <HubMasthead

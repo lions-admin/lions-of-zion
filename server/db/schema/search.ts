@@ -43,6 +43,17 @@ export const searchDocument = pgTable(
     title: text("title").notNull(),
     /** The substantive text, already flattened by the projection. */
     body: text("body").notNull(),
+    /**
+     * The record's own standfirst, where it has one — what a result says about
+     * itself under its title.
+     *
+     * Deliberately *not* part of `content_hash` below, and deliberately not in
+     * either `tsvector`: the summary text of every entity that has one is
+     * already inside `body`, so indexing it again would double-weight it, and
+     * hashing it would push rows into the embedding backlog for a change no
+     * embedding can see. This column is read, never matched.
+     */
+    summary: text("summary"),
     language: text("language").notNull(),
 
     /* ── Where the hit goes ──────────────────────────────────────────────

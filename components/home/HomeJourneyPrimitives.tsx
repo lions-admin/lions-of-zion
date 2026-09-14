@@ -40,16 +40,57 @@ export function PreviewText({
   );
 }
 
-/** The one arrow vocabulary of the edition: a way into a record or a section. */
+/**
+ * The edition's three link roles — and there are only three.
+ *
+ * Before this, `JourneyLink` was one component re-skinned six ways by ancestor
+ * selector (`.sectionAction`, `.archiveSpread`, `.heroCard`, `.contextShelf`,
+ * `.supportMore`, default). The same markup served as the primary reading
+ * action, the "go to the hub" action and a history-chapter title, separated by
+ * a pixel of font size and a transparent-versus-visible hairline. A reader
+ * cannot rank what the CSS does not distinguish, which is the mechanism behind
+ * "it is not clear what you click where". The role is now stated at the call
+ * site and owned here:
+ *
+ *  - `primary` — the one action that opens this record. It is the only link
+ *    role on the page that carries a full border and a surface, so a card's
+ *    action is never mistaken for its citation. Modelled on `.supportChannel`,
+ *    which was already the only control on the page that read as pressable.
+ *  - `section` — the way out to a whole hub ("All of News & Analysis").
+ *    Text and arrow, deliberately quieter than the record it sits beneath.
+ *  - `quiet` — a list row that is its own title (history chapters, the
+ *    "other ways to help" line). Inherits its size from the context.
+ *
+ * Headline links stay undecorated on purpose: an unstyled headline is the
+ * convention on every news surface a reader already uses (Jakob's Law), and
+ * underlining them would add noise without adding information.
+ */
+export type JourneyLinkVariant = "primary" | "section" | "quiet";
+
+/* The class is named `linkPrimary`, not `primary`: `.section` is already the
+   band-wrapper class in `homepage-journey.module.css`, so a role class called
+   `section` would silently re-style every band on the page. */
+const LINK_VARIANT_CLASS: Record<JourneyLinkVariant, string> = {
+  primary: "linkPrimary",
+  section: "linkSection",
+  quiet: "linkQuiet",
+};
+
 export function JourneyLink({
   href,
   children,
+  variant = "primary",
 }: {
   href: string;
   children: React.ReactNode;
+  variant?: JourneyLinkVariant;
 }) {
   return (
-    <Link className={styles.link} href={href}>
+    <Link
+      className={`${styles.link} ${styles[LINK_VARIANT_CLASS[variant]]}`}
+      href={href}
+      data-link-role={variant}
+    >
       <span>{children}</span>
       <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
         <path d="M4 12h15M13 5l7 7-7 7" />
@@ -90,7 +131,7 @@ export function SectionAction({
 }) {
   return (
     <p className={styles.sectionAction}>
-      <JourneyLink href={href}>{children}</JourneyLink>
+      <JourneyLink href={href} variant="section">{children}</JourneyLink>
     </p>
   );
 }
@@ -162,8 +203,13 @@ export function HomeMedia({
       <figcaption>
         {disclosure && <span className={styles.disclosure}>{disclosure}</span>}
         {media.role === "safe-cover" && <span className={styles.captionText}>Illustrated cover. Original material stays in the archive record.</span>}
+        {/* One short word, seven times a page. It read "Image context & credit"
+           and "Portrait credit", which made the longest string in most
+           captions a control nobody opens — chrome ahead of the record it
+           belongs to. The figure it sits in already says which picture is
+           meant, so the label only has to name what is behind the toggle. */}
         <details className={styles.provenance}>
-          <summary>{portrait ? "Portrait credit" : "Image context & credit"}</summary>
+          <summary>Credit</summary>
           {media.caption && <span className={styles.captionText}>{media.caption}</span>}
           <span className={styles.credit}>
           {media.credit}

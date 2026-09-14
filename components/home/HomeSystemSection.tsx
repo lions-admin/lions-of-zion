@@ -46,8 +46,8 @@ export function HomeSystemSection() {
       <AmplificationFigure />
       <p className={styles.systemNote}>Human assessments, machine-authored editorial runs and historical records follow different provenance and review paths.</p>
       <div className={styles.systemActions}>
-        <JourneyLink href="/information-war">How it works</JourneyLink>
-        <JourneyLink href="/methodology">Methodology</JourneyLink>
+        <JourneyLink href="/information-war" variant="section">How it works</JourneyLink>
+        <JourneyLink href="/methodology" variant="section">Methodology</JourneyLink>
         <EditorialIntro compact autoOpen={false} />
       </div>
     </section>

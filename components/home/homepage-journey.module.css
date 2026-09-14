@@ -8,6 +8,16 @@
      so a long investigation title is a headline rather than a wall. The
      floor is unchanged and the phone value below is untouched. */
   --journey-story: clamp(26px, 2.3vw, 34px);
+  /* Four heading sizes for the whole edition, and only four: the band
+     (`title`), its lead record (`lead`), an ordinary record (`story`), and a
+     heading inside a record (`aside`). Eleven ad-hoc `clamp()`s used to set
+     record headings from their own selectors, so two records of genuinely
+     different rank could differ by a pixel while two of the same rank
+     differed by ten — the reader had no size to read rank from. Rank is
+     declared once here, and the phone re-declares these four tokens instead
+     of re-stating a size on fifteen selectors. */
+  --journey-lead: clamp(28px, 2.5vw, 38px);
+  --journey-aside: clamp(19px, 1.7vw, 24px);
   max-width: 1600px; margin-inline: auto; padding-inline: var(--journey-inset);
   color: var(--ink-hi); font-family: var(--face-text);
 }
@@ -20,7 +30,7 @@
 
 /* Contents connects the cover to the first record. */
 .edition { display: grid; grid-template-columns: 1fr auto; gap: 14px 32px; align-items: baseline; padding-block: 18px 0; }
-.editionLine { margin: 0; font: 400 clamp(24px, 2.4vw, 35px)/1.15 var(--face-display); letter-spacing: -.025em; }
+.editionLine { margin: 0; font: 400 var(--journey-lead)/1.15 var(--face-display); letter-spacing: -.025em; }
 /* 13px, not 12px: a date is metadata, and the contract floors metadata at
    13px on a phone. No phone override shrinks it again (UX-10). */
 .editionDate { color: var(--ink-lo); font: 400 13px/1.6 var(--face-data); text-align: end; }
@@ -47,14 +57,39 @@
 .editorial > .availability { grid-area: state; }
 .sectionIntro { margin: -10px 0 22px; max-width: 60ch; font-size: 16px; line-height: 1.6; color: var(--ink); }
 .sectionAction { margin: 0; }
-.link { display: inline-flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 48px; max-width: 100%; padding-block: 10px; border-bottom: 1px solid var(--journey-rule, var(--line)); font: 500 15px/1.4 var(--face-text); text-decoration: none; transition: color var(--dur-fast), border-color var(--dur-fast); }
+/* ── The three link roles ───────────────────────────────────────────────────
+   `JourneyLink` declares its role at the call site (`variant`) and this is the
+   only place the three are drawn. Ancestor-based re-skinning of `.link` is
+   deliberately gone: it produced six silently different treatments of one
+   component, so the primary reading action and the hub link were separated by
+   a pixel of font size — the reader had no way to rank them.
+
+   Ranking is carried by *enclosure*, not colour: `primary` is the only role
+   with a box around it. That survives greyscale and colour-blindness, which a
+   gold-versus-ink distinction does not. */
+.link { display: inline-flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 48px; max-width: 100%; font: 500 15px/1.4 var(--face-text); text-decoration: none; transition: color var(--dur-fast), border-color var(--dur-fast), background-color var(--dur-fast); }
 .link > span { min-width: 0; }
 .link svg { flex: 0 0 21px; width: 21px; height: 21px; stroke: currentColor; stroke-width: 1.35; transition: transform var(--dur-fast); }
-.link:hover, .link:focus-visible { color: var(--gold); border-color: currentColor; }
 .link:hover svg, .link:focus-visible svg { transform: translateX(4px); }
 .link:active { color: var(--gold-hi); }
-.sectionAction .link { font-size: 14px; border-bottom-color: transparent; }
-.sectionAction .link:hover { border-bottom-color: currentColor; }
+
+/* Named `linkPrimary`/`linkSection`/`linkQuiet`, not `primary`/`section`/
+   `quiet`: `.section` is already this file's band wrapper (line 36), and a
+   bare `.section` here would have re-padded every band on the page. */
+
+/* linkPrimary — the one action that opens this record. The only boxed link on
+   the page, so "what do I press here" is answered before any text is read. */
+.linkPrimary { gap: 18px; padding: 11px 16px; border: 1px solid var(--gold-line-strong); background: var(--surface-0); color: var(--ink-hi); font-weight: 600; }
+.linkPrimary:hover, .linkPrimary:focus-visible { border-color: var(--gold); background: var(--gold-wash); color: var(--gold-hi); }
+
+/* linkSection — the way out to a hub. Quieter than the records above it by
+   design: leaving the section must never outrank reading it. */
+.linkSection { padding-block: 10px; border-bottom: 1px solid transparent; font-size: 14px; }
+.linkSection:hover, .linkSection:focus-visible { color: var(--gold); border-bottom-color: currentColor; }
+
+/* linkQuiet — a row that is its own title, or a closing aside. Sized by context. */
+.linkQuiet { padding-block: 10px; border-bottom: 1px solid var(--journey-rule, var(--line)); }
+.linkQuiet:hover, .linkQuiet:focus-visible { color: var(--gold); border-color: currentColor; }
 .meta { font: 400 13px/1.6 var(--face-data); color: var(--ink-lo); }
 .byline { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin: 0 0 10px; }
 .byline > span { font-size: 13px; font-weight: 500; color: var(--gold); }
@@ -122,9 +157,9 @@
 
 /* Reporting: an open lead and a quieter companion column. */
 .newsSpread { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: var(--journey-gap); align-items: start; }
-.newsSpread h3 { margin: 0; max-width: 30ch; font-size: clamp(28px, 2.5vw, 38px); line-height: 1.12; }
+.newsSpread h3 { margin: 0; max-width: 30ch; font-size: var(--journey-lead); line-height: 1.12; }
 .newsSpread > article[data-rank="companion"] { border-left: 1px solid var(--journey-rule); padding-left: var(--journey-gap); }
-.newsSpread > article[data-rank="companion"] h3 { font-size: clamp(25px, 1.9vw, 30px); line-height: 1.15; }
+.newsSpread > article[data-rank="companion"] h3 { font-size: var(--journey-story); line-height: 1.15; }
 .newsSpread > article[data-rank="companion"] .figure img { aspect-ratio: 3/2; }
 .newsSpread > article[data-rank="companion"] .context { display: none; }
 .newsSpread[data-count="1"] { grid-template-columns: 1fr; }
@@ -176,11 +211,10 @@
   background: var(--ground);
   color: var(--ink-hi);
 }
-.archive .sectionHead h2 { font-size: clamp(36px, 4.7vw, 70px); }
 .archiveSpread { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: var(--journey-gap); align-items: start; }
-.archiveSpread h3 { margin: 10px 0 0; font-size: clamp(28px, 2.65vw, 41px); line-height: 1.15; }
+.archiveSpread h3 { margin: 10px 0 0; font-size: var(--journey-lead); line-height: 1.15; }
 .archiveSpread > article[data-kind="testimony"] h3 { max-width: 28ch; }
-.archiveSpread > article[data-kind="documentation"] h3 { font-size: clamp(25px, 2.1vw, 32px); }
+.archiveSpread > article[data-kind="documentation"] h3 { font-size: var(--journey-story); }
 .archiveSpread > article[data-kind="documentation"] .figure img { aspect-ratio: 4/3; }
 /* The witness's name is an attribution, one step quieter than the headline
    it precedes, not a second headline of its own. */
@@ -190,9 +224,9 @@
    margin keeps the action below it from reading as part of the same block. */
 .warning { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 10px; margin: 14px 0 20px; padding-left: 14px; border-left: 2px solid var(--gold-dim); color: var(--ink); font-size: 14px; line-height: 1.6; }
 .warningLabel { flex: 0 0 auto; color: var(--gold-hi); font: 600 13px/1.4 var(--face-text); text-transform: uppercase; letter-spacing: .04em; }
-/* The one primary action on the card: a step heavier than the shared `.link`
-   default so it does not blend into the note above it. */
-.archiveSpread .link { margin-top: 4px; font-weight: 600; }
+/* Weight and enclosure now come from the `primary` role itself; this only
+   sets the card's own spacing above it. */
+.archiveSpread .link { margin-top: 8px; }
 
 /* Portraits share a baseline, with the name beside the face. Each hero pick
    is its own card now (`.heroBlock`), so the card holds one portrait and one
@@ -201,11 +235,11 @@
 .heroCard .figure { grid-column: 1; margin: 0 0 4px; }
 .portrait img { aspect-ratio: 4/5; }
 .personIntro { align-self: start; }
-.personIntro h4 { margin: 8px 0 10px; font-family: var(--face-display); font-weight: 400; letter-spacing: -.02em; text-wrap: pretty; overflow-wrap: break-word; font-size: clamp(24px, 2.3vw, 34px); line-height: 1.1; }
+.personIntro h4 { margin: 8px 0 10px; font-family: var(--face-display); font-weight: 400; letter-spacing: -.02em; text-wrap: pretty; overflow-wrap: break-word; font-size: var(--journey-story); line-height: 1.1; }
 .personIntro .kicker { letter-spacing: .065em; }
 .personIntro .meta { margin: 0; font-family: var(--face-text); font-size: 13px; }
 .heroCard > :is(.summary, .sources, .link) { grid-column: 1/-1; }
-.heroCard .link { justify-self: start; margin-top: var(--sp-2); font-weight: 600; }
+.heroCard .link { justify-self: start; margin-top: var(--sp-3); }
 .heroCard .summary { margin-top: 14px; }
 
 /* Historical plates keep their own dates. */
@@ -232,14 +266,15 @@
 .legacyPeople { display: grid; gap: var(--sp-6); margin-top: var(--sp-5); padding-top: var(--sp-5); border-top: 1px solid var(--journey-rule); }
 .heroBlock { display: grid; gap: var(--sp-4); }
 .heroBlock + .heroBlock { padding-top: var(--sp-6); border-top: 1px solid var(--journey-rule); }
-.heroBlockHeading { margin: 0; color: var(--ink-hi); font-family: var(--face-display); font-weight: 400; letter-spacing: -.01em; font-size: clamp(19px, 1.7vw, 24px); }
+.heroBlockHeading { margin: 0; color: var(--ink-hi); font-family: var(--face-display); font-weight: 400; letter-spacing: -.01em; font-size: var(--journey-aside); }
 .heroBlockFallen { padding-left: var(--journey-gap); border-left: 2px solid var(--line-strong); }
 .contextShelf { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: var(--journey-gap); margin-top: var(--sp-5); padding-top: var(--sp-5); border-top: 1px solid var(--journey-rule); }
-.contextShelf h3 { max-width: 15ch; margin: var(--sp-2) 0 var(--sp-3); font-size: clamp(30px, 3.5vw, 48px); line-height: 1.07; }
+.contextShelf h3 { max-width: 15ch; margin: var(--sp-2) 0 var(--sp-3); font-size: var(--journey-lead); line-height: 1.07; }
 .contextShelf > div > p:last-child { max-width: 43ch; color: var(--ink); font-size: 15px; line-height: 1.65; }
 .contextShelf ol { display: grid; align-content: start; margin: 0; padding: 0; border-top: 1px solid var(--journey-rule); list-style: none; }
 .contextShelf li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--sp-4); min-height: 54px; border-bottom: 1px solid var(--journey-rule); }
-.contextShelf .link { font-size: clamp(18px, 2vw, 25px); }
+/* A chapter row is its own title, so `quiet` inherits display size here. */
+.contextShelf .linkQuiet { font-size: var(--journey-aside); }
 .contextShelf li > span { color: var(--ink-lo); font: 400 13px/1.4 var(--face-data); letter-spacing: .06em; }
 
 /* One proof of method: the source-counting test, its one interaction, and the
@@ -249,7 +284,7 @@
    said the same two sentences (VA-21). */
 .system { border-top: 1px solid var(--journey-rule); }
 .systemHead { display: grid; grid-template-columns: 1.15fr 1fr; align-items: end; gap: var(--journey-gap); margin-bottom: 24px; }
-.systemHead h2 { margin: 10px 0 0; max-width: 17ch; font-size: clamp(38px, 4.8vw, 68px); line-height: 1.04; }
+.systemHead h2 { margin: 10px 0 0; max-width: 17ch; font-size: var(--journey-title); line-height: 1.03; }
 .systemHead > p { max-width: 48ch; margin: 0; color: var(--ink); font-size: 16px; line-height: 1.7; }
 .systemNote { max-width: 72ch; margin: 0 0 20px; color: var(--ink-lo); font-size: 13px; line-height: 1.6; }
 .amplification { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, .85fr); column-gap: var(--journey-gap); align-items: start; margin: 24px 0 22px; }
@@ -294,7 +329,7 @@
    padding the system band used to. */
 .support { border-top: 1px solid var(--journey-rule); padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px)); }
 .supportHead { display: grid; grid-template-columns: 1.15fr 1fr; align-items: end; gap: var(--journey-gap); margin-bottom: 24px; }
-.supportHead h2 { margin: 10px 0 0; max-width: 14ch; font-size: clamp(36px, 4.4vw, 62px); line-height: 1.04; }
+.supportHead h2 { margin: 10px 0 0; max-width: 14ch; font-size: var(--journey-title); line-height: 1.03; }
 .supportHead > p { max-width: 48ch; margin: 0; color: var(--ink); font-size: 16px; line-height: 1.7; }
 .supportChannels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px var(--journey-gap); margin: 0; padding: 0; list-style: none; }
 /* Owner ruling 2026-09-11: the channels carry weight at rest, not only on
@@ -310,7 +345,7 @@
 .supportChannel:hover .supportChannelArrow { transform: translate(2px, -2px); }
 .supportChannel:active { background: color-mix(in srgb, var(--gold) 14%, transparent); }
 .supportMore { margin: 22px 0 0; }
-.supportMore .link { font-size: 14px; }
+.supportMore .linkQuiet { font-size: 14px; }
 
 /* Intermediate widths recompose around a readable text measure. */
 @media (max-width: 1099px) {
@@ -318,9 +353,7 @@
   .newsSpread > article, .newsSpread[data-count="1"] > article { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; }
   .newsSpread > article[data-rank="companion"] { border-left: 0; border-top: 1px solid var(--journey-rule); padding: 22px 0 0; }
   .newsSpread > article[data-rank="companion"] .figure { max-width: 360px; }
-  .newsSpread h3 { font-size: clamp(27px, 3.2vw, 35px); }
   .archiveSpread { grid-template-columns: 1.15fr 1fr; gap: 24px; }
-  .archiveSpread h3 { font-size: 29px; }
   /* Stacked from here down (portrait above, text at full width): the side-
      by-side split at this card's full section width made the text column
      narrow enough to wrap into many short lines, which read as "too long"
@@ -332,42 +365,38 @@
   .featureSpread { grid-template-columns: 1fr 1fr; }
   .featureSpread article:first-child { padding-right: var(--sp-5); }
   .personIntro { margin-top: 16px; }
-  .personIntro h4 { font-size: 35px; }
 }
 @media (max-width: 819px) {
   .editorial { grid-template-columns: 1fr; grid-template-areas: "head" "intro" "spread" "state" "action"; }
   .editorial > .sectionAction { justify-self: start; margin: 18px 0 0; }
-  .sectionAction .link { font-size: 15px; }
+  .sectionAction .linkSection { font-size: 15px; }
   .archiveSpread { grid-template-columns: 1fr; gap: 26px; }
   .archiveSpread > article[data-kind="documentation"] { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); column-gap: 24px; }
   .archiveSpread > article[data-kind="documentation"] > .figure { grid-row: span 7; }
   .featureSpread, .contextShelf { grid-template-columns: 1fr; }
   .featureSpread article:first-child { padding: 0 0 var(--sp-5); border-right: 0; border-bottom: 1px solid var(--journey-rule); }
   .personIntro { margin: 0; }
-  .personIntro h4 { font-size: clamp(29px, 4.2vw, 39px); }
   .systemHead { grid-template-columns: 1fr; gap: 20px; }
   .systemHead > p { max-width: 60ch; }
   .supportHead { grid-template-columns: 1fr; gap: 20px; }
   .supportHead > p { max-width: 60ch; }
 }
 @media (max-width: 759px) {
-  .journey { --journey-inset: clamp(20px, 5vw, 32px); --journey-story: clamp(26px, 6.5vw, 34px); }
+  .journey { --journey-inset: clamp(20px, 5vw, 32px); --journey-title: clamp(34px, 8.5vw, 45px); --journey-lead: clamp(27px, 6.8vw, 35px); --journey-story: clamp(26px, 6.5vw, 34px); --journey-aside: clamp(18px, 5vw, 22px); }
   .edition { grid-template-columns: 1fr; gap: 5px; padding-top: 12px; }
   .editionDate { text-align: start; }
   .contents { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 14px; margin-top: 8px; padding-block: 6px; }
   .contents a { font-size: 13px; }
   .section { padding-block: 30px; }
   .sectionHead { margin-bottom: 18px; }
-  .sectionHead h2 { font-size: clamp(34px, 8.5vw, 45px); }
   .sectionIntro { font-size: 15px; margin-bottom: 18px; }
   .summary { font-size: 16px; line-height: 1.6; }
   .context { font-size: 14px; margin-top: 14px; }
   .sources { margin-top: -2px; }
   .figure { margin-bottom: 14px; }
   .newsSpread > article, .newsSpread[data-count="1"] > article { display: block; }
-  .newsSpread h3 { font-size: clamp(27px, 6.8vw, 35px); line-height: 1.15; }
+  .newsSpread h3 { line-height: 1.15; }
   .newsSpread > article[data-rank="companion"] { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 18px; }
-  .newsSpread > article[data-rank="companion"] h3 { font-size: clamp(23px, 5.6vw, 28px); }
   .newsSpread > article[data-rank="companion"] .figure img { aspect-ratio: 4/5; }
   .newsSpread > article[data-rank="companion"] .summary { -webkit-line-clamp: 3; line-clamp: 3; font-size: 15px; }
   .sources { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
@@ -377,23 +406,16 @@
   .verdictMeaning { flex-basis: calc(100% - 18px); margin-left: 16px; }
   .verdict { position: relative; }
   .verdict::before { align-self: auto; margin-top: 7px; }
-  .investigation h3 { font-size: clamp(26px, 6.5vw, 34px); }
   .investigation h3 a { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; }
-  .archive .sectionHead h2 { font-size: clamp(36px, 9vw, 48px); }
-  .archiveSpread h3 { font-size: clamp(28px, 7vw, 36px); }
   .archiveSpread > article[data-kind="documentation"] { display: block; }
   .archiveSpread > article[data-kind="documentation"] .figure img { aspect-ratio: 16/10; }
-  .archiveSpread > article[data-kind="documentation"] h3 { font-size: 27px; }
   .warning { font-size: 14px; }
   .contextShelf { gap: var(--sp-5); }
-  .personIntro h4 { font-size: clamp(27px, 6.5vw, 35px); }
-  .heroBlockHeading { font-size: clamp(18px, 5vw, 22px); }
   .heroCard .figure { max-width: 220px; }
   .heroBlockFallen { padding-left: var(--sp-5); }
   .historySpread { grid-template-columns: 1fr; gap: 26px; }
   .historySpread article + article { border-top: 1px solid var(--journey-rule); padding-top: 20px; }
   .historySpread .figure img { aspect-ratio: 16/9; }
-  .systemHead h2 { font-size: clamp(34px, 8.5vw, 45px); }
   .systemNote { margin-bottom: 16px; }
   /* The one proof module is the whole band on a phone now, so its own
      rhythm is where the remaining vertical economy is (VA-21). Nothing here
@@ -420,7 +442,6 @@
   .systemActions > button { grid-column: 1/-1; justify-self: start; }
   .support { padding-bottom: calc(34px + env(safe-area-inset-bottom, 0px)); }
   .supportHead { gap: 16px; margin-bottom: 18px; }
-  .supportHead h2 { font-size: clamp(34px, 8.5vw, 45px); }
   .supportChannels { grid-template-columns: 1fr; gap: 12px; }
   /* Two full-width halves under the label: the largest target the rail can
      offer on a phone without becoming a band of its own. */

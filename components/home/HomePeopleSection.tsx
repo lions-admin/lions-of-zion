@@ -56,7 +56,7 @@ export function HomePeopleSection({ people, heroes, history }: {
       <SectionState section={heroes} />
     </div> : null}
     {history.items.length ? <div className={styles.contextShelf}><div><p className={styles.kicker}>History &amp; context</p><h3>Beyond the current headline</h3><p>Context remains part of the record. These chapters preserve their sources and their original addresses.</p></div><ol>{history.items.map(item => <li key={item.key}>
-      <div><JourneyLink href={item.href}>{item.title}</JourneyLink>{item.contested ? <p className={styles.verdict} data-tone="warn"><span className={styles.verdictLabel}>Contested</span><span className={styles.verdictMeaning}>The chapter records disagreement; it does not settle it.</span></p> : null}</div>
+      <div><JourneyLink href={item.href} variant="quiet">{item.title}</JourneyLink>{item.contested ? <p className={styles.verdict} data-tone="warn"><span className={styles.verdictLabel}>Contested</span><span className={styles.verdictMeaning}>The chapter records disagreement; it does not settle it.</span></p> : null}</div>
       <span>{item.era}</span>
     </li>)}</ol></div> : null}
     {!live.length && !hasLegacy && people ? <SectionState section={people} /> : null}

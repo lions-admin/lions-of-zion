@@ -10,33 +10,13 @@
    ember: it marks hostile-signal structure (bridges, the pairs in an edge);
    gold is kept for the desk's own apparatus (numbering, the binding label). */
 
-.communityList {
-  display: flex;
-  flex-direction: column;
-  margin: var(--sp-6) 0 0;
-  padding: 0;
-  list-style: none;
-  overflow-wrap: anywhere;
-}
-
-.communityBinding {
-  margin: var(--sp-3) 0 0;
-  color: var(--ink-lo);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-}
-
-.communityBinding > span {
-  display: block;
-  margin-bottom: var(--sp-1);
-  color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-}
+/* `.communityList`, `.communityBinding` and `.communityBinding > span` were
+   deleted here on 2026-09-14. They were dead copies: `CommunityMap` is the
+   only component that renders those class names and it imports
+   `components/research/research.module.css`, which carries its own
+   `.communityList` — so these rules were hashed into a page module no element
+   ever wore. Two stylesheets holding the same class name, one of them
+   unreachable, is how a later edit gets made in the file nobody renders. */
 
 .bridges,
 .findings,

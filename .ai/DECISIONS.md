@@ -2783,3 +2783,20 @@ workflow boundary — every detail traces to reporting the subject or their
 family already made public. `EDITION.featured` in that file (used only by
 `/our-heroes`' own page, not by the homepage) was left pointing at
 `PROFILES[0]` and was not reconsidered as part of this change.
+
+## 2026-09-14 — Documentation-archive list thumbnails are not gated, by owner ruling
+
+While redesigning `/october-7/documentation`'s list rows, an agent noticed
+that the row thumbnails (`ArchiveRecordList.tsx`'s `RecordThumb`, fed by
+`lib/content/archive.ts`'s `withCoverThumbs`) render each record's own cover
+image directly and unblurred — including graphic ones — while the identical
+source image sits behind `SensitiveContent`'s "Show this material" gate once
+the same record's own page is opened. Flagged to the owner as a possible
+inconsistency rather than fixed unilaterally, since it is a policy call about
+an evidentiary archive, not a UI defect.
+
+**The owner ruled the list thumbnails do not need hiding.** No code changed
+as a result — the flagged behavior was already the shipped behavior, so this
+entry exists only so a future session does not re-diagnose the same
+observation as an unfixed bug and reopen it. The record page's own
+`SensitiveContent` gate is unaffected and still applies exactly as before.

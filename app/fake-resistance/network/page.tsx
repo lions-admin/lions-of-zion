@@ -8,8 +8,14 @@ import {
   ResearchText,
   SourceList,
 } from '@/components/content';
-import { CommunityMap, OverturnedList } from '@/components/research';
-import { NetworkExplorer } from '@/components/investigation';
+import {
+  CommunityMap,
+  OverturnedList,
+  ResearchParagraphs,
+  ResearchProse,
+  parseResearchProse,
+} from '@/components/research';
+import { NetworkExplorer, NetworkFindingHeader } from '@/components/investigation';
 import { getCaseIndex, getResearchNetwork } from '@/lib/content/fake-resistance-cases';
 import { SITE_URL } from '@/lib/site-config';
 import styles from './page.module.css';
@@ -39,6 +45,32 @@ export default async function Page() {
   const inCoordination = new Set(coordinationEdges.flatMap((edge) => [edge.fromId, edge.toId]));
   const coordinationRoster = network.roster.filter((entity) => inCoordination.has(entity.id));
 
+  /* One corrections record, not two. `overturned` and `synthesisOverturned`
+     used to render in separate sections — "What the rebuild overturned" and
+     "How the reading changed over time" — and the second of them listed the
+     first one's rows again, so every synthesis correction appeared on the page
+     twice, in two presentations, under two headings. They are the same kind of
+     row (`CaseOverturned`) and they belong in one place. */
+  const overturned = [...network.synthesisOverturned, ...network.overturned];
+
+  /* The summary's real block structure, recovered from the flat strings the
+     importer produced. Three of its four paragraphs carry list markers inside
+     them — `1.`/`2.` for the double refutation, `- ` for the coupling
+     observations — and the fourth is a bare `---` left over from the document
+     the packet was cut out of. `research-prose.ts` has the detail.
+
+     The ordered list is the central finding, and it goes to the header: a
+     reader must meet the refutation before the corpus statistics, not three
+     paragraphs after them. The methods sentence goes with it, demoted to the
+     corroboration it is. What remains — the coupling observations — is the
+     body of "What was mapped". */
+  const summaryBlocks = parseResearchProse(network.executiveSummary);
+  const refutations = summaryBlocks.find((block) => block.kind === 'list' && block.ordered);
+  const methods = summaryBlocks.find((block) => block.kind === 'para');
+  const summaryBody = summaryBlocks.filter(
+    (block) => block !== refutations && block !== methods,
+  );
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'AnalysisNewsArticle',
@@ -54,7 +86,6 @@ export default async function Page() {
     <SectionPage
       id="fake-resistance"
       accent="ember"
-      surface="quiet"
       breadcrumb={[publicationHubCrumb('fakeResistance')]}
       title="The network"
       tagline={TAGLINE}
@@ -64,14 +95,36 @@ export default async function Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <SectionBlock heading="What was mapped">
-        <p>{network.question}</p>
-        {network.executiveSummary.map((para) => (
-          <p key={para.slice(0, 40)}>
-            <ResearchText>{para}</ResearchText>
+      {/* Finding first, then the evidence for it. The page used to open on
+          "This synthesis integrates empirical findings from eight targeted
+          investigations …, analyzing a combined corpus of 33,354 posts" — a
+          methods sentence — and put the result, a double refutation, into the
+          next block of running prose with its two halves flattened into the
+          paragraph. The case pages were given this treatment deliberately;
+          this page never got it. `NetworkFindingHeader` has the reasoning. */}
+      <NetworkFindingHeader
+        question={network.question}
+        /* Desk copy, and the only sentence in this header that the research
+           did not write. It says in plain words what the two refusals below
+           have in common: both are popular explanations, and both fail. */
+        lede="The central result is a refutation, and it cuts in two directions at once. Two ready-made explanations of this network are in circulation — one says it is a single machine, the other that it is one bot fabric spanning every camp — and the data withdraws both."
+        findings={
+          refutations?.kind === 'list' ? refutations.items : network.findings
+        }
+        metrics={network.metrics}
+        corroboration={methods?.kind === 'para' ? methods.text : undefined}
+      />
+
+      {summaryBody.length > 0 ? (
+        <SectionBlock heading="Where the coupling is tight">
+          <p>
+            The refutations above are about the network as a whole. They do not
+            say that nothing in it is coordinated — these are the sub-structures
+            the corpus shows locking together, each with the test behind it.
           </p>
-        ))}
-      </SectionBlock>
+          <ResearchProse blocks={summaryBody} />
+        </SectionBlock>
+      ) : null}
 
       <SectionBlock heading="Five communities, computed">
         <p>
@@ -116,15 +169,19 @@ export default async function Page() {
         </SectionBlock>
       ) : null}
 
-      {network.synthesisOverturned.length > 0 ? (
-        <SectionBlock heading="What the rebuild overturned">
+      {overturned.length > 0 ? (
+        <SectionBlock heading="What the rebuild overturned" id="timeline">
           <p>
             These are readings this section published in August that its own
             new data withdrew. They are listed before the findings, not after
             them, because a reader who met the earlier version deserves the
-            correction first.
+            correction first. The cross-case record has two dated states: the
+            hand-drawn reading of{' '}
+            <time dateTime="2026-08-26">26 August 2026</time> and the computed
+            rebuild of <time dateTime="2026-09-06">6 September 2026</time>. Each
+            row below is one change in interpretation between them.
           </p>
-          <OverturnedList rows={network.synthesisOverturned} />
+          <OverturnedList rows={overturned} />
         </SectionBlock>
       ) : null}
 
@@ -149,17 +206,20 @@ export default async function Page() {
         ) : null}
       </SectionBlock>
 
-      <SectionBlock heading="Findings that survived the contradiction pass">
+      <SectionBlock heading="Findings that survived the contradiction pass" id="findings">
         <p>
           Each of these was tested against evidence that would have broken it,
           and held. Some of them cut against the premise the research started
           from — those are kept exactly as they came out, because a program
           that only ever confirms itself is not worth reading.
         </p>
+        {/* The packet's own findings, in full and in its own words. The two
+            refutations the header summarises are the first of them; this is
+            where they are stated at length with the measurements attached. */}
         <ol className={styles.findings}>
           {network.findings.map((finding) => (
             <li key={finding.slice(0, 40)}>
-              <ResearchText>{finding}</ResearchText>
+              <ResearchParagraphs paragraphs={[finding]} />
             </li>
           ))}
         </ol>
@@ -216,30 +276,6 @@ export default async function Page() {
         </ul>
       </SectionBlock>
 
-      {network.synthesisOverturned.length > 0 || network.overturned.length > 0 ? (
-        <SectionBlock heading="How the reading changed over time" id="timeline">
-          <p>
-            The cross-case record has two dated states: the hand-drawn reading
-            published on 26 August 2026 and the computed rebuild of 6 September
-            2026. Each row is one change in interpretation between them.
-          </p>
-          <ol className={styles.findings}>
-            {[...network.overturned, ...network.synthesisOverturned].map((row) => (
-              <li key={row.now.slice(0, 60)}>
-                {row.prior ? (
-                  <>
-                    <time dateTime="2026-08-26">26 Aug 2026</time>: <ResearchText>{row.prior}</ResearchText>
-                    {' → '}
-                  </>
-                ) : null}
-                <time dateTime="2026-09-06">6 Sep 2026</time>: <ResearchText>{row.now}</ResearchText>
-                {row.status ? ` (${row.status})` : ''}
-              </li>
-            ))}
-          </ol>
-        </SectionBlock>
-      ) : null}
-
       <SectionBlock heading="The coordination layer">
         <p>
           Of the {network.metrics.edges?.toLocaleString('en')} observed edges in
@@ -271,26 +307,64 @@ export default async function Page() {
           trace all day. {network.caveat}
         </p>
 
-        <ul className={styles.edges}>
-          {coordinationEdges.map((edge) => (
-            <li key={edge.id}>
-              <div className={styles.edgeHead}>
-                <span className={styles.edgePair}>
-                  {edge.from} <span aria-hidden="true">→</span> {edge.to}
-                </span>
-                <EvidenceClassChip value={edge.evidenceClass} />
-              </div>
-              <p>{edge.statement}</p>
-              {edge.pValue ? (
-                <p className={styles.edgeTest}>
-                  p = {edge.pValue} · {edge.nullModel} · n ={' '}
-                  {Number(edge.sampleN).toLocaleString('en')}
-                  {edge.analysisOutput ? ` · ${edge.analysisOutput}` : ''}
-                </p>
-              ) : null}
-            </li>
-          ))}
-        </ul>
+        {/* The ledger, behind a deliberate disclosure.
+
+            Every one of these pairs stays on the page — this is the evidence
+            the section rests on and none of it is dropped. What changed is
+            that it no longer stands between the finding and the reader by
+            default: the tested pairs rendered inline were 238 of this page's
+            782 paragraphs, and a reader met them before reaching the
+            limitations that qualify them.
+
+            Native `<details>`, so it opens with scripting off and prints open
+            with the rest of the file's disclosures. The test behind each edge
+            is a definition list rather than a run-on sentence: a claim and its
+            measurements are two different things to read, and setting them as
+            one line of prose is the density problem in miniature. */}
+        <details className={styles.ledger}>
+          <summary>
+            <span className={styles.ledgerTitle}>Every tested pair</span>
+            <span className={styles.ledgerNote}>
+              {coordinationEdges.length} pairs · what each one asserts, the
+              p-value, the null model it was tested against and the sample size
+            </span>
+          </summary>
+          <ul className={styles.edges}>
+            {coordinationEdges.map((edge) => (
+              <li key={edge.id}>
+                <div className={styles.edgeHead}>
+                  <span className={styles.edgePair}>
+                    {edge.from} <span aria-hidden="true">→</span> {edge.to}
+                  </span>
+                  <EvidenceClassChip value={edge.evidenceClass} />
+                </div>
+                <p>{edge.statement}</p>
+                {edge.pValue ? (
+                  <dl className={styles.edgeTest}>
+                    <div>
+                      <dt>p</dt>
+                      <dd>{edge.pValue}</dd>
+                    </div>
+                    <div>
+                      <dt>Null model</dt>
+                      <dd>{edge.nullModel}</dd>
+                    </div>
+                    <div>
+                      <dt>n</dt>
+                      <dd>{Number(edge.sampleN).toLocaleString('en')}</dd>
+                    </div>
+                    {edge.analysisOutput ? (
+                      <div>
+                        <dt>Output</dt>
+                        <dd>{edge.analysisOutput}</dd>
+                      </div>
+                    ) : null}
+                  </dl>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </details>
       </SectionBlock>
 
       {network.unknowns.length > 0 || network.wouldChange.length > 0 ? (
@@ -304,11 +378,7 @@ export default async function Page() {
 
       {network.limitations.length > 0 ? (
         <SectionBlock heading="How this was gathered, and what that limits">
-          {network.limitations.map((limitation) => (
-            <p key={limitation.slice(0, 40)}>
-              <ResearchText>{limitation}</ResearchText>
-            </p>
-          ))}
+          <ResearchParagraphs paragraphs={network.limitations} />
           <p>
             The <Link href="/methodology">methodology</Link> sets out how this
             desk sources, grades and corrects everything it publishes.

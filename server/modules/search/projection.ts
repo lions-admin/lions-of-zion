@@ -21,6 +21,16 @@ export type Projection = {
   entityId: string;
   title: string;
   body: string;
+  /**
+   * The record's own standfirst, stored alongside the text rather than joined
+   * back at query time — the same reason this table is denormalised at all.
+   *
+   * It is *not* part of `content_hash` (`md5(title || E'\n' || body)`, and the
+   * body already contains the summary text for the entities that have one), so
+   * writing it churns no embedding backlog. It exists purely so a result can be
+   * read rather than merely identified.
+   */
+  summary: string | null;
   language: string;
   /** The entity's stable public identifier, where it has one. Stored even
    *  when nothing can yet be addressed with it, so the day a route exists is
@@ -93,6 +103,7 @@ export function projectItem(item: InformationItem): Projection {
     /* `canonical_text` is the claim as it was actually made — the thing a
        reader is most likely to paste into a search box, so it leads. */
     body: join(item.canonicalText, item.summary),
+    summary: item.summary ?? null,
     language: item.language,
     ...destinationFor("information_item", item),
   };
@@ -113,6 +124,7 @@ export function projectNarrative(narrative: {
     entityId: narrative.id,
     title: narrative.title,
     body: join(narrative.summary),
+    summary: narrative.summary,
     language: narrative.language,
     ...destinationFor("narrative", narrative),
   };
@@ -124,6 +136,9 @@ export function projectEvidence(evidence: Evidence): Projection {
     entityId: evidence.id,
     title: evidence.title,
     body: join(evidence.excerpt),
+    /* Evidence has no standfirst — the excerpt *is* its substance, and
+       repeating it here would present a quotation as a description of one. */
+    summary: null,
     language: evidence.language,
     /* Evidence carries no public identifier at all — it is reached through
        the item it supports, never on its own. */
@@ -147,6 +162,7 @@ export function projectPublication(publication: {
     entityId: publication.id,
     title: publication.title,
     body: join(publication.summary, publication.body),
+    summary: publication.summary,
     language: publication.language,
     ...destinationFor(publication.kind, publication),
   };

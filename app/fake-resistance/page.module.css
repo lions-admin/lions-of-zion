@@ -64,18 +64,25 @@
   box-shadow: 0 0 0 3px var(--gold-wash);
 }
 
-/* Same tightening as the news front's lead (2026-09-11): the ceiling from
-   4rem to 3.25rem and the measure from 20ch to 24ch, so a long investigation
-   title sets in fewer lines rather than the same five at a smaller size. */
+/* The lead investigation's headline, at the site's h2 role.
+
+   It used to declare its own `clamp(2.125rem, 1.2rem + 2.3vw, 3.25rem)`, which
+   `app/globals.css` now rules out: one heading scale, and a page that wants a
+   bigger headline changes the role it uses rather than inventing a size. The
+   practical consequence here is a rank a reader can read — this headline at
+   `--t-h2`, the section heads below it at `--t-h3` — and a claim under
+   examination that cannot out-typeset either.
+
+   The 24ch measure stays: it is a measure, not a type scale. */
 .investigation h2 {
   max-width: 24ch;
   margin: var(--sp-5) 0 var(--sp-5);
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: clamp(2.125rem, 1.2rem + 2.3vw, 3.25rem);
-  font-weight: 400;
-  line-height: 1.06;
-  letter-spacing: -0.028em;
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
   text-wrap: balance;
 }
 
@@ -279,10 +286,10 @@
   margin: 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: clamp(1.375rem, 1.1rem + 0.9vw, 1.75rem);
-  font-weight: 400;
-  line-height: 1.18;
-  letter-spacing: -0.015em;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
   text-wrap: balance;
 }
 
@@ -339,9 +346,11 @@
   color: var(--ink-lo);
 }
 
+/* A door, not a heading — set at the figure role, which is the site's own
+   name for display-sized text that is not a heading. */
 .depth strong {
   font-family: var(--face-display);
-  font-size: clamp(1.5rem, 1.1rem + 1.2vw, 1.875rem);
+  font-size: var(--t-figure);
   font-weight: 400;
   line-height: 1.18;
   letter-spacing: -0.015em;
@@ -387,7 +396,7 @@
 @media (max-width: 48rem) {
   .hub { padding-inline: var(--sp-4); }
   .front { gap: var(--sp-6); padding-top: var(--sp-5); }
-  .investigation h2 { font-size: clamp(2rem, 9vw, 2.75rem); margin-top: var(--sp-4); }
+  .investigation h2 { margin-top: var(--sp-4); }
   .researchGrid,
   .depth { grid-template-columns: 1fr; }
   .evidence { gap: var(--sp-5); }

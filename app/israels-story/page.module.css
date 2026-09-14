@@ -11,6 +11,19 @@
    Chapters stay a linear stack of articles. The three `data-rhythm` values
    change composition inside a chapter; they do not become a card grid. */
 
+/* ---- the era map ---- */
+
+/* Seven chapters placed on the arc they cover, not seven titles in a row.
+   Each row carries the chapter's own span drawn against the whole edition's
+   span, so the density and the gaps of the arc are visible before a word of
+   it is read. Every figure is computed in `page.tsx` from the ISO `datetime`
+   an entry already carries, so the map states no date this page does not
+   source below.
+
+   It stays at every width. The flat list it replaced hid above 1220px
+   because `SectionToc`'s rail lists the same seven titles — but the rail is
+   a list of headings, and this is a dated map, so the duplication that
+   argument rested on is gone. */
 .eraIndex {
   display: flex;
   flex-direction: column;
@@ -20,9 +33,30 @@
   border-bottom: var(--line-w) solid var(--line);
 }
 
+/* The arc's own line: what this edition covers, in one row. */
+.eraSummary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2) var(--sp-4);
+  margin: 0;
+}
+
 /* One word. */
 .eraKicker {
   composes: kicker from '../../components/content/content.module.css';
+}
+
+.eraArc {
+  composes: dataValue from global;
+  color: var(--ink-hi);
+  font-variant-numeric: tabular-nums;
+}
+
+.eraTotals {
+  composes: dataMeta from global;
+  color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
 }
 
 .eraList {
@@ -34,12 +68,20 @@
   list-style: none;
 }
 
+/* Two rows on a phone — numeral and title, then the bar and its span —
+   because a track squeezed beside a wrapping title is a track you cannot
+   read a position from. The grid becomes one row at the tablet seam. */
 .eraList a {
-  display: flex;
+  display: grid;
+  /* The last column is a fixed width rather than `auto` for the same reason
+     it is at the tablet seam: on `auto` it took the width of its own row's
+     text, every track ended at a different x, and seven bars that do not
+     share an axis are seven unrelated marks. */
+  grid-template-columns: auto minmax(0, 1fr) 6.5rem;
   align-items: baseline;
-  gap: var(--sp-3);
+  gap: var(--sp-1) var(--sp-3);
   min-height: var(--control-h-sm);
-  padding: var(--sp-1) 0;
+  padding: var(--sp-2) 0;
   color: var(--ink);
   text-decoration: none;
   border-bottom: var(--line-w) solid var(--line-soft);
@@ -60,7 +102,8 @@
 }
 
 .eraNumeral {
-  flex: none;
+  grid-column: 1;
+  grid-row: 1;
   width: calc(var(--sp-6) + var(--sp-2));
   font-family: var(--face-display);
   font-optical-sizing: auto;
@@ -72,6 +115,8 @@
 }
 
 .eraTitle {
+  grid-column: 2;
+  grid-row: 1;
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
 }
@@ -80,28 +125,91 @@
    site, but it is never the only thing saying so. */
 .eraFlag {
   composes: dataLabel from global;
-  flex: none;
+  grid-column: 3;
+  grid-row: 1;
   color: var(--data-ember);
 }
 
-/* Tablet: still one list, wrapping into a compact strip rather than a
-   second column of chapters. */
+/* The drawn half of the map. A hairline track the width of the row, with the
+   chapter's years as a brass bar inside it. Hidden from the reading order —
+   the same span is written out next to it. */
+.eraTrack {
+  position: relative;
+  grid-column: 2;
+  grid-row: 2;
+  display: block;
+  block-size: var(--line-w-thick);
+  align-self: center;
+  background: var(--line);
+}
+
+.eraBar {
+  position: absolute;
+  inset-block: 0;
+  display: block;
+  min-inline-size: 2px;
+  background: var(--gold-line-strong);
+}
+
+.eraSpan {
+  composes: dataMeta from global;
+  grid-column: 3;
+  grid-row: 2;
+  color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* The entry count is the half of the span that goes when the row is narrow:
+   a phone has room for the years or for the years and a count, not both
+   without squeezing the title to four lines — and the count is restated on
+   every chapter head a tap away. */
+.eraEntries {
+  display: none;
+  color: var(--ink-lo);
+}
+
+/* Tablet and up: one row per chapter — numeral, title, the track, the span.
+   The track takes the free space, which is what makes seven of them read as
+   one axis rather than seven unrelated bars. */
+/* Tablet and up: one row per chapter — numeral, title, the track, the span.
+   The track takes the free space, which is what makes seven of them read as
+   one axis rather than seven unrelated bars.
+
+   **Every column but the track is a fixed width, and that is load-bearing.**
+   Each row is its own grid — seven `<a>` elements, not one table — so a
+   column sized `auto` or `minmax()` is sized by *that row's* content. With
+   the title on `minmax(8rem, 18rem)` and the span on `auto`, the tracks
+   ended at two different x positions (measured: 785 and 859 at 1440), and
+   seven bars that do not share an axis are seven unrelated marks. Nothing
+   here may go back to being content-sized.
+
+   The flag takes the second row of the title's column rather than a column
+   of its own: one chapter in seven carries it, a fixed column for it would
+   cost every row 120px of track, and an `auto` one would break the axis
+   again. `row-gap: 0` is what keeps the empty second row free in the other
+   six. */
 @media (min-width: 45rem) {
-  .eraList {
-    flex-direction: row;
-    flex-wrap: wrap;
-    column-gap: var(--sp-5);
+  .eraList a {
+    grid-template-columns: auto 13.5rem minmax(6rem, 1fr) 10.5rem;
+    grid-template-rows: auto auto;
+    align-items: center;
+    column-gap: var(--sp-4);
     row-gap: 0;
   }
 
-  .eraList a {
-    border-bottom: none;
-    padding-inline-end: var(--sp-4);
+  .eraNumeral { grid-column: 1; grid-row: 1; }
+  .eraTitle { grid-column: 2; grid-row: 1; }
+  .eraTrack { grid-column: 3; grid-row: 1; }
+  .eraSpan { grid-column: 4; grid-row: 1; justify-self: end; }
+
+  .eraFlag {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: start;
   }
 
-  .eraList li:not(:last-child) a {
-    border-inline-end: var(--line-w) solid var(--line-soft);
-  }
+  .eraEntries { display: inline; }
 }
 
 /* ---- a chapter ---- */
@@ -146,8 +254,21 @@
 /* "Chapter II of VII" — three words, so sentence case in the data voice. */
 .chapterProgress {
   composes: dataMeta from global;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-3);
   margin: 0 0 var(--sp-2);
   font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
+}
+
+/* How much chapter this is, beside where in the sequence it falls: the two
+   halves of "where am I" a reader needs before deciding to read it. Counted
+   from the entries themselves, so it cannot disagree with the list below. */
+.chapterSpan {
+  padding-inline-start: var(--sp-3);
+  border-inline-start: var(--line-w) solid var(--line);
   color: var(--ink-lo);
 }
 
@@ -166,6 +287,66 @@
   display: flex;
   flex-direction: column;
   gap: var(--sp-6);
+}
+
+/* ---- a chapter's archival picture ---- */
+
+/* All seven chapters carry one, keyed `chapter:<id>` in the registry the
+   homepage reads. None of them is evidence: they are `archival-context`,
+   they keep their credit, and the sourcing lives on the dated entries
+   beneath. Where the picture sits is the rhythm's job — see the three
+   blocks below — and this is only what it looks like wherever it lands.
+
+   No motion of any kind. The reveal on this page belongs to the dated
+   entries; a photograph of a signing or a war does not need to arrive. */
+.chapterFigure {
+  display: grid;
+  gap: var(--sp-2);
+  min-width: 0;
+  margin: 0;
+}
+
+.chapterFrame {
+  composes: mediaPlate from global;
+  border-radius: var(--radius-2);
+}
+
+/* 3/2 is the shape most of these files already are, so the crop is usually
+   nothing at all; where it is not, it is taken at the asset's focal point
+   (set inline by the page) rather than at the centre of the file. */
+.chapterFrame img {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+
+.chapterCaption {
+  display: grid;
+  gap: var(--sp-1);
+  min-width: 0;
+  color: var(--ink-lo);
+}
+
+.chapterCaptionText {
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+.chapterCredit {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  overflow-wrap: anywhere;
+}
+
+.chapterDisclosure {
+  composes: dataLabel from global;
+  color: var(--gold);
 }
 
 /* The chapter's standfirst: the display face one step above body, the
@@ -225,18 +406,75 @@
   line-height: var(--t-body-lh);
 }
 
-/* record: intro as a side measure beside the timeline from the seam up.
-   Below that, the same stacked column as every other chapter. */
+/* The picture is where the three rhythms stop being three names for the same
+   page. Until 2026-09-14 they cycled three barely-different type treatments
+   and the result was seven chapters a reader could not tell apart; the
+   picture is the thing large enough to carry a composition.
+
+   lede — the picture opens the chapter, full measure, in the wider crop.
+   spine — the dates carry it, so the picture is a plate beside the standfirst.
+   record — the picture heads the side column the standfirst already sits in.
+
+   All three stack on a phone, in that order, which is the markup order. */
 @media (min-width: 45rem) {
-  .chapter[data-rhythm="record"] .chapterBody {
+  .chapter[data-rhythm="lede"] .chapterFrame img {
+    aspect-ratio: 16 / 9;
+  }
+
+  .chapter[data-rhythm="spine"] .chapterBody {
     display: grid;
-    grid-template-columns: minmax(14rem, 22rem) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(12rem, 20rem);
     column-gap: var(--sp-7);
+    row-gap: var(--sp-6);
     align-items: start;
   }
 
+  .chapter[data-rhythm="spine"] .chapterFigure {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .chapter[data-rhythm="spine"] .chapterIntro {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .chapter[data-rhythm="spine"] .eraTimeline {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  /* record: intro as a side measure beside the timeline from the seam up,
+     with the picture at the head of that side column. Below the seam, the
+     same stacked column as every other chapter. */
+  .chapter[data-rhythm="record"] .chapterBody {
+    display: grid;
+    grid-template-columns: minmax(14rem, 22rem) minmax(0, 1fr);
+    /* The third row exists to take the slack. The timeline spans the whole
+       column and is far taller than the picture and the standfirst beside
+       it; without somewhere for the surplus to go, grid hands it to the
+       auto rows and the standfirst drifts to the middle of the chapter,
+       hundreds of pixels below the picture it belongs to. */
+    grid-template-rows: auto auto 1fr;
+    column-gap: var(--sp-7);
+    row-gap: var(--sp-5);
+    align-items: start;
+  }
+
+  .chapter[data-rhythm="record"] .chapterFigure {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
   .chapter[data-rhythm="record"] .chapterIntro {
+    grid-column: 1;
+    grid-row: 2;
     max-width: none;
+  }
+
+  .chapter[data-rhythm="record"] .eraTimeline {
+    grid-column: 2;
+    grid-row: 1 / 4;
   }
 }
 
@@ -318,15 +556,11 @@
   scroll-margin-top: var(--anchor-offset, 5.5rem);
 }
 
-/* Above 1220px `SectionToc`'s "In this file" rail lists these same chapters,
-   so a second full contents list on one screen is noise. Hidden rather than
-   deleted: the rail is client-side only, so deleting this block would leave
-   no-JavaScript readers with no era index. The mobile sheet (NAV-006) is
-   extra; the in-page list remains the linear map below the rail breakpoint.
-   The rail is shared chrome and stays untouched (`.ai/DECISIONS.md`,
-   2026-08-25); the Roman numerals survive on the chapter heads. */
-@media (min-width: 1220px) and (scripting: enabled) {
-  .eraIndex {
-    display: none;
-  }
-}
+/* The era map used to hide above 1220px, where `SectionToc`'s "In this file"
+   rail lists the same seven chapters — a second identical contents list on
+   one screen was noise. It stays now because the two stopped being the same
+   list: the rail names the chapters and marks which one you are in, and the
+   map shows the arc they sit on and how much of it each one covers. It is
+   also still the whole of the no-JavaScript contents, which the rail — a
+   client component — is not. The rail is shared chrome and stays untouched
+   (`.ai/DECISIONS.md`, 2026-08-25). */

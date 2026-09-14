@@ -45,7 +45,7 @@ const FAQ: { q: string; a: React.ReactNode }[] = [
 
 export default function Page() {
   return (
-    <SectionPage id="we-are" register="silent" surface="quiet" title="We Are" tagline={TAGLINE}>
+    <SectionPage id="we-are" title="We Are" tagline={TAGLINE}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(WE_ARE_JSON_LD) }} />
 
       <SectionBlock heading="Technology for the information battlefield">

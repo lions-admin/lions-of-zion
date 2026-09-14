@@ -77,6 +77,15 @@
 
 .sectionHead > .sectionLink { margin-inline-start: auto; }
 
+/* Two in-flow editorial links, one shape.
+   `.sectionLink` used to be declared twice — once with `.read`, taking its
+   ink, its size and its brass underline, and once again immediately below
+   overriding all three. One class with two appearances, where the second
+   silently won and the first read as the intended one; whoever edited the
+   shared rule was editing something `.sectionLink` had already discarded.
+   The shape they share is stated once here, and each says its own voice
+   after it: `.read` is the record's own way in and carries the brass rule,
+   `.sectionLink` is the quiet door to a whole collection and carries none. */
 .read,
 .sectionLink {
   display: inline-flex;
@@ -84,22 +93,24 @@
   gap: var(--sp-2);
   width: fit-content;
   min-height: var(--control-h);
-  color: var(--ink-hi);
-  font-size: var(--t-small);
-  font-weight: 600;
   line-height: 1;
   text-decoration: none;
-  box-shadow: inset 0 calc(-1 * var(--line-w)) 0 var(--gold-line-strong);
   transition:
     color var(--dur-fast) var(--ease-out),
     box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.read {
+  color: var(--ink-hi);
+  font-size: var(--t-small);
+  font-weight: 600;
+  box-shadow: inset 0 calc(-1 * var(--line-w)) 0 var(--gold-line-strong);
 }
 
 .sectionLink {
   color: var(--ink-lo);
   font-size: var(--t-caption);
   font-weight: var(--t-caption-weight);
-  box-shadow: none;
 }
 
 .read > span,
@@ -149,7 +160,17 @@
    — the same rule `/our-heroes` keeps — because the page's subject is people
    and a box around one of them would make the hierarchy a matter of
    packaging. */
-.profile[data-featured] h3 { font-size: clamp(1.75rem, 1.3rem + 1.4vw, 2.375rem); }
+/* One step up the shared scale — `--t-figure` to `--t-h2` — not a private
+   `clamp()`. This file carried three of its own heading scales until
+   2026-09-14, which is how two headings of the same rank came to differ by
+   ten pixels and two of different rank by one; `app/globals.css` now states
+   the roles as the only scale. */
+.profile[data-featured] h3 {
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
+}
 
 .portrait {
   display: grid;
@@ -217,10 +238,13 @@
   margin: 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: clamp(1.5rem, 1.2rem + 1vw, 1.875rem);
+  font-size: var(--t-figure);
+  /* The role's size and leading; 400 rather than the role's 500, which is
+     what `.chapters a` in this same file already does — a display serif
+     carries a name at book weight. */
   font-weight: 400;
-  line-height: 1.15;
-  letter-spacing: -0.015em;
+  line-height: var(--t-figure-lh);
+  letter-spacing: var(--t-h2-tracking);
   text-wrap: balance;
 }
 
@@ -316,15 +340,19 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* One step below a profile name (`--t-figure`), which is one step below the
+   featured profile (`--t-h2`): three ranks a reader can read the hierarchy
+   of this hub from, off the shared scale rather than three private
+   `clamp()`s that happened to overlap. */
 .record h3 {
   max-width: 28ch;
   margin: 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: clamp(1.375rem, 1.1rem + 0.9vw, 1.75rem);
-  font-weight: 400;
-  line-height: 1.18;
-  letter-spacing: -0.015em;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
   text-wrap: balance;
 }
 
@@ -366,13 +394,22 @@
 
 .records > .sectionLink { margin-top: var(--sp-4); }
 
-.historyLede {
-  max-width: 36ch;
+/* One sentence under a section head saying what the section holds and where
+   it came from. It was `.historyLede`, used once; the courage band needed
+   the same thing for the same reason — this hub merges live records with two
+   preserved editions that still live at their own addresses, and nothing on
+   the page said which was which. One class, two sections. */
+.sectionLede {
+  max-width: 52ch;
   margin: 0 0 var(--sp-5);
   color: var(--ink);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
   text-wrap: pretty;
+}
+
+.history > .sectionLede {
+  max-width: 36ch;
 }
 
 /* Live records and the preserved collection are two distinct groups within

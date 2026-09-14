@@ -57,8 +57,6 @@ export default async function Page() {
       id="fake-resistance"
       breadcrumb={[publicationHubCrumb('fakeResistance')]}
       accent="ember"
-      surface="quiet"
-      register="silent"
       title="Narrative monitoring archive"
       tagline={TAGLINE}
     >

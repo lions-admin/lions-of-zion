@@ -2,14 +2,12 @@
 
 .page {
 
-  --reading-w: min(var(--family-measure, var(--measure-reading)), 100%);
-
-
+  /* The rail geometry. `--reading-w` and `--content-w` used to live here too;
+     both existed only to describe the column the scan backdrop's mask kept
+     its drifting rows out of, and that backdrop was retired on 2026-09-14. */
   --rail-w: clamp(9rem, 14vw, 13rem);
   --rail-gap: clamp(1.5rem, 3vw, 2.5rem);
 
-
-  --content-w: var(--reading-w);
   --accent: var(--gold);
 
 
@@ -29,222 +27,6 @@
   --accent: var(--data-ember-peak);
 }
 
-
-
-
-/* The scan, behind everything.
- *
- * Decorative and inert: `aria-hidden` in the markup, `pointer-events: none`
- * here, and no z-index of its own — it paints at `.page`'s base while `.shell`
- * sits at `--z-raised` above it, so it never comes between a reader and a
- * link, a control, a selection or a focus ring.
- *
- * Three controls arrive from `ScanBackdrop` and are read below, never
- * animated through React:
- *   `--scan-intensity` (0..1)      scales the row-opacity ceiling;
- *   `data-density`  low|medium|high hides a fixed `nth-child` subset of rows;
- *   `data-speed`    still|slow|normal multiplies the sampled drift duration,
- *                                  and `still` composes a stationary frame.
- * A route family's numbers come from `scanProfiles.ts`; a page's own
- * `register` (`.registerMuted`) and `surface` (`.surfaceQuiet`) stack on top
- * as per-page multipliers.
- *
- * `user-select: none` is the fourth half of "inert", added with the §7 audit.
- * `pointer-events: none` stops the rows catching a click; it does nothing
- * about a keyboard Select-All, which was picking up sixteen corpus fragments
- * and interleaving them through the copied article. `aria-hidden` keeps them
- * out of the accessibility tree; this keeps them out of the clipboard. */
-.backdrop {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-select: none;
-  --scan-intensity: 1;
-  --scan-speed: 1;
-}
-
-/* Both properties above are inherited, so every row already had them. Stated
-   again on the subtree so the invariant is a rule a reader — and
-   `tests/intro-accessibility.test.ts` — can point at, rather than a fact
-   about CSS inheritance that a later `pointer-events: auto` on one row would
-   quietly repeal. The subtree is the row field and sixteen spans. */
-.backdrop * {
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.backdrop[data-speed="slow"] {
-  --scan-speed: 2;
-}
-
-/* Density: a deterministic subset, chosen so both streams survive. Rows
-   alternate verified/hostile by index, so hiding every even row would hide
-   every ember row; `5n` and `3n+1` each keep the mix. */
-.backdrop[data-density="medium"] .row:nth-child(5n) {
-  display: none;
-}
-
-.backdrop[data-density="low"] .row:not(:nth-child(3n + 1)) {
-  display: none;
-}
-
-
-/* The band variant is the only one that can leave the viewport — `.backdrop`
-   is `position: fixed`, so while the route is mounted it is on screen by
-   definition and there is no offscreen state to pause. `content-visibility`
-   is what stops the drift here without a client boundary: `ScanBackdrop` is
-   an async server component, and an IntersectionObserver would mean
-   hydrating a decorative layer to switch off a decoration. */
-.backdropBand {
-  position: sticky;
-  inset: auto;
-  top: 0;
-  height: 100dvh;
-  content-visibility: auto;
-  contain-intrinsic-size: auto 100dvh;
-}
-
-
-/* The rows start below the masthead, not behind it.
- *
- * `--header-h` of inset, from the §7 contrast audit. `SiteHeader`'s bar is
- * `linear-gradient(--glass-middle, --glass-bottom)` — alpha 0.29 at its top
- * edge — over a 16px `backdrop-filter`, so it is a veil and not a lid, and a
- * drifting row was compositing straight through it. Measured against the
- * bar's own smallest text (`.brandRole`, `--ink-lo` at `--t-data`, which
- * reads 5.38:1 on the bare ground) a loud row under the thin end of that
- * gradient took it to 3.29:1 — below the 4.5 floor, and not a number any
- * profile intensity this side of invisible could recover.
- *
- * Insetting the field is the structural answer rather than the numeric one:
- * `.page` already starts its content at `padding-top: var(--header-h)`, so
- * the strip being given up holds nothing but ground, and the header now
- * blurs an empty backdrop instead of a moving one. */
-.rowField {
-  position: absolute;
-  inset: var(--header-h) 0 0;
-  overflow: hidden;
-
-  --fade: 2.75rem;
-  --dim: color-mix(in srgb, black 25%, transparent);
-  -webkit-mask-image: linear-gradient(
-    90deg,
-    black 0,
-    black calc(50% - var(--content-w) / 2 - var(--fade)),
-    var(--dim) calc(50% - var(--content-w) / 2 - 0.75rem),
-    var(--dim) calc(50% + var(--content-w) / 2 + 0.75rem),
-    black calc(50% + var(--content-w) / 2 + var(--fade)),
-    black 100%
-  );
-  mask-image: linear-gradient(
-    90deg,
-    black 0,
-    black calc(50% - var(--content-w) / 2 - var(--fade)),
-    var(--dim) calc(50% - var(--content-w) / 2 - 0.75rem),
-    var(--dim) calc(50% + var(--content-w) / 2 + 0.75rem),
-    black calc(50% + var(--content-w) / 2 + var(--fade)),
-    black 100%
-  );
-}
-
-.row {
-  position: absolute;
-  left: 0;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  white-space: nowrap;
-  will-change: transform;
-
-  /* 0.2 is the ceiling. `--register` is the page's own dimmer (muted, quiet,
-     focus-within); `--scan-intensity` is the family's, from the profile.
-
-     It was 0.1 until UX-25 (2026-09-08). Under the dimmers every reading
-     route actually runs — `.registerMuted` on the desk pages, `.surfaceQuiet`
-     on the institution pages — a row composited at 0.02 to 0.03 alpha at the
-     page edges, which at 1440 is not a faint line of text but a grey smear
-     that reads as a rendering fault. Measured on `/ask`: 0.05 is legible as
-     text, 0.08 is legible as decoration, 0.11 starts to compete with the
-     page. The ceiling and the two dimmers below are set so a muted desk page
-     lands at 0.075 and a quiet institution page at 0.05, and the reading
-     column stays inside the AA budget `tests/intro-accessibility.test.ts`
-     recomputes from these numbers. */
-  opacity: calc(0.2 * var(--register, 1) * var(--scan-intensity, 1));
-
-  /* `--dur` is the sampled 45–90s; `--scan-speed` is the profile's tempo and
-     `--scan-tempo` the page's. The floor is therefore 45s — nine times the
-     five-second ambient minimum — at every setting. */
-  --drift: calc(var(--dur) * var(--scan-speed, 1) * var(--scan-tempo, 1));
-}
-
-
-.rowVerified {
-  color: var(--data-blue-dim);
-  animation: driftRight var(--drift) linear infinite;
-  animation-delay: var(--delay);
-}
-
-.rowHostile {
-  color: var(--data-ember-dim);
-  animation: driftLeft var(--drift) linear infinite;
-  animation-delay: var(--delay);
-}
-
-
-.rowLoud.rowVerified { color: var(--ink); }
-.rowLoud.rowHostile { color: var(--data-ember); }
-
-@keyframes driftRight {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(100vw); }
-}
-
-@keyframes driftLeft {
-  from { transform: translateX(100vw); }
-  to { transform: translateX(-100%); }
-}
-
-
-:where(.page:focus-within) .row {
-  --register: 0.6;
-  --scan-tempo: 2;
-}
-
-
-.surfaceQuiet .row {
-  --register: 0.85;
-  --scan-tempo: 1.8;
-}
-
-.registerMuted .row {
-  --register: 0.75;
-  --scan-tempo: 3;
-}
-
-/* SYS-002: family density, not a second palette. The family numbers used to
-   be `.page[data-family] .row` overrides here; they are now the profiles in
-   `scanProfiles.ts`, passed by `EditorialShell` as `--scan-intensity` and
-   `data-speed`, so the home band — which has no `.page` and no family — runs
-   the same implementation on the same scale. */
-
-/* The composed still frame: what `speed="still"` shows, and what reduced
-   motion shows. Each row stands at its own sampled rest position — a share of
-   the travel it has (viewport minus its own width), so rows spread across the
-   full width and a long fragment never overflows the right edge — and the
-   loud rows step back to the dim colour of their stream. A drift caught
-   mid-flight would leave a bright fragment wherever the clock happened to
-   stop; this is a frame that was composed, not a frame that was frozen. */
-.backdrop[data-speed="still"] .row {
-  animation: none;
-  transform: translateX(calc((100vw - 100%) * var(--rest, 0) / 100));
-}
-
-.backdrop[data-speed="still"] .rowLoud.rowVerified { color: var(--data-blue-dim); }
-.backdrop[data-speed="still"] .rowLoud.rowHostile { color: var(--data-ember-dim); }
 
 
 
@@ -538,8 +320,14 @@
 
 
 
+/* The rail's own grid cell, and nothing else.
+ *
+ * `display: none` below the rail seam: the contents control that used to live
+ * in here now renders inside `.panel`, so below 1220px this element has
+ * nothing a reader can see and would otherwise spend a `row-gap` on it. The
+ * 1220px block turns it back on. */
 .tocRail {
-  display: block;
+  display: none;
   grid-column: 2;
   justify-self: stretch;
   width: auto;
@@ -566,13 +354,19 @@
   line-height: var(--t-caption-lh);
 }
 
-/* NAV-006: labelled control in the reading column. Hidden at the rail
-   breakpoint, where `.tocRailInner` takes over. */
-.tocMobile {
-  margin-bottom: var(--sp-5);
+/* NAV-006: the labelled contents control, in the reading column.
+ *
+ * It sits *inside* `.panel`, under the page's header — see the note at the
+ * top of `SectionToc.tsx`. While it rendered from `.tocRail` above the
+ * article, a phone was shown "On this page — {section}" before it was shown
+ * the page's own `<h1>`.
+ *
+ * Hidden at the rail breakpoint, where `.tocRailInner` takes over. */
+.tocControl {
+  margin-block: var(--sp-5);
 }
 
-.tocMobile .tocMobileTrigger {
+.tocControl .tocControlTrigger {
   width: 100%;
   min-height: var(--control-h);
   padding-inline: 0;
@@ -584,14 +378,14 @@
   --btn-line: transparent;
 }
 
-.tocMobile .tocMobileTrigger > * {
+.tocControl .tocControlTrigger > * {
   width: 100%;
   min-width: 0;
   justify-content: space-between;
   gap: var(--sp-3);
 }
 
-.tocMobileCopy {
+.tocControlCopy {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -601,7 +395,7 @@
   text-align: start;
 }
 
-.tocMobileKicker {
+.tocControlKicker {
   font-family: var(--face-text);
   font-size: var(--t-caption);
   font-weight: var(--t-caption-weight);
@@ -609,7 +403,7 @@
   color: var(--ink-lo);
 }
 
-.tocMobileCurrent {
+.tocControlCurrent {
   font-size: var(--t-small);
   font-weight: 600;
   line-height: 1.3;
@@ -620,7 +414,7 @@
   white-space: nowrap;
 }
 
-.tocMobileChevron {
+.tocControlChevron {
   flex: none;
   width: 10px;
   height: 6px;
@@ -628,7 +422,7 @@
   transition: transform var(--dur-fast) var(--ease-out);
 }
 
-.tocMobileTrigger[aria-expanded="true"] .tocMobileChevron {
+.tocControlTrigger[aria-expanded="true"] .tocControlChevron {
   transform: rotate(180deg);
 }
 
@@ -756,10 +550,6 @@
 
 @media (min-width: 1220px) {
 
-  .withRails {
-    --content-w: calc(var(--reading-w) + 2 * (var(--rail-w) + var(--rail-gap)));
-  }
-
   .tocRail {
     display: block;
     grid-column: 1;
@@ -772,7 +562,7 @@
     display: block;
   }
 
-  .tocMobile {
+  .tocControl {
     display: none;
   }
 
@@ -830,21 +620,14 @@
     row-gap: var(--sp-5);
   }
 
-  .documentTrail,
-  .tocMobile { margin-bottom: 0; }
+  .documentTrail { margin-bottom: 0; }
+
+  /* Inside `.panel` there is no `row-gap` to lean on, so the control keeps
+     its own breathing room at every width. */
+  .tocControl { margin-block: var(--sp-4); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-  /* The same composed frame as `data-speed="still"` above. */
-  .row {
-    animation: none;
-
-    transform: translateX(calc((100vw - 100%) * var(--rest, 0) / 100));
-  }
-
-  .rowLoud.rowVerified { color: var(--data-blue-dim); }
-  .rowLoud.rowHostile { color: var(--data-ember-dim); }
 
   .panel,
   .tocRail,
@@ -855,13 +638,13 @@
   .depthValue,
   .tocLink,
   .tocLinkActive,
-  .tocMobileChevron,
+  .tocControlChevron,
   .tocSheetLink,
   .tocSheetLinkActive {
     transition: none;
   }
 
-  .tocMobileTrigger[aria-expanded="true"] .tocMobileChevron {
+  .tocControlTrigger[aria-expanded="true"] .tocControlChevron {
     transform: none;
   }
 }

@@ -26,8 +26,6 @@ export default async function Page() {
       id="fake-resistance"
       breadcrumb={[publicationHubCrumb('fakeResistance')]}
       accent="ember"
-      surface="quiet"
-      register="silent"
       title="Antisemitism records"
       tagline="Documented incidents, patterns, and risks. Each record distinguishes confirmed facts, context, and what is still unknown."
     >

@@ -3,28 +3,32 @@
 /**
  * The result list — grouped by kind, ordered by relevance inside each group.
  *
- * Two decisions here are contract, not taste.
+ * Three decisions here are contract, not taste.
  *
  * **The RRF score is never rendered.** `searchHitSchema` says so in as many
  * words: it is a fusion value, comparable only within one result set, and
  * showing it as a percentage or a confidence would be an invented number on a
  * page about not inventing numbers. It orders the list and appears nowhere.
  *
- * **A hit with no `href` renders as a hit with no href.** Publications are
- * addressable only through `/articles/[publicId]`, which is briefing-only, and
- * information items have a public id and no page at all. Fabricating a URL
- * from `publicId` would turn a search result into a 404. So an unreachable hit
- * is a `<div>`, not an `<a>`: it is announced as disabled, it cannot be
- * focused into by mistake, and it says in words that the record is indexed and
- * has no page. Hiding those rows instead was the alternative and is worse —
- * it would mean a reader searching for a claim we hold is told we do not hold
- * it.
+ * **A URL is never rendered as prose.** Until 2026-09-14 the row's description
+ * was the destination path, so a reader searching "October 7" met
+ * `/articles/how-to-read-the-october-7-archive-source-taxonom-zjy4f` set in the
+ * site's body face in the slot where a sentence belongs. The description is now
+ * the record's own standfirst (`hit.summary`), which is the same sentence it
+ * shows on its own page and in every card on the site — so a result a reader
+ * recognises here is recognisable again when they arrive. A record with no
+ * standfirst renders **nothing** in that slot. An empty line is honest; a path
+ * dressed as a summary is not, and neither is a placeholder.
  *
- * `SearchHit` is only documentId, entityType, entityId, publicId, href,
- * title, score. The row renders type, title, and destination (`href`, or
- * “Indexed · no public page”). Score is never shown. Date, excerpt, and
- * verification are not on the contract — SEARCH-002 is data-blocked for
- * those three rather than inventing them.
+ * **Every row a reader is shown can be opened.** That is enforced in
+ * `server/modules/search/service.ts`, where a hit with no destination is
+ * dropped from the reader's result set entirely (owner ruling, 2026-09-14) —
+ * not here, because the component only ever renders what the API hands it. The
+ * inert branch below survives as the honest rendering of a null `href` should
+ * one ever arrive; it no longer prints "Indexed · no public page", because the
+ * rows that produced that line — raw wire evidence, most of it, several items
+ * hostile and uncontextualised — are no longer offered as this desk's answer to
+ * a reader's question.
  */
 
 import {
@@ -50,6 +54,9 @@ interface SearchResultsProps {
   onNavigate: () => void;
   /** Dims the list while a newer query is in flight, rather than emptying it. */
   stale: boolean;
+  /** Where this page starts in the whole result set, so the gutter ordinals
+   *  count 11, 12, 13 on page two rather than starting again at 01. */
+  offset: number;
 }
 
 export function SearchResults({
@@ -61,6 +68,7 @@ export function SearchResults({
   onHover,
   onNavigate,
   stale,
+  offset,
 }: SearchResultsProps) {
   const groups = groupByEntity(hits);
   let flat = -1;
@@ -87,6 +95,7 @@ export function SearchResults({
                 key={hit.documentId}
                 hit={hit}
                 index={index}
+                ordinal={offset + index + 1}
                 active={index === activeIndex}
                 id={optionId(index)}
                 onHover={onHover}
@@ -103,6 +112,7 @@ export function SearchResults({
 function SearchHitOption({
   hit,
   index,
+  ordinal,
   active,
   id,
   onHover,
@@ -110,17 +120,21 @@ function SearchHitOption({
 }: {
   hit: SearchHit;
   index: number;
+  ordinal: number;
   active: boolean;
   id: string;
   onHover: (index: number) => void;
   onNavigate: () => void;
 }) {
-  const ordinal = String(index + 1).padStart(2, "0");
   const href = hit.href;
+  /* Trimmed and emptiness-checked rather than tested for null: a stored
+     standfirst of `""` or a line of whitespace must render as nothing, not as
+     an empty description with the spacing of a real one. */
+  const summary = hit.summary?.trim() || null;
   const inner = (
     <>
       <span className={styles.hitOrdinal} aria-hidden="true">
-        {ordinal}
+        {String(ordinal).padStart(2, "0")}
       </span>
       <div className={styles.hitBody}>
         <CardHeader className={styles.hitHeader}>
@@ -129,13 +143,9 @@ function SearchHitOption({
         <CardTitle as="span" className={styles.hitTitle}>
           {hit.title}
         </CardTitle>
-        {href ? (
-          <CardDescription className={styles.hitDestination}>{href}</CardDescription>
-        ) : (
-          <CardDescription className={styles.hitDestination}>
-            <span className={styles.hitUnreachable}>Indexed · no public page</span>
-          </CardDescription>
-        )}
+        {summary ? (
+          <CardDescription className={styles.hitSummary}>{summary}</CardDescription>
+        ) : null}
       </div>
       {href ? <CardCta className={styles.hitCta}>Open</CardCta> : null}
     </>
@@ -176,6 +186,13 @@ function SearchHitOption({
       className={styles.hit}
       data-active={active ? "" : undefined}
       data-entity-type={hit.entityType}
+      /* `search_result_click` was declared on the *inert* branch only, so the
+         one thing worth measuring — a reader opening a result — was measured
+         on precisely the rows nobody could open. */
+      data-measure-id={`search-result-${hit.documentId}`}
+      data-measure-event="search_result_click"
+      data-measure-section="search"
+      data-measure-content={hit.publicId ?? hit.entityId}
       onPointerMove={() => onHover(index)}
       onClick={onNavigate}
     >

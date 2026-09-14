@@ -165,8 +165,6 @@ export default async function Page() {
     <SectionPage
       kicker="The record"
       id="october-7"
-      register="silent"
-      surface="quiet"
       title="October 7 Archive"
       tagline={TAGLINE}
       withToc={false}
@@ -207,14 +205,19 @@ export default async function Page() {
         </nav>
       </section>
 
+      {/* The disclosure comes *before* the previews it describes. It ran after
+          both showcases until now, which meant a reader met six preview cards
+          drawn from a massacre archive and was told a viewport later that
+          previews stay covered — the one sentence that answers "what am I
+          about to see" arriving after they had already seen it. */}
+      <p className={styles.sharingNote}>Graphic media stays covered in previews. Share the record — the original is one click behind the warning.</p>
+
       <div className={styles.archiveShowcase}>
         <ArchiveShareShowcase kind="testimony" samples={stories} count={storyCount}
           detail={`Accounts available across ${languageCount} languages`} />
         <ArchiveShareShowcase kind="documentation" samples={records} count={recordCount}
           detail={`${counts.films} films · ${counts.photographs} photographs`} />
       </div>
-
-      <p className={styles.sharingNote}>Graphic media stays covered in previews. Share the record — the original is one click behind the warning.</p>
 
       <details className={styles.categoryBrowser} data-measure-id="o7-categories">
         <summary>Browse documentation by category <span>{groups.length} categories</span></summary>

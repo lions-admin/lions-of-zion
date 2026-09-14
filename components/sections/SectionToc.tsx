@@ -12,12 +12,29 @@
  * sections of one document *are* a sequence you read top to bottom. The eight
  * orbit files were not, which is why that apparatus went (`.ai/DECISIONS.md`).
  *
- * Without JavaScript the control is absent and the headings remain in the
- * document — the correct trade for a navigation aid, and the same one the
- * scan's DOM links already make.
+ * Without JavaScript neither control renders and the headings remain in the
+ * document — the correct trade for a navigation aid.
  *
- * ≥1220px this is the sticky left rail. Below that it is a labelled control
- * that opens the shared drawer (NAV-006), not a second tiny rail of dots.
+ * ── TWO EXPORTS, ONE CONTENTS ────────────────────────────────────────────
+ *
+ * `SectionToc` is the sticky rail, shown at ≥1220px in the shell's left
+ * margin. `SectionTocControl` is the labelled trigger and its drawer
+ * (NAV-006), shown below that seam.
+ *
+ * They are two components because they belong in two places in the document,
+ * and that is the fix rather than the complication. While both rendered from
+ * one node in the shell's `.tocRail`, the phone got
+ * "On this page — The founding, 1947–1948" printed *above* the `<h1>`: the
+ * reader was told where they were inside a document before being told which
+ * document. The control now sits under the page's own header, where a
+ * contents list belongs, and the rail stays in the margin, where a rail
+ * belongs.
+ *
+ * Both read the same headings through `useDocumentHeadings`, so each keeps
+ * its own `IntersectionObserver` over the same handful of sections. That is
+ * the whole cost of the split, it is off the main thread, and only one of the
+ * two is ever on screen; sharing one observer through a context would mean a
+ * provider wrapping the shell to save nothing measurable.
  */
 import { useCallback, useEffect, useId, useRef, useState, type MouseEvent } from 'react';
 import { Button } from '@/components/ui/Button';
@@ -32,7 +49,7 @@ const MIN_HEADINGS = 2;
 
 function Chevron() {
   return (
-    <svg className={styles.tocMobileChevron} viewBox="0 0 10 6" aria-hidden="true" focusable="false">
+    <svg className={styles.tocControlChevron} viewBox="0 0 10 6" aria-hidden="true" focusable="false">
       <path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.25" />
     </svg>
   );
@@ -52,13 +69,17 @@ function focusSectionTarget(id: string) {
   }
 }
 
-export function SectionToc() {
+/**
+ * The rendered headings, and which of them the reader is inside.
+ *
+ * One `requestAnimationFrame` to let hydration and the web fonts settle, one
+ * `IntersectionObserver` over the sections (never the headings), and nothing
+ * else. Returns fewer than `MIN_HEADINGS` entries when the page has nothing
+ * worth listing, which is each component's cue to render nothing at all.
+ */
+function useDocumentHeadings() {
   const [headings, setHeadings] = useState<Heading[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [open, setOpen] = useState(false);
-  const dialogId = useId();
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const pendingFocusId = useRef<string | null>(null);
 
   useEffect(() => {
     let observer: IntersectionObserver | null = null;
@@ -146,6 +167,21 @@ export function SectionToc() {
     };
   }, []);
 
+  return { headings, activeId, setActiveId };
+}
+
+/**
+ * The labelled control and its drawer — the shell mounts this inside the
+ * page's own `<article>`, under the header. Hidden at ≥1220px, where the rail
+ * below takes over.
+ */
+export function SectionTocControl() {
+  const { headings, activeId, setActiveId } = useDocumentHeadings();
+  const [open, setOpen] = useState(false);
+  const dialogId = useId();
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const pendingFocusId = useRef<string | null>(null);
+
   const closeSheet = useCallback(() => {
     setOpen(false);
     if (pendingFocusId.current) return;
@@ -159,7 +195,7 @@ export function SectionToc() {
       setActiveId(id);
       setOpen(false);
     },
-    [],
+    [setActiveId],
   );
 
   /* Dialog teardown (inert, native focus restore) finishes in its own effect.
@@ -183,20 +219,20 @@ export function SectionToc() {
 
   return (
     <>
-      <div className={styles.tocMobile}>
+      <div className={styles.tocControl}>
         <Button
           ref={triggerRef}
           type="button"
           variant="ghost"
           size="md"
-          className={styles.tocMobileTrigger}
+          className={styles.tocControlTrigger}
           aria-expanded={open}
           aria-controls={dialogId}
           onClick={() => setOpen((isOpen) => !isOpen)}
         >
-          <span className={styles.tocMobileCopy}>
-            <span className={styles.tocMobileKicker}>On this page</span>
-            <span className={styles.tocMobileCurrent}>{activeLabel}</span>
+          <span className={styles.tocControlCopy}>
+            <span className={styles.tocControlKicker}>On this page</span>
+            <span className={styles.tocControlCurrent}>{activeLabel}</span>
           </span>
           <Chevron />
         </Button>
@@ -229,33 +265,46 @@ export function SectionToc() {
           ))}
         </ol>
       </Dialog>
-
-      <nav className={styles.tocRailInner} aria-label="On this page">
-        <p className={styles.tocTitle}>On this page</p>
-        <ol className={styles.tocList}>
-          {headings.map((heading, i) => (
-            <li key={heading.id}>
-              <a
-                href={`#${heading.id}`}
-                className={heading.id === activeId ? styles.tocLinkActive : styles.tocLink}
-                aria-current={heading.id === activeId ? 'true' : undefined}
-              >
-                <span className={styles.tocNumber} aria-hidden="true">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <span>{heading.label}</span>
-              </a>
-            </li>
-          ))}
-        </ol>
-        {/* One instance, two positions: the bar is fixed to the top of the
-            viewport below the rail breakpoint and sits here above it, so the
-            reader never sees two progress indicators at once. */}
-        <ReadingProgress
-          trackClassName={styles.depthTrack}
-          valueClassName={styles.depthValue}
-        />
-      </nav>
     </>
+  );
+}
+
+/**
+ * The sticky rail — the shell mounts this in its left margin, where it is
+ * shown only at ≥1220px. Below that seam `SectionTocControl` above is the
+ * contents list, and this renders nothing a reader can see.
+ */
+export function SectionToc() {
+  const { headings, activeId } = useDocumentHeadings();
+
+  if (headings.length < MIN_HEADINGS) return null;
+
+  return (
+    <nav className={styles.tocRailInner} aria-label="On this page">
+      <p className={styles.tocTitle}>On this page</p>
+      <ol className={styles.tocList}>
+        {headings.map((heading, i) => (
+          <li key={heading.id}>
+            <a
+              href={`#${heading.id}`}
+              className={heading.id === activeId ? styles.tocLinkActive : styles.tocLink}
+              aria-current={heading.id === activeId ? 'true' : undefined}
+            >
+              <span className={styles.tocNumber} aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span>{heading.label}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+      {/* One depth reading per screen: the shell's fixed top bar is hidden at
+          this seam (`.topProgressTrack`) and this one takes over, so the
+          reader never sees two progress indicators at once. */}
+      <ReadingProgress
+        trackClassName={styles.depthTrack}
+        valueClassName={styles.depthValue}
+      />
+    </nav>
   );
 }

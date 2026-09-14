@@ -100,3 +100,10 @@ midjourny*/
 
 # Stray editor/tool backups — one reached a commit on 2026-09-08.
 *.bak
+
+# Agent verification scratch (screenshots, measurement dumps). Written by
+# subagents during a design round; never a deliverable, and the repo is
+# public. Added 2026-09-14 after a parallel round produced 1.5MB of these
+# and `git add -A` would have committed them.
+.artifacts/
+.shots/

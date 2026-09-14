@@ -47,59 +47,14 @@ const listSources = (dir: string): string[] =>
  *
  * Shortening this list is the task. Lengthening it is the regression.
  */
-const GLASS_HOLDOUTS = [
-  "components/search/search.module.css",
-  "components/site/site-header.module.css",
-];
-
-/* A read of the ramp, not a mention of it. The historical comments in
-   `app/error.tsx` and `components/sections/sections.module.css` name the
-   tokens they stopped using, and a rule that forbade saying "glass" would
-   push exactly that provenance out of the files. */
-const READS_GLASS = /var\(\s*--glass-/;
-
-describe("the glass ramp is retired, and cannot grow back (VA-30)", () => {
-  const offenders = SOURCE_ROOTS.flatMap(listSources).filter(
-    (rel) => READS_GLASS.test(read(rel)) && !GLASS_HOLDOUTS.includes(rel),
-  );
-
-  it("is read by nothing under app/ or components/ but the two known holdouts", () => {
-    expect(
-      offenders,
-      "A --glass-* token may not be read by a new surface. globals.css says " +
-        "'do not add new glass'; use a --surface-* ground, a --line hairline " +
-        "and --edge-hi for a lit edge instead.",
-    ).toEqual([]);
-  });
-
-  it("names holdouts that exist, so the list cannot go stale by rename", () => {
-    /* A stale allow-list is how an assertion like this quietly stops
-       asserting. Only existence is pinned here, deliberately: converting a
-       holdout is the goal, and a test that went red when someone finally did
-       it would be an argument against doing it. */
-    for (const rel of GLASS_HOLDOUTS) {
-      expect(existsSync(path.join(ROOT, rel)), `${rel} no longer exists`).toBe(true);
-    }
-  });
-
-  it("keeps the tokens defined for exactly as long as something reads them", () => {
-    /* Both halves of VA-30's rule, read off the tree rather than off the list
-       above: a token may not be deleted while a consumer still reads it, and
-       it may not linger once none does. */
-    const remaining = SOURCE_ROOTS.flatMap(listSources).filter((rel) =>
-      READS_GLASS.test(read(rel)),
-    );
-    const defined = /^\s*--glass-top:/m.test(read("app/globals.css"));
-    expect(
-      defined,
-      remaining.length > 0
-        ? "A token may not be deleted while a consumer still reads it: " +
-          `${remaining.join(", ")} would fall back to an unset value.`
-        : "Nothing reads --glass-* any more; delete the ramp from app/globals.css " +
-          "and this whole describe block with it.",
-    ).toBe(remaining.length > 0);
-  });
-});
+/* The `GLASS_HOLDOUTS` list, the `READS_GLASS` matcher and the describe block
+   that enforced them were deleted on 2026-09-14, when the last two readers of
+   the ramp went (the search panel and the site header) and the eight
+   `--glass-*` tokens came out of `app/globals.css`. That block's own closing
+   message was an instruction to delete it once the holdout list emptied; this
+   is that deletion. Nothing guards the ramp any more because there is no ramp,
+   and a test asserting that zero files read a token that no longer exists
+   passes for the wrong reason. The two describes below are unrelated and stay. */
 
 describe("the root error boundary is drawn in the open editorial system (VA-30)", () => {
   const boundary = read("app/error.tsx");

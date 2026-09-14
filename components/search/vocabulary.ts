@@ -140,6 +140,24 @@ export function groupByEntity<T extends { entityType: EntityType }>(hits: T[]): 
  * so the one part that can be tested without a DOM.
  */
 
+/**
+ * Which slice of the answer is on screen, for the count sentence.
+ *
+ * Passed as a whole rather than as three arguments because the three are only
+ * meaningful together: `total` without `offset` cannot say which ten of the
+ * thirty-four these are, and `totalIsFloor` without `total` says nothing at
+ * all. Optional, so a caller with one page and no pager — the shape this
+ * function had before pagination — keeps the sentence it had.
+ */
+export interface ResultRange {
+  /** 0-based index of the first hit on screen. */
+  offset: number;
+  /** Every result the query has, not the number on this page. */
+  total: number;
+  /** `total` is a floor — retrieval hit its candidate ceiling. */
+  totalIsFloor: boolean;
+}
+
 /** Blank where the panel has nothing honest to say; never a placeholder. */
 export interface ResultStatus {
   /**
@@ -161,13 +179,47 @@ export interface ResultStatus {
 const MATCHING_FALLBACK =
   "Showing word-and-name matches. Semantic matching is unavailable in this deployment.";
 
-export function resultStatus(state: SearchState, hitCount: number, answered: string): ResultStatus {
+const forQuery = (answered: string) => (answered ? ` for “${answered}”` : "");
+
+/**
+ * The count, and — when the answer runs past one page — which part of it this
+ * is.
+ *
+ * "25 results" was a true statement about the response and a false one about
+ * the reader's situation: nineteen of the twenty-five could not be opened, and
+ * the twenty-five were all there would ever be, because nothing could page.
+ * Both halves are now honest. The number is the *whole* answer, counted after
+ * the unreachable rows are dropped, and when the page is a window into it the
+ * sentence says which window.
+ *
+ * `totalIsFloor` turns "of 200" into "of at least 200" rather than being
+ * hidden. Retrieval has a candidate ceiling; a ceiling printed as a count is
+ * the same class of invented number as showing the RRF score as a percentage.
+ */
+export function resultStatus(
+  state: SearchState,
+  hitCount: number,
+  answered: string,
+  range?: ResultRange,
+): ResultStatus {
   const answering = state === "results" || state === "fallback" || state === "no-results";
+  if (!answering || hitCount <= 0) {
+    return { count: null, matching: state === "fallback" ? MATCHING_FALLBACK : null };
+  }
+
+  const paged = range !== undefined && range.total > hitCount;
+  if (paged) {
+    const first = range.offset + 1;
+    const last = range.offset + hitCount;
+    const total = range.totalIsFloor ? `at least ${range.total}` : String(range.total);
+    return {
+      count: `Showing ${first}–${last} of ${total} results${forQuery(answered)}`,
+      matching: state === "fallback" ? MATCHING_FALLBACK : null,
+    };
+  }
+
   return {
-    count:
-      answering && hitCount > 0
-        ? `${hitCount} ${hitCount === 1 ? "result" : "results"}${answered ? ` for “${answered}”` : ""}`
-        : null,
+    count: `${hitCount} ${hitCount === 1 ? "result" : "results"}${forQuery(answered)}`,
     matching: state === "fallback" ? MATCHING_FALLBACK : null,
   };
 }

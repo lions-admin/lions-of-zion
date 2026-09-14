@@ -51,7 +51,19 @@ const hit = (
   publicId,
   href,
   title: publicId,
-  snippet: null,
+  /* `summary` is required-and-nullable on the contract as of 2026-09-14, so a
+     producer has to say whether it has one. Stating it here rather than
+     loosening the type is the point: the search result list used to fall back
+     to printing the destination path where a summary belonged, and a fixture
+     allowed to omit the field is how that fallback would come back unnoticed.
+
+     A `snippet: null` sat on this line until the same day, naming a field no
+     contract, service or component has ever had. The `as SearchHit` below is
+     why: a cast suppresses excess-property checking, so the fixture could
+     describe a field that did not exist and typecheck forever. Read that cast
+     as load-bearing for the *missing* keys only — anything added here still
+     has to be real. */
+  summary: null,
   score: href ? 0.9 : 0.016,
 }) as SearchHit;
 
@@ -179,23 +191,39 @@ describe("Q5 — a reader's publication hit resolves to its article page", () =>
     expect(result.hits).toEqual([]);
   });
 
-  it("does not invent a destination for an information item", async () => {
+  it("does not invent a destination for an information item — it drops it", async () => {
     /* There is no /items/[publicId] route, and inventing one here would not
-       create it — a fabricated link is worse than an honest dead row. */
+       create it. Until 2026-09-14 the row was returned with a null href and
+       rendered "Indexed · no public page"; the owner's ruling is that a record
+       with no destination is not a result, so it is no longer returned at all.
+       Both halves of the old rule survive: no fabricated link, and now no dead
+       row either. */
     const item = hit("item-public-id-123", null, "information_item");
     const service = serviceReturning([item]);
     const result = await service.search({ q: "q", limit: 25 }, "reader");
-    expect(result.hits).toHaveLength(1);
-    expect(result.hits[0]!.href).toBeNull();
+    expect(result.hits).toEqual([]);
   });
 
-  it("does not invent a destination for evidence or a narrative", async () => {
+  it("drops evidence and narratives from a reader's results", async () => {
+    /* This is the editorial half of the same ruling. Measured locally
+       2026-09-14, a reader's search for "October 7" returned 50 rows of which
+       40 were raw `evidence` — external wire headlines, several of them hostile
+       ("Israel: Starvation Used as Weapon of War in Gaza"), set in this site's
+       own typography with no verdict and no context. They are still held, still
+       cited on the pages that assess them, and still retrievable by chat; they
+       are simply not presented as this desk's answer to a reader's question. */
     const service = serviceReturning([
       hit("ev-1", null, "evidence"),
       hit("nar-1", null, "narrative"),
     ]);
     const result = await service.search({ q: "q", limit: 25 }, "reader");
-    expect(result.hits.map((h) => h.href)).toEqual([null, null]);
+    expect(result.hits).toEqual([]);
+  });
+
+  it("drops a publication that has no publicId to build a destination from", async () => {
+    const service = serviceReturning([{ ...hit("x", null), publicId: null }]);
+    const result = await service.search({ q: "q", limit: 25 }, "reader");
+    expect(result.hits).toEqual([]);
   });
 
   it("leaves the internal audience byte-for-byte unchanged", async () => {
@@ -210,11 +238,5 @@ describe("Q5 — a reader's publication hit resolves to its article page", () =>
     const result = await service.search({ q: "q", limit: 25 }, "internal");
     expect(result.hits).toEqual(rows);
     expect(result.hits.map((h) => h.href)).toEqual([null, null, "/articles/lebanon-strike-abc12"]);
-  });
-
-  it("does not derive an href for a publication that has no publicId at all", async () => {
-    const service = serviceReturning([{ ...hit("x", null), publicId: null }]);
-    const result = await service.search({ q: "q", limit: 25 }, "reader");
-    expect(result.hits[0]!.href).toBeNull();
   });
 });

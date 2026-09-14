@@ -166,7 +166,7 @@ export default async function Page() {
      collection's own edition when nothing live has been published yet. */
   const latest = records[0]?.publishedAt ?? heroes.publishedAt;
 
-  return <EditorialShell routeId="people-of-israel" register="silent" className={styles.page}>
+  return <EditorialShell routeId="people-of-israel" className={styles.page}>
     <div className={styles.hub}>
       <HubMasthead
         kicker="Who Israel is"
@@ -192,6 +192,13 @@ export default async function Page() {
           <p className={styles.sectionCount}><span data-numeric="">{profiles.length}</span> {profiles.length === 1 ? 'profile' : 'profiles'}</p>
           <Link className={styles.sectionLink} href="/our-heroes">All of Our Heroes <span aria-hidden="true">→</span></Link>
         </header>
+        {/* Which of the three kinds of thing on this hub these are. The hub
+            merges live records with two preserved editions that kept their
+            own addresses (`LEGACY_SECTION_PAGES`), and until 2026-09-14 the
+            only thing saying so was a quiet "All of Our Heroes →" at the end
+            of the head — so a reader had no way to tell a profile from a
+            record beyond the picture. */}
+        <p className={styles.sectionLede}>The preserved Our Heroes edition, kept at its own address. Every profile is built only from what named, mainstream press has already reported; the full record and its sources are on the profile’s own page.</p>
         <div className={styles.profiles}>
           {profiles.map((profile, index) => <Profile key={profile.id} profile={profile} featured={index === 0} />)}
         </div>
@@ -221,7 +228,7 @@ export default async function Page() {
               <h2 id="history-title">History &amp; context</h2>
             </div>
           </header>
-          <p className={styles.historyLede}>Context is part of the evidence: new records as they publish, and the timeline that keeps every cited chapter at its original address.</p>
+          <p className={styles.sectionLede}>Context is part of the evidence: new records as they publish, and the preserved Israel’s Story timeline, which keeps every cited chapter at its original address.</p>
           {/* New `history_context` publications, labeled as what they are —
               current work, not yet part of the preserved collection below.
               `records` already fetched every People section; this is that

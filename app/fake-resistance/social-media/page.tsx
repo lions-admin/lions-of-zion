@@ -129,7 +129,6 @@ export default async function Page() {
       id="fake-resistance"
       breadcrumb={[publicationHubCrumb('fakeResistance')]}
       accent="ember"
-      surface="quiet"
       title="The social-media front"
       tagline={TAGLINE}
     >

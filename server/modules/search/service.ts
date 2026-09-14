@@ -15,7 +15,7 @@ import { evidence, informationItem, narrative, publication } from "@/server/db/s
 import { searchRepo } from "./repo";
 import { isIndexable, projectEvidence, projectItem, projectNarrative, projectPublication } from "./projection";
 import type { EntityType } from "@/server/contracts/enums";
-import type { SearchQuery, SearchResult } from "@/server/contracts/search";
+import type { SearchFacet, SearchHit, SearchQuery, SearchResult } from "@/server/contracts/search";
 import type { Evidence, InformationItem } from "@/server/db/schema";
 
 /** What Phase 6 will supply: text in, one vector out. */
@@ -102,13 +102,69 @@ function readerDestination(hit: { entityType: EntityType; publicId: string | nul
   return `/articles/${hit.publicId}`;
 }
 
+/**
+ * How many candidates a reader's query retrieves before anything is filtered.
+ *
+ * Deliberately far above any page size. The ruling below drops every
+ * unaddressable row, and on the live corpus that is most of them — a query for
+ * "October 7" retrieved 50 and 40 were raw evidence rows — so a pool sized to
+ * the page would hand back a nearly empty page. It is also what makes `total`
+ * and `facets` honest: both are counted over this whole pool, not over the ten
+ * rows being shown.
+ *
+ * The ceiling is real rather than notional: `search_hybrid`'s arms each
+ * `LIMIT 100`, so retrieval can see at most a few hundred distinct documents
+ * whatever is passed here. When the pool comes back full, `totalIsFloor` says
+ * so rather than presenting a ceiling as a count.
+ */
+const READER_POOL = 200;
+
+function countByEntityType(hits: readonly { entityType: EntityType }[]): SearchFacet[] {
+  const counts = new Map<EntityType, number>();
+  for (const hit of hits) counts.set(hit.entityType, (counts.get(hit.entityType) ?? 0) + 1);
+  /* Descending by count, then by name, so the filter row has a stable order
+     that does not reshuffle as scores move between two equal kinds. */
+  return [...counts.entries()]
+    .map(([entityType, count]) => ({ entityType, count }))
+    .sort((a, b) => b.count - a.count || a.entityType.localeCompare(b.entityType));
+}
+
+/**
+ * The reader's result set: everything this query retrieved that a reader can
+ * actually open, in relevance order.
+ *
+ * **The order of the three steps is load-bearing.** `isSiteReference` must run
+ * *before* `readerDestination`, or the historic `site-…` publications — the one
+ * publication family that genuinely has no article — would be handed
+ * `/articles/site-we-are` and turn ten dead rows into ten manufactured 404s.
+ * The final filter is the owner ruling of 2026-09-14: a record with no
+ * destination is not a result.
+ *
+ * That ruling is what closes the editorial half of the defect as well as the
+ * usability half. The rows it drops are overwhelmingly raw `evidence` —
+ * external wire headlines, several of them hostile ("Israel: Starvation Used as
+ * Weapon of War in Gaza"), which were being set in this site's own typography,
+ * under this site's own masthead, with no verdict and no context, as though the
+ * desk had written them. They are still held, still cited on the pages that
+ * assess them, and still retrievable by chat (`"internal"`); they are simply no
+ * longer presented as this desk's answer to a reader's question.
+ */
+function readerHits(found: SearchHit[]): SearchHit[] {
+  return found
+    .filter((hit) => !isSiteReference(hit))
+    .map((hit) => ({ ...hit, href: readerDestination(hit) }))
+    .filter((hit) => hit.href !== null);
+}
+
 export function searchService(db: unknown, opts: { embed?: Embedder } = {}) {
   const repo = searchRepo(db);
   const loader = db as Loader;
 
   return {
     /**
-     * @param audience `"reader"` drops hits with no destination — T-9.
+     * @param audience `"reader"` drops hits with no destination — T-9, and
+     *   since 2026-09-14 the owner ruling that a record with no destination
+     *   must not appear in search at all.
      *
      * Measured on Production 2026-09-08: a query matching nothing returned ten
      * hits and the live region announced "10 results", because the historic
@@ -159,9 +215,22 @@ export function searchService(db: unknown, opts: { embed?: Embedder } = {}) {
      * — 41 bogus version rows and 41 fake public corrections. The reader's
      * destination is computed on read instead, and the projection is left
      * alone.
+     *
+     * ## Why the reader's set is now assembled here rather than paged by SQL
+     *
+     * Because the count has to be true. Measured locally 2026-09-14, "October
+     * 7" retrieved 50 rows of which 40 were raw evidence with nowhere to go;
+     * the panel announced "25 results" and 19 of the 25 were unopenable. A
+     * `LIMIT`/`OFFSET` in SQL cannot know that, because what makes a row
+     * unreachable is `readerDestination` — a read-time correction the index
+     * does not carry. So a reader's query retrieves a pool (`READER_POOL`),
+     * filters it, and only then counts, facets and slices. Everything the
+     * client is told about the answer is counted over the same list it is
+     * paging through.
      */
     async search(query: SearchQuery, audience: "reader" | "internal" = "internal"): Promise<SearchResult> {
       const semantic = await repo.hasSemanticArm();
+      const offset = query.offset ?? 0;
 
       /* An embedding is only computed when both halves are actually present:
          a database that can store it and an embedder that can produce it.
@@ -175,21 +244,43 @@ export function searchService(db: unknown, opts: { embed?: Embedder } = {}) {
          that cannot embed must say so, not silently store nothing. */
       const queryEmbedding = semantic && opts.embed ? await embedForQuery(opts.embed, query.q) : null;
 
-      /* Over-fetch before dropping the unaddressable, or a page of results
-         could come back short simply because dead rows occupied the window. */
-      const window = audience === "reader" ? Math.min(query.limit * 2 + 10, 100) : query.limit;
-      const found = await repo.search(query.q, queryEmbedding, window, query.entityType);
-      /* Reader: drop the genuinely unaddressable, then repair the href of the
-         records the projection understated. Internal is handed the repo's rows
-         untouched — chat cites by `documentId` and must keep seeing exactly
-         what it sees today. */
-      const hits = audience === "reader"
-        ? found
-            .filter((hit) => !isSiteReference(hit))
-            .slice(0, query.limit)
-            .map((hit) => ({ ...hit, href: readerDestination(hit) }))
-        : found;
-      return { query: query.q, hits, semantic: semantic && queryEmbedding !== null };
+      /* Internal is handed the repo's rows untouched — chat cites by
+         `documentId`, must keep seeing exactly what it sees today, and asks
+         for one page it sizes itself. */
+      if (audience !== "reader") {
+        const found = await repo.search(query.q, queryEmbedding, query.limit, query.entityType);
+        return {
+          query: query.q,
+          hits: found,
+          semantic: semantic && queryEmbedding !== null,
+          total: found.length,
+          totalIsFloor: found.length >= query.limit,
+          offset: 0,
+          limit: query.limit,
+          facets: countByEntityType(found),
+        };
+      }
+
+      /* The kind filter is applied here rather than passed to the repo, so
+         the facet counts describe the unfiltered set: selecting "Analysis"
+         must not make every other chip vanish, which is what a server-side
+         narrowing would do. */
+      const pool = await repo.search(query.q, queryEmbedding, READER_POOL);
+      const addressable = readerHits(pool);
+      const matching = query.entityType
+        ? addressable.filter((hit) => hit.entityType === query.entityType)
+        : addressable;
+
+      return {
+        query: query.q,
+        hits: matching.slice(offset, offset + query.limit),
+        semantic: semantic && queryEmbedding !== null,
+        total: matching.length,
+        totalIsFloor: pool.length >= READER_POOL,
+        offset,
+        limit: query.limit,
+        facets: countByEntityType(addressable),
+      };
     },
 
     /**

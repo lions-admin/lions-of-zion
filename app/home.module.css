@@ -1,28 +1,14 @@
 /* The lion owns the upper portrait and the right of the landscape cover. */
 .page { position: relative; min-height: 100dvh; overflow-x: clip; background: var(--ground); color: var(--ink-hi); font-family: var(--face-text); }
-/* The cover, reading area and chrome share one neutral charcoal canvas. */
+/* The cover, the reading area and the chrome share one canvas — and since
+   2026-09-14 it is the SAME canvas as every other page. This class used to
+   redefine 19 root tokens locally (`--ground: #1b1b1b` against a root of
+   `#0b0b0b`, a brass `--gold` against a root amber), which meant the site
+   shipped two palettes at once and the seam showed the moment a reader left
+   the homepage. Those values won and moved into `app/globals.css`; what is
+   left here is only the paint, not a re-grade. Do not reintroduce a token
+   override in this file: a page-local palette is how the seam came back. */
 .homeTheme {
-  --ground: #1b1b1b;
-  --ink-hi: #f2eee6;
-  --ink: #d4d0c8;
-  --ink-lo: #b5b1aa;
-  --gold: #d2b279;
-  --gold-hi: #e7c996;
-  --gold-dim: #c2a26c;
-  --abyss: #141414;
-  --surface-0: #202020;
-  --surface-1: #252525;
-  --surface-2: #2a2a2a;
-  --surface-3: #303030;
-  --line: rgba(242, 238, 230, .15);
-  --line-soft: rgba(242, 238, 230, .08);
-  --line-strong: rgba(242, 238, 230, .25);
-  --control-line: #85817b;
-  --gold-line: rgba(210, 178, 121, .25);
-  --gold-line-strong: #c2a26c;
-  --gold-wash: rgba(210, 178, 121, .08);
-  --state-danger: #e9958c;
-  --state-ok: #a2c6ac;
   color-scheme: dark;
   background: var(--ground);
   color: var(--ink-hi);

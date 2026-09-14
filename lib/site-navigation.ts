@@ -1,7 +1,12 @@
+/**
+ * The destinations. `"war-update"` was a member until 2026-09-14 with no
+ * `SITE_NAVIGATION` entry behind it — the section was removed on 2026-09-05
+ * and `/war-update` became a permanent redirect, but the id stayed in the
+ * union, so `section("war-update")` typechecked and threw at build time.
+ */
 export type SiteSectionId =
   | "geopolitical-brief"
   | "we-are"
-  | "war-update"
   | "october-7"
   | "people-of-israel"
   | "fake-resistance"

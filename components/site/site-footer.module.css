@@ -7,8 +7,10 @@
  * reading routes got a compact strip; the strip made every article end on a
  * different note from the front, so the colophon is now the shared close.
  *
- * `--ground` is opaque black, so ScanBackdrop cannot paint through it;
- * `--z-raised` keeps the slab above that fixed layer.
+ * `--ground` is opaque black and `--z-raised` keeps the slab above the page.
+ * It used to say this was what stopped `ScanBackdrop` painting through the
+ * colophon; that ambient layer was retired on 2026-09-14 and the opacity is
+ * now simply what makes the close of the page a close.
  */
 
 .footer {
@@ -33,7 +35,6 @@
    `max()`, not `calc(… + …)`: the inset raises a floor rather than adding to
    the gutter, so at a zero inset this is byte-for-byte the old rule. */
 .inner,
-.files,
 .colophon {
   max-width: var(--footer-width);
   margin-inline: auto;
@@ -100,7 +101,16 @@
   text-wrap: pretty;
 }
 
-/* ── Reference: Methodology and Corrections first ──────────────────────── */
+/* ── Reference: Methodology and Corrections first ──────────────────────────
+ *
+ * Layout only. Every anchor in these three rows is the shared `ChromeLink`
+ * (`chrome-link.module.css`) — the same one the masthead drawer and the
+ * mobile sheet draw, with the same current-page rule, the same focus ring and
+ * the same 44px floor. `.trustLink`, `.furtherLink`, `.fileLink` and
+ * `.fileName` were this file's own four treatments of those same
+ * destinations; they disagreed with the header's in every one of those
+ * respects, and they are gone.
+ */
 
 .reference {
   display: grid;
@@ -110,134 +120,46 @@
   padding-top: var(--sp-2);
 }
 
-.trustList,
-.furtherList,
-.fileList {
-  list-style: none;
-}
-
-.trustList {
-  display: grid;
+/* Methodology and Corrections, at reading size: the two a reader is most
+   likely to want from a colophon, so they are named larger than the rest. */
+.trustRow ul {
   justify-items: end;
 }
 
-.trustLink {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--control-h);
-  padding-inline: var(--sp-1);
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: var(--t-h3);
-  font-weight: 400;
-  line-height: 1.2;
-  color: var(--ink-hi);
-  text-decoration: none;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.trustLink:hover { color: var(--gold); }
-
-.trustLink[aria-current="page"] {
-  box-shadow: inset 0 calc(-1 * var(--line-w-thick)) 0 var(--gold);
-}
-
-.furtherList {
+.furtherRow ul {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: var(--sp-2) var(--sp-4);
 }
 
-.furtherLink {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--control-h);
-  padding-inline: var(--sp-1);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  line-height: var(--t-caption-lh);
-  color: var(--ink-lo);
-  text-decoration: none;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.furtherLink:hover { color: var(--ink-hi); }
-
-.furtherLink[aria-current="page"] {
-  color: var(--gold-hi);
-  box-shadow: inset 0 calc(-1 * var(--line-w-thick)) 0 var(--gold);
-}
-
 /* ── Section index ─────────────────────────────────────────────────────── */
 
 .files {
+  max-width: var(--footer-width);
+  margin-inline: auto;
+  padding-inline:
+    max(var(--footer-inset), env(safe-area-inset-left, 0px))
+    max(var(--footer-inset), env(safe-area-inset-right, 0px));
   padding-block: var(--sp-5) var(--sp-6);
   border-top: var(--line-w) solid var(--line-soft);
 }
 
-.filesLabel {
-  composes: kickerLabel from global;
-  margin-bottom: var(--sp-4);
-  color: var(--ink-lo);
-}
-
-.fileList {
-  display: grid;
+.files ul {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--sp-2) var(--sp-6);
 }
 
-.fileLink {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-3);
-  min-height: 3rem;
-  padding: var(--sp-2) 0;
+/* A rule under each cell, so the index reads as a table of files rather than
+   as a paragraph of names. The link's own `[aria-current]` rule sits on top
+   of it and wins, which is what marks the page you are on. */
+.files ul li {
   border-bottom: var(--line-w) solid var(--line-soft);
-  color: var(--ink);
-  text-decoration: none;
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out);
 }
 
-/* → and not ↗. Every entry in this index is on this site; ↗ is reserved for
-   the links that leave it — PayPal, the coffee page — so a reader can tell
-   from the glyph alone (UX-09). */
-.fileLink::after {
-  content: "→";
-  flex: 0 0 auto;
-  font-size: var(--t-body);
-  color: var(--ink-lo);
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    transform var(--dur-fast) var(--ease-out);
-}
-
-.fileLink:hover {
-  color: var(--gold);
-  border-bottom-color: var(--line);
-}
-
-.fileLink:hover::after {
-  color: var(--gold);
-  transform: translateX(2px);
-}
-
-.fileLink[aria-current="page"] {
-  color: var(--ink-hi);
-  border-bottom-color: var(--gold);
-}
-
-.fileLink[aria-current="page"]::after { color: var(--gold); }
-
-.fileName {
-  font-size: var(--t-caption);
-  font-weight: 400;
-  line-height: 1.5;
-  text-wrap: pretty;
+.files ul a {
+  min-height: 3rem;
+  padding-block: var(--sp-2);
 }
 
 /* ── Colophon ──────────────────────────────────────────────────────────── */
@@ -287,7 +209,7 @@
 /* ── Seams ─────────────────────────────────────────────────────────────── */
 
 @media (max-width: 64rem) {
-  .fileList { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .files ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 48rem) {
@@ -298,29 +220,24 @@
     padding-block: var(--sp-6) var(--sp-5);
   }
   .reference { justify-items: start; padding-top: 0; }
-  .trustList {
+  .trustRow ul {
     display: flex;
     flex-wrap: wrap;
+    justify-items: start;
     gap: var(--sp-5);
   }
-  .trustLink { font-size: var(--t-body); }
-  .furtherList { justify-content: flex-start; }
+  .furtherRow ul { justify-content: flex-start; }
   .colophon { gap: var(--sp-2) var(--sp-5); }
   .toTop,
   .home .toTop { padding-inline-end: 0; }
 }
 
 @media (max-width: 26rem) {
-  .fileList { grid-template-columns: minmax(0, 1fr); }
+  .files ul { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* The links' own transitions are stilled by `chrome-link.module.css`. */
   .brandRole,
-  .trustLink,
-  .furtherLink,
-  .fileLink,
-  .fileLink::after,
   .toTop { transition-duration: 0ms; }
-
-  .fileLink:hover::after { transform: none; }
 }

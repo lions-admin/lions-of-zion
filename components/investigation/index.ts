@@ -17,6 +17,7 @@ export { InvestigationSectionNav, type InvestigationSection } from './Investigat
    tracks the *originating* module, not the barrel that re-exports it. */
 export { BASE_CASE_SECTIONS, caseSections } from './labels';
 export { CaseStoryHeader } from './CaseStoryHeader';
+export { NetworkFindingHeader } from './NetworkFindingHeader';
 export { RoleMap } from './RoleMap';
 export { NarrativeLanes } from './NarrativeLanes';
 export { RelationshipFlow } from './RelationshipFlow';

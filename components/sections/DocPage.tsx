@@ -8,43 +8,29 @@
  *
  * Those two take no rails: they are short policy pages, not documents with
  * sections to navigate or records to cite, so there is nothing for a margin
- * to carry, and leaving `rails` at `'none'` is what keeps the scan reaching in
- * as far as it did — see the note on `.withRails` in sections.module.css.
+ * to carry.
  *
  * The shell now also serves the October 7 archive, whose longest testimonies
  * run fifteen sections, so `rails="toc"` opts one page into the contents rail
  * and the reading line. It is one rail rather than the section pages' pair:
  * there is no evidence margin here.
  *
- * They are linked from the prose of the pages that mean them and from the
- * scan, and do not join the radial nav itself (see `.ai/DECISIONS.md`).
+ * `rails` and `SectionPage`'s `withToc` are the same switch under two names
+ * — the two shells derive the progress bar, the rail and the contents control
+ * from it identically, and that is deliberate: a reader should not be able to
+ * tell which of the two rendered the page they are on.
+ *
+ * They are linked from the prose of the pages that mean them, and do not join
+ * the radial nav itself (see `.ai/DECISIONS.md`).
  */
 import { EditorialShell } from '@/components/site/EditorialShell';
 import { Breadcrumb } from '@/components/site/Breadcrumb';
-import { SectionToc } from './SectionToc';
+import { SectionToc, SectionTocControl } from './SectionToc';
 import styles from './sections.module.css';
 
 export interface DocPageProps {
-  /** Seeds the backdrop's corpus sample and doubles as this page's identity. */
+  /** This page's identity — a route id, and the shell's measurement key. */
   routeId: string;
-  /**
-   * Overrides the backdrop seed where `routeId` is not unique to the page.
-   *
-   * `/methodology` and `/corrections` own their route and need nothing here.
-   * The archive's ~1,177 routes all pass `routeId="october-7"`, so without
-   * this every record drew the same nine corpus fragments in the same places.
-   */
-  backdropSeed?: string;
-  /**
-   * How loud the scan backdrop is behind this page.
-   *
-   * `'silent'` renders no backdrop at all, which is what the October 7
-   * material takes: the corpus rows drift continuously, which makes them a
-   * ticker, and OCT-001 rules a ticker out of the memorial and everything
-   * under it. Everything else keeps `'muted'`, which is what this shell has
-   * always passed.
-   */
-  register?: 'default' | 'muted' | 'silent';
   title: string;
   /**
    * The one-line description under the title.
@@ -71,11 +57,11 @@ export interface DocPageProps {
    * Document navigation, for the pages long enough to need it.
    *
    * `'toc'` adds the reading-progress line at every width and the "In this
-   * file" rail above 1220px. Off by default: `/methodology` and `/corrections`
-   * are short policy pages with nothing to navigate, and the rail widens the
-   * band the scan stays out of, which would quiet it across margins holding
-   * nothing. `.ai/DECISIONS.md` asked for exactly this — a prop on the
-   * existing shell, never a fork.
+   * file" rail above 1220px — the same pair `SectionPage`'s `withToc` turns
+   * on, derived in the same place below. Off by default: `/methodology` and
+   * `/corrections` are short policy pages with nothing to navigate.
+   * `.ai/DECISIONS.md` asked for exactly this — a prop on the existing shell,
+   * never a fork.
    */
   rails?: 'none' | 'toc';
   /**
@@ -107,7 +93,6 @@ export interface DocPageProps {
 
 export function DocPage({
   routeId,
-  backdropSeed,
   title,
   tagline,
   dateline,
@@ -115,41 +100,24 @@ export function DocPage({
   rails = 'none',
   titleLang,
   breadcrumb,
-  register = 'muted',
   children,
 }: DocPageProps) {
   const withToc = rails === 'toc';
-  const pageClass = [
-    styles.page,
-    styles.surfaceQuiet,
-    /* `register="muted"` was declared on the backdrop below and never applied
-       here, so the prop cut the row count and left the opacity alone: every
-       archive record ran the scan at 0.7 while the `/october-7` hub that owns
-       those records ran it at 0.45. Applying the class is what makes the two
-       agree. */
-    register === 'muted' ? styles.registerMuted : '',
-    /* This shell carries one rail, not the section pages' pair, so widening
-       the mask by a single rail is the arithmetic the audit asked for. It is
-       not expressible: `.rowField`'s mask is symmetric about 50%, so a
-       one-rail widening spends half of itself on the empty right margin and
-       leaves the left 124px of the rail — where the contents list actually
-       starts — with corpus rows still drifting behind it. `.withRails`
-       protects the rail in full and over-quiets a margin that holds nothing,
-       which is the cheaper of the two errors. Making it asymmetric means
-       reworking the mask itself. */
-    withToc ? styles.withRails : '',
-  ]
-    .join(' ')
-    .trim();
+  /* Same one-line page class `SectionPage` builds, minus the accent it has no
+     prop for. `.surfaceQuiet`, `.registerMuted` and `.withRails` were all
+     here; all three only ever tuned the scan backdrop, and it is gone. */
+  const pageClass = styles.page;
 
   return (
     <EditorialShell
       routeId={routeId}
-      backdropSeed={backdropSeed}
-      register={register}
       showProgress={withToc}
       className={pageClass}
-      progressTrackClassName={styles.topProgressTrack}
+      /* Hides the fixed top bar at ≥1220px, where the rail carries the depth
+         line instead. `withToc` is false here means no bar at all, so the
+         class is harmless either way — but deriving it identically to
+         `SectionPage` is what keeps the two shells one behaviour. */
+      progressTrackClassName={withToc ? styles.topProgressTrack : undefined}
     >
       <div className={styles.shell}>
         <Breadcrumb
@@ -178,6 +146,10 @@ export function DocPage({
             {dateline}
             <div className={styles.ledeRule} aria-hidden="true" />
           </header>
+          {/* Same slot as `SectionPage`'s — under the header, never above the
+              headline. See `SectionToc.tsx` for why the control and the rail
+              are two components. */}
+          {withToc ? <SectionTocControl /> : null}
           {/* `data-toc-source` scopes the rail's heading scan to the page body,
               so it can never pick up an h2 from the chat modal or the rail. */}
           <div className={styles.body} data-toc-source>

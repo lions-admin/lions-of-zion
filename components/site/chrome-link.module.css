@@ -1,0 +1,271 @@
+/* The chrome's one link.
+ *
+ * Every destination in the masthead drawer, the mobile sheet and the colophon
+ * is drawn by this file. See `ChromeLink.tsx` for why there is only one, and
+ * for the contract each rule below implements.
+ *
+ * Three things are deliberate and should not be "tidied":
+ *
+ *  1. **The current-page mark is a rule, not a colour.** `[aria-current]`
+ *     draws a gold line under the link *and* recolours it. The colour alone
+ *     fails "no state carried by colour alone"; the line is what carries it.
+ *  2. **The focus ring has its own geometry.** `outline` at an offset, so it
+ *     is visible over every ground the chrome uses and is never confusable
+ *     with the hover recolour.
+ *  3. **The tap target is floored on the box.** `min-height` on the anchor,
+ *     not line-height on the text — a 13px reference label still has to be
+ *     44px tall.
+ */
+
+.link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--sp-4);
+
+  /* UX-11: a link is a target, whatever its text measures. */
+  min-height: var(--control-h);
+
+  color: var(--ink-hi);
+  text-decoration: none;
+  font-family: var(--face-navigation);
+  text-transform: none;
+
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.name {
+  min-width: 0;
+  text-wrap: pretty;
+}
+
+.arrow {
+  align-self: center;
+  flex: 0 0 auto;
+  font-size: var(--t-body);
+  color: var(--ink-lo);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.description {
+  grid-column: 1;
+  margin-top: var(--sp-2);
+  max-width: 44ch;
+  font-size: var(--t-caption);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--ink-lo);
+  text-wrap: pretty;
+}
+
+/* ── Sizes ─────────────────────────────────────────────────────────────────
+ *
+ * Type scale only. None of them may touch the target floor, the focus ring or
+ * the current-page rule — those are the contract and they live above.
+ */
+
+/* The cell a description turns the link into.
+ *
+ * The rule above each cell and the vertical air belong to `density="detail"`,
+ * not to a size: a compact link that happens to be set large — Methodology
+ * and Corrections in the colophon — is a name in a list, and a hairline over
+ * each of those read as a rendering artefact rather than as structure. */
+.link:has(.description) {
+  align-items: start;
+  padding-block: var(--sp-4);
+  border-top: var(--line-w) solid var(--line);
+}
+
+.feature:has(.description) {
+  padding-block: var(--sp-5);
+}
+
+.feature .name {
+  font-family: var(--face-navigation-display);
+  font-size: clamp(1.625rem, 2.5vw, 2.125rem);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+}
+
+.feature .arrow {
+  align-self: start;
+  padding-top: 0.1875rem;
+  font-size: 1.0625rem;
+}
+
+.standard .name {
+  font-size: 1.125rem;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.standard .description {
+  margin-top: var(--sp-2);
+}
+
+.compact .name {
+  font-size: var(--t-caption);
+  font-weight: 400;
+  line-height: var(--t-caption-lh);
+}
+
+/* ── States ──────────────────────────────────────────────────────────────── */
+
+.link:hover {
+  color: var(--gold-hi);
+}
+
+.link:hover .arrow {
+  color: var(--gold-hi);
+  transform: translateX(2px);
+}
+
+.link:active {
+  color: var(--gold-hi);
+}
+
+.link:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+/* "You are here": a rule the eye reads as a mark, plus the recolour. Never
+   the recolour on its own — see the note at the top of this file. */
+.link[aria-current="page"] {
+  color: var(--gold-hi);
+  box-shadow: inset 0 calc(-1 * var(--line-w-thick)) 0 var(--gold);
+}
+
+.link[aria-current="page"] .arrow {
+  color: var(--gold);
+}
+
+/* A cell that carries a top border takes the mark there as well, so it reads
+   as bracketed rather than as underlined into the one below it. */
+.link:has(.description)[aria-current="page"] {
+  border-top-color: var(--gold-dim);
+}
+
+/* ── Group ───────────────────────────────────────────────────────────────── */
+
+.groupLabel {
+  composes: kickerLabel from global;
+  margin: 0 0 var(--sp-3);
+  color: var(--ink-lo);
+}
+
+.list {
+  list-style: none;
+  display: grid;
+}
+
+/* ── Seams ─────────────────────────────────────────────────────────────────
+ *
+ * The link carries its own responsive behaviour, at the canonical seams, so
+ * the masthead drawer, the mobile sheet and the colophon compact identically
+ * instead of each stylesheet reaching in with its own numbers. Three of these
+ * blocks used to live in `site-header.module.css` and applied to nothing the
+ * colophon rendered.
+ *
+ * One rule is never relaxed anywhere below: the 44px target floor. A
+ * compaction may take type, padding and a description; it may not take the
+ * size of the thing a thumb has to hit.
+ */
+
+/* The phone seam, `--bp-seam` (45rem). */
+@media (max-width: 45rem) {
+  .feature:has(.description) {
+    padding-block: var(--sp-4);
+  }
+
+  .feature .name {
+    font-size: 1.8125rem;
+  }
+
+  .standard:has(.description) {
+    padding-block: var(--sp-3);
+  }
+
+  .standard .name {
+    font-size: 1rem;
+  }
+
+  /* One line each. A stacked column of three-line descriptions pushes the
+     last destination below a phone's fold, which is the list's whole job. */
+  .standard .description {
+    display: none;
+  }
+
+  .groupLabel {
+    margin-bottom: var(--sp-2);
+  }
+}
+
+/* A phone on its side: the sheet has ~375px of height to spend.
+ *
+ * The descriptions are clipped, not `display: none`d — each one is part of
+ * its link's accessible name, and removing it from the tree would leave the
+ * landscape sheet saying less than the portrait one. This is the same
+ * screen-reader-only box the header's `.menuLabel` uses. */
+@media (max-height: 30rem) and (pointer: coarse) {
+  .description {
+    /* Explicit, because the 45rem block above takes `.standard .description`
+       out of the flow with `display: none` and a later rule that only sets
+       `position` would leave it out of the accessibility tree — which is the
+       one thing this block exists to prevent. */
+    display: block;
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .feature:has(.description) {
+    padding-block: var(--sp-3);
+  }
+
+  .feature .name {
+    font-size: 1.375rem;
+  }
+}
+
+/* The static index a reader with scripting off gets in place of the drawer.
+ * It is an index, not a menu, so it is set as one. */
+@media (scripting: none) and (max-width: 48rem) {
+  .link:has(.description) {
+    padding-block: var(--sp-2);
+  }
+
+  .feature .name {
+    font-size: 1.125rem;
+    line-height: 1.2;
+  }
+
+  .standard .name {
+    font-size: 0.9375rem;
+  }
+
+  .description {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link,
+  .arrow {
+    transition-duration: 0ms;
+  }
+
+  .link:hover .arrow {
+    transform: none;
+  }
+}

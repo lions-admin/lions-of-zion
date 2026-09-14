@@ -1,7 +1,5 @@
 import type { ReactNode } from "react";
 import { ReadingProgress } from "@/components/sections/ReadingProgress";
-import { ScanBackdrop } from "@/components/sections/ScanBackdrop";
-import { scanProfileForRoute } from "@/components/sections/scanProfiles";
 import { resolveActiveChromeSection } from "@/lib/site-navigation";
 import { routeFamily } from "./route-family";
 import { SiteFooter } from "./SiteFooter";
@@ -10,14 +8,6 @@ import styles from "./editorial-shell.module.css";
 
 interface EditorialShellProps {
   routeId: string;
-  backdropSeed?: string;
-  /**
-   * The page's own dimmer over its family profile. `muted` and `silent` are
-   * what `SectionPage`/`DocPage` pass through; left out, the route's profile
-   * from `scanProfiles.ts` decides. Intensity, density and speed always come
-   * from that profile — a page does not pick those, its family does.
-   */
-  register?: "default" | "muted" | "silent";
   showProgress?: boolean;
   className: string;
   /**
@@ -75,8 +65,6 @@ const activeChromeSection = resolveActiveChromeSection;
  */
 export function EditorialShell({
   routeId,
-  backdropSeed,
-  register,
   showProgress = true,
   className,
   skipLinkClassName,
@@ -86,7 +74,6 @@ export function EditorialShell({
 }: EditorialShellProps) {
   const activeSection = activeChromeSection(routeId);
   const family = routeFamily(routeId);
-  const scan = scanProfileForRoute(routeId);
 
   return (
     <>
@@ -96,12 +83,13 @@ export function EditorialShell({
         </a>
       </div>
       <SiteHeader activeSection={activeSection} />
-      {/* `data-family` drives density, measure and scan strength from
-          `app/globals.css`. It stays; the paragraph that used to print its
-          value above every heading does not. "Desk" / "Dossier" /
-          "Institution" is this system's own vocabulary for how densely a
-          route is set — it tells a reader nothing, and it read as a label
-          belonging to the content under it. */}
+      {/* `data-family` drives density and measure from `app/globals.css`. It
+          stays; the paragraph that used to print its value above every
+          heading does not. "Desk" / "Dossier" / "Institution" is this
+          system's own vocabulary for how densely a route is set — it tells a
+          reader nothing, and it read as a label belonging to the content
+          under it. (It drove scan strength too until the ambient backdrop was
+          retired on 2026-09-14.) */}
       <main className={className} data-reading-scroll data-public-shell data-family={family}>
         {showProgress ? (
           <ReadingProgress
@@ -109,14 +97,18 @@ export function EditorialShell({
             valueClassName={progressValueClassName}
           />
         ) : null}
-        <ScanBackdrop
-          routeId={routeId}
-          seed={backdropSeed}
-          register={register ?? scan.register}
-          intensity={scan.intensity}
-          density={scan.density}
-          speed={scan.speed}
-        />
+        {/* Nothing sits between the ground and the document.
+            `ScanBackdrop` used to mount here: 16 rows of the monitoring
+            corpus drifting on 45–90s loops behind every reading page, at an
+            effective 0.05–0.0765 alpha. Owner ruling, 2026-09-14 — it goes.
+            Three reasons, any one of which is sufficient. It is what made a
+            page read as dark-and-settling rather than simply rendered, and
+            what left ghost text in the desktop margins. Its corpus is
+            *hostile* material ("ANTI ISRAEL NARRATIVE: …", "PROPAGANDA
+            STREAM: …"), so the site was wallpapering itself in the messaging
+            it exists to refute. And it ran continuous compositing behind
+            running text on twenty public routes. Do not reintroduce an
+            ambient version of it here. */}
         {children}
       </main>
       <SiteFooter activeSection={activeSection} />

@@ -45,18 +45,20 @@ export function searchRepo(db: unknown) {
      */
     async upsert(p: Projection): Promise<void> {
       await d.execute(sql`
-        INSERT INTO search_document (entity_type, entity_id, title, body, language, public_id, href)
-        VALUES (${p.entityType}, ${p.entityId}, ${p.title}, ${p.body}, ${p.language},
+        INSERT INTO search_document (entity_type, entity_id, title, body, summary, language, public_id, href)
+        VALUES (${p.entityType}, ${p.entityId}, ${p.title}, ${p.body}, ${p.summary}, ${p.language},
                 ${p.publicId}, ${p.href})
         ON CONFLICT (entity_type, entity_id) DO UPDATE
           SET title = excluded.title,
               body = excluded.body,
+              summary = excluded.summary,
               language = excluded.language,
               public_id = excluded.public_id,
               href = excluded.href,
               updated_at = now()
           WHERE search_document.title IS DISTINCT FROM excluded.title
              OR search_document.body IS DISTINCT FROM excluded.body
+             OR search_document.summary IS DISTINCT FROM excluded.summary
              OR search_document.language IS DISTINCT FROM excluded.language
              OR search_document.public_id IS DISTINCT FROM excluded.public_id
              OR search_document.href IS DISTINCT FROM excluded.href
@@ -95,7 +97,7 @@ export function searchRepo(db: unknown) {
       const fetchLimit = entityType ? limit * 4 : limit;
 
       const result = await d.execute(sql`
-        SELECT document_id, entity_type, entity_id, public_id, href, title, score
+        SELECT document_id, entity_type, entity_id, public_id, href, title, summary, score
         FROM search_hybrid(${q}, ${embeddingLiteral}, ${fetchLimit})
       `);
 
@@ -106,6 +108,7 @@ export function searchRepo(db: unknown) {
         public_id: string | null;
         href: string | null;
         title: string;
+        summary: string | null;
         score: number | string;
       }[];
 
@@ -119,6 +122,7 @@ export function searchRepo(db: unknown) {
           publicId: r.public_id ?? null,
           href: r.href ?? null,
           title: r.title,
+          summary: r.summary ?? null,
           score: Number(r.score),
         }));
     },

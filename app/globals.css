@@ -42,7 +42,22 @@
   --font-sans: var(--face-text);
   --font-mono: var(--face-data);
 
-  /* --- Type roles (SYS-004) ---
+  /* --- ONE heading scale, and the rule that keeps it one (2026-09-14) ---
+     The roles below are the site's only heading scale. A page that wants a
+     bigger headline changes the role it uses; it does not declare its own
+     `clamp()`. That rule exists because the site was measured carrying 776
+     `font-size` declarations across 60 public stylesheets, with page-private
+     scales in at least four files — so two headings of the same rank could
+     differ by ten pixels and two of different rank by one, and a reader had
+     no size to read rank from.
+
+     The one sanctioned exception is `components/home/homepage-journey.module.css`,
+     whose four `--journey-*` tokens are the homepage's reading-band scale.
+     They were measured and shipped on 2026-09-14 and are NOT a licence for a
+     second scale elsewhere: nothing outside that file may define its own
+     heading size. Anywhere else, use the roles below.
+
+     --- Type roles (SYS-004) ---
      display / h2 / figure / h3 / lede / body / small / caption / kicker / data.
      Body is 17px (above the 16px mobile floor). Caption 13px. Kicker 13px.
      Data 12px (desktop metadata floor; 13px on a phone, see the 48rem block
@@ -137,39 +152,40 @@
    * `--gold-line-strong` below reads the way it does — swapping a hue silently
    * moved an alpha that a comment had recorded as safe, and nothing but
    * `scripts/ui-audit.mjs` noticed. */
-  --ground: #0b0b0b;
-  --ink-hi: #f6f3eb;
-  --ink: #cbc7bd;
+  --ground: #1b1b1b;
+  --ink-hi: #f2eee6;
+  --ink: #d4d0c8;
   /* Muted body copy, and the token the surface re-grade kept catching out. It
      has to clear 4.5:1 on the LIGHTEST surface it can land on, not on the
-     ground: #9a958c passed on the ground at 6.61 and on surface-1 at 4.86, then
-     `ui-audit` found it at 4.36 on the mechanism notes of /information-war,
-     which sit a tone higher, and it would have been 3.88 on surface-3.
-     #a8a29a holds 7.78 / 5.72 / 5.13 / 4.57 across all four. */
-  --ink-lo: #a8a29a;
-  --gold: #f0b429;
-  --gold-hi: #f7cd6b;
+     ground — a token measured only against the ground has been wrong here
+     twice. Re-measured 2026-09-14 against the unified warm grade, #b5b1aa
+     holds 8.07 on the ground and 7.63 / 7.18 / 6.72 / 6.18 across surfaces
+     0-3, so the lightest surface still clears the floor by 1.7x. */
+  --ink-lo: #b5b1aa;
+  --gold: #d2b279;
+  --gold-hi: #e7c996;
   /* The dim step, and the one that actually constrains the hue: it is used as
      SMALL TEXT in two places — the fact-check ladder's rung numbers and the
      homepage rail flag — so it owes the full 4.5:1 of A11Y-004 rather than the
-     3:1 a large or non-text element would. Its history is a record of that
-     floor being missed and then held: #8a6f3e measured 4.42 and 4.17 and
-     failed; #977544 held 4.94 and 4.66; #b8860b holds 6.45 on the black ground
-     and 6.09 on surface-1. Its other uses are backgrounds and beam tails,
-     where a step of lightness this small is not visible. */
-  --gold-dim: #c08d14;
+     3:1 a large or non-text element would. Two earlier values missed that
+     floor before it was held. Re-measured 2026-09-14 on the unified warm
+     grade, #c2a26c holds 7.12 on the ground and 6.73 / 6.33 / 5.93 / 5.45
+     across surfaces 0-3 — it clears the floor on every surface it can land
+     on, which is what the earlier misses did not. Its other uses are
+     backgrounds and beam tails, where this step of lightness is not visible. */
+  --gold-dim: #c2a26c;
 
   /* One shade under the canvas, for a bar that has to read as behind it. */
-  --abyss: #050505;
+  --abyss: #141414;
 
-  --surface-0: #161818;
-  --surface-1: #272a2a;
-  --surface-2: #2e3232;
-  --surface-3: #353a3a;
+  --surface-0: #202020;
+  --surface-1: #252525;
+  --surface-2: #2a2a2a;
+  --surface-3: #303030;
 
-  --line: rgba(246, 243, 235, 0.13);
-  --line-soft: rgba(246, 243, 235, 0.07);
-  --line-strong: rgba(246, 243, 235, 0.24);
+  --line: rgba(242, 238, 230, 0.15);
+  --line-soft: rgba(242, 238, 230, 0.08);
+  --line-strong: rgba(242, 238, 230, 0.25);
 
   /* The boundary of an interactive control, and nothing else.
    *
@@ -187,8 +203,8 @@
    * because they answer to two different rules.
    *
    * Verified by `scripts/ui-audit.mjs`, which computes this in the page. */
-  --control-line: rgba(246, 243, 235, 0.4);
-  --gold-line: rgba(240, 180, 41, 0.25);
+  --control-line: #85817b;
+  --gold-line: rgba(210, 178, 121, 0.25);
   /* The alpha here is a measurement, not a taste, and it has to be re-derived
      every time either the hue OR the surfaces move. This is the selected state
      on filter chips and stage toggles — a control boundary, so WCAG 1.4.11's
@@ -203,8 +219,8 @@
      3.50 and 3.24.
      `--gold-line` below is decorative framing, is not a control boundary, and
      tracks no floor. */
-  --gold-line-strong: rgba(240, 180, 41, 0.6);
-  --gold-wash: rgba(240, 180, 41, 0.1);
+  --gold-line-strong: #c2a26c;
+  --gold-wash: rgba(210, 178, 121, 0.08);
 
   /* data-blue was retired to warm grey; keep the names so existing modules
      do not invent a second blue. Ember is the only chromatic alert besides
@@ -233,13 +249,13 @@
   --ember-wash: var(--data-ember-wash);
 
   /* --- Semantic state (SYS-010). Text labels required; colour is not a cue. --- */
-  --state-ok: #8fcfae;
+  --state-ok: #a2c6ac;
   --state-ok-wash: rgba(96, 178, 137, 0.14);
   --state-ok-line: rgba(96, 178, 137, 0.35);
   --state-warn: #e3b866;
   --state-warn-wash: rgba(227, 184, 102, 0.14);
   --state-warn-line: rgba(227, 184, 102, 0.35);
-  --state-danger: #e08a86;
+  --state-danger: #e9958c;
   --state-danger-wash: rgba(214, 105, 99, 0.14);
   --state-danger-line: rgba(214, 105, 99, 0.4);
 

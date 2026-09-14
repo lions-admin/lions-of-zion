@@ -36,11 +36,25 @@ describe("one destination, one name", () => {
     expect(page).toMatch(/const HEADLINE = "This is an information war";/);
   });
 
-  it("no longer offers a third name for it on the homepage cover", () => {
-    const home = read("app/page.tsx");
-    const markup = home.replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
-    expect(markup).not.toContain("Why this work matters");
-    expect(markup).toContain("How it works");
+  it("no longer offers a third name for it anywhere on the homepage", () => {
+    const strip = (src: string) => src.replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
+    const home = strip(read("app/page.tsx"));
+    const system = strip(read("components/home/HomeSystemSection.tsx"));
+
+    /* The rejected name is what VA-51 was about, and it must not come back on
+       either surface. */
+    expect(home).not.toContain("Why this work matters");
+    expect(system).not.toContain("Why this work matters");
+
+    /* The cover used to carry a second, quieter link to the same destination
+       under its own wording. It now carries one action and names
+       `/information-war` not at all, so the homepage's single name for it is
+       the system band's — which is the chrome's name, as the ruling requires.
+       Asserted as "exactly one surface names it", so re-adding a differently
+       worded cover link fails here rather than passing quietly. */
+    expect(home).not.toContain("/information-war");
+    expect(system).toContain("How it works");
+    expect(system).toContain('href="/information-war"');
   });
 });
 

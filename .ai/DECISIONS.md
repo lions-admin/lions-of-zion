@@ -10,6 +10,56 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-14 — The homepage states link role and heading rank; it does not infer them
+
+The owner's verdict on the homepage was that it is built badly, does not
+activate the customer, and leaves it unclear what you press where and what the
+internal division is — mainly on a phone. Measured at 390x844, the page was
+11,585px (13.7 screens), the first story sat 1,231px down, and the entire
+first screen was the lion video with no text on it at all.
+
+**Why the fix was a vocabulary and not a restyle.** `JourneyLink` was one
+component re-skinned six ways by ancestor selector, so the primary reading
+action, the hub link and a history-chapter title were separated by a pixel of
+font size and a transparent-versus-visible hairline. Record headings were set
+by eleven ad-hoc `clamp()` declarations from their own selectors and restated
+again at three breakpoints. In both cases the information a reader ranks by
+existed only as a side effect of where the markup happened to sit. Rank is now
+**declared**: `variant="primary" | "section" | "quiet"` at the call site, and
+four heading tokens (`--journey-title`, `--journey-lead`, `--journey-story`,
+`--journey-aside`) on the band wrapper. Fifteen headings now take four sizes;
+the page body takes 15 distinct text sizes rather than 39.
+
+**Ranking is carried by enclosure, not colour.** `primary` is the only boxed
+link on the page. A gold-versus-ink distinction disappears in greyscale and
+for a reader with a colour deficiency; a border does not.
+
+**Do not name a link role `.section`.** That class is already the band wrapper
+in `homepage-journey.module.css`, and a bare role class of that name silently
+re-pads every band on the page. The roles are `linkPrimary`, `linkSection`,
+`linkQuiet` for that reason.
+
+**A cross-module selector in a CSS Module never matches.** Class names are
+hashed per file, so `.investigation[data-has-media="false"] .dossierBody`
+written in `HomeNarrativesSection.module.css` compiles to a hashed
+`.investigation` that is on no element. The rule is silent, not broken, which
+is the dangerous part. Scope by a class the same file owns, or not at all.
+
+**The cover keeps the full-height lion, by owner ruling**, with the message and
+one action over it on a scrim. The scrim is anchored in pixels from the bottom
+of the frame rather than as a percentage ramp, because what it has to cover is
+a block of type whose height is a number of lines and does not scale with the
+viewport.
+
+The page is now 8,811px (10.4 screens) and the People band 1,396px (1.65, from
+3.6). It did not reach the 9-10 screens asked for: the journey itself is 8.4
+screens, and the rest is the owner-locked full-height cover plus a footer
+nobody was asked to touch. Shortening further means dropping a record from a
+band, and `homePairSchema` caps a section at two, so which two appear is an
+editorial choice rather than a styling one.
+
+---
+
 ## 2026-09-12 — One operations task board; every agent reports through the same CLI
 
 Five AI environments, the ChatGPT editorial run, GitHub Actions and local
@@ -2783,3 +2833,20 @@ workflow boundary — every detail traces to reporting the subject or their
 family already made public. `EDITION.featured` in that file (used only by
 `/our-heroes`' own page, not by the homepage) was left pointing at
 `PROFILES[0]` and was not reconsidered as part of this change.
+
+## 2026-09-14 — Documentation-archive list thumbnails are not gated, by owner ruling
+
+While redesigning `/october-7/documentation`'s list rows, an agent noticed
+that the row thumbnails (`ArchiveRecordList.tsx`'s `RecordThumb`, fed by
+`lib/content/archive.ts`'s `withCoverThumbs`) render each record's own cover
+image directly and unblurred — including graphic ones — while the identical
+source image sits behind `SensitiveContent`'s "Show this material" gate once
+the same record's own page is opened. Flagged to the owner as a possible
+inconsistency rather than fixed unilaterally, since it is a policy call about
+an evidentiary archive, not a UI defect.
+
+**The owner ruled the list thumbnails do not need hiding.** No code changed
+as a result — the flagged behavior was already the shipped behavior, so this
+entry exists only so a future session does not re-diagnose the same
+observation as an unfixed bug and reopen it. The record page's own
+`SensitiveContent` gate is unaffected and still applies exactly as before.

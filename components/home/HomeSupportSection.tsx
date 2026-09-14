@@ -63,7 +63,7 @@ export function HomeSupportSection() {
         ))}
       </ul>
       <p className={styles.supportMore}>
-        <JourneyLink href="/support-us">
+        <JourneyLink href="/support-us" variant="quiet">
           Other ways to help: report a claim, volunteer a skill, share what is verified
         </JourneyLink>
       </p>

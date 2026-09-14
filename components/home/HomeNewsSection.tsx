@@ -22,6 +22,16 @@ const BAND = homepageBand("news");
  * a phone sets as one compact row beside a thumbnail. Every field stays in the
  * document; the phone clamps what the preview shows and the record has the
  * rest.
+ *
+ * **The headline is the card's first element, in the DOM and on the screen.**
+ * It used to be the fifth: picture, disclosure, "Credit" toggle, section
+ * label, timestamp, *then* the headline. Four pieces of chrome stood between
+ * a reader and the only thing that tells them whether the record is worth
+ * opening, and a screen reader read all four before the story's name. The
+ * order is headline → byline → picture → preview → sources → action here and
+ * in every other band; `.byline` is the one metadata row the whole edition
+ * uses, so the section label and the timestamp arrive together, after the
+ * headline, in one 13px line.
  */
 export function HomeNewsSection({
   section,
@@ -53,15 +63,15 @@ export function HomeNewsSection({
             data-measure-placement={`news:${rankOf(index)}`}
             data-measure-card
           >
-            <HomeMedia media={item.media} lead={index === 0} />
-            <div className={styles.newsBody}>
+            <h3>
+              <a href={item.href}>{item.title}</a>
+            </h3>
             <div className={styles.byline}>
               <span>{item.category}</span>
               <HomeTime date={item.date} updatedAt={item.updatedAt} includeTime />
             </div>
-            <h3>
-              <a href={item.href}>{item.title}</a>
-            </h3>
+            <HomeMedia media={item.media} lead={index === 0} />
+            <div className={styles.newsBody}>
             <p className={styles.summary}>
               <PreviewText
                 text={item.summary}

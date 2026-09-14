@@ -58,20 +58,29 @@
    stays untouched, which is the part that has to read as a photograph. */
 .heroScrim { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 7%, color-mix(in srgb, var(--ground) 34%, transparent) 21%, color-mix(in srgb, var(--ground) 72%, transparent) 37%, color-mix(in srgb, var(--ground) 93%, transparent) 57%, var(--ground) 84%); }
 .masthead { display: flex; flex-direction: column; align-items: flex-start; margin: clamp(44px, 7svh, 190px) var(--home-gutter) 0; text-align: start; }
-.wordmark { margin: 0; max-width: 100%; color: var(--ink-hi); font: 400 clamp(54px, 13.5vw, 100px)/.86 var(--face-home-emphasis); letter-spacing: -.05em; }
+/* `scroll-margin-top` because this is the skip link's target (`#home-wordmark`,
+   `tabIndex={-1}`) and the header is `position: fixed`. Without it the browser
+   parks the wordmark's own top at y=0 and the bar sits on top of it, so the
+   one control that exists for a keyboard user lands them on a headline they
+   cannot read. Stated against `--header-h` rather than a pixel: the token is
+   4.8rem on a desktop and 3.5rem on a phone, plus the safe-area inset, and a
+   literal would be wrong on two of the three. */
+.wordmark { margin: 0; max-width: 100%; scroll-margin-top: calc(var(--header-h) + var(--sp-4)); color: var(--ink-hi); font: 400 clamp(54px, 13.5vw, 100px)/.86 var(--face-home-emphasis); letter-spacing: -.05em; }
 .wordmarkLine { display: flex; align-items: baseline; gap: .12em; white-space: nowrap; }
 .wordmarkLine + .wordmarkLine { margin-top: .1em; }
 .wordmarkOf { font-size: .29em; letter-spacing: .015em; }
 .standfirst { max-width: 38ch; margin: 15px 0 0; color: var(--ink); font: 400 16px/1.55 var(--face-home-cover); text-wrap: pretty; }
-/* One row where the measure allows, two where it does not — the wrap is the
-   fallback, not a breakpoint, so a long translation or a 320px screen simply
-   stacks them again. */
-.coverPaths { display: flex; flex-wrap: wrap; align-items: center; gap: 0 20px; margin-top: 12px; }
-.actions a { color: var(--ink-hi); min-width: 200px; }
-.secondaryActions { display: flex; }
-.storyLink { display: inline-flex; align-items: center; min-height: 44px; font-size: 13px; color: var(--ink-lo); text-decoration: none; }
-.storyLink:hover { color: var(--ink-hi); text-decoration: underline; text-underline-offset: 4px; }
-.storyLink:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+/* The cover's one action. `JourneyLink`'s `primary` role already gives it the
+   border and the surface that make it the only pressable-looking thing on the
+   cover (`homepage-journey.module.css` `.linkPrimary`); what is added here is
+   a focus ring that is not a colour change. `.linkPrimary:focus-visible`
+   states itself by swapping border and background hue, and a hue swap is the
+   one thing a reader with low vision or a colour deficiency may not see —
+   WCAG 2.2 wants an indicator with its own geometry, so there is an outline
+   with an offset, outside the border that is already there. */
+.actions { display: flex; margin-top: 12px; }
+.actions a { color: var(--ink-hi); min-width: 200px; min-height: 48px; }
+.actions a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 /* The edition rail — the bottom band of the cover (VA-10). A gold hairline
    opens it, the metadata line dates the edition and names the lead's status,
    and one block link carries the headline and the way in, so the whole record
@@ -116,7 +125,7 @@
   .masthead { width: min(46vw, 660px); margin: 44px clamp(24px, 5vw, 80px) 0; }
   .wordmark { font-size: clamp(76px, 8.5vw, 144px); }
   .standfirst { font-size: 18px; margin-top: 20px; }
-  .coverPaths { gap: 0 28px; margin-top: 16px; }
+  .actions { margin-top: 16px; }
   .editionRail { max-width: 40ch; margin-top: 16px; padding-top: 13px; }
   .editionRailHeadline { font-size: clamp(23px, 2.1vw, 31px); }
 }
@@ -126,41 +135,96 @@
   .editionRail { max-width: 44ch; }
 }
 @media (max-width: 759px) {
-  /* Owner ruling, 2026-09-08: on a phone the first screen is the photograph.
-     The top four fifths carry nothing but the lion, and the cover's type
-     starts in the bottom fifth and runs on past the fold — the wordmark is
-     the threshold into the edition rather than a caption laid across the
-     animal's face. It replaces the bounded ~73svh cover of VA-10, and it
-     costs what that one bought: the edition rail is now read after a short
-     scroll, not before one.
+  /* Owner ruling, 2026-09-14: full video, with the text layer over it. The
+     ruling was given in Hebrew and is not quoted here — `english-chrome`
+     keeps Hebrew inside the admin console and out of the public source.
 
-     Three rules do it. The picture is pinned to the first screen rather
-     than to the band, so the type that continues below the fold sits on
-     ground and the frame keeps the poster's own 9:16 proportions instead
-     of zooming to fill a 1150px box. The masthead's top margin is the four
-     fifths, measured from the top of the viewport so the header is inside
-     it. And the band is at least a screen tall, so the photograph is never
-     cut short on a device the margin does not fill. */
-  .hero { min-height: 100svh; padding-bottom: 30px; }
+     What this replaces, and why. The 2026-09-08 ruling gave the photograph
+     the whole first screen — `margin-top: calc(80svh - var(--header-h))` —
+     and the measurement on a 390x844 phone was the case against it: the
+     wordmark began at y=675, the proposition at 793, the one primary action
+     at 836 with 8 of its 48 pixels above the fold, and the first story at
+     1296, a screen and a half down. A reader met a lion and no reason to
+     stay, which is exactly the "does not activate the customer" the owner
+     named. The animal was never the problem; the animal with nothing on it
+     was.
+
+     The lion keeps the full screen and the full bleed. The masthead is no
+     longer pushed anywhere: the hero is a column with `justify-content:
+     flex-end`, so with the push removed the type simply settles on the
+     bottom of the first screen, over the video, on a scrim that exists to
+     carry text rather than to shade a picture. The wordmark, the line, the
+     one action and today's lead are all above the fold; the photograph still
+     owns the ~380px above them, which is the part a reader reads as a
+     photograph.
+
+     Two rules survive from the old block unchanged, for the reasons they
+     were written: the picture is pinned to the first screen rather than to
+     the band, so it keeps the poster's own 9:16 proportions instead of
+     zooming to fill the band's height; and the band is at least a screen
+     tall so the frame is never cut short. */
+  .hero { min-height: 100svh; padding-bottom: clamp(20px, 3.4svh, 34px); }
   .fieldLayer { inset: var(--header-h) 0 auto; height: calc(100svh - var(--header-h)); }
-  .masthead { margin-top: calc(80svh - var(--header-h)); }
-  /* The band is close enough to the poster's own ratio that the crop shows
-     the full frame; the value only decides which sliver of width is lost. */
-  .posterField { background-position: 50% 50%; }
-  .heroVideo { object-position: 50% 50%; }
-  /* Nothing to hold until the last fifth, and then everything: the ramp is
-     clear over the head and the mane, weights the ground under the wordmark,
-     and closes on the page colour exactly where the picture ends, so the
-     photograph's bottom edge is a fade rather than a seam. */
-  .heroScrim { background: linear-gradient(to bottom, transparent 52%, color-mix(in srgb, var(--ground) 30%, transparent) 68%, color-mix(in srgb, var(--ground) 72%, transparent) 80%, color-mix(in srgb, var(--ground) 94%, transparent) 90%, var(--ground) 99%); }
-  /* The fixed 200px measure is what stops the two paths sharing a phone row;
-     the link keeps its own width instead and the arrow stays at its end. */
-  .actions a { min-width: 0; }
+  .masthead { margin-top: 0; }
+  /* The type now occupies the bottom 45% of the frame instead of its last
+     sliver, so the frame is read a little higher and the head lands in the
+     clear band above the wordmark rather than behind it. */
+  .posterField { background-position: 50% 38%; }
+  .heroVideo { object-position: 50% 38%; }
+  /* Two layers, and the split is deliberate.
+     The first is anchored in PIXELS from the bottom of the frame, because
+     what it has to cover is the masthead, and the masthead's height is a
+     number of lines of type — it does not scale with the viewport. A
+     percentage ramp tuned on an 844px screen is in the wrong place on a
+     667px one; ~400px from the bottom is where the wordmark starts on both.
+     It reaches the page colour exactly at the frame's bottom edge, so the
+     seam with the reading surface below is a fade and not a line.
+     The second is the long fall across the picture itself: no weight at all
+     over the mane, a quiet grading through the middle so the first layer has
+     something to start from rather than an edge. */
+  .heroScrim {
+    background:
+      linear-gradient(to top,
+        var(--ground) 0,
+        color-mix(in srgb, var(--ground) 92%, transparent) 150px,
+        color-mix(in srgb, var(--ground) 78%, transparent) 280px,
+        color-mix(in srgb, var(--ground) 62%, transparent) 400px,
+        color-mix(in srgb, var(--ground) 26%, transparent) 480px,
+        transparent 560px),
+      linear-gradient(to bottom,
+        transparent 26%,
+        color-mix(in srgb, var(--ground) 40%, transparent) 100%);
+  }
+  /* Full measure, so the one action on the cover is a bar a thumb cannot
+     miss rather than a 178px chip: label at the start, arrow at the end
+     (`.link` is already `space-between`), the whole width pressable. The old
+     `min-width: 0` existed to stop this link sharing a row with the "How it
+     works" string; there is no second path to share a row with.
+     `align-self` as well as `width`, because `.masthead` is a column with
+     `align-items: flex-start`: without it the row is only as wide as the
+     label and `width: 100%` inside it is 100% of 178px. */
+  .actions { align-self: stretch; margin-top: 18px; }
+  .actions a { min-width: 0; width: 100%; max-width: 100%; }
   /* The cover's own rhythm on a phone: each block gets room to be read as a
      block rather than as one continuous column of type (#50). */
-  .standfirst { margin-top: 20px; }
-  .coverPaths { gap: 4px 18px; margin-top: 18px; }
-  .editionRail { margin-top: 24px; padding-top: 16px; }
+  .standfirst { margin-top: 18px; }
+  .editionRail { margin-top: 22px; padding-top: 14px; }
+  /* Three lines allowed, two reserved. Two allowed was a real cut: measured
+     on a 390px screen, "Hostage families march on the Knesset as the cabinet
+     weighs a phased agreement with Hamas" has a 76px natural height inside a
+     50px box, and `-webkit-line-clamp` ends the second line wherever the
+     measure runs out — mid-number in the edition the owner was reading.
+     Reserving three instead would leave 25px of empty box under every short
+     headline, which is most of them.
+     The reservation can stay at two here — and ONLY here — because the phone
+     cover is bottom-anchored inside a `min-height: 100svh` band whose content
+     is nowhere near a screen tall: a third line grows the masthead upward
+     into the lion's clear field, the hero's own height does not change, and
+     nothing below the cover moves. That is the property the original
+     two-line reservation was protecting, and it now holds without paying for
+     it. The desktop rail keeps `2` for both: its band is not a screen tall
+     and the same growth would be a shift. */
+  .editionRailHeadline { -webkit-line-clamp: 3; line-clamp: 3; }
   .hero + .readingSurface { padding-top: 22px; }
 }
 @media (prefers-reduced-motion: reduce) {

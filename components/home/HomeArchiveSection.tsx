@@ -51,14 +51,30 @@ export function HomeArchiveSection({
             data-measure-card
             data-rank={rankOf(index)}
           >
+            {/* The title is a link. It was the only record heading on the
+                homepage that was not — a reader met an archive card whose
+                headline did nothing, under which the "Source: …" citation was
+                underlined, so the one thing that looked pressable was the
+                citation and not the record. Both of the card's ways in now
+                point at the same address: the heading, and the primary
+                action below it. */}
+            <h3>
+              <a href={item.href}>{item.title}</a>
+            </h3>
+            {/* The kind and the witness are the card's byline, in the row
+                every band's metadata uses — after the headline, never in
+                front of it. */}
+            <div className={styles.byline}>
+              <span>
+                {item.kind === "testimony"
+                  ? "First-person testimony"
+                  : "Preserved documentation"}
+              </span>
+              {item.witness && (
+                <span className={styles.witness}>{item.witness}</span>
+              )}
+            </div>
             <HomeMedia media={item.media} />
-            <p className={styles.kicker}>
-              {item.kind === "testimony"
-                ? "First-person testimony"
-                : "Preserved documentation"}
-            </p>
-            {item.witness && <p className={styles.witness}>{item.witness}</p>}
-            <h3>{item.title}</h3>
             {!sameText(item.summary, item.title) && (
               <p className={styles.summary}>
                 <PreviewText

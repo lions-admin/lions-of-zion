@@ -243,6 +243,13 @@
   text-wrap: pretty;
 }
 
+/* The sentence budget's remainder: present for a reader without CSS or a
+   crawler indexing the full text, hidden for everyone else — the full
+   biography is one click away at the profile's own address. */
+.profileSummaryRest {
+  display: none;
+}
+
 /* ── The editorial grid: records + history ─────────────────────────────── */
 
 .columns {
@@ -366,6 +373,17 @@
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
   text-wrap: pretty;
+}
+
+/* Live records and the preserved collection are two distinct groups within
+   one section — each carries its own label above it rather than one heading
+   standing for both. */
+.historyGroup + .historyGroup {
+  margin-top: var(--sp-6);
+}
+
+.historyGroup > .kicker {
+  margin-bottom: var(--sp-3);
 }
 
 .chapters {

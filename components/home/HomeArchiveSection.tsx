@@ -67,7 +67,14 @@ export function HomeArchiveSection({
                 />
               </p>
             )}
-            <p className={styles.warning}>{item.warning}</p>
+            {/* The content note is its own labeled callout, not another line
+                of body copy — so it reads as a warning, not as a continuation
+                of the summary above it, and the action below it stands clear
+                of both. */}
+            <p className={styles.warning}>
+              <span className={styles.warningLabel}>Content note</span>
+              {item.warning}
+            </p>
             <HomeSources sources={item.sources} />
             {/* UX-05 verb table: a testimony is read; a documented record
                 behind a warning is opened with that warning named. */}

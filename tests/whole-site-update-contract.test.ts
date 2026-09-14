@@ -166,4 +166,31 @@ describe('whole-site-update-v1 contract', () => {
       }).success).toBe(false);
     }
   });
+
+  /* `featured` — the six evergreen slots with no `homepage` area of their
+     own (October 7, Courage & service, Fallen, History & context). v2 only:
+     v1 predates the rotation module and its `.strict()` schema rejects the
+     field outright rather than silently accepting it. */
+  it('accepts a pin and a release on a featured slot, v2 only', () => {
+    const pinned = anyWholeSiteUpdatePackageSchema.parse({
+      ...v2,
+      featured: { 'heroes.fallen': { action: 'pin', key: 'hero:example', reason: 'Anniversary of the rescue.' } },
+    });
+    if (pinned.contractVersion !== 'whole-site-update-v2') throw new Error('expected v2');
+    expect(pinned.featured['heroes.fallen']).toMatchObject({ action: 'pin', key: 'hero:example' });
+
+    const released = anyWholeSiteUpdatePackageSchema.parse({
+      ...v2,
+      featured: { 'october7.testimony': { action: 'release', reason: 'Let it rotate again.' } },
+    });
+    if (released.contractVersion !== 'whole-site-update-v2') throw new Error('expected v2');
+    expect(released.featured['october7.testimony']).toMatchObject({ action: 'release' });
+
+    expect(wholeSiteUpdatePackageSchema.safeParse({ ...valid, featured: { 'heroes.fallen': { action: 'release', reason: 'x' } } }).success).toBe(false);
+    expect(anyWholeSiteUpdatePackageSchema.safeParse({
+      ...v2, featured: { 'not.a.slot': { action: 'release', reason: 'x' } },
+    }).success).toBe(false);
+    /* A v2 package predating the field still validates. */
+    expect(anyWholeSiteUpdatePackageSchema.safeParse(v2).success).toBe(true);
+  });
 });

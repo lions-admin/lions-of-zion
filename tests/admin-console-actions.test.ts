@@ -220,10 +220,11 @@ describe("runMaintenanceTick", () => {
       runPrune: async () => { order.push("prune"); return { rateLimits: 3, idempotencyKeys: 1 }; },
       recoverBriefingJobs: async () => { order.push("recover"); return { recovered: 2, configurationRecovered: 0, processingResumed: 1, dispatched: 3, quarantined: 0 }; },
       evaluateBriefingAlerts: async () => { order.push("alerts"); return { evaluated: 4, created: 1 }; },
+      refreshHomepage: async () => { order.push("homepage"); },
     });
 
     const result = await console.runMaintenanceTick(actor, "req-tick");
-    expect(order).toEqual(["prune", "recover", "alerts"]);
+    expect(order).toEqual(["prune", "recover", "alerts", "homepage"]);
     expect(result).toEqual({
       maintenance: { rateLimits: 3, idempotencyKeys: 1 },
       briefingJobs: { recovered: 2, configurationRecovered: 0, processingResumed: 1, dispatched: 3, quarantined: 0 },

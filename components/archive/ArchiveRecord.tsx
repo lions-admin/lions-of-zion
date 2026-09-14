@@ -90,6 +90,15 @@ export function ArchiveDateline({
   const witness = record.witness_name ? displayWitness(record.witness_name) : null;
 
   const pairs: { label: string; value: ReactNode }[] = [];
+  // The reader's first question is what kind of thing this is — video,
+  // photograph or first-person account — and until now the band answered it
+  // last, after a witness or a category the reader had no context for yet.
+  // Stated plainly, in bolder weight than the pairs beside it, so a scan of
+  // the band settles "what is this" before "who/where/when".
+  pairs.push({
+    label: 'This is',
+    value: <strong className={styles.recordKindValue}>{kindLabel(variant, version)}</strong>,
+  });
   if (variant === 'testimony' && witness) {
     pairs.push({ label: 'Witness', value: witness });
   }
@@ -361,6 +370,18 @@ export function ArchiveRecord({
       </footer>
     </>
   );
+}
+
+/** What this record *is*, in the archive's own two words at most — the fact
+ *  the identity band now states first (see `ArchiveDateline`). A testimony is
+ *  always the account itself, whatever footage rides along with it; a
+ *  documentation record is named by whichever medium it actually holds. */
+function kindLabel(variant: ArchiveRecordVariant, version: ArchiveVersion): string {
+  if (variant === 'testimony') return 'Testimony';
+  const held = countMedia(version);
+  if (held.videos > 0) return 'Film';
+  if (held.images > 0) return 'Photograph';
+  return 'Written record';
 }
 
 function countMedia(version: ArchiveVersion) {

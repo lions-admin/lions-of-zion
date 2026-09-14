@@ -594,7 +594,8 @@ original console reads predate this section and are unchanged.
 | `admin/console/editions/[localDate]` | GET | One edition's drill-down: stage runs, per-stage `ai_run` figures, latest artifacts, claims, stage jobs | `listEditionDrilldownSchema` |
 | `admin/console/sources/[id]/fetches` | GET | Latest N `source_fetch` rows for one source + Israel-local "today" aggregate | `sourceFetchesQuerySchema` |
 | `admin/console/outbox/drain` | POST | Manual outbox drain (reversible; audit `ops.outbox.drained` in a separate tx) | `drainOutboxSchema` |
-| `admin/console/maintenance/tick` | POST | On-demand prune → job recovery → alert evaluation (audit `ops.maintenance.tick`) | — |
+| `admin/console/maintenance/tick` | POST | On-demand prune → job recovery → alert evaluation → homepage/featured-slot refresh (audit `ops.maintenance.tick`; the homepage step is fire-and-forget and never fails the tick) | — |
+| `admin/console/featured-slots` | GET, PUT | State of the six evergreen homepage slots with no `homepage` placement area (October 7 testimony/documentation, Courage & service, Fallen, History & context); `PUT` pins one to a key with a reason or releases it back to automatic rotation | `featuredSlotStateSchema` (read); a `{slot, action, key?, reason, expires?}` body (write) |
 | `admin/console/quarantine/[id]/resolve` | POST | Close an open `briefing_quarantine` row (refuses already-closed; audit) | `quarantineDecisionSchema` |
 | `admin/console/quarantine/[id]/discard` | POST | Discard an open quarantine row — requires a note, danger-confirmed in UI | `quarantineDecisionSchema` |
 | `admin/console/sources/collect-sweep` | POST | Enqueue due collection jobs only (honours pause + `shouldCollectSource`; audit `ops.collection.sweep`) | — |

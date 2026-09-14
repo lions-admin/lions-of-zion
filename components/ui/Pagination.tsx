@@ -91,7 +91,7 @@ export function Pagination({
             variant="toolbar"
             size="sm"
             href={hrefForPage(Math.max(current - 1, 1))}
-            className={atStart ? styles.disabled : ""}
+            className={[styles.step, atStart ? styles.disabled : ""].filter(Boolean).join(" ")}
             aria-disabled={atStart || undefined}
             tabIndex={atStart ? -1 : undefined}
             rel="prev"
@@ -129,7 +129,7 @@ export function Pagination({
             variant="toolbar"
             size="sm"
             href={hrefForPage(Math.min(current + 1, pageCount))}
-            className={atEnd ? styles.disabled : ""}
+            className={[styles.step, atEnd ? styles.disabled : ""].filter(Boolean).join(" ")}
             aria-disabled={atEnd || undefined}
             tabIndex={atEnd ? -1 : undefined}
             rel="next"

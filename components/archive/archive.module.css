@@ -295,6 +295,14 @@ section:first-child > .heading {
   font-weight: var(--t-data-weight);
 }
 
+/* The leading fact in the band — what this record *is* — set apart from the
+   pairs beside it by weight and ink, so a scan settles "video, photograph or
+   account" before it reaches who or when. */
+.recordKindValue {
+  color: var(--ink-hi);
+  font-weight: 600;
+}
+
 .metaPair {
   display: flex;
   align-items: baseline;
@@ -482,6 +490,24 @@ section:first-child > .heading {
   gap: var(--sp-2);
 }
 
+@media (max-width: 540px) {
+  /* Six or seven chips at the sm button's default horizontal padding wrap
+     into a tall, gappy stack on a phone. Tightening the row's own gap and the
+     chip's inline padding fits more of it per line without shrinking the
+     44px-floored tap target itself. */
+  .facetRow {
+    gap: var(--sp-1) var(--sp-2);
+  }
+
+  .facet {
+    padding-inline: var(--sp-2);
+  }
+
+  .facetCount {
+    margin-left: var(--sp-1);
+  }
+}
+
 /* The shared `filter` button variant owns the box, the states and the gold
    wash when pressed. Two overrides, both required by the type rules: a
    category runs to five words ("Terrorists Raiding the Streets") and
@@ -495,14 +521,41 @@ section:first-child > .heading {
 }
 
 /* The count is the datum, so it keeps the data face — this is what makes the
-   category row answer "how much is in here" and not only "what is in here". */
+   category row answer "how much is in here" and not only "what is in here".
+   It reads as its own pill rather than a suffix stapled onto the label: until
+   this was added, the label and the count sat inside the button's one flex
+   box with no gap between them at all ("THE NOVA PARTY MASSACRE68") because
+   the gap the button owns is between icon/content, not inside the content
+   itself. The margin buys the space; the pill's own hairline plate is what
+   makes "how much" read as a distinct fact rather than a fused word. */
 .facetCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.7em;
+  margin-left: var(--sp-2);
+  padding: 0 var(--sp-1);
+  border-radius: var(--radius-1);
+  background: color-mix(in srgb, var(--ink-hi) 9%, transparent);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking-tight);
   font-variant-numeric: tabular-nums;
   color: var(--ink-lo);
+  transition: background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+/* Pressed is already carried by the button's own background, border and
+   text colour (three cues, not one); the pill picks up the same gold rather
+   than staying neutral against it, so the count reads as part of the
+   selected chip and not as a leftover default. `aria-pressed` rather than a
+   class from another CSS module, which the button's own hashed class names
+   are not safe to reference here. */
+.facet[aria-pressed='true'] .facetCount {
+  background: color-mix(in oklab, var(--gold) 26%, transparent);
+  color: var(--gold-hi);
 }
 
 /* ---------- index: the stated result ---------- */
@@ -516,15 +569,17 @@ section:first-child > .heading {
   margin: var(--sp-4) 0 var(--sp-5);
 }
 
-/* A sentence, so the text face at the small step — the count on its own
-   ("24 of 99") never said which 99 or why. */
+/* A sentence, so the text face — but a secondary one: it is a status line
+   about the list below it, not a second heading competing with the rows
+   themselves. Stepped down to the caption size and the muted ink so the
+   results list is what a scanning eye lands on first. */
 .summaryLine {
   margin: 0;
   max-width: var(--measure-reading);
   font-family: var(--face-text);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  color: var(--ink);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
   font-variant-numeric: tabular-nums;
 }
 
@@ -745,12 +800,17 @@ section:first-child > .heading {
   gap: var(--sp-1) var(--sp-2);
 }
 
+/* The stronger of the two facts on this line — a reader sorting 335 rows by
+   "film or photograph" first and category second should see that order, not
+   read two labels of identical weight and infer it. */
 .exhibitMedium {
-  color: var(--ink);
+  color: var(--ink-hi);
+  font-weight: 600;
 }
 
 .exhibitCategory {
   color: var(--ink-lo);
+  font-weight: var(--t-data-weight);
 }
 
 .exhibitMedium + .exhibitCategory::before {

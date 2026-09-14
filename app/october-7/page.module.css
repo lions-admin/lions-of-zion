@@ -98,12 +98,28 @@
   font-size: 15px;
   line-height: 1.55;
 }
+/* The count is a stat, not another sentence — until this it was one more
+   13px data line sitting under the description, indistinguishable at a
+   glance from the caption above it. The number is now the visual anchor of
+   the pair, set in the display face at headline weight; the unit stays small
+   and quiet beside it, the way a metric card states its number first and its
+   label second. */
 .entryCount {
-  color: var(--ink-lo);
-  font: 400 13px/1.6 var(--face-data);
-  letter-spacing: .04em;
-  text-transform: uppercase;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.entryCountNumber {
+  color: var(--gold-hi);
+  font: 400 clamp(22px, 2.6vw, 27px)/1 var(--face-display);
+  letter-spacing: -.02em;
   font-variant-numeric: tabular-nums;
+}
+.entryCountUnit {
+  color: var(--ink-lo);
+  font: 400 12px/1.4 var(--face-data);
+  letter-spacing: .08em;
+  text-transform: uppercase;
 }
 .entryAction {
   display: flex;
@@ -155,26 +171,63 @@
   font-size: 16px;
   line-height: 1.5;
 }
+/* Two tiers of the same taxonomy (UX-22): `.readLink` opens one record and is
+   the primary action on this panel short of the solid Share button;
+   `.browseLink` goes to the whole collection and is one step quieter. Until
+   this pass they were the same class at the same weight — a reader could not
+   tell "open this" from "see everything" without reading the words. */
 .browseLink,
 .readLink {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  min-height: 44px;
-  color: var(--ink-hi);
-  font: 500 14px/1.4 var(--face-text);
+  gap: 14px;
   text-decoration: none;
   cursor: pointer;
 }
-.browseLink { margin-top: 12px; }
 .browseLink svg,
 .readLink svg {
   flex-shrink: 0;
   color: var(--gold);
+  transition: transform 160ms ease;
+}
+.browseLink:hover svg,
+.readLink:hover svg,
+.browseLink:focus-visible svg,
+.readLink:focus-visible svg { transform: translateX(4px); }
+
+/* Secondary / navigation tier: quiet, text-weight, muted by default so it
+   never competes with the primary action below it. */
+.browseLink {
+  justify-content: space-between;
+  margin-top: 12px;
+  min-height: 44px;
+  color: var(--ink-lo);
+  font: 500 13px/1.4 var(--face-text);
 }
 .browseLink:hover,
-.readLink:hover { color: var(--gold); }
+.browseLink:focus-visible { color: var(--gold); }
+
+/* Primary tier: the strongest weight this panel spends outside its one solid
+   Share button. A bordered control, not a line of text — the whole point of
+   OCT's CTA taxonomy is that "Read the testimony" must never blend into the
+   surrounding prose the way it did when it shared `.browseLink`'s styling. */
+.readLink {
+  justify-content: space-between;
+  min-height: 48px;
+  margin: 14px 0 20px;
+  padding: 0 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-2);
+  color: var(--ink-hi);
+  font: 600 15px/1.3 var(--face-text);
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+}
+.readLink:hover,
+.readLink:focus-visible {
+  color: var(--gold-hi);
+  border-color: var(--gold);
+  background: var(--surface-1);
+}
 .archiveDetail {
   display: block;
   color: var(--ink-lo);
@@ -311,11 +364,6 @@
   color: var(--ink);
   font-size: 14px;
   line-height: 1.6;
-}
-.readLink {
-  margin: 12px 0 20px;
-  border-bottom: 1px solid var(--line-strong);
-  padding-block: 10px;
 }
 .shareSample { padding-top: 2px; }
 .emptySample {
@@ -492,6 +540,17 @@
     border-left: 0;
     padding-top: 22px;
     border-top: 1px solid var(--line-soft);
+  }
+  /* The figures and the timeline are valuable but dense, and they now sit
+     below two archive collections and two featured showcases a phone reader
+     has already scrolled past — this tightens their rhythm rather than
+     hiding them, so the page reads lighter without losing content. */
+  .section {
+    margin-top: clamp(36px, 8vw, 56px);
+    padding-top: 22px;
+  }
+  .record ol > li {
+    padding-bottom: 24px;
   }
 }
 

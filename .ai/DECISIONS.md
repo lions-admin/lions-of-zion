@@ -2704,3 +2704,82 @@ previews before the ignore step reached them. `git.deploymentEnabled` in
 the deployment from existing at all, and the five were added to it the same
 day. With both in place five permanent branches cost no build minutes — the 100 deployments and 337
 build-minutes that the branch sprawl generated cannot recur through this door.
+
+## 2026-09-14 — A rotation module, not a widened placement, for October 7 and the People profiles
+
+The owner asked why "Featured survivor story", "Courage & service" and
+"Fallen" had shown the same record for days. The cause was starvation, not a
+missing schedule: `content-packages/homepage/catalog.json` admitted a static
+candidate only when a homepage-cleared image existed for it, which left 2
+October 7 candidates, 3 hero profiles and 7 chapters for a rotation
+mechanism (`selectHomepage()`) that already existed and already worked —
+there was simply nothing to rotate *to*.
+
+Two changes, not one, were needed and both landed together:
+
+- **The pool.** `scripts/homepage/build-catalog.ts` now admits every static
+  candidate regardless of whether it has a cleared image (`mediaId:
+  media?.id ?? null`), extending the 2026-09-07 "the picture is not the
+  gate" ruling — made for live publications — to the static archive and hero
+  catalogue. The pool went from 2/3/7 to 514/8/7 on first regeneration.
+- **The mechanism.** October 7, Courage & service, Fallen, and History &
+  context have no `homepage_placement` area (`docs/editorial-dna.md`:
+  "October 7 is not placeable") and were never going to get one — a
+  placement lets a run `set` an arbitrary publication, and there is no
+  publication to set here, only a fixed static catalogue. A new module,
+  `server/modules/featured-slots`, owns six named slots instead
+  (`october7.testimony`, `october7.documentation`, `heroes.courage`,
+  `heroes.fallen`, `history.primary`, `history.secondary`), each holding one
+  key with a 2-to-4-day dwell window and a cross-slot diversity rule (a key
+  or person another slot claimed this pass is not offered to a later one).
+  `selectHomepage()` takes the six picks as a `forcedSelections` override for
+  exactly those three `HomeSelection` sections rather than re-implementing
+  rotation logic a second time.
+
+This is deliberately **narrower** than a placement: a run may `pin` a slot to
+an existing catalogue key with a reason, or `release` it, through an optional
+`featured` block on `whole-site-update-v2` — there is no `set`-an-arbitrary-
+record equivalent, because the six pools are the static archive/hero/chapter
+catalogue, never a publication a run just created. `docs/editorial-dna.md`'s
+"October 7 is an archive you do not write into" is unchanged by this: pinning
+which existing item shows is not adding material.
+
+**A real bug, caught before it reached Production.** The first live refresh
+against the Preview database picked a plausible-looking but wrong result
+(`hero:aner-shapira` over the alphabetically-earlier `hero:amit-mann`) for a
+never-shown tie-break. The cause: `lastSeen()` returned `-Infinity` for "never
+shown," and comparing two never-shown candidates computed `-Infinity -
+(-Infinity)`, which is `NaN` — an `Array.sort` comparator returning `NaN` has
+undefined behaviour. Every slot with three or more untouched candidates was
+affected on its first run. The fix replaces the sentinel with
+`Number.MIN_SAFE_INTEGER` (still smaller than any real timestamp, never
+producing `NaN` against another finite number); `tests/featured-slot-rules
+.test.ts` pins the regression with three never-shown candidates asserted to
+resolve alphabetically, not by pool order.
+
+**A second real gap, caught by browser verification, not by a test.**
+Widening `build-catalog.ts`'s admission rule was only half of "the picture is
+not the gate": `lib/content/homepage-adapters.ts`'s `resolveHomepageReference`
+still returned `null` for any static hero, chapter or case candidate with no
+cleared image, dropping it silently after `selectHomepage()` had already
+chosen it. A record could now be *selected* with `mediaId: null` and then
+vanish at resolution — the exact starvation this whole change exists to end,
+one layer deeper. No unit test caught it, because the existing homepage
+tests construct `HomeReference` fixtures with a media id already set; a live
+dev-server check of the actual homepage after seeding real slot picks is
+what showed two new hero profiles missing where they should have rendered
+text-led. Fixed by removing the early `return null` for a missing image in
+the hero/chapter branches, matching the live-publication path already
+committed to this. `tests/homepage-composition.test.tsx` and
+`tests/homepage-media.test.ts` still pass; neither happens to exercise a
+media-less static candidate, which is itself worth noting for whoever adds
+the next one.
+
+Five new sourced hero profiles were added to `lib/content/our-heroes.ts`
+(Youssef Ziadna and Remo Salman El-Hozayel, Rescuers; Amit Mann and Ran
+Gvili, Fallen; Inbal Rabin-Lieberman, Fighter), each with two named
+mainstream-press sources, following the file's existing no-family-consent-
+workflow boundary — every detail traces to reporting the subject or their
+family already made public. `EDITION.featured` in that file (used only by
+`/our-heroes`' own page, not by the homepage) was left pointing at
+`PROFILES[0]` and was not reconsidered as part of this change.

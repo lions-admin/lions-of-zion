@@ -51,6 +51,9 @@ function stubContext(calls: Array<{ method: string; args: unknown[] }>): OpsTool
       setHomepagePlacement: note("publications.setHomepagePlacement"),
     } as unknown as OpsToolContext["publications"],
     sources: { verify: note("sources.verify"), syncCatalog: note("sources.syncCatalog") } as unknown as OpsToolContext["sources"],
+    featuredSlots: {
+      state: note("featuredSlots.state"), pin: note("featuredSlots.pin"), release: note("featuredSlots.release"),
+    } as unknown as OpsToolContext["featuredSlots"],
     health: note("health") as unknown as OpsToolContext["health"],
   };
 }

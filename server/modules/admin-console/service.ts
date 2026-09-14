@@ -141,6 +141,7 @@ import { withDatabaseRole } from "@/server/db/client";
 import { setIdentity } from "@/server/core/versioning";
 import { ApiError, notFound } from "@/server/http/responses";
 import { publicationService } from "@/server/modules/publications";
+import { homepage } from "@/server/modules/homepage";
 import { sourceService } from "@/server/modules/sources";
 import { BRIEFING_DISCOVERY_QUERIES } from "@/server/modules/sources/catalog";
 import { recoverAndDispatchSourceCollectionJobs, enqueueDueCollectionJobs } from "@/server/modules/briefing/jobs";
@@ -568,6 +569,14 @@ export type AdminConsoleOptions = {
   collectionSweep?: () => Promise<
     Array<{ sourceId: string; jobId: string; status: "queued" | "already_completed" | "dispatch_failed"; error?: string }>
   >;
+  /** Recomposes the homepage edition, which is also where the six
+   *  featured-slot rotations (October 7, Courage & service, Fallen, History
+   *  & context) are checked and — dwell and diversity permitting — advanced.
+   *  Without this the tick never touched the homepage at all, so a slot due
+   *  to rotate between editorial runs would sit past its window until the
+   *  next one landed. Defaults to the real edition builder; tests inject a
+   *  stub, because that export binds its own connection. */
+  refreshHomepage?: () => Promise<unknown>;
   now?: () => Date;
 };
 
@@ -586,6 +595,7 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
   const recoverRunner = options.recoverBriefingJobs ?? (() => asService(recoverAndDispatchSourceCollectionJobs));
   const alertsRunner = options.evaluateBriefingAlerts ?? (() => asService(() => evaluateAndQueueBriefingAlerts()));
   const collectionSweep = options.collectionSweep ?? (() => enqueueDueCollectionJobs());
+  const refreshHomepageRunner = options.refreshHomepage ?? (() => asService(() => homepage().ensureEdition()));
 
   return {
     async overview(): Promise<ConsoleOverview> {
@@ -1469,6 +1479,13 @@ export function adminConsoleService(db: unknown, options: AdminConsoleOptions = 
       const maintenance = await pruneRunner();
       const briefingJobs = await recoverRunner();
       const briefingAlerts = await alertsRunner();
+      /* Not part of the parsed result below on purpose — this tick's report
+       * has always been prune/recover/alerts, and widening it would break
+       * every caller comparing the shape exactly. A rotation failure here
+       * must never fail the tick itself, so it is logged and swallowed. */
+      await refreshHomepageRunner().catch((cause) => {
+        console.error("[admin-console] homepage/featured-slot refresh failed during maintenance tick", cause);
+      });
       await run.transaction(async (tx) => {
         await setIdentity(tx as Tx, actor.label);
         await writeAudit(tx as never, {

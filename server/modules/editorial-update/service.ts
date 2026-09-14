@@ -2,7 +2,9 @@ import 'server-only';
 
 import { db, withDatabaseRole, type Database } from '@/server/db/client';
 import { editorialRunMessageSchema, startEditorialRunSchema, type EditorialFailure, type EditorialOperation, type StartEditorialRun } from '@/server/contracts/editorial-update';
-import { anyWholeSiteUpdatePackageSchema, wholeSiteHomepageSchema, type AnyWholeSiteUpdatePackage } from '@/server/contracts/whole-site-update';
+import { anyWholeSiteUpdatePackageSchema, wholeSiteHomepageSchema, wholeSiteFeaturedSchema, type AnyWholeSiteUpdatePackage } from '@/server/contracts/whole-site-update';
+import { FEATURED_SLOTS, type FeaturedSlotName } from '@/server/contracts/featured-slots';
+import { featuredSlotsService } from '@/server/modules/featured-slots/service';
 import { editorialReportEmail, siteUrl } from '@/server/core/config';
 import type { PublicationSection } from '@/server/contracts/enums';
 import { publicationSectionLabel, routePublication } from '@/lib/publication-routing';
@@ -319,6 +321,11 @@ export async function processEditorialRun(raw: unknown): Promise<void> {
          skips it, so whatever already occupies that slot survives the run, and
          the report states only what this run actually moved. */
       const homepageChanges: HomepageChange[] = [];
+      /* October 7, Courage & service, Fallen and History & context have no
+         `homepage` area (they are not placeable); a v2 package steers them
+         through `featured` instead. v1 packages carry no such field, so this
+         stays empty for them and the slots continue rotating on their own. */
+      const featuredChanges: { slot: FeaturedSlotName; action: 'pin' | 'release'; key?: string; reason: string }[] = [];
       try {
         const delivery = completedState.request.delivery;
         if (delivery) {
@@ -370,6 +377,29 @@ export async function processEditorialRun(raw: unknown): Promise<void> {
               });
             }
           }
+
+          const featuredDecisions = wholeSiteFeaturedSchema.parse(delivery.featured ?? {});
+          const slots = featuredSlotsService(db());
+          for (const slot of FEATURED_SLOTS) {
+            const decision = featuredDecisions[slot];
+            if (!decision) continue;
+            try {
+              if (decision.action === 'release') {
+                await slots.release(slot);
+                featuredChanges.push({ slot, action: 'release', reason: decision.reason });
+              } else {
+                await slots.pin(slot, decision.key, decision.reason, decision.expires, 'service:editorial-run');
+                featuredChanges.push({ slot, action: 'pin', key: decision.key, reason: decision.reason });
+              }
+            } catch (cause) {
+              const message = cause instanceof Error ? cause.message : String(cause);
+              errors.push({
+                operationKey: null, stage: 'homepage',
+                message: `Featured slot ${slot} was not applied: ${message}`,
+                recovery: `Resolve the cause for ${slot} and try again in the next package; the other slots were not affected.`,
+              });
+            }
+          }
         }
         const edition = await homepageService(db()).ensureEdition();
         homepage = { editionDate: edition.editionDate, revision: edition.revision, changes: homepageChanges };
@@ -400,6 +430,7 @@ export async function processEditorialRun(raw: unknown): Promise<void> {
         operations: results,
         urls: results.map(result => result?.url).filter((url): url is string => Boolean(url)),
         homepage,
+        featured: featuredChanges,
         media: { prepared: mediaSummary.prepared, reused: reusedMedia, generated: mediaSummary.generated },
         mediaWarnings,
         errors,
@@ -465,6 +496,7 @@ type StoredReport = {
   byCategory?: Record<string, { created: number; updated: number }>;
   urls?: string[];
   homepage?: { editionDate?: string; revision?: number; changes?: HomepageChange[] } | null;
+  featured?: Array<{ slot: string; action: 'pin' | 'release'; key?: string; reason: string }>;
   media?: { prepared?: number; reused?: number; generated?: number };
   mediaWarnings?: MediaWarning[];
   errors?: Array<{ operationKey: string | null; stage: string; message: string; recovery?: string }>;
@@ -577,7 +609,19 @@ export function composeEditorialRunReport(run: StoredRun): { subject: string; te
   } else {
     lines.push('  The homepage edition was not recomposed.');
   }
-  lines.push('  October 7 rotates on its own and is never written by a run.');
+  lines.push('  October 7, Courage & service, Fallen and History & context rotate on their own; a run may only pin or release one of their slots below.');
+
+  lines.push('', 'FEATURED SLOTS');
+  const featuredChanges = report.featured ?? [];
+  if (featuredChanges.length) {
+    for (const change of featuredChanges) {
+      lines.push(change.action === 'release'
+        ? `  ${change.slot}: released (${change.reason})`
+        : `  ${change.slot}: pinned to ${change.key} (${change.reason})`);
+    }
+  } else {
+    lines.push('  No featured slot was pinned or released; each continues its own dwell-based rotation.');
+  }
 
   /* The editor's review of the cover, beside what the machine moved. A v2 run
      is expected to carry one — the operating manual requires it — so its

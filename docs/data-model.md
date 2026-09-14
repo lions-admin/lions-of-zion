@@ -118,6 +118,7 @@ drizzle-kit's snapshot (see `0021`).
 | `0061_romantic_moon_knight` | `publication.topic_tags text[]` |
 | `0062_whole_site_editorial_delivery` | `publication.canonical_story_id` with a partial unique index; `homepage_placement` replacing `homepage_feature`, migrating only slots whose publication still belongs to the area |
 | `0066_ops_tasks` | `ops_task`, `ops_task_event`, `ops_task_attachment`, `ops_reporter` — the operations task board: append-only timeline, trigger-written status history, RLS for `app_staff`/`app_service` only |
+| `0068_featured_slots` | `featured_slot` — six named evergreen homepage positions (October 7 testimony/documentation, Courage & service, Fallen, History & context) with no `homepage_placement` area of their own; RLS for `app_staff`/`app_service` only |
 
 ---
 
@@ -145,7 +146,7 @@ drizzle-kit's snapshot (see `0021`).
 **Publication surfaces** — `publication`, `publication_item`,
 `publication_evidence`, `publication_narrative`, `publication_passage`,
 `publication_passage_evidence`, `publication_related`, `homepage_placement`,
-`homepage_edition`
+`homepage_edition`, `featured_slot`
 
 **Editorial media** — `editorial_media`, `publication_media` (migration
 `0057`). An asset and its rights on one table, which publication wears it on
@@ -255,6 +256,18 @@ that area** — a mismatched historic pin deliberately became automatic again.
 `homepage_edition` (migration `0054`) is a separate, append-only table: the
 selected homepage for a date at a revision. `homepage_placement` is editorial
 intent; `homepage_edition` is the committed result of applying it.
+
+`featured_slot` (migration `0068`) covers the six positions
+`homepage_placement`'s `area` CHECK cannot reach — `october7.testimony`,
+`october7.documentation`, `heroes.courage`, `heroes.fallen`,
+`history.primary`, `history.secondary` — one row per slot, `slot` the
+primary key and CHECK-constrained to those six values. Each row holds
+`current_key`, `selected_at`, a bounded (≤20) `previous` occupancy log, and
+an optional `pin` (key, reason, actor, optional expiry). `server/modules/
+featured-slots` is the only writer; `selectHomepage()` reads the six current
+keys as a `forcedSelections` override rather than the table directly. No
+`app_public` grant: a slot's pick is resolved into `homepage_edition` at
+compose time, never read by a public request.
 
 **`publication.topic_tags`** (migration `0061`) is a plain `text[]` refining
 discovery within a section without adding another destination.

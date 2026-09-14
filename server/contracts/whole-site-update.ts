@@ -9,6 +9,7 @@ import { externalMediaSchema } from './external-briefing';
 import { editorialSourcesSchema } from './editorial-update';
 import { createPublicationSchema, updatePublicationSchema } from './publication';
 import { publicationSectionSchema } from './enums';
+import { FEATURED_SLOTS } from './featured-slots';
 
 const keySchema = z.string().trim().min(1).max(200);
 const canonicalStoryIdSchema = z.string().trim().toLowerCase()
@@ -46,6 +47,25 @@ export const wholeSiteHomepageSchema = z.object({
   fakeResistance: homepageAreaSchema.optional(),
   people: homepageAreaSchema.optional(),
 }).strict().default({});
+
+/**
+ * A decision about one of the six evergreen slots
+ * (`server/contracts/featured-slots.ts`) that have no `homepage` area of
+ * their own — October 7 testimony/documentation, Courage & service, Fallen,
+ * History & context. `pin` holds a slot at a named candidate with a reason
+ * (optionally until a date); `release` clears an existing pin and returns
+ * the slot to ordinary dwell/diversity rotation. Unlike `homepage`, this is
+ * v2-only: v1 packages predate the rotation module entirely.
+ */
+export const featuredSlotDecisionSchema = z.discriminatedUnion('action', [
+  z.object({ action: z.literal('pin'), key: keySchema, reason: z.string().trim().min(1).max(2_000), expires: z.string().date().optional() }).strict(),
+  z.object({ action: z.literal('release'), reason: z.string().trim().min(1).max(2_000) }).strict(),
+]);
+
+export const wholeSiteFeaturedSchema = z.object(
+  Object.fromEntries(FEATURED_SLOTS.map(slot => [slot, featuredSlotDecisionSchema.optional()])),
+).strict().default({});
+export type WholeSiteFeatured = z.infer<typeof wholeSiteFeaturedSchema>;
 
 export const wholeSiteCreateSchema = z.object({
   key: keySchema,
@@ -216,6 +236,7 @@ export const wholeSiteUpdateV2PackageSchema = z.object({
   creates: z.array(wholeSiteCreateSchema).max(100).default([]),
   updates: z.array(wholeSiteUpdateOperationSchema).max(100).default([]),
   homepage: wholeSiteHomepageSchema,
+  featured: wholeSiteFeaturedSchema,
   siteRecommendations: z.array(z.string().trim().min(1).max(4_000)).max(50).default([]),
   research: wholeSiteResearchSchema,
   vetoes: wholeSiteVetoesSchema,
@@ -230,8 +251,8 @@ export const wholeSiteUpdateV2PackageSchema = z.object({
      researched the day and vetoed everything it found has said something, and
      v1's "a package needs a create, update or homepage decision" would have
      rejected exactly that run. Research or a veto counts as content. */
-  if (!operations.length && !Object.keys(pkg.homepage).length && !pkg.research?.length && !pkg.vetoes?.length) {
-    ctx.addIssue({ code: 'custom', message: 'A package needs a create, update, homepage decision, research entry, or veto.' });
+  if (!operations.length && !Object.keys(pkg.homepage).length && !Object.keys(pkg.featured).length && !pkg.research?.length && !pkg.vetoes?.length) {
+    ctx.addIssue({ code: 'custom', message: 'A package needs a create, update, homepage decision, featured-slot decision, research entry, or veto.' });
   }
   const vetoKeys = (pkg.vetoes ?? []).map(veto => veto.key);
   if (new Set(vetoKeys).size !== vetoKeys.length) {

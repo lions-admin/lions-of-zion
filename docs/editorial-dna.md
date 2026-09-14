@@ -173,15 +173,40 @@ context. Built from `lib/content/october-7.ts`, `lib/content/documentation.ts`,
 
 **The daily run never invents new material for it.** New documented material
 that a run finds is a **recommendation**, not an ingestion — it goes into
-`siteRecommendations` on the package.
+`siteRecommendations` on the package. This is unchanged; what changed
+2026-09-14 is only *which existing record* the homepage shows and when, never
+whether new material may be added.
 
-The archive rotates on its own. On the homepage that rotation is real but
-**per edition, not per minute**: `selectHomepage()` in
-`server/modules/homepage/selection.ts` sorts the `october7` pool by display
-history against a seven-day cutoff and prefers a testimony/documentation pair,
-and `app/page.tsx` sets `revalidate = 60`. An edition is keyed to the Israel
-calendar date (`israelEditionDate()` in `server/contracts/homepage.ts`). See
-[§12](#12-gaps).
+The archive rotates on its own, through **`server/modules/featured-slots`**
+(added 2026-09-14). Six named slots — `october7.testimony`,
+`october7.documentation`, `heroes.courage`, `heroes.fallen`,
+`history.primary`, `history.secondary` — each hold exactly one candidate key
+plus dwell/diversity state, and feed fixed positions in `HomeSelection`
+(`october7[0..1]`, `heroes[0..1]`, `israelsStory[0..1]`) through a
+`forcedSelections` parameter on `selectHomepage()`. A slot rotates only
+between a 2-day minimum and a 4-day maximum dwell, never merely because a day
+passed, and never past the maximum when an eligible alternative exists. The
+refresh runs from `homepageInputs()` — reached by the editorial ingest's
+homepage stage, the admin maintenance tick, and the manual homepage cron
+route — **never from a page GET**. `app/page.tsx` still sets `revalidate =
+60`, but that only re-renders the same persisted `homepage_edition` snapshot.
+An edition is keyed to the Israel calendar date (`israelEditionDate()` in
+`server/contracts/homepage.ts`). See [§12](#12-gaps).
+
+**A run may pin or release one of the six slots, but still may not place
+into them or create archive material.** An optional `featured` block on
+`whole-site-update-v2` (`server/contracts/whole-site-update.ts`) lets a
+package hold a slot at a named key with a reason (`pin`) or return it to
+automatic rotation (`release`); an ops-agent tool and
+`app/api/v1/admin/console/featured-slots/route.ts` do the same for a human
+operator. This is strictly narrower than a `homepage` placement: there is no
+`set`-with-an-arbitrary-publication equivalent, because a slot's candidate
+pool is the static archive/hero/chapter catalogue, not a publication a run
+just created. The distinction in `docs/editorial/homepage-operating-manual.md`
+between "placeable" and "not placeable" bands still holds for October 7,
+Courage & service and History & context — none of the three gained a
+`homepage` area — a pin only narrows *which* existing archive item a slot
+already rotating on its own is currently showing.
 
 ### Behind the Desk / How It Works — `/information-war`
 
@@ -429,9 +454,17 @@ composer can attach one. Each slot is applied under its own error boundary,
 so a slot that is refused for the reasons that remain is recorded by area and
 position and the other slots are placed regardless.
 
-**October 7 is not placeable.** There is no `october7` area in the contract and
-none in the service. The homepage band is chosen by `selectHomepage()` from the
-static archive catalogue, rotated against display history.
+**October 7 is not placeable, in the `homepage`-block sense.** There is no
+`october7` area in `wholeSiteHomepageSchema` and none in the service — a run
+cannot `set` an arbitrary record into the band the way it can `news.lead`.
+The band is chosen by `selectHomepage()` from the static archive catalogue,
+via the `october7.testimony`/`october7.documentation` featured slots
+(`server/modules/featured-slots`, added 2026-09-14). The distinct `featured`
+block lets a run pin one of those two slots to a named archive key or release
+it — narrower than a placement, since the pool is fixed to what the archive
+already holds. The same applies to `heroes.courage`, `heroes.fallen` and
+`history.primary`/`history.secondary` (Courage & service, Fallen, History &
+context).
 
 **The operating detail lives in
 [`editorial/homepage-operating-manual.md`](editorial/homepage-operating-manual.md)**
@@ -704,12 +737,19 @@ still resolve, and are marked **Closed** in place.
    owner decision. A v1 package still has only a free-text
    `siteRecommendations` string. Whether past vetoes can be queried outside
    the run report was not re-checked.
-4. **October 7 rotates per edition, not "every few minutes".**
-   `selectHomepage()` in `server/modules/homepage/selection.ts` rotates the
-   `october7` band against display history when a new edition is composed, and
-   an edition is keyed to the Israel calendar date (`israelEditionDate()`).
-   `app/page.tsx` revalidates every 60s but reads the same snapshot. There is
-   no sub-edition rotation anywhere in the codebase.
+4. **October 7, Courage & service, Fallen and History & context rotate on a
+   2-to-4-day dwell, not per edition and not "every few minutes".**
+   `server/modules/featured-slots` (2026-09-14) decides each of the six named
+   slots' current pick; `selectHomepage()` in
+   `server/modules/homepage/selection.ts` takes those picks as a
+   `forcedSelections` override rather than sorting the pool itself for these
+   sections. A refresh runs whenever `homepageInputs()` runs — the editorial
+   ingest, the admin maintenance tick, or the manual homepage cron route —
+   never on a page GET, and a slot only moves once its minimum dwell has
+   passed and a fresher candidate exists (always, past its maximum dwell, if
+   any exists at all). `app/page.tsx` revalidates every 60s but reads the
+   same persisted `homepage_edition` snapshot. There is no sub-refresh
+   rotation anywhere in the codebase.
 5. **The homepage edition has no schedule of its own.**
    `app/api/internal/cron/homepage/route.ts` has no schedule: `vercel.json`
    has carried no `crons` array at all since 2026-09-08. (The route's header

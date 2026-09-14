@@ -21,3 +21,4 @@ export * from "./homepage";
 export * from "./editorial-update";
 export * from "./ops-tasks";
 export * from "./measurement";
+export * from "./featured-slots";

@@ -78,6 +78,11 @@ export const startEditorialRunSchema = z.object({
      *  already validated the shape before it reaches here. Named so the hash
      *  and the report see it. */
     homepageReview: z.unknown().optional(),
+    /** v2 only: pin/release decisions for the six evergreen slots that carry
+     *  no `homepage` area of their own (October 7, Courage & service,
+     *  Fallen, History & context) — `wholeSiteFeaturedSchema`. Absent for a
+     *  v1 delivery, and for a v2 one that named none. */
+    featured: z.unknown().optional(),
   }).optional(),
 }).superRefine((run, ctx) => {
   const keys = run.operations.map(operation => operation.key);

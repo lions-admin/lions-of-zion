@@ -2896,3 +2896,76 @@ as a result — the flagged behavior was already the shipped behavior, so this
 entry exists only so a future session does not re-diagnose the same
 observation as an unfixed bug and reopen it. The record page's own
 `SensitiveContent` gate is unaffected and still applies exactly as before.
+
+## 2026-09-15 — Round three: a new visual identity, cinematic motion, dark only, public scope
+
+The owner opened a third UI/UX round with four rulings, answered in
+session on 2026-09-15 and recorded here before any code changes, because
+every later test rewrite cites them:
+
+1. **Scope** — the public site and the Ask/Search surfaces. `/admin` is out.
+2. **Identity** — a *new* visual identity: palette, typography and visual
+   language replaced, not tuned. This retires the "do not change" KEEP list
+   of `docs/audits/2026-09-07-visual-audit-implementation-todos.md`
+   §"What must not change" (charcoal / ivory / amber, the Newsreader ·
+   IBM Plex Sans · Roboto Mono system, the photographic lion, 17px/1.65 as
+   the only reading measure). That list was binding *without an owner
+   instruction*; this is the instruction.
+3. **Display mode** — dark only. No light theme this round.
+4. **Motion** — cinematic: scroll-driven animation, parallax on the cover,
+   page transitions. Still subject to `prefers-reduced-motion`, a visible
+   pause control (WCAG 2.2.2), and the perf budgets in
+   `scripts/perf-budgets.json`.
+
+The chosen identity (a judge-panel synthesis, recorded in the session's
+plan): midnight-ink ground `#0B1220`, one gold accent `#D8B45F` spent as a
+1px "signal rule" and one filled control, a rose contested hue, Schibsted
+Grotesk for display and text, Geist Mono for machine values, Literata only
+where a human is quoted; four families replace seven. The signature is the
+signal rule born from the lion on the cover.
+
+Consequences for earlier rulings, stated rather than silently overridden:
+
+- **2026-09-14, phone cover = "full video with the type layer over it".**
+  The *composition* is kept (the lion owns the full first screen, the type
+  sits over it, the lead is above the fold); the *medium* changes from the
+  photographic video to layered stills of the owner's own particle lion,
+  moved by CSS scroll timelines. The video is a warm savannah identity that
+  cannot sit on a cool ground and costs 2–33 MB per visit. Default: retire
+  the video. Named fallback if the owner wants moving footage: a ≤4 MB loop
+  rendered from the new lion art through the owner's pipeline, played
+  through the existing `HeroVideo` handoff, which is kept alive for that.
+- **VA-10 (bounded desktop cover)** — changed on desktop only: 100svh plus a
+  40svh runway for the lion condensing into the rule, with today's lead
+  still a 44px block link inside the first screen. Phone untouched.
+  Prototyped before the keyed layers are commissioned; if it reads as delay,
+  the desktop cover returns to the bounded height.
+- **The crown.** The lion on screen is uncrowned by default (the render is
+  cropped below the crown, which floats free); the crown stays on the app
+  icon and in the owner's asset set. Two review lenses read crown + gold
+  particles as heraldry on an evidence site. Owner may restore it, in which
+  case the cover art is labelled like every other illustration.
+- **2026-09-05 uppercase ruling** — already superseded in code:
+  `app/globals.css` sets `body { text-transform: none }` with labels opting
+  into caps. Treat the stylesheet as current.
+- **2026-09-06 "October 7 lost its nothing-moves invariant"** — the
+  twelve-second rotation it records was removed on 2026-09-08 (UX-22);
+  the ruling that stands is *no auto-rotation*, manual previous/next only.
+- **`--radius-home-chrome`** (2026-09-07) — kept; its "cover film" is now
+  the cover picture.
+- **`--gold*` token names** stay for their readers; the `--accent` rename
+  remains a separate commit, as `globals.css` already says.
+
+Defaults the round proceeds under, each reversible by one instruction: the
+Ask composer is rebuilt on `components/ui` and the vendored Tailwind /
+shadcn / ai-elements stack is deleted; `EditorialIntro` moves to `/we-are`;
+documentation-index rows lose their cover plates so the advisory above them
+is true (the 2026-09-14 thumbnail ruling and that advisory contradict each
+other — the owner picks which sentence stays); the colophon gains a
+Privacy · Terms · Contact row whose *text* is the owner's.
+
+Verification rule for this round: `npm run verify:full`, not
+`verify:changed` — the contract tests read `app/globals.css` with
+`readFileSync` and a CSS-only diff would otherwise skip them.
+`scripts/verify-changed.ts` now escalates `app/globals.css` to HIGH_RISK
+for the same reason.

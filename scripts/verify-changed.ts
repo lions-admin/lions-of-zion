@@ -85,6 +85,10 @@ const HIGH_RISK = [
   /^server\/core\//,
   /^server\/contracts\//,
   /^server\/http\//,
+  /* The token contract. tests/ui-contracts, glass-retirement, english-chrome,
+     intro-accessibility and motion-runtime read it with readFileSync, so a
+     CSS-only diff would otherwise skip every one of them (2026-09-15). */
+  /^app\/globals\.css$/,
   /auth/i,
   /^package(?:-lock)?\.json$/,
   /^next\.config\.ts$/,

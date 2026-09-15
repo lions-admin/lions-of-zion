@@ -59,6 +59,17 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com", pathname: "/**" },
     ],
+    /* AVIF first, WebP second (2026-09-15). The optimizer served WebP only
+       until this line; AVIF is 20-40% smaller on the editorial stills and
+       every browser the site targets decodes it. The size ladders are the
+       measures the system actually renders — the 780px article column, the
+       24vw portrait rail on The People of Israel, the 2560 cover — rather
+       than the defaults, so a `sizes` attribute lands on a real cut instead
+       of the next one up. */
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 2678400,
+    deviceSizes: [390, 640, 768, 1024, 1280, 1536, 1920, 2560],
+    imageSizes: [96, 160, 240, 320, 480, 640, 780],
   },
   // Kept from the retired particle entrance, which the badge used to sit on
   // top of. Harmless either way, and a dev-only surface.
@@ -101,6 +112,21 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: securityHeaders,
       },
+      /* Static media had no cache policy at all until 2026-09-15, so a
+         returning reader re-fetched the cover assets on every visit. The
+         brand, emblem and video directories are versioned by filename — a
+         re-cut is a new name — so they can be immutable for a year. The
+         editorial stills under /images are re-issued under the same path by
+         the daily run, so they get a day with a week of stale-while-revalidate
+         rather than a promise the pipeline cannot keep. */
+      ...["/brand/:path*", "/emblems/:path*", "/video/:path*"].map((source) => ({
+        source,
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      })),
+      ...["/images/:path*", "/icon-192.png", "/icon-512.png", "/apple-icon.png"].map((source) => ({
+        source,
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+      })),
     ];
   },
 };

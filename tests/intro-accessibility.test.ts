@@ -13,17 +13,18 @@
  * its absence. What is left behind a reader is two things, and both are
  * checked here:
  *
- *  1. **the page ground** — `--scan-ground` over `--site-ground-photo`, a
- *     still texture that composites nothing on top of itself, so the ink
- *     tokens are read straight against it;
+ *  1. **the page ground** — the flat `--ground` and the four flat plates
+ *     over it (2026-09-15: the scan texture and the fixed photograph under
+ *     the reading routes are gone), so the ink tokens are read straight
+ *     against a token, and the worst case is the lightest plate;
  *  2. **the home hero's video layer** — pointer-inert, out of the
  *     accessibility tree, and not downloaded at all under reduced motion.
  *
  * The contrast block earns its keep. `--ink-lo` — captions, metadata, TOC
- * links — is the binding token, and it reads against the brightest pixel the
- * ground can produce rather than against a flat `--ground`. The helpers
- * recompute that from the tokens the stylesheet actually carries, so changing
- * a ground gradient fails this suite instead of a review.
+ * links — is the binding token, and it reads against `--surface-3`, the
+ * lightest plate it can land on, rather than only against `--ground`. The
+ * helpers recompute that from the tokens the stylesheet actually carries, so
+ * re-grading a surface fails this suite instead of a review.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -84,20 +85,19 @@ const INK_HI = token("--ink-hi");
 const INK = token("--ink");
 const INK_LO = token("--ink-lo");
 const GOLD = token("--gold");
-const BLACK = [0, 0, 0] as const;
+const GOLD_DIM = token("--gold-dim");
+const EMBER = token("--data-ember");
+const EMBER_SOFT = token("--data-ember-soft");
 
 /**
- * The ground a page is read on, recomposed from `--scan-ground` in
- * `app/globals.css`: a 1px-in-9 rule at `rgba(228, 224, 215, 0.027)` under a
- * radial highlight at `rgba(246, 243, 235, 0.055)`.
- *
- * `GROUND_PEAK` is the brightest pixel anywhere — a rule line at the radial's
- * centre, 50%/26% of the viewport, which is `background-attachment: fixed`
- * and therefore the spot every line of an article scrolls through. It is the
- * worst case for every foreground token, so it is the only one worth pinning.
+ * The grounds a page is read on: the flat `--ground` and the lightest plate
+ * a token can land on, `--surface-3`. Nothing is composited over either —
+ * the scan texture and the fixed photograph were deleted on 2026-09-15 —
+ * so the plate is the worst case for every foreground token, and it is the
+ * one worth pinning. `composite()` above stays exported for the alpha lines.
  */
-const GROUND_EDGE = composite([228, 224, 215], 0.027, BLACK);
-const GROUND_PEAK = composite([246, 243, 235], 0.055, GROUND_EDGE);
+const GROUND = token("--ground");
+const SURFACE_3 = token("--surface-3");
 
 const AA_BODY = 4.5;
 const AA_UI = 3;
@@ -105,31 +105,43 @@ const AA_UI = 3;
 /* ------------------------------------------------------------------- tests */
 
 describe("the reading ground is read against directly, nothing composited over it", () => {
-  it("keeps body, caption and metadata text at AA on the brightest pixel of the ground", () => {
+  it("keeps body, caption and metadata text at AA on the ground and on the lightest plate", () => {
     /* `--ink-lo` is the binding token: captions, `.tocLink`, `.tocNumber`,
        `.sideRailInner dt`, at `--t-caption` and `--t-data`, so 4.5 and not 3.
-       With the scan retired these have the whole budget rather than the
-       0.43 of ratio that was left after a drifting row took its share. */
+       `--gold-dim` is small text on the fact-check ladder and the home rail;
+       `--data-ember-soft` is the verdict chip's own text on a plate. Each is
+       measured on `--surface-3` as well as the ground, because a token that
+       clears the ground and misses the plate has been the bug here twice. */
     for (const [name, ink] of [
       ["--ink-lo", INK_LO],
       ["--ink", INK],
       ["--ink-hi", INK_HI],
       ["--gold", GOLD],
+      ["--gold-dim", GOLD_DIM],
+      ["--data-ember", EMBER],
+      ["--data-ember-soft", EMBER_SOFT],
     ] as const) {
-      expect(contrastRatio(ink, GROUND_PEAK), name).toBeGreaterThanOrEqual(AA_BODY);
+      expect(contrastRatio(ink, GROUND), `${name} on --ground`).toBeGreaterThanOrEqual(AA_BODY);
+      expect(contrastRatio(ink, SURFACE_3), `${name} on --surface-3`).toBeGreaterThanOrEqual(AA_BODY);
     }
   });
 
-  it("keeps an input's control boundary at 3:1 against the surround it sits in", () => {
-    /* `--control-line` is `rgba(246, 243, 235, 0.4)` over the field's own
-       `--surface-2`; the ground is what surrounds it. */
-    const border = composite([246, 243, 235], 0.4, token("--surface-2"));
-    expect(contrastRatio(border, GROUND_PEAK)).toBeGreaterThanOrEqual(AA_UI);
+  it("keeps a control boundary at 3:1 on every surround it can sit in", () => {
+    /* `--control-line` is an opaque hex since 2026-09-15 so that this number
+       does not depend on which plate the field sits on; `--gold-line-strong`
+       is the selected-chip boundary and owes the same floor. */
+    for (const name of ["--control-line", "--gold-line-strong"]) {
+      expect(contrastRatio(token(name), GROUND), `${name} on --ground`).toBeGreaterThanOrEqual(AA_UI);
+      expect(contrastRatio(token(name), SURFACE_3), `${name} on --surface-3`).toBeGreaterThanOrEqual(AA_UI);
+    }
   });
 
-  it("still paints that ground, and the quiet variant under the institution family", () => {
-    expect(globals).toMatch(/background-image:\s*var\(--scan-ground\)/);
-    expect(globals).toMatch(/body:has\(\[data-family="institution"\]\) \{[^}]*--scan-ground-quiet/);
+  it("paints one flat ground and no photograph or texture under the reading routes", () => {
+    expect(globals).toMatch(/html, body \{[^}]*background-color:\s*var\(--ground\)/);
+    expect(globals).not.toMatch(/background-attachment:\s*fixed/);
+    expect(globals).not.toMatch(/body::before \{/);
+    expect(globals).not.toMatch(/background-image:\s*var\(--scan-ground/);
+    expect(globals).not.toMatch(/--family-scan/);
   });
 });
 
@@ -266,9 +278,8 @@ describe("the no-JavaScript home still shows a readable band over the static gro
        script runs and stays when none ever does. */
     expect(home).toMatch(/\.posterField \{[^}]*background:\s*var\(--hero-poster-tall\)/);
     expect(globals).toMatch(/--hero-poster-tall:\s*url\(/);
-    /* And the rest of the site keeps the ground texture over its own still. */
-    expect(globals).toMatch(/background-image:\s*var\(--scan-ground\)/);
-    expect(globals).toMatch(/body::before \{[\s\S]{0,400}?var\(--site-ground-photo\)/);
+    /* And the rest of the site is read on the one flat ground. */
+    expect(globals).toMatch(/html, body \{[^}]*background-color:\s*var\(--ground\)/);
   });
 
   it("renders the hero wordmark, fallback links and editorial journey as server HTML", () => {

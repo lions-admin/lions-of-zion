@@ -119,29 +119,30 @@
   --btn-bg: var(--gold);
   --btn-fg: var(--ground);
   --btn-line: var(--gold);
-  /* A sheen along the top of the plate and a warm short drop under it, so the
-     one filled control on a page reads as a pressable object. */
-  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 55%);
+  /* A lit top edge and a short gold halo under it, so the one filled control
+     on a page reads as a pressable object. Both read tokens: the halo used
+     to be the retired amber's own rgba, which survived two palettes unread. */
+  background-image: linear-gradient(180deg, var(--edge-hi-strong), transparent 55%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    0 1px 2px rgba(0, 0, 0, 0.35),
-    0 6px 16px -8px rgba(240, 180, 41, 0.55);
+    inset 0 1px 0 var(--edge-hi-strong),
+    0 1px 2px rgba(2, 6, 18, 0.35),
+    0 6px 16px -8px var(--gold-glow);
 }
 
 .primary:hover:not(:disabled) {
   --btn-bg: var(--gold-hi);
   --btn-line: var(--gold-hi);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.32),
-    0 2px 4px rgba(0, 0, 0, 0.35),
-    0 10px 22px -8px rgba(240, 180, 41, 0.6);
+    inset 0 1px 0 var(--edge-hi-strong),
+    0 2px 4px rgba(2, 6, 18, 0.35),
+    0 10px 22px -8px var(--gold-glow);
 }
 
 .primary:active:not(:disabled) {
   --btn-bg: var(--gold-dim);
   --btn-line: var(--gold-dim);
   background-image: none;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 1px 2px rgba(2, 6, 18, 0.3);
 }
 
 .secondary {

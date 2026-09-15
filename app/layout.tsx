@@ -1,14 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
-import {
-  Archivo_Narrow,
-  IBM_Plex_Sans,
-  Inter_Tight,
-  IBM_Plex_Sans_Hebrew,
-  JetBrains_Mono,
-  Roboto_Mono,
-  Newsreader,
-} from "next/font/google";
+import { Geist_Mono, IBM_Plex_Sans_Hebrew, Literata, Schibsted_Grotesk } from "next/font/google";
 import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site-config";
 /* Tailwind first, then the hand-authored system. Both files open with the same
    `@layer theme, base, components, utilities;` statement, so order is pinned
@@ -22,79 +14,63 @@ import { Analytics } from "@vercel/analytics/next";
 import { MeasurementRoot } from "@/components/measurement";
 
 /*
- * Three faces, three jobs — see the token block in `globals.css` (SYS-003).
- * Newsreader is the editorial display and standfirst voice (variable, with
- * the optical-size axis so it cuts differently at 60px and at 20px); IBM Plex
- * Sans is running text and interface; JetBrains Mono is data only.
+ * Four faces, four jobs — see the token block in `globals.css` (SYS-003) and
+ * the 2026-09-15 identity ruling in `.ai/DECISIONS.md`.
  *
- * A fourth face is loaded but deliberately not wired into any token: IBM Plex
- * Sans Hebrew exists for the operations console under `app/admin/**`, which
- * reads in Hebrew because it is the owner's own operating surface. The public
- * site stays English and stays Latin — the variable is declared on the root
- * element so the console can reach it, and `--face-text` is left alone, so
- * nothing outside `admin.module.css`'s `.shell` rule ever renders in it.
+ * Schibsted Grotesk is the one family for everything a person wrote: display,
+ * running text, interface, kickers. It is a variable font, so no `weight`
+ * array is passed and the tokens are free to ask for 400–700 without a second
+ * download. Geist Mono is data only — dates, counts, keys, citation numbers.
+ * Literata is the one serif and has exactly one job, a human being quoted; it
+ * is never above the fold, so it is not preloaded. The three replace the
+ * seven families this file loaded until 2026-09-15 (Newsreader, IBM Plex
+ * Sans, Inter Tight, Archivo Narrow, Roboto Mono, JetBrains Mono, and the
+ * Hebrew face below), which cost 579 kB of preload against a budget the new
+ * set clears by more than half.
+ *
+ * A fourth face is loaded but deliberately not wired into any public token:
+ * IBM Plex Sans Hebrew exists for the operations console under `app/admin/**`,
+ * which reads in Hebrew because it is the owner's own operating surface. The
+ * public site stays English and stays Latin — the variable is declared on the
+ * root element so the console can reach it, and `--face-text` is left alone,
+ * so nothing outside `[data-surface="admin"]` ever renders in it. It is not
+ * preloaded either: no public route needs a byte of it.
  * `tests/english-chrome.test.ts` pins both halves of that.
  */
-const archivoNarrow = Archivo_Narrow({
+const schibsted = Schibsted_Grotesk({
   subsets: ["latin"],
-  /* 400 only. The reference system's rule is "no bold" — loading a weight the
-     tokens are forbidden to ask for is dead bytes on every page. */
-  weight: ["400"],
   style: ["normal", "italic"],
-  variable: "--font-archivo-narrow",
+  variable: "--font-schibsted",
   display: "swap",
 });
 
-const robotoMono = Roboto_Mono({
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  weight: ["400"],
-  variable: "--font-roboto-mono",
+  variable: "--font-geist-mono",
   display: "swap",
 });
 
-const interTight = Inter_Tight({
+const literata = Literata({
   subsets: ["latin"],
-  /* 400 and 700 only, which is the reference system's whole range. The display
-     role uses 400 deliberately — a 66px headline at regular weight is the
-     signature of that system, not an oversight. */
-  weight: ["400", "500", "700"],
   style: ["normal", "italic"],
-  variable: "--font-inter-tight",
-  display: "swap",
-});
-
-const newsreader = Newsreader({
-  subsets: ["latin"],
+  /* The optical-size axis: the quote role sets it at 21–28px and the same
+     cut has to read at both ends of that range. */
   axes: ["opsz"],
-  style: ["normal", "italic"],
-  variable: "--font-newsreader",
+  variable: "--font-literata",
   display: "swap",
-});
-
-const plexSans = IBM_Plex_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-plex-sans",
-  display: "swap",
+  preload: false,
 });
 
 /* Hebrew and Latin from one superfamily, so the console's Hebrew sits at the
-   same weight and colour as the Latin identifiers beside it. `normal` is the
-   only style Google serves for this family — there is no italic, which is why
-   no `style` array is passed here as it is for the Latin cut above. */
+   same weight as the Latin identifiers beside it. `normal` is the only style
+   Google serves for this family — there is no italic, which is why no `style`
+   array is passed here as it is for the Latin cuts above. */
 const plexSansHebrew = IBM_Plex_Sans_Hebrew({
   subsets: ["hebrew"],
   weight: ["400", "500", "600"],
   variable: "--font-plex-sans-hebrew",
   display: "swap",
-});
-
-const jetBrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-jetbrains-mono",
-  display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -145,9 +121,12 @@ export const metadata: Metadata = {
  *      a phone is 812-932px wide. `site-header` and `site-footer` were both
  *      corrected here; the sheet in `investigation.module.css` and the intro
  *      overlay in `editorial-intro.module.css` still are not.
+ *
+ * `themeColor` is the one copy of `--ground` outside the stylesheet (the
+ * manifest carries the other); the three move together.
  */
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#0b1220",
   colorScheme: "dark",
   viewportFit: "cover",
 };
@@ -157,7 +136,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`dark ${archivoNarrow.variable} ${robotoMono.variable} ${interTight.variable} ${newsreader.variable} ${plexSans.variable} ${plexSansHebrew.variable} ${jetBrainsMono.variable}`}
+      className={`dark ${schibsted.variable} ${geistMono.variable} ${literata.variable} ${plexSansHebrew.variable}`}
     >
       <body>
         {/* One reading of the reader's session for the whole tree. The header

@@ -12,10 +12,11 @@
   gap: var(--sp-2);
   max-width: 100%;
   padding: var(--sp-1) var(--sp-2);
-  /* Pill, like the buttons. In the reference system every badge and every
-     control is a stadium and only the cards are rectangles, which is what makes
-     the two families readable apart at a glance. */
-  border-radius: var(--radius-pill);
+  /* The chip corner (2026-09-15). Badges and chips sit on `--radius-1`,
+     buttons on `--radius-2`, plates on `--radius-3`; the pill is for dots,
+     avatars and counts only. The stadium badge belonged to the previous
+     identity's reference system and left with it. */
+  border-radius: var(--radius-1);
   border: var(--line-w) solid transparent;
   overflow-wrap: anywhere;
 }

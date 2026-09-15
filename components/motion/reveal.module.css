@@ -29,8 +29,10 @@
 
 .reveal {
   --reveal-delay: 0ms;
-  --reveal-blur: 5px;
-  --reveal-shift: 0.6rem;
+  /* The system's entrance values (`--enter-blur`, `--enter-shift` in
+     globals.css) rather than a private pair: the two drifted for a year. */
+  --reveal-blur: var(--enter-blur);
+  --reveal-shift: var(--enter-shift);
   --reveal-x: 0;
   --reveal-y: 0;
 

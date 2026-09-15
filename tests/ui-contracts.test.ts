@@ -11,8 +11,16 @@ function readRepo(rel: string) {
   return readFileSync(path.join(ROOT, rel), "utf8");
 }
 
+/* A fluid role is judged at its floor: `clamp(1.0625rem, 1rem + 0.2vw,
+   1.1875rem)` is 17px on the narrowest screen and that is the number the
+   contract is about. Anything that is not a bare rem or a clamp whose first
+   argument is one fails, so a role cannot slip below the floor by changing
+   shape (2026-09-15). */
 function remToPx(value: string): number | null {
-  const match = value.trim().match(/^([\d.]+)rem$/);
+  const trimmed = value.trim();
+  const clamp = trimmed.match(/^clamp\(\s*([^,]+),/);
+  const floor = clamp ? clamp[1].trim() : trimmed;
+  const match = floor.match(/^([\d.]+)rem$/);
   if (!match) return null;
   return Number(match[1]) * 16;
 }

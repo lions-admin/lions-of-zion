@@ -62,9 +62,8 @@ export default function ErrorBoundary({
           display: grid;
           place-items: center;
           padding: var(--sp-5);
-          /* The real ground and its texture, not a flat panel over them. */
+          /* The real ground, not a panel over it. */
           background-color: var(--ground);
-          background-image: var(--scan-ground);
           color: var(--ink);
           font-family: var(--face-text);
           text-align: center;

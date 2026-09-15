@@ -9,36 +9,62 @@
  *
  * This file is the only place a new colour, type role, space step, radius,
  * duration, z-index, or focus treatment may be born. Route CSS Modules consume
- * these names; they do not invent literals. SYS-015 is the later sweep that
- * deletes remaining route literals — do not do that sweep here.
+ * these names; they do not invent literals.
  *
- * One palette. Desk / Dossier / Institution (SYS-002) change density, scan
- * strength, and measure — never hue.
+ * MIDNIGHT SIGNAL (2026-09-15, owner ruling — `.ai/DECISIONS.md`).
+ * The third identity this file has carried and the first one chosen rather
+ * than tuned: a deep, desaturated navy ground from cover to footer, warm
+ * parchment ink, one gold accent used as a hairline and one filled control,
+ * a rose ember for the adversarial side, a newsroom grotesk for everything a
+ * person wrote, one mono for machine values, and one serif for exactly one
+ * job — a human being quoted. Every contrast pair below was recomputed with
+ * the WCAG formula `tests/intro-accessibility.test.ts` uses, against the
+ * lightest surface a token can land on, not only the ground.
  *
- * Gold is scarce: selection, active navigation, primary action, verified
- * emphasis, one focal moment per viewport. Ember is adversarial/contested
- * material and danger only. Status colour is never the sole cue.
+ * Gold is scarce: the signal rule, the current destination, the one filled
+ * control on a page, selection, verified emphasis — one accent element per
+ * viewport. Ember is adversarial/contested material and danger only. Status
+ * colour is never the sole cue.
  */
 
 :root {
-  /* Editorial reading system: display, prose and metadata have distinct jobs.
-     These families are already loaded in app/layout.tsx. */
-  --face-display: var(--font-newsreader), Georgia, serif;
-  --face-text: var(--font-plex-sans), sans-serif;
-  --face-data: var(--font-roboto-mono), ui-monospace, monospace;
+  /* --- Faces (SYS-003) ---
+     Four families replace the seven loaded until 2026-09-15 (Newsreader, IBM
+     Plex Sans, Inter Tight, Archivo Narrow, Roboto Mono, JetBrains Mono, and
+     the console's Plex Sans Hebrew, which stays). Loaded in app/layout.tsx.
 
-  /* Role aliases retain the homepage and system-map identities. */
-  --face-home-cover: var(--font-inter-tight), sans-serif;
-  --face-home-emphasis: var(--font-newsreader), serif;
-  --face-system-display: var(--font-newsreader), serif;
-  --face-system-text: var(--font-plex-sans), sans-serif;
-  --face-navigation: var(--font-plex-sans), sans-serif;
-  --face-navigation-display: var(--font-newsreader), serif;
-  --t-home-wordmark: clamp(4.75rem, 9.5vw, 8.75rem);
-  --t-home-wordmark-mobile: clamp(3.5rem, 15vw, 5.75rem);
+       display + text  Schibsted Grotesk — one grotesk for headlines, running
+                       prose and interface; rank comes from size, weight and
+                       tracking, not from a change of family.
+       data            Geist Mono — machine values only: dates, counts, keys,
+                       publicIds, citation numbers, real keyboard hints.
+       quote           Literata — a human being quoted: survivor testimony,
+                       the exact claim in circulation, a pull quote from a
+                       source. Never a standfirst, a headline or a kicker.
+                       Loaded without preload; it is below the fold. */
+  --face-display: var(--font-schibsted), "Helvetica Neue", Arial, sans-serif;
+  --face-text: var(--font-schibsted), "Helvetica Neue", Arial, sans-serif;
+  --face-data: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --face-quote: var(--font-literata), Georgia, "Times New Roman", serif;
+
+  /* Role aliases. They exist so that the homepage, the system map and the
+     chrome could keep their own identities under the previous system; under
+     one grotesk they all resolve to the three site faces, and route CSS keeps
+     reading them so the face swap needed no route change. Do not point any
+     of them at a new family. */
+  --face-home-cover: var(--face-text);
+  --face-home-emphasis: var(--face-display);
+  --face-system-display: var(--face-display);
+  --face-system-text: var(--face-text);
+  --face-navigation: var(--face-text);
+  --face-navigation-display: var(--face-display);
+  --t-home-wordmark: clamp(3.5rem, 8.5vw, 8rem);
+  --t-home-wordmark-mobile: clamp(3.25rem, 15vw, 5.5rem);
+  --t-home-wordmark-weight: 700;
+  --t-home-wordmark-tracking: -0.045em;
   --home-gutter: clamp(var(--sp-5), 5vw, var(--sp-7));
 
-  --font-serif: var(--face-display);
+  --font-serif: var(--face-quote);
   --font-sans: var(--face-text);
   --font-mono: var(--face-data);
 
@@ -58,38 +84,45 @@
      heading size. Anywhere else, use the roles below.
 
      --- Type roles (SYS-004) ---
-     display / h2 / figure / h3 / lede / body / small / caption / kicker / data.
-     Body is 17px (above the 16px mobile floor). Caption 13px. Kicker 13px.
-     Data 12px (desktop metadata floor; 13px on a phone, see the 48rem block
-     below). Headlines wrap at 320 via overflow-wrap on headings. */
+     display / h2 / figure / h3 / lede / body / small / caption / kicker / data
+     / quote. Headings are 600 in the grotesk, tightly tracked, so the rank
+     reads at a glance without a second family. Body is fluid: 17px on a
+     phone, ~19px on a 1440 desktop, never above 19px — the reading column is
+     68ch either way. Small is 15px at the root and lifted to 16px on a phone
+     (the 48rem block below) because the claim text on a Fake Resistance row
+     is set in it. Caption 13px. Kicker 13px. Data 12px (desktop metadata
+     floor; 13px on a phone). Headlines wrap at 320 via overflow-wrap.
+
+     `tests/ui-contracts.test.ts` reads the floors and evaluates a `clamp()`
+     at its minimum, so a fluid role still has to state its floor first. */
   --t-display: clamp(2.75rem, 1.6rem + 4.1vw, 4.125rem);
-  --t-display-lh: 1.06;
-  --t-display-weight: 400;
-  --t-display-tracking: -0.025em;
+  --t-display-lh: 1.02;
+  --t-display-weight: 600;
+  --t-display-tracking: -0.03em;
 
   --t-h2: clamp(1.6rem, 1.25rem + 1.15vw, 2.125rem);
-  --t-h2-lh: 1.13;
-  --t-h2-weight: 400;
-  --t-h2-tracking: -0.015em;
+  --t-h2-lh: 1.1;
+  --t-h2-weight: 600;
+  --t-h2-tracking: -0.02em;
 
   --t-figure: clamp(1.6rem, 1.2rem + 1.5vw, 1.875rem);
   --t-figure-lh: 1.2;
-  --t-figure-weight: 500;
+  --t-figure-weight: 600;
 
   --t-h3: 1.375rem;
   --t-h3-lh: 1.25;
-  --t-h3-weight: 400;
+  --t-h3-weight: 600;
   --t-h3-tracking: -0.012em;
 
-  --t-lede: clamp(1.0625rem, 1rem + 0.35vw, 1.1875rem);
+  --t-lede: clamp(1.125rem, 1rem + 0.4vw, 1.25rem);
   --t-lede-lh: 1.55;
   --t-lede-weight: 400;
-  --t-lede-tracking: -0.009em;
+  --t-lede-tracking: -0.006em;
 
-  --t-body: 1.0625rem;
+  --t-body: clamp(1.0625rem, 1rem + 0.2vw, 1.1875rem);
   --t-body-lh: 1.65;
 
-  --t-small: 0.9375rem;
+  --t-small: clamp(0.9375rem, 0.875rem + 0.2vw, 1.0625rem);
   --t-small-lh: 1.5;
 
   --t-caption: 0.8125rem;
@@ -108,14 +141,24 @@
      indistinguishable 11–12px tracked stamp, and the site read as a dashboard.
      Mono is now strictly for machine values (dates, counts, keys, references);
      a label that a person wrote is set in the text face at the caption size,
-     small-capped by tracking rather than by a synthesized small-caps cut Plex
-     Sans does not carry. 13px is the phone floor for captions and this role
-     never goes below it. Compose `.kickerLabel` below for the whole role. */
+     small-capped by tracking. 13px is the phone floor for captions and this
+     role never goes below it. Compose `.kickerLabel` below for the whole role.
+     600, not 500, since 2026-09-15: the grotesk's 500 reads as body weight at
+     13px and the kicker has to hold a line on its own. */
   --face-kicker: var(--face-text);
   --t-kicker: 0.8125rem;
   --t-kicker-lh: 1.4;
-  --t-kicker-weight: 500;
-  --t-kicker-tracking: 0.06em;
+  --t-kicker-weight: 600;
+  --t-kicker-tracking: 0.08em;
+
+  /* The quote role (2026-09-15). The one place the serif is allowed, and the
+     one type role the reader is meant to *hear*: testimony in italic with the
+     attribution in roman, the exact claim on a Fake Resistance row in roman
+     inside quotation marks, a pull quote from a source. Compose `.quoteText`
+     below. Hanging punctuation is set on `blockquote, q` in the base layer. */
+  --t-quote: clamp(1.3125rem, 1.1rem + 0.9vw, 1.75rem);
+  --t-quote-lh: 1.35;
+  --t-quote-weight: 400;
 
   /* --- Space --- */
   --sp-1: 0.25rem;
@@ -135,129 +178,125 @@
 
   /* --- Colour: ground / ink / accent / ember ---
    *
-   * The accent is amber. The tokens are still called `--gold*` because 289
-   * declarations across 44 stylesheets and three components read those names,
-   * and renaming them inside a change that re-grades the palette would bury the
-   * re-grade in a 47-file mechanical diff. Read `--gold` as "the one accent";
-   * the sweep to `--accent*` should be its own commit.
+   * The accent is gold and the tokens are called `--gold*`, which is finally
+   * true again. The names were kept through amber and coral because 289
+   * declarations across 44 stylesheets read them; they are kept now for the
+   * same reason.
    *
-   * Measured against the A11Y-004 floor before adoption. #f0b429 is 11.27:1 on
-   * the black ground and 10.63:1 on surface-1 — it has to clear 4.5 in both
-   * directions, because this token is used as text on the ground AND as a fill
-   * with black text on it. `--gold-dim` carries small text (the fact-check rung
-   * numbers, the home rail flag) and #b8860b holds 6.45 and 6.09.
+   * The ground is a navy that has been desaturated one step from the brand
+   * blue so that it reads as an editorial page rather than a crest, and it is
+   * the ONE ground: cover to footer, no gradient, no texture, no photograph
+   * under it, no band that recolours the page mid-scroll. Every plate is a
+   * flat lighter step of the same hue with a hairline around it.
    *
-   * This is the third accent in a day: gold #c6a15b, then coral #fc5f2b from a
-   * reference system, now amber. The coral is why the comment on
-   * `--gold-line-strong` below reads the way it does — swapping a hue silently
-   * moved an alpha that a comment had recorded as safe, and nothing but
-   * `scripts/ui-audit.mjs` noticed. */
-  --ground: #1b1b1b;
-  --ink-hi: #f2eee6;
-  --ink: #d4d0c8;
-  /* Muted body copy, and the token the surface re-grade kept catching out. It
-     has to clear 4.5:1 on the LIGHTEST surface it can land on, not on the
-     ground — a token measured only against the ground has been wrong here
-     twice. Re-measured 2026-09-14 against the unified warm grade, #b5b1aa
-     holds 8.07 on the ground and 7.63 / 7.18 / 6.72 / 6.18 across surfaces
-     0-3, so the lightest surface still clears the floor by 1.7x. */
-  --ink-lo: #b5b1aa;
-  --gold: #d2b279;
-  --gold-hi: #e7c996;
-  /* The dim step, and the one that actually constrains the hue: it is used as
-     SMALL TEXT in two places — the fact-check ladder's rung numbers and the
-     homepage rail flag — so it owes the full 4.5:1 of A11Y-004 rather than the
-     3:1 a large or non-text element would. Two earlier values missed that
-     floor before it was held. Re-measured 2026-09-14 on the unified warm
-     grade, #c2a26c holds 7.12 on the ground and 6.73 / 6.33 / 5.93 / 5.45
-     across surfaces 0-3 — it clears the floor on every surface it can land
-     on, which is what the earlier misses did not. Its other uses are
-     backgrounds and beam tails, where this step of lightness is not visible. */
-  --gold-dim: #c2a26c;
+   * Contrast, recomputed 2026-09-15 (WCAG 2.x, `tests/intro-accessibility`).
+   * Each text token is measured on the ground AND on `--surface-3`, the
+   * lightest plate it can land on, because a token measured only against the
+   * ground has been wrong here three times.
+   *
+   *   token          ground   s0     s1     s2     s3
+   *   --ink-hi       16.32   15.17  13.96  12.48  10.89
+   *   --ink          12.00   11.16  10.27   9.18   8.00
+   *   --ink-lo        7.55    7.02   6.46   5.78   5.04
+   *   --gold          9.46    8.80   8.10   7.24   6.31
+   *   --gold-hi      12.35   11.49  10.57   9.45   8.24
+   *   --gold-dim      7.74    7.20   6.62   5.92   5.16
+   *   --data-ember    7.88    7.32   6.74   6.02   5.25
+   *   --ember-soft    9.81    9.12   8.40   7.50   6.55
+   *   --ember-peak   10.39    9.66   8.89   7.94   6.93
+   *   --state-ok     10.45    9.72   8.95   8.00   6.97
+   *   --state-warn   12.36   11.50  10.58   9.46   8.25
+   *   --control-line  5.45    5.06   4.66   4.17   3.63   (1.4.11 floor is 3)
+   *   ground text on a gold fill: 9.46; on --gold-hi 12.35; on --gold-dim 7.74.
+   */
+  --ground: #0b1220;
+  --ink-hi: #f3efe6;
+  --ink: #cbcfd8;
+  /* Muted body copy, captions and metadata. 5.04 on `--surface-3` is the
+     binding number: it clears the 4.5 body floor on the lightest plate. */
+  --ink-lo: #9ba5b8;
+  --gold: #d8b45f;
+  --gold-hi: #edcf83;
+  /* The dim step carries SMALL TEXT in two places — the fact-check ladder's
+     rung numbers and the homepage rail flag — so it owes the full 4.5:1, and
+     it is the selected-chip boundary, which owes 3:1 on `--surface-3`. 5.16
+     there covers both. */
+  --gold-dim: #c6a24f;
+  /* The halo under the one filled control. Derived from `--gold` — it used to
+     be the retired amber's rgba(240,180,41), which no token carried. */
+  --gold-glow: rgba(216, 180, 95, 0.4);
 
-  /* One shade under the canvas, for a bar that has to read as behind it. */
-  --abyss: #141414;
+  /* One shade under the canvas: the cover vignette and nothing else. Never a
+     bar or a band colour. */
+  --abyss: #070b14;
 
-  --surface-0: #202020;
-  --surface-1: #252525;
-  --surface-2: #2a2a2a;
-  --surface-3: #303030;
+  --surface-0: #101a2c;
+  --surface-1: #15213a;
+  --surface-2: #1b2a46;
+  --surface-3: #223452;
 
-  --line: rgba(242, 238, 230, 0.15);
-  --line-soft: rgba(242, 238, 230, 0.08);
-  --line-strong: rgba(242, 238, 230, 0.25);
+  --line: rgba(243, 239, 230, 0.14);
+  --line-soft: rgba(243, 239, 230, 0.08);
+  --line-strong: rgba(243, 239, 230, 0.24);
 
   /* The boundary of an interactive control, and nothing else.
    *
    * `--line` above is the editorial hairline: decorative, quiet, and
    * correctly exempt from WCAG 1.4.11. Controls are not exempt — where a
    * border is what identifies something as a button, input or select, it owes
-   * 3:1 against what surrounds it. `--line` measured 1.28:1 and
-   * `--line-strong` 1.86-2.08:1, which failed on every filter chip, every
-   * form field and every select on the site (113 findings, A11Y-004).
-   *
-   * 0.40 is the alpha where the ratio clears 3:1 on the darkest ground it
-   * ever sits on: 3.40:1 on pure black, 3.51-3.57:1 on surfaces 1 through 3.
-   * Raising `--line` itself instead would have made every editorial rule on
-   * the site shout, which is the opposite of the direction. Two tokens,
-   * because they answer to two different rules.
-   *
+   * 3:1 against what surrounds it, on the lightest surround it can have.
+   * #7e8ba3 is 3.63 on `--surface-3` and 5.45 on the ground. Raising `--line`
+   * itself would make every editorial rule on the site shout, which is the
+   * opposite of the direction. Two tokens, because they answer to two rules.
    * Verified by `scripts/ui-audit.mjs`, which computes this in the page. */
-  --control-line: #85817b;
-  --gold-line: rgba(210, 178, 121, 0.25);
-  /* The alpha here is a measurement, not a taste, and it has to be re-derived
-     every time either the hue OR the surfaces move. This is the selected state
-     on filter chips and stage toggles — a control boundary, so WCAG 1.4.11's
-     3:1 applies, and it applies on the lightest surface it can land on, not
-     just the darkest.
-     Its history in one day: 0.6 for gold; 0.6 silently broken to 2.88 by coral,
-     which `scripts/ui-audit.mjs` caught in the page; 0.55 for amber on the old
-     near-black surfaces; and 0.55 broken again to 2.95 on `--surface-3` when
-     the surfaces were re-graded to this system's charcoals — that one nothing
-     rendered, so no audit would have found it and it was caught by computing
-     the ratio against all four grounds directly. 0.6 clears them at 4.31, 3.71,
-     3.50 and 3.24.
-     `--gold-line` below is decorative framing, is not a control boundary, and
-     tracks no floor. */
-  --gold-line-strong: #c2a26c;
-  --gold-wash: rgba(210, 178, 121, 0.08);
+  --control-line: #7e8ba3;
+  --gold-line: rgba(216, 180, 95, 0.25);
+  /* The selected state on filter chips and stage toggles — a control
+     boundary, so 1.4.11's 3:1 applies on the lightest surface it lands on.
+     It is the dim gold itself, 5.16 on `--surface-3`, rather than an alpha
+     that has to be re-derived every time the hue or the surfaces move (that
+     alpha broke silently twice in one day under the previous palettes).
+     `--gold-line` above is decorative framing and tracks no floor. */
+  --gold-line-strong: #c6a24f;
+  --gold-wash: rgba(216, 180, 95, 0.08);
 
-  /* data-blue was retired to warm grey; keep the names so existing modules
-     do not invent a second blue. Ember is the only chromatic alert besides
-     the semantic state ramp. */
-  --data-blue: #d1cdc4;
-  --data-blue-dim: #716d66;
-  --data-blue-peak: #f6f3eb;
-  --data-ember: #c97365;
-  --data-ember-dim: #71382f;
-  --data-ember-peak: #e8a397;
-  /* VA-60. The quieter ember, for a weaker verdict — "Out of context",
-     "Contested" — which should read softer than "False" without reading
-     *worse*. `--data-ember` was carrying that job at 5.74:1 on `--ground` and
-     only **4.22:1 on `--surface-1`**, where the badge actually sits, so the
-     audit failed it against the 4.5 floor.
-     This is the dimmest step on the ember ramp that clears 4.5 on all four
-     grounds the badge can land on — 4.68:1 at worst, on `--surface-3` —
-     computed rather than picked, the same way `--control-line` was. The
-     severity distinction survives: peak stays for the stronger verdicts. */
-  --data-ember-soft: #df9588;
-  --data-ember-wash: rgba(201, 115, 101, 0.08);
+  /* data-blue is the ink ramp. The ground is the only blue on the site, so
+     the names resolve to ink and no module invents a second one. */
+  --data-blue: var(--ink);
+  --data-blue-dim: var(--ink-lo);
+  --data-blue-peak: var(--ink-hi);
+  /* Ember is rose, not orange, so that it can never be confused with gold on
+     the same screen: "Contested", "False", "Out of context", the 2px rule on
+     the adversarial side of a record, "what cuts against it", the danger
+     button. `--data-ember-dim` is a fill and a rule colour only (2.05 on the
+     ground — never text). */
+  --data-ember: #ee8c97;
+  --data-ember-dim: #7a2f3e;
+  --data-ember-peak: #f6aeb6;
+  /* The quieter ember, for a weaker verdict — "Out of context", "Contested" —
+     which should read softer than "False" without reading *worse*. 6.55 on
+     `--surface-3`, where the badge actually sits. */
+  --data-ember-soft: #f2a8b0;
+  --data-ember-wash: rgba(238, 140, 151, 0.08);
   --ember: var(--data-ember);
   --ember-dim: var(--data-ember-dim);
   --ember-peak: var(--data-ember-peak);
   --ember-soft: var(--data-ember-soft);
   --ember-wash: var(--data-ember-wash);
 
-  /* --- Semantic state (SYS-010). Text labels required; colour is not a cue. --- */
-  --state-ok: #a2c6ac;
-  --state-ok-wash: rgba(96, 178, 137, 0.14);
-  --state-ok-line: rgba(96, 178, 137, 0.35);
-  --state-warn: #e3b866;
-  --state-warn-wash: rgba(227, 184, 102, 0.14);
-  --state-warn-line: rgba(227, 184, 102, 0.35);
-  --state-danger: #e9958c;
-  --state-danger-wash: rgba(214, 105, 99, 0.14);
-  --state-danger-line: rgba(214, 105, 99, 0.4);
+  /* --- Semantic state (SYS-010). Text labels required; colour is not a cue.
+     Warn is a pale straw deliberately off the gold family, so a warning never
+     reads as emphasis; danger shares the ember hue, so "this is wrong" is one
+     colour whether it is a verdict or a form error. --- */
+  --state-ok: #8ed0a6;
+  --state-ok-wash: rgba(142, 208, 166, 0.14);
+  --state-ok-line: rgba(142, 208, 166, 0.35);
+  --state-warn: #e9d08c;
+  --state-warn-wash: rgba(233, 208, 140, 0.14);
+  --state-warn-line: rgba(233, 208, 140, 0.35);
+  --state-danger: #ee8c97;
+  --state-danger-wash: rgba(238, 140, 151, 0.14);
+  --state-danger-line: rgba(238, 140, 151, 0.4);
 
   --async-idle: var(--ink-lo);
   --async-loading: var(--gold);
@@ -268,16 +307,20 @@
   --async-empty: var(--ink);
   --async-disabled: var(--ink-lo);
 
+  /* The one scrim: the ground at 72% over whatever a dialog, the search
+     panel or the investigation sheet opens above. A solid tint, not a blur —
+     backdrop-filter over a page of type costs a repaint per frame and read as
+     "glass", which the 2026-09-14 retirement of `--glass-*` already removed
+     from every plate. This token is the overlay half of that decision. */
+  --scrim: rgba(7, 11, 20, 0.72);
+
   /* The eight `--glass-*` tokens were deleted on 2026-09-14. They were a
      leftover HUD ramp that globals.css had told people not to use since the
      V3 system landed, with nothing enforcing the sentence — so surfaces went
      on drawing three-stop gradients and backdrop blur long after every other
-     plate had become flat with a hairline. The last two readers went this
-     round (the search panel and the site header), which is what finally let
-     the definitions go. Do not reintroduce them: `--surface-0..3`,
-     `--line`/`--line-strong` and `--shadow-1..3` cover every case they did,
-     and `tests/glass-retirement.test.ts` no longer guards this because there
-     is nothing left to guard. */
+     plate had become flat with a hairline. Do not reintroduce them:
+     `--surface-0..3`, `--line`/`--line-strong`, `--scrim` and `--shadow-1..3`
+     cover every case they did. */
 
   /* --- Radius / elevation (SYS-006) ---
      Default grouping is a 1px rule and spacing, not a card.
@@ -288,17 +331,13 @@
      lines above it that capped cards at 8px. The token was the thing that was
      wrong, not the twenty modules reading it, so it moved rather than they
      did: every card and plate in the product tightened by 2px at once, which
-     is the whole reason a radius may only be defined here. The rule line above
-     read "2 / 4 / 8px" and named a 2px step no token has ever carried, so it
-     is restated as the scale that actually exists.
+     is the whole reason a radius may only be defined here.
 
-     --radius-pill carries chips, avatars, dots AND buttons. This line used to
-     read "not buttons", which `components/ui/button.module.css` had already
-     contradicted with a reason: the reference system rounds buttons and pills
-     to 9999px while leaving cards and inputs on a small radius, and --radius-2
-     is shared with the form field, so reaching a pill by raising it would
-     round every text input too. The button stylesheet is the one that argued
-     its case; this comment is corrected to match it rather than the reverse. */
+     Who reads what (2026-09-15): buttons `--radius-2`; chips, badges and the
+     bar's Support Us `--radius-1`; plates and overlays `--radius-3`; the pill
+     is for dots, avatars and counts only. A stadium button belonged to the
+     previous identity's reference system and is retired with it; the button
+     stylesheet reads `--radius-2` and says so. */
   --radius-1: 4px;
   --radius-2: 6px;
   --radius-3: 8px;
@@ -306,62 +345,95 @@
 
   /* The home chrome's own corner, and the one exception to the scale above.
      Not a fourth step: it belongs to exactly the controls that sit over the
-     cover film — the header's *Support Us* and desk search under
+     cover picture — the header's *Support Us* and desk search under
      `[data-home]`, and `HeroSupportStrip`'s chips, which are drawn in that
      control's geometry by the owner ruling of 2026-09-07 (`.ai/DECISIONS.md`).
-     Over a moving photograph a pill reads as a sticker; a near-square hairline
-     reads as chrome. Every one of those three carried a bare `3px` literal in
-     its own stylesheet until this token existed, which is how the same control
-     ended up a pill site-wide and a rectangle on the homepage with nothing
-     saying that was deliberate. It is: this name is the record. Do not reach
-     for it anywhere else. */
+     Over a picture a pill reads as a sticker; a near-square hairline reads as
+     chrome. This name is the record. Do not reach for it anywhere else. */
   --radius-home-chrome: 3px;
 
   /* Elevation, restrained.
    *
    * Depth is tonal first — a lighter plate on a darker canvas with a hairline
-   * around it — and shadow second: a lit top edge and a soft, short, dark drop
-   * that separates the plate from the ground without a glow. Three steps:
-   * resting plate, raised or hovered plate, floating overlay (dialogs,
-   * popovers). Every stylesheet reads these tokens, so a change here moves
-   * all 28 declarations at once. */
+   * around it — and shadow second: a lit top edge and a soft, short drop in
+   * the ground's own navy-black that separates the plate from the ground
+   * without a glow. Three steps: resting plate, raised or hovered plate,
+   * floating overlay (dialogs, popovers). Every stylesheet reads these
+   * tokens, so a change here moves all 28 declarations at once. */
   --shadow-1:
     inset 0 1px 0 var(--edge-hi),
-    0 1px 2px rgba(0, 0, 0, 0.35);
+    0 1px 2px rgba(2, 6, 18, 0.45);
   --shadow-2:
     inset 0 1px 0 var(--edge-hi),
-    0 6px 18px -6px rgba(0, 0, 0, 0.55),
-    0 2px 4px rgba(0, 0, 0, 0.3);
+    0 6px 18px -6px rgba(2, 6, 18, 0.6),
+    0 2px 4px rgba(2, 6, 18, 0.35);
   --shadow-3:
     inset 0 1px 0 var(--edge-hi),
-    0 24px 48px -16px rgba(0, 0, 0, 0.7),
-    0 8px 16px -8px rgba(0, 0, 0, 0.45);
-  /* The one-pixel lit edge along the top of a raised surface. It is what
-     makes a plate read as sitting *on* the ground rather than cut into it. */
-  --edge-hi: rgba(246, 243, 235, 0.07);
-  --edge-hi-strong: rgba(246, 243, 235, 0.12);
-  /* A raised plate carries a faint vertical grade so it is not a flat swatch. */
-  --surface-grade: linear-gradient(180deg, rgba(246, 243, 235, 0.025), transparent 55%);
-  --surface-grade-strong: linear-gradient(180deg, rgba(246, 243, 235, 0.05), transparent 60%);
+    0 24px 48px -16px rgba(2, 6, 18, 0.75),
+    0 8px 16px -8px rgba(2, 6, 18, 0.5);
+  /* The one-pixel lit edge along the top of a raised surface — cool, so it
+     reads as light on the navy rather than a warm sheen. It is what makes a
+     plate read as sitting *on* the ground rather than cut into it. */
+  --edge-hi: rgba(200, 214, 240, 0.08);
+  --edge-hi-strong: rgba(200, 214, 240, 0.13);
+  /* Plates are flat. The two grade tokens are kept as names because ten
+     stylesheets still read them in a `background-image` slot; they resolve
+     to nothing and are deleted with their last reader. */
+  --surface-grade: none;
+  --surface-grade-strong: none;
 
+  /* --- Motion (MOTION-001, extended 2026-09-15 for the cinematic system) ---
+     One take: nothing moves on its own except the cover; everything else
+     moves because the reader scrolled or navigated, along one axis (up) with
+     one curve (--ease-out). Scroll-driven motion is CSS (`animation-timeline`),
+     so it adds no JavaScript and no entry to the rAF inventory in
+     `tests/motion-runtime.test.ts`.
 
-  /* --- Motion (MOTION-001) ---
      Hover/press: --dur-fast + --ease-out.
      Component state: --dur-base + --ease-out.
-     Section entrance: --dur-enter, max 10px translate, max 6px blur.
+     Section entrance: `.enter` below — 14px rise, no blur, on a view timeline.
      Stagger: --stagger, max six items.
-     Ambient loops: --dur-ambient, homepage and genuine live states only. */
+     Ambient loops: --dur-ambient, the cover only, and at most one.
+     Page transitions: --dur-transition-out / -in / -shared, list → record.
+     Cover: --dur-arrive once on load; --cover-runway of scroll for the lion
+     to leave and the signal rule to draw; --parallax-depth-* per layer. */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-cinematic: cubic-bezier(0.22, 1, 0.36, 1);
   --dur-fast: 160ms;
   --dur-base: 240ms;
   --dur-slow: 400ms;
   --dur-enter: 520ms;
-  --dur-ambient: 7s;
+  --dur-arrive: 900ms;
+  --dur-ambient: 9s;
+  --dur-shimmer: 1.6s;
+  --dur-transition-out: 160ms;
+  --dur-transition-in: 240ms;
+  --dur-transition-shared: 320ms;
   --stagger: 70ms;
-  --enter-shift: 10px;
-  --enter-blur: 6px;
+  --enter-shift: 14px;
+  /* Zero: a blurred entrance re-rasterises the text it is revealing on every
+     frame, and on a phone it is what made the reveal read as a load. */
+  --enter-blur: 0px;
+  --range-entry: entry 0% entry 35%;
+  --cover-runway: 40svh;
+  --parallax-depth-1: 12vh;
+  --parallax-depth-2: 22vh;
+  --parallax-depth-3: 32vh;
+
+  /* --- The signal rule (2026-09-15) ---
+     The identity's one signature: a 1px gold line whose head is a short
+     spectrum stub — the last of the lion's particles held as a line — drawn
+     by `components/brand/SignalMark.tsx` in exactly three places (the cover,
+     a page's masthead, the colophon). Everywhere else the rule is a plain
+     hairline doing structural work. On October 7 it is unbroken and unlit:
+     `main[data-memorial]` re-points `--signal-rule-color` to `--ink-lo`. */
+  --signal-rule: 1px;
+  --signal-rule-color: var(--gold);
+  --signal-rule-w: 4rem;
+  --signal-stub-w: 1.25rem;
+  --signal-draw: 600ms;
 
   --focus-outline: 2px solid var(--gold-hi);
   --focus-offset: 3px;
@@ -372,7 +444,10 @@
   /* 44px floor. Coarse pointers must not go below --control-h.
      --control-h-sm is fine-pointer only (SYS-007). */
   --control-h: 2.75rem;
-  --control-h-sm: 2.25rem;
+  /* 40px, up from 36px (2026-09-15): the small size is on 103 filter chips
+     and pagers, and at 36px a fine-pointer row of them read as a toolbar
+     from a different product. */
+  --control-h-sm: 2.5rem;
   --control-h-coarse: 2.75rem;
 
   /* The bar's *total occupied height*, notch included — not the height of the
@@ -394,21 +469,13 @@
      padding would shrink the visible strip instead of moving it. */
   --header-h: calc(4.8rem + env(safe-area-inset-top, 0px));
 
-  --scan-ground:
-    radial-gradient(115% 82% at 50% 26%, rgba(246, 243, 235, 0.055), transparent 68%),
-    repeating-linear-gradient(0deg, rgba(228, 224, 215, 0.027) 0 1px, transparent 1px 9px);
-  --scan-ground-quiet:
-    radial-gradient(115% 82% at 50% 26%, rgba(246, 243, 235, 0.028), transparent 68%),
-    repeating-linear-gradient(0deg, rgba(228, 224, 215, 0.014) 0 1px, transparent 1px 9px);
-
-  /* The stills, declared once here beside the other grounds rather than buried
-     in the rules that use them. `HeroVideo` holds the same three paths in its
-     `SOURCES` table — it needs them in JavaScript to set a `poster` after it has
-     measured the viewport — and the two lists must not drift.
-     `--site-ground-photo` is the landscape frame in both orientations on
-     purpose: it is the ambient ground of the reading routes, veiled to 92-96%,
-     where the shape of the crop is not perceptible and a second asset would be
-     a second download for nothing. */
+  /* The cover stills, declared once here rather than buried in the rules that
+     use them. `HeroVideo` holds the same paths in its `SOURCES` table — it
+     needs them in JavaScript to set a `poster` after it has measured the
+     viewport — and the two lists must not drift. They leave with the video
+     when the layered cover lands; the reading routes no longer paint a
+     photograph under the page (the fixed still and the scan texture were
+     deleted 2026-09-15 — the ground is flat). */
   --site-ground-photo: url("/video/lion-hero-poster-desktop.jpg");
   --hero-poster-wide: url("/video/lion-hero-poster-desktop.jpg");
   --hero-poster-tall: url("/video/lion-hero-poster-portrait.jpg");
@@ -418,6 +485,8 @@
   --z-raised: 10;
   --z-sticky: 100;
   --z-header: 200;
+  /* The page-transition layer: above the fixed chrome, below any modal. */
+  --z-transition: 250;
   --z-overlay: 300;
   --z-panel: 400;
   --z-modal: 500;
@@ -434,6 +503,11 @@
   --chrome-w: 92rem;
   --line-w: 1px;
   --line-w-thick: 2px;
+  /* The status mark beside a verdict or a live state: a 0.42rem shape whose
+     outline is the cue (square, diamond, circle, hollow, dashed) so a state
+     survives greyscale. Born here since 2026-09-15; it lived in
+     `content.module.css`'s private alias layer before. */
+  --mark: 0.42rem;
   --bp-seam: 45rem;
   --bp-rails: 76.25rem;
 
@@ -443,7 +517,6 @@
   --family-pad-inline: var(--sp-5);
   --family-gap: var(--sp-6);
   --family-measure: var(--measure-reading);
-  --family-scan: var(--scan-ground);
 }
 
 @media (pointer: coarse) {
@@ -480,10 +553,16 @@
    smaller mono on a phone has to say so on purpose, and it may not, because
    the contract forbids it. Not scoped to `pointer: coarse`: the floor is
    about a *small screen at reading distance*, and a narrow desktop window
-   deserves the same courtesy. `[data-surface="admin"]` already holds 13px. */
+   deserves the same courtesy. `[data-surface="admin"]` already holds 13px.
+
+   `--t-small` is lifted to 16px here for the same reason (2026-09-15): the
+   claim text on a Fake Resistance row and the summary on a case card are set
+   in it, and 15px prose on a phone was the one place the body floor was
+   quietly missed. */
 @media (max-width: 48rem) {
   :root {
     --t-data: 0.8125rem;
+    --t-small: 1rem;
   }
 }
 
@@ -492,7 +571,6 @@
   --family-pad-inline: var(--sp-5);
   --family-gap: var(--sp-5);
   --family-measure: var(--measure-wide);
-  --family-scan: var(--scan-ground);
 }
 
 [data-family="dossier"] {
@@ -500,7 +578,6 @@
   --family-pad-inline: var(--sp-6);
   --family-gap: var(--sp-7);
   --family-measure: var(--measure-reading);
-  --family-scan: var(--scan-ground);
 }
 
 [data-family="institution"] {
@@ -508,7 +585,6 @@
   --family-pad-inline: var(--sp-6);
   --family-gap: var(--sp-6);
   --family-measure: var(--measure-reading);
-  --family-scan: var(--scan-ground-quiet);
 }
 
 /* --- The admin workspace surface (SYS-002, staff density) ---
@@ -533,7 +609,11 @@
  * - **No touch floor below 44px.** --control-h is compressed for a mouse and
  *   re-floored for a coarse pointer immediately below. The coarse blocks in
  *   components/ui (button, field, tabs, pagination) all read var(--control-h),
- *   so a surface that lowers it lowers the floor everywhere at once. */
+ *   so a surface that lowers it lowers the floor everywhere at once.
+ *
+ * The console's Latin falls back to the site grotesk since 2026-09-15 (IBM
+ * Plex Sans left with the identity), and its mono is the site's Geist Mono —
+ * one mono, public and staff. */
 [data-surface="admin"] {
   --ground: #141718;
   --surface-1: #1a1e20;
@@ -545,9 +625,9 @@
   --line: #353d3e;
   --gold: #e6bc57;
 
-  --face-text: var(--font-plex-sans-hebrew), var(--font-plex-sans), sans-serif;
+  --face-text: var(--font-plex-sans-hebrew), var(--font-schibsted), sans-serif;
   --face-display: var(--face-text);
-  --face-data: var(--font-jetbrains-mono), var(--font-plex-sans-hebrew), monospace;
+  --face-data: var(--font-geist-mono), var(--font-plex-sans-hebrew), monospace;
 
   --t-display: 2rem;
   --t-h2: 1.375rem;
@@ -591,55 +671,18 @@ html {
 /* Running prose keeps its authored case. Short metadata labels opt into caps. */
 body { text-transform: none; }
 
+/* One flat ground under every route (2026-09-15). Until this date the reading
+   routes painted a 396 kB photograph through a fixed pseudo-element on the
+   body and a viewport-fixed scan-line texture — a full-viewport repaint on
+   every scroll frame, which a pinned cover cannot afford, and a second
+   picture competing with the one the identity spends on the cover. The
+   ground is the colour, and nothing else. */
 html, body {
   width: 100%;
   min-height: 100%;
   background-color: var(--ground);
-  background-image: var(--scan-ground);
-  background-attachment: fixed;
   overflow-x: clip;
 }
-
-body:has([data-family="institution"]) {
-  background-image: var(--scan-ground-quiet);
-}
-
-/* ---- The site ground: one still frame under every route ----
- *
- * The same photograph the home hero moves — its own first frame — held far
- * enough back that it reads as a room the type is in rather than a picture
- * behind it. The home page does not use this: `.page` there is opaque and
- * carries the moving version instead. Everything else gets the still.
- *
- * A fixed pseudo-element rather than another `background-image` layer on
- * `body`, for one reason: `background-attachment: fixed` is what the rule above
- * uses, and iOS Safari does not honour it. On a repeating texture that is
- * invisible; on a `cover` photograph over a long article it stretches the image
- * down the whole scroll length. A `position: fixed` box is the viewport either
- * way. Negative z-index puts it above `body`'s own background and below every
- * child, which is exactly the slot wanted.
- *
- * The veil is doing the real work — at 6% the photograph is a texture, and
- * reading copy over it stays reading copy. Anything lighter and the mane starts
- * competing with paragraphs. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image:
-    linear-gradient(
-      to bottom,
-      color-mix(in oklab, var(--ground) 92%, transparent) 0%,
-      color-mix(in oklab, var(--ground) 96%, transparent) 100%
-    ),
-    var(--site-ground-photo);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center, 68% center;
-}
-
 
 html:has([data-home-scroll]) {
   overflow-x: clip;
@@ -648,12 +691,6 @@ html:has([data-home-scroll]) {
 
 html:has([data-home-scroll]) body {
   overflow: visible;
-}
-
-/* Long-form reading keeps the photographic ground, without ruled scanlines. */
-html:has([data-public-shell]),
-html:has([data-public-shell]) body {
-  background-image: none;
 }
 
 /* Thin, not hidden: the home scrolls and the affordance must be shown.
@@ -755,12 +792,68 @@ html:has([data-handoff-blocked]) body {
 
 [data-public-shell] { padding-top: var(--header-h); }
 
+/* The reader's own pause (WCAG 2.2.2). The cover renders a real button that
+   sets `data-motion="paused"` on the root and persists it; this is the third
+   state beside the OS preference and no-script, and every timeline element
+   and the page transition read it below exactly as they read reduced motion.
+   The 0.01ms kill switch cannot shorten a scroll timeline, which is why the
+   scroll-driven rules each carry their own `animation: none` as well. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+html[data-motion="paused"] ::view-transition-group(*),
+html[data-motion="paused"] ::view-transition-old(*),
+html[data-motion="paused"] ::view-transition-new(*) {
+  animation: none !important;
+}
+
+/* Two preferences the previous palettes never answered. More contrast: the
+   muted ink and every hairline step up, washes and the lit edge go, so a
+   boundary is a line rather than a tint. Forced colours: the focus ring and
+   the media plate's edge take the system's own colours, and nothing relies
+   on a tint alone. */
+@media (prefers-contrast: more) {
+  :root {
+    --ink-lo: #b6becd;
+    --line: rgba(243, 239, 230, 0.28);
+    --line-soft: rgba(243, 239, 230, 0.16);
+    --line-strong: rgba(243, 239, 230, 0.4);
+    --control-line: #a3aec2;
+    --gold-wash: transparent;
+    --data-ember-wash: transparent;
+    --tint-hover: color-mix(in oklab, var(--ink-hi) 14%, transparent);
+    --edge-hi: transparent;
+    --edge-hi-strong: transparent;
+    --scrim: rgba(7, 11, 20, 0.88);
+  }
+}
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 2px solid Highlight;
+  }
+
+  .mediaPlate {
+    border-color: CanvasText;
+  }
+
+  .enter,
+  .enterQuiet {
+    animation: none;
   }
 }
 
@@ -884,10 +977,23 @@ html:has([data-handoff-blocked]) body {
   text-transform: uppercase;
 }
 
+/* The quote role, composed with `composes: quoteText from global`. Type only,
+   like the roles above; the composing rule decides the italic, the measure
+   and the gold stub beside it. */
+.quoteText {
+  font-family: var(--face-quote);
+  font-size: var(--t-quote);
+  font-weight: var(--t-quote-weight);
+  line-height: var(--t-quote-lh);
+  font-optical-sizing: auto;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
 /* The media plate (2026-09-11): the mount every editorial still sits in.
  *
  * Most of the site's illustrations are drawn on black, and the ground is
- * #0b0b0b. Framed by `--line` (13% ink) they read as an asset that has not
+ * navy. Framed by `--line` (14% ink) they read as an asset that has not
  * loaded — a dark rectangle with no edge — which was the single loudest
  * defect on the live homepage, the News lead and the article hero. The plate
  * gives the picture an object's edge out of tokens that already exist:
@@ -935,5 +1041,82 @@ html:has([data-handoff-blocked]) body {
   .mediaPlate > img {
     transform: none !important;
     transition: none;
+  }
+}
+
+/* The entrance (2026-09-15). One utility, composed with
+   `composes: enter from global`, for the few things that arrive as the reader
+   scrolls to them: a band's head and its first two records on the homepage
+   and the hubs — at most three things arrive, never a list. A view timeline,
+   so the motion is frame-locked to the scroll and adds no script and no
+   observer; the static state is the default and the animation is layered on
+   behind `@supports`, so an engine without scroll-driven animation (and a
+   reader who asked for stillness, or pressed pause) simply sees the content.
+   Never applied to the archive index, the update feed or search results —
+   those are pinned "immediately available". October 7 composes `enterQuiet`:
+   opacity only. */
+.enter,
+.enterQuiet {
+  opacity: 1;
+}
+
+@supports (animation-timeline: view()) {
+  .enter {
+    animation: enter-up linear both;
+    animation-timeline: view();
+    animation-range: var(--range-entry);
+  }
+
+  .enterQuiet {
+    animation: enter-fade linear both;
+    animation-timeline: view();
+    animation-range: var(--range-entry);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .enter,
+    .enterQuiet {
+      animation: none;
+    }
+  }
+
+  html[data-motion="paused"] .enter,
+  html[data-motion="paused"] .enterQuiet {
+    animation: none;
+  }
+}
+
+@keyframes enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(var(--enter-shift));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes enter-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* The one arrow, composed with `composes: arrow from global` on the glyph
+   inside a link or a button: it travels 3px on hover and focus of the
+   control that holds it, and holds still for reduced motion. Route CSS used
+   to draw this five different ways. */
+.arrow {
+  display: inline-block;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+:is(a, button):is(:hover, :focus-visible) .arrow {
+  transform: translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(a, button):is(:hover, :focus-visible) .arrow {
+    transform: none;
   }
 }

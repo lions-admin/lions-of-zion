@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CorrectionHistory, KnownUnknownPanel } from "@/components/content";
+import { RECORD_TRANSITION_TYPE } from "@/lib/record-view-names";
 import { Badge } from "@/components/ui/Badge";
 /* Imported from the source modules rather than the `@/components/live`
    barrel: that barrel re-exports the feed, which pulls `Reveal`, `StatusState`
@@ -178,7 +179,7 @@ export function ClaimLadder({ record }: { record: PublicPublicationDetail }) {
       ) : null}
 
       <footer className={styles.ladderFoot}>
-        <Link href={`/articles/${record.publicId}`} className={styles.readFull}>
+        <Link href={`/articles/${record.publicId}`} className={styles.readFull} transitionTypes={[RECORD_TRANSITION_TYPE]}>
           Read the full record <span aria-hidden="true">&rarr;</span>
         </Link>
         <p className={styles.ladderStamp}>

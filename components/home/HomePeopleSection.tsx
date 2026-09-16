@@ -1,4 +1,7 @@
+import Link from 'next/link';
 import type { HomepageEdition } from '@/server/contracts/homepage';
+import { RecordShare } from '@/components/motion/view-transition';
+import { RECORD_TRANSITION_TYPE, recordViewNamesFromHref } from '@/lib/record-view-names';
 import {
   HomeMedia,
   HomeSources,
@@ -125,11 +128,19 @@ export function HomePeopleSection({ people, heroes, history }: {
             data-measure-placement="people:lead"
             data-measure-card
           >
-            <h3><a href={lead.href}>{lead.title}</a></h3>
+            <h3>
+              <RecordShare name={recordViewNamesFromHref(lead.href)?.headline ?? null}>
+                <Link href={lead.href} transitionTypes={recordViewNamesFromHref(lead.href) ? [RECORD_TRANSITION_TYPE] : undefined}>
+                  {lead.title}
+                </Link>
+              </RecordShare>
+            </h3>
             <div className={styles.byline}><span>{lead.category}</span></div>
             {/* The frame is decided at the source (`homepage-adapters.ts`)
                 from the record's section, not by comparing label strings. */}
-            <HomeMedia media={lead.media} portrait={lead.portrait} />
+            <RecordShare name={recordViewNamesFromHref(lead.href)?.plate ?? null}>
+              <HomeMedia media={lead.media} portrait={lead.portrait} />
+            </RecordShare>
             <p className={styles.summary}>
               <PreviewText text={lead.summary} budget={PREVIEW_BUDGET.lead} />
             </p>

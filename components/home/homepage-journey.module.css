@@ -249,13 +249,12 @@
    `--journey-story`. */
 .investigation[data-kind="watch"] > h3 { font-size: var(--journey-aside); max-width: 46ch; line-height: 1.25; }
 .investigation .byline { margin: 0 0 6px; }
+/* The verdict band keeps its layout (the Badge sits in it), but the dot it
+   used to draw and the three `[data-tone]` colours left with the Badge
+   adoption (2026-09-16): the mark is the Badge's own, its ramp is the badge
+   grammar's, and no caller sets `data-tone` on this band. */
 .verdict { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0; font-size: var(--t-small); line-height: 1.5; }
-.verdict::before { content: ""; align-self: center; width: 6px; height: 6px; border-radius: 50%; background: var(--ink-lo); }
-.verdictLabel { font-weight: 600; }
 .verdictMeaning { flex: 1 1 22ch; color: var(--ink-lo); font-size: var(--t-caption); }
-.verdict[data-tone="danger"]::before { background: var(--state-danger); }
-.verdict[data-tone="warn"]::before { background: var(--gold); }
-.verdict[data-tone="ok"]::before { background: var(--state-ok); }
 .finding { margin-top: 14px; padding: 4px 0 4px 14px; border-left: 2px solid var(--gold); }
 .finding p { margin: 0; font-size: var(--t-small); line-height: 1.6; color: var(--ink); }
 

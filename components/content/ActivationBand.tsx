@@ -8,6 +8,7 @@
  * changelog (Peak-End — the last screen is the one the reader keeps). Three
  * actions and no more, in a fixed order, because more than three is a menu
  * (Hick): trace the sources, take the sourced record with you, report a claim.
+ * A hub fills the third slot with its own next step through `extraAction`.
  *
  * Activation is sourced material and the ability to check it — never sending
  * a reader at a target. Nothing here links to a person or a post; the share
@@ -36,6 +37,14 @@ export type ActivationBandShare = {
   targets?: readonly ShareTarget[];
 };
 
+export type ActivationBandExtraAction = {
+  /** Where the action goes. */
+  href: string;
+  /** The words, in the destination's own vocabulary — one verb the reader
+   *  performs, one thing they get. */
+  label: string;
+};
+
 export type ActivationBandProps = {
   /** Anchor of the page's own source list — `#sources`. Omitted when the
    *  record cites nothing by design; the band then opens with sharing. */
@@ -43,6 +52,11 @@ export type ActivationBandProps = {
   share?: ActivationBandShare;
   /** The report form. Defaults to the site's one public report path. */
   reportHref?: string;
+  /** The band's third action, hub-specific (stage 7). A reading record keeps
+   *  the three the band was built with; a hub — which has no source list to
+   *  trace — fills the third slot with its own next step instead of the
+   *  generic report. */
+  extraAction?: ActivationBandExtraAction;
   heading?: string;
   className?: string;
 };
@@ -55,6 +69,7 @@ export function ActivationBand({
   sourcesHref,
   share,
   reportHref = REPORT_HREF,
+  extraAction,
   heading = ACTIVATION_HEADING,
   className,
 }: ActivationBandProps) {
@@ -115,6 +130,17 @@ export function ActivationBand({
         >
           Report a claim
         </ButtonLink>
+        {extraAction ? (
+          <ButtonLink
+            href={extraAction.href}
+            variant="secondary"
+            size="md"
+            rightIcon={<Icon name="arrow-right" size={16} />}
+            data-measure-id="activation-extra"
+          >
+            {extraAction.label}
+          </ButtonLink>
+        ) : null}
       </div>
       {share ? (
         <ShareSheet

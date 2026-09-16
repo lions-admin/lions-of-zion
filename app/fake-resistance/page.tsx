@@ -10,6 +10,7 @@ import { getAntisemitismFeed, getInfluenceInvestigationFeed, getNarrativeWatchFe
 import { NarrativeRecord } from "@/components/briefs/NarrativeRecord";
 import { AntisemitismRecord } from "@/components/briefs/AntisemitismRecord";
 import { publicationHref } from "@/lib/publication-routing";
+import { RECORD_TRANSITION_TYPE, recordViewNames } from "@/lib/record-view-names";
 import { measureCard, measurePublicationCard } from "@/components/measurement/attrs";
 import { Card, CardCta, CardDescription, CardTitle } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
@@ -141,9 +142,9 @@ export default async function Page() {
             <StatusState status={absenceStatus("unavailable")} title="Influence investigations are temporarily unavailable."
               description="Published investigations are unaffected and return when the read succeeds." />
           ) : influenceItems.length ? <div className={styles.researchGrid}>{influenceItems.slice(0, 3).map(item => <article key={item.publicId} {...measurePublicationCard("fr-influence", item)}>
-            <Card variant="tile" href={publicationHref(item.publicId)} className={styles.researchTile}>
+            <Card variant="tile" href={publicationHref(item.publicId)} transitionTypes={[RECORD_TRANSITION_TYPE]} className={styles.researchTile}>
               <time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time>
-              <CardTitle as="h3">{item.title}</CardTitle>
+              <CardTitle as="h3" viewName={recordViewNames(item.publicId).headline}>{item.title}</CardTitle>
               {item.summary ? <CardDescription>{item.summary}</CardDescription> : null}
               <CardCta>Open the investigation</CardCta>
             </Card>
@@ -211,6 +212,9 @@ export default async function Page() {
         <ActivationBand
           share={{ url: `${SITE_URL}/fake-resistance`, text: "Fake Resistance — the claims in circulation, what they were built from, and the sourced version to carry back." }}
           heading="Check a claim yourself."
+          /* This hub's third action is its own: the influence network section
+             above already names the destination with these words. */
+          extraAction={{ href: "/fake-resistance/network", label: "The influence network" }}
         />
       </div>
     </EditorialShell>

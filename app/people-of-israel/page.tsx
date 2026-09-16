@@ -342,6 +342,9 @@ export default async function Page() {
       <ActivationBand
         share={{ url: `${SITE_URL}/people-of-israel`, text: 'The People of Israel — courage, invention and history, with the sources.' }}
         heading="Carry their stories with you."
+        /* This hub's third action is the heroes collection, named the way the
+           section links on this page already name theirs. */
+        extraAction={{ href: '/our-heroes', label: 'All of Our Heroes' }}
       />
     </div>
   </EditorialShell>;

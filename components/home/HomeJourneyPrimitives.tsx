@@ -7,6 +7,7 @@ import type {
   HomePreview,
 } from "@/server/contracts/homepage";
 import { previewSentences } from "@/lib/preview-sentences";
+import { RECORD_TRANSITION_TYPE } from "@/lib/record-view-names";
 import { ISRAEL_TIME_SUFFIX, formatDateTime, formatDay } from "@/lib/format-date";
 import { Icon } from "@/components/ui/Icon";
 import iconStyles from "@/components/ui/icon.module.css";
@@ -92,6 +93,11 @@ export function JourneyLink({
       className={`${styles.link} ${styles[LINK_VARIANT_CLASS[variant]]}`}
       href={href}
       data-link-role={variant}
+      /* A record link declares the `to-record` transition type (stage 7), so
+         the click morphs the record's shared elements into the record page;
+         a non-record destination — the way out of a section, a support chip —
+         stays at the root crossfade. */
+      transitionTypes={href.startsWith("/articles/") ? [RECORD_TRANSITION_TYPE] : undefined}
     >
       <span>{children}</span>
       <Icon name="arrow-right" className={iconStyles.arrow} size={18} />

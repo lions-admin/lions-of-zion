@@ -339,6 +339,9 @@ export default async function Page() {
         <ActivationBand
           share={{ url: `${SITE_URL}/october-7`, text: "The October 7 archive — testimony and documented records, preserved with their sources." }}
           heading="Pass the record on."
+          /* This hub's third action is the archive's own documentation
+             collection, in the words the archive already uses for it. */
+          extraAction={{ href: "/october-7/documentation", label: "Read the documented records" }}
         />
       </div>
     </EditorialShell>

@@ -328,7 +328,6 @@
    file: a data-size chip padded to a full quarter-rem reads as a button. The
    same figure is used for the chips on `/fact-check`, so the two surfaces
    agree at a glance. */
-.verdict,
 .basis,
 .facet {
   display: inline-flex;
@@ -341,11 +340,6 @@
   overflow-wrap: anywhere;
 }
 
-.verdict {
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-}
-
 .facet { text-transform: capitalize; }
 
 .revised {
@@ -353,23 +347,9 @@
   text-transform: none;
 }
 
-.verdict[data-tone="ok"] {
-  border-color: var(--state-ok-line);
-  background: var(--state-ok-wash);
-  color: var(--state-ok);
-}
-
-.verdict[data-tone="warn"] {
-  border-color: var(--state-warn-line);
-  background: var(--state-warn-wash);
-  color: var(--state-warn);
-}
-
-.verdict[data-tone="danger"] {
-  border-color: var(--state-danger-line);
-  background: var(--state-danger-wash);
-  color: var(--state-danger);
-}
+/* The verdict chip styling left with the Badge adoption (2026-09-16):
+   `UpdateEntry` renders the verdict through the site's one Badge grammar and
+   nothing reads `.verdict` from this file. */
 
 /* The record that cites nothing. It is a disclosure, so it is legible ink on
    a hairline rather than a quiet grey chip among the facets. */

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Reveal } from "@/components/motion";
+import { RECORD_TRANSITION_TYPE } from "@/lib/record-view-names";
 import { Card } from "@/components/ui/Card";
 import { Badge, BADGE_GRAMMAR, type BadgeStatus } from "@/components/ui/Badge";
 import { VERIFICATION_STATES } from "@/components/live/publication-labels";
@@ -117,7 +118,7 @@ export function ClaimEntry({
             <ClaimLadder record={detail} />
           ) : (
             <p className={styles.entryLink}>
-              <Link href={`/articles/${record.publicId}`}>
+              <Link href={`/articles/${record.publicId}`} transitionTypes={[RECORD_TRANSITION_TYPE]}>
                 See how this one was checked <span aria-hidden="true">&rarr;</span>
               </Link>
             </p>

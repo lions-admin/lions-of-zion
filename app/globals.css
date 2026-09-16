@@ -369,13 +369,18 @@
   --enter-blur: 0;
 
   /* The transition vocabulary the cover stage and overlays share, reserved
-     2026-09-16. --dur-transition-out is how a state leaves, --dur-transition-in
-     how the next arrives, --dur-transition-shared how one element's
-     enter-and-exit pair stays symmetrical. Desktop cover values are set by a
-     later stage; these are the site-wide defaults. */
+      2026-09-16. --dur-transition-out is how a state leaves, --dur-transition-in
+      how the next arrives, --dur-transition-shared how one element's
+      enter-and-exit pair stays symmetrical. Desktop cover values are set by a
+      later stage; these are the site-wide defaults. */
   --dur-transition-out: 160ms;
   --dur-transition-in: 240ms;
   --dur-transition-shared: 320ms;
+  /* How far the arriving page rises during a list → record view transition
+     (stage 7). A travel token born here because it is the one distance the
+     page-level transition uses, distinct from `--enter-shift`'s 14px
+     scroll-driven entrance. */
+  --transition-rise: 12px;
   --dur-arrive: 900ms;
   --dur-shimmer: 1.6s;
 
@@ -867,6 +872,116 @@ html:has([data-handoff-blocked]) body {
       animation: none !important;
     }
   }
+}
+
+/* ─── Page transitions (2026-09-16, stage 7) ───
+ *
+ * React's `<ViewTransition>` wraps `<main>` in `EditorialShell`
+ * (`components/motion/view-transition.tsx`) and the three shared record
+ * elements on every list surface and on the record page
+ * (`lib/record-view-names.ts`). A list → record navigation — the links that
+ * carry `transitionTypes={["to-record"]}` — morphs headline, kicker and
+ * plate while the rest of the page changes: the old page fades over
+ * `--dur-transition-out`, the new fades over `--dur-transition-in` while it
+ * rises `--transition-rise` over `--dur-transition-shared`. Every other
+ * navigation — hub ↔ hub, record → hub, the browser's back button —
+ * deactivates the page and shared-element names (`default="none"` in the
+ * wrappers) and crossfades at the root, 200ms.
+ *
+ * There is deliberately no cross-document `@view-transition` rule: a hard
+ * load, a reader with JavaScript off and an engine without the View
+ * Transitions API navigate plainly. No `template.tsx` or `loading.tsx`
+ * carries this either — `tests/no-js-invariant.test.ts` would stop it.
+ *
+ * The reduced-motion rule above is written for these same three
+ * pseudo-elements, so a reader who asks for less motion gets the instant
+ * swap here too, and the pause control freezes the page transition with the
+ * cover below it. October 7 sets `data-quiet` on `<main>` (via
+ * `EditorialShell`), and this CSS holds every participant on a memorial
+ * route to the plain root crossfade — no morph, no rise.
+ */
+@supports (view-transition-name: x) {
+  /* During a transition the overlay captures pointers; let the live page
+     have them back (see the Next.js view-transitions guide). */
+  ::view-transition {
+    pointer-events: none;
+  }
+
+  /* The masthead never crossfades: its snapshots are identical, so the old
+     one is dropped and the new one is held in place above the moving
+     content, at the z-index the header itself paints at. The name hangs off
+     the header element's `data-vt-chrome` attribute (`SiteHeader`) because a
+     CSS Module scopes a custom-ident value declared inside it — see the note
+     in `site-header.module.css`. */
+  header[data-vt-chrome] {
+    view-transition-name: chrome;
+  }
+  ::view-transition-group(chrome) {
+    animation: none;
+    z-index: var(--z-header);
+  }
+  ::view-transition-old(chrome) {
+    display: none;
+  }
+  ::view-transition-new(chrome) {
+    animation: none;
+  }
+
+  /* The default navigation: the root crossfade. */
+  ::view-transition-group(root) {
+    animation-duration: 200ms;
+    animation-timing-function: var(--ease-out);
+  }
+
+  /* The list → record page swap. The classes are assigned by the
+     `to-record` transition type in `PageTransition`'s `enter`/`exit` maps. */
+  ::view-transition-old(.page-exit) {
+    animation: var(--dur-transition-out) var(--ease-out) both view-fade-out;
+  }
+  ::view-transition-new(.page-enter) {
+    animation:
+      var(--dur-transition-in) var(--ease-out) both view-fade-in,
+      var(--dur-transition-shared) var(--ease-out) both view-rise;
+  }
+
+  /* The shared record elements morph at the shared duration, on the
+     cinematic-out curve. */
+  ::view-transition-group(.morph) {
+    animation-duration: var(--dur-transition-shared);
+    animation-timing-function: var(--ease-out);
+  }
+
+  /* October 7 is quiet: any named participant on a memorial route is held to
+     the plain root crossfade. */
+  html:has(main[data-quiet])::view-transition-group(*),
+  html:has(main[data-quiet])::view-transition-old(*),
+  html:has(main[data-quiet])::view-transition-new(*) {
+    animation-duration: 200ms;
+    animation-timing-function: var(--ease-out);
+  }
+
+  /* The pause control freezes page transitions too — the same
+     `html[data-motion="paused"]` attribute the cover stage reads. */
+  html[data-motion="paused"]::view-transition-group(*),
+  html[data-motion="paused"]::view-transition-old(*),
+  html[data-motion="paused"]::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+@keyframes view-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes view-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes view-rise {
+  from { transform: translateY(var(--transition-rise)); }
+  to { transform: translateY(0); }
 }
 
 /* High-contrast preference: metadata brightens to near the running-text

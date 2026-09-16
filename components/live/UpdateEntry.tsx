@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Card, CardDescription, CardTitle } from "@/components/ui/Card";
+import { RECORD_TRANSITION_TYPE, recordViewNames } from "@/lib/record-view-names";
 import { Badge, BADGE_GRAMMAR, type BadgeStatus } from "@/components/ui/Badge";
 import { isAnalysisBasis } from "@/server/contracts/publication";
 import type { PublicPublication } from "@/server/contracts/publication";
@@ -62,8 +63,8 @@ export function UpdateEntry({ entry }: { entry: PublicPublication }) {
         </span>
       </p>
 
-      <CardTitle className={styles.title}>
-        <Link href={`/articles/${entry.publicId}`}>{entry.title}</Link>
+      <CardTitle className={styles.title} viewName={recordViewNames(entry.publicId).headline}>
+        <Link href={`/articles/${entry.publicId}`} transitionTypes={[RECORD_TRANSITION_TYPE]}>{entry.title}</Link>
       </CardTitle>
 
       {entry.summary ? (

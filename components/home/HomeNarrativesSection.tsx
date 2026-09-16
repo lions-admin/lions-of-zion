@@ -1,4 +1,7 @@
+import Link from "next/link";
 import type { HomepageEdition } from "@/server/contracts/homepage";
+import { RecordShare } from "@/components/motion/view-transition";
+import { RECORD_TRANSITION_TYPE, recordViewNamesFromHref } from "@/lib/record-view-names";
 import { VERIFICATION_STATES } from "@/components/live/publication-labels";
 import { ResearchText } from "@/components/content/ResearchText";
 import { Badge, BADGE_GRAMMAR, type BadgeStatus } from "@/components/ui/Badge";
@@ -147,11 +150,22 @@ export function HomeNarrativesSection({
                   `[data-kind="watch"]`, so it holds for every claim rather
                   than for the ones an author remembered. */}
               <h3>
-                <a href={item.href}>{heading}</a>
+                {/* The record's shared headline name (stage 7); a publication
+                    destination pairs this heading with the record page's
+                    headline. The link was a plain `<a>`; it is a `Link` now
+                    so a click is a client navigation, which is what the
+                    transition needs. */}
+                <RecordShare name={recordViewNamesFromHref(item.href)?.headline ?? null}>
+                  <Link href={item.href} transitionTypes={recordViewNamesFromHref(item.href) ? [RECORD_TRANSITION_TYPE] : undefined}>
+                    {heading}
+                  </Link>
+                </RecordShare>
               </h3>
               {item.media && (
                 <div className={styles.dossierCover}>
-                  <HomeMedia media={item.media} />
+                  <RecordShare name={recordViewNamesFromHref(item.href)?.plate ?? null}>
+                    <HomeMedia media={item.media} />
+                  </RecordShare>
                 </div>
               )}
               <div className={`${styles.dossier} ${narrativeStyles.dossierBody}`}>

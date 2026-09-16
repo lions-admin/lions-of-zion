@@ -11,6 +11,28 @@
 
 .label { composes: kickerLabel from global; display: block; color: var(--ink-lo); margin: var(--sp-4) 0 var(--sp-2); }
 
+/* THE VERDICT-FIRST LEAD (stage 7, 2026-09-16).
+   The claim in circulation is quoted verbatim, in the site's one quoted voice
+   (`.quoteText` — Literata, roman, the opening quote in the margin), under
+   the "Claim in circulation" label; the verdict sits beside it in the
+   finding column, before the record's own headline. Source order puts the
+   finding first so the status still precedes the claim it qualifies (pinned
+   by tests/fake-resistance-watch.test.ts); on wide screens the claim takes
+   the left column and the finding the right, and the arrangement stacks
+   below the canonical phone seam — the same 45rem the site's other seams
+   read (`--bp-seam` in app/globals.css; a media query cannot carry a var,
+   so the value is written beside the token that owns it). */
+.lead { display: grid; gap: var(--sp-4); margin-block: var(--sp-2) var(--sp-3); min-width: 0; }
+@media (min-width: 45rem) {
+  .lead { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+  .claim { grid-column: 1; grid-row: 1; }
+  .finding { grid-column: 2; grid-row: 1; }
+}
+.claim .label { margin: 0 0 var(--sp-2); }
+.quote { composes: quoteText from global; margin: 0; color: var(--ink-hi); overflow-wrap: anywhere; }
+.verdict { margin: 0 0 var(--sp-2); }
+.findingText { margin: 0; color: var(--ink); font-size: var(--t-small); line-height: var(--t-small-lh); overflow-wrap: anywhere; }
+
 /* THE CLAIM CAP — by kind, not by call site.
    A claim under examination is a heading *inside* a record, and it must never
    out-typeset the verdict on it or the heading of the section carrying it. It
@@ -37,8 +59,6 @@
 .meaning { margin: var(--sp-3) 0; color: var(--ink-hi); font-size: var(--t-small); line-height: var(--t-small-lh); }
 .propagators, .basis { color: var(--ink-lo); font-size: var(--t-caption); line-height: var(--t-caption-lh); }
 .propagators span { display: block; }
-.context { max-width: 65ch; border-inline-start: var(--line-w) solid var(--line-strong); padding-inline-start: var(--sp-4); }
-.context p { margin: 0; color: var(--ink); font-family: var(--face-text); font-size: var(--t-small); line-height: var(--t-small-lh); }
 .read { display: inline-flex; align-items: center; gap: var(--sp-3); min-height: var(--control-h); margin-top: var(--sp-3); font-size: var(--t-caption); color: var(--ink-hi); text-underline-offset: 5px; }
 .record a:focus-visible { outline: var(--focus-outline); outline-offset: var(--focus-offset); }
 

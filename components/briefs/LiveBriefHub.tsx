@@ -25,8 +25,15 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import { StatusState, absenceStatus } from "@/components/ui/StatusState";
+import { RecordShare } from "@/components/motion/view-transition";
+import { RECORD_TRANSITION_TYPE, recordViewNames } from "@/lib/record-view-names";
 import { BriefFilters, type BriefFilterValues } from "./BriefFilters";
 import styles from "./live-brief.module.css";
+
+/** A record link declares the `to-record` transition type (stage 7) so the
+ *  browser morphs the record's shared elements; every other navigation stays
+ *  at the root crossfade. */
+const RECORD_TYPES = [RECORD_TRANSITION_TYPE];
 
 type Filters = BriefFilterValues;
 
@@ -338,6 +345,10 @@ export function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
         <LiveBriefEdition filters={filters} />
         <ActivationBand
           share={{ url: `${SITE_URL}/geopolitical-brief`, text: "News & Analysis — what happened, with the sources behind every line." }}
+          /* The desk's own third action, in the archive door's words: a reader
+             at the end of the front goes to the complete walk through the
+             record — the same handover the door below makes. */
+          extraAction={{ href: "/updates", label: "Every publication, every section" }}
         />
       </div>
     </EditorialShell>
@@ -454,12 +465,16 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
                 <span className={styles.leadFlag}>Latest story</span>
                 <time dateTime={lead.publishedAt}>{formatDateTime(lead.publishedAt)}</time>
               </p>
-              <LeadMedia media={hubMedia(lead)} />
-              <h3><Link href={`/articles/${lead.publicId}`}>{lead.title}</Link></h3>
+              <LeadMedia media={hubMedia(lead)} viewName={recordViewNames(lead.publicId).plate} />
+              <h3>
+                <RecordShare name={recordViewNames(lead.publicId).headline}>
+                  <Link href={`/articles/${lead.publicId}`} transitionTypes={RECORD_TYPES}>{lead.title}</Link>
+                </RecordShare>
+              </h3>
               {lead.summary ? <p className={styles.newsSummary}>{lead.summary}</p> : null}
               <UpdatedMarker item={lead} />
               <Metadata item={lead} />
-              <Link className={styles.readLink} href={`/articles/${lead.publicId}`}>
+              <Link className={styles.readLink} href={`/articles/${lead.publicId}`} transitionTypes={RECORD_TYPES}>
                 {publicationCta(lead.section)} <Icon name="arrow-right" size={14} />
               </Link>
             </article>
@@ -474,10 +489,14 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
                         {...measurePublicationCard("brief-update", item, `news:update-${index + 1}`)}>
                         <div>
                           <time dateTime={item.publishedAt}>{formatDateTime(item.publishedAt)}</time>
-                          <h3><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h3>
+                          <h3>
+                            <RecordShare name={recordViewNames(item.publicId).headline}>
+                              <Link href={`/articles/${item.publicId}`} transitionTypes={RECORD_TYPES}>{item.title}</Link>
+                            </RecordShare>
+                          </h3>
                           <UpdatedMarker item={item} />
                         </div>
-                        {media ? <Thumbnail media={media} className={styles.timelineThumb} sizes="72px" /> : null}
+                        {media ? <Thumbnail media={media} className={styles.timelineThumb} sizes="72px" viewName={recordViewNames(item.publicId).plate} /> : null}
                       </li>
                     );
                   })}
@@ -612,7 +631,7 @@ function hubMedia(item: Publication): EditorialMedia | null {
  * thumbnail would out-weigh the headlines it sits between; those carry their
  * attribution in the alt text and in full on the record's own page.
  */
-function LeadMedia({ media }: { media: EditorialMedia | null }) {
+function LeadMedia({ media, viewName }: { media: EditorialMedia | null; viewName?: string | null }) {
   if (!media) return null;
   const disclosure = media.role === "safe-cover" ? "Safe cover" : media.disclosure ?? ROLE_DISCLOSURE[media.role];
   return (
@@ -620,15 +639,17 @@ function LeadMedia({ media }: { media: EditorialMedia | null }) {
       {/* The plate is a wrapper, not the image: the picture scales inside it
           on hover and the edge must not scale with it. */}
       <span className={styles.leadFrame}>
-        <Image
-          src={media.src}
-          alt={media.alt}
-          width={media.width}
-          height={media.height}
-          loading="eager"
-          sizes="(max-width: 44.99rem) 100vw, (max-width: 68.75rem) 55vw, 60vw"
-          style={{ objectPosition: `${media.focalPoint.x}% ${media.focalPoint.y}%` }}
-        />
+        <RecordShare name={viewName}>
+          <Image
+            src={media.src}
+            alt={media.alt}
+            width={media.width}
+            height={media.height}
+            loading="eager"
+            sizes="(max-width: 44.99rem) 100vw, (max-width: 68.75rem) 55vw, 60vw"
+            style={{ objectPosition: `${media.focalPoint.x}% ${media.focalPoint.y}%` }}
+          />
+        </RecordShare>
       </span>
       <figcaption>
         {disclosure ? <span className={styles.mediaDisclosure}>{disclosure}</span> : null}
@@ -640,18 +661,20 @@ function LeadMedia({ media }: { media: EditorialMedia | null }) {
 }
 
 /** A listing thumbnail. Alt text only — see `LeadMedia` for why. */
-function Thumbnail({ media, className, sizes }: { media: EditorialMedia; className: string; sizes: string }) {
+function Thumbnail({ media, className, sizes, viewName }: { media: EditorialMedia; className: string; sizes: string; viewName?: string | null }) {
   return (
-    <Image
-      className={className}
-      src={media.src}
-      alt={media.alt}
-      width={media.width}
-      height={media.height}
-      loading="lazy"
-      sizes={sizes}
-      style={{ objectPosition: `${media.focalPoint.x}% ${media.focalPoint.y}%` }}
-    />
+    <RecordShare name={viewName}>
+      <Image
+        className={className}
+        src={media.src}
+        alt={media.alt}
+        width={media.width}
+        height={media.height}
+        loading="lazy"
+        sizes={sizes}
+        style={{ objectPosition: `${media.focalPoint.x}% ${media.focalPoint.y}%` }}
+      />
+    </RecordShare>
   );
 }
 
@@ -661,10 +684,14 @@ function Briefing({ item, headingId }: { item: Publication; headingId?: string }
       <span className={styles.briefingFlag}>The daily briefing</span>
       <time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time>
     </p>
-    <h2 id={headingId}><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h2>
+    <h2 id={headingId}>
+      <RecordShare name={recordViewNames(item.publicId).headline}>
+        <Link href={`/articles/${item.publicId}`} transitionTypes={RECORD_TYPES}>{item.title}</Link>
+      </RecordShare>
+    </h2>
     {item.summary ? <p className={styles.newsSummary}>{item.summary}</p> : null}
     <UpdatedMarker item={item} />
-    <Link className={styles.readLink} href={`/articles/${item.publicId}`}>Read the briefing <span aria-hidden="true">→</span></Link>
+    <Link className={styles.readLink} href={`/articles/${item.publicId}`} transitionTypes={RECORD_TYPES}>Read the briefing <span aria-hidden="true">→</span></Link>
   </div>;
 }
 
@@ -697,9 +724,9 @@ function PublicationSection({ title, surface, stories, narrative = false }: {
       <ol className={styles.liveList}>{stories.map((story, index) => {
         const item = story.latest;
         const media = hubMedia(item);
+        const names = recordViewNames(item.publicId);
         return (
         <li key={item.publicId}>
-          {/* Nested Read-record control: the row is a surface, not a link. */}
           {/* Nested Read-record control: the row is a surface, not a link.
               `ledger` arms the ruled headline — the 24px gold stub under the
               ledger title that extends while the row is hovered or holds
@@ -708,7 +735,7 @@ function PublicationSection({ title, surface, stories, narrative = false }: {
             className={media ? `${styles.liveRow} ${styles.liveRowMedia}` : styles.liveRow}
             {...measurePublicationCard(surface, item, `${surface}:${index + 1}`)}>
             <CardHeader className={styles.liveRowHeader}>
-              <CardEyebrow>
+              <CardEyebrow viewName={names.kicker}>
                 {rowStatus(item, narrative)}
                 {item.editorialTopic ? ` · ${humanize(item.editorialTopic)}` : ""}
               </CardEyebrow>
@@ -716,7 +743,7 @@ function PublicationSection({ title, surface, stories, narrative = false }: {
                 <time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time>
               </CardCount>
             </CardHeader>
-            <Headline title={item.title} narrative={narrative} />
+            <Headline title={item.title} narrative={narrative} publicId={item.publicId} />
             {item.summary ? (
               <CardDescription className={styles.liveRowSummary}>{item.summary}</CardDescription>
             ) : null}
@@ -724,11 +751,11 @@ function PublicationSection({ title, surface, stories, narrative = false }: {
             <Metadata item={item} narrative={narrative} />
             <UpdateLog earlier={story.earlier} />
             <CardFooter className={styles.liveRowAction}>
-              <ButtonLink href={`/articles/${item.publicId}`} variant="text" size="md">
+              <ButtonLink href={`/articles/${item.publicId}`} variant="text" size="md" transitionTypes={RECORD_TYPES}>
                 {publicationCta(item.section)}
               </ButtonLink>
             </CardFooter>
-            {media ? <Thumbnail media={media} className={styles.rowThumb} sizes="112px" /> : null}
+            {media ? <Thumbnail media={media} className={styles.rowThumb} sizes="112px" viewName={names.plate} /> : null}
           </Card>
         </li>
         );
@@ -774,7 +801,7 @@ function UpdateLog({ earlier }: { earlier: Publication[] }) {
         {earlier.map((item) => (
           <li key={item.publicId}>
             <time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time>
-            <Link href={`/articles/${item.publicId}`}>{item.title}</Link>
+            <Link href={`/articles/${item.publicId}`} transitionTypes={RECORD_TYPES}>{item.title}</Link>
           </li>
         ))}
       </ol>
@@ -790,12 +817,13 @@ function UpdateLog({ earlier }: { earlier: Publication[] }) {
  * `server/contracts/publication.ts` stays the single prefixer. A title with
  * neither prefix renders unchanged.
  */
-function Headline({ title, narrative }: { title: string; narrative: boolean }) {
+function Headline({ title, narrative, publicId }: { title: string; narrative: boolean; publicId?: string }) {
+  const names = publicId ? recordViewNames(publicId) : null;
   const match = narrative ? /^(Reported claim|Analysis):\s*/.exec(title) : null;
-  if (!match) return <CardTitle>{title}</CardTitle>;
+  if (!match) return <CardTitle viewName={names?.headline ?? null}>{title}</CardTitle>;
   return (
     <>
-      <CardEyebrow className={styles.claimKicker}>{match[1]}</CardEyebrow>
+      <CardEyebrow className={styles.claimKicker} viewName={names?.kicker ?? null}>{match[1]}</CardEyebrow>
       <CardTitle>{title.slice(match[0].length)}</CardTitle>
     </>
   );

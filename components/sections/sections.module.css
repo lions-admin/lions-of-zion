@@ -620,7 +620,12 @@
 @media (max-width: 45rem) {
   .page {
 
-    padding-top: 4.25rem;
+    /* The phone offset reads the header token pair, not a literal: this
+       rule used to pin 4.25rem, which sat under the phone masthead's
+       4.8rem + safe-area (`--header-h`, re-pointed at ≤45rem in
+       app/globals.css) — content slid beneath the fixed bar. The base
+       `padding-top: var(--header-h)` above already tracks the mode, so the
+       literal went and nothing is re-stated here. */
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 

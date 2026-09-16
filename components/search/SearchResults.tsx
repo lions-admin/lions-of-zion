@@ -39,6 +39,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
+import { RECORD_TRANSITION_TYPE, recordViewNamesFromHref } from "@/lib/record-view-names";
 import type { SearchHit } from "@/server/contracts/search";
 import { entityLabel, entityLabelPlural, groupByEntity } from "./vocabulary";
 import styles from "./search.module.css";
@@ -131,6 +132,10 @@ function SearchHitOption({
      standfirst of `""` or a line of whitespace must render as nothing, not as
      an empty description with the spacing of a real one. */
   const summary = hit.summary?.trim() || null;
+  /* The hit's shared record elements (stage 7): a hit for a publication pairs
+     its title and kind label with the record page's headline and kicker, so
+     clicking the row morphs them into place. */
+  const viewNames = recordViewNamesFromHref(href);
   const inner = (
     <>
       <span className={styles.hitOrdinal} aria-hidden="true">
@@ -138,9 +143,9 @@ function SearchHitOption({
       </span>
       <div className={styles.hitBody}>
         <CardHeader className={styles.hitHeader}>
-          <CardEyebrow>{entityLabel(hit.entityType)}</CardEyebrow>
+          <CardEyebrow viewName={viewNames?.kicker ?? null}>{entityLabel(hit.entityType)}</CardEyebrow>
         </CardHeader>
-        <CardTitle as="span" className={styles.hitTitle}>
+        <CardTitle as="span" className={styles.hitTitle} viewName={viewNames?.headline ?? null}>
           {hit.title}
         </CardTitle>
         {summary ? (
@@ -179,6 +184,7 @@ function SearchHitOption({
     <Card
       variant="row"
       href={href}
+      transitionTypes={viewNames ? [RECORD_TRANSITION_TYPE] : undefined}
       id={id}
       role="option"
       aria-selected={active}

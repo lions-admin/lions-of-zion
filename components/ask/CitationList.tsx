@@ -23,6 +23,8 @@
  */
 
 import Link from "next/link";
+import { RecordShare } from "@/components/motion/view-transition";
+import { RECORD_TRANSITION_TYPE, recordViewNamesFromHref } from "@/lib/record-view-names";
 import type { Citation } from "@/server/contracts/chat";
 import styles from "./ask.module.css";
 
@@ -51,9 +53,11 @@ export function CitationList({ citations }: { citations: Citation[] }) {
             </span>
             <div className={styles.sourceBody}>
               {citation.href ? (
-                <Link className={styles.sourceLink} href={citation.href}>
-                  {citation.title ?? "Untitled record"}
-                </Link>
+                <RecordShare name={recordViewNamesFromHref(citation.href)?.headline ?? null}>
+                  <Link className={styles.sourceLink} href={citation.href} transitionTypes={[RECORD_TRANSITION_TYPE]}>
+                    {citation.title ?? "Untitled record"}
+                  </Link>
+                </RecordShare>
               ) : (
                 <p className={styles.sourceTitle}>{citation.title ?? "Untitled record"}</p>
               )}

@@ -1,4 +1,7 @@
+import Link from "next/link";
 import type { HomepageEdition } from "@/server/contracts/homepage";
+import { RecordShare } from "@/components/motion/view-transition";
+import { RECORD_TRANSITION_TYPE, recordViewNamesFromHref } from "@/lib/record-view-names";
 import {
   HomeMedia,
   HomeSources,
@@ -68,14 +71,27 @@ export function HomeNewsSection({
             data-measure-placement={`news:${rankOf(index)}`}
             data-measure-card
           >
+            {/* The record's shared elements (stage 7): headline and picture
+                carry the names the record page derives from the same
+                publicId, so the click morphs them into the article. A
+                publication destination only — a non-record href pairs with
+                nothing and stays at the root crossfade. The headline link
+                was a plain `<a>`; it is a `Link` now so a click is a client
+                navigation, which is what the transition needs. */}
             <h3>
-              <a href={item.href}>{item.title}</a>
+              <RecordShare name={recordViewNamesFromHref(item.href)?.headline ?? null}>
+                <Link href={item.href} transitionTypes={recordViewNamesFromHref(item.href) ? [RECORD_TRANSITION_TYPE] : undefined}>
+                  {item.title}
+                </Link>
+              </RecordShare>
             </h3>
             <div className={styles.byline}>
               <span>{item.category}</span>
               <HomeTime date={item.date} updatedAt={item.updatedAt} includeTime />
             </div>
-            <HomeMedia media={item.media} lead={index === 0} />
+            <RecordShare name={recordViewNamesFromHref(item.href)?.plate ?? null}>
+              <HomeMedia media={item.media} lead={index === 0} />
+            </RecordShare>
             <div className={styles.newsBody}>
             <p className={styles.summary}>
               <PreviewText

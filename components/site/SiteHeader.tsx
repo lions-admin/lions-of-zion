@@ -367,9 +367,13 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
         data-home={home || undefined}
         data-scrolled={scrolled || undefined}
         data-retracted={retracted || undefined}
+        /* The view-transition hook the transition CSS reads: the fixed bar is
+           named `chrome` in `app/globals.css` and never crossfades with the
+           page (see the note in `site-header.module.css`). */
+        data-vt-chrome=""
         /* Every click in the bar is `click_nav`, the brand and the support
-         link included. Nothing here reports an exposure: the bar is on
-         screen on every page, so one would only restate the page view. */
+          link included. Nothing here reports an exposure: the bar is on
+          screen on every page, so one would only restate the page view. */
         data-measure-nav=""
       >
         <a href="#page-content" className={styles.skipLink}>

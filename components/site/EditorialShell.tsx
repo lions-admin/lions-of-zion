@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { PageTransition } from "@/components/motion/view-transition";
 import { ReadingProgress } from "@/components/sections/ReadingProgress";
 import { resolveActiveChromeSection } from "@/lib/site-navigation";
 import { routeFamily } from "./route-family";
@@ -75,27 +76,42 @@ export function EditorialShell({
           reader nothing, and it read as a label belonging to the content
           under it. (It drove scan strength too until the ambient backdrop was
           retired on 2026-09-14.) */}
-      <main className={className} data-reading-scroll data-public-shell data-family={family}>
-        {showProgress ? (
-          <ReadingProgress
-            trackClassName={progressTrackClassName}
-            valueClassName={progressValueClassName}
-          />
-        ) : null}
-        {/* Nothing sits between the ground and the document.
-            `ScanBackdrop` used to mount here: 16 rows of the monitoring
-            corpus drifting on 45–90s loops behind every reading page, at an
-            effective 0.05–0.0765 alpha. Owner ruling, 2026-09-14 — it goes.
-            Three reasons, any one of which is sufficient. It is what made a
-            page read as dark-and-settling rather than simply rendered, and
-            what left ghost text in the desktop margins. Its corpus is
-            *hostile* material ("ANTI ISRAEL NARRATIVE: …", "PROPAGANDA
-            STREAM: …"), so the site was wallpapering itself in the messaging
-            it exists to refute. And it ran continuous compositing behind
-            running text on twenty public routes. Do not reintroduce an
-            ambient version of it here. */}
-        {children}
-      </main>
+      {/* The page transition wraps `<main>` and nothing else — see
+          `components/motion/view-transition.tsx`. The chrome above and below
+          never enters the transition; the masthead holds its own name
+          (`chrome`) so the fixed bar does not crossfade with the page.
+          October 7 routes carry `data-quiet`, which the transition CSS reads
+          to hold every participant to the plain root crossfade: the archive
+          is read quietly and its records never morph. */}
+      <PageTransition name={`page-${routeId}`}>
+        <main
+          className={className}
+          data-reading-scroll
+          data-public-shell
+          data-family={family}
+          data-quiet={routeId === "october-7" ? "" : undefined}
+        >
+          {showProgress ? (
+            <ReadingProgress
+              trackClassName={progressTrackClassName}
+              valueClassName={progressValueClassName}
+            />
+          ) : null}
+          {/* Nothing sits between the ground and the document.
+              `ScanBackdrop` used to mount here: 16 rows of the monitoring
+              corpus drifting on 45–90s loops behind every reading page, at an
+              effective 0.05–0.0765 alpha. Owner ruling, 2026-09-14 — it goes.
+              Three reasons, any one of which is sufficient. It is what made a
+              page read as dark-and-settling rather than simply rendered, and
+              what left ghost text in the desktop margins. Its corpus is
+              *hostile* material ("ANTI ISRAEL NARRATIVE: …", "PROPAGANDA
+              STREAM: …"), so the site was wallpapering itself in the messaging
+              it exists to refute. And it ran continuous compositing behind
+              running text on twenty public routes. Do not reintroduce an
+              ambient version of it here. */}
+          {children}
+        </main>
+      </PageTransition>
       <SiteFooter activeSection={activeSection} />
     </>
   );

@@ -106,6 +106,13 @@ export type ButtonLinkProps = Omit<
      * Absolute hrefs already take this path; this says so for a relative one.
      */
     documentNavigation?: boolean;
+    /**
+     * The transition types this link declares (Next 16.2+, stage 7): a record
+     * link carries `["to-record"]` so the list → record navigation morphs the
+     * record's shared elements. Never forwarded to a real `<a>` — a document
+     * navigation has no client transition.
+     */
+    transitionTypes?: string[];
   };
 
 function getButtonClassName(
@@ -246,6 +253,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
       children,
       href,
       documentNavigation = false,
+      transitionTypes,
       ...rest
     } = props;
 
@@ -287,7 +295,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
     }
 
     return (
-      <Link ref={ref} href={href} {...shared} {...rest}>
+      <Link ref={ref} href={href} {...shared} transitionTypes={transitionTypes} {...rest}>
         {body}
       </Link>
     );

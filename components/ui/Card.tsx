@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { PointerHighlight } from "@/components/motion/PointerHighlight";
+import { RecordShare } from "@/components/motion/view-transition";
 import { Icon } from "@/components/ui/Icon";
 import styles from "./card.module.css";
 
@@ -61,6 +62,11 @@ type CardOwnProps = {
    * hover state should be one hairline, not a plate.
    */
   ledger?: boolean;
+  /** The `to-record` transition type this link declares (stage 7), so the
+   *  list → record navigation morphs the record's shared elements. Omitted
+   *  — and the transition stays at the root crossfade — for every link that
+   *  is not a record. */
+  transitionTypes?: string[];
   as?: React.ElementType;
   className?: string;
   children: React.ReactNode;
@@ -76,6 +82,7 @@ export function Card({
   href,
   interactive,
   ledger = false,
+  transitionTypes,
   as: Component = "div",
   className = "",
   children,
@@ -101,7 +108,7 @@ export function Card({
 
   if (href !== undefined) {
     return (
-      <Link href={href} className={classes} {...props}>
+      <Link href={href} className={classes} transitionTypes={transitionTypes} {...props}>
         {tracksPointer ? <PointerHighlight /> : null}
         {children}
       </Link>
@@ -132,13 +139,20 @@ export function CardHeader({
 
 export function CardEyebrow({
   className = "",
+  viewName,
   children,
   ...props
-}: React.HTMLAttributes<HTMLSpanElement>) {
+}: React.HTMLAttributes<HTMLSpanElement> & {
+  /** The record's shared kicker name (stage 7) — the eyebrow becomes the
+   *  shared element that morphs into the record page's section kicker. */
+  viewName?: string | null;
+}) {
   return (
-    <span className={`${styles.eyebrow} ${className}`.trim()} {...props}>
-      {children}
-    </span>
+    <RecordShare name={viewName}>
+      <span className={`${styles.eyebrow} ${className}`.trim()} {...props}>
+        {children}
+      </span>
+    </RecordShare>
   );
 }
 
@@ -159,13 +173,21 @@ export function CardCount({
 export function CardTitle({
   as: Tag = "h3",
   className = "",
+  viewName,
   children,
   ...props
-}: React.HTMLAttributes<HTMLHeadingElement> & { as?: "h2" | "h3" | "h4" | "span" | "p" }) {
+}: React.HTMLAttributes<HTMLHeadingElement> & {
+  as?: "h2" | "h3" | "h4" | "span" | "p";
+  /** The record's shared headline name (stage 7) — the title becomes the
+   *  shared element that morphs into the record page's headline. */
+  viewName?: string | null;
+}) {
   return (
-    <Tag className={`${styles.title} ${className}`.trim()} {...props}>
-      {children}
-    </Tag>
+    <RecordShare name={viewName}>
+      <Tag className={`${styles.title} ${className}`.trim()} {...props}>
+        {children}
+      </Tag>
+    </RecordShare>
   );
 }
 
@@ -192,17 +214,25 @@ export function CardDescription({
 export function CardMedia({
   className = "",
   aspectRatio = "16 / 9",
+  viewName,
   children,
   ...props
-}: React.HTMLAttributes<HTMLDivElement> & { aspectRatio?: string }) {
+}: React.HTMLAttributes<HTMLDivElement> & {
+  aspectRatio?: string;
+  /** The record's shared plate name (stage 7) — the media becomes the
+   *  shared element that morphs into the record page's media plate. */
+  viewName?: string | null;
+}) {
   return (
-    <div
-      className={`${styles.media} ${className}`.trim()}
-      style={{ aspectRatio }}
-      {...props}
-    >
-      {children}
-    </div>
+    <RecordShare name={viewName}>
+      <div
+        className={`${styles.media} ${className}`.trim()}
+        style={{ aspectRatio }}
+        {...props}
+      >
+        {children}
+      </div>
+    </RecordShare>
   );
 }
 

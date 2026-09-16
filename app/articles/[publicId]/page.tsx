@@ -46,9 +46,12 @@ import {
   mediaDisclosure,
 } from "@/components/content/MediaBlock";
 import { EditorialShell } from "@/components/site/EditorialShell";
+import { RecordShare } from "@/components/motion/view-transition";
+import { RECORD_TRANSITION_TYPE, recordViewNames } from "@/lib/record-view-names";
 import { Badge, type BadgeStatus, BADGE_GRAMMAR } from "@/components/ui/Badge";
 import { ResearchText } from "@/components/content/ResearchText";
-import { SensitiveContent, mediaSensitivityGate } from "@/components/content/SensitiveContent";
+import { SensitiveContent } from "@/components/content/SensitiveContent";
+import { mediaSensitivityGate } from "@/components/content/sensitivity-gate";
 import { Breadcrumb } from "@/components/site/Breadcrumb";
 import { InvestigationExplorer } from "@/components/evidence/InvestigationExplorer";
 import { Card, CardDescription, CardEyebrow, CardTitle } from "@/components/ui/Card";
@@ -238,6 +241,12 @@ export default async function ArticlePage({ params }: Props) {
   const kickerFacets = [article.arena, article.primaryActor]
     .filter((facet): facet is string => Boolean(facet))
     .map(words);
+  /* The record's shared elements (stage 7): headline, section kicker and
+     media plate carry the names every list surface derives from the same
+     publicId (`lib/record-view-names.ts`), so a click from a hub row, a
+     homepage card, a search hit or an Ask citation morphs those three into
+     this page while the rest of it fades and rises. */
+  const viewNames = recordViewNames(article.publicId);
   /* Whether this record may be staged as an investigation is derived from its
      section in `lib/publication-routing.ts` — the same place hub, route,
      homepage band and label come from. There is deliberately no section list
@@ -282,38 +291,40 @@ export default async function ArticlePage({ params }: Props) {
     />
   ) : null;
   const heroMedia = articleMedia ? (
-    <MediaBlock
-      layout="reading"
-      aspectRatio="8 / 5"
-      measureId="article-media"
-      /* The line that says what this image is not stays outside the control
-         below it, at every width and with any credit string. */
-      disclosure={mediaDisclosure(articleMedia)}
-      caption={articleMedia.caption}
-      credit={
-        <>
-          {articleMedia.credit}
-          {articleMedia.sourceUrl ? (
-            <>
-              {" · "}
-              <a href={articleMedia.sourceUrl} target="_blank" rel="noreferrer">
-                Image source <span aria-hidden="true">↗︎</span>
-              </a>
-            </>
-          ) : null}
-        </>
-      }
-      provenance={`Rights ${articleMedia.rights.status} · ${articleMedia.rights.basis}`}
-      provenanceLabel="Image credit and provenance"
-    >
-      {heroGate ? (
-        <SensitiveContent layout="frame" category={heroGate.category} warning={heroGate.warning}>
-          {heroPicture}
-        </SensitiveContent>
-      ) : (
-        heroPicture
-      )}
-    </MediaBlock>
+    <RecordShare name={viewNames.plate}>
+      <MediaBlock
+        layout="reading"
+        aspectRatio="8 / 5"
+        measureId="article-media"
+        /* The line that says what this image is not stays outside the control
+           below it, at every width and with any credit string. */
+        disclosure={mediaDisclosure(articleMedia)}
+        caption={articleMedia.caption}
+        credit={
+          <>
+            {articleMedia.credit}
+            {articleMedia.sourceUrl ? (
+              <>
+                {" · "}
+                <a href={articleMedia.sourceUrl} target="_blank" rel="noreferrer">
+                  Image source <span aria-hidden="true">↗︎</span>
+                </a>
+              </>
+            ) : null}
+          </>
+        }
+        provenance={`Rights ${articleMedia.rights.status} · ${articleMedia.rights.basis}`}
+        provenanceLabel="Image credit and provenance"
+      >
+        {heroGate ? (
+          <SensitiveContent layout="frame" category={heroGate.category} warning={heroGate.warning}>
+            {heroPicture}
+          </SensitiveContent>
+        ) : (
+          heroPicture
+        )}
+      </MediaBlock>
+    </RecordShare>
   ) : null;
 
   return (
@@ -342,9 +353,11 @@ export default async function ArticlePage({ params }: Props) {
 
         <header className={styles.head}>
           <div className={styles.kickerRow}>
-            <Badge variant="gold" dot>
-              {SECTION_LABELS[article.section]}
-            </Badge>
+            <RecordShare name={viewNames.kicker}>
+              <Badge variant="gold" dot>
+                {SECTION_LABELS[article.section]}
+              </Badge>
+            </RecordShare>
             {isAnalysis ? (
               <Badge variant="neutral">Organisation analysis · no documentary source</Badge>
             ) : null}
@@ -360,7 +373,9 @@ export default async function ArticlePage({ params }: Props) {
               <span className={styles.kickerFacets}>{kickerFacets.join(" · ")}</span>
             ) : null}
           </div>
-          <h1>{article.title}</h1>
+          <RecordShare name={viewNames.headline}>
+            <h1>{article.title}</h1>
+          </RecordShare>
           {article.summary ? <p className={styles.summary}>{article.summary}</p> : null}
         </header>
 
@@ -606,11 +621,14 @@ export default async function ArticlePage({ params }: Props) {
             <ul className={styles.relatedList}>
               <li>
                 <Card href={`/articles/${continuations[0].publicId}`} variant="row"
+                  transitionTypes={[RECORD_TRANSITION_TYPE]}
                   {...measurePublicationCard("article-next", continuations[0], "next:1")}>
                   <CardEyebrow>
                     {continuationEyebrow(continuations[0].section, continuations[0].reason, desk.label)}
                   </CardEyebrow>
-                  <CardTitle as="h3">{continuations[0].title}</CardTitle>
+                  <CardTitle as="h3" viewName={recordViewNames(continuations[0].publicId).headline}>
+                    {continuations[0].title}
+                  </CardTitle>
                   {continuations[0].summary ? <CardDescription>{continuations[0].summary}</CardDescription> : null}
                 </Card>
               </li>

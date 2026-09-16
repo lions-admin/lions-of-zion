@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { SignalMark } from "@/components/brand/SignalMark";
+import { MotionControl } from "@/components/home/MotionControl";
 import { SITE_NAVIGATION } from "@/lib/site-navigation";
 import { JourneyLink } from "@/components/home/HomeJourneyPrimitives";
-import { HeroVideo } from "@/components/sections/HeroVideo";
 import { HomepageJourney } from "@/components/home/HomepageJourney";
 import { getHomepageEdition } from "@/lib/homepage";
 import { formatEditionDate } from "@/lib/format-date";
@@ -38,56 +39,104 @@ function editionDateLabel(editionDate: string): string {
   return formatEditionDate(editionDate);
 }
 
+/* The cover's keyed lion, in the two layers the asset job
+   (`scripts/brand/key-lion.mjs`) cut. The media pattern is the one the
+   previous poster preloads used — 759px/760px is the phone seam, inside the
+   48rem phone floor the ruling set — and the `type` attribute lets an
+   AVIF-capable engine skip the WebP preload rather than fetch both. */
+const LION_MEDIA = {
+  desktop: "(min-width: 760px)",
+  phone: "(max-width: 759px)",
+} as const;
+
 export default async function Page() {
   const edition = await getHomepageEdition();
   // The edition rail's one job is to say what happened today, and it reads it
   // from the same snapshot the bands below read — `getHomepageEdition()`, whose
   // news pair is the edition's own lead. There is deliberately no second
   // selection here: a cover that picks its own lead is a cover that can
-  // disagree with the edition underneath it.
+  // disagree with the edition underneath it. The rail's headline links to the
+  // same `href` the news band's headline links to (`HomeNewsSection`'s
+  // `<a href={item.href}>`): one lead, one destination, however many surfaces
+  // name it.
   const lead = edition.news.items[0] ?? null;
   return <div className={styles.homeTheme}>
-    {/* Preload hero poster for immediate LCP paint before stylesheet resolution */}
-    <link
-      rel="preload"
-      as="image"
-      href="/video/lion-hero-poster-portrait.jpg"
-      media="(max-width: 759px), (aspect-ratio < 6/5)"
-      fetchPriority="high"
-    />
-    <link
-      rel="preload"
-      as="image"
-      href="/video/lion-hero-poster-desktop.jpg"
-      media="(min-width: 760px) and (min-aspect-ratio: 6/5)"
-      fetchPriority="high"
-    />
+    {/* Preload the core layer for the immediate first paint before stylesheet
+        resolution. The haze waits for the stylesheet like everything else. */}
+    <link rel="preload" as="image" type="image/avif" href="/brand/cover/lion-core-2560.avif" media={LION_MEDIA.desktop} fetchPriority="high" />
+    <link rel="preload" as="image" type="image/avif" href="/brand/cover/lion-core-1080x1920.avif" media={LION_MEDIA.phone} fetchPriority="high" />
+    <link rel="preload" as="image" type="image/webp" href="/brand/cover/lion-core-1920.webp" media={LION_MEDIA.desktop} fetchPriority="high" />
+    <link rel="preload" as="image" type="image/webp" href="/brand/cover/lion-core-1080x1920.webp" media={LION_MEDIA.phone} fetchPriority="high" />
     {/* The skip link is the header's own first element; `#page-content` is
         `main` below. There is deliberately no second copy here. */}
     <SiteHeader home />
     <main id="page-content" className={styles.page} data-home-scroll>
         <section className={styles.hero} aria-labelledby="home-wordmark">
+          {/* The pinned stage. It is `position: sticky` inside `.hero`'s
+              100svh + runway track, so the cover holds for the runway's
+              scroll and releases when the reading surface arrives — pure
+              CSS, no observer, no frame loop. Under reduced motion, the
+              MotionControl's pause, or an engine without scroll-driven
+              animations the runway is 0 and the stage is a complete static
+              design: the lion at rest on the flat midnight ground. */}
           <div className={styles.fieldLayer} aria-hidden="true">
-            {/* The still frame is the ground beneath everything else here: what
-                shows before the first video byte lands, what stays when motion
-                is reduced, and all there is when no JavaScript ever hands
-                `HeroVideo` a source. It is the video's own first frame, so the
-                arrival is a start of movement rather than a change of picture. */}
+            {/* The flat ground: one colour from the token contract with the
+                abyss vignette at its edge. The photograph under the cover is
+                gone with the video; what remains is keyed alpha layers over
+                this paint. The class name is kept because the smoke test
+                counts it as the no-JavaScript ground's element. */}
             <div className={styles.posterField} />
-            <HeroVideo className={styles.heroVideo} />
+            {/* L1 haze — the faint scatter the lion condenses out of. Soft
+                alpha, so it is the cheaper layer and the one that may
+                breathe (it does not: see `.lionHaze` — the keyed art is
+                static, and a still haze is acceptable). */}
+            <picture className={styles.lionHaze}>
+              <source type="image/avif" media={LION_MEDIA.desktop} srcSet="/brand/cover/lion-haze-2560.avif 2560w, /brand/cover/lion-haze-1920.avif 1920w" sizes="100vw" />
+              <source type="image/webp" media={LION_MEDIA.desktop} srcSet="/brand/cover/lion-haze-2560.webp 2560w, /brand/cover/lion-haze-1920.webp 1920w" sizes="100vw" />
+              <source type="image/avif" media={LION_MEDIA.phone} srcSet="/brand/cover/lion-haze-1080x1920.avif 1080w" sizes="100vw" />
+              <source type="image/webp" media={LION_MEDIA.phone} srcSet="/brand/cover/lion-haze-1080x1920.webp 1080w" sizes="100vw" />
+              <img
+                src="/brand/cover/lion-haze-1920.webp"
+                alt=""
+                width={1920}
+                height={1080}
+                loading="eager"
+                decoding="async"
+              />
+            </picture>
+            {/* L2 core — the face. The layer a reader meets first, and the
+                one that arrives: it fades in and settles from a 4% larger
+                frame over `--dur-arrive`, once. */}
+            <picture className={styles.lionCore}>
+              <source type="image/avif" media={LION_MEDIA.desktop} srcSet="/brand/cover/lion-core-2560.avif 2560w, /brand/cover/lion-core-1920.avif 1920w" sizes="100vw" />
+              <source type="image/webp" media={LION_MEDIA.desktop} srcSet="/brand/cover/lion-core-2560.webp 2560w, /brand/cover/lion-core-1920.webp 1920w" sizes="100vw" />
+              <source type="image/avif" media={LION_MEDIA.phone} srcSet="/brand/cover/lion-core-1080x1920.avif 1080w" sizes="100vw" />
+              <source type="image/webp" media={LION_MEDIA.phone} srcSet="/brand/cover/lion-core-1080x1920.webp 1080w" sizes="100vw" />
+              <img
+                src="/brand/cover/lion-core-1920.webp"
+                alt=""
+                width={1920}
+                height={1080}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+              />
+            </picture>
             {/* Legibility, not decoration. The masthead is a left column and
                 the lion holds the right of the frame; the scrim weights the
                 left so the type sits on darkness while the animal stays lit.
-                See `.heroScrim`. */}
+                On a phone it is anchored in pixels from the bottom, because
+                what it covers is the masthead's lines of type, not the
+                picture. See `.heroScrim`. */}
             <div className={styles.heroScrim} />
           </div>
 
           <div className={styles.masthead}>
             {/* The glyph lion that sat here is gone. It was drawn for a hero
                 whose ground was a field of type, where it was the only
-                figurative thing on the screen; over a photograph of a lion it
-                was a second lion laid across the first one's face. The wordmark
-                carries the brand on its own now. */}
+                figurative thing on the screen; over the keyed particle lion
+                it was a second lion laid across the first one's face. The
+                wordmark carries the brand on its own now — ink, not gold. */}
             <h1 id="home-wordmark" className={styles.wordmark} tabIndex={-1}>
               <span className={styles.wordmarkLine}>LIONS</span>{" "}
               <span className={styles.wordmarkLine}>
@@ -104,29 +153,29 @@ export default async function Page() {
               <span>Find it, check it, share it.</span>
             </p>
 
-            {/* One action, and it is the only boxed control on the cover.
-                There were two: this one and a 13px grey "How it works" string
-                beside it with no border, no underline and no arrow — a link a
-                reader could not tell from the sentence above it, pointing at a
-                destination the system band lower down already offers under the
-                same name. A second path that is invisible is not a second
-                path; it is noise beside the first one, so the cover keeps the
-                action and `/information-war` keeps its one entrance in the
-                system band. */}
+            {/* One action, and it is the only boxed control on the cover —
+                the outlined primary grammar; Support in the bar is the only
+                gold fill on the first screen. Beside it, the motion pause
+                control (WCAG 2.2.2): an in-flow quiet text control, the
+                third state beside the OS preference, not a floating chip. */}
             <div className={styles.actions}>
               <JourneyLink href="/geopolitical-brief">Read the latest</JourneyLink>
+              <MotionControl className={styles.motionControl} />
             </div>
-            {/* The edition rail: the bottom band of the cover, and the reason
+            {/* The edition rail — the bottom band of the cover, and the reason
                 a reader no longer has to scroll to learn what happened today.
-                Date, the lead's status, its headline and the way in — the
-                lion is now a threshold into an edition rather than the whole
-                first screen. It is the last thing on the cover: the support
-                chips that sat under it until UX-13 now close the first band
-                (`HeroSupportStrip`, placed by `HomepageJourney`), so the
-                reporting is read before the ask. Every field is prerendered
-                and the headline reserves two lines whatever its length, so
-                the band owns its height at first paint and shifts nothing. */}
+                The signal mark opens it: the rule's first place on the page,
+                the lion's dispersing particles held as a line. Date, the
+                lead's status, its headline and the way in — the lion is now a
+                threshold into an edition rather than the whole first screen.
+                It is the last thing on the cover: the support chips close the
+                first band (`HeroSupportStrip`, placed by `HomepageJourney`),
+                so the reporting is read before the ask. Every field is
+                prerendered and the headline reserves two lines whatever its
+                length, so the band owns its height at first paint and shifts
+                nothing. */}
             <div className={styles.editionRail}>
+              <SignalMark className={styles.railMark} />
               <p className={styles.editionRailMeta}>
                 <span>{editionDateLabel(edition.editionDate)}</span>
                 {lead && (

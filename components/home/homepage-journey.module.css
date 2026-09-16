@@ -25,7 +25,7 @@
 }
 .journey a { color: inherit; cursor: pointer; }
 .journey :is(a, button, summary):focus-visible { outline: var(--focus-outline); outline-offset: 4px; }
-.journey :is(h2, h3) { font-family: var(--face-display); font-weight: 400; letter-spacing: -.03em; text-wrap: pretty; overflow-wrap: break-word; }
+.journey :is(h2, h3) { font-family: var(--face-display); font-weight: 600; letter-spacing: -.03em; text-wrap: pretty; overflow-wrap: break-word; }
 .journey h3 a { text-decoration: none; }
 .journey h3 a:hover { color: var(--gold); }
 .journey :is(article, figure, header, nav, dl) { min-width: 0; }
@@ -53,7 +53,13 @@
    separate chapters, and no record lost a field to get there. */
 .section { padding-block: clamp(34px, 4.2vw, 62px); scroll-margin-top: calc(var(--header-h) + 20px); }
 .editorial { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "head action" "intro intro" "spread spread" "state state"; column-gap: 24px; align-items: end; }
-.sectionHead { grid-area: head; margin-bottom: 24px; }
+.sectionHead { composes: enter from global; grid-area: head; margin-bottom: 24px; }
+/* The band records' entrance (2026-09-16 identity round): the global
+   scroll-driven `.enter`, composed onto the lead and its companion only —
+   Miller's three arrivals per band (the head plus two records) and never a
+   whole list. The archive band, the update feed and the search results are
+   deliberately not enrolled anywhere. */
+.enterRecord { composes: enter from global; }
 .sectionHead h2 { font-size: var(--journey-title); line-height: 1.03; margin: 8px 0 0; }
 /* Section labels take the site's kicker size (`--t-kicker`, UX-31); the
    fallback is the same 13px they were set at, so nothing depends on the token

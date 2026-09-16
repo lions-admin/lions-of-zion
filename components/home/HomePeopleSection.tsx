@@ -113,7 +113,9 @@ export function HomePeopleSection({ people, heroes, history }: {
       <div className={styles.peopleStack} data-lead={lead ? 'true' : 'false'}>
         {lead ? (
           <article
-            className={styles.peopleLead}
+            /* The chapter lead is one of the band's rationed arrivals (head
+               + two records); the roster below it is never enrolled. */
+            className={`${styles.peopleLead} ${styles.enterRecord}`}
             data-rank="lead"
             data-home-record={lead.key}
             data-measure-id={`home-people-${lead.key}`}

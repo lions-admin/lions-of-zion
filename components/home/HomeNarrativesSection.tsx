@@ -83,8 +83,9 @@ export function HomeNarrativesSection({
                  journey stylesheet rather than off a second class: the card's
                  grid areas changed with the reading order, and one file should
                  own them. `HomeNarrativesSection.module.css` keeps the two
-                 rules that are genuinely local to this card. */
-              className={styles.investigation}
+                 rules that are genuinely local to this card. The entrance is
+                 the head-plus-two-records ration (see `HomeNewsSection`). */
+              className={index < 2 ? `${styles.investigation} ${styles.enterRecord}` : styles.investigation}
               data-home-record={item.key}
               data-measure-id={`home-fake-resistance-${item.key}`}
               data-measure-section="fake-resistance"

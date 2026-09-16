@@ -454,14 +454,14 @@
   --header-h: calc(7rem + env(safe-area-inset-top, 0px));
   --header-h-bar: calc(3.5rem + env(safe-area-inset-top, 0px));
 
-  /* The stills for the home hero, declared here rather than buried in the
-     rules that use them. `HeroVideo` holds the same two paths in its
-     `SOURCES` table — it needs them in JavaScript to set a `poster` after it
-     has measured the viewport — and the two lists must not drift. (The
-     reading routes' ambient still went with the photographic ground on
-     2026-09-16; only the hero posters remain.) */
+  /* The reading routes' ambient still (`components/home/
+     editorial-intro.module.css` `.ground`): the introduction's one
+     photographic ground. The homepage cover no longer reads a poster
+     token — since the 2026-09-16 identity round stage 5 its ground is
+     `--ground` paint plus the keyed lion layers in `public/brand/cover/`,
+     and the tall/desktop poster pair and `HeroVideo` left with the video.
+     This token keeps its single consumer and nothing else. */
   --hero-poster-wide: url("/video/lion-hero-poster-desktop.jpg");
-  --hero-poster-tall: url("/video/lion-hero-poster-portrait.jpg");
 
   --z-under: -1;
   --z-base: 0;

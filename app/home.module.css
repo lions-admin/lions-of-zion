@@ -17,70 +17,124 @@
   background: var(--ground);
   display: flow-root;
 }
-/* The cover is a threshold, not a destination. It is bounded so the edition
-   below always starts inside the first screen: the masthead is bottom-anchored,
-   `margin-top` is the lion's guaranteed clear field above the type, and
-   `min-height` keeps the band deterministic before a single font has swapped.
-   Was `clamp(310px, 44svh, 520px)` of margin with no bound at all on a phone,
-   which put the cover at 101svh and the first record out of sight (VA-10). */
-.hero { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: clamp(500px, 71svh, 740px); padding-top: var(--header-h); padding-bottom: 22px; isolation: isolate; }
-.fieldLayer { position: absolute; inset: var(--header-h) 0 0; z-index: -1; overflow: clip; pointer-events: none; }
-/* The portrait crop was framed for a 101svh cover, where the lion's head had a
-   third of a screen to itself above the masthead. In the bounded cover it has
-   about a fifth, so the frame is read further down the plate (`85%` rather than
-   `38%`) and the head lands in the lit band above the wordmark instead of
-   behind it. The poster and the moving shot take the same value because the
-   poster *is* the video's first frame: the arrival must be a start of movement,
-   not a change of picture. */
-.posterField { position: absolute; inset: 0; background: var(--hero-poster-tall) 50% 85% / cover no-repeat var(--ground); }
-.heroVideo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 85%; opacity: 0; transition: opacity var(--dur-slow) var(--ease-out); }
-.heroVideo[data-visible] { opacity: 1; }
-/* Legibility, not decoration — and it had to be re-weighted when the cover
-   came down from 101svh to ~73svh (VA-10). The masthead used to start below
-   the lion's face at 43% of a very tall frame, where a 12% wash was enough;
-   in the shorter frame the same type sits across the lit muzzle, so the ramp
-   now begins at a fifth of the way down and is most of the way to ground by
-   the standfirst. The top of the frame — sky and the crown of the mane —
-   stays untouched, which is the part that has to read as a photograph. */
-.heroScrim { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 7%, color-mix(in srgb, var(--ground) 34%, transparent) 21%, color-mix(in srgb, var(--ground) 72%, transparent) 37%, color-mix(in srgb, var(--ground) 93%, transparent) 57%, var(--ground) 84%); }
-.masthead { display: flex; flex-direction: column; align-items: flex-start; margin: clamp(44px, 7svh, 190px) var(--home-gutter) 0; text-align: start; }
-/* `scroll-margin-top` because this is the skip link's target (`#home-wordmark`,
-   `tabIndex={-1}`) and the header is `position: fixed`. Without it the browser
-   parks the wordmark's own top at y=0 and the bar sits on top of it, so the
-   one control that exists for a keyboard user lands them on a headline they
-   cannot read. Stated against `--header-h` rather than a pixel: the token is
-   4.8rem on a desktop and 3.5rem on a phone, plus the safe-area inset, and a
-   literal would be wrong on two of the three. */
+/* The cover is a pinned stage. `.hero` is a track 100svh + runway tall; the
+   field layer is `position: sticky` inside it, so the cover holds while the
+   reader scrolls the runway and releases when the reading surface arrives.
+   `--cover-runway: 0svh` is the STATIC DEFAULT: an engine without
+   scroll-driven animations gets the complete static design — lion at rest,
+   no runway, no pinned pause — and the @supports block below raises it to
+   40svh only where the scroll timeline exists. Reduced motion and the
+   MotionControl's pause re-zero it the same way. `isolation: isolate` keeps
+   the negative-z-index field below every in-flow descendant of this
+   section and nowhere else. */
+.hero {
+  position: relative;
+  isolation: isolate;
+  --cover-runway: 0svh;
+  min-height: calc(100svh + var(--cover-runway));
+  padding-bottom: 22px;
+}
+/* The stage itself: one viewport tall, pinned to the top while `.hero`
+   scrolls, and `margin-bottom: -100svh` hands the next block (`.masthead`)
+   the flow position the stage would otherwise occupy. `z-index: -1` puts
+   it below the masthead inside the isolated section — no z-index ladder —
+   and `pointer-events: none` makes the whole cinema inert to a pointer:
+   the pictures are not focusable, not announced (their parent is
+   `aria-hidden`), and a click on the cover lands where the reader aimed. */
+.fieldLayer {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  margin-bottom: -100svh;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+}
+/* The flat ground the keyed layers sit on: `--ground` with the `--abyss`
+   vignette at its edge — the vignette is the abyss token's one sanctioned
+   job. No photograph, no texture: the photograph left with the video, and
+   what reads as depth here is the lion's own particle field over flat
+   navy. Painted by the stylesheet alone, so it is the ground under every
+   state — before the layers decode, with scripting off, and when motion is
+   reduced. The class name is kept because the smoke test counts this
+   element as the no-JavaScript ground. */
+.posterField {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 105% at 62% 42%,
+      transparent 32%,
+      color-mix(in srgb, var(--abyss) 72%, transparent) 76%,
+      var(--abyss) 100%)
+    var(--ground);
+}
+/* The keyed layers. Each <picture> fills the stage; the <img> inside is
+   object-fit: cover with the object-position the frames were cut for —
+   the desktop canvas carries the lion at 62% of its width (the masthead
+   owns the left), the phone portrait carries it centred in the clear band
+   above the wordmark. Both are decorative (`aria-hidden` on the stage);
+   nothing here enters the accessibility tree. */
+.lionHaze, .lionCore { position: absolute; inset: 0; }
+.lionHaze img, .lionCore img { width: 100%; height: 100%; object-fit: cover; object-position: 62% 50%; }
+@media (max-width: 759px) {
+  .lionHaze img, .lionCore img { object-position: 50% 38%; }
+}
+/* Legibility, not decoration. The masthead is a left column and the lion
+   holds the right of the frame; the scrim weights the left so the type
+   sits on darkness while the animal stays lit, and anchors the bottom so
+   the masthead never reads as floating over the ground. */
+.heroScrim { position: absolute; inset: 0; background: linear-gradient(90deg, color-mix(in srgb, var(--ground) 78%, transparent), color-mix(in srgb, var(--ground) 38%, transparent) 37%, transparent 68%), linear-gradient(0deg, var(--ground), transparent 33%); }
+/* The masthead stays in flow, unpositioned: it is the block after the
+   stage, `min-height: 100svh` tall with the masthead's own height in its
+   `padding-top`, and its column bottom-anchors the type over the stage. */
+.masthead { display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; min-height: 100svh; padding-top: var(--header-h); margin: 0 var(--home-gutter); text-align: start; }
+/* `scroll-margin-top` because the wordmark is a programmatic focus target
+   (`tabIndex={-1}`) and the header is `position: fixed`. Without it the
+   browser parks the wordmark's own top at y=0 and the bar sits on top of
+   it. Stated against `--header-h` rather than a pixel: the token is 7rem
+   on a desktop masthead, 4.8rem on a phone, and the retracted bar mode
+   re-points it, so a literal would be wrong on more than one. */
 .wordmark { margin: 0; max-width: 100%; scroll-margin-top: calc(var(--header-h) + var(--sp-4)); color: var(--ink-hi); font: var(--t-home-wordmark-weight) var(--t-home-wordmark)/.86 var(--face-home-cover); text-transform: uppercase; letter-spacing: var(--t-home-wordmark-tracking); }
 .wordmarkLine { display: flex; align-items: baseline; gap: .12em; white-space: nowrap; }
 .wordmarkLine + .wordmarkLine { margin-top: .1em; }
 .wordmarkOf { font-size: .29em; letter-spacing: .015em; }
 .standfirst { max-width: 38ch; margin: 15px 0 0; color: var(--ink); font: 400 16px/1.55 var(--face-home-cover); text-wrap: pretty; }
-/* The cover's one action. `JourneyLink`'s `primary` role already gives it the
-   border and the surface that make it the only pressable-looking thing on the
-   cover (`homepage-journey.module.css` `.linkPrimary`); what is added here is
-   a focus ring that is not a colour change. `.linkPrimary:focus-visible`
-   states itself by swapping border and background hue, and a hue swap is the
-   one thing a reader with low vision or a colour deficiency may not see —
-   WCAG 2.2 wants an indicator with its own geometry, so there is an outline
-   with an offset, outside the border that is already there. */
-.actions { display: flex; margin-top: 12px; }
+/* The cover's one action — the outlined primary grammar; Support in the
+   bar is the only gold fill on the first screen. `JourneyLink`'s `primary`
+   role already gives it the border and the surface
+   (`homepage-journey.module.css` `.linkPrimary`); what is added here is a
+   focus ring that is not a colour change — WCAG 2.2 wants an indicator
+   with its own geometry, so there is an outline with an offset, outside
+   the border that is already there. */
+.actions { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
 .actions a { color: var(--ink-hi); min-width: 200px; min-height: 48px; }
 .actions a:focus-visible { outline: var(--focus-outline); outline-offset: 4px; }
-/* The edition rail — the bottom band of the cover (VA-10). A gold hairline
-   opens it, the metadata line dates the edition and names the lead's status,
-   and one block link carries the headline and the way in, so the whole record
-   is a single 44px-plus target rather than a headline with a small link beside
-   it. Metadata is 13px and the headline is display type: nothing here is
-   shrunk below the phone floors to buy vertical space.
+/* The motion pause control (WCAG 2.2.2), an in-flow quiet text control
+   beside the action — not a floating chip, and never covering anything.
+   `--control-h` is the target height (the site's 44px floor), the boundary
+   is the quiet hairline rather than a filled surface, and the corner is
+   `--radius-home-chrome`: it is one of the controls that sit over the
+   cover film, exactly the set that token exists for. */
+.motionControl { display: inline-flex; align-items: center; min-height: var(--control-h); padding: 8px 12px; border: var(--line-w) solid var(--line); border-radius: var(--radius-home-chrome); background: transparent; color: var(--ink); font: 500 14px/1 var(--face-navigation); cursor: pointer; }
+.motionControl:hover { color: var(--ink-hi); border-color: var(--line-strong); }
+.motionControl:focus-visible { outline: var(--focus-outline); outline-offset: 3px; }
+/* The edition rail — the bottom band of the cover. The signal mark opens
+   it (the rule's first place on the page: the lion's dispersing particles
+   held as a line, geometry owned by `SignalMark`), the metadata line dates
+   the edition and names the lead's status, and one block link carries the
+   headline and the way in, so the whole record is a single 44px-plus
+   target rather than a headline with a small link beside it. Metadata is
+   13px and the headline is display type: nothing here is shrunk below the
+   phone floors to buy vertical space.
 
-   The headline reserves exactly two lines whatever the record's title length
-   (`min-height` in `em` against its own clamp, with the clamp cutting a longer
-   one), so the rail's height is settled at first paint and every band below
-   the cover never moves. It is the cover's last block since UX-13 moved the
-   support chips to the close of the first band (`homepage-journey.module.css`
-   `.supportStrip`). */
-.editionRail { max-width: 34ch; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--gold-line-strong); }
+   The headline reserves exactly two lines whatever the record's title
+   length (`min-height` in `em` against its own clamp, with the clamp
+   cutting a longer one), so the rail's height is settled at first paint
+   and every band below the cover never moves. It is the cover's last
+   block since UX-13 moved the support chips to the close of the first
+   band (`homepage-journey.module.css` `.supportStrip`). */
+.editionRail { max-width: 34ch; margin-top: 16px; padding-top: 12px; }
+.railMark { display: block; margin-bottom: 12px; }
 .editionRailMeta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin: 0 0 7px; color: var(--ink-lo); font: 400 13px/1.5 var(--face-data); letter-spacing: .05em; text-transform: uppercase; }
 /* Decorative separator with an empty alternative text, so a screen reader
    reads "Sun 6 Sept, Daily Brief" rather than announcing a middle dot. */
@@ -98,66 +152,117 @@
 .noscriptNav ol { display: flex; flex-wrap: wrap; gap: 12px 24px; list-style: none; padding: 0; }
 .noscriptNav a { color: var(--ink); font-size: var(--t-small); }
 .noscriptNav a:hover, .noscriptNav a:focus-visible { color: var(--gold); }
-.motionControl { position: absolute; z-index: 2; top: calc(var(--header-h) + 16px); right: var(--home-gutter); min-height: var(--control-h); padding: 8px 12px; border: 1px solid var(--line); background: var(--ground); color: var(--ink); cursor: pointer; }
 /* The skip link is the header's own element now (2026-09-16); its rule left
    with the homepage's copy, so the cover carries exactly one skip link. */
 
+/* --- Arrival (once) -------------------------------------------------------
+   The cover arrives once: the core lion fades in and settles from a 4%
+   larger frame over `--dur-arrive` on the picture (the transform the
+   scroll timeline drives lives on the <img> — separate elements, so the
+   two animations compose instead of overwrite), the wordmark rises ten
+   pixels, and the standfirst, action row and edition rail stagger at the
+   site's `--stagger` step. Nothing loops. */
+@keyframes cover-arrive {
+  from { opacity: 0; transform: scale(1.04); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes cover-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.lionCore { animation: cover-arrive var(--dur-arrive) var(--ease-cinematic) both; }
+.wordmark { animation: cover-rise var(--dur-arrive) var(--ease-cinematic) both; }
+.standfirst { animation: cover-rise var(--dur-enter) var(--ease-out) both; animation-delay: var(--stagger); }
+.actions { animation: cover-rise var(--dur-enter) var(--ease-out) both; animation-delay: calc(var(--stagger) * 2); }
+.editionRail { animation: cover-rise var(--dur-enter) var(--ease-out) both; animation-delay: calc(var(--stagger) * 3); }
 
-/* The same shape query selects both the poster and the moving shot. */
-@media (min-width: 760px) and (min-aspect-ratio: 6/5) {
-  .hero { min-height: clamp(520px, 74svh, 860px); padding-bottom: 28px; }
-  .posterField { background-image: var(--hero-poster-wide); background-position: 64% 50%; }
-  .heroVideo { object-position: 64% 50%; }
-  .heroScrim { background: linear-gradient(90deg, color-mix(in srgb, var(--ground) 78%, transparent), color-mix(in srgb, var(--ground) 38%, transparent) 37%, transparent 68%), linear-gradient(0deg, var(--ground), transparent 33%); }
-  .masthead { width: min(46vw, 660px); margin: 44px clamp(24px, 5vw, 80px) 0; }
-  .wordmark { font-size: var(--t-home-wordmark); }
-  .standfirst { font-size: 18px; margin-top: 20px; }
-  .actions { margin-top: 16px; }
-  .editionRail { max-width: 40ch; margin-top: 16px; padding-top: 13px; }
-  .editionRailHeadline { font-size: clamp(23px, 2.1vw, 31px); }
+/* --- Scroll (pure CSS, only where scroll-driven timelines exist) -----------
+   The parallax and the release are driven by the document scroll: the core
+   layer lifts by its parallax depth and scales 6% while fading out from
+   70% of the runway, the haze leaves sooner. Transform and opacity only —
+   nothing paints per frame, no animated mask, no letter-spacing
+   keyframes, no backdrop-filter over the stage. `--parallax-depth-*` are
+   viewport fractions, so the translate is depth × 100svh. The haze keeps
+   still on a phone: the ruling there is the core's parallax alone. */
+@supports (animation-timeline: scroll()) {
+  .hero { --cover-runway: 40svh; }
+
+  @keyframes cover-core-release {
+    from { transform: translateY(0) scale(1); opacity: 1; }
+    70% { opacity: 1; }
+    to { transform: translateY(calc(-1 * var(--parallax-depth-1) * 100svh)) scale(1.06); opacity: 0; }
+  }
+  @keyframes cover-haze-release {
+    from { transform: translateY(0); opacity: 1; }
+    60% { opacity: 0; }
+    to { transform: translateY(calc(-1 * var(--parallax-depth-2) * 100svh)); opacity: 0; }
+  }
+
+  .lionCore img {
+    animation: cover-core-release linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 var(--cover-runway);
+  }
+  @media (min-width: 760px) {
+    .lionHaze img {
+      animation: cover-haze-release linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 var(--cover-runway);
+    }
+  }
 }
-@media (min-width: 760px) and (aspect-ratio < 6/5) {
-  .masthead { margin-top: clamp(120px, 18svh, 260px); }
-  .wordmark { font-size: var(--t-home-wordmark); }
-  .editionRail { max-width: 44ch; }
+@supports not (animation-timeline: scroll()) {
+  /* The static design is complete: the lion rests, the rail's rule is at
+     full width, and nothing is gated on an animation the engine cannot
+     run. `--cover-runway` is already 0 from `.hero`'s own default; stated
+     again here so the invariant survives a later edit of that default. */
+  .hero { --cover-runway: 0svh; }
 }
+
+/* --- Stillness ------------------------------------------------------------
+   Three ways the cover stops, each of which must also re-zero the runway,
+   because a frozen scroll-driven animation frozen mid-range is not a
+   design: the OS preference, the MotionControl's persisted pause, and
+   (belt and braces against the global reduced-motion block's timeline
+   switch) an explicit `animation: none` on every layer. */
+@media (prefers-reduced-motion: reduce) {
+  .hero { --cover-runway: 0svh; }
+  .lionCore, .lionHaze, .lionCore img, .lionHaze img,
+  .wordmark, .standfirst, .actions, .editionRail {
+    animation: none !important;
+  }
+  /* With the OS preference on, the stage is already still and the pause
+     control has nothing to pause — the OS preference is the state that
+     covers it. */
+  .motionControl { display: none; }
+  .editionRailCta svg { transition: none; }
+  .editionRailLead:hover .editionRailCta svg { transform: none; }
+}
+html[data-motion="paused"] .hero { --cover-runway: 0svh; }
+html[data-motion="paused"] .lionCore,
+html[data-motion="paused"] .lionHaze,
+html[data-motion="paused"] .lionCore img,
+html[data-motion="paused"] .lionHaze img,
+html[data-motion="paused"] .wordmark,
+html[data-motion="paused"] .standfirst,
+html[data-motion="paused"] .actions,
+html[data-motion="paused"] .editionRail {
+  animation: none !important;
+}
+
 @media (max-width: 759px) {
-  /* Owner ruling, 2026-09-14: full video, with the text layer over it. The
-     ruling was given in Hebrew and is not quoted here — `english-chrome`
-     keeps Hebrew inside the admin console and out of the public source.
-
-     What this replaces, and why. The 2026-09-08 ruling gave the photograph
-     the whole first screen — `margin-top: calc(80svh - var(--header-h))` —
-     and the measurement on a 390x844 phone was the case against it: the
-     wordmark began at y=675, the proposition at 793, the one primary action
-     at 836 with 8 of its 48 pixels above the fold, and the first story at
-     1296, a screen and a half down. A reader met a lion and no reason to
-     stay, which is exactly the "does not activate the customer" the owner
-     named. The animal was never the problem; the animal with nothing on it
-     was.
-
-     The lion keeps the full screen and the full bleed. The masthead is no
-     longer pushed anywhere: the hero is a column with `justify-content:
-     flex-end`, so with the push removed the type simply settles on the
-     bottom of the first screen, over the video, on a scrim that exists to
-     carry text rather than to shade a picture. The wordmark, the line, the
-     one action and today's lead are all above the fold; the photograph still
-     owns the ~380px above them, which is the part a reader reads as a
-     photograph.
-
-     Two rules survive from the old block unchanged, for the reasons they
-     were written: the picture is pinned to the first screen rather than to
-     the band, so it keeps the poster's own 9:16 proportions instead of
-     zooming to fill the band's height; and the band is at least a screen
-     tall so the frame is never cut short. */
-  .hero { min-height: 100svh; padding-bottom: clamp(20px, 3.4svh, 34px); }
-  .fieldLayer { inset: var(--header-h) 0 auto; height: calc(100svh - var(--header-h)); }
-  .masthead { margin-top: 0; }
+  /* The phone cover keeps the stage's shape: a full-screen field with the
+     type layer over it, the lead above the fold. The masthead is
+     bottom-anchored inside its own first screen exactly as on desktop;
+     the core lion sits in the clear band above the wordmark on the
+     pixel-anchored scrim; the parallax runs on the core layer only (see
+     the @supports block above) and the runway is ~40svh so the edition's
+     rule is visible below the fold. No <video> anywhere. */
+  .hero { padding-bottom: clamp(20px, 3.4svh, 34px); }
+  .masthead { min-height: 100svh; margin-top: 0; padding-bottom: clamp(20px, 3.4svh, 34px); }
   /* The type now occupies the bottom 45% of the frame instead of its last
-     sliver, so the frame is read a little higher and the head lands in the
-     clear band above the wordmark rather than behind it. */
-  .posterField { background-position: 50% 38%; }
-  .heroVideo { object-position: 50% 38%; }
+     sliver, so the head lands in the clear band above the wordmark rather
+     than behind it. */
   /* Two layers, and the split is deliberate.
      The first is anchored in PIXELS from the bottom of the frame, because
      what it has to cover is the masthead, and the masthead's height is a
@@ -183,14 +288,13 @@
         color-mix(in srgb, var(--ground) 40%, transparent) 100%);
   }
   /* Full measure, so the one action on the cover is a bar a thumb cannot
-     miss rather than a 178px chip: label at the start, arrow at the end
-     (`.link` is already `space-between`), the whole width pressable. The old
-     `min-width: 0` existed to stop this link sharing a row with the "How it
-     works" string; there is no second path to share a row with.
+     miss: label at the start, arrow at the end, the whole width pressable.
      `align-self` as well as `width`, because `.masthead` is a column with
      `align-items: flex-start`: without it the row is only as wide as the
-     label and `width: 100%` inside it is 100% of 178px. */
-  .actions { align-self: stretch; margin-top: 18px; }
+     label and `width: 100%` inside it is 100% of 178px. The MotionControl
+     beside it wraps to the row below on a phone rather than sharing the
+     bar — the pause control is the third state, not a co-equal action. */
+  .actions { align-self: stretch; flex-wrap: wrap; margin-top: 18px; }
   .actions a { min-width: 0; width: 100%; max-width: 100%; }
   /* The cover's own rhythm on a phone: each block gets room to be read as a
      block rather than as one continuous column of type (#50). */
@@ -214,9 +318,11 @@
   .editionRailHeadline { -webkit-line-clamp: 3; line-clamp: 3; }
   .hero + .readingSurface { padding-top: 22px; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .heroVideo { display: none; transition: none; }
-  .motionControl { display: none; }
-  .editionRailCta svg { transition: none; }
-  .editionRailLead:hover .editionRailCta svg { transform: none; }
+@media (min-width: 760px) {
+  .masthead { width: min(46vw, 660px); padding-bottom: 28px; }
+  .wordmark { font-size: var(--t-home-wordmark); }
+  .standfirst { font-size: 18px; margin-top: 20px; }
+  .actions { margin-top: 16px; }
+  .editionRail { max-width: 40ch; margin-top: 16px; padding-top: 13px; }
+  .editionRailHeadline { font-size: clamp(23px, 2.1vw, 31px); }
 }

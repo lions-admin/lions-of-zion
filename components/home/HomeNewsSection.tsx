@@ -54,6 +54,11 @@ export function HomeNewsSection({
         {section.items.map((item, index) => (
           <article
             key={item.key}
+            /* The entrance is Miller's, not decoration: at most three things
+               arrive per band — this head and the first two records. The
+               third record onward, the archive band, the update feed and
+               the search results are never enrolled. */
+            className={index < 2 ? styles.enterRecord : undefined}
             data-home-record={item.key}
             data-rank={rankOf(index)}
             data-measure-id={`home-news-${item.key}`}

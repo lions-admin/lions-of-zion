@@ -16,7 +16,7 @@
  *  1. **the page ground** — `--ground`, flat, declared once on html and body.
  *     The ink tokens are read straight against it, and against
  *     `--surface-3`, the lightest plate text may land on;
- *  2. **the home hero's video layer** — pointer-inert, out of the
+ *  2. **the cover's keyed layers** — pointer-inert, out of the
  *     accessibility tree, and not downloaded at all under reduced motion.
  *
  * The contrast block earns its keep. `--ink-lo` — captions, metadata, TOC
@@ -143,34 +143,37 @@ describe("the ground is one flat colour, and the ink is read against it", () => 
   });
 });
 
-describe("the home hero's moving layer cannot rise, catch a pointer, or be announced", () => {
+describe("the cover's keyed layers cannot rise into the tree, catch a pointer, or be announced", () => {
   it("renders behind the hero inside a layer that is itself pointer-inert", () => {
     /* 2026-09-06: the hero's background stack no longer uses a numbered
-       z-index ladder. `.fieldLayer` is a negative-z-index positioned
+       z-index ladder. `.fieldLayer` is a negative-z-index sticky stage, a
        descendant of `.hero`, which `isolation: isolate` turns into its own
        stacking context — and CSS's own painting order puts a negative-z-index
        positioned descendant *below* every ordinary in-flow, non-positioned
        descendant of that context. `.masthead` is exactly that (no `position`
        of its own), so it paints above `.fieldLayer` with no z-index of its
-       own needed. */
+       own needed. Stage 5 (2026-09-16) made the stage sticky for the cover's
+       runway; the negative z-index, the pointer-inertness and the unpositioned
+       masthead all survived the move. */
     expect(home).toMatch(/\.hero \{[^}]*isolation:\s*isolate/);
     expect(home).toMatch(/\.fieldLayer \{[^}]*z-index:\s*-1/);
     expect(home).toMatch(/\.fieldLayer \{[^}]*pointer-events:\s*none/);
     expect(home).not.toMatch(/\.masthead \{[^}]*position:/);
-    /* The layer's contents, in paint order. A video is not pointer-inert by
-       default — it has native controls and is focusable — so the
-       `pointer-events: none` above is load-bearing rather than tidy, and the
-       elements carry `tabIndex={-1}` and `aria-hidden` of their own. Poster,
-       video and scrim carry no z-index at all and stack purely by source
-       order inside that same layer. */
+    /* The stage's contents, in paint order: flat ground, haze, core, scrim.
+       Poster, video and scrim carried no z-index and stacked by source order
+       inside that layer; the keyed layers keep exactly that rule. */
     const page = read("app/page.tsx");
-    expect(page).toMatch(/<div className=\{styles\.posterField\} \/>[\s\S]*?<HeroVideo[\s\S]*?<div className=\{styles\.heroScrim\} \/>/);
-    for (const selector of [".posterField", ".heroVideo", ".heroScrim"]) {
+    expect(page).toMatch(
+      /<div className=\{styles\.posterField\} \/>[\s\S]*?<picture className=\{styles\.lionHaze\}>[\s\S]*?<picture className=\{styles\.lionCore\}>[\s\S]*?<div className=\{styles\.heroScrim\} \/>/,
+    );
+    for (const selector of [".posterField", ".lionHaze", ".lionCore", ".heroScrim"]) {
       expect(home, selector).not.toMatch(new RegExp(`\\${selector} \\{[^}]*z-index`));
     }
-    const hero = read("components/sections/HeroVideo.tsx");
-    expect(hero.match(/aria-hidden="true"/g)?.length).toBe(2);
-    expect(hero.match(/tabIndex=\{-1\}/g)?.length).toBe(2);
+    /* The whole stage is `aria-hidden`; nothing inside it is focusable or
+       announced — the images carry empty alt and the pictures nothing at
+       all. */
+    expect(page).toMatch(/<div className=\{styles\.fieldLayer\} aria-hidden="true">/);
+    expect(page).not.toMatch(/className=\{styles\.lion(Core|Haze)\}[\s\S]{0,400}?aria-label/);
   });
 
   it("is overpainted by the content layer, the masthead and the skip link", () => {
@@ -193,17 +196,30 @@ describe("the home hero's moving layer cannot rise, catch a pointer, or be annou
 });
 
 describe("reduced motion is honoured by every layer that still moves", () => {
-  it("leaves the home's moving layer still — and undownloaded", () => {
-    /* Stillness here is not a paused animation but an absent source: the
-       effect returns before either element is given one, so a reader who
-       asked for stillness does not download 30MB of video to hold on frame
-       one. `.posterField` is what they see, and it is painted by the
-       stylesheet with no script at all. */
-    const hero = read("components/sections/HeroVideo.tsx");
-    expect(hero).toContain('window.matchMedia("(prefers-reduced-motion: reduce)")');
-    expect(hero).toMatch(/if \(reduced\.matches\) \{[\s\S]*?return;/);
-    expect(hero).toMatch(/preload="none"/);
-    expect(home).toMatch(/\.posterField \{[^}]*background:\s*var\(--hero-poster-tall\)/);
+  it("leaves the cover static, complete and undownloaded-of-video", () => {
+    /* The 2026-09-16 identity round retired the cover's video entirely —
+       there is no moving layer to pause, no 30 MB to avoid downloading, so
+       this test now pins the stillness contract of the keyed stage: under
+       reduced motion the runway re-zeros and every layer states its own
+       `animation: none` (the global kill switch switches the timeline off,
+       but a frozen mid-range timeline is not a design), and no `<video>`
+       exists anywhere on the page for a reader to download. */
+    const page = read("app/page.tsx");
+    expect(page).not.toContain("<video");
+    const reduced = home.slice(home.indexOf("@media (prefers-reduced-motion: reduce)"));
+    expect(reduced).toMatch(/\.hero \{ --cover-runway: 0svh; \}/);
+    expect(reduced).toMatch(
+      /\.lionCore, \.lionHaze, \.lionCore img, \.lionHaze img,[\s\S]{0,120}?animation: none !important/,
+    );
+    /* The pause control (`MotionControl`) is the third state beside the OS
+       preference: it sets `data-motion="paused"` on `<html>`, and the cover
+       re-zeros the runway and stills the layers under it too. */
+    expect(home).toMatch(/html\[data-motion="paused"\] \.hero \{ --cover-runway: 0svh; \}/);
+    expect(home).toMatch(
+      /html\[data-motion="paused"\] \.lionCore,[\s\S]{0,500}?animation: none !important/,
+    );
+    /* The ground the still cover shows is the stylesheet's own paint. */
+    expect(home).toMatch(/\.posterField \{[^}]*var\(--ground\)/);
   });
 
   it("stills the reading shell's entrance and every transition in its navigation", () => {
@@ -276,11 +292,14 @@ describe("the no-JavaScript home still shows a readable band over the static gro
   });
 
   it("keeps a ground under every state, so none of them is a bare screen", () => {
-    /* The hero's ground is the video's own first frame, painted by the
-       stylesheet rather than by the component, so it is there before any
-       script runs and stays when none ever does. */
-    expect(home).toMatch(/\.posterField \{[^}]*background:\s*var\(--hero-poster-tall\)/);
-    expect(globals).toMatch(/--hero-poster-tall:\s*url\(/);
+    /* The hero's ground is the stylesheet's own paint — `--ground` with the
+       abyss vignette — since stage 5 keyed the lion into alpha layers over
+       it; it is there before any script or image runs and stays when none
+       ever does. The `--hero-poster-tall` token left with the video; the
+       wide poster token remains the introduction's one photographic ground. */
+    expect(home).toMatch(/\.posterField \{[^}]*var\(--ground\)/);
+    expect(globals).not.toMatch(/--hero-poster-tall/);
+    expect(globals).toMatch(/--hero-poster-wide:\s*url\(/);
     /* And the rest of the site reads on the same flat ground the home does. */
     expect(globals).toMatch(/html, body \{[^}]*background-color:\s*var\(--ground\)/);
   });

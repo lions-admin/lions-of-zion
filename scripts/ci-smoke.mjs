@@ -175,15 +175,14 @@ if ((noJsResponse?.status() ?? 0) !== 200) {
     if ((await noJsPage.locator(`a[href="${href}"]`).count()) === 0) missing.push(href);
   }
   /* The property is "a reader with scripting off still gets a ground image,
-     not a blank hero" — and how it is delivered changed on 2026-09-05.
-     It used to be the particle entrance's `<picture>` fallback, which this
-     line counted. The entrance is retired, and `HeroVideo` deliberately emits
-     no `poster` attribute server-side (a poster is fetched even under
-     `preload="none"`, and the server cannot know which frame shape the
-     viewport wants). The no-JS ground is now `app/page.tsx`'s
-     `<div className={styles.posterField} />`, painted by CSS
-     `background-image` — so the element, not an `<img>`, is what proves it.
-     `picture img` stays so a future `<picture>` hero satisfies this too. */
+     not a blank hero" — and how it is delivered changed on 2026-09-05 and
+     again on 2026-09-16. It used to be the particle entrance's `<picture>`
+     fallback, then the stylesheet-painted poster `<div>` while the cover ran
+     on video. The cover is now keyed alpha layers (`public/brand/cover/`)
+     over the flat `--ground` paint, and the no-JS ground is still
+     `app/page.tsx`'s `<div className={styles.posterField} />`, painted by
+     CSS — so the element, not an `<img>`, is what proves it. `picture img`
+     stays so a future `<picture>` hero satisfies this too. */
   const poster = await noJsPage
     .locator('picture img, div[class*="posterField"]')
     .count();

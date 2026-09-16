@@ -27,9 +27,15 @@
 
 /* ── The evidence path ─────────────────────────────────────────────────── */
 
+/* Sticky only once something is being followed (2026-09-16): the standing
+   hint is one line of orientation a reader scrolls past, not a bar that
+   claims the top of the screen for nothing. With a selection, the path
+   hangs directly beneath the section navigator — `--anchor-offset` on the
+   case page is masthead + navigator, so the two bars stack instead of
+   overlapping (both were `top: … / z-index: sticky` and the path sat under
+   the masthead, then under nothing at all). */
 .path {
-  position: sticky;
-  top: calc(var(--anchor-offset, 5.5rem) - var(--sp-3));
+  position: static;
   z-index: var(--z-sticky);
   display: flex;
   flex-wrap: wrap;
@@ -43,6 +49,15 @@
   color: var(--ink);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
+}
+
+.path[data-active='yes'] {
+  position: sticky;
+  top: calc(var(--anchor-offset, 5.5rem) - var(--sp-3));
+}
+
+.path[data-active='no'] {
+  background: transparent;
 }
 
 .path[data-active='yes'] {
@@ -703,6 +718,65 @@
   gap: var(--sp-2);
   padding-bottom: var(--sp-4);
   border-bottom: var(--line-w) solid var(--line);
+}
+
+/* The ledger's collapsed filter row (2026-09-16): one disclosure above the
+   rows instead of nine pills on show. A control, so it keeps the coarse
+   target floor and the one focus ring. */
+.ledgerFilters {
+  margin: 0 0 var(--sp-4);
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.ledgerFilters > summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--control-h);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.ledgerFilters > summary::-webkit-details-marker {
+  display: none;
+}
+
+.ledgerFilters > summary::before {
+  content: '';
+  display: inline-block;
+  width: 0.4em;
+  height: 0.4em;
+  margin-inline-end: var(--sp-2);
+  border-right: var(--line-w) solid currentColor;
+  border-bottom: var(--line-w) solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.ledgerFilters[open] > summary::before {
+  transform: rotate(45deg);
+}
+
+.ledgerFilters > summary:hover,
+.ledgerFilters > summary:focus-visible {
+  color: var(--gold-hi);
+}
+
+.ledgerFilters > summary:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+/* The key sits above the rows, quiet, and its own hairline does not double
+   the filter row's — the disclosure below it carries one already. */
+.ledgerKey {
+  margin: 0 0 var(--sp-4);
+  border-top: 0;
 }
 
 .layerChip {

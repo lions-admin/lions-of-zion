@@ -1,7 +1,7 @@
 /* Card — SYS-008
  *
- * Five compositions. Radii 2 / 4 / 8 only (--radius-1/2/3). No outer glow.
- * panel → feature, quiet → row.
+ * Hub grammar (lead / row / tile) plus the earlier five compositions. Radii
+ * 4 / 6 / 8 only (--radius-1/2/3). No outer glow. panel → feature, quiet → row.
  */
 
 .card {
@@ -62,6 +62,73 @@
   padding: var(--sp-6) var(--sp-5) var(--sp-5);
   border-top: var(--line-w-thick) solid var(--card-rule);
   box-shadow: var(--shadow-1);
+}
+
+/* Lead — a front's lead record. One plate, room for media and a ruled
+ * headline, with the record's own rule across the top in its accent. */
+.lead {
+  height: 100%;
+  padding: var(--sp-6) var(--sp-5) var(--sp-5);
+  border-top: var(--line-w-thick) solid var(--card-rule);
+  box-shadow: var(--shadow-1);
+}
+
+/* Tile — a compact pressable plate in a grid of doors and short records.
+ * One step quieter than lead: tighter padding, no top rule, h3 title. */
+.tile {
+  height: 100%;
+  padding: var(--sp-5) var(--sp-4) var(--sp-4);
+  box-shadow: var(--shadow-1);
+}
+
+.tile .title {
+  font-size: var(--t-h3);
+}
+
+.tile .description {
+  margin-bottom: var(--sp-4);
+}
+
+/* ── The ruled ledger (2026-09-16 hub round) ─────────────────────────────
+ *
+ * A `--signal-stub-w` (24px) gold stub sits under the card's headline and
+ * extends to the headline's full width while the card is hovered or holds
+ * keyboard focus. The headline's colour does NOT change — the rule is the
+ * state, which is what keeps a ledger row's hover response one hairline
+ * instead of a re-voice of the record.
+ *
+ * The extension animates `inline-size`, not `transform: scaleX()`: the stub's
+ * scale factor would be headline-width-relative, which no transform can
+ * express without either a fixed row measure or container-query length
+ * division (calc(24px / 100cqw)) that still drops in engines the site's
+ * reduced-motion and no-JS budgets have to survive. The duration and easing
+ * still read the tokens, and a 1px hairline's layout cost is nothing. */
+.ledger .title {
+  position: relative;
+  padding-bottom: var(--sp-3);
+}
+
+.ledger .title::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  bottom: 0;
+  inline-size: var(--signal-stub-w);
+  block-size: var(--line-w-thick);
+  background: var(--signal-rule-color);
+  transform-origin: inline-start;
+  transition: inline-size var(--dur-base) var(--ease-out);
+}
+
+.ledger:hover .title::after,
+.ledger:focus-within .title::after {
+  inline-size: 100%;
+}
+
+/* The rule is the state: a ledger row never re-voices its headline on hover. */
+.ledger.interactive:hover .title,
+.ledger.interactive:focus-visible .title {
+  color: var(--ink-hi);
 }
 
 /* PointerHighlight supplies local coordinates only during mouse movement.
@@ -169,14 +236,17 @@
 }
 
 .feature.interactive:hover,
-.dossier.interactive:hover {
+.dossier.interactive:hover,
+.lead.interactive:hover {
   transform: translateY(-2px);
 }
 
 .feature.interactive:hover,
 .feature.interactive:focus-visible,
 .dossier.interactive:hover,
-.dossier.interactive:focus-visible {
+.dossier.interactive:focus-visible,
+.lead.interactive:hover,
+.lead.interactive:focus-visible {
   border-top-color: var(--card-rule-peak);
 }
 
@@ -325,10 +395,12 @@
 
 @media (prefers-reduced-motion: reduce) {
   .feature.interactive:hover,
-  .dossier.interactive:hover {
+  .dossier.interactive:hover,
+  .lead.interactive:hover {
     transform: none;
   }
 
+  .ledger .title::after,
   .card,
   .title,
   .ctaArrow,

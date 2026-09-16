@@ -1,20 +1,51 @@
-/* October 7 is a hub before it is an explainer: archive entry comes first. */
-.eyebrow {
-  margin: 0;
-  color: var(--gold);
-  font: 400 var(--t-caption)/1.6 var(--face-data);
-  letter-spacing: .09em;
-  text-transform: uppercase;
+/* October 7 · the held route.
+ *
+ * A hub before it is an explainer: archive entry comes first, one featured
+ * testimony carries the route, and the documentation showcase is demoted to a
+ * ledger. Everything here is tokenised (SYS-001) and its motion profile is
+ * the memorial's own: fade-only entrances (`.enterQuiet`), no accent fill,
+ * markers unbroken and held, no auto-rotation.
+ *
+ * `main[data-memorial]` in `app/globals.css` is the hook this route is meant
+ * to hang its muting on — it lowers the display voice to 500 and re-points
+ * `--signal-rule-color` at the muted ink so the masthead's SignalMark, the
+ * ruled ledger and every reading of the accent go quiet together. The shell
+ * (`EditorialShell`) does not yet carry a pass-through for that attribute, so
+ * the two tokens are re-pointed here on the route's own root until the
+ * attribute lands; inheritance covers the whole route from one place either
+ * way. (Handoff: add `data-memorial` to this route's `<main>` and delete the
+ * two lines marked memorial below — see the task report.)
+ */
+.page {
+  /* Memorial muting — delete with the handoff above. */
+  --t-display-weight: 500;
+  --signal-rule-color: var(--ink-lo);
 }
 
-.archiveExplorer {
-  margin: 0 0 clamp(44px, 7vw, 76px);
+.hub {
+  --hub-gutter: clamp(var(--sp-4), 4vw, var(--sp-8));
+  width: min(100%, calc(100rem + (var(--hub-gutter) * 2)));
+  margin: 0 auto;
+  padding: var(--sp-4) var(--hub-gutter) var(--sp-9);
 }
+
+.page a:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+/* ── The two archive doors ─────────────────────────────────────────────── */
+
+.archiveExplorer {
+  margin: 0 0 var(--sp-8);
+}
+
 .explorerHeading {
   display: grid;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-5);
 }
+
 .explorerHeading h2 {
   margin: 0;
   color: var(--ink-hi);
@@ -25,96 +56,39 @@
   letter-spacing: var(--t-h2-tracking);
   text-wrap: balance;
 }
+
+.eyebrow {
+  composes: kickerLabel from global;
+  margin: 0;
+  color: var(--gold);
+}
+
+/* The doors are Card tiles; the grid holds them and closes the pair with the
+   strong rule the old doors closed with. */
 .archiveEntries {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  border-top: 1px solid var(--line-strong);
+  gap: var(--sp-5);
 }
+
+/* The tile itself must never outgrow its track: minmax(0, 1fr) handles the
+   column, this keeps a stretched Card content-box (taller neighbour, long
+   CTA) from pushing the grid wider than the page. */
 .archiveEntry {
-  position: relative;
-  display: grid;
-  grid-template-rows: auto auto 1fr auto auto;
-  gap: 12px;
-  min-width: 0;
-  min-height: 282px;
-  padding: 24px 24px 22px;
-  border-bottom: 1px solid var(--line-strong);
-  box-shadow: inset 3px 0 0 transparent;
-  color: var(--ink-hi);
-  background: transparent;
-  text-decoration: none;
-  cursor: pointer;
-  transition: background-color 160ms ease, box-shadow 160ms ease, color 160ms ease, transform 100ms ease;
+  min-inline-size: 0;
+  height: 100%;
 }
-.archiveEntry + .archiveEntry {
-  border-left: 1px solid var(--line-strong);
-}
-.archiveEntry::after {
-  content: "";
-  position: absolute;
-  left: 24px;
-  right: 24px;
-  bottom: -1px;
-  height: 2px;
-  background: var(--gold);
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 180ms ease;
-  pointer-events: none;
-}
-.archiveEntry:hover {
-  background: var(--surface-1);
-  box-shadow: inset 3px 0 0 var(--gold);
-}
-.archiveEntry:hover::after,
-.archiveEntry:focus-visible::after {
-  transform: scaleX(1);
-}
-.archiveEntry:active {
-  transform: translateY(1px);
-  background: var(--surface-2);
-}
-.archiveEntry:focus-visible {
-  z-index: 1;
-  outline: var(--focus-outline);
-  outline-offset: 4px;
-  box-shadow: inset 3px 0 0 var(--gold);
-}
-.archiveEntry:visited .entryKind {
-  color: var(--ink-lo);
-}
-.entryKind {
-  color: var(--gold);
-  font: 400 var(--t-caption)/1.5 var(--face-data);
-  letter-spacing: .1em;
-  text-transform: uppercase;
-}
-.entryTitle {
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h2);
-  line-height: var(--t-h2-lh);
-  font-weight: var(--t-h2-weight);
-  letter-spacing: var(--t-h2-tracking);
-  text-wrap: balance;
-}
-.entryDescription {
-  max-width: 35ch;
-  color: var(--ink);
-  font-size: 15px;
-  line-height: 1.55;
-}
-/* The count is a stat, not another sentence — until this it was one more
-   13px data line sitting under the description, indistinguishable at a
-   glance from the caption above it. The number is now the visual anchor of
-   the pair, set in the display face at headline weight; the unit stays small
-   and quiet beside it, the way a metric card states its number first and its
-   label second. */
+
+/* The count is a stat, not another sentence — the number is the visual anchor
+   of the pair, set in the display face; the unit stays small and quiet beside
+   it, the way a metric card states its number first and its label second. */
 .entryCount {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: var(--sp-2);
+  margin-block: var(--sp-4);
 }
+
 .entryCountNumber {
   color: var(--gold-hi);
   font-family: var(--face-display);
@@ -123,50 +97,28 @@
   font-weight: var(--t-figure-weight);
   font-variant-numeric: tabular-nums;
 }
+
 .entryCountUnit {
+  composes: dataLabel from global;
   color: var(--ink-lo);
-  font: 400 var(--t-data)/1.4 var(--face-data);
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-.entryAction {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  min-height: var(--control-h);
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
-  color: var(--ink-hi);
-  font: 500 var(--t-small)/1.4 var(--face-text);
-}
-.entryAction svg {
-  flex-shrink: 0;
-  color: var(--gold);
-  transition: transform 160ms ease;
-}
-.archiveEntry:hover .entryAction {
-  color: var(--gold);
-}
-.archiveEntry:hover .entryAction svg,
-.archiveEntry:focus-visible .entryAction svg {
-  transform: translateX(4px);
 }
 
-.archiveShowcase {
+/* The tile's CTA row closes the door with a hairline, as the old doors did. */
+
+/* ── The featured testimony (ArchiveShareShowcase) ───────────────────────
+ *
+ * The one featured record on the route. Everything below is the showcase's
+ * own internals — it renders from this module — held to the memorial profile:
+ * held rules, fade-only arrival, no auto-rotation (the arrows are the only
+ * way the selection changes), and no accent fill. */
+
+.featureHeading {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 36px;
-  align-items: start;
+  gap: var(--sp-2);
 }
-.archiveFeature {
-  min-width: 0;
-  border-top: 2px solid var(--gold-dim);
-  padding-top: 22px;
-  scroll-margin-top: 96px;
-}
+
 .featureHeading h2 {
-  margin: 8px 0 12px;
+  margin: 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
   font-size: var(--t-h2);
@@ -175,108 +127,130 @@
   letter-spacing: var(--t-h2-tracking);
   text-wrap: balance;
 }
+
 .featureHeading > p:not(.eyebrow) {
   margin: 0;
   max-width: 36ch;
   color: var(--ink);
-  font-size: 16px;
-  line-height: 1.5;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
 }
+
 /* Two tiers of the same taxonomy (UX-22): `.readLink` opens one record and is
    the primary action on this panel short of the solid Share button;
-   `.browseLink` goes to the whole collection and is one step quieter. Until
-   this pass they were the same class at the same weight — a reader could not
-   tell "open this" from "see everything" without reading the words. */
+   `.browseLink` goes to the whole collection and is one step quieter. */
 .browseLink,
 .readLink {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--sp-4);
   text-decoration: none;
   cursor: pointer;
 }
+
 .browseLink svg,
 .readLink svg {
   flex-shrink: 0;
   color: var(--gold);
-  transition: transform 160ms ease;
+  transition: transform var(--dur-base) var(--ease-out);
 }
+
 .browseLink:hover svg,
 .readLink:hover svg,
 .browseLink:focus-visible svg,
-.readLink:focus-visible svg { transform: translateX(4px); }
+.readLink:focus-visible svg { transform: translateX(0.3em); }
 
 /* Secondary / navigation tier: quiet, text-weight, muted by default so it
    never competes with the primary action below it. */
 .browseLink {
   justify-content: space-between;
-  margin-top: 12px;
+  margin-top: var(--sp-3);
   min-height: var(--control-h);
   color: var(--ink-lo);
-  font: 500 var(--t-caption)/1.4 var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
 }
+
 .browseLink:hover,
 .browseLink:focus-visible { color: var(--gold); }
 
 /* Primary tier: the strongest weight this panel spends outside its one solid
-   Share button. A bordered control, not a line of text — the whole point of
-   OCT's CTA taxonomy is that "Read the testimony" must never blend into the
-   surrounding prose the way it did when it shared `.browseLink`'s styling. */
+   Share button. A bordered control, not a line of text — "Read the testimony"
+   must never blend into the surrounding prose. */
 .readLink {
   justify-content: space-between;
-  min-height: 48px;
-  margin: 14px 0 20px;
-  padding: 0 18px;
-  border: 1px solid var(--line-strong);
+  min-height: var(--control-h);
+  margin: var(--sp-4) 0 var(--sp-5);
+  padding: 0 var(--sp-4);
+  border: var(--line-w) solid var(--line-strong);
   border-radius: var(--radius-2);
   color: var(--ink-hi);
-  font: 600 var(--t-small)/1.3 var(--face-text);
-  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+  font-size: var(--t-small);
+  font-weight: 600;
+  line-height: var(--t-small-lh);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
+
 .readLink:hover,
 .readLink:focus-visible {
   color: var(--gold-hi);
   border-color: var(--gold);
   background: var(--surface-1);
 }
+
 .archiveDetail {
   display: block;
+  composes: dataMeta from global;
   color: var(--ink-lo);
-  font: 400 var(--t-caption)/1.6 var(--face-data);
-  margin-bottom: 24px;
+  margin-bottom: var(--sp-5);
 }
+
 .rotationControls {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 6px;
-  border-block: 1px solid var(--line);
-  min-height: 52px;
+  gap: var(--sp-1);
+  border-block: var(--line-w) solid var(--line);
+  min-height: var(--control-h);
 }
+
 .rotationControls > span {
   display: grid;
-  gap: 2px;
+  gap: var(--sp-1);
+  /* dataMeta by hand — `composes` is rejected on a descendant selector
+     (app/globals.css). */
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking-tight);
   color: var(--ink-lo);
-  font: 400 var(--t-data)/1.4 var(--face-data);
 }
+
 .sampleCount {
-  font-size: 13px;
+  font-size: var(--t-data);
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
+
 .rotationControls > div {
   display: flex;
   align-items: center;
 }
+
 .rotationControls button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   /* `flex: none` and not only a width: at 359px the row's default shrink took
-     the back arrow to 43px, one pixel under the coarse-pointer floor the width
-     was written to hold. */
+     the back arrow below the coarse-pointer floor the width was written to
+     hold. The 44px width is the coarse floor itself, not a private literal. */
   flex: none;
-  width: 44px;
+  width: var(--control-h);
   min-height: var(--control-h);
   border: 0;
   padding: 0;
@@ -284,44 +258,63 @@
   background: transparent;
   cursor: pointer;
 }
+
 /* UX-22. The forward arrow carries the verb — "More testimony" — because it
    is now the only thing that changes the selection; there is no clock and no
    pause control for it to sit between. */
 .rotationControls .nextButton {
   width: auto;
-  gap: 8px;
-  padding-inline: 12px 6px;
-  font: 500 var(--t-data)/1.4 var(--face-text);
+  gap: var(--sp-2);
+  padding-inline: var(--sp-3) var(--sp-2);
+  font-size: var(--t-data);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-data-lh);
+  font-family: var(--face-text);
 }
 
 .rotationControls button:hover:not(:disabled) {
   color: var(--gold);
   background: var(--surface-1);
 }
+
 .rotationControls button:active:not(:disabled) { background: var(--surface-2); }
+
 .rotationControls button:disabled {
   color: var(--ink-lo);
   cursor: default;
 }
+
 .previousIcon { transform: rotate(180deg); }
-.sample { padding-top: 22px; }
+
+/* The record on show arrives by fading — nothing travels on this route, and
+   nothing here rotates on its own. */
+.sample {
+  composes: enterQuiet from global;
+  padding-top: var(--sp-5);
+}
+
 .sampleReading {
   display: grid;
   align-content: start;
-  gap: 16px;
+  gap: var(--sp-4);
 }
+
 .sampleType {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 30px;
+  gap: var(--sp-3);
+  min-height: var(--control-h-sm);
   color: var(--ink-hi);
-  font: 500 var(--t-small)/1.4 var(--face-text);
+  font-size: var(--t-small);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-small-lh);
 }
+
 .sampleType svg {
   flex-shrink: 0;
   color: var(--gold);
 }
+
 .sampleReading h3 {
   margin: 0;
   font-family: var(--face-display);
@@ -330,6 +323,7 @@
   font-weight: var(--t-h3-weight);
   letter-spacing: var(--t-h3-tracking);
 }
+
 .sampleReading h3 a {
   color: var(--ink-hi);
   text-decoration: none;
@@ -341,7 +335,9 @@
   overflow: hidden;
   overflow-wrap: anywhere;
 }
+
 .sampleReading h3 a:hover { color: var(--gold); }
+
 .sampleExcerpt {
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -351,242 +347,387 @@
   overflow: hidden;
   margin: 0;
   color: var(--ink);
-  font-size: 16px;
+  font-size: var(--t-body);
   line-height: 1.6;
 }
+
 .sampleProvenance {
   display: grid;
   align-content: end;
-  gap: 5px;
+  gap: var(--sp-1);
   margin: 0;
+  composes: dataMeta from global;
   color: var(--ink-lo);
-  font: 400 var(--t-data)/1.6 var(--face-text);
 }
+
 .sampleProvenance > span:first-child:not(:last-child) { color: var(--ink); }
+
+/* A content warning never shares the finding's device: its own enclosure, in
+   the warn state's pale straw, with its text label always present in the
+   component's markup. The ember is the contested verdicts' ramp. */
 .mediaWarning {
   display: flex;
-  gap: 12px;
+  gap: var(--sp-3);
   align-items: flex-start;
-  padding: 18px 16px;
-  min-height: 102px;
-  background: var(--surface-1);
-  border-left: 2px solid var(--data-ember);
+  padding: var(--sp-4) var(--sp-4);
+  background: var(--state-warn-wash);
+  border: var(--line-w) solid var(--state-warn-line);
+  border-inline-start: var(--line-w-thick) solid var(--state-warn);
+  border-radius: var(--radius-2);
 }
+
 .mediaWarning svg {
   flex-shrink: 0;
-  margin-top: 2px;
-  color: var(--data-ember);
+  margin-top: var(--sp-1);
+  color: var(--state-warn);
 }
+
 .mediaWarning p {
   margin: 0;
   color: var(--ink);
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
-.shareSample { padding-top: 2px; }
+
+.shareSample { padding-top: var(--sp-1); }
+
 .emptySample {
-  padding-block: 24px;
-  font-size: 15px;
+  padding-block: var(--sp-5);
+  font-size: var(--t-small);
 }
+
 .archiveFeature :is(a, button):focus-visible,
 .categoryBrowser :is(a, summary):focus-visible {
   outline: var(--focus-outline);
-  outline-offset: 4px;
+  outline-offset: var(--focus-offset);
 }
 
-/* The graphic-media disclosure, which now leads the showcases instead of
-   closing them. A rule *above* it said "that was the end of something"; the
-   sentence has to say "this is what is about to happen", so the rule moves to
-   the left edge, in the ember the archive reserves for exactly this, and the
-   type steps up from 12px muted — a disclosure a reader is meant to act on
-   cannot be the quietest thing on the page. */
-.sharingNote {
-  margin: 28px 0 22px;
+/* The one raised plate this route spends. Its rule is held, not drawn: the
+   gold hairline across the top stands unbroken, because a marker that moves
+   on a memorial route is a mark that never settles. */
+.featured {
+  margin-block: var(--sp-7);
+  padding-top: var(--sp-5);
+  border-top: var(--line-w-thick) solid var(--signal-rule-color);
+  scroll-margin-top: calc(var(--header-h) + var(--sp-4));
+}
+
+/* ── The demoted documentation ledger ──────────────────────────────────── */
+
+.documentation {
+  margin-top: var(--sp-7);
+  padding-top: var(--sp-6);
+  border-top: var(--line-w) solid var(--line);
+  scroll-margin-top: calc(var(--header-h) + var(--sp-4));
+}
+
+.documentationHeading {
+  display: grid;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+}
+
+.documentationHeading h2 {
+  max-width: none;
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h2);
+  line-height: var(--t-h2-lh);
+  font-weight: var(--t-h2-weight);
+  letter-spacing: var(--t-h2-tracking);
+  text-wrap: balance;
+}
+
+.documentationHeading p {
+  max-width: 52ch;
+  margin: 0;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+/* A content warning never shares the finding's device: its own enclosure, in
+   the warn state's pale straw, with its text label always present — the
+   ember is the contested verdicts' ramp, not a warning's. */
+.mediaNotice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2) var(--sp-3);
   max-width: 82ch;
+  margin: 0 0 var(--sp-5);
   padding: var(--sp-3) var(--sp-4);
-  border-left: var(--line-w-thick) solid
-    color-mix(in oklab, var(--data-ember) 34%, transparent);
+  border: var(--line-w) solid var(--state-warn-line);
+  border-inline-start: var(--line-w-thick) solid var(--state-warn);
+  border-radius: var(--radius-2);
+  background: var(--state-warn-wash);
   color: var(--ink);
-  font: 400 var(--t-caption) / var(--t-caption-lh) var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
   text-wrap: pretty;
 }
-.categoryBrowser {
-  margin-top: 18px;
-  border-block: 1px solid var(--line-strong);
+
+.mediaNoticeLabel {
+  composes: kickerLabel from global;
+  color: var(--state-warn);
 }
-.categoryBrowser summary {
-  padding: 18px 0;
-  min-height: 56px;
+
+.docRows {
+  display: grid;
+  gap: 0;
+  margin: 0 0 var(--sp-5);
+  padding: 0;
+  list-style: none;
+}
+
+.docRows {
+  margin: 0 0 var(--sp-5);
+  padding: 0;
+  list-style: none;
+}
+
+/* The row is the Card row composition (`card.module.css`) with the ruled
+   headline; this carries the ledger's rhythm on top of it. Double-class
+   specificity, because `.row` in card.module.css sets the same properties. */
+.docRows .docRow {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  gap: var(--sp-2);
+  padding-block: var(--sp-4);
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.docRows .docRow:hover { border-bottom-color: var(--line-strong); }
+
+.docRowMeta {
+  flex-wrap: wrap;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* The warning label reads in the warn state on every row — colour is never
+   the sole cue, and the words are always present. */
+.docWarningLabel {
+  color: var(--state-warn);
+  letter-spacing: var(--t-data-tracking-tight);
+}
+
+.docRows .docRow h3 {
+  max-width: none;
   color: var(--ink-hi);
-  font: 500 var(--t-small)/1.5 var(--face-text);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  text-wrap: balance;
+}
+
+.docRows .docRow h3 a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.docRows .docRow h3 a:hover { color: var(--gold-hi); }
+
+.docRowAction {
+  margin-top: var(--sp-1);
+  padding-top: 0;
+  border-top: 0;
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.docRowAction :global(a) {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.categoryBrowser {
+  margin-top: var(--sp-5);
+  border-block: var(--line-w) solid var(--line-strong);
+}
+
+.categoryBrowser summary {
+  padding-block: var(--sp-4);
+  min-height: calc(var(--control-h) + var(--sp-2));
+  color: var(--ink-hi);
+  font-size: var(--t-small);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-small-lh);
   cursor: pointer;
 }
+
 .categoryBrowser summary > span {
-  margin-left: 12px;
+  margin-inline-start: var(--sp-3);
+  /* dataMeta by hand — `composes` is rejected on a descendant selector. */
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking-tight);
   color: var(--ink-lo);
-  font: 400 var(--t-data)/1.6 var(--face-data);
   white-space: nowrap;
 }
+
 .categoryBrowser summary:hover { color: var(--gold); }
+
 .categoryBrowser ul {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 32px;
+  column-gap: var(--sp-7);
   list-style: none;
-  margin: 0 0 20px;
+  margin: 0 0 var(--sp-5);
   padding: 0;
 }
-.categoryBrowser li { margin: 0; }
+
 .categoryBrowser a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  min-height: 48px;
-  padding-block: 10px;
-  border-top: 1px solid var(--line);
+  gap: var(--sp-4);
+  min-height: var(--control-h);
+  padding-block: var(--sp-3);
+  border-top: var(--line-w) solid var(--line);
   color: var(--ink);
-  font: 400 var(--t-small)/1.45 var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
   text-decoration: none;
-  cursor: pointer;
 }
+
 .categoryBrowser a span:last-child {
-  font: 400 var(--t-data)/1.6 var(--face-data);
+  /* dataMeta by hand — `composes` is rejected on a descendant selector. */
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking-tight);
   color: var(--ink-lo);
 }
+
 .categoryBrowser a:hover { color: var(--gold); }
 
+/* ── The record, what followed, further archives ───────────────────────── */
+
 .section {
-  margin-top: clamp(44px, 6vw, 72px);
-  padding-top: 28px;
-  border-top: 1px solid var(--line);
-  scroll-margin-top: 96px;
+  margin-top: clamp(var(--sp-8), 6vw, var(--sp-9));
+  padding-top: var(--sp-6);
+  border-top: var(--line-w) solid var(--line);
+  scroll-margin-top: calc(var(--header-h) + var(--sp-4));
 }
+
 .sectionHeading {
-  margin: 0 0 20px;
-  font: 400 var(--t-h2)/var(--t-h2-lh) var(--face-display);
+  margin: 0 0 var(--sp-5);
+  font-family: var(--face-display);
+  font-size: var(--t-h2);
+  line-height: var(--t-h2-lh);
   letter-spacing: var(--t-h2-tracking);
   color: var(--ink-hi);
 }
+
 .section > p {
-  font-size: 17px;
-  line-height: 1.7;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
   max-width: 68ch;
 }
+
+/* The figures are held like an inscription: a band between hairlines, the
+   numerals in the gold's high step — the one accent moment this route allows,
+   and it does not move. */
 .inscription {
-  margin: 28px 0 0;
-  padding-block: 26px;
-  border-block: 1px solid var(--line);
+  margin: var(--sp-6) 0 0;
+  padding-block: var(--sp-6);
+  border-block: var(--line-w) solid var(--line);
 }
+
 .inscription > dl {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0;
   margin: 0;
   padding: 0;
   border: 0;
 }
+
 .inscription > dl > div {
-  padding: 0 20px;
+  padding: 0 var(--sp-5);
   text-align: center;
 }
-.inscription > dl > div + div { border-left: 1px solid var(--line-soft); }
+
+.inscription > dl > div + div { border-left: var(--line-w) solid var(--line-soft); }
+
 .inscription > dl > div > dt {
-  font: 400 var(--t-h2)/1 var(--face-display);
+  font-family: var(--face-display);
+  font-size: var(--t-h2);
+  line-height: 1;
   letter-spacing: var(--t-h2-tracking);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   color: var(--gold-hi);
 }
+
 .inscription > dl > div > dd {
   max-width: none;
-  margin: 12px auto 0;
+  margin: var(--sp-3) auto 0;
   color: var(--ink-lo);
-  font: 400 var(--t-caption)/var(--t-caption-lh) var(--face-text);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
   letter-spacing: 0;
   text-transform: none;
 }
-.record ol > li { padding-bottom: 32px; }
-.record ol > li:last-child { padding-bottom: 4px; }
 
-@media (max-width: 760px) {
-  .archiveEntries {
-    grid-template-columns: 1fr;
-  }
-  .archiveEntry {
-    min-height: 0;
-    padding: 22px 18px 18px;
-  }
-  .archiveEntry + .archiveEntry {
-    border-left: 0;
-  }
-  .archiveEntry::after {
-    left: 18px;
-    right: 18px;
-  }
-  .entryDescription {
-    max-width: 40ch;
-    font-size: 15px;
-  }
-  .archiveShowcase {
-    grid-template-columns: 1fr;
-    gap: 44px;
-  }
-  .featureHeading > p:not(.eyebrow) { max-width: 44ch; }
-  .sampleReading h3 a {
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    min-height: 3.45em;
-  }
-  .rotationControls > span {
-    display: flex;
-    gap: 12px;
-  }
-  .rotationControls button { width: 44px; }
+/* The timeline's rhythm; the entries themselves are `Timeline`'s own. */
+.record ol > li { padding-bottom: var(--sp-7); }
+.record ol > li:last-child { padding-bottom: var(--sp-1); }
+
+/* ── Seams ─────────────────────────────────────────────────────────────── */
+
+/* The type-floors seam (48rem): the doors and the ledger stack. */
+@media (max-width: 48rem) {
+  .hub { padding-inline: var(--sp-4); }
+  .archiveEntries { grid-template-columns: 1fr; }
   .categoryBrowser ul { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 480px) {
-  .categoryBrowser summary > span {
-    display: block;
-    margin: 4px 0 0 20px;
-  }
+/* The phone seam (45rem): the inscription's columns become a column, and the
+   dense lower sections tighten rather than hide — the figures and the
+   timeline are valuable, and a phone reader has already scrolled two doors
+   and a featured account to reach them. */
+@media (max-width: 45rem) {
   .inscription > dl {
     grid-template-columns: 1fr;
-    gap: 22px;
+    gap: var(--sp-5);
   }
   .inscription > dl > div + div {
     border-left: 0;
-    padding-top: 22px;
-    border-top: 1px solid var(--line-soft);
+    padding-top: var(--sp-5);
+    border-top: var(--line-w) solid var(--line-soft);
   }
-  /* The figures and the timeline are valuable but dense, and they now sit
-     below two archive collections and two featured showcases a phone reader
-     has already scrolled past — this tightens their rhythm rather than
-     hiding them, so the page reads lighter without losing content. */
   .section {
-    margin-top: clamp(36px, 8vw, 56px);
-    padding-top: 22px;
+    margin-top: clamp(var(--sp-7), 8vw, var(--sp-8));
+    padding-top: var(--sp-5);
   }
-  .record ol > li {
-    padding-bottom: 24px;
-  }
+  .record ol > li { padding-bottom: var(--sp-6); }
 }
 
+/* ── The memorial motion profile ─────────────────────────────────────────
+ *
+ * Fade-only, one hairline of transitions reading the tokens, and nothing
+ * that draws, sweeps or fills: on this route a mark that moves is a mark the
+ * reader has to watch instead of read. The global reduce block removes the
+ * entrance with everything else. */
 @media (prefers-reduced-motion: reduce) {
-  .archiveEntry,
-  .archiveEntry::after,
-  .archiveEntry .entryAction svg,
-  .archiveFeature *,
-  .categoryBrowser * {
-    transition: none;
-    animation: none;
-  }
-  .archiveEntry:active { transform: none; }
+  .docRows .docRow h3 a,
+  .categoryBrowser summary,
+  .categoryBrowser a { transition: none; }
 }
 
-/* With scripting off the arrows and the share control do nothing; the
-   share sheet prints its intent links in a <noscript> beside the control. */
+/* With scripting off the showcase's rotation controls do nothing; the share
+   sheet prints its intent links in a <noscript> beside the control. (The
+   showcase's classes live in this same module — it imports this file.) */
 @media (scripting: none) {
   .rotationControls,
   .shareSample :global(button) {

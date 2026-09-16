@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CorrectionHistory, KnownUnknownPanel } from "@/components/content";
+import { Badge } from "@/components/ui/Badge";
 /* Imported from the source modules rather than the `@/components/live`
    barrel: that barrel re-exports the feed, which pulls `Reveal`, `StatusState`
    and `live-feed.module.css` into this route's graph for the sake of a label
@@ -104,11 +105,14 @@ export function ClaimLadder({ record }: { record: PublicPublicationDetail }) {
         ) : null}
       </section>
 
+      {/* The contradicting rung carries the ember flare device (2026-09-16):
+          the accent rule and a soft wash state that counter-evidence exists —
+          never a red panel. The count is the whole public fact. */}
       <section className={styles.rungBlock}>
         <h3 className={styles.rungLabel}>
           <span>03</span> Contradictions
         </h3>
-        <p className={styles.onFile}>
+        <p className={styles.contradictions} data-counted={contradicting > 0 ? "yes" : "no"}>
           {contradicting > 0
             ? `${contradicting} contradicting evidence ${
                 contradicting === 1 ? "record is" : "records are"
@@ -135,9 +139,10 @@ export function ClaimLadder({ record }: { record: PublicPublicationDetail }) {
           <span>05</span> Assessment
         </h3>
         <p className={styles.verdictLine}>
-          <span className={styles.verdictMark} data-tone={verdict.tone}>
-            {verdict.label}
-          </span>
+          {/* The verdict renders through the site's one Badge grammar
+              (2026-09-16): the mark is a function of verdict polarity, so
+              the tone colour is never the only cue. */}
+          <Badge status={details.verificationState}>{verdict.label}</Badge>
           <span className={styles.verdictMeaning}>{verdict.meaning}</span>
         </p>
         <p className={styles.basisLine} data-basis={analysis ? "analysis" : "sourced"}>
@@ -187,7 +192,14 @@ export function ClaimLadder({ record }: { record: PublicPublicationDetail }) {
         </p>
         {record.corrections.length ? (
           <div className={styles.correctionsHost}>
+            {/* The ladder is a reading surface, so it takes the record
+                variant (2026-09-16): attachment versions collapse to one
+                line, the operator's verbatim changelog stays behind the
+                version-history disclosure — the ladder's last screen was a
+                changelog dump, which is the exact failure the variant
+                exists for. */}
             <CorrectionHistory
+              variant="record"
               corrections={record.corrections.map((correction) => ({
                 date: stamp(correction.changedAt),
                 note: correction.summary,

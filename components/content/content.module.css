@@ -255,6 +255,13 @@
   border-bottom: var(--line-w) solid var(--line);
 }
 
+/* The last entry keeps no closing rule: the history hands over to whatever
+   follows it (the activation band, the version-history disclosure), and a
+   rule drawn straight into that boundary read as one broken row. */
+.corrections ol > li:last-child {
+  border-bottom: 0;
+}
+
 .correctionStamp {
   display: flex;
   flex-direction: column;

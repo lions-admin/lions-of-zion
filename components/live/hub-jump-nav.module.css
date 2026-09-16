@@ -1,0 +1,81 @@
+/* Hub jump nav · the sticky contents row under a hub masthead.
+ *
+ * Rendered by `HubJumpNav` as the `<header>`'s sibling inside the hub
+ * container, so sticky works: the masthead is one screenful tall and ends,
+ * while this row rides the whole front. Anchors only — see the component. */
+
+.jumps {
+  position: sticky;
+  top: var(--header-h);
+  z-index: var(--z-sticky);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--sp-6);
+  margin-top: calc(-1 * var(--line-w));
+  padding-block: var(--sp-1);
+  /* The ground behind the row: a sticky bar that lets the document show
+     through would double-print headlines under its links. One flat band,
+     closed by the strong rule the masthead's old foot closed with. */
+  background: var(--ground);
+  border-bottom: var(--line-w) solid var(--line-strong);
+}
+
+/* Plain links on a rule, never chips (UX-17). A step taller than the 44px
+   floor and a step further apart, in full ink, so the row reads as the
+   front's contents rather than as its fine print. */
+.jump {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: calc(var(--control-h) - var(--sp-1));
+  color: var(--ink);
+  font-family: var(--face-navigation);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: 1;
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.jump::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  block-size: var(--line-w-thick);
+  background: transparent;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.jump:hover { color: var(--ink-hi); }
+.jump:hover::after { background: var(--line-strong); }
+.jump:active::after { background: var(--line-strong); }
+
+/* The current section's mark is the signal stub held under its name — the
+   row's one ration of the accent, read from the shared token so October 7's
+   memorial muting re-points it with the rest of the route. */
+.jump[aria-current] { color: var(--ink-hi); }
+
+.jump[aria-current]::after {
+  background: var(--signal-rule-color);
+  inline-size: var(--signal-stub-w);
+  inset-inline-start: 0;
+  inset-inline-end: auto;
+}
+
+.jump:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: calc(-1 * var(--line-w-thick));
+  border-radius: var(--radius-1);
+}
+
+/* ── Seams ─────────────────────────────────────────────────────────────── */
+
+@media (max-width: 45rem) {
+  .jumps { gap: 0 var(--sp-4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jump,
+  .jump::after { transition: none; }
+}

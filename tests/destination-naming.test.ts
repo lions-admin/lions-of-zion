@@ -103,6 +103,21 @@ describe("the article 404 no longer points at a retired section", () => {
   });
 });
 
+describe("the article error boundary and share card name things once", () => {
+  it("derives the error boundary's route out of the hub crumb, not a spelling", () => {
+    const markup = read("app/articles/[publicId]/error.tsx").replace(/\/\*[\s\S]*?\*\//g, "");
+    expect(markup).toContain('publicationHubCrumb("news")');
+    expect(markup).not.toContain("Daily Brief");
+    expect(markup).not.toContain('"/geopolitical-brief"');
+  });
+
+  it("prints the desk's label on the share card, never a raw section enum", () => {
+    const og = read("app/articles/[publicId]/opengraph-image.tsx").replace(/\/\*[\s\S]*?\*\//g, "");
+    expect(og).toContain("SECTION_LABELS");
+    expect(og).not.toMatch(/section\.replaceAll\(/);
+  });
+});
+
 describe("the People hub derives its lanes", () => {
   const page = read("app/people-of-israel/page.tsx");
 

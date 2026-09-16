@@ -19,6 +19,17 @@ import {
 import { previewSentences } from '@/lib/preview-sentences';
 import { pageMetadata } from '@/lib/page-metadata';
 import { measureCard, measurePublicationCard } from '@/components/measurement/attrs';
+import {
+  Card,
+  CardCount,
+  CardCta,
+  CardDescription,
+  CardEyebrow,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/Card';
+import { isArticleSafeMedia, type EditorialMedia } from '@/server/contracts/editorial-media';
+import { StatusState, absenceStatus } from '@/components/ui/StatusState';
 import type { PublicPublication } from '@/server/contracts/publication';
 import type { PublicationSection } from '@/server/contracts/enums';
 import styles from './page.module.css';
@@ -51,31 +62,66 @@ export const metadata: Metadata = pageMetadata({
 
 
 /**
- * One record in the merged list, its section as the kicker.
+ * What a manufactured picture is not, said before the caption is read — the
+ * same table the news desk and the homepage agree on, because the wording is
+ * a disclosure, not a style: if one changes, the other is wrong.
+ */
+const ROLE_DISCLOSURE: Partial<Record<EditorialMedia["role"], string>> = {
+  "editorial-illustration": "Editorial illustration — not evidence",
+  "safe-cover": "Safe cover — not the original material",
+};
+
+/**
+ * One record in the merged roster, its section as the kicker.
  *
  * UX-16: the hub used to render Innovation, Technology & AI and Science &
  * Medicine as three headed groups of one or two cards each, which told the
  * reader the section was unfinished. One list, newest first, with the section
  * named on each entry, carries the same information without the empty rooms.
+ *
+ * The picture is checked (`isArticleSafeMedia`) rather than trusted — the
+ * projection filters on clearance, but a listing that trusts its input is
+ * where an uncleared image surfaces first — and it carries its disclosure as
+ * the visible first caption line and its honest alt text, the way every
+ * editorial image on the site is held to. Nothing is substituted when a record
+ * has no image; a list that reserves space for a picture it has not got reads
+ * as broken rather than plain.
  */
 function RecordRow({ publication, rank }: { publication: PublicPublication; rank: number }) {
-  const image = publication.media;
+  const image = publication.media && isArticleSafeMedia(publication.media) ? publication.media : null;
+  const disclosure = image
+    ? image.disclosure ?? ROLE_DISCLOSURE[image.role]
+    : null;
   return <li>
-    <article className={image ? `${styles.record} ${styles.recordWithMedia}` : styles.record}
+    {/* One record row, on the Card row composition: the whole row is one
+        destination (title, picture and Cta all carry the same address), so
+        the row is pressable and the verb travels in its pinned CTA. `ledger`
+        arms the ruled headline — the 24px gold stub that extends while the
+        row is hovered or holds focus — and the gold accent is this hub's
+        alone: People is the one front allowed the warmest kickers (DNA §1). */}
+    <Card variant="row" as="article" ledger accent="gold" href={publicationHref(publication.publicId)}
+      className={image ? `${styles.record} ${styles.recordWithMedia}` : styles.record}
       {...measurePublicationCard('people-record', publication, `people:${rank}`)}>
-      <div className={styles.recordBody}>
-        <p className={styles.recordMeta}>
-          <span className={styles.kicker}>{LABELS[publication.section]}</span>
-          <time dateTime={publication.publishedAt}>{formatDay(publication.publishedAt)}</time>
-        </p>
-        <h3><Link href={publicationHref(publication.publicId)}>{publication.title}</Link></h3>
-        {publication.summary ? <p className={styles.recordSummary}>{publication.summary}</p> : null}
-        <Link className={styles.read} href={publicationHref(publication.publicId)}>{publicationCta(publication.section)} <span aria-hidden="true">→</span></Link>
-      </div>
-      {image ? <Link className={styles.recordImage} href={publicationHref(publication.publicId)} tabIndex={-1} aria-hidden="true">
-        <Image src={image.src} alt="" width={image.width} height={image.height} sizes="(max-width: 45rem) 6rem, 9rem" />
-      </Link> : null}
-    </article>
+      <CardHeader className={styles.recordMeta}>
+        <CardEyebrow>{LABELS[publication.section]}</CardEyebrow>
+        <CardCount><time dateTime={publication.publishedAt}>{formatDay(publication.publishedAt)}</time></CardCount>
+      </CardHeader>
+      <CardTitle as="h3">{publication.title}</CardTitle>
+      {publication.summary ? <CardDescription className={styles.recordSummary}>{publication.summary}</CardDescription> : null}
+      <CardCta>{publicationCta(publication.section)}</CardCta>
+      {image ? <figure className={styles.recordMedia}>
+        {/* The image column is the row's second column, inside the row's own
+            link. The disclosure is the visible first caption line under the
+            picture; nothing is substituted when a record has none. */}
+        <span className={styles.recordImage}>
+          <Image src={image.src} alt={image.alt} width={image.width} height={image.height} sizes="(max-width: 45rem) 6rem, 9rem" />
+        </span>
+        <figcaption>
+          {disclosure ? <span className={styles.recordDisclosure}>{disclosure}</span> : null}
+          <span className={styles.recordCredit}>{image.credit}</span>
+        </figcaption>
+      </figure> : null}
+    </Card>
   </li>;
 }
 
@@ -144,15 +190,32 @@ const RECORDS_SHOWN = 24;
 const HISTORY_RECORDS_SHOWN = 6;
 
 export default async function Page() {
-  const [sectionResults, heroes, history] = await Promise.all([
-    Promise.all(PEOPLE_SECTIONS.map(section =>
-      listPublicPublications(`?section=${section}&limit=${RECORDS_PER_SECTION}`).catch((): PublicPublication[] => []),
+  /* `Promise.allSettled`, and the distinction a bare `.catch([])` erased: a
+     failed read and an empty desk are different facts, and a list that settles
+     a failure to `[]` renders the second in the first's voice. Every read
+     below keeps its own settled result, the hub renders what succeeded, and a
+     failed read never contributes a recency date (see `latest`). */
+  const [sectionResults, heroesResult, historyResult] = await Promise.all([
+    Promise.allSettled(PEOPLE_SECTIONS.map(section =>
+      listPublicPublications(`?section=${section}&limit=${RECORDS_PER_SECTION}`),
     )),
-    getOurHeroesEdition(), getIsraelsStoryEdition(),
+    getOurHeroesEdition().then(
+      (edition) => ({ status: "fulfilled" as const, edition }),
+      () => ({ status: "rejected" as const, edition: null }),
+    ),
+    getIsraelsStoryEdition().then(
+      (edition) => ({ status: "fulfilled" as const, edition }),
+      () => ({ status: "rejected" as const, edition: null }),
+    ),
   ]);
   /* One list across every People section, newest first. A record carries
-     exactly one section, so the merge cannot list anything twice. */
-  const records = sectionResults.flat().sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+     exactly one section, so the merge cannot list anything twice. Failed
+     section reads contribute nothing; if every one of them failed, the roster
+     says the read failed rather than that nothing was published. */
+  const fulfilledSections = sectionResults
+    .flatMap((result) => result.status === 'fulfilled' ? result.value : []);
+  const recordsReadFailed = sectionResults.every((result) => result.status === 'rejected');
+  const records = fulfilledSections.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
   const shown = records.slice(0, RECORDS_SHOWN);
   /* `#new-records` already lists these newest-first across every People
      section — this is the same records filtered to one, for the `#history`
@@ -161,10 +224,20 @@ export default async function Page() {
      section's "live, not yet part of the preserved collection"), the same
      way a live feature can appear on the homepage and on this hub already. */
   const liveHistory = records.filter((publication) => publication.section === 'history_context');
-  const profiles = [heroes.featured, ...heroes.profiles];
   /* When this hub last changed: the newest live record, or the preserved
-     collection's own edition when nothing live has been published yet. */
-  const latest = records[0]?.publishedAt ?? heroes.publishedAt;
+     collection's own edition when nothing live has been published yet. A read
+     that failed contributes no instant — a recency sentence sourced from a
+     failed read is a claim nobody made, so the status slot stays empty
+     instead (STATE-005 applied to metadata). */
+  const latest = recordsReadFailed
+    ? null
+    : records[0]?.publishedAt ?? (heroesResult.status === 'fulfilled' ? heroesResult.edition.publishedAt : null);
+  /* The preserved Our Heroes edition. A failed read renders the section's
+     honest unavailable state below rather than a silently empty room. */
+  const profiles = heroesResult.status === 'fulfilled'
+    ? [heroesResult.edition.featured, ...heroesResult.edition.profiles]
+    : [];
+  const profilesLength = profiles.length;
 
   return <EditorialShell routeId="people-of-israel" className={styles.page}>
     <div className={styles.hub}>
@@ -172,7 +245,7 @@ export default async function Page() {
         kicker="Who Israel is"
         title={<>The People<br />of Israel</>}
         standfirst={DESCRIPTION}
-        status={<HubUpdated at={latest} />}
+        status={latest ? <HubUpdated at={latest} /> : undefined}
         jumps={[
           { href: '#courage', label: 'Courage & service' },
           { href: '#new-records', label: 'New records' },
@@ -189,7 +262,9 @@ export default async function Page() {
             <p className={styles.kicker}>Our Heroes</p>
             <h2 id="courage-title">Courage &amp; service</h2>
           </div>
-          <p className={styles.sectionCount}><span data-numeric="">{profiles.length}</span> {profiles.length === 1 ? 'profile' : 'profiles'}</p>
+          {heroesResult.status === 'fulfilled' ? (
+            <p className={styles.sectionCount}><span data-numeric="">{profilesLength}</span> {profilesLength === 1 ? 'profile' : 'profiles'}</p>
+          ) : null}
           <Link className={styles.sectionLink} href="/our-heroes">All of Our Heroes <span aria-hidden="true">→</span></Link>
         </header>
         {/* Which of the three kinds of thing on this hub these are. The hub
@@ -199,9 +274,14 @@ export default async function Page() {
             of the head — so a reader had no way to tell a profile from a
             record beyond the picture. */}
         <p className={styles.sectionLede}>The preserved Our Heroes edition, kept at its own address. Every profile is built only from what named, mainstream press has already reported; the full record and its sources are on the profile’s own page.</p>
-        <div className={styles.profiles}>
-          {profiles.map((profile, index) => <Profile key={profile.id} profile={profile} featured={index === 0} />)}
-        </div>
+        {heroesResult.status === 'fulfilled' ? (
+          <div className={styles.profiles}>
+            {profiles.map((profile, index) => <Profile key={profile.id} profile={profile} featured={index === 0} />)}
+          </div>
+        ) : (
+          <StatusState status={absenceStatus('unavailable')} title="The profiles could not be loaded."
+            description="The preserved edition is unaffected; it returns when the read succeeds." />
+        )}
       </section>
 
       <div className={styles.columns}>
@@ -213,9 +293,15 @@ export default async function Page() {
             </div>
             {records.length ? <p className={styles.sectionCount}><span data-numeric="">{records.length}</span> {records.length === 1 ? 'record' : 'records'}</p> : null}
           </header>
-          {shown.length
-            ? <ol className={styles.recordList}>{shown.map((publication, index) => <RecordRow key={publication.publicId} publication={publication} rank={index + 1} />)}</ol>
-            : <p className={styles.empty}>No records have been published here yet. The profiles above and the story below are the standing collection.</p>}
+          {recordsReadFailed ? (
+            <StatusState status={absenceStatus('unavailable')} title="The records could not be loaded."
+              description="This is not an empty roster. The profiles above and the story below are unaffected." />
+          ) : shown.length ? (
+            <ul className={styles.recordList}>{shown.map((publication, index) => <RecordRow key={publication.publicId} publication={publication} rank={index + 1} />)}</ul>
+          ) : (
+            <StatusState status={absenceStatus('nothing-published')} title="No records have been published here yet."
+              description="The profiles above and the story below are the standing collection." />
+          )}
           {records.length > shown.length
             ? <Link className={styles.sectionLink} href="/updates">Everything published, every section <span aria-hidden="true">→</span></Link>
             : null}
@@ -235,19 +321,27 @@ export default async function Page() {
               same list narrowed to one. */}
           {liveHistory.length ? <div className={styles.historyGroup}>
             <p className={styles.kicker}>New records</p>
-            <ol className={styles.recordList}>{liveHistory.slice(0, HISTORY_RECORDS_SHOWN).map((publication, index) => <RecordRow key={publication.publicId} publication={publication} rank={index + 1} />)}</ol>
+            <ul className={styles.recordList}>{liveHistory.slice(0, HISTORY_RECORDS_SHOWN).map((publication, index) => <RecordRow key={publication.publicId} publication={publication} rank={index + 1} />)}</ul>
           </div> : null}
           <div className={styles.historyGroup}>
             <p className={styles.kicker}>Preserved collection</p>
             {/* Numbered because a timeline is sequential: the numeral is the
                 chapter's place in the story, not a rank. */}
-            <ol className={styles.chapters} data-measure-id="people-history-chapters" data-measure-section="people">{history.chapters.slice(0, 4).map((chapter, index) => <li key={chapter.id}><Link href={`/israels-story#${chapter.id}`}><span>{String(index + 1).padStart(2, '0')}</span>{chapter.title}</Link></li>)}</ol>
+            {historyResult.status === 'fulfilled' ? (
+              <ol className={styles.chapters} data-measure-id="people-history-chapters" data-measure-section="people">{historyResult.edition.chapters.slice(0, 4).map((chapter, index) => <li key={chapter.id}><Link href={`/israels-story#${chapter.id}`}><span>{String(index + 1).padStart(2, '0')}</span>{chapter.title}</Link></li>)}</ol>
+            ) : (
+              <StatusState status={absenceStatus('unavailable')} headingLevel={4}
+                title="The preserved timeline could not be loaded."
+                description="Every cited chapter stays at its own address on /israels-story." />
+            )}
           </div>
           <Link className={styles.sectionLink} href="/israels-story">All of Israel’s Story <span aria-hidden="true">→</span></Link>
         </section>
       </div>
+      {/* The band's sentence is this hub's own, not the site's stock line. */}
       <ActivationBand
         share={{ url: `${SITE_URL}/people-of-israel`, text: 'The People of Israel — courage, invention and history, with the sources.' }}
+        heading="Carry their stories with you."
       />
     </div>
   </EditorialShell>;

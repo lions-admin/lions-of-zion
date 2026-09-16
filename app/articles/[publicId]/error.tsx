@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { StatusState } from "@/components/ui/StatusState";
+import { publicationHubCrumb } from "@/lib/publication-routing";
 import styles from "./article.module.css";
 
 /**
@@ -12,6 +13,11 @@ import styles from "./article.module.css";
  * Must be a Client Component so `reset` can re-render the segment
  * (Next.js `error.tsx` convention). Distinct from `not-found.tsx`: that
  * page is a missing publicId; this one is a record the desk could not read.
+ *
+ * The route out of here derives its label from `publicationHubCrumb`, the
+ * same way `not-found.tsx` does — a name typed beside a hardcoded
+ * `/geopolitical-brief` was the one place the desk could still be renamed
+ * out from under a reader (the "Daily Brief" link this used to print).
  */
 export default function ArticleError({
   error,
@@ -29,6 +35,7 @@ export default function ArticleError({
   /* Next 16.3 prefers `retry` (re-fetch then re-render) for a temporary
      database miss. `reset` only re-renders the already-failed tree. */
   const recover = retry ?? reset;
+  const desk = publicationHubCrumb("news");
 
   return (
     <>
@@ -49,8 +56,8 @@ export default function ArticleError({
             onAction={() => recover()}
           />
           <nav className={styles.recoveryNav} aria-label="Recovery">
-            <ButtonLink href="/geopolitical-brief" variant="ghost" size="md">
-              Daily Brief
+            <ButtonLink href={desk.href} variant="ghost" size="md">
+              {desk.label}
             </ButtonLink>
             <ButtonLink href="/search" variant="text" size="md">
               Search

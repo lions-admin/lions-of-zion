@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { Field } from "@/components/ui/Field";
@@ -9,6 +10,23 @@ import { SelectField } from "@/components/ui/SelectField";
 import styles from "./live-brief.module.css";
 
 const FILTER_ACTION = "/geopolitical-brief#news-archive";
+
+/**
+ * The submit control, inside its form: busy while the filter's GET round-trip
+ * is in flight. `useFormStatus` reads the nearest form's pending state, so the
+ * button the reader pressed answers immediately instead of looking dead during
+ * the navigation — the same contract the async buttons on the admin console
+ * hold. A GET form that is slow must not read as a form that did nothing.
+ */
+function FilterSubmit() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" variant="primary" size="md" disabled={pending}
+      aria-busy={pending || undefined} leftIcon={<Icon name="filter" size={16} />}>
+      {pending ? "Filtering…" : "Filter archive"}
+    </Button>
+  );
+}
 
 export type BriefFilterValues = {
   date?: string;
@@ -144,9 +162,7 @@ export function BriefFilters({ filters, actors, topics, arenas }: BriefFiltersPr
           arenas={arenas}
           fieldClassName={styles.filterField}
         />
-        <Button type="submit" variant="primary" size="md" leftIcon={<Icon name="filter" size={16} />}>
-          Filter archive
-        </Button>
+        <FilterSubmit />
         {hasFilters ? (
           <ButtonLink href={FILTER_ACTION} variant="ghost" size="md">
             Clear all
@@ -204,9 +220,7 @@ export function BriefFilters({ filters, actors, topics, arenas }: BriefFiltersPr
             arenas={arenas}
           />
           <div className={styles.filterDrawerActions}>
-            <Button type="submit" variant="primary" size="md" leftIcon={<Icon name="filter" size={16} />}>
-              Filter archive
-            </Button>
+            <FilterSubmit />
             {hasFilters ? (
               <ButtonLink href={FILTER_ACTION} variant="ghost" size="md">
                 Clear all

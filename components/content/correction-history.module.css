@@ -22,6 +22,14 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* The last entry hands over to whatever follows it — the version-history
+   disclosure, or the record's next section — so it keeps no rule of its own.
+   Without this the final attachment line drew a rule straight into the
+   summary, and the pair read as one broken row. */
+.attachmentLines > li:last-child {
+  border-bottom: 0;
+}
+
 .attachmentLines > li > span:first-child {
   color: var(--ink);
 }

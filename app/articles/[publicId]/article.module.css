@@ -52,7 +52,6 @@
 /* ── Head ─────────────────────────────────────────────────────────────── */
 
 .head,
-.heroMedia,
 .facts,
 .narrativeDetails,
 .unknowns,
@@ -130,49 +129,6 @@
   text-wrap: pretty;
 }
 
-.heroMedia {
-  margin: var(--sp-6) 0 0;
-}
-
-.heroMedia img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 8 / 5;
-  object-fit: cover;
-}
-
-.heroMedia figcaption {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--sp-4);
-  margin-top: var(--sp-2);
-  color: var(--ink-lo);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-}
-
-.heroMedia figcaption span:last-child {
-  flex: 0 0 auto;
-  text-align: end;
-}
-
-@media (max-width: 44.99rem) {
-  .heroMedia figcaption {
-    display: block;
-  }
-
-  .heroMedia figcaption span {
-    display: block;
-  }
-
-  .heroMedia figcaption span:last-child {
-    margin-top: var(--sp-1);
-    text-align: start;
-  }
-}
-
 /* ── Publication facts ────────────────────────────────────────────────── */
 
 .facts {
@@ -184,7 +140,12 @@
    only re-flows its cells into a row that wraps. Authorship — the honest
    machine-authorship disclosure — is the widest cell and takes the whole
    first line on a phone; the dates and the source count share the next. The
-   selector outweighs the module's own `.publicationMeta` by one class. */
+   selector outweighs the module's own `.publicationMeta` by one class.
+
+   The record's file row (2026-09-16): the values are machine facts, so they
+   read in the data face — one mono band of at most seven values, terms in
+   gold, values in ink — scoped to this route so the section pages that share
+   `PublicationMeta` keep their own cell shape. */
 .facts > dl {
   display: flex;
   flex-wrap: wrap;
@@ -199,8 +160,25 @@
   gap: var(--sp-1) var(--sp-2);
 }
 
+.facts > dl > div > dt {
+  color: var(--gold-dim);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+}
+
 .facts > dl > div > dd {
   margin: 0;
+  color: var(--ink);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
 }
 
 /* The authorship cell is a sentence; it gets its own line and the rest
@@ -227,6 +205,40 @@
 
 .passageMain {
   min-width: 0;
+}
+
+/* The record's one designed peak (2026-09-16): the passage that carries a
+   claim record is set in the quoted voice — Literata at `--t-quote`, the
+   role reserved for a human sentence being put to the reader — under a gold
+   stub drawn from the signal-rule tokens. Nothing else in the body may take
+   this treatment, which is what keeps the peak scarce. */
+.passageQuote {
+  composes: quoteText from global;
+  position: relative;
+  margin: 0 0 var(--flow);
+  padding-inline-start: var(--sp-5);
+}
+
+.passageQuote::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.5em;
+  width: var(--signal-stub-w);
+  height: var(--line-w-thick);
+  background: var(--signal-rule-color);
+}
+
+/* A heading inside the body reads at the section-head rank it asks for —
+   the same roles every other route uses, never a page-private scale. */
+.passageMain > h2 {
+  margin: 0 0 var(--sp-4);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  color: var(--ink-hi);
 }
 
 .claimRef {
@@ -323,8 +335,7 @@
   overflow-wrap: anywhere;
 }
 
-.relatedList,
-.narrativeList {
+.relatedList {
   display: grid;
   gap: var(--sp-3);
   margin: var(--sp-4) 0 0;
@@ -356,12 +367,6 @@
 .deskLink:hover,
 .deskLink:focus-visible {
   text-decoration-color: currentColor;
-}
-
-.narrativeList li {
-  margin-bottom: var(--sp-3);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
 }
 
 .narrativeDetails {

@@ -1,0 +1,99 @@
+/* Explainer — the visible key behind a set of grades (2026-09-16).
+   A collapsed reference disclosure: the summary names the key, the entries
+   pair the ledger's own badge with its sentence. Apparatus styling — rule,
+   data step, hairlines — never a plate. */
+
+.key {
+  margin: var(--sp-4) 0 0;
+  border-top: var(--line-w) solid var(--line);
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  min-block-size: var(--control-h);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.summary::before {
+  content: '';
+  display: inline-block;
+  width: 0.4em;
+  height: 0.4em;
+  margin-inline-end: var(--sp-2);
+  border-right: var(--line-w) solid currentColor;
+  border-bottom: var(--line-w) solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.key[open] > .summary::before {
+  transform: rotate(45deg);
+}
+
+.summary::-webkit-details-marker {
+  display: none;
+}
+
+.summary {
+  list-style: none;
+}
+
+.summary:hover,
+.summary:focus-visible {
+  color: var(--gold-hi);
+}
+
+.summary:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+.entries {
+  display: grid;
+  gap: var(--sp-3);
+  margin: 0 0 var(--sp-4);
+  padding: 0;
+}
+
+.entry {
+  display: grid;
+  grid-template-columns: minmax(10rem, max-content) minmax(0, 1fr);
+  gap: var(--sp-2) var(--sp-4);
+  align-items: baseline;
+}
+
+.term {
+  margin: 0;
+}
+
+.term > span {
+  max-width: 100%;
+}
+
+.definition {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+@media (max-width: 44.99rem) {
+  .entry {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .summary::before {
+    transition: none;
+  }
+}

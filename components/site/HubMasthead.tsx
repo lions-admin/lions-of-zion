@@ -1,9 +1,9 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { SignalMark } from "@/components/brand/SignalMark";
+import { HubJumpNav, type HubJumpLink } from "@/components/live/HubJumpNav";
 import styles from "./hub-masthead.module.css";
 
-export type HubJumpLink = { href: string; label: string };
+export type { HubJumpLink };
 
 interface HubMastheadProps {
   /** Short label above the title: "What is happening", "Who Israel is". */
@@ -16,14 +16,19 @@ interface HubMastheadProps {
    * when this hub last changed. Usually `<HubUpdated at={…} />`.
    */
   status?: ReactNode;
-  /** In-page destinations along the masthead's foot. */
+  /**
+   * In-page destinations along the masthead's foot. **Anchors only** — a route
+   * link is a door into another surface and belongs in the hub's closing
+   * doors, not in a row whose job is "where am I inside this front". The row
+   * sticks under the header and marks the section the reader is in.
+   */
   jumps?: HubJumpLink[];
   className?: string;
 }
 
 /**
  * The masthead of a hub route — News & Analysis, Fake Resistance, The People
- * of Israel.
+ * of Israel, October 7.
  *
  * Both hubs used to open with a 28px title on one line and a grey sentence on
  * the other, which is the register of a settings page. A hub is a front: it
@@ -39,40 +44,38 @@ interface HubMastheadProps {
  * matters moved into the section head it belongs to.
  *
  * Server component. The root carries `id="page-content"` so the shell's skip
- * link and the footer's "Back to the top" both land here.
+ * link and the footer's "Back to the top" both land here. The jump row is
+ * rendered by `HubJumpNav` — the one client island this masthead mounts — so
+ * it can hold its `aria-current` against the reader's scroll position and
+ * stick under the header for the whole front, which the `<header>` itself
+ * (one masthead's height, end of story) cannot do.
  */
 export function HubMasthead({ kicker, title, standfirst, status, jumps, className }: HubMastheadProps) {
   return (
-    <header
-      className={[styles.masthead, className].filter(Boolean).join(" ")}
-      id="page-content"
-      tabIndex={-1}
-    >
-      <div className={styles.headline}>
-        {/* The kicker's rule is the signal rule itself — one of the mark's
-            rationed appearances per page (colophon close, cover). */}
-        {kicker ? (
-          <p className={styles.kicker}>
-            <SignalMark />
-            {kicker}
-          </p>
-        ) : null}
-        <h1 className={styles.title}>{title}</h1>
-        {standfirst ? <p className={styles.standfirst}>{standfirst}</p> : null}
-      </div>
+    <>
+      <header
+        className={[styles.masthead, className].filter(Boolean).join(" ")}
+        id="page-content"
+        tabIndex={-1}
+      >
+        <div className={styles.headline}>
+          {/* The kicker's rule is the signal rule itself — one of the mark's
+              rationed appearances per page (colophon close, cover). */}
+          {kicker ? (
+            <p className={styles.kicker}>
+              <SignalMark />
+              {kicker}
+            </p>
+          ) : null}
+          <h1 className={styles.title}>{title}</h1>
+          {standfirst ? <p className={styles.standfirst}>{standfirst}</p> : null}
+        </div>
 
-      {status ? <p className={styles.status}>{status}</p> : null}
+        {status ? <p className={styles.status}>{status}</p> : null}
+      </header>
 
-      {jumps?.length ? (
-        <nav className={styles.jumps} aria-label="Jump to">
-          {jumps.map((jump) => (
-            <Link key={jump.href} href={jump.href} className={styles.jump}>
-              {jump.label}
-            </Link>
-          ))}
-        </nav>
-      ) : null}
-    </header>
+      {jumps?.length ? <HubJumpNav jumps={jumps} /> : null}
+    </>
   );
 }
 

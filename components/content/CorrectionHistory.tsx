@@ -166,11 +166,15 @@ function RecordHistory({ corrections }: { corrections: readonly Correction[] }) 
 
   return (
     <div className={styles.corrections}>
+      {/* The kicker is the record variant's own label and it is always
+          visible (2026-09-16): a history that is only attachment versions
+          has no page heading of its own, so without this line the collapsed
+          "Illustration attached" rows and the disclosure below them stood
+          there unnamed. The page's "Corrections and updates" heading is
+          reserved for a substantive correction and stays as it is. */}
+      <span className={styles.correctionsKicker}>Correction history</span>
       {substantive.length ? (
-        <>
-          <span className={styles.correctionsKicker}>Correction history</span>
-          <CorrectionList corrections={substantive} />
-        </>
+        <CorrectionList corrections={substantive} />
       ) : null}
       {attachments.size ? (
         <ul className={recordStyles.attachmentLines}>

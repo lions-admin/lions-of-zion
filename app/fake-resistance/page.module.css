@@ -234,11 +234,15 @@
   border-top: var(--line-w) solid var(--line-strong);
 }
 
+/* The antisemitism panel keeps the section's box (it is a distinct kind of
+   record on this desk) but loses the ember rule: documented incidents are not
+   contested claims, and the adversarial ramp is reserved for exactly that
+   (2026-09-16 clarity ruling). Ruled like every other section. */
 .antisemitism {
   margin-top: var(--sp-7);
   padding: var(--sp-6);
   border: var(--line-w) solid var(--line);
-  border-inline-start: 0.25rem solid var(--data-ember-peak);
+  border-radius: var(--radius-3);
   background: var(--surface-1);
 }
 
@@ -249,64 +253,37 @@
   margin-top: var(--sp-5);
 }
 
-.researchGrid article {
+/* The tile is the Card tile composition; these are the columns it sits in and
+   the small internal roles the tiles share. The tile itself carries the
+   plate, hairline, hover and the pinned CTA from `card.module.css`. */
+.researchGrid > article {
   display: grid;
-  gap: var(--sp-3);
-  align-content: start;
   min-width: 0;
-  padding: var(--sp-5);
-  background-color: var(--surface-1);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-  box-shadow: var(--shadow-1);
-  transition:
-    border-color var(--dur-base) var(--ease-out),
-    box-shadow var(--dur-base) var(--ease-out),
-    transform var(--dur-base) var(--ease-out);
 }
 
-.researchGrid article:hover {
-  border-color: var(--line-strong);
-  box-shadow: var(--shadow-2);
-  transform: translateY(-2px);
-}
-
-.researchGrid time {
+.researchTile time {
+  margin-bottom: var(--sp-2);
+  color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking-tight);
-  color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
 }
 
-.researchGrid h3 {
+.researchTile h3 {
   max-width: none;
-  margin: 0;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
-  text-wrap: balance;
 }
-
-.researchGrid p {
-  max-width: 65ch;
-  margin: 0;
-  color: var(--ink-lo);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-}
-
-.researchGrid .action { margin-top: auto; }
 
 /* ── Doors ─────────────────────────────────────────────────────────────── */
 
+/* Three doors now: the network, the playbook and the documented narrative
+   investigations joined from the retired bottom-links row — route links live
+   at the end of the front, where a reader is choosing where to go. */
 .depth {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--sp-5);
   margin-top: var(--sp-7);
 }
@@ -363,21 +340,50 @@
 
 .depth a:hover > span:last-child { transform: translate(3px, -3px); }
 
-.bottomLinks {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--sp-4);
-  flex-wrap: wrap;
-  padding-top: var(--sp-5);
+/* ── The bridge to the news desk ───────────────────────────────────────── */
+
+/* The bottom-links row's replacement: one device, the same grammar the news
+   desk's bridge uses — mark, sentence, one door. */
+.watchBridge {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sp-5);
+  margin-block: var(--sp-6);
+  padding: var(--sp-5) var(--sp-6);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-3);
+  background: var(--surface-0);
 }
 
-.bottomLinks a {
+.watchMark {
   display: inline-flex;
   align-items: center;
-  min-height: var(--control-h);
+  justify-content: center;
+  inline-size: var(--control-h);
+  block-size: var(--control-h);
+  border-radius: 50%;
+  border: var(--line-w) solid var(--line-strong);
+  color: var(--gold);
+}
+
+.watchBridge h2 {
+  max-width: none;
+  margin: 0 0 var(--sp-1);
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+}
+
+.watchBridge p {
+  max-width: 62ch;
+  margin: 0;
   color: var(--ink-lo);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 .hub a:hover { color: var(--gold-hi); }
@@ -390,6 +396,7 @@
   .front { grid-template-columns: 1fr; gap: var(--sp-6); }
   .investigation { border-inline-end: 0; padding-inline-end: 0; }
   .researchGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .depth { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 48rem) {
@@ -399,15 +406,18 @@
   .researchGrid,
   .depth { grid-template-columns: 1fr; }
   .evidence { gap: var(--sp-5); }
+  .watchBridge {
+    grid-template-columns: minmax(0, 1fr);
+    padding: var(--sp-5);
+  }
+  .watchMark { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .researchGrid article,
   .depth a,
   .action,
   .action > span,
   .depth a > span:last-child { transition: none; }
-  .researchGrid article:hover { transform: none; }
   .action:hover > span,
   .depth a:hover > span:last-child { transform: none; }
 }

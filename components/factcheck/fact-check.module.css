@@ -51,32 +51,9 @@
   margin: 0;
 }
 
-.entryVerdict {
-  padding: 0.2rem var(--sp-2);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-1);
-  color: var(--ink-lo);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-}
-
-.entryVerdict[data-tone="ok"] {
-  border-color: var(--state-ok-line);
-  background: var(--state-ok-wash);
-  color: var(--state-ok);
-}
-
-.entryVerdict[data-tone="warn"] {
-  border-color: var(--state-warn-line);
-  background: var(--state-warn-wash);
-  color: var(--state-warn);
-}
-
-.entryVerdict[data-tone="danger"] {
-  border-color: var(--state-danger-line);
-  background: var(--state-danger-wash);
-  color: var(--state-danger);
-}
+/* The verdict renders through the shared `Badge` (2026-09-16) — its grammar
+   owns the chip, the mark and the ramp. These lines were the ladder's private
+   verdict stamp and went with the adoption. */
 
 .entryBasis {
   padding: 0.2rem var(--sp-2);
@@ -486,34 +463,20 @@
   margin: 0;
 }
 
-.verdictMark {
-  padding: var(--sp-1) var(--sp-3);
-  border: var(--line-w) solid var(--line-strong);
-  border-radius: var(--radius-2);
-  color: var(--ink-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+/* The contradicting rung's flare device (2026-09-16): an ember rule and a
+   soft wash that state counter-evidence exists — the peak/wash device, never
+   a red panel, and the count itself is the information. */
+.contradictions {
+  composes: onFile;
+  padding: var(--sp-3) var(--sp-4);
+  border-left: var(--line-w-thick) solid var(--data-ember);
+  border-radius: 0 var(--radius-2) var(--radius-2) 0;
+  background: var(--data-ember-wash);
+  color: var(--ink);
 }
 
-.verdictMark[data-tone="ok"] {
-  border-color: var(--state-ok-line);
-  background: var(--state-ok-wash);
-  color: var(--state-ok);
-}
-
-.verdictMark[data-tone="warn"] {
-  border-color: var(--state-warn-line);
-  background: var(--state-warn-wash);
-  color: var(--state-warn);
-}
-
-.verdictMark[data-tone="danger"] {
-  border-color: var(--state-danger-line);
-  background: var(--state-danger-wash);
-  color: var(--state-danger);
+.contradictions[data-counted="yes"] {
+  border-left-color: var(--data-ember-peak);
 }
 
 .verdictMeaning {

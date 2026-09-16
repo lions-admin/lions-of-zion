@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { ConfidenceChip, TechniqueChips, VerificationBadge } from '@/components/content';
+import { Explainer, CONFIDENCE_KEY, EVIDENCE_CLASS_KEY, type ExplainerEntry } from '@/components/ui';
 import { Button } from '@/components/ui/Button';
 import {
   SOURCE_TYPE_LABEL,
@@ -23,6 +24,17 @@ const SOURCE_TYPES: SourceType[] = [
   'press',
   'analysis',
   'other',
+];
+
+/* The ledger's grade key (2026-09-16). The explanations used to live on
+   `title` tooltips over the chips — invisible on touch and keyboard. Here
+   they are one visible disclosure above the rows: the same badge the rows
+   render, with its sentence beside it. */
+const VERDICT_KEY: ExplainerEntry[] = [
+  { status: 'verified', label: 'Verified', text: 'The evidence on record supports the finding.' },
+  { status: 'contested', label: 'Contested', text: 'Credible sources disagree and the file does not settle it.' },
+  { status: 'unsupported', label: 'Unsupported', text: 'The research looked and found no evidence either way.' },
+  { status: 'unverified', label: 'Unverified', text: 'Not yet assessed against the evidence.' },
 ];
 
 /**
@@ -70,28 +82,42 @@ export function EvidenceLedger() {
 
   return (
     <div className={styles.ledger}>
-      <div className={styles.layerSwitch} role="group" aria-label="Kinds of source shown">
-        {SOURCE_TYPES.filter((type) => (typeCounts.get(type) ?? 0) > 0).map((type) => (
-          <Button
-            key={type}
-            type="button"
-            variant="secondary"
-            size="sm"
-            className={styles.layerChip}
-            isActive={!mutedTypes.includes(type)}
-            tabIndex={interactive ? 0 : -1}
-            onClick={() => toggleType(type)}
-          >
-            {SOURCE_TYPE_LABEL[type]}
-            <span className={styles.layerCount}>{typeCounts.get(type)}</span>
-          </Button>
-        ))}
-        {mutedTypes.length > 0 ? (
-          <Button type="button" variant="text" size="sm" onClick={() => setMutedTypes([])}>
-            Show every source type
-          </Button>
-        ) : null}
-      </div>
+      {/* The source-type filters collapse behind one disclosure (2026-09-16):
+          nine pills of bookkeeping above the rows pushed the first finding
+          down a screen and a half on a phone. The muted count rides in the
+          summary, so a closed disclosure still says when something is off. */}
+      <details className={styles.ledgerFilters}>
+        <summary>
+          Source types shown
+          {mutedTypes.length > 0 ? ` — ${mutedTypes.length} muted` : ''}
+        </summary>
+        <div className={styles.layerSwitch} role="group" aria-label="Kinds of source shown">
+          {SOURCE_TYPES.filter((type) => (typeCounts.get(type) ?? 0) > 0).map((type) => (
+            <Button
+              key={type}
+              type="button"
+              variant="secondary"
+              size="sm"
+              className={styles.layerChip}
+              isActive={!mutedTypes.includes(type)}
+              tabIndex={interactive ? 0 : -1}
+              onClick={() => toggleType(type)}
+            >
+              {SOURCE_TYPE_LABEL[type]}
+              <span className={styles.layerCount}>{typeCounts.get(type)}</span>
+            </Button>
+          ))}
+          {mutedTypes.length > 0 ? (
+            <Button type="button" variant="text" size="sm" onClick={() => setMutedTypes([])}>
+              Show every source type
+            </Button>
+          ) : null}
+        </div>
+      </details>
+
+      {/* The visible grade key: verdict, confidence and evidence class,
+          rendered exactly as the rows render them. */}
+      <Explainer heading="How to read the grades" entries={[...VERDICT_KEY, ...CONFIDENCE_KEY, ...EVIDENCE_CLASS_KEY]} className={styles.ledgerKey} />
 
       {narrative ? (
         <p className={styles.filterNote} role="status">

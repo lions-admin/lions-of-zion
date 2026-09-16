@@ -1,10 +1,16 @@
-.record { padding-block: var(--sp-5); border-top: 1px solid var(--line); min-width: 0; overflow-wrap: anywhere; }
-.meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--sp-2); color: var(--ink-lo); font: 13px/1.6 var(--face-data); }
-.status { border-inline-start: 2px solid currentColor; padding-inline-start: var(--sp-2); color: var(--ink); }
-.status[data-tone="danger"] { color: var(--data-ember-peak); }
-.status[data-tone="warn"] { color: var(--gold-hi); }
-.status[data-tone="ok"] { color: var(--ink-hi); }
-.label { display: block; font: 13px/1.6 var(--face-data); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-lo); margin: var(--sp-4) 0 var(--sp-2); }
+/* One claim record, tokenised (2026-09-16). Every size, space and type value
+   here answers to a token in app/globals.css — the same role vocabulary the
+   rest of the site reads rank from. No page-private scale: the claim cap is
+   `--t-h3` by kind, not by call site. */
+
+.record { padding-block: var(--sp-5); border-top: var(--line-w) solid var(--line); min-width: 0; overflow-wrap: anywhere; }
+
+/* The verdict is the shared `Badge` (2026-09-16): mark shape by polarity,
+   ramp by grammar — this file styles the band it sits in, never the mark. */
+.meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--sp-2); color: var(--ink-lo); font-family: var(--face-data); font-size: var(--t-data); line-height: var(--t-data-lh); }
+
+.label { composes: kickerLabel from global; display: block; color: var(--ink-lo); margin: var(--sp-4) 0 var(--sp-2); }
+
 /* THE CLAIM CAP — by kind, not by call site.
    A claim under examination is a heading *inside* a record, and it must never
    out-typeset the verdict on it or the heading of the section carrying it. It
@@ -27,31 +33,30 @@
   letter-spacing: var(--t-h3-tracking);
 }
 .record h3 a { text-decoration: none; }
-.record h3 a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .15em; }
-.meaning { margin: var(--sp-3) 0; color: var(--ink-hi); font-size: var(--t-small); }
-.propagators, .basis { color: var(--ink-lo); font-size: var(--t-caption); }
+.record h3 a:hover { text-decoration: underline; text-decoration-thickness: var(--line-w); text-underline-offset: 0.15em; }
+.meaning { margin: var(--sp-3) 0; color: var(--ink-hi); font-size: var(--t-small); line-height: var(--t-small-lh); }
+.propagators, .basis { color: var(--ink-lo); font-size: var(--t-caption); line-height: var(--t-caption-lh); }
 .propagators span { display: block; }
-.context { max-width: 65ch; border-inline-start: 1px solid var(--line-strong); padding-inline-start: var(--sp-4); }
-.context p { margin: 0; font: 15px/1.7 var(--face-text); }
+.context { max-width: 65ch; border-inline-start: var(--line-w) solid var(--line-strong); padding-inline-start: var(--sp-4); }
+.context p { margin: 0; color: var(--ink); font-family: var(--face-text); font-size: var(--t-small); line-height: var(--t-small-lh); }
 .read { display: inline-flex; align-items: center; gap: var(--sp-3); min-height: var(--control-h); margin-top: var(--sp-3); font-size: var(--t-caption); color: var(--ink-hi); text-underline-offset: 5px; }
-.record a:focus-visible { outline: var(--focus-outline); outline-offset: 4px; }
+.record a:focus-visible { outline: var(--focus-outline); outline-offset: var(--focus-offset); }
 
-.compact { padding-block: 16px; }
+.compact { padding-block: var(--sp-4); }
 /* The compact excerpt carries no size of its own: one kind, one cap. It was
    21px here, a second scale a reader could not read rank from. */
-.compact .label { margin-top: 10px; }
-.compact .meaning { font-size: var(--t-small); margin-block: 10px 0; }
-.compact .read { margin-top: 4px; }
-.status { font-weight: 600; color: var(--ink-hi); }
-.compact h3 a { text-decoration: underline; text-decoration-color: var(--line-strong); text-decoration-thickness: 1px; text-underline-offset: 4px; }
-.compact .label { margin-block: 8px 4px; }
+.compact .label { margin-top: var(--sp-2); }
+.compact .meaning { font-size: var(--t-small); margin-block: var(--sp-2) 0; }
+.compact .read { margin-top: var(--sp-1); }
+.compact .label { margin-block: var(--sp-2) var(--sp-1); }
+.compact h3 a { text-decoration: underline; text-decoration-color: var(--line-strong); text-decoration-thickness: var(--line-w); text-underline-offset: var(--sp-1); }
 
 /* Enrichment, not evidence: constrained so it never out-weighs the headline
    above it, and rendered only when the record actually carries a picture —
    there is no placeholder for the many that do not. */
 .media { margin: var(--sp-4) 0 0; display: grid; gap: var(--sp-2); max-inline-size: 30rem; min-width: 0; }
-.media img { display: block; inline-size: 100%; block-size: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: var(--radius-1); border: 1px solid var(--line); }
-.media figcaption { display: grid; gap: 2px; color: var(--ink-lo); font: 12px/1.6 var(--face-data); overflow-wrap: anywhere; }
-.mediaNote { letter-spacing: .08em; text-transform: uppercase; color: var(--gold-hi); }
+.media img { display: block; inline-size: 100%; block-size: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: var(--radius-1); border: var(--line-w) solid var(--line); }
+.media figcaption { display: grid; gap: var(--sp-1); color: var(--ink-lo); font-family: var(--face-data); font-size: var(--t-data); line-height: var(--t-data-lh); overflow-wrap: anywhere; }
+.mediaNote { letter-spacing: var(--t-data-tracking); text-transform: uppercase; color: var(--gold-hi); }
 .mediaCredit { color: var(--ink-lo); }
-.compact .media { max-inline-size: 11rem; margin-top: 10px; }
+.compact .media { max-inline-size: 11rem; margin-top: var(--sp-2); }

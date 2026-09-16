@@ -2,6 +2,8 @@ import { ImageResponse } from "next/og";
 import { getPublicPublication } from "@/lib/publications";
 import { absoluteMediaUrl, articleHeroMedia } from "@/lib/content/homepage-media";
 import { isAnalysisBasis } from "@/server/contracts/publication";
+import { SECTION_LABELS } from "@/components/live/publication-labels";
+import { OG_PALETTE } from "./og-palette";
 
 export const alt = "Lions of Zion editorial report";
 export const size = { width: 1200, height: 630 };
@@ -9,7 +11,10 @@ export const contentType = "image/png";
 // The card reads the published-publication projection at request time. It
 // must never be baked from a stale build or a draft-only record.
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+// The page's own 300-second ISR window, carried onto the card: a shared link
+// picks up a corrected record within the same five minutes the page does,
+// instead of regenerating the picture on every crawler request.
+export const revalidate = 300;
 
 /**
  * Why the picture is inlined rather than linked.
@@ -47,6 +52,47 @@ async function inlineHero(src: string): Promise<string | null> {
   }
 }
 
+/**
+ * The brand face on the card, fetched the way the css2 API serves it.
+ *
+ * satori needs a TTF or WOFF — the css2 endpoint serves WOFF2 only to a
+ * browser-grade user agent, and a legacy UA string gets the static TTF back.
+ * The data is fetched once per process and cached in module scope: a card is
+ * rendered per article, and a cold fetch per render would put a Google
+ * round-trip inside every share preview. The same instanced-static-TTF
+ * approach the site's root card was regenerated with in stage 4 of the
+ * identity round.
+ *
+ * Every failure — no network, a format change, a timeout — returns `[]` and
+ * the card renders with satori's bundled face, exactly as it did before this
+ * loader existed. A font must never be the thing that breaks a share.
+ */
+const FONT_TIMEOUT_MS = 2_500;
+let brandFont: Promise<ArrayBuffer | null> | null = null;
+
+function loadBrandFont(): Promise<ArrayBuffer | null> {
+  brandFont ??= (async () => {
+    try {
+      const css = await fetch(
+        "https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@700&display=swap",
+        {
+          headers: { "User-Agent": "Mozilla/5.0 (Windows NT 6.1)" },
+          signal: AbortSignal.timeout(FONT_TIMEOUT_MS),
+        },
+      );
+      if (!css.ok) return null;
+      const match = (await css.text()).match(/url\((https:[^)]+\.ttf)\)/);
+      if (!match) return null;
+      const font = await fetch(match[1]!, { signal: AbortSignal.timeout(FONT_TIMEOUT_MS) });
+      if (!font.ok) return null;
+      return await font.arrayBuffer();
+    } catch {
+      return null;
+    }
+  })();
+  return brandFont;
+}
+
 export default async function Image({ params }: { params: Promise<{ publicId: string }> }) {
   const { publicId } = await params;
   const article = await getPublicPublication(publicId);
@@ -62,11 +108,16 @@ export default async function Image({ params }: { params: Promise<{ publicId: st
      two manufactured roles are named rather than everything-but-documentation,
      so a role added later is not silently disclosed as an illustration. */
   const manufactured = hero?.role === "editorial-illustration" || hero?.role === "safe-cover";
+  /* The section label is the desk's own name, from the one label map — never
+     a raw enum combed with underscores ("SCIENCE MEDICINE"). */
+  const sectionLabel = SECTION_LABELS[article.section];
+  const font = await loadBrandFont();
+  const p = OG_PALETTE;
   return new ImageResponse(
     <div style={{
       position: "relative", width: "100%", height: "100%", display: "flex",
-      color: "#f4efe5", background: "linear-gradient(135deg, #050505 0%, #11100d 64%, #33270f 100%)",
-      fontFamily: "Arial, sans-serif",
+      color: p.inkHi, backgroundColor: p.ground,
+      fontFamily: font ? "Schibsted Grotesk" : undefined,
     }}>
       {heroData ? (
         <img
@@ -80,35 +131,41 @@ export default async function Image({ params }: { params: Promise<{ publicId: st
       {heroData ? (
         <div style={{
           position: "absolute", top: 0, left: 0, width: size.width, height: size.height, display: "flex",
-          background: "linear-gradient(180deg, rgba(5,5,5,0.62) 0%, rgba(5,5,5,0.42) 42%, rgba(5,5,5,0.92) 100%)",
+          background: `linear-gradient(180deg, ${p.abyss}9E 0%, ${p.abyss}6B 42%, ${p.abyss}EB 100%)`,
         }} />
       ) : null}
       <div style={{
         position: "relative", width: "100%", height: "100%", display: "flex", flexDirection: "column",
         justifyContent: "space-between", padding: "72px 82px",
       }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 24, letterSpacing: 5 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 24, letterSpacing: 5, color: p.inkHi }}>
           <span>LIONSOFZION</span>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <span style={{ color: "#d2a94f" }}>{article.section.replaceAll("_", " ").toUpperCase()}</span>
+            <span style={{ color: p.goldDim, textTransform: "uppercase" }}>{sectionLabel}</span>
             {isAnalysis ? (
               <span style={{
-                padding: "8px 16px", border: "1px solid rgba(210, 169, 79, 0.55)",
-                color: "#e8dfcd", fontSize: 19, letterSpacing: 3,
+                padding: "8px 16px", border: `1px solid ${p.goldDim}`, backgroundColor: p.surface1,
+                color: p.inkHi, fontSize: 19, letterSpacing: 3,
               }}>ANALYSIS · NO SOURCE CITED</span>
             ) : null}
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-          <div style={{ width: 74, height: 4, background: "#d2a94f" }} />
-          <div style={{ fontSize: 58, lineHeight: 1.08, fontWeight: 700, maxWidth: 1030 }}>{article.title}</div>
-          <div style={{ display: "flex", alignItems: "center", gap: 20, fontSize: 24, color: "#c9c3b8" }}>
+          {/* The signal rule, at its stub width — the accent's own mark. */}
+          <div style={{ width: 74, height: 4, backgroundColor: p.gold }} />
+          <div style={{ fontSize: 58, lineHeight: 1.08, fontWeight: 700, maxWidth: 1030, color: p.inkHi }}>
+            {article.title}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 20, fontSize: 24, color: p.inkLo }}>
             <span>{new Date(article.publishedAt).toLocaleDateString("en-GB", { dateStyle: "long" })}</span>
             {hero && heroData ? <span>{manufactured ? (hero.role === "safe-cover" ? "Safe cover · " : "Editorial illustration · ") : ""}{hero.credit}</span> : null}
           </div>
         </div>
       </div>
     </div>,
-    size,
+    {
+      ...size,
+      fonts: font ? [{ name: "Schibsted Grotesk", data: font, weight: 700, style: "normal" }] : undefined,
+    },
   );
 }

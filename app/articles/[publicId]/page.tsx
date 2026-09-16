@@ -47,6 +47,8 @@ import {
 } from "@/components/content/MediaBlock";
 import { EditorialShell } from "@/components/site/EditorialShell";
 import { Badge, type BadgeStatus, BADGE_GRAMMAR } from "@/components/ui/Badge";
+import { ResearchText } from "@/components/content/ResearchText";
+import { SensitiveContent, mediaSensitivityGate } from "@/components/content/SensitiveContent";
 import { Breadcrumb } from "@/components/site/Breadcrumb";
 import { InvestigationExplorer } from "@/components/evidence/InvestigationExplorer";
 import { Card, CardDescription, CardEyebrow, CardTitle } from "@/components/ui/Card";
@@ -262,6 +264,23 @@ export default async function ArticlePage({ params }: Props) {
     articleMedia !== null &&
     publicationSupportsInvestigationExplorer(article.section) &&
     isManufacturedMedia(articleMedia.role);
+  /* The gate is the media contract's own `sensitivity` (2026-09-16): a
+     picture the desk has marked sensitive — or has not yet graded — renders
+     nothing until the reader asks for it. The gate sits inside the frame, so
+     the caption, the disclosure and the provenance row stay outside it and
+     readable whether or not the reader opens it. */
+  const heroGate = articleMedia ? mediaSensitivityGate(articleMedia) : null;
+  const heroPicture = articleMedia ? (
+    <Image
+      src={articleMedia.src}
+      width={articleMedia.width}
+      height={articleMedia.height}
+      alt={articleMedia.alt}
+      priority={!deferHeroMedia}
+      sizes="(min-width: 1220px) 780px, calc(100vw - 40px)"
+      style={{ objectPosition: `${articleMedia.focalPoint.x}% ${articleMedia.focalPoint.y}%` }}
+    />
+  ) : null;
   const heroMedia = articleMedia ? (
     <MediaBlock
       layout="reading"
@@ -287,15 +306,13 @@ export default async function ArticlePage({ params }: Props) {
       provenance={`Rights ${articleMedia.rights.status} · ${articleMedia.rights.basis}`}
       provenanceLabel="Image credit and provenance"
     >
-      <Image
-        src={articleMedia.src}
-        width={articleMedia.width}
-        height={articleMedia.height}
-        alt={articleMedia.alt}
-        priority={!deferHeroMedia}
-        sizes="(min-width: 1220px) 780px, calc(100vw - 40px)"
-        style={{ objectPosition: `${articleMedia.focalPoint.x}% ${articleMedia.focalPoint.y}%` }}
-      />
+      {heroGate ? (
+        <SensitiveContent layout="frame" category={heroGate.category} warning={heroGate.warning}>
+          {heroPicture}
+        </SensitiveContent>
+      ) : (
+        heroPicture
+      )}
     </MediaBlock>
   ) : null;
 
@@ -425,30 +442,48 @@ export default async function ArticlePage({ params }: Props) {
         {showsInvestigationExplorer ? <InvestigationExplorer record={article} /> : null}
 
         <div className={styles.body} data-measure-id="article-body">
-          {passages.map((passage) => (
-            <section className={styles.passage} key={passage.position}>
-              <div className={styles.passageMain}>
-                <p>{passage.text}</p>
-                {passage.claim ? (
-                  <p className={styles.claimRef}>
-                    <span>
-                      Claim record: {passage.claim.title}
-                    </span>
-                    {passage.claim.assessment ? (
-                      <Badge status={badgeStatus(passage.claim.assessment)}>
-                        {passage.claim.assessment.replaceAll("_", " ")}
-                      </Badge>
-                    ) : null}
+          {passages.map((passage) => {
+            /* One designed peak per record (2026-09-16): the passage that
+                carries a claim record — the assessment the desk published —
+                is set as the pull-quote, in the one serif voice quoted
+                material takes, under a gold stub drawn from the signal-rule
+                tokens. The rest of the body never touches this treatment,
+                so the peak stays scarce. */
+            const isPeak = passage.claim !== null;
+            return (
+              <section className={styles.passage} key={passage.position}>
+                <div className={styles.passageMain}>
+                  {/* A passage may carry its own heading; it renders as the
+                      h2 it asks to be. The public projection does not carry
+                      the field yet (handoff: server/modules/publications/repo.ts
+                      `publicReferences` would add `heading` to the passage
+                      read) — typed defensively here so the surface is ready
+                      the day the projection grows it. */}
+                  {passageHeading(passage) ? <h2>{passageHeading(passage)}</h2> : null}
+                  <p className={isPeak ? styles.passageQuote : undefined}>
+                    <ResearchText>{passage.text}</ResearchText>
                   </p>
-                ) : null}
-              </div>
-              {passage.sources.length ? (
-                <div className={styles.passageSources}>
-                  <SourceList sources={asSourceList(passage.sources)} />
+                  {passage.claim ? (
+                    <p className={styles.claimRef}>
+                      <span>
+                        Claim record: {passage.claim.title}
+                      </span>
+                      {passage.claim.assessment ? (
+                        <Badge status={badgeStatus(passage.claim.assessment)}>
+                          {passage.claim.assessment.replaceAll("_", " ")}
+                        </Badge>
+                      ) : null}
+                    </p>
+                  ) : null}
                 </div>
-              ) : null}
-            </section>
-          ))}
+                {passage.sources.length ? (
+                  <div className={styles.passageSources}>
+                    <SourceList sources={asSourceList(passage.sources)} />
+                  </div>
+                ) : null}
+              </section>
+            );
+          })}
         </div>
 
         {/* An analysis record has nothing to list here, and a bare "no sources"
@@ -554,25 +589,31 @@ export default async function ArticlePage({ params }: Props) {
         ) : null}
 
         {/* VA-50. "Related coverage" was fed by `publication_related`, which
-            `linkRelated` writes for the siblings of a batch — the other records
+            linkRelated writes for the siblings of a batch — the other records
             of the same daily edition. That is a fact about how a record was
             produced, not about what it is about. Every row here instead shares
             an actual field with this record, and says which one; when nothing
-            does, the reader is sent to the desk rather than shown filler. */}
+            does, the reader is sent to the desk rather than shown filler.
+
+            Peak-End (2026-09-16): the record's last screen is its ending, and
+            an ending is one designed exit, not a carousel. The ladder's
+            strongest rung is shown as exactly one next record; the desk link
+            below it is the way to everything else. `continuations` is already
+            ranked strongest-first by `continueTheRecord`. */}
         <section className={styles.related}>
-          <h2>Keep reading</h2>
-          {continuations.length ? (
+          <h2>Next in {desk.label}</h2>
+          {continuations[0] ? (
             <ul className={styles.relatedList}>
-              {continuations.map((next, index) => (
-                <li key={next.publicId}>
-                  <Card href={`/articles/${next.publicId}`} variant="row"
-                    {...measurePublicationCard("article-next", next, `next:${index + 1}`)}>
-                    <CardEyebrow>{continuationEyebrow(next.section, next.reason, desk.label)}</CardEyebrow>
-                    <CardTitle as="h3">{next.title}</CardTitle>
-                    {next.summary ? <CardDescription>{next.summary}</CardDescription> : null}
-                  </Card>
-                </li>
-              ))}
+              <li>
+                <Card href={`/articles/${continuations[0].publicId}`} variant="row"
+                  {...measurePublicationCard("article-next", continuations[0], "next:1")}>
+                  <CardEyebrow>
+                    {continuationEyebrow(continuations[0].section, continuations[0].reason, desk.label)}
+                  </CardEyebrow>
+                  <CardTitle as="h3">{continuations[0].title}</CardTitle>
+                  {continuations[0].summary ? <CardDescription>{continuations[0].summary}</CardDescription> : null}
+                </Card>
+              </li>
             </ul>
           ) : null}
           {/* UX-05 / UX-11. The verb table's hub link, on a target that clears
@@ -680,6 +721,20 @@ function asSourceList(
 
 function badgeStatus(value: string): BadgeStatus {
   return Object.hasOwn(BADGE_GRAMMAR, value) ? (value as BadgeStatus) : "neutral";
+}
+
+/**
+ * A passage's own heading, when the projection carries one.
+ *
+ * The stored passage row has no `heading` column yet, so the public
+ * projection never delivers the field — read defensively, `unknown`-safe,
+ * so a future projection change lights this up without a page edit.
+ */
+function passageHeading(passage: unknown): string | null {
+  const value = (passage as { heading?: unknown })?.heading;
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : null;
 }
 
 function wordSimilarity(first: string, second: string): number {

@@ -5,9 +5,17 @@ import { Icon } from "@/components/ui/Icon";
 import styles from "./card.module.css";
 
 /**
- * Editorial surface compositions: feature, list-row, dossier, metric, and
- * quiet-note. `panel` maps to feature and `quiet` maps to row so existing
- * types keep compiling. Accent is the top/start rule colour, not a glow.
+ * Editorial surface compositions: the hub grammar (lead / row / tile) and the
+ * earlier five (feature, list-row, dossier, metric, quiet-note). `panel` maps
+ * to feature and `quiet` maps to row so existing types keep compiling. Accent
+ * is the top/start rule colour, not a glow.
+ *
+ * `lead` is a front's lead record and `tile` is a compact pressable plate —
+ * the two additions of the 2026-09-16 hub round, which folds the sixteen hub
+ * row designs across the four hubs onto three compositions. Cards are for
+ * things that are entirely pressable or entirely ledgered; rules and space
+ * group content everywhere else, and boxes only appear where the whole card
+ * is one link.
  */
 export type CardVariant =
   | "feature"
@@ -15,6 +23,8 @@ export type CardVariant =
   | "dossier"
   | "metric"
   | "note"
+  | "lead"
+  | "tile"
   | "panel"
   | "quiet";
 
@@ -26,6 +36,8 @@ const VARIANT_CLASS: Record<CardVariant, string> = {
   dossier: styles.dossier,
   metric: styles.metric,
   note: styles.note,
+  lead: styles.lead,
+  tile: styles.tile,
   panel: styles.feature,
   quiet: styles.row,
 };
@@ -41,6 +53,14 @@ type CardOwnProps = {
   /** Arms the interactive treatment without a link. The caller owns the
    *  semantics; a `<div>` with a click handler is not a control. */
   interactive?: boolean;
+  /**
+   * The ruled ledger: a 24px gold stub under the card's headline that extends
+   * to the headline's full width while the card is hovered or holds focus
+   * within it. The headline's colour does not change — the rule is the state.
+   * Compose it on `row` and `lead`, whose records sit in columns and whose
+   * hover state should be one hairline, not a plate.
+   */
+  ledger?: boolean;
   as?: React.ElementType;
   className?: string;
   children: React.ReactNode;
@@ -55,6 +75,7 @@ export function Card({
   accent = "none",
   href,
   interactive,
+  ledger = false,
   as: Component = "div",
   className = "",
   children,
@@ -72,6 +93,7 @@ export function Card({
     accent === "none" ? "" : styles[accent],
     isInteractive ? styles.interactive : "",
     tracksPointer ? styles.pointerSurface : "",
+    ledger ? styles.ledger : "",
     className,
   ]
     .filter(Boolean)

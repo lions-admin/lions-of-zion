@@ -10,7 +10,9 @@ import { isArticleSafeMedia, type EditorialMedia } from "@/server/contracts/edit
 import { isAnalysisBasis } from "@/server/contracts/publication";
 import { EditorialShell } from "@/components/site/EditorialShell";
 import { HubMasthead, HubUpdated } from "@/components/site/HubMasthead";
+import { HashDetails } from "@/components/live/HashDetails";
 import { SECTION_LABELS, VERIFICATION_STATES } from "@/components/live/publication-labels";
+import { politeLive } from "@/components/ui/live-region";
 import { ButtonLink } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import {
@@ -253,12 +255,20 @@ export function emptyArchiveState(filtering: boolean, liveRecordCount: number): 
   };
 }
 
+/**
+ * In-page jumps — anchors only. The old fourth entry was a route link to
+ * `/updates`, which mixed "where am I inside this front" with "leave this
+ * front"; the route moved to the archive's door below, where a reader who has
+ * reached the end of the front is choosing where to go.
+ */
 const JUMPS = [
   { href: "#latest-news", label: "Latest news" },
   { href: "#daily-brief", label: "The daily briefing" },
   { href: "#news-archive", label: "News archive" },
-  { href: "/updates", label: "Every publication ↗︎" },
 ];
+
+/** The unfiltered archive lists this many stories before pointing at /updates. */
+const ARCHIVE_SHOWN = 20;
 
 /**
  * The desk shell — masthead, skip link, footer, kicker, h1, standfirst.
@@ -404,9 +414,16 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
       .map((item) => item.publicId),
   );
   const archiveRecords = collapseExactDuplicates(archive);
-  const archiveStories = groupByCanonicalStory(
-    filtering ? archiveRecords : archiveRecords.filter((item) => !shownAbove.has(item.publicId)),
-  );
+  /* The unfiltered archive is capped at `ARCHIVE_SHOWN`: a front is a view of
+     the record, not the record — a ledger that runs for dozens of screens
+     under a folded summary reads as a data dump, and `/updates` is already the
+     complete walk through everything. The filtered archive is never capped: it
+     is the complete answer to a query, and the disclosure below says so. */
+  const remainder = filtering
+    ? archiveRecords
+    : archiveRecords.filter((item) => !shownAbove.has(item.publicId));
+  const capped = remainder.length > ARCHIVE_SHOWN;
+  const archiveStories = groupByCanonicalStory(capped ? remainder.slice(0, ARCHIVE_SHOWN) : remainder);
 
   return (
     <>
@@ -502,7 +519,13 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
         </ButtonLink>
       </aside>
 
-      <details className={styles.newsArchive} id="news-archive" open={filtering} data-measure-id="brief-archive" data-measure-section="news">
+      {/* The archive `<details>` is client-owned (`HashDetails`) for one
+          reason: native fragment navigation opens a closed `<details>` at
+          nothing, and the jump row above names it. Filtering still works
+          without JavaScript — the `open` attribute travels in the HTML on a
+          GET submission. */}
+      <HashDetails className={styles.newsArchive} id="news-archive" initiallyOpen={filtering}
+        data-measure-id="brief-archive" data-measure-section="news">
         <summary>
           <span className={styles.archiveTitle}>
             <span>News archive</span>
@@ -522,7 +545,9 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
             Up to 50 recent records from each news section, daily briefings included. Narrative monitoring is kept separate.
             {filtering
               ? " Every matching record is listed here, including any also shown above."
-              : " Reporting already presented above is not repeated here."}
+              : capped
+                ? ` The ${ARCHIVE_SHOWN} newest stories are listed here; everything older walks from the record.`
+                : " Reporting already presented above is not repeated here."}
             {" "}Records that repeat an earlier headline and summary word for word are listed once, and updates to a developing story are listed under that story; each remains at its own address and in search.
           </p>
           <BriefFilters key={query.toString()} filters={filters}
@@ -531,8 +556,26 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
           {archiveUnavailable ? <StatusState status={absenceStatus("unavailable")} title="The archive could not be loaded." description="Please try this selection again later." />
             : archiveStories.length ? <PublicationSection title={filtering ? "Matching reports" : "Recent reporting"} surface="brief-archive" stories={archiveStories} />
             : <StatusState {...emptyArchiveState(filtering, current.length)} />}
+          {/* The result count announces itself once per navigation, politely,
+              after the form's round-trip has settled — there is no keystroke
+              submission on this surface to debounce, so the count arrives with
+              the page that carries it (STATE-002, Doherty: one announcement,
+              after the wait, never per change). */}
+          {filtering && !archiveUnavailable ? (
+            <p className={styles.archiveCount} {...politeLive}>
+              {archiveStories.length} {archiveStories.length === 1 ? "story" : "stories"} {filtering ? "match these filters." : "listed."}
+            </p>
+          ) : null}
+          {/* The door the jump row gave up: /updates is the complete walk
+              through the record, and it belongs where a reader has reached the
+              end of the front. */}
+          {!filtering ? (
+            <Link className={styles.archiveDoor} href="/updates">
+              Every publication, every section <Icon name="arrow-right" size={14} className={styles.archiveDoorArrow} />
+            </Link>
+          ) : null}
         </div>
-      </details>
+      </HashDetails>
     </>
   );
 }
@@ -657,7 +700,12 @@ function PublicationSection({ title, surface, stories, narrative = false }: {
         return (
         <li key={item.publicId}>
           {/* Nested Read-record control: the row is a surface, not a link. */}
-          <Card variant="row" as="article" className={media ? `${styles.liveRow} ${styles.liveRowMedia}` : styles.liveRow}
+          {/* Nested Read-record control: the row is a surface, not a link.
+              `ledger` arms the ruled headline — the 24px gold stub under the
+              ledger title that extends while the row is hovered or holds
+              focus, the one hover state a record row is allowed. */}
+          <Card variant="row" as="article" ledger
+            className={media ? `${styles.liveRow} ${styles.liveRowMedia}` : styles.liveRow}
             {...measurePublicationCard(surface, item, `${surface}:${index + 1}`)}>
             <CardHeader className={styles.liveRowHeader}>
               <CardEyebrow>

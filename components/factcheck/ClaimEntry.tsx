@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Reveal } from "@/components/motion";
 import { Card } from "@/components/ui/Card";
+import { Badge, BADGE_GRAMMAR, type BadgeStatus } from "@/components/ui/Badge";
 import { VERIFICATION_STATES } from "@/components/live/publication-labels";
 import { stamp } from "@/components/live/feed-time";
 import { isAnalysisBasis } from "@/server/contracts/publication";
@@ -15,6 +16,12 @@ export function claimAnchorId(publicId: string): string {
 
 export function claimPermalink(publicId: string): string {
   return `${FACT_CHECK_PATH}?claim=${encodeURIComponent(publicId)}#${claimAnchorId(publicId)}`;
+}
+
+/** A verification value the grammar has never heard of takes the hollow
+    unassessed mark, never a filled disc that would read as a finding. */
+function badgeStatus(value: string): BadgeStatus {
+  return Object.hasOwn(BADGE_GRAMMAR, value) ? (value as BadgeStatus) : "unverified";
 }
 
 /**
@@ -79,9 +86,12 @@ export function ClaimEntry({
           <summary className={styles.summary}>
             <span className={styles.summaryBody}>
               <span className={styles.entryHead}>
-                <span className={styles.entryVerdict} data-tone={verdict.tone}>
+                {/* The verdict renders through the site's one Badge grammar
+                    (2026-09-16): the mark is a function of verdict polarity,
+                    so the tone colour is never the only cue. */}
+                <Badge status={badgeStatus(details.verificationState)}>
                   {verdict.label}
-                </span>
+                </Badge>
                 {analysis ? <span className={styles.entryBasis}>Own analysis</span> : null}
                 {showCounts ? (
                   <span className={styles.entryStrength}>

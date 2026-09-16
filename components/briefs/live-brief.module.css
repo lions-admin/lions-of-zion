@@ -720,6 +720,32 @@
   line-height: var(--t-caption-lh);
 }
 
+/* The filtered result count, announced politely and printed quietly. */
+.archiveCount {
+  margin: var(--sp-4) 0 0;
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The door out of the archive — the route link the jump row gave up. */
+.archiveDoor {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--control-h);
+  margin-top: var(--sp-4);
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.archiveDoor:hover { color: var(--gold-hi); }
+.archiveDoorArrow { color: var(--gold); }
+
 /* ── Filters (consumed by BriefFilters) ────────────────────────────────── */
 
 .filterCluster { min-width: 0; }

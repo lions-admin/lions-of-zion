@@ -11,7 +11,17 @@
   --accent: var(--gold);
 
 
-  --anchor-offset: 5.5rem;
+  /* The reading-progress bar hangs under the masthead instead of behind it
+     (2026-09-16): at `top: 0` the fixed header covered it on every route
+     this shell draws. The article route makes the same one-line delta. */
+  --progress-top: var(--header-h);
+
+  /* Anchored headings clear the masthead by default — the old 5.5rem flat
+     value was *smaller* than the desktop masthead's 7rem, so a jump put a
+     heading straight under the bar. A section page that stacks a second
+     sticky bar (the case files' navigator) overrides this on its own
+     wrapper with masthead + navigator. */
+  --anchor-offset: calc(var(--header-h) + var(--sp-3));
 
 
   min-height: 100dvh;

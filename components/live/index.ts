@@ -11,6 +11,9 @@ export { UpdateFeed, UPDATES_PATH } from "./UpdateFeed";
 export type { UpdateFeedProps } from "./UpdateFeed";
 export { UpdateEntry } from "./UpdateEntry";
 export { FeedStatus } from "./FeedStatus";
+export { HubJumpNav } from "./HubJumpNav";
+export type { HubJumpLink } from "./HubJumpNav";
+export { HashDetails } from "./HashDetails";
 export {
   SECTION_LABELS,
   TREND_LABELS,

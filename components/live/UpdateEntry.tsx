@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Card, CardDescription, CardTitle } from "@/components/ui/Card";
+import { Badge, BADGE_GRAMMAR, type BadgeStatus } from "@/components/ui/Badge";
 import { isAnalysisBasis } from "@/server/contracts/publication";
 import type { PublicPublication } from "@/server/contracts/publication";
 import { clock, stamp } from "./feed-time";
@@ -31,6 +32,11 @@ import styles from "./live-feed.module.css";
  *  projection's value is unchanged; only the underscores are combed. */
 function words(value: string): string {
   return value.replaceAll("_", " ");
+}
+
+/** A verdict the grammar has never heard of takes the unassessed mark. */
+function badgeStatus(value: string): BadgeStatus {
+  return Object.hasOwn(BADGE_GRAMMAR, value) ? (value as BadgeStatus) : "unverified";
 }
 
 export function UpdateEntry({ entry }: { entry: PublicPublication }) {
@@ -67,14 +73,20 @@ export function UpdateEntry({ entry }: { entry: PublicPublication }) {
       {verdict || analysis || revised || entry.arena || entry.primaryActor || entry.editorialTopic ? (
         <p className={styles.marks}>
           {verdict ? (
-            <span
-              className={styles.verdict}
-              data-tone={verdict.tone}
-              title={verdict.meaning}
-              aria-label={`${verdict.label}: ${verdict.meaning}`}
-            >
-              {verdict.label}
-            </span>
+            /* The verdict renders through the site's one Badge grammar
+               (2026-09-16): the mark is a function of verdict polarity, so
+               the tone colour is never the only cue. The meaning the old
+               `title` tooltip carried moves to screen-reader text beside the
+               mark — Recognition over recall, and the meaning stays on the
+               record's own page as the visible explanation. */
+            <>
+              <Badge status={badgeStatus(details!.verificationState)}>
+                {verdict.label}
+              </Badge>
+              <span className="srOnly">
+                {verdict.label}: {verdict.meaning}
+              </span>
+            </>
           ) : null}
           {analysis ? (
             <span className={styles.basis}>Our own analysis &mdash; cites no source</span>

@@ -1,6 +1,7 @@
 import type { HomepageEdition } from "@/server/contracts/homepage";
 import { VERIFICATION_STATES } from "@/components/live/publication-labels";
 import { ResearchText } from "@/components/content/ResearchText";
+import { Badge, BADGE_GRAMMAR, type BadgeStatus } from "@/components/ui/Badge";
 import {
   HomeMedia,
   HomeTime,
@@ -20,6 +21,12 @@ import { homepageBand } from "@/lib/homepage-bands";
 import { measureContentId } from "@/components/measurement/attrs";
 
 const BAND = homepageBand("fakeResistance");
+
+/** An unrecognised verification value shows the hollow unassessed mark, never
+ *  a filled disc that would read as a finding. */
+function badgeStatus(value: string): BadgeStatus {
+  return Object.hasOwn(BADGE_GRAMMAR, value) ? (value as BadgeStatus) : "unverified";
+}
 
 /**
  * Fake Resistance contains three distinct editorial shapes: Narrative Watch,
@@ -115,8 +122,19 @@ export function HomeNarrativesSection({
                   the picture with the rest of the byline. */}
               <header className={styles.dossierStatus}>
                 <p className={styles.kicker}>{kicker}</p>
-                <p className={styles.verdict} data-tone={status?.tone ?? "neutral"}>
-                  <span className={styles.verdictLabel}>{statusLabel}</span>
+                {/* The verdict renders through the site's one Badge grammar
+                    (2026-09-16): the mark is a function of verdict polarity,
+                    so the colour is never the only cue, and the unassessed
+                    kinds (a case, an article) take the hollow mark rather
+                    than a dot that would read as a finding. */}
+                <p className={styles.verdict}>
+                  <Badge
+                    status={item.kind === "watch"
+                      ? badgeStatus(item.verification)
+                      : "neutral"}
+                  >
+                    {statusLabel}
+                  </Badge>
                   <span className={styles.verdictMeaning}>{statusMeaning}</span>
                 </p>
               </header>

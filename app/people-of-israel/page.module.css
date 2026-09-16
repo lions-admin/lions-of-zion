@@ -195,12 +195,15 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--sp-1) var(--sp-3);
-  color: var(--ink-lo);
+  overflow-wrap: anywhere;
+}
+
+.recordCredit {
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
-  overflow-wrap: anywhere;
+  color: var(--ink-lo);
 }
 
 .disclosure {
@@ -294,27 +297,37 @@
   border-top: var(--line-w) solid var(--line);
 }
 
-.record {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--sp-5);
+/* The row is the Card row composition (`card.module.css`); these overrides
+   carry the hub's own rhythm on top of it. Double-class specificity, because
+   `.row` in card.module.css sets the same properties at one class. */
+.recordList .record {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  gap: var(--sp-2);
   padding-block: var(--sp-5);
-  border-bottom: var(--line-w) solid var(--line);
   transition: border-color var(--dur-fast) var(--ease-out);
 }
 
-.record:hover { border-bottom-color: var(--line-strong); }
+.recordList .record:hover { border-bottom-color: var(--line-strong); }
 
 /* The row is one column until a picture arrives; a list that reserves space
    for an image it has not got reads as a broken layout rather than a plain
-   one. */
-.recordWithMedia { grid-template-columns: minmax(0, 1fr) auto; }
+   one. Same pattern the news ledger uses: the figure takes column two, row
+   one, and everything else keeps column one. */
+.recordList .record.recordWithMedia {
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--sp-5);
+}
 
-.recordBody {
-  display: grid;
-  gap: var(--sp-2);
-  align-content: start;
-  min-width: 0;
+.recordList .record.recordWithMedia > * { grid-column: 1; }
+
+/* Row 1, not `1 / -1`: with no explicit rows declared, `-1` resolves to the
+   end of the explicit grid and spans nothing. */
+.recordList .record.recordWithMedia > .recordMedia {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
 }
 
 .recordMeta {
@@ -323,6 +336,8 @@
   align-items: baseline;
   gap: var(--sp-1) var(--sp-3);
   margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .recordMeta time {
@@ -339,7 +354,7 @@
    featured profile (`--t-h2`): three ranks a reader can read the hierarchy
    of this hub from, off the shared scale rather than three private
    `clamp()`s that happened to overlap. */
-.record h3 {
+.recordList .record h3 {
   max-width: 28ch;
   margin: 0;
   color: var(--ink-hi);
@@ -355,16 +370,21 @@
   max-width: 62ch;
   margin: 0;
   color: var(--ink);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  text-wrap: pretty;
+  overflow-wrap: anywhere;
 }
 
-.record .read { margin-top: var(--sp-1); }
+/* The record's picture, as a figure: the plate sits in the row's second
+   column, and the disclosure is the visible first caption line under it. */
+.recordMedia {
+  display: grid;
+  gap: var(--sp-2);
+  min-width: 0;
+  margin: 0;
+}
 
 .recordImage {
   composes: mediaPlate from global;
-  align-self: start;
+  display: block;
   inline-size: 9rem;
   border-radius: var(--radius-1);
 }
@@ -377,14 +397,26 @@
   object-fit: cover;
 }
 
-.empty {
-  max-width: 52ch;
-  margin: 0;
-  padding-block: var(--sp-5);
-  border-top: var(--line-w) solid var(--line);
+.recordMedia figcaption {
+  display: grid;
+  gap: var(--sp-1);
+  max-inline-size: 9rem;
   color: var(--ink-lo);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  overflow-wrap: anywhere;
+}
+
+.recordDisclosure {
+  color: var(--gold-hi);
+  font-family: var(--face-navigation);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
+  text-transform: uppercase;
 }
 
 .records > .sectionLink { margin-top: var(--sp-4); }
@@ -474,9 +506,10 @@
   .profile[data-featured] { grid-column: auto; }
   .sectionHead { gap: var(--sp-2) var(--sp-4); }
   .sectionHead > .sectionLink { margin-inline-start: 0; flex-basis: 100%; }
-  .recordWithMedia { grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-4); }
+  .recordList .record.recordWithMedia { grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-4); }
   .recordImage { inline-size: 6rem; }
-  .record h3 { max-width: none; }
+  .recordMedia figcaption { max-inline-size: 6rem; }
+  .recordList .record h3 { max-width: none; }
 }
 
 /* A profile or a record answers as one object: its picture moves 2% inside

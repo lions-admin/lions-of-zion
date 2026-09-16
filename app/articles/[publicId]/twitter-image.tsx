@@ -3,4 +3,5 @@
 // exposing any internal briefing fields.
 export { default, alt, size, contentType } from "./opengraph-image";
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+// The same window the Open Graph card and the article page serve on.
+export const revalidate = 300;

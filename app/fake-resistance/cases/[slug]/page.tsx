@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { SectionBlock, SectionPage } from '@/components/sections/SectionPage';
-import { ResearchText, RosterTable, SourceList } from '@/components/content';
+import { ActivationBand, ResearchText, RosterTable, SourceList } from '@/components/content';
 import {
   CaseStoryHeader,
   EntityInspector,
@@ -171,6 +171,12 @@ export default async function Page({ params }: Params) {
 
   const { lead, framing } = splitQuestion(record.question);
 
+  /* One next file, not an index: the first other case the index holds. A held
+     case drops out on its own — the index is the live file list. */
+  const caseIndex = await getCaseIndex();
+  const nextEntry = caseIndex.find((entry) => entry.slug !== record.slug);
+  const nextCase = nextEntry ? await getCase(nextEntry.slug) : null;
+
   return (
     <InvestigationProvider model={model}>
       <SectionPage
@@ -197,6 +203,12 @@ export default async function Page({ params }: Params) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
+        {/* The sticky geometry of this page — the navigator's height and the
+            anchor offset every scroll-margin inside resolves — is declared on
+            one wrapper the two sticky bars and the anchored headings all
+            descend from, so the bars stack instead of overlapping (see the
+            note on `.caseRoot` in `page.module.css`). */}
+        <div className={styles.caseRoot}>
         {/* Below the rails breakpoint this is the case navigator; above it
             the shell's own contents rail carries the same headings, read live
             from the DOM. `caseSections` adds "What changed" only for a case
@@ -258,7 +270,9 @@ export default async function Page({ params }: Params) {
           </div>
         </dl>
 
-        {/* The persistent evidence path: what the reader is following. */}
+        {/* The persistent evidence path: what the reader is following. It is
+            sticky only once a selection exists (see `.path` in
+            `investigation.module.css`); the standing hint stays in the flow. */}
         <EvidencePath />
 
         <SectionBlock heading="Finding" id="finding">
@@ -475,8 +489,42 @@ export default async function Page({ params }: Params) {
           <SourceList sources={record.sources} />
         </SectionBlock>
 
+        {/* UX-06 / UX-20 — a file ends by design, not on its last apparatus
+            row: what to do with the evidence, then where to go next. The
+            band's share carries the file's own question, which is the line
+            worth taking with it. */}
+        <ActivationBand
+          className={styles.activation}
+          sourcesHref="#sources"
+          share={{
+            url,
+            text: lead,
+          }}
+        />
+
+        {/* One next file, strongest-first by the index's own order, and the
+            desk link for everything else — the same single-exit ending the
+            article record carries (Peak-End). */}
+        <section className={styles.continueFile} data-measure-id="case-continue">
+          <h2>Continue the file</h2>
+          {nextCase ? (
+            <p className={styles.continueLink}>
+              <Link href={`/fake-resistance/cases/${nextCase.slug}`}>
+                {nextCase.title}
+              </Link>
+            </p>
+          ) : null}
+          <p className={styles.continueHub}>
+            <Link href={publicationHubCrumb('fakeResistance').href}>
+              All of {publicationHubCrumb('fakeResistance').label}{' '}
+              <span aria-hidden="true">→</span>
+            </Link>
+          </p>
+        </section>
+
         {/* The bottom-sheet form of the inspector, below the rails breakpoint. */}
         <EntityInspector variant="sheet" />
+        </div>
       </SectionPage>
     </InvestigationProvider>
   );

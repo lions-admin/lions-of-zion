@@ -1,20 +1,21 @@
 /* Hub masthead · shared by the front routes.
  *
  * Grid: the headline block on the left, the status sentence at the right
- * foot, and a row of in-page jumps along the foot, closed by a strong rule.
- * The rule is the seam between "what this front is" and "what it holds
- * today". */
+ * foot, closed by a strong rule. The rule is the seam between "what this
+ * front is" and "what it holds today". The jump row moved out of this file:
+ * it is rendered by `HubJumpNav` as the header's sibling — it sticks under
+ * the header for the whole front, which a `<header>` one masthead tall
+ * cannot do — and lives in `components/live/hub-jump-nav.module.css`. */
 
 .masthead {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
   grid-template-areas:
-    "headline status"
-    "jumps jumps";
+    "headline status";
   align-items: end;
   gap: var(--sp-5) var(--sp-7);
   /* One step less air above the kicker (2026-09-11): the masthead was
-     spending most of a laptop viewport before the first record. */
+      spending most of a laptop viewport before the first record. */
   padding-block: clamp(var(--sp-4), 3vw, var(--sp-6)) 0;
   border-bottom: var(--line-w) solid var(--line-strong);
   scroll-margin-top: var(--header-h);
@@ -103,53 +104,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Jumps ─────────────────────────────────────────────────────────────── */
-
-.jumps {
-  grid-area: jumps;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 var(--sp-6);
-  margin-bottom: calc(-1 * var(--line-w));
-}
-
-/* Plain links on a rule, never chips (UX-17). A step taller than the 44px
-   floor and a step further apart, in full ink, so the row reads as the
-   front's contents rather than as its fine print. */
-.jump {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  min-height: calc(var(--control-h) + var(--sp-1));
-  color: var(--ink);
-  font-family: var(--face-navigation);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  line-height: 1;
-  text-decoration: none;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.jump::after {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  block-size: var(--line-w-thick);
-  background: transparent;
-  transition: background-color var(--dur-fast) var(--ease-out);
-}
-
-.jump:hover { color: var(--ink-hi); }
-.jump:hover::after { background: var(--line-strong); }
-.jump:active::after { background: var(--line-strong); }
-
-.jump:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: calc(-1 * var(--line-w-thick));
-  border-radius: var(--radius-1);
-}
-
 /* ── Seams ─────────────────────────────────────────────────────────────── */
 
 /* The rails seam (76.25rem, `--bp-rails`): the one where a hub's two-column
@@ -159,8 +113,7 @@
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "headline"
-      "status"
-      "jumps";
+      "status";
     align-items: start;
     gap: var(--sp-5);
   }
@@ -175,10 +128,7 @@
 
 @media (max-width: 45rem) {
   .title { font-size: clamp(2.5rem, 11vw, 3.25rem); }
-  .jumps { gap: 0 var(--sp-4); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .jump,
-  .jump::after { transition: none; }
-}
+/* The jumps' own transitions moved with the row into
+   `hub-jump-nav.module.css`. */

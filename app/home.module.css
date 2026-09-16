@@ -256,7 +256,12 @@
 @keyframes coverSettle { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 @keyframes coverCore { 0% { translate: 0 0; scale: 1; opacity: 1; } 70% { opacity: 1; } 100% { translate: 0 calc(-1 * var(--parallax-depth-1)); scale: 1.06; opacity: 0; } }
 @keyframes coverHaze { 0% { translate: 0 0; opacity: 1; } 60% { opacity: 0; } 100% { translate: 0 calc(-1 * var(--parallax-depth-2)); opacity: 0; } }
-@keyframes signalDraw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+/* At rest the line is a short stub continuing the bars — the same 
+   stub-extends-to-full-width idiom the record headlines use — and it draws to
+   the rail's measure across the middle of the runway. It starts at a fraction
+   rather than at nothing because a lone spectrum fleck above the dateline
+   reads as an artefact, not as a mark waiting to be drawn. */
+@keyframes signalDraw { from { transform: scaleX(0.08); } to { transform: scaleX(1); } }
 
 /* ── Stillness ─────────────────────────────────────────────────────────────
    Two of the three still states (the third, no script, is the static default
@@ -265,14 +270,22 @@
    carries its own `animation: none`, and the runway goes to zero: no pinned
    pause, the lion at rest, the rule present. The pause control is hidden
    where it could do nothing. */
+/* Every selector here matches the specificity of the timeline rule it has to
+   beat, and that is load-bearing rather than tidy: `.lionLayer` alone (0,1,0)
+   loses to `.lionCore .lionLayer` (0,2,0), and the global kill switch then
+   runs the scroll animation to its end state in 0.01ms — which is the lion at
+   opacity 0. Measured on 2026-09-16: the reduced-motion cover was a blank
+   navy screen until these selectors were widened. */
 @media (prefers-reduced-motion: reduce) {
   .hero { --cover-runway: 0svh; }
-  .lionCore, .lionHaze, .lionLayer, .wordmark, .standfirst, .editionRail, .actions, .coverSignal [data-slot="rule"] { animation: none; }
+  .lionCore, .lionHaze, .wordmark, .standfirst, .editionRail, .actions { animation: none; }
+  .lionCore .lionLayer, .lionHaze .lionLayer, .coverSignal [data-slot="rule"] { animation: none; }
   .motionControl { display: none; }
   .editionRailHeadline, .motionControl { transition: none; }
 }
 html[data-motion="paused"] .hero { --cover-runway: 0svh; }
-html[data-motion="paused"] .lionCore, html[data-motion="paused"] .lionHaze, html[data-motion="paused"] .lionLayer, html[data-motion="paused"] .wordmark, html[data-motion="paused"] .standfirst, html[data-motion="paused"] .editionRail, html[data-motion="paused"] .actions, html[data-motion="paused"] .coverSignal [data-slot="rule"] { animation: none; }
+html[data-motion="paused"] .lionCore, html[data-motion="paused"] .lionHaze, html[data-motion="paused"] .wordmark, html[data-motion="paused"] .standfirst, html[data-motion="paused"] .editionRail, html[data-motion="paused"] .actions { animation: none; }
+html[data-motion="paused"] .lionCore .lionLayer, html[data-motion="paused"] .lionHaze .lionLayer, html[data-motion="paused"] .coverSignal [data-slot="rule"] { animation: none; }
 @media (scripting: none) {
   .motionControl { display: none; }
 }

@@ -208,9 +208,14 @@ describe("reduced motion is honoured by every layer that still moves", () => {
        to, nothing to download beyond the layers themselves. */
     const reduced = home.slice(home.indexOf("@media (prefers-reduced-motion: reduce)"));
     expect(reduced).toMatch(/\.hero \{ --cover-runway: 0svh; \}/);
-    expect(reduced).toMatch(/\.lionCore, \.lionHaze, \.lionLayer,[^{]*\{ animation: none; \}/);
+    expect(reduced).toMatch(/\.lionCore, \.lionHaze,[^{]*\{ animation: none; \}/);
+    /* The layer selectors must match the timeline rule's own specificity
+       (`.lionCore .lionLayer`, not `.lionLayer`) or the kill switch runs the
+       scroll animation to its end state — a lion at opacity 0 — in 0.01ms. */
+    expect(reduced).toMatch(/\.lionCore \.lionLayer, \.lionHaze \.lionLayer,[^{]*\{ animation: none; \}/);
     expect(home).toMatch(/html\[data-motion="paused"\] \.hero \{ --cover-runway: 0svh; \}/);
     expect(home).toMatch(/html\[data-motion="paused"\] \.lionCore,[^{]*\{ animation: none; \}/);
+    expect(home).toMatch(/html\[data-motion="paused"\] \.lionCore \.lionLayer,[^{]*\{ animation: none; \}/);
     expect(home).toMatch(/@supports not \(animation-timeline: scroll\(\)\) \{\s*\.hero \{ --cover-runway: 0svh; \}/);
     /* The scroll itself lives only behind the feature test. */
     const timeline = home.slice(home.indexOf("@supports (animation-timeline: scroll())"));

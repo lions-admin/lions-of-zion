@@ -71,6 +71,24 @@ export const REFERENCE_LINKS: readonly ChromeLink[] = [
   ACCOUNT_LINK,
 ];
 
+/**
+ * The drawer's own groups — every destination no bar control can show.
+ *
+ * `/account` is excluded: the account control is permanent in the bar and
+ * takes `aria-current` itself, so a drawer cell for it would say "here" twice.
+ * The bar's four destinations join the drawer only where the bar itself
+ * cannot show them (retracted, or below the phone seam) — `SiteHeader` renders
+ * `BAR_LINKS` as the drawer's complement group and CSS shows it exactly when
+ * the bar is not showing its destinations, so the drawer is never a duplicate
+ * of the bar and never leaves a destination stranded.
+ */
+export const DRAWER_PEOPLE_LINKS: readonly ChromeLink[] = [
+  section("people-of-israel"), section("we-are"),
+];
+export const DRAWER_STANDARD_LINKS: readonly ChromeLink[] = REFERENCE_LINKS.filter(
+  (link) => link.href !== ACCOUNT_LINK.href,
+);
+
 export function isCurrentChromeLink(activeSection: string | undefined, href: string): boolean {
   if (!activeSection) return false;
   const target = href.slice(1);

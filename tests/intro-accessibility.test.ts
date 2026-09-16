@@ -175,8 +175,13 @@ describe("the home hero's moving layer cannot rise, catch a pointer, or be annou
 
   it("is overpainted by the content layer, the masthead and the skip link", () => {
     expect(sections).toMatch(/\.shell \{[^}]*z-index:\s*var\(--z-raised\)/);
-    const shell = read("components/site/editorial-shell.module.css");
-    expect(shell).toMatch(/z-index:\s*var\(--z-overlay\)/);
+    /* 2026-09-16: the skip link is the masthead's own element now, so the
+       overlay z-index that used to live on the shell's `.skipHost` wrapper
+       lives on the link in `site-header.module.css`. The value pinned here is
+       unchanged: the link that focuses over a full-bleed fixed bar paints
+       above it, not under it. */
+    const shell = read("components/site/site-header.module.css");
+    expect(shell).toMatch(/\.skipLink \{[\s\S]*?z-index:\s*var\(--z-overlay\)/);
     for (const [name, value] of [
       ["--z-raised", 10],
       ["--z-header", 200],

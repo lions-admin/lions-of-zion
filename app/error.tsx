@@ -26,6 +26,7 @@
 import Link from 'next/link';
 import { useEffect } from 'react';
 import { SiteHeader } from '@/components/site/SiteHeader';
+import { SiteFooter } from '@/components/site/SiteFooter';
 
 export default function ErrorBoundary({
   error,
@@ -52,16 +53,25 @@ export default function ErrorBoundary({
   const recover = retry ?? reset;
 
   return (
-    <main className="loz-error">
+    <>
+      {/* Banner and contentinfo are landmarks only outside `main`, so the
+          header and footer are siblings of the document, not children of it —
+          the same shape every `EditorialShell` route has. The skip link is
+          the header's own first element now, and `#page-content` is `main`
+          itself. */}
       <SiteHeader />
+      <main id="page-content" tabIndex={-1} className="loz-error">
       <style>{`
         .loz-error {
           /* The document scrolls — converted with the other reading
-             containers on 2026-08-27; see the lock in app/globals.css. */
+              containers on 2026-08-27; see the lock in app/globals.css.
+              The fixed masthead's height is read from the token, so this
+              page clears the tall masthead and follows it when the mode
+              retracts. */
           min-height: 100dvh;
           display: grid;
           place-items: center;
-          padding: var(--sp-5);
+          padding: calc(var(--header-h) + var(--sp-5)) var(--sp-5) var(--sp-5);
           /* The real ground and its texture, not a flat panel over them. */
           background-color: var(--ground);
           background-image: var(--scan-ground);
@@ -217,6 +227,8 @@ export default function ErrorBoundary({
         </div>
         {error.digest ? <p className="loz-error-digest">Ref {error.digest}</p> : null}
       </div>
-    </main>
+      </main>
+      <SiteFooter />
+    </>
   );
 }

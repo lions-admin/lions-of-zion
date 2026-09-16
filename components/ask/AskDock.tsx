@@ -1,10 +1,17 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useId, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Dialog } from "@/components/ui/Dialog";
-import { AskDesk } from "./AskDesk";
 import styles from "./ask.module.css";
+
+/* The desk is the one heavy surface the bar carries, and it mounts on every
+ * route through this file — so it is imported lazily, and its body renders
+ * only while the drawer is open. What the bar always ships is the anchor:
+ * `/ask` is a real route, so before hydration, without JavaScript, and on a
+ * modified click the launcher still goes somewhere useful. */
+const AskDesk = dynamic(() => import("./AskDesk").then((mod) => ({ default: mod.AskDesk })));
 
 interface AskDockProps {
   /**
@@ -14,6 +21,9 @@ interface AskDockProps {
    * current, and the dialog is not mounted.
    */
   current?: boolean;
+  /** Run when the launcher opens the desk — the chrome closes the file
+   *  drawer behind it, so an interaction never happens over an open panel. */
+  onActivate?: () => void;
 }
 
 /**
@@ -34,7 +44,7 @@ interface AskDockProps {
  * `/ask` is a real route, so before hydration, without JavaScript, and on a
  * modified click this still goes somewhere useful.
  */
-export function AskDock({ current = false }: AskDockProps) {
+export function AskDock({ current = false, onActivate }: AskDockProps) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
 
@@ -48,7 +58,7 @@ export function AskDock({ current = false }: AskDockProps) {
         aria-current={current ? "page" : undefined}
         aria-haspopup={current ? undefined : "dialog"}
         aria-expanded={current ? undefined : open}
-        aria-controls={current ? undefined : panelId}
+        aria-controls={current ? undefined : open ? panelId : undefined}
         data-measure-id="ask-open"
         data-measure-event="ask_open"
         data-measure-exposure="none"
@@ -57,6 +67,7 @@ export function AskDock({ current = false }: AskDockProps) {
           // Keep native navigation available before hydration and for new-tab gestures.
           if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
           event.preventDefault();
+          onActivate?.();
           setOpen(true);
         }}
       >
@@ -86,7 +97,11 @@ export function AskDock({ current = false }: AskDockProps) {
           closeLabel="Close the desk"
           className={styles.dockPanel}
         >
-          <AskDesk />
+          {/* Gated on `open` like `SearchPanel` in the search overlay: the
+              conversation machinery is mounted only while the desk is open,
+              and the chunk arrives lazily with it. The launcher stays in the
+              server HTML at every state — the no-JS anchor contract. */}
+          {open ? <AskDesk /> : null}
         </Dialog>
       )}
     </>

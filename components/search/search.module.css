@@ -696,6 +696,28 @@
   padding: 0;
 }
 
+/* The ⌘K hint, where the masthead has room for it. `data-hint` is the
+   header's opt-in; the seam is the rails seam (76.25rem), where the bar stops
+   tightening — the icon variant hides the hint by the rule above, and this
+   un-hides it only where the bar is wide enough to carry a machine value
+   without stealing measure from the destination names. */
+@media (min-width: 76.25rem) {
+  .launcher[data-hint] .launcherHint {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: nowrap;
+  }
+
+  .launcher[data-hint] {
+    min-inline-size: 0;
+    padding: 0 var(--sp-3);
+  }
+}
+
 /* ── The page's no-JavaScript state ───────────────────────────────────── */
 
 .noScript {

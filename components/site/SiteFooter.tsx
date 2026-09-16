@@ -1,6 +1,13 @@
 import Link from "next/link";
+import { SignalMark } from "@/components/brand/SignalMark";
 import { SITE_DESCRIPTION } from "@/lib/site-config";
-import { SECTION_LINKS, REFERENCE_LINKS, isCurrentChromeLink } from "./navigation-model";
+import {
+  ABOUT_LINKS,
+  REPORTING_LINKS,
+  SUPPORT_LINK,
+  DRAWER_STANDARD_LINKS,
+  isCurrentChromeLink,
+} from "./navigation-model";
 import { ChromeLinkGroup } from "./ChromeLink";
 import styles from "./site-footer.module.css";
 
@@ -10,12 +17,9 @@ interface SiteFooterProps {
   home?: boolean;
 }
 
-const TRUST_HREFS = new Set(["/methodology", "/corrections"]);
-
 /**
- * Compact colophon: whose desk this is, Methodology and Corrections, a dense
- * index of the files, and the year. It is not a second wall of the same
- * destinations the header already offered on a long archive page.
+ * The colophon: whose desk this is, a headed index of the files, and the year.
+ * It is not a second toolbar repeating the bar's controls.
  *
  * A server component with no client JavaScript: every link is in the
  * prerendered HTML, so on any reading route this remains a complete index for
@@ -26,17 +30,15 @@ const TRUST_HREFS = new Set(["/methodology", "/corrections"]);
  * Every link below is the shared `ChromeLink`, the same anchor the masthead
  * drawer and the mobile sheet draw. This file used to own three more
  * treatments of its own — `.trustLink`, `.furtherLink`, `.fileLink` — each
- * with its own current-page mark, hover, focus behaviour and target floor,
- * none of which agreed with the header's four. What is left here is where the
- * groups sit, which is the colophon's own business.
+ * with its own current-page mark, hover, focus behaviour and target floor.
+ * What is left here is where the groups sit, which is the colophon's own
+ * business.
  *
  * No newsletter capture, no social row, no "trusted by" strip.
  */
 export function SiteFooter({ activeSection, home = false }: SiteFooterProps) {
   const current = (href: string) => isCurrentChromeLink(activeSection, href);
   const year = new Date().getFullYear();
-  const trustLinks = REFERENCE_LINKS.filter((link) => TRUST_HREFS.has(link.href));
-  const furtherLinks = REFERENCE_LINKS.filter((link) => !TRUST_HREFS.has(link.href));
 
   return (
     /* The footer's exposure is "the reader reached the end of the page";
@@ -45,50 +47,76 @@ export function SiteFooter({ activeSection, home = false }: SiteFooterProps) {
       <div className={styles.inner}>
         <div className={styles.identity}>
           <Link href="/" className={styles.brand} data-measure-id="footer-brand" data-measure-exposure="none">
+            {/* The nameplate is the large typeset name — the audit's contrast
+                was a bar wordmark at body size against this. The bar keeps the
+                compact mark; the colophon states the brand at display size. */}
             <span className={styles.brandName}>Lions of Zion</span>
             <span className={styles.brandRole}>Evidence, not narratives</span>
           </Link>
           <p className={styles.statement}>{SITE_DESCRIPTION}</p>
-        </div>
-
-        {/* Two rows, one landmark name each, so a screen reader is not given
-            three anonymous "navigation" regions in one colophon. */}
-        <div className={styles.reference}>
-          <ChromeLinkGroup
-            label="Standards"
-            hiddenLabel
-            links={trustLinks}
-            current={current}
-            size="standard"
-            arrow={false}
-            className={styles.trustRow}
-            measureId="footer-reference"
-          />
-          <ChromeLinkGroup
-            label="Further reference"
-            hiddenLabel
-            links={furtherLinks}
-            current={current}
-            className={styles.furtherRow}
-            measureId="footer-further"
-          />
+          {/* The legal row, reserved. None of the three routes exists yet, and
+              the colophon does not link to pages that would 404. The row ships
+              as links the moment `/privacy`, `/terms` and `/contact` exist —
+              `ChromeLink`s, one row, no other change needed. */}
+          <p className={styles.legal}>
+            <span>Privacy</span>
+            <span aria-hidden="true"> · </span>
+            <span>Terms</span>
+            <span aria-hidden="true"> · </span>
+            <span>Contact</span>
+          </p>
         </div>
       </div>
 
-      <ChromeLinkGroup
-        label="Explore"
-        links={SECTION_LINKS}
-        current={current}
-        /* One arrow per row, because each cell here *is* a row — the one
-           place in the chrome where a compact link earns the glyph. */
-        arrow
-        className={styles.files}
-        measureId="footer-sections"
-      />
+      {/* The index: headed groups on an auto-fit grid, so no width leaves an
+          orphan cell — each group fills the tracks it is given and empty
+          tracks collapse. Account and the two tools stay out of it: they
+          are permanent controls in the bar, and a colophon cell for a control
+          one scroll away is a duplicate. Each group is its own named
+          `navigation` region, so a screen reader is never given four
+          anonymous ones. The index is a child of the colophon, not of the
+          identity block — it is the footer's own band, as it has always
+          been, so the shared block's auto-margins keep centring it as a
+          block instead of sizing it to content as a grid item would. */}
+      <div className={styles.files} data-measure-id="footer-sections" data-measure-exposure="none">
+        <ChromeLinkGroup
+          label="Reporting & evidence"
+          links={REPORTING_LINKS}
+          current={current}
+          /* One arrow per row, because each cell here *is* a row — the one
+             place in the chrome where a compact link earns the glyph. */
+          arrow
+          measureId="footer-reporting"
+        />
+        <ChromeLinkGroup
+          label="People & purpose"
+          links={ABOUT_LINKS}
+          current={current}
+          arrow
+          measureId="footer-people"
+        />
+        <ChromeLinkGroup
+          label="Standards"
+          links={DRAWER_STANDARD_LINKS}
+          current={current}
+          arrow
+          measureId="footer-standards"
+        />
+        <ChromeLinkGroup
+          label="Support the desk"
+          links={[SUPPORT_LINK]}
+          current={current}
+          arrow
+          measureId="footer-support"
+        />
+      </div>
 
       <div className={styles.colophon}>
-        <p className={styles.copyright}>© {year} Lions of Zion</p>
-        {/* `#page-content` is the same anchor `EditorialShell`'s skip link
+        {/* The signature: the signal rule closes the page. One appearance per
+            page — the hub kicker carries the other, and the cover the last. */}
+        <SignalMark className={styles.signalMark} />
+        <p className={styles.copyright}>© 2024–{year} Lions of Zion</p>
+        {/* `#page-content` is the same anchor the masthead's skip link
             targets, so this works with no JavaScript and no extra markup. */}
         <a className={styles.toTop} href="#page-content" data-measure-id="footer-to-top" data-measure-exposure="none">
           Back to the top

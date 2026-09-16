@@ -1,8 +1,8 @@
-/* Site colophon · design V4
+/* Site colophon · Midnight Signal
  *
  * One footer for every route. It closes the page as a colophon — a large
- * display nameplate, the desk's statement, Methodology and Corrections at
- * reading size, then a four-column index of the sections — rather than as a
+ * display nameplate, the desk's statement, the legal row, then a headed
+ * auto-fit index of the files, closed by the signal rule — rather than as a
  * second toolbar. The homepage used to carry this composition alone while
  * reading routes got a compact strip; the strip made every article end on a
  * different note from the front, so the colophon is now the shared close.
@@ -35,6 +35,7 @@
    `max()`, not `calc(… + …)`: the inset raises a floor rather than adding to
    the gutter, so at a zero inset this is byte-for-byte the old rule. */
 .inner,
+.files,
 .colophon {
   max-width: var(--footer-width);
   margin-inline: auto;
@@ -44,10 +45,6 @@
 }
 
 .inner {
-  display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-  gap: var(--sp-5) var(--sp-7);
-  align-items: start;
   padding-block: var(--sp-7) var(--sp-6);
 }
 
@@ -67,6 +64,11 @@
   color: var(--ink-hi);
 }
 
+/* The nameplate: the display face at display size. The audit's contrast was
+   a bar wordmark at body size against a nameplate that read 82px at the top
+   of a colophon this page closes with — the large typeset name is the point
+   of the identity block, and the bar's compact mark is the echo, not the
+   other way round. */
 .brandName {
   font-family: var(--face-display);
   font-optical-sizing: auto;
@@ -91,7 +93,7 @@
   transition: color var(--dur-fast) var(--ease-out);
 }
 
-.brand:hover .brandRole { color: var(--gold); }
+.brand:hover .brandRole { color: var(--ink); }
 
 .statement {
   max-width: 45ch;
@@ -101,53 +103,42 @@
   text-wrap: pretty;
 }
 
-/* ── Reference: Methodology and Corrections first ──────────────────────────
+/* The reserved legal row. Plain text until the routes exist — see the note in
+   `SiteFooter.tsx`; the spans are already the shape the three links will
+   take, so the row's arrival is a markup swap, not a re-layout. */
+.legal {
+  composes: dataMeta from global;
+  color: var(--ink-lo);
+}
+
+/* ── The file index ────────────────────────────────────────────────────────
  *
- * Layout only. Every anchor in these three rows is the shared `ChromeLink`
+ * Headed groups that wrap. Flex with a 22rem basis is what removes the
+ * audit's orphan cell: groups flow onto as many rows as the width allows and
+ * every row's members grow to fill it, so no width — 100rem or 320 — ever
+ * leaves a named cell sitting beside an empty one, and no query has to be
+ * re-counted when a group grows. (An auto-fit grid of groups left exactly
+ * those empty cells whenever the track count did not divide the group
+ * count.)
+ *
+ * Layout only. Every anchor in these rows is the shared `ChromeLink`
  * (`chrome-link.module.css`) — the same one the masthead drawer and the
  * mobile sheet draw, with the same current-page rule, the same focus ring and
- * the same 44px floor. `.trustLink`, `.furtherLink`, `.fileLink` and
- * `.fileName` were this file's own four treatments of those same
- * destinations; they disagreed with the header's in every one of those
- * respects, and they are gone.
+ * the same 44px floor.
  */
 
-.reference {
-  display: grid;
-  justify-items: end;
-  align-content: start;
-  gap: var(--sp-3);
-  padding-top: var(--sp-2);
-}
-
-/* Methodology and Corrections, at reading size: the two a reader is most
-   likely to want from a colophon, so they are named larger than the rest. */
-.trustRow ul {
-  justify-items: end;
-}
-
-.furtherRow ul {
+.files {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: var(--sp-2) var(--sp-4);
-}
-
-/* ── Section index ─────────────────────────────────────────────────────── */
-
-.files {
-  max-width: var(--footer-width);
-  margin-inline: auto;
-  padding-inline:
-    max(var(--footer-inset), env(safe-area-inset-left, 0px))
-    max(var(--footer-inset), env(safe-area-inset-right, 0px));
+  gap: var(--sp-5) var(--sp-7);
+  align-items: start;
   padding-block: var(--sp-5) var(--sp-6);
   border-top: var(--line-w) solid var(--line-soft);
 }
 
-.files ul {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--sp-2) var(--sp-6);
+.files > nav {
+  flex: 1 1 min(100%, 22rem);
+  min-width: 0;
 }
 
 /* A rule under each cell, so the index reads as a table of files rather than
@@ -164,14 +155,18 @@
 
 /* ── Colophon ──────────────────────────────────────────────────────────── */
 
+/* The signal rule is the closing rule now, so the row carries no border-top:
+   the mark is the rule, its spectrum head the period at the end of the page. */
 .colophon {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
   gap: var(--sp-2) var(--sp-5);
   padding-block: var(--sp-4);
-  border-top: var(--line-w) solid var(--line);
+}
+
+.signalMark {
+  flex: 0 0 auto;
 }
 
 .copyright {
@@ -186,6 +181,7 @@
   align-items: center;
   gap: var(--sp-3);
   min-height: var(--control-h);
+  margin-inline-start: auto;
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
   font-weight: 400;
@@ -201,39 +197,23 @@
   outline-offset: var(--focus-offset);
 }
 
-.footer a:active { color: var(--gold-hi); }
+.footer a:active { color: var(--ink-hi); }
 
 /* Keep the colophon above mobile browser chrome. Ask now lives in the header. */
 .home { padding-bottom: calc(var(--sp-6) + env(safe-area-inset-bottom, 0px)); }
 
-/* ── Seams ─────────────────────────────────────────────────────────────── */
+/* ── Seams ───────────────────────────────────────────────────────────────
+ *
+ * One canonical seam (45rem, `--bp-seam`): the auto-fit index reflows itself
+ * at every width without one, so this block only stacks the identity block
+ * and releases the right-aligned reference rows for a single column.
+ */
 
-@media (max-width: 64rem) {
-  .files ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-@media (max-width: 48rem) {
+@media (max-width: 45rem) {
   .home { padding-bottom: calc(var(--sp-7) + env(safe-area-inset-bottom, 0px)); }
-  .inner {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--sp-5);
-    padding-block: var(--sp-6) var(--sp-5);
-  }
-  .reference { justify-items: start; padding-top: 0; }
-  .trustRow ul {
-    display: flex;
-    flex-wrap: wrap;
-    justify-items: start;
-    gap: var(--sp-5);
-  }
-  .furtherRow ul { justify-content: flex-start; }
-  .colophon { gap: var(--sp-2) var(--sp-5); }
+  .inner { gap: var(--sp-5); }
   .toTop,
   .home .toTop { padding-inline-end: 0; }
-}
-
-@media (max-width: 26rem) {
-  .files ul { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {

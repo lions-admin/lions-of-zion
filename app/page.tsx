@@ -62,7 +62,8 @@ export default async function Page() {
       media="(min-width: 760px) and (min-aspect-ratio: 6/5)"
       fetchPriority="high"
     />
-    <a className={styles.skipLink} href="#home-wordmark">Skip to content</a>
+    {/* The skip link is the header's own first element; `#page-content` is
+        `main` below. There is deliberately no second copy here. */}
     <SiteHeader home />
     <main id="page-content" className={styles.page} data-home-scroll>
         <section className={styles.hero} aria-labelledby="home-wordmark">

@@ -115,17 +115,18 @@
 
 /* ── States ──────────────────────────────────────────────────────────────── */
 
-.link:hover {
-  color: var(--gold-hi);
+/* One hover language: ink rises. Gold on hover was a second voice — the
+   accent belongs to *here* and to focus, not to passing over (2026-09-16
+   identity round). The link was `--ink-hi` at rest, so the rise is one step:
+   the arrow follows, and it keeps its travel. */
+.link:hover,
+.link:active {
+  color: var(--ink-hi);
 }
 
 .link:hover .arrow {
-  color: var(--gold-hi);
+  color: var(--ink-hi);
   transform: translateX(2px);
-}
-
-.link:active {
-  color: var(--gold-hi);
 }
 
 .link:focus-visible {

@@ -423,24 +423,36 @@
   --control-h-sm: 2.5rem;
   --control-h-coarse: 2.75rem;
 
-  /* The bar's *total occupied height*, notch included — not the height of the
-     strip a reader looks at.
+  /* The masthead's *total occupied height*, notch included — not the height
+     of the strip a reader looks at — and the retracted bar's.
+
+     Two modes share these tokens (2026-09-16 identity round). `--header-h`
+     is the tall masthead at the top of a document: display-size wordmark,
+     role line, the section links (on their own row below the rails seam).
+     `--header-h-bar` is the short bar the masthead retracts into on
+     sustained scroll-down — the height of its own 44px controls — and it is
+     the *only* thing the retracted mode changes: `html[data-header-bar]`
+     re-points `--header-h` at it, so every surface that offsets by the
+     masthead (the shell's padding, `scroll-margin-top`, the drawer's
+     max-height, the hero's padding) follows the mode from one token, with no
+     measuring loop anywhere.
 
      `viewport-fit=cover` (VA-41, `app/layout.tsx`) lets the page paint under
      the status bar and the Dynamic Island, and `.header` is
      `position: fixed; inset: 0 0 auto`, so its box starts at physical y=0.
-     Without the inset in this token the masthead would render *inside* the
-     sensor housing: 47px on an iPhone 12–14, 59px on a 14 Pro and later,
-     against a 3.5rem (56px) phone bar. Nine visible pixels at best, nothing
-     at all on a current handset.
+     Without the inset in these tokens the masthead would render *inside*
+     the sensor housing: 47px on an iPhone 12–14, 59px on a 14 Pro and later,
+     against a 3.5rem (56px) phone bar.
 
-     This token is what twelve files offset their content by, so it has to be
-     the whole thing. `site-header.module.css` `.bar` pads the same amount off
-     its own top; with the global `box-sizing: border-box` its content strip
-     stays exactly 4.8rem / 3.5rem and simply sits below the housing. The two
-     halves are one change — neither works alone, and shipping only the
-     padding would shrink the visible strip instead of moving it. */
-  --header-h: calc(4.8rem + env(safe-area-inset-top, 0px));
+     These tokens are what a dozen files offset their content by, so they
+     have to be the whole thing. `site-header.module.css` `.bar` pads the
+     same amount off its own top; with the global `box-sizing: border-box`
+     its content strip stays exactly its designed height and simply sits
+     below the housing. The two halves are one change — neither works alone,
+     and shipping only the padding would shrink the visible strip instead of
+     moving it. */
+  --header-h: calc(7rem + env(safe-area-inset-top, 0px));
+  --header-h-bar: calc(3.5rem + env(safe-area-inset-top, 0px));
 
   /* The stills for the home hero, declared here rather than buried in the
      rules that use them. `HeroVideo` holds the same two paths in its
@@ -498,22 +510,36 @@
   }
 }
 
-/* The chrome is shorter on a phone. 4.8rem of header above a full-bleed hero
-   is a seventh of the screen spent on a wordmark and two controls, and every
-   pixel of it is taken from the photograph. `site-header.module.css` sets the
-   bar to match; this token is what the hero's own top padding reads, so the
-   two have to move together. The safe-area term is carried here too — see the
-   note on the base value; the phone is the case it exists for. */
+/* The masthead is shorter on a phone and on a handheld held sideways: the
+   tall phone masthead is 4.8rem — the old bar's height, now carrying the
+   role line the narrow bar never had room for — against the desktop's 7rem.
+   The seams are the chrome's own (the 45rem phone seam and the short-coarse
+   handheld query); the retracted bar reads `--header-h-bar`, which does not
+   change with the width. The safe-area term is carried here too — see the
+   note on the base values; the phone is the case it exists for. */
+@media (max-width: 45rem), (max-height: 30rem) and (pointer: coarse) {
+  :root {
+    --header-h: calc(4.8rem + env(safe-area-inset-top, 0px));
+  }
+}
+
+/* The retracted mode. The attribute selector out-ranks the `:root` media
+   overrides above regardless of order, and the value is the short bar's own
+   token — the masthead retracts by changing what one token reads, not by
+   measuring anything. Set from `SiteHeader`'s effect; removed on unmount. */
+html[data-header-bar] {
+  --header-h: var(--header-h-bar);
+}
+
+/* The wordmark's own mobile clamp, carried beside the desktop one, and the
+   phone type floors (UX-10, 2026-09-08): on a phone, body and summaries are
+   never below 16px, metadata and captions never below 13px. --t-small is
+   15px at the root, which is a claim text below the floor on a 390px screen;
+   the token is lifted here so every claim, summary and card body clears the
+   floor at once. */
 @media (max-width: 48rem) {
   :root {
-    --header-h: calc(3.5rem + env(safe-area-inset-top, 0px));
-    /* The wordmark's own mobile clamp, carried beside the desktop one. */
     --t-home-wordmark: var(--t-home-wordmark-mobile);
-    /* UX-10 (2026-09-08): on a phone, body and summaries are never below
-       16px, metadata and captions never below 13px. --t-small is 15px at the
-       root, which is a claim text below the floor on a 390px screen; the
-       token is lifted here so every claim, summary and card body clears the
-       floor at once. */
     --t-small: 1rem;
     --t-data: 0.8125rem;
   }
@@ -746,6 +772,15 @@ html:has([data-handoff-blocked]) body {
 :focus:not(:focus-visible) { outline: none; }
 
 [data-public-shell] { padding-top: var(--header-h); }
+
+/* With scripting off the masthead is not fixed — `site-header.module.css`
+   makes the header static and the drawer a static index in the flow — so the
+   offset that reserves its place would be a blank band of nothing above the
+   document. The token stays for the surfaces that still want it as a
+   `scroll-margin`; only the shell's own padding-top drops to zero. */
+@media (scripting: none) {
+  [data-public-shell] { padding-top: 0; }
+}
 
 /* The scroll-driven entrance, once, in the system file (2026-09-16).
  *

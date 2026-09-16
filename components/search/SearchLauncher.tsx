@@ -33,6 +33,15 @@ export interface SearchLauncherProps {
   /** True when `/search` is the route on screen: the control then takes the
    *  bar's current-page mark instead of its resting hairline. */
   current?: boolean;
+  /**
+   * Expose the ⌘K hint where the masthead has room for it — the stylesheet
+   * decides when from `data-hint`; the header turns it on so the hint shows
+   * at the rails seam (≥76.25rem) and nowhere narrower.
+   */
+  showHint?: boolean;
+  /** Run when the launcher opens the overlay — the chrome closes the file
+   *  drawer behind it, so an interaction never happens over an open panel. */
+  onActivate?: () => void;
 }
 
 /** Whether the keystroke landed somewhere a person is writing. */
@@ -56,7 +65,7 @@ const NO_CHANGES = () => () => {};
 const readIsMac = () => /Mac|iPhone|iPad/.test(navigator.userAgent);
 const readIsMacOnServer = () => false;
 
-export function SearchLauncher({ variant = "bar", className, current }: SearchLauncherProps) {
+export function SearchLauncher({ variant = "bar", className, current, showHint, onActivate }: SearchLauncherProps) {
   const [open, setOpen] = useState(false);
   const mac = useSyncExternalStore(NO_CHANGES, readIsMac, readIsMacOnServer);
   const triggerRef = useRef<HTMLAnchorElement>(null);
@@ -86,11 +95,13 @@ export function SearchLauncher({ variant = "bar", className, current }: SearchLa
         href="/search"
         className={[styles.launcher, className].filter(Boolean).join(" ")}
         data-variant={variant}
+        data-hint={showHint || undefined}
         aria-current={current ? "page" : undefined}
         onClick={(event) => {
           /* Leave the modified clicks alone — they mean "somewhere else". */
           if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
           event.preventDefault();
+          onActivate?.();
           setOpen(true);
         }}
       >

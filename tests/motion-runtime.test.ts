@@ -198,6 +198,30 @@ describe("PERF-007 — observers and listeners are scoped and released", () => {
     /* A reveal is once-only: the callback releases each element as it fires. */
     expect(source).toMatch(/observer\.unobserve\(entry\.target\)/);
   });
+
+  /**
+   * The masthead's retract sentinel (2026-09-16 identity round). Registered
+   * here the same way the frame loops are: a new observer in the chrome is
+   * not a failure, it is the prompt to state its purpose, its hysteresis and
+   * its release — which is what this is.
+   *
+   * It replaces the bar's passive scroll listener with one 1px sentinel at
+   * the top of the document: the observer fires on intersection change, not
+   * per frame, and the 120px `rootMargin` is the hysteresis — retraction
+   * asks for 120px of sustained scroll and return happens the moment the
+   * scroll-up crosses back into the band. One observer per header, no rAF,
+   * disconnected on unmount; the mode swap it drives sets one custom
+   * property on `<html>` rather than measuring anything.
+   */
+  it("the masthead retracts on one released IntersectionObserver, not a scroll listener", () => {
+    const source = read("components/site/SiteHeader.tsx");
+    expect(source.match(/new IntersectionObserver/g)?.length).toBe(1);
+    expect(source).toMatch(/rootMargin:\s*`\$\{RETRACT_DEPTH\}px 0px 0px 0px`/);
+    expect(source).toMatch(/observer\.disconnect\(\)/);
+    /* The old boolean scroll listener is the thing this replaced; it must
+       not quietly come back beside the sentinel. */
+    expect(source).not.toMatch(/addEventListener\(\s*["']scroll["']/);
+  });
 });
 
 describe("MOTION-003 — Reveal is limited to sections and ordered processes", () => {

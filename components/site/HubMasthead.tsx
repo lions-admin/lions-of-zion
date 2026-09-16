@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { SignalMark } from "@/components/brand/SignalMark";
 import styles from "./hub-masthead.module.css";
 
 export type HubJumpLink = { href: string; label: string };
@@ -48,7 +49,14 @@ export function HubMasthead({ kicker, title, standfirst, status, jumps, classNam
       tabIndex={-1}
     >
       <div className={styles.headline}>
-        {kicker ? <p className={styles.kicker}>{kicker}</p> : null}
+        {/* The kicker's rule is the signal rule itself — one of the mark's
+            rationed appearances per page (colophon close, cover). */}
+        {kicker ? (
+          <p className={styles.kicker}>
+            <SignalMark />
+            {kicker}
+          </p>
+        ) : null}
         <h1 className={styles.title}>{title}</h1>
         {standfirst ? <p className={styles.standfirst}>{standfirst}</p> : null}
       </div>

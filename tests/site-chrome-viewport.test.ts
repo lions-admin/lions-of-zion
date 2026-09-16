@@ -105,18 +105,18 @@ describe("VA-45 — the phone seam is a pointer and a height, not only a width",
 
   it("keeps Support Us in the bar on a phone (owner ruling, 2026-09-11)", () => {
     // Support Us used to be grouped with the Files trigger and dropped here.
-    // It now stays at every width: the word goes screen-reader-only below
-    // 45rem and a 44px gold-outlined glyph carries it.
+    // It now stays at every width: the word is the composed global `.srOnly`
+    // box at base scope — un-hidden at ≥45rem, where the bar has room — and
+    // a 44px gold-outlined glyph carries it below the seam. The old
+    // hand-written screen-reader-only box is gone with the other eight
+    // copies of it; what the assertion defends is that the word survives in
+    // the accessibility tree and the control keeps the coarse floor.
     const swap = mediaBlocks(header).find((b) =>
       /\.header\s+\.menuTrigger\s*\{\s*display:\s*inline-flex/.test(b.body),
     )!;
     expect(swap.body).not.toMatch(/\.support\s*[,{][^}]*display:\s*none/);
-    const phone = mediaBlocks(header).find(
-      (b) => /max-width:\s*45rem/.test(b.prelude) && /\.supportLabel\s*\{/.test(b.body),
-    );
-    expect(phone, "a 45rem block makes the Support label screen-reader-only").toBeTruthy();
-    expect(phone!.body).toMatch(/\.supportLabel\s*\{[^}]*clip-path:\s*inset\(50%\)/);
-    expect(phone!.body).toMatch(/\.support\s*\{[^}]*min-inline-size:\s*var\(--control-h-coarse\)/);
+    expect(baseScope(header)).toMatch(/\.supportLabel\s*\{\s*composes:\s*srOnly from global/);
+    expect(swap.body).toMatch(/\.support\s*\{[^}]*min-inline-size:\s*var\(--control-h-coarse\)/);
   });
 
   it("clears every phone in landscape and no tablet in either orientation", () => {
@@ -241,11 +241,28 @@ describe("the safe-area pair is one change (VA-41)", () => {
   const globals = stripComments(read("app/globals.css"));
 
   it("carries the top inset in every --header-h definition", () => {
-    const defs = [...globals.matchAll(/--header-h:\s*([^;]+);/g)].map((m) => m[1].trim());
-    expect(defs.length, "expected a base value and a phone override").toBeGreaterThanOrEqual(2);
+    /* 2026-09-16: the masthead has two modes — a tall token and a retracted
+       bar token — and the retracted mode re-points `--header-h` at
+       `--header-h-bar` rather than restating the value. The rule is
+       unchanged and now covers both tokens: a definition must either carry
+       the top inset itself or be exactly the indirection to a token that
+       does, so the pair (and every width override) keeps moving the whole
+       masthead clear of the sensor housing, never just its padding. */
+    const defs = [...globals.matchAll(/--header-h(?:-bar)?:\s*([^;]+);/g)].map((m) => m[1].trim());
+    expect(defs.length, "expected tall, bar, width and handheld overrides").toBeGreaterThanOrEqual(3);
     for (const def of defs) {
-      expect(def, `--header-h: ${def} must include the top inset`).toMatch(/env\(safe-area-inset-top,\s*0px\)/);
+      if (def === "var(--header-h-bar)") continue;
+      expect(def, `--header-h: ${def} must include the top inset`).toMatch(
+        /env\(safe-area-inset-top,\s*0px\)/,
+      );
     }
+    expect(defs, "the retracted mode re-points --header-h at --header-h-bar").toContain(
+      "var(--header-h-bar)",
+    );
+    /* The bar token itself is a literal with the inset, never an
+       indirection of its own. */
+    const barToken = /--header-h-bar:\s*([^;]+);/.exec(globals)![1]!;
+    expect(barToken).toMatch(/env\(safe-area-inset-top,\s*0px\)/);
   });
 
   it("pads the bar's own top by the same inset", () => {

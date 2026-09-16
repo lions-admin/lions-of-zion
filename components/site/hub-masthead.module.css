@@ -38,12 +38,12 @@
   color: var(--gold);
 }
 
-.kicker::before {
-  content: "";
-  inline-size: var(--sp-5);
-  block-size: var(--line-w);
-  background: currentColor;
-}
+/* The kicker's rule is the signal rule itself — `SignalMark`, composed into
+   the markup by `HubMasthead.tsx` — so the front opens the way the colophon
+   closes and the cover will. The old dash (`::before`, one `--sp-5` bar) is
+   retired with it; the colour is the component's own, read from
+   `--signal-rule-color`, so October 7's memorial muting re-points both the
+   mark and this text by moving one token. */
 
 /* The display role itself, no longer a size above it (2026-09-11). At 5rem
    "The People of Israel" broke onto two lines and pushed the first profile
@@ -142,7 +142,7 @@
 
 .jump:hover { color: var(--ink-hi); }
 .jump:hover::after { background: var(--line-strong); }
-.jump:active::after { background: var(--gold); }
+.jump:active::after { background: var(--line-strong); }
 
 .jump:focus-visible {
   outline: var(--focus-outline);
@@ -152,7 +152,9 @@
 
 /* ── Seams ─────────────────────────────────────────────────────────────── */
 
-@media (max-width: 64rem) {
+/* The rails seam (76.25rem, `--bp-rails`): the one where a hub's two-column
+   masthead gives up its status column, not a seam of its own. */
+@media (max-width: 76.25rem) {
   .masthead {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:

@@ -61,10 +61,13 @@ cover links, warnings or media credits on mobile or enlarged text.
 - Every image carries its disclosure as the first caption line, visibly,
   never behind a tooltip; `alt` carries the full sentence.
 - The section's one destination action follows the records on a phone.
-- Below 1100px on the homepage the Ask launcher retracts while the reader
-  scrolls down and returns on scroll up, at the end of the page, or on
-  keyboard focus; it keeps a 44px-or-larger target, its accessible name,
-  `aria-expanded`, safe-area offsets and focus restoration. It is never
+- Ask lives in the masthead on every route and at every width; there is no
+  floating launcher and none may be added. The masthead is tall at the top
+  of a document and retracts on sustained scroll-down into a short bar
+  carrying the two tools, returning on scroll-up, on keyboard focus, or at
+  the top of the page. The retracted bar keeps every 44px target, its
+  accessible name and its safe-area offsets, and the document's offset
+  follows the masthead's mode, so nothing reflows underneath it. It is never
   hidden from the tab order, and the page reserves no column for it.
 
 ## Voice — September 8, 2026

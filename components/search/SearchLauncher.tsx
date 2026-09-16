@@ -30,6 +30,9 @@ export interface SearchLauncherProps {
    *  a narrow bar. */
   variant?: "bar" | "icon";
   className?: string;
+  /** True when `/search` is the route on screen: the control then takes the
+   *  bar's current-page mark instead of its resting hairline. */
+  current?: boolean;
 }
 
 /** Whether the keystroke landed somewhere a person is writing. */
@@ -53,7 +56,7 @@ const NO_CHANGES = () => () => {};
 const readIsMac = () => /Mac|iPhone|iPad/.test(navigator.userAgent);
 const readIsMacOnServer = () => false;
 
-export function SearchLauncher({ variant = "bar", className }: SearchLauncherProps) {
+export function SearchLauncher({ variant = "bar", className, current }: SearchLauncherProps) {
   const [open, setOpen] = useState(false);
   const mac = useSyncExternalStore(NO_CHANGES, readIsMac, readIsMacOnServer);
   const triggerRef = useRef<HTMLAnchorElement>(null);
@@ -83,6 +86,7 @@ export function SearchLauncher({ variant = "bar", className }: SearchLauncherPro
         href="/search"
         className={[styles.launcher, className].filter(Boolean).join(" ")}
         data-variant={variant}
+        aria-current={current ? "page" : undefined}
         onClick={(event) => {
           /* Leave the modified clicks alone — they mean "somewhere else". */
           if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;

@@ -271,7 +271,11 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
               see `AskDock` for why one home won (UX-07, UX-08). */}
           <div className={styles.deskActions}>
             <AskDock current={activeSection === "ask"} />
-            <SearchLauncher variant="icon" className={styles.deskSearch} />
+            <SearchLauncher
+              variant="icon"
+              className={styles.deskSearch}
+              current={activeSection === "search"}
+            />
           </div>
           <Button
             ref={filesTriggerRef}

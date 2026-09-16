@@ -657,6 +657,14 @@
   background: var(--tint-hover);
 }
 
+/* The current-page mark is the bar's own grammar, restated on the one control
+   whose resting state is a box: the hairline firms to gold and the label rises
+   to ink-hi. No second device is invented for it. */
+.launcher[aria-current="page"] {
+  color: var(--ink-hi);
+  border-color: var(--gold);
+}
+
 .launcherGlyph {
   display: inline-flex;
   color: inherit;

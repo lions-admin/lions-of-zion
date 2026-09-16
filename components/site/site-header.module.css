@@ -242,6 +242,14 @@
   min-inline-size: var(--control-h);
 }
 
+/* One specificity step above `.header .deskSearch` so the current-page mark
+   survives the ≤80rem de-plate: on /search the hairline firms to gold and the
+   label rises to ink-hi — the bar's own current grammar, no second device. */
+.header .deskActions .deskSearch[aria-current="page"] {
+  color: var(--ink-hi);
+  border-color: var(--gold);
+}
+
 /* Shared Button wraps children in its own content span. Gap, hairline and
    chevron must target through that span; Button's border/background/weight
    must not paint a pill over the masthead. `.header` beats Button's single

@@ -3,15 +3,19 @@
 /**
  * The share affordance that closes every archive record.
  *
- * "Post on X" never asks Lions of Zion for account write access. Without
- * source media it is the ordinary X Web Intent, which opens the composer with
- * the record text and link. With locally held source media it is
- * `XMediaPostButton`: the same link, except that on a device able to hand
- * files to apps it delivers the actual video or image with a short caption
- * through the operating-system share sheet (owner instruction, 2026-09-13).
+ * **One quiet path.** The record ends with the archive counted, one way to
+ * pass it on, and the neighbours — not a row of social buttons. With source
+ * media the one control is `XMediaPostButton`: the same "Post on X" link,
+ * except that on a device able to hand files to apps it delivers the actual
+ * video or image with a short caption through the operating-system share
+ * sheet (owner instruction, 2026-09-13) — the sheet is where the reader picks
+ * X, Facebook, or anything else. Without media the control is the system
+ * sheet where the browser has one, and a copy of the caption where it does
+ * not; the composer link for X then still exists in the caption the reader
+ * carries.
  */
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { Button, ButtonLink } from '@/components/ui';
+import { Button } from '@/components/ui';
 import { XMediaPostButton } from './XMediaPostButton';
 import { politeLive } from '@/components/ui/live-region';
 import styles from './archive.module.css';
@@ -25,13 +29,10 @@ export type ShareRecordProps = {
   url: string;
   title: string;
   xHref: string;
-  facebookHref: string;
   caption: string;
   xMedia?: {
     pkg: 'october7' | 'hamas-massacre';
-    recordId: string;
     mediaId: string;
-    locale?: string;
     assetUrl: string;
     medium: 'video' | 'image';
   };
@@ -39,7 +40,7 @@ export type ShareRecordProps = {
 
 type CopyState = 'idle' | 'copied' | 'failed';
 
-export function ShareRecord({ url, title, xHref, facebookHref, caption, xMedia }: ShareRecordProps) {
+export function ShareRecord({ url, title, xHref, caption, xMedia }: ShareRecordProps) {
   const canShare = useSyncExternalStore(NO_SUBSCRIBE, probeShare, serverShare);
   const [copyState, setCopyState] = useState<CopyState>('idle');
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -86,7 +87,9 @@ export function ShareRecord({ url, title, xHref, facebookHref, caption, xMedia }
       <div className={styles.shareRow}>
         {/* One X control. With source media it delivers the file and the
             caption where the device allows and is the plain composer link
-            everywhere else; without media it is the composer link. */}
+            everywhere else; without media the one quiet path is the system
+            sheet where the browser has one, and a copy of the caption where
+            it does not. */}
         {xMedia ? (
           <XMediaPostButton
             {...xMedia}
@@ -96,45 +99,26 @@ export function ShareRecord({ url, title, xHref, facebookHref, caption, xMedia }
             returnTo={returnTo}
           />
         ) : (
-          <ButtonLink
-            href={xHref}
-            variant="secondary"
-            size="md"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Post on X
-          </ButtonLink>
+          <>
+            {canShare ? (
+              <Button type="button" variant="text" size="md" onClick={systemShare}>
+                Share record…
+              </Button>
+            ) : (
+              <Button type="button" variant="text" size="md" onClick={copyCaption}>
+                Copy caption
+              </Button>
+            )}
+            <span
+              className={styles.shareStatus}
+              {...politeLive}
+              data-state={copyState === 'idle' ? undefined : copyState}
+            >
+              {copyState === 'copied' ? 'Copied.' : null}
+              {copyState === 'failed' ? 'Couldn’t copy.' : null}
+            </span>
+          </>
         )}
-
-        <ButtonLink
-          href={facebookHref}
-          variant="secondary"
-          size="md"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Share on Facebook
-        </ButtonLink>
-
-        {canShare ? (
-          <Button type="button" variant="secondary" size="md" onClick={systemShare}>
-            Share record…
-          </Button>
-        ) : (
-          <Button type="button" variant="secondary" size="md" onClick={copyCaption}>
-            Copy caption
-          </Button>
-        )}
-
-        <span
-          className={styles.shareStatus}
-          {...politeLive}
-          data-state={copyState === 'idle' ? undefined : copyState}
-        >
-          {copyState === 'copied' ? 'Copied.' : null}
-          {copyState === 'failed' ? 'Couldn’t copy.' : null}
-        </span>
       </div>
     </div>
   );

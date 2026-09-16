@@ -8,8 +8,14 @@ import {
   displayTitle,
   displayWitness,
 } from '@/lib/content/archive';
+import {
+  formatArchiveDate,
+  groupDigits,
+  LANGUAGE_NAMES,
+} from '@/lib/content/archive-display';
 import { firstArchiveSourceMedia } from '@/lib/content/archive-share';
-import { buildXShareText, facebookShareUrl, xIntentUrl } from '@/lib/content/share-text';
+import { buildXShareText, xIntentUrl } from '@/lib/content/share-text';
+import { ButtonLink } from '@/components/ui/Button';
 import { ArchiveBlocks, type ArchiveSensitivity } from './ArchiveBlocks';
 import { ArchiveAdvisory } from './ArchiveIntro';
 import { ShareRecord } from './ShareRecord';
@@ -37,18 +43,15 @@ export type ArchiveRecordProps = {
   categoryName?: string | null;
   /** What this record holds behind a stated choice. */
   sensitivity: ArchiveSensitivity;
+  /**
+   * How many records the archive this came from holds — the real count, read
+   * from the same cached index the archive's own rows are ordered by. It is
+   * what lets a record close with where it sits: "one of 179 accounts held
+   * here".
+   */
+  heldTotal: number;
   previous?: ArchiveNeighbour | null;
   next?: ArchiveNeighbour | null;
-};
-
-const LANGUAGE_NAMES: Readonly<globalThis.Record<string, string>> = {
-  en: 'English',
-  es: 'Español',
-  de: 'Deutsch',
-  fr: 'Français',
-  it: 'Italiano',
-  ja: '日本語',
-  pt: 'Português',
 };
 
 export type ArchiveDatelineProps = {
@@ -87,7 +90,7 @@ export function ArchiveDateline({
   categoryName,
 }: ArchiveDatelineProps) {
   const others = record.available_languages.filter((l) => l !== version.locale);
-  const published = formatDate(record.publication_date);
+  const published = formatArchiveDate(record.publication_date);
   const witness = record.witness_name ? displayWitness(record.witness_name) : null;
 
   const pairs: { label: string; value: ReactNode }[] = [];
@@ -204,6 +207,7 @@ export function ArchiveRecord({
   shareUrl,
   categoryName,
   sensitivity,
+  heldTotal,
   previous,
   next,
 }: ArchiveRecordProps) {
@@ -216,6 +220,9 @@ export function ArchiveRecord({
     kind: pkg === 'october7' ? 'testimony' : 'record',
   });
   const sourceMedia = firstArchiveSourceMedia(pkg, version, media);
+  const indexPath =
+    variant === 'testimony' ? '/october-7/testimonies' : '/october-7/documentation';
+  const noun = variant === 'testimony' ? 'accounts' : 'records';
 
   const held = countMedia(version);
   const gated =
@@ -255,8 +262,6 @@ export function ArchiveRecord({
       <div className={styles.material} lang={version.locale} dir={version.direction}>
         <ArchiveBlocks
           pkg={pkg}
-          recordId={record.canonical_story_id}
-          locale={version.locale}
           blocks={version.content_blocks}
           media={media}
           sensitivity={sensitivity}
@@ -312,17 +317,26 @@ export function ArchiveRecord({
           ) : null}
         </section>
 
+        {/* A record closes with where it sits: the archive named and counted,
+            and the way back to it. Then the one share path, then the
+            neighbours — a reader who has just finished an account is offered
+            the way back before the way on. */}
+        <section className={styles.recordClose} aria-label="Where this record sits">
+          <p className={styles.recordCloseLine}>
+            One of {groupDigits(heldTotal)} {noun} held here.
+          </p>
+          <ButtonLink href={indexPath} variant="text" size="sm">
+            Back to all {groupDigits(heldTotal)}{' '}
+            {variant === 'testimony' ? 'testimonies' : 'records'}
+          </ButtonLink>
+        </section>
+
         <ShareRecord
           url={shareUrl}
           title={title}
           xHref={xIntentUrl(xText, shareUrl)}
-          facebookHref={facebookShareUrl(shareUrl)}
           caption={`${xText}\n${shareUrl}`}
-          xMedia={sourceMedia ? {
-            ...sourceMedia,
-            recordId: record.canonical_story_id,
-            locale: version.locale,
-          } : undefined}
+          xMedia={sourceMedia ?? undefined}
         />
 
         {/* The way on. Both archives are ordered — testimonies newest first,
@@ -415,22 +429,6 @@ function describeHolding(
   if (held.videos > 0) parts.push(plural(held.videos, 'film', 'films'));
   if (held.images > 0) parts.push(plural(held.images, 'photograph', 'photographs'));
   return parts.length ? parts.join(', ') : 'The record’s own text';
-}
-
-function groupDigits(value: number): string {
-  return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-}
-
-function formatDate(value: string | null): string | null {
-  if (!value) return null;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  return date.toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'UTC',
-  });
 }
 
 /** The site address alone — "october7.org", not the record's whole slug. */

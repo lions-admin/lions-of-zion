@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type MouseEvent } from 'react';
+import { useRef, useState, type MouseEvent } from 'react';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { buildMediaShareText, xIntentUrl } from '@/lib/content/share-text';
 import { politeLive } from '@/components/ui/live-region';
@@ -8,25 +8,28 @@ import { chooseMediaSharePayload } from '@/lib/content/media-share';
 import styles from './archive.module.css';
 
 type Props = {
-  pkg: 'october7' | 'hamas-massacre';
-  recordId: string;
   mediaId: string;
-  locale?: string;
   assetUrl: string;
   medium: 'video' | 'image';
   /** The record's own title. Becomes the short caption that travels with the file. */
   shareTitle: string;
   /** The record's canonical URL. Written into the caption, not passed beside it. */
   shareUrl: string;
-  returnTo: string;
   /**
    * The X Web Intent for this record. When present the control *is* "Post on
    * X": a real link to the composer that, on a device able to hand files to
-   * apps, delivers the video instead. Absent, the control is the secondary
+   * apps, delivers the video instead. Absent, the control is the quiet
    * "Share original …" action beside a media block.
    */
   xHref?: string;
   compact?: boolean;
+  /**
+   * Still passed by the archive call sites for the server-side post route's
+   * return path. Nothing here reads it — this action opens no OAuth flow and
+   * posts nothing from the client — and it is kept only so the callers that
+   * hand it over keep compiling.
+   */
+  returnTo?: string;
 };
 
 type State = 'idle' | 'preparing' | 'ready' | 'downloaded' | 'failed';
@@ -62,10 +65,16 @@ type ShareAttempt = 'shared' | 'dismissed' | 'activation-expired' | 'unsupported
  *    reader. A blocked popup is offered as an ordinary link instead.
  *
  * Web Share needs transient user activation, and a large video fetched *after*
- * the tap outlives it on iOS. So the file is fetched ahead of the tap, once the
- * control scrolls into view on a device that can share files, and kept in a
- * ref; if it is still not ready when the reader taps, the tap that finishes
- * the fetch asks for one more.
+ * the tap outlives it on iOS. So the file is fetched ahead of the tap — but
+ * **only on a gesture of intent, and never unasked** (2026-09-17). The old
+ * scroll-into-view observer was the defect: it pulled the full original —
+ * on this archive a graphic one — the moment the control scrolled into view,
+ * even while the record's content gate was still covered and the reader had
+ * chosen nothing. Now the fetch starts on `pointerdown` or `focus` of the
+ * control itself, and three things stop it: the record's gate still covered
+ * (the material is the thing the gate holds), a `saveData` connection, and a
+ * browser that could not hand the file to an app anyway. A press that goes
+ * through fetches on demand inside `share()`, which is the reader asking.
  */
 export function XMediaPostButton({
   mediaId,
@@ -80,7 +89,6 @@ export function XMediaPostButton({
   const [composerHref, setComposerHref] = useState<string | null>(null);
   const preparedFile = useRef<File | null>(null);
   const prefetch = useRef<Promise<File | null> | null>(null);
-  const root = useRef<HTMLSpanElement>(null);
   const primary = Boolean(xHref);
   const label = primary
     ? 'Post on X'
@@ -93,7 +101,7 @@ export function XMediaPostButton({
   const caption = buildMediaShareText(shareTitle, shareUrl);
   const composer = xHref ?? xIntentUrl(shareTitle, shareUrl);
 
-  const prepare = () => {
+  const startFetch = () => {
     if (!prefetch.current) {
       prefetch.current = fetchOriginal(assetUrl, mediaId, medium).then((file) => {
         preparedFile.current = file;
@@ -103,25 +111,35 @@ export function XMediaPostButton({
     return prefetch.current;
   };
 
-  /* Fetch ahead of the tap, but only where the file could go somewhere: a
-     browser with no file sharing would download a video for nothing. The
-     wrapper is `display: contents`, so the control itself is what is observed. */
-  useEffect(() => {
-    const control = root.current?.firstElementChild;
-    if (!control || !canShareFiles()) return;
-    const observer = new IntersectionObserver((entries) => {
-      if (!entries.some((entry) => entry.isIntersecting)) return;
-      observer.disconnect();
-      void prepare();
-    });
-    observer.observe(control);
-    return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- the asset is fixed for the control's life
-  }, [assetUrl]);
+  /** Whether the record's own content gate is still covering the media. */
+  const gateCovered = (): boolean => {
+    if (typeof document === 'undefined') return false;
+    const holder = document.querySelector(`[data-gate-media="${mediaId}"]`);
+    return (
+      holder?.querySelector('[data-sensitive]')?.getAttribute('data-state') === 'covered'
+    );
+  };
+
+  /** Whether the reader's connection has asked for a data-light page. */
+  const saveData = (): boolean => {
+    const info = (
+      navigator as Navigator & { connection?: { saveData?: boolean } }
+    ).connection;
+    return Boolean(info?.saveData);
+  };
+
+  /* Ahead of the tap, and only on a gesture of the control itself: pressing or
+     focusing it is the reader asking for the file's company, scrolling past it
+     is not. The two guards above each refuse it in their own case. */
+  const prefetchAhead = () => {
+    if (saveData()) return;
+    if (gateCovered()) return;
+    startFetch();
+  };
 
   /* The file could not be handed over. Save it, then put the reader in front of
-     the X composer with the caption already written, so the only step left is
-     attaching what is now on their device. */
+      the X composer with the caption already written, so the only step left is
+      attaching what is now on their device. */
   const fallBackToDownload = () => {
     setState(downloadOriginal(assetUrl) ? 'downloaded' : 'failed');
     const opened = window.open(composer, '_blank', 'noopener,noreferrer');
@@ -144,7 +162,7 @@ export function XMediaPostButton({
     }
 
     setState('preparing');
-    const file = await prepare();
+    const file = await startFetch();
     if (!file) {
       // Never fall back to account authorization. If the original cannot be
       // fetched at all, deliver it as a download and open the composer.
@@ -185,16 +203,18 @@ export function XMediaPostButton({
           : null;
 
   return (
-    <span ref={root} className={styles.mediaShare}>
+    <span className={styles.mediaShare}>
       {primary ? (
         <ButtonLink
           href={composer}
-          variant="secondary"
+          variant="text"
           size="md"
           target="_blank"
           rel="noopener noreferrer"
           isLoading={state === 'preparing'}
           onClick={interceptIntent}
+          onPointerDown={prefetchAhead}
+          onFocus={prefetchAhead}
         >
           {label}
         </ButtonLink>
@@ -203,9 +223,10 @@ export function XMediaPostButton({
           type="button"
           variant={compact ? 'text' : 'secondary'}
           size="md"
-          className={compact ? styles.mediaAction : undefined}
           isLoading={state === 'preparing'}
           onClick={() => void share()}
+          onPointerDown={prefetchAhead}
+          onFocus={prefetchAhead}
         >
           {label}
         </Button>
@@ -218,14 +239,15 @@ export function XMediaPostButton({
         {status}
       </span>
       {composerHref ? (
-        <a
-          className={styles.mediaAction}
+        <ButtonLink
           href={composerHref}
+          variant="text"
+          size="md"
           target="_blank"
           rel="noopener noreferrer"
         >
           Open X and attach the {medium}
-        </a>
+        </ButtonLink>
       ) : null}
     </span>
   );

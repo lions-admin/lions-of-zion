@@ -194,10 +194,11 @@ export async function ArchiveRecordPage({
 
   const variant = pkg === 'october7' ? 'testimony' : 'documentation';
   const version = pickVersion(record, locale);
-  const [media, categoryName, neighbours] = await Promise.all([
+  const [media, categoryName, neighbours, heldTotal] = await Promise.all([
     getMediaRegistry(pkg),
     categoryNameFor(pkg, record.category_id),
     neighboursFor(pkg, slug),
+    getIndex(pkg),
   ]);
 
   const title = displayTitle(version.title);
@@ -265,6 +266,7 @@ export async function ArchiveRecordPage({
         shareUrl={shareUrl}
         categoryName={categoryName}
         sensitivity={sensitivityFor(pkg, categoryName)}
+        heldTotal={heldTotal.length}
         previous={neighbours.previous}
         next={neighbours.next}
       />

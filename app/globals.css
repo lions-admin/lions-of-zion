@@ -491,10 +491,22 @@
 
   --measure-wide: 80ch;
   --measure-reading: 68ch;
+  /* The list surfaces' measure (Midnight Signal, workstream H): the October 7
+     indexes are lists, not prose, and the reading column is prose's measure.
+     Wider than the dossier's 68ch and narrower than the hub container —
+     documentation's seven facet chips fit one line on a desktop, and the
+     testimony rows' plates breathe beside their words. */
+  --measure-index: 100rem;
   --measure-narrow: 54ch;
   --measure-caption: 44ch;
   --measure-title: 34ch;
   --measure-data: 24ch;
+
+  /* The one emphasis weight the data roles spend — the strong value in a
+     count line, a filing line, an identity band. A step token pairs with a
+     size; this is the single weight those emphases share, so a face change
+     moves them all together and no module carries a bare 600. */
+  --w-strong: 600;
 
   --chrome-w: 92rem;
   --line-w: 1px;
@@ -561,9 +573,14 @@ html[data-header-bar] {
 
 /* October 7 alone lowers the display voice (2026-09-16): the archive is read
    quietly, so its headings sit one weight step down and the signal rule is
-   muted. No route renders `data-memorial` yet; this is the token hook the
-   memorial surface takes when it does. */
-main[data-memorial] {
+   muted. `data-memorial` is the token hook; the shell (`EditorialShell`) does
+   not yet carry a pass-through for it, but it does set `data-quiet` on every
+   October 7 route's `<main>` — so the held profile hangs on that attribute
+   until the pass-through lands, and both spellings say the same two things.
+   This is the hook the archive subtree reads (Midnight Signal, workstream H):
+   index pages and all ~1,177 record pages mute together from one place. */
+main[data-memorial],
+main[data-quiet] {
   --t-display-weight: 500;
   --signal-rule-color: var(--ink-lo);
 }

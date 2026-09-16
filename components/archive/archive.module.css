@@ -4,14 +4,21 @@
  * Every value here answers to the V3 tokens in `app/globals.css`: the three
  * faces, the eight type steps with their paired line-height / weight /
  * tracking, the `--sp-*` spacing ramp, the ink and hairline scale, and the
- * radius / motion vocabulary. Nothing in this file is a literal.
+ * radius / motion vocabulary. Nothing in this file is a literal: the weights
+ * read `var(--w-strong)` and the two media queries sit on the site's own
+ * canonical seams (`48rem`, the type-floors seam, and `45rem`, the phone
+ * seam) — the three private breakpoints this file used to carry went out
+ * with 2026-09-17.
  *
- * The register is memorial. Testimony is the most solemn content on the site,
- * so the treatment is subtractive: one display voice for the record's own
- * headings and its quoted words, one text voice for prose and controls, one
- * data voice for dates, file numbers, counts and provenance. No decoration on
- * a record body, no hover theatre, and gold spent once per surface — the page
- * shell's rule under the headline already owns it, so nothing below competes.
+ * The register is memorial, and the held profile is the whole route's:
+ * October 7 carries `data-quiet` on `<main>`, which `app/globals.css` reads
+ * to step the display voice down and mute the signal rule. Nothing here
+ * fragments, staggers or fills with the accent — one display voice for the
+ * record's own headings and its quoted words, one text voice for prose and
+ * controls, one data voice for dates, file numbers, counts and provenance.
+ * No decoration on a record body, no hover theatre, and gold spent once per
+ * surface — the page shell's rule under the headline already owns it, so
+ * nothing below competes; hover and pressed states answer in ink.
  *
  * Ember appears in exactly two places, and both are danger rather than
  * emphasis: the record's content advisory, and the media gate's hairline
@@ -205,13 +212,13 @@ section:first-child > .heading {
   margin-bottom: 0;
 }
 
-/* Above 760px the counts and the notice stand side by side rather than in a
-   column. Stacked, they pushed the first record to 944px on a 900px desktop —
-   the same defect the phone had, one screen wider. The measure is what decides
-   the breakpoint: below it the advisory's text drops under 40 characters a
-   line, which is where a notice stops being readable and starts being a
-   ragged strip. */
-@media (min-width: 760px) {
+/* Above the type-floors seam (48rem) the counts and the notice stand side by
+   side rather than in a column. Stacked, they pushed the first record to 944px
+   on a 900px desktop — the same defect the phone had, one screen wider. The
+   measure is what decides the seam: below it the advisory's text drops under
+   40 characters a line, which is where a notice stops being readable and
+   starts being a ragged strip. */
+@media (min-width: 48rem) {
   .intro {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(15rem, 18rem);
@@ -258,7 +265,7 @@ section:first-child > .heading {
   font-family: var(--face-data);
   font-size: var(--t-small);
   line-height: 1.3;
-  font-weight: 600;
+  font-weight: var(--w-strong);
   color: var(--ink-hi);
 }
 
@@ -286,11 +293,34 @@ section:first-child > .heading {
   text-wrap: pretty;
 }
 
+/* The seam where the page's language changes. No box of its own — the
+   record's own words carry no frame — it exists so `lang`/`dir` have an
+   element to sit on and so the exhibit layout has something to hang from. */
 .material {
-  /* The seam where the page's language changes. No box of its own — the
-     record's own words carry no frame — it exists so `lang`/`dir` have an
-     element to sit on and so the exhibit layout has something to hang from. */
   display: block;
+}
+
+/* Japanese, honestly. The site loads four faces and none of them carries CJK
+   glyphs (`app/layout.tsx`: Schibsted Grotesk and Literata in Latin subsets,
+   Geist Mono, IBM Plex Sans Hebrew for the operations console) — so a
+   Japanese testimony's kanji are set by whatever the reader's own system
+   offers, and no web face is promised here. Loading one for the fourteen
+   Japanese versions would cost every visitor a face they never use. The one
+   thing that is done is refusing the *synthetic* italic: the quote role is
+   italic, a browser has no CJK italic to use and so slants the glyphs
+   itself, and an obliqued account is a distortion of someone's words — the
+   quote keeps its gravity through the face change alone. */
+.material:lang(ja) .quote p {
+  font-style: normal;
+  font-synthesis-style: none;
+}
+
+/* The marker a gate's media carries, named so the per-media share control can
+   find its own gate and refuse to prefetch ahead of it while it is covered
+   (see `XMediaPostButton`). A wrapper, not a box: the gate keeps filling the
+   figure's frame exactly as before. */
+.gateHolder {
+  display: contents;
 }
 
 /* The documentation variant. The record is one film or photograph; the media
@@ -440,7 +470,7 @@ section:first-child > .heading {
    account" before it reaches who or when. */
 .recordKindValue {
   color: var(--ink-hi);
-  font-weight: 600;
+  font-weight: var(--w-strong);
 }
 
 .metaPair {
@@ -539,7 +569,33 @@ section:first-child > .heading {
   color: var(--ink-lo);
 }
 
-/* ---------- index: controls ---------- */
+/* ---------- index: the archive column and the controls above the records ---
+ *
+ * The index surfaces break out of the reading column. The shell caps its
+ * article at the dossier's `--family-measure` (68ch) — prose's measure — and
+ * a list is not prose: the facet row has to hold documentation's seven
+ * categories on one line at a desktop width, and the testimony rows have
+ * plates to breathe beside. `--measure-index` (globals, additive) states the
+ * wider measure; the breakout is symmetric negative margins capped by the
+ * chrome's own width, and it is a no-op wherever that measure does not clear
+ * the column — a phone renders the column, not a squeezed breakout.
+ */
+
+.archiveColumn {
+  --index-extra: max(
+    0px,
+    calc(
+      (
+        min(
+          var(--measure-index),
+          var(--chrome-w) - (2 * var(--family-pad-inline)),
+          100vw - (2 * var(--family-pad-inline))
+        ) - 100%
+      ) / 2
+    )
+  );
+  margin-inline: calc(-1 * var(--index-extra));
+}
 
 .index {
   margin-top: var(--sp-5);
@@ -578,27 +634,14 @@ section:first-child > .heading {
 /* A form control, so the text face: what gets typed here is a witness's
    name or a place, not data. The shared field well is composed cross-file
    (2026-09-16) — `Field.tsx` exports it and two search inputs render it —
-   with the archive's own geometry (inline padding, 44px height) on top. */
+   and this file adds only the row's geometry. The well owns hover, focus and
+   the placeholder; duplicating any of them here is how two search fields
+   drift. */
 .searchInput {
   composes: control from "@/components/ui/field.module.css";
   flex: 1 1 9rem;
   min-height: var(--control-h);
   padding: 0 var(--sp-3);
-  background: color-mix(in srgb, var(--ground) 55%, transparent);
-}
-
-.searchInput::placeholder {
-  color: var(--ink-lo);
-}
-
-.searchInput:hover {
-  border-color: var(--line-strong);
-}
-
-.searchInput:focus-visible {
-  border-color: var(--gold-line-strong);
-  background: color-mix(in srgb, var(--ground) 70%, transparent);
-  outline-offset: 1px;
 }
 
 /* The legend sits beside the chips, not above them — see the note in
@@ -632,16 +675,16 @@ section:first-child > .heading {
   min-width: 0;
 }
 
-/* The legend goes back above the chips above 760px, and only there. Inline it
-   costs 77px off *every* wrapped row, and at that width the seven category
-   chips wrap to three of them; below the breakpoint the rail is a single line
-   and the same legend costs nothing.
+/* The legend goes back above the chips above the type-floors seam (48rem),
+   and only there. Inline it costs 77px off *every* wrapped row, and at that
+   width the seven category chips wrap to three of them; below the seam the
+   rail is a single line and the same legend costs nothing.
 
    This block sits *after* `.facets` rather than beside the `.intro` grid that
-   shares its breakpoint: a media query adds no specificity, so an override
-   written earlier in the file loses to the base rule and the legend rendered
-   centred over the chips. */
-@media (min-width: 760px) {
+   shares its seam: a media query adds no specificity, so an override written
+   earlier in the file loses to the base rule and the legend rendered centred
+   over the chips. */
+@media (min-width: 48rem) {
   .facets {
     flex-direction: column;
     align-items: stretch;
@@ -649,7 +692,7 @@ section:first-child > .heading {
   }
 }
 
-@media (max-width: 540px) {
+@media (max-width: 45rem) {
   /*
    * The chips become one scrolling rail rather than a seven-line stack.
    *
@@ -723,7 +766,7 @@ section:first-child > .heading {
   }
 }
 
-/* The shared `filter` button variant owns the box, the states and the gold
+/* The shared `filter` button variant owns the box, the states and the ink
    wash when pressed. Three overrides, all required by the type rules: a
    category runs to five words ("Terrorists Raiding the Streets") and
    uppercase plus tracking is reserved for labels of two or fewer, so these
@@ -775,14 +818,13 @@ section:first-child > .heading {
 }
 
 /* Pressed is already carried by the button's own background, border and
-   text colour (three cues, not one); the pill picks up the same gold rather
-   than staying neutral against it, so the count reads as part of the
-   selected chip and not as a leftover default. `aria-pressed` rather than a
-   class from another CSS module, which the button's own hashed class names
-   are not safe to reference here. */
-.facet[aria-pressed='true'] .facetCount {
-  background: color-mix(in oklab, var(--gold) 26%, transparent);
-  color: var(--gold-hi);
+   text colour — three cues, not one — and the shared `filter` variant owns
+   them. The pill stays neutral inside the pressed chip: this route's held
+   profile spends gold once per surface, on the shell's rule under the
+   headline, and a selected filter is a state, not an emphasis. `aria-pressed`
+   still carries the state for any future styling that is earned. */
+.facetRow .facet[aria-pressed='true'] .facetCount {
+  color: var(--ink-hi);
 }
 
 /* ---------- index: the stated result ---------- */
@@ -823,8 +865,9 @@ section:first-child > .heading {
  *
  * Two archives, two anatomies (OCT-003). What they share is the frame: the
  * whole row is one link and reads as one before the pointer touches it, hover
- * confirms rather than reveals, and the row's single emphasis is the gold rule
- * at its left edge.
+ * confirms rather than reveals, and the row's single emphasis is the held
+ * rule at its left edge — ink, not the accent, which the shell's rule under
+ * the headline already spends once for the page.
  */
 
 .recordList {
@@ -853,7 +896,7 @@ section:first-child > .heading {
 .recordLink:hover,
 .recordLink:focus-visible {
   background: color-mix(in srgb, var(--ink-hi) 4%, transparent);
-  border-left-color: var(--gold);
+  border-left-color: var(--ink);
 }
 
 /* The row is the focus target; the ring hugs it rather than floating
@@ -862,12 +905,14 @@ section:first-child > .heading {
   outline-offset: -2px;
 }
 
-/* An exhibit: numbered, plate first, then what it is and what it shows. */
+/* An exhibit: numbered, then what it is and what it shows — no plate. The
+   index's advisory promises no frame is shown until asked for, and the row
+   keeps that promise in its own anatomy; the number, the filing line and the
+   caption carry it instead (see `DocumentationRow`). */
 .recordList[data-variant='documentation'] .recordLink {
-  --thumb-w: clamp(4rem, 12vw, 6rem);
-  grid-template-columns: 2.75rem var(--thumb-w) minmax(0, 1fr) auto;
-  grid-template-areas: 'num thumb body arrow';
-  align-items: center;
+  grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+  grid-template-areas: 'num body arrow';
+  align-items: start;
 }
 
 /* A person: the words lead, the plate closes. No number — a witness is not an
@@ -901,7 +946,7 @@ section:first-child > .heading {
 
 .recordLink:hover .witnessName,
 .recordLink:focus-visible .witnessName {
-  color: var(--gold);
+  color: var(--ink-hi);
 }
 
 /* The account's own headline, and the row's link text. Clamped at three lines
@@ -935,7 +980,7 @@ section:first-child > .heading {
 
 .recordLink:hover .witnessTitle,
 .recordLink:focus-visible .witnessTitle {
-  text-decoration-color: var(--gold);
+  text-decoration-color: currentColor;
 }
 
 /* Two lines of the account's own words, then silence. The clamp is layout
@@ -979,25 +1024,21 @@ section:first-child > .heading {
 }
 
 /* Not chips: these are a statement about the record, not controls on it — the
-   controls are on the record's own page. Hairline boxes at the data step, with
-   the record's own language marked by ink rather than by a second colour. */
+   controls are on the record's own page. Plain tracked text at the data step
+   (2026-09-17; the hairline boxes were a second chip language doing a
+   statement's job), with the record's own language marked by ink rather than
+   by a border. */
 .witnessLocale {
-  display: inline-flex;
-  align-items: center;
-  min-height: 1.5rem;
-  padding: 0 var(--sp-2);
-  border: var(--line-w) solid var(--line-soft);
-  border-radius: var(--radius-1);
   font-family: var(--face-data);
   font-size: var(--t-data);
   line-height: 1;
   font-weight: var(--t-data-weight);
   letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
   color: var(--ink-lo);
 }
 
 .witnessLocale[data-default] {
-  border-color: var(--line);
   color: var(--ink);
 }
 
@@ -1006,13 +1047,6 @@ section:first-child > .heading {
 }
 
 /* ---------- documentation row ---------- */
-
-/* The plate leads the exhibit row, and it is square: these are frames from
-   film and photographs filed as evidence, and a portrait crop of one would be
-   a composition decision taken on someone else's document. */
-.exhibitPlate {
-  align-self: center;
-}
 
 .exhibitNum {
   grid-area: num;
@@ -1055,7 +1089,7 @@ section:first-child > .heading {
    read two labels of identical weight and infer it. */
 .exhibitMedium {
   color: var(--ink-hi);
-  font-weight: 600;
+  font-weight: var(--w-strong);
 }
 
 .exhibitCategory {
@@ -1109,6 +1143,7 @@ section:first-child > .heading {
 
 .exhibitArrow {
   grid-area: arrow;
+  align-self: center;
   font-family: var(--face-data);
   font-size: var(--t-body);
   line-height: 1;
@@ -1155,30 +1190,16 @@ section:first-child > .heading {
 
 /* ---------- responsive rows ---------- */
 
-/* Below 540px the four-column exhibit row no longer fits a caption at the
-   desktop measure: number, plate, gaps and arrow left ~120px at 320. The
-   number moves under the plate and the body takes the width.
-
-   The arrow stays. It was dropped here as "decorative", which was true of its
-   *hover* animation and false of the arrow itself: this is the only width at
-   which there is no pointer to hover, so the row's tint and border cues never
-   fire and the arrow is the one standing mark that the row goes somewhere. It
-   costs 14px of a measure that has ~230px left at 359. */
-@media (max-width: 540px) {
-  .recordList[data-variant='documentation'] .recordLink {
-    grid-template-columns: var(--thumb-w) minmax(0, 1fr) auto;
-    grid-template-areas:
-      'thumb body arrow'
-      'num body arrow';
-    align-items: start;
-    column-gap: var(--sp-3);
-    row-gap: var(--sp-2);
-  }
-
-  .exhibitArrow {
-    align-self: center;
-  }
-
+/* Below the phone seam the testimony row's plate takes the smaller clamp —
+   the row is four lines of words and a plate, and a 7rem plate beside a
+   320px column is a plate with no sentence beside it.
+   
+   The arrow stays at every width. It was once dropped below the phone seam as
+   "decorative", which was true of its *hover* animation and false of the
+   arrow itself: on a phone there is no pointer to hover, so the row's tint
+   and border cues never fire and the arrow is the one standing mark that the
+   row goes somewhere. */
+@media (max-width: 45rem) {
   .recordList[data-variant='testimony'] .recordLink {
     --thumb-w: clamp(3.5rem, 18vw, 4.5rem);
     gap: var(--sp-3);
@@ -1268,10 +1289,12 @@ section:first-child > .heading {
   gap: var(--sp-2);
 }
 
-/* The outcome of a copy, seen and announced alike. A status value, so the
-   data face; the state colours are the system's own, desaturated for the
-   warm palette. */
-/* The media-share control's wrapper: a hook for the in-view prefetch and
+/* The outcome of a copy, seen and announced alike. The state colours are the
+   system's own, desaturated for the warm palette. It is set in the text face,
+   not the data one — the statuses here are sentences a reader reads
+   ("Video ready — tap Post on X again…"), and mono running a sentence is a
+   defect this file's own rules name. */
+/* The media-share control's wrapper: a hook for the pointer/focus prefetch and
    nothing else, so the flex row lays out the control and its status line
    exactly as it would bare siblings. */
 .mediaShare {
@@ -1279,7 +1302,12 @@ section:first-child > .heading {
 }
 
 .shareStatus {
-  composes: dataValue from global;
+  margin: 0;
+  max-width: var(--measure-narrow);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  font-weight: var(--t-caption-weight);
   color: var(--ink);
 }
 
@@ -1399,7 +1427,7 @@ section:first-child > .heading {
   color: var(--ink-lo);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 45rem) {
   .neighbours {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1411,11 +1439,11 @@ section:first-child > .heading {
 
 /* ---------- per-media actions ----------
    Inside the figcaption, after caption and credit: download and share for
-   one held file. The site's ghost-button voice — text face, 600, control
-   radius, no border — so they read as this site's chrome and not as the
+   one held file. The controls are the button system's own link tier
+   (`variant="text"`), so they read as this site's chrome and not as the
    source's words, while staying quiet under evidence. The negative margins
    buy the 44px tap height without opening a hole in the caption stack, and
-   the leading one lets the label's left edge sit on the caption's. */
+   the leading one lets the row's left edge sit on the caption's. */
 
 .mediaActions {
   display: flex;
@@ -1428,33 +1456,23 @@ section:first-child > .heading {
   letter-spacing: 0;
 }
 
-.mediaAction {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--control-h);
-  padding: 0 var(--sp-2);
-  border-radius: var(--radius-2);
-  background: transparent;
+/* ---------- the record close: named, counted, and one way back ---------- */
+
+.recordClose {
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-4);
+  border-top: var(--line-w) solid var(--line-soft);
+}
+
+/* One sentence: where this record sits in what it belongs to. Text face at the
+   small step, muted — it is the archive speaking about its own holding, and
+   the count beside it is the only figure left after the record's own. */
+.recordCloseLine {
+  margin: 0 0 var(--sp-2);
   font-family: var(--face-text);
-  font-size: var(--t-caption);
-  line-height: 1;
-  font-weight: 600;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
   color: var(--ink-lo);
-  text-decoration: none;
-  text-transform: none;
-  letter-spacing: 0;
-  transition:
-    background-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
-}
-
-.mediaAction:hover {
-  color: var(--ink-hi);
-  background: color-mix(in srgb, var(--ink-hi) 6%, transparent);
-}
-
-.mediaAction:active {
-  background: color-mix(in srgb, var(--ink-hi) 3%, transparent);
 }
 
 /* ---------- the no-JavaScript complete index ----------

@@ -9,7 +9,12 @@ import type {
 /* From the pure module, not the seam: this list renders inside `ArchiveIndex`,
    a client component, and the seam reads the filesystem. (The entry types
    arrive as types only — those cross the boundary.) */
-import { displayTitle, displayWitness } from '@/lib/content/archive-display';
+import {
+  displayTitle,
+  displayWitness,
+  formatArchiveDate,
+  groupDigits,
+} from '@/lib/content/archive-display';
 import { MediaBlock } from '@/components/content/MediaBlock';
 import { Icon } from "@/components/ui/Icon";
 import styles from './archive.module.css';
@@ -63,9 +68,14 @@ export type ArchiveRecordListProps = {
  *    and the portrait plate sits at the end of the row, after the words.
  *
  *  - **Documentation** is an exhibit. The row keeps the numbered-file
- *    treatment, the square plate leads, and the line above the caption says
- *    what the source actually published — film or photograph — and which of
- *    its six categories filed it.
+ *    treatment — exhibit number, the filing line, the caption — and shows no
+ *    plate at all. Every cover frame in this archive is a frame of the attack,
+ *    and the index's own sentence promises none of it is shown until asked
+ *    for; 24 ungated cover thumbnails under that sentence was the promise
+ *    breaking itself on arrival. The number, the filing and the caption carry
+ *    the row instead (2026-09-17). The material is one press away, behind the
+ *    record's own gate, and a revealed film gets its poster there — the gate
+ *    mounts its children only on reveal, so nothing leaks ahead of the choice.
  *
  * Documentation rows deliberately do not print the excerpt. The importer takes
  * it from the record's own text, and on this archive the record's text *is*
@@ -118,7 +128,7 @@ function TestimonyRow({ entry }: { entry: ArchiveListEntry }) {
         ) : null}
         <span className={styles.witnessFacts}>
           {entry.date ? (
-            <span className={styles.witnessFact}>{formatDay(entry.date)}</span>
+            <span className={styles.witnessFact}>{formatArchiveDate(entry.date, 'short')}</span>
           ) : null}
           {/* Transcript availability, stated as the amount actually held
               rather than as a yes/no badge: "412 words" and "7,525 words" are
@@ -157,22 +167,27 @@ function DocumentationRow({
 }: {
   entry: ArchiveListEntry;
   number?: number;
+  /** The source's own name for the filing, restated only while no facet is
+   *  active — see `ArchiveIndex`, which passes it. */
   category?: string;
 }) {
-  const medium = entry.digest ? MEDIUM_LABEL[entry.digest.medium] : null;
   return (
     <>
       {number === undefined ? null : (
-        <span className={styles.exhibitNum} aria-hidden="true">
-          {String(number).padStart(3, '0')}
+        /* The exhibit's file number, stated to assistive technology rather
+           than drawn as decoration over an aria-hidden span: "Exhibit 7" is
+           the row's first fact when the list is read, not a design texture
+           the reader never hears. The padded form stays visual only. */
+        <span className={styles.exhibitNum}>
+          <span className={styles.srOnly}>{`Exhibit ${number}.`}</span>
+          <span aria-hidden="true">{String(number).padStart(3, '0')}</span>
         </span>
       )}
-      <MediaBlock layout="thumb" aspectRatio="1 / 1" className={styles.exhibitPlate}>
-        <RecordThumb entry={entry} />
-      </MediaBlock>
       <span className={styles.exhibitBody}>
         <span className={styles.exhibitFiling}>
-          {medium ? <span className={styles.exhibitMedium}>{medium}</span> : null}
+          {entry.digest ? (
+            <span className={styles.exhibitMedium}>{MEDIUM_LABEL[entry.digest.medium]}</span>
+          ) : null}
           {category ? <span className={styles.exhibitCategory}>{category}</span> : null}
         </span>
         <span className={styles.exhibitTitle}>
@@ -191,13 +206,17 @@ const MEDIUM_LABEL: Record<ArchiveRecordDigest['medium'], string> = {
 };
 
 /**
- * A row's cover, and what stands in its place when it does not arrive.
+ * The testimony row's cover, and what stands in its place when it does not
+ * arrive.
  *
  * Three states, and they are three different facts (OCT-007): the cover loads;
  * the entry has no cover at all, which is a quiet empty plate; the cover was
  * requested and refused, which is a dashed plate — a stated gap in the
  * holding, in the same voice `ArchiveImage` uses on the record page. Both
  * blanks keep the frame's box, so nothing below a failed row moves.
+ *
+ * Testimony rows only: the documentation index paints no plates at all — see
+ * the note on `DocumentationRow`.
  *
  * Decorative by contract (`alt=""`): the title beside it is the description,
  * and inventing one would be inventing metadata the archive does not hold.
@@ -219,9 +238,9 @@ function RecordThumb({ entry }: { entry: ArchiveListEntry }) {
       className={styles.recordThumb}
       src={entry.thumb}
       srcSet={entry.thumbSrcSet || undefined}
-      /* The plate is 4–6rem on the exhibit rows and 4.5–7rem on the testimony
-         rows; 160px covers both at 2x, so the browser picks the w480
-         derivative and never the 4K original. */
+      /* The plate is 3.5–7rem on the testimony rows; 160px covers the widest
+         at 2x, so the browser picks the w480 derivative and never the 4K
+         original. */
       sizes={entry.thumbSrcSet ? '160px' : undefined}
       width={entry.thumbWidth ?? undefined}
       height={entry.thumbHeight ?? undefined}
@@ -231,22 +250,4 @@ function RecordThumb({ entry }: { entry: ArchiveListEntry }) {
       onError={() => setFailed(true)}
     />
   );
-}
-
-/* Both formatters are deterministic on purpose. This renders on the server for
-   the first window and again on the client after hydration, and `toLocaleString`
-   would resolve against two different ICU environments and mismatch. */
-const MONTHS = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-];
-
-function formatDay(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-  return `${date.getUTCDate()} ${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
-}
-
-function groupDigits(value: number): string {
-  return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }

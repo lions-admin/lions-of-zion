@@ -11,7 +11,11 @@ import {
   type MouseEvent,
 } from 'react';
 import { Button, Pagination, StatusState, absenceStatus } from '@/components/ui';
-import { displayTitle, displayWitness } from '@/lib/content/archive-display';
+import {
+  displayTitle,
+  displayWitness,
+  groupDigits,
+} from '@/lib/content/archive-display';
 import { politeLive } from '@/components/ui/live-region';
 import {
   type ArchiveListEntry,
@@ -167,6 +171,13 @@ export function ArchiveIndex({
     setDraft(urlQuery);
   }
 
+  /* The committed query — what the URL carries once the 300ms debounce has
+     settled. Everything downstream filters and announces against it: the rows
+     and the results sentence change together, once, on the timer, so the live
+     region never reads a reader every keystroke of a word they are still
+     typing. The input's own copy stays live (below). */
+  const committed = urlQuery.trim();
+
   const buildUrl = useCallback(
     (next: { q: string; facet: string; page: number }) => {
       const query = new URLSearchParams();
@@ -233,7 +244,7 @@ export function ArchiveIndex({
     [facets],
   );
 
-  const needle = fold(draft.trim());
+  const needle = fold(committed);
 
   const matches = useMemo(
     () =>
@@ -418,7 +429,7 @@ export function ArchiveIndex({
                 filtered ? ` matching, from ${groupDigits(total)} held` : ' records'
               }.`}
           {facetLabel ? ` Filed under ${facetLabel}.` : ''}
-          {needle ? ` Text “${draft.trim()}”.` : ''}
+          {needle ? ` Text “${committed}”.` : ''}
         </p>
         {filtered ? (
           <Button type="button" variant="text" size="sm" onClick={onReset}>
@@ -427,11 +438,19 @@ export function ArchiveIndex({
         ) : null}
       </div>
 
+      {/* A region, named by its own heading — a reader listing landmarks
+          hears this as a place, and the heading is the one it is announced
+          by. The heading is visually hidden: the visible summary sentence
+          above already states the state the list is in. */}
+      <h2 className={styles.srOnly} id={`${inputId}-results-heading`}>
+        {searchLabel} results
+      </h2>
       <div
         className={styles.results}
         ref={resultsRef}
         tabIndex={-1}
-        aria-label={`${searchLabel} results`}
+        role="region"
+        aria-labelledby={`${inputId}-results-heading`}
       >
         {shown === 0 ? (
           /* STATE-005: "nothing matches" and "there is nothing" are different
@@ -451,7 +470,9 @@ export function ArchiveIndex({
               status={absenceStatus("no-matches")}
               eyebrow="No match"
               title="Nothing in the archive matches this."
-              description={`The archive holds ${groupDigits(total)} records. Try a name, a place, or a different category.`}
+              description={`The archive holds ${groupDigits(total)} records. Try ${searchHint.toLowerCase()}, or a different ${
+                facetParam === 'category' ? 'category' : 'language'
+              } — or clear the search text and the ${facetParam} filter to start again.`}
               actionText="Clear filters"
               onAction={onReset}
             />
@@ -463,15 +484,30 @@ export function ArchiveIndex({
             records={visible.map((r) => r.entry)}
             numbers={variant === 'documentation' ? visible.map((r) => r.number) : undefined}
             categories={
-              variant === 'documentation'
+              /* The row's filing line repeats its category — useful while the
+                 whole archive is showing, where it is one of six and the eye
+                 sorts by it; noise once a facet is active, where every row is
+                 the same answer the chips above already state. */
+              variant === 'documentation' && !facet
                 ? visible.map((r) => facetLabels.get(r.entry.category ?? uncategorised))
                 : undefined
             }
-            href={(entry) =>
-              variant === 'documentation'
-                ? `${basePath}/${entry.category ?? uncategorised}/${entry.id}`
-                : `${basePath}/${entry.id}`
-            }
+            href={(entry) => {
+              const base =
+                variant === 'documentation'
+                  ? `${basePath}/${entry.category ?? uncategorised}/${entry.id}`
+                  : `${basePath}/${entry.id}`;
+              /* The row carries the view it was found in: a reader who opens
+                 a record and presses Back — or copies the record's link to
+                 share the filtered list it came from — lands back on this
+                 state, not on the unfiltered top of the index. */
+              const query = new URLSearchParams();
+              if (committed) query.set('q', committed);
+              if (facet) query.set(facetParam, facet);
+              if (page > 1) query.set('page', String(page));
+              const encoded = query.toString();
+              return encoded ? `${base}?${encoded}` : base;
+            }}
           />
         )}
       </div>
@@ -488,8 +524,4 @@ export function ArchiveIndex({
       ) : null}
     </div>
   );
-}
-
-function groupDigits(value: number): string {
-  return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }

@@ -8,6 +8,7 @@ import {
 } from '@/lib/content/archive';
 import { MediaBlock } from '@/components/content/MediaBlock';
 import { SensitiveContent } from '@/components/content/SensitiveContent';
+import { ButtonLink } from '@/components/ui/Button';
 import { ArchiveImage } from './ArchiveImage';
 import { XMediaPostButton } from './XMediaPostButton';
 import styles from './archive.module.css';
@@ -37,10 +38,6 @@ export type ArchiveSensitivity = {
 
 export type ArchiveBlocksProps = {
   pkg: ArchivePackageName;
-  /** Canonical record id, used only to re-validate a native media post server-side. */
-  recordId?: string;
-  /** Rendered record locale, so the server can validate the same source block. */
-  locale?: string;
   blocks: ArchiveBlock[];
   media: Map<string, ArchiveMedia>;
   /** Which of this record's media stand behind a stated choice. */
@@ -206,8 +203,6 @@ function groupByHeading(blocks: ArchiveBlock[]): BlockGroup[] {
 
 export function ArchiveBlocks({
   pkg,
-  recordId,
-  locale,
   blocks,
   media,
   sensitivity,
@@ -234,8 +229,6 @@ export function ArchiveBlocks({
     <Block
       key={key}
       pkg={pkg}
-      recordId={recordId}
-      locale={locale}
       block={block}
       media={media}
       sensitivity={sensitivity}
@@ -288,8 +281,6 @@ export function ArchiveBlocks({
 
 type ArchiveMediaBlockProps = {
   pkg: ArchivePackageName;
-  recordId?: string;
-  locale?: string;
   block: ArchiveBlock;
   media: Map<string, ArchiveMedia>;
   sensitivity?: ArchiveSensitivity;
@@ -322,8 +313,6 @@ function gateFor(
 
 function Block({
   pkg,
-  recordId,
-  locale,
   block,
   media,
   sensitivity,
@@ -362,8 +351,6 @@ function Block({
       return (
         <ImageBlock
           pkg={pkg}
-          recordId={recordId}
-          locale={locale}
           block={block}
           media={media}
           sensitivity={sensitivity}
@@ -376,8 +363,6 @@ function Block({
       return (
         <VideoBlock
           pkg={pkg}
-          recordId={recordId}
-          locale={locale}
           block={block}
           media={media}
           sensitivity={sensitivity}
@@ -393,8 +378,6 @@ function Block({
 
 function ImageBlock({
   pkg,
-  recordId,
-  locale,
   block,
   media,
   sensitivity,
@@ -444,16 +427,21 @@ function ImageBlock({
       className={styles.figure}
       caption={caption ?? undefined}
       credit={credit ?? undefined}
-      provenance={mediaActionRow({ pkg, recordId, locale, item, shareUrl, shareTitle })}
+      provenance={mediaActionRow({ pkg, item, shareUrl, shareTitle })}
       aspectRatio={packageAspectRatio(item.width, item.height)}
     >
       {/* The gate goes *inside* the frame, so caption, credit and the download
           and share row stay outside it — a reader who chooses not to look can
-          still read what the archive holds, and cite it. */}
+          still read what the archive holds, and cite it. The wrapper marks
+          which media this gate holds, so the per-media share control can tell
+          — without an ancestor query — that the file it could prefetch is
+          still covered. */}
       {gate ? (
-        <SensitiveContent layout="frame" category={gate.category} warning={gate.warning}>
-          {picture}
-        </SensitiveContent>
+        <span className={styles.gateHolder} data-gate-media={item.media_id}>
+          <SensitiveContent layout="frame" category={gate.category} warning={gate.warning}>
+            {picture}
+          </SensitiveContent>
+        </span>
       ) : (
         picture
       )}
@@ -463,8 +451,6 @@ function ImageBlock({
 
 function VideoBlock({
   pkg,
-  recordId,
-  locale,
   block,
   media,
   sensitivity,
@@ -512,9 +498,11 @@ function VideoBlock({
      `autoplay` anywhere in this archive — behind a gate the element does not
      exist at all until the reader asks for it.
 
-     The poster is dropped when the clip is gated: a poster frame *is* the
-     film's first frame, so painting one behind a "Show this material" button
-     would hand over exactly what the button is asking about.
+     The poster rides along even when the clip is gated, deliberately: the gate
+     mounts its children only on reveal (that is what keeps nothing on the
+     wire), so the poster frame never exists in the document while the gate is
+     covered — and a film the reader *has* asked for is owed its poster rather
+     than a black box while its metadata arrives (2026-09-17).
 
      Dimensions fall back to the poster's: every october7 video item carries
      null width/height, so without this the element lays out at the 300x150
@@ -529,9 +517,7 @@ function VideoBlock({
       className={styles.video}
       controls
       preload="metadata"
-      poster={
-        !gate && poster?.package_path ? assetUrl(pkg, poster.package_path) : undefined
-      }
+      poster={poster?.package_path ? assetUrl(pkg, poster.package_path) : undefined}
       width={width}
       height={height}
     >
@@ -545,13 +531,15 @@ function VideoBlock({
       className={`${styles.figure} ${styles.heldVideo}`}
       caption={caption ?? undefined}
       credit={credit ?? undefined}
-      provenance={mediaActionRow({ pkg, recordId, locale, item, shareUrl, shareTitle })}
+      provenance={mediaActionRow({ pkg, item, shareUrl, shareTitle })}
       aspectRatio={packageAspectRatio(width, height)}
     >
       {gate ? (
-        <SensitiveContent layout="frame" category={gate.category} warning={gate.warning}>
-          {film}
-        </SensitiveContent>
+        <span className={styles.gateHolder} data-gate-media={item.media_id}>
+          <SensitiveContent layout="frame" category={gate.category} warning={gate.warning}>
+            {film}
+          </SensitiveContent>
+        </span>
       ) : (
         film
       )}
@@ -568,31 +556,20 @@ function packageAspectRatio(
 
 function mediaActionRow({
   pkg,
-  recordId,
-  locale,
   item,
   shareUrl,
   shareTitle,
 }: {
   pkg: ArchivePackageName;
-  recordId?: string;
-  locale?: string;
   item: ArchiveMedia;
   shareUrl?: string;
   shareTitle?: string;
 }) {
-  if (
-    !recordId ||
-    !shareUrl ||
-    !shareTitle ||
-    !item.package_path ||
-    (item.type !== 'video' && item.type !== 'image')
-  ) return undefined;
+  if (!shareUrl || !shareTitle || !item.package_path) return undefined;
+  if (item.type !== 'video' && item.type !== 'image') return undefined;
   return (
     <MediaActions
       pkg={pkg}
-      recordId={recordId}
-      locale={locale}
       item={item}
       shareUrl={shareUrl}
       shareTitle={shareTitle}
@@ -615,23 +592,17 @@ function mediaActionRow({
  * because it costs nothing and names the file wherever same-origin serving
  * (the dev symlink) applies.
  *
- * The X action is intentionally not a Web Intent. It carries only the archive
- * record/media identifiers and the public original-asset URL to this site's
- * authenticated posting route. That route re-resolves the same media_id from
- * the record before uploading the bytes to X; a thumbnail or detached URL
- * cannot be substituted here.
+ * The share action hands the original file to the operating-system share
+ * sheet with the record's caption attached — see `XMediaPostButton`. No
+ * request leaves this component for an account or an OAuth flow of any kind.
  */
 function MediaActions({
   pkg,
-  recordId,
-  locale,
   item,
   shareUrl,
   shareTitle,
 }: {
   pkg: ArchivePackageName;
-  recordId: string;
-  locale?: string;
   item: ArchiveMedia;
   shareUrl: string;
   shareTitle: string;
@@ -656,14 +627,20 @@ function MediaActions({
 
   return (
     <span className={styles.mediaActions}>
-      <a className={styles.mediaAction} href={`${href}?download=1`} download={filename}>
+      {/* The site's own link tier, not a bespoke button: navigation and quiet
+          in-flow actions are `.text`, and this row is exactly that. The
+          negative margins on the row buy the 44px target without opening a
+          hole in the caption stack. */}
+      <ButtonLink
+        href={`${href}?download=1`}
+        download={filename}
+        variant="text"
+        size="sm"
+      >
         Download
-      </a>
+      </ButtonLink>
       <XMediaPostButton
-        pkg={pkg}
-        recordId={recordId}
         mediaId={item.media_id}
-        locale={locale}
         assetUrl={href}
         medium={item.type}
         shareTitle={shareTitle}

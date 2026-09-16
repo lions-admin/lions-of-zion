@@ -56,7 +56,7 @@
     "test:shard": "vitest run --shard",
     "test:related": "vitest related --run",
     "audit:ui": "node scripts/ui-audit.mjs",
-    "audit:interaction": "node scripts/ci-smoke.mjs",
+    "audit:interaction": "node scripts/ui-interaction-audit.mjs",
     "homepage:catalog": "node --conditions=react-server --import tsx scripts/homepage/build-catalog.ts",
     "schema:check": "tsx scripts/check-deployment-schema.ts",
     "ops:report": "node scripts/ops/report.mjs",

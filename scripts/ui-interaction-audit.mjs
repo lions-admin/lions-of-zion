@@ -40,8 +40,6 @@ const ROUTES = [
   "/october-7",
   "/october-7/documentation",
   "/fake-resistance/network",
-  "/pipeline",
-  "/admin/login",
 ];
 
 /**

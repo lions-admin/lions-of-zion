@@ -95,6 +95,10 @@ const HIGH_RISK = [
   /^drizzle\.config\.ts$/,
   /^\.github\//,
   /^tests\/fixtures\//,
+  // `app/globals.css` is the whole site's token contract — a value edit there
+  // silently restates every visual assertion that reads the file, so it always
+  // escalates to the full gate.
+  /^app\/globals\.css$/,
   /^middleware\.ts$/,
   /^instrumentation\.ts$/,
 ];

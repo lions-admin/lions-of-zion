@@ -10,6 +10,37 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-15 — The site gets a new identity, dark only, with cinematic motion (owner rulings for the UI/UX round three)
+
+Four owner rulings for round three of the UI/UX upgrade, answering the plan
+presented on 2026-09-15:
+
+1. **New visual identity, not a tune.** Palette, typography and visual language
+   are replaced ("Midnight Signal — the lion condenses into a line"), not
+   adjusted. Token *names* stay; values are born in `app/globals.css` only.
+2. **Dark only.** No light theme, no display-mode choice offered to the reader.
+3. **Cinematic motion.** Scroll-driven cover, parallax, page transitions —
+   pure CSS wherever possible, no animation library.
+4. **Scope is the public site + Ask/Search.** `/admin` is out of scope.
+
+Consequences recorded here so later sessions do not re-derive them:
+
+- **The 2026-09-07 visual audit's KEEP list is retired** (`docs/audits/
+  2026-09-07-visual-audit-implementation-todos.md`): the charcoal/ivory/amber
+  palette, the Newsreader / IBM Plex Sans / Roboto Mono families and the
+  17px/1.65 body no longer bind. The lion stays as the cover's one appearance.
+- **The video half of the 2026-09-14 phone-cover ruling is superseded**: the
+  cover medium is the layered particle lion, not photographic video. The
+  ruling's *shape* stands on phones (full-screen visual, type layer over it,
+  lead above the fold).
+- **The crown is off screen.** The cover lion is uncrowned (cropped below the
+  crown, which floats free); the crown survives on the app icon only.
+- **2026-09-05's uppercase ruling** (that `body { text-transform: uppercase }`
+  cannot be reversed in one line) is *superseded in value* by
+  `globals.css` (line ~592 as of round two), which already reversed the
+  site-wide uppercase; this file's earlier entry stands as the record of why
+  it needed more than one line, not as a statement that uppercase still ships.
+
 ## 2026-09-14 — A grant is not a policy: measurement lost every public visit
 
 The מדידה screens looked broken. They were not: they were reading an almost

@@ -332,7 +332,6 @@
    file: a data-size chip padded to a full quarter-rem reads as a button. The
    same figure is used for the chips on `/fact-check`, so the two surfaces
    agree at a glance. */
-.verdict,
 .basis,
 .facet {
   display: inline-flex;
@@ -345,33 +344,11 @@
   overflow-wrap: anywhere;
 }
 
-.verdict {
-  composes: kickerLabel from global;
-}
-
 .facet { text-transform: capitalize; }
 
 .revised {
   gap: 0.35em;
   text-transform: none;
-}
-
-.verdict[data-tone="ok"] {
-  border-color: var(--state-ok-line);
-  background: var(--state-ok-wash);
-  color: var(--state-ok);
-}
-
-.verdict[data-tone="warn"] {
-  border-color: var(--state-warn-line);
-  background: var(--state-warn-wash);
-  color: var(--state-warn);
-}
-
-.verdict[data-tone="danger"] {
-  border-color: var(--state-danger-line);
-  background: var(--state-danger-wash);
-  color: var(--state-danger);
 }
 
 /* The record that cites nothing. It is a disclosure, so it is legible ink on

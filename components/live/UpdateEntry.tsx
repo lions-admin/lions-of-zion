@@ -5,6 +5,7 @@ import type { PublicPublication } from "@/server/contracts/publication";
 import { clock, stamp } from "./feed-time";
 import { SECTION_LABELS, VERIFICATION_STATES } from "./publication-labels";
 import styles from "./live-feed.module.css";
+import { Badge, type BadgeStatus } from "@/components/ui/Badge";
 
 /**
  * One entry in the record.
@@ -66,15 +67,20 @@ export function UpdateEntry({ entry }: { entry: PublicPublication }) {
 
       {verdict || analysis || revised || entry.arena || entry.primaryActor || entry.editorialTopic ? (
         <p className={styles.marks}>
-          {verdict ? (
-            <span
-              className={styles.verdict}
-              data-tone={verdict.tone}
-              title={verdict.meaning}
+          {/* One verdict renderer (SYS-011, finished 2026-09-16). This chip
+              drew the same word as the record it links to from its own three
+              tone rules, and it put the meaning in a `title` — which a touch
+              reader cannot open at all, and which was the last tooltip
+              carrying meaning on a public surface. `Badge` gives the state
+              its ramp AND its shape, so it survives greyscale, and the
+              meaning goes where a screen reader will read it. */}
+          {verdict && details ? (
+            <Badge
+              status={details.verificationState as BadgeStatus}
               aria-label={`${verdict.label}: ${verdict.meaning}`}
             >
               {verdict.label}
-            </span>
+            </Badge>
           ) : null}
           {analysis ? (
             <span className={styles.basis}>Our own analysis &mdash; cites no source</span>

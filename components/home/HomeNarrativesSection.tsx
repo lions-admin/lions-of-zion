@@ -19,6 +19,7 @@ import { FAKE_RESISTANCE_GRAMMAR, FAKE_RESISTANCE_INTRO } from "@/lib/fake-resis
 import { homepageBand } from "@/lib/homepage-bands";
 import { ViewTransition } from "@/components/motion";
 import { measureContentId } from "@/components/measurement/attrs";
+import { Badge, type BadgeStatus } from "@/components/ui/Badge";
 
 const BAND = homepageBand("fakeResistance");
 
@@ -73,6 +74,19 @@ export function HomeNarrativesSection({
              the reason each type gets its own vocabulary is written down beside
              it: a documented incident must never read as a disputed claim. */
           const grammar = FAKE_RESISTANCE_GRAMMAR[item.kind];
+          /* The verification states and the badge's grammar share their
+             vocabulary — `verified`, `refuted`, `misleading`, `unsupported`
+             and the rest are keys in both — so a watch record's own state is
+             the badge's status with no mapping table in between. An
+             investigation is a neutral note; a documented incident is
+             `documented`, which is the one status in the evidence domain that
+             says "this happened" rather than "this is claimed". */
+          const badgeStatus: BadgeStatus =
+            item.kind === "watch"
+              ? (item.verification as BadgeStatus)
+              : item.kind === "case"
+                ? "neutral"
+                : "documented";
           const statusMeaning =
             item.kind === "watch" ? status?.meaning : grammar.meaning;
           const kicker = grammar.kicker;
@@ -115,8 +129,17 @@ export function HomeNarrativesSection({
                   the picture with the rest of the byline. */}
               <header className={styles.dossierStatus}>
                 <p className={styles.kicker}>{kicker}</p>
-                <p className={styles.verdict} data-tone={status?.tone ?? "neutral"}>
-                  <span className={styles.verdictLabel}>{statusLabel}</span>
+                {/* The one verdict renderer (SYS-011, finished 2026-09-16).
+                    This was the last hand-rolled status on the site: a
+                    paragraph with its own dot, its own tone attribute and its
+                    own three colour rules, so "Refuted" here and "Refuted" on
+                    the record it links to were drawn by different code and
+                    could drift apart. `Badge` owns the ramp AND the shape, so
+                    a verdict survives greyscale and a colour deficiency —
+                    which a coloured dot never did. The meaning stays beside
+                    it as the sentence it is; the badge carries the word. */}
+                <p className={styles.verdict}>
+                  <Badge status={badgeStatus}>{statusLabel}</Badge>
                   <span className={styles.verdictMeaning}>{statusMeaning}</span>
                 </p>
               </header>

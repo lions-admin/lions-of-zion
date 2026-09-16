@@ -261,13 +261,12 @@
    `--journey-story`. */
 .investigation[data-kind="watch"] > h3 { font-size: var(--journey-aside); max-width: 46ch; line-height: 1.25; }
 .investigation .byline { margin: 0 0 var(--sp-2); }
-.verdict { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-1) var(--sp-3); margin: 0; font-size: var(--t-small); line-height: var(--t-small-lh); }
-.verdict::before { content: ""; align-self: center; width: var(--mark); height: var(--mark); border-radius: 50%; background: var(--ink-lo); }
-.verdictLabel { font-weight: 600; }
+/* The row is the frame; `Badge` draws the verdict itself (2026-09-16). The
+   dot, the three tone rules and the bold label that used to live here were
+   this file's own copy of the badge's grammar, in colour only — two
+   renderers for one meaning, and the copy could not survive greyscale. */
+.verdict { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-3); margin: 0; font-size: var(--t-small); line-height: var(--t-small-lh); }
 .verdictMeaning { flex: 1 1 22ch; color: var(--ink-lo); font-size: var(--t-caption); }
-.verdict[data-tone="danger"]::before { background: var(--state-danger); }
-.verdict[data-tone="warn"]::before { background: var(--gold); }
-.verdict[data-tone="ok"]::before { background: var(--state-ok); }
 .finding { margin-top: var(--sp-4); padding: var(--sp-1) 0 var(--sp-1) var(--sp-4); border-left: var(--line-w-thick) solid var(--gold); }
 .finding p { margin: 0; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink); }
 

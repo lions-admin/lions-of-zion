@@ -23,13 +23,6 @@ type Props = {
    */
   xHref?: string;
   compact?: boolean;
-  /**
-   * Still passed by the archive call sites for the server-side post route's
-   * return path. Nothing here reads it — this action opens no OAuth flow and
-   * posts nothing from the client — and it is kept only so the callers that
-   * hand it over keep compiling.
-   */
-  returnTo?: string;
 };
 
 type State = 'idle' | 'preparing' | 'ready' | 'downloaded' | 'failed';

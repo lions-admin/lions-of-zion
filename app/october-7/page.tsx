@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
+import { Section } from "@/components/ui/Section";
 import { getOctober7Record } from "@/lib/content/october-7";
 import { formatSourceDay } from "@/lib/format-date";
 import {
@@ -217,11 +218,15 @@ export default async function Page() {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(october7JsonLd(record)) }} />
 
         {/* UX-23. The counts print once, on the collection each one measures. */}
-        <section id="collections" className={`${styles.archiveExplorer} enterQuiet`} aria-labelledby="explore-archive">
-          <header className={styles.explorerHeading}>
-            <p className={styles.eyebrow}>Archive collections</p>
-            <h2 id="explore-archive">Explore the archive</h2>
-          </header>
+        <Section
+          id="collections"
+          className={`${styles.archiveExplorer} enterQuiet`}
+          aria-labelledby="explore-archive"
+          kicker="Archive collections"
+          heading="Explore the archive"
+          headingId="explore-archive"
+          headClassName={styles.archiveHead}
+        >
           <nav className={styles.archiveEntries} aria-label="Choose an archive collection">
             <Card variant="tile" href="/october-7/testimonies" className={styles.archiveEntry} data-measure-id="o7-entry-testimonies">
               <CardHeader>
@@ -249,7 +254,7 @@ export default async function Page() {
               <CardCta>Explore documented records</CardCta>
             </Card>
           </nav>
-        </section>
+        </Section>
 
         {/* One featured record — the testimony. The documentation showcase was
             a second full panel with its own arrows, the same weight as this
@@ -264,11 +269,16 @@ export default async function Page() {
             graphic-source records and is told a viewport later that previews
             stay covered — the one sentence that answers "what am I about to
             see" arriving after they had already seen it. */}
-        <section id="documentation" className={`${styles.documentation} enterQuiet`} aria-labelledby="documentation-heading">
-          <header className={styles.documentationHeading}>
-            <h2 id="documentation-heading">Documented records</h2>
-            <p>A selection of the {recordCount} preserved source records. Each opens behind its own content warning.</p>
-          </header>
+        <Section
+          id="documentation"
+          className={`${styles.documentation} enterQuiet`}
+          aria-labelledby="documentation-heading"
+          heading="Documented records"
+          headingId="documentation-heading"
+          lede={`A selection of the ${recordCount} preserved source records. Each opens behind its own content warning.`}
+          ledeSize="small"
+          headClassName={styles.docsHead}
+        >
           <p className={styles.mediaNotice}>
             <span className={styles.mediaNoticeLabel}>Content warning</span>
             Graphic material stays covered in previews. Share the record — the original is one click behind the warning.
@@ -311,27 +321,48 @@ export default async function Page() {
               ))}
             </ul>
           </details>
-        </section>
+        </Section>
 
-        <section id="the-record" className={`${styles.section} enterQuiet`} aria-labelledby="the-record-heading">
-          <h2 className={styles.sectionHeading} id="the-record-heading">October 7, in the record</h2>
-          <p>The attacks were documented by survivors, first responders, forensic teams and
+        <Section
+          id="the-record"
+          className={`${styles.section} enterQuiet`}
+          aria-labelledby="the-record-heading"
+          heading="October 7, in the record"
+          headingId="the-record-heading"
+          headClassName={styles.sectionHead}
+        >
+          <p className={styles.sectionLede}>
+            The attacks were documented by survivors, first responders, forensic teams and
             the perpetrators themselves. These figures come from public reporting;
-            individual accounts and documentation are held in the archives above.</p>
+            individual accounts and documentation are held in the archives above.
+          </p>
           <div className={styles.inscription}><FigureRow figures={record.figures} /></div>
-        </section>
+        </Section>
 
-        <section id="what-followed" className={`${styles.section} enterQuiet`} aria-labelledby="what-followed-heading">
-          <h2 className={styles.sectionHeading} id="what-followed-heading">What followed October 7</h2>
+        <Section
+          id="what-followed"
+          className={`${styles.section} enterQuiet`}
+          aria-labelledby="what-followed-heading"
+          heading="What followed October 7"
+          headingId="what-followed-heading"
+          headClassName={styles.sectionHead}
+        >
           <div className={styles.record}><Timeline variant="feed" entries={record.timeline} /></div>
-        </section>
+        </Section>
 
-        <section className={`${styles.section} enterQuiet`} aria-labelledby="more-archives-heading">
-          <h2 className={styles.sectionHeading} id="more-archives-heading">Further testimony archives</h2>
-          <p>These independent projects hold additional interviews with survivors,
-            first responders and bereaved families.</p>
+        <Section
+          className={`${styles.section} enterQuiet`}
+          aria-labelledby="more-archives-heading"
+          heading="Further testimony archives"
+          headingId="more-archives-heading"
+          headClassName={styles.sectionHead}
+        >
+          <p className={styles.sectionLede}>
+            These independent projects hold additional interviews with survivors,
+            first responders and bereaved families.
+          </p>
           <SourceList sources={record.archives} />
-        </section>
+        </Section>
         <PublicationMeta publishedAt={record.publishedAt} reviewedBy={record.reviewedBy} />
 
         {/* The band's sentence is this route's own, and it asks for the one

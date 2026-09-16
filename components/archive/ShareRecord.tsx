@@ -44,8 +44,6 @@ export function ShareRecord({ url, title, xHref, caption, xMedia }: ShareRecordP
   const canShare = useSyncExternalStore(NO_SUBSCRIBE, probeShare, serverShare);
   const [copyState, setCopyState] = useState<CopyState>('idle');
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const parsedUrl = new URL(url);
-  const returnTo = `${parsedUrl.pathname}${parsedUrl.search}`;
 
   useEffect(
     () => () => {
@@ -96,7 +94,6 @@ export function ShareRecord({ url, title, xHref, caption, xMedia }: ShareRecordP
             shareTitle={title}
             shareUrl={url}
             xHref={xHref}
-            returnTo={returnTo}
           />
         ) : (
           <>

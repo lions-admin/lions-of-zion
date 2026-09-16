@@ -116,10 +116,9 @@
   text-wrap: pretty;
 }
 
-.communityNoteNames {
-  composes: dataValue from global;
-  color: var(--ink);
-}
+/* The names' class went with the stage-9 sweep: `.communityNoteNames`
+   composed `dataValue` and nothing else the note's own class doesn't carry
+   to the same words, and nothing named it. */
 
 /* The test behind an inferred edge, set as data rather than prose: it is a
    row of measurements a reader checks, not a sentence they read.

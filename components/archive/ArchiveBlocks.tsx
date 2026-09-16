@@ -622,8 +622,6 @@ function MediaActions({
     .replace(/^-+|-+$/g, '')
     .slice(0, 60);
   const filename = `${titleSlug || 'record'}-${item.media_id}.${extension}`;
-  const parsedShareUrl = new URL(shareUrl);
-  const returnTo = `${parsedShareUrl.pathname}${parsedShareUrl.search}`;
 
   return (
     <span className={styles.mediaActions}>
@@ -645,7 +643,6 @@ function MediaActions({
         medium={item.type}
         shareTitle={shareTitle}
         shareUrl={shareUrl}
-        returnTo={returnTo}
         compact
       />
     </span>

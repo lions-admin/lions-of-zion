@@ -1,0 +1,130 @@
+/*
+ * Prose — the running-text grammar (SYS-004's body roles on a measure).
+ *
+ * Extracted from `components/sections/sections.module.css` at the
+ * consolidation stage, where the same rules had been living as the shells'
+ * `:where(.body)` block: paragraphs and list items at `--t-body` on the
+ * reading measure, a third-step heading, marked lists, a blockquote in the
+ * lede voice behind a gold rule, links underlined in the identity's
+ * decoration, and strong words one step of ink up. Every declaration reads
+ * the tokens; nothing here is a literal.
+ *
+ * The selectors are `:where()` on purpose: the primitive states the default
+ * and yields to whatever the surface says next. A route that mounts
+ * `<Prose className={styles.body}>` keeps a class of its own to hang its
+ * specifics on (a scroll offset, an accent), and the specificity of the
+ * surface's rule — written normally — beats these zero-weight rules without
+ * a doubling of specificity anywhere.
+ *
+ * Not here on purpose: sibling-gap rhythm between blocks. Records interleave
+ * figures and panels whose own margins are part of their anatomy, so the
+ * paragraph's margin (this file's `p` rule, like the shells' was) is the
+ * rhythm, not a grid gap that would stack on every figure's own margin.
+ */
+.prose {
+  min-width: 0;
+  color: var(--ink);
+  font-family: var(--face-text);
+}
+
+:where(.prose) p {
+  margin: 0 0 var(--flow);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink);
+}
+
+:where(.prose) p:last-child {
+  margin-bottom: 0;
+}
+
+:where(.prose) h3 {
+  margin: var(--sp-6) 0 var(--sp-3);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  color: var(--ink-hi);
+}
+
+:where(.prose) h4 {
+  margin: var(--sp-5) 0 var(--sp-3);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  color: var(--ink-hi);
+}
+
+:where(.prose) ul,
+:where(.prose) ol {
+  margin: 0 0 var(--flow);
+  padding-left: var(--sp-5);
+}
+
+:where(.prose) li {
+  margin-bottom: var(--sp-2);
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  color: var(--ink);
+}
+
+:where(.prose) li:last-child {
+  margin-bottom: 0;
+}
+
+:where(.prose) strong {
+  color: var(--ink-hi);
+  font-weight: 600;
+}
+
+:where(.prose) a {
+  color: var(--ink-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-decoration-thickness: var(--line-w);
+  text-underline-offset: 0.2em;
+  transition: color var(--dur-fast) var(--ease-out),
+    text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+:where(.prose) a:hover {
+  color: var(--gold-hi);
+  text-decoration-color: currentColor;
+}
+
+:where(.prose) blockquote {
+  margin: var(--sp-6) 0;
+  padding-left: var(--sp-5);
+  border-left: var(--line-w-thick) solid var(--gold-line);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-lede);
+  font-weight: var(--t-lede-weight);
+  line-height: var(--t-lede-lh);
+  color: var(--ink-hi);
+  hanging-punctuation: first;
+  text-wrap: pretty;
+}
+
+:where(.prose) blockquote p {
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+/* Consecutive paragraphs inside a quote are one rhythm closer than the flow
+   step: they are one utterance's lines, not two statements. */
+:where(.prose) blockquote p + p {
+  margin-top: var(--sp-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.prose) a {
+    transition: none;
+  }
+}

@@ -3,23 +3,20 @@
  * A hub before it is an explainer: archive entry comes first, one featured
  * testimony carries the route, and the documentation showcase is demoted to a
  * ledger. Everything here is tokenised (SYS-001) and its motion profile is
- * the memorial's own: fade-only entrances (`.enterQuiet`), no accent fill,
- * markers unbroken and held, no auto-rotation.
+ * the memorial's own: fade-only entrances (the global `.enterQuiet`), no
+ * accent fill, markers unbroken and held, no auto-rotation.
  *
- * `main[data-memorial]` in `app/globals.css` is the hook this route is meant
- * to hang its muting on — it lowers the display voice to 500 and re-points
- * `--signal-rule-color` at the muted ink so the masthead's SignalMark, the
- * ruled ledger and every reading of the accent go quiet together. The shell
- * (`EditorialShell`) does not yet carry a pass-through for that attribute, so
- * the two tokens are re-pointed here on the route's own root until the
- * attribute lands; inheritance covers the whole route from one place either
- * way. (Handoff: add `data-memorial` to this route's `<main>` and delete the
- * two lines marked memorial below — see the task report.)
+ * The muting hook is `main[data-quiet]` — carried by `EditorialShell` for
+ * every October 7 route (and spelled `data-memorial` alongside it, the same
+ * attribute read by `app/globals.css`) — which lowers the display voice to
+ * 500 and re-points `--signal-rule-color` at the muted ink, so the masthead's
+ * SignalMark, the ruled ledger and every reading of the accent go quiet
+ * together from one place. The route re-point this file used to carry went
+ * with the stage-9 consolidation; inheritance covers the whole route either
+ * way.
  */
 .page {
-  /* Memorial muting — delete with the handoff above. */
-  --t-display-weight: 500;
-  --signal-rule-color: var(--ink-lo);
+  min-width: 0;
 }
 
 .hub {
@@ -40,21 +37,12 @@
   margin: 0 0 var(--sp-8);
 }
 
-.explorerHeading {
-  display: grid;
-  gap: var(--sp-2);
+/* The band head is the `Section` primitive (stage 9): the kicker, the h2
+   role and the lede travel with it, and the route keeps only the geometry
+   the band's own separation needs — the air between a head and what
+   follows it. */
+.archiveHead {
   margin-bottom: var(--sp-5);
-}
-
-.explorerHeading h2 {
-  margin: 0;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h2);
-  line-height: var(--t-h2-lh);
-  font-weight: var(--t-h2-weight);
-  letter-spacing: var(--t-h2-tracking);
-  text-wrap: balance;
 }
 
 .eyebrow {
@@ -421,30 +409,10 @@
   scroll-margin-top: calc(var(--header-h) + var(--sp-4));
 }
 
-.documentationHeading {
-  display: grid;
-  gap: var(--sp-2);
+/* The band head is the `Section` primitive (stage 9): the h2 role and the
+   lede travel with it. */
+.docsHead {
   margin-bottom: var(--sp-4);
-}
-
-.documentationHeading h2 {
-  max-width: none;
-  margin: 0;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h2);
-  line-height: var(--t-h2-lh);
-  font-weight: var(--t-h2-weight);
-  letter-spacing: var(--t-h2-tracking);
-  text-wrap: balance;
-}
-
-.documentationHeading p {
-  max-width: 52ch;
-  margin: 0;
-  color: var(--ink-lo);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
 }
 
 /* A content warning never shares the finding's device: its own enclosure, in
@@ -476,12 +444,6 @@
 .docRows {
   display: grid;
   gap: 0;
-  margin: 0 0 var(--sp-5);
-  padding: 0;
-  list-style: none;
-}
-
-.docRows {
   margin: 0 0 var(--sp-5);
   padding: 0;
   list-style: none;
@@ -619,19 +581,19 @@
   scroll-margin-top: calc(var(--header-h) + var(--sp-4));
 }
 
-.sectionHeading {
-  margin: 0 0 var(--sp-5);
-  font-family: var(--face-display);
-  font-size: var(--t-h2);
-  line-height: var(--t-h2-lh);
-  letter-spacing: var(--t-h2-tracking);
-  color: var(--ink-hi);
+/* The band head is the `Section` primitive (stage 9); this is the air it
+   keeps before the band's content. */
+.sectionHead {
+  margin-bottom: var(--sp-5);
 }
 
-.section > p {
+/* The band's own sentence, at the body role on the reading measure — the
+   lede slot with a size this band states itself, since it sits between the
+   head and the band's furniture rather than under a heading alone. */
+.sectionLede {
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
-  max-width: 68ch;
+  max-width: var(--measure-reading);
 }
 
 /* The figures are held like an inscription: a band between hairlines, the

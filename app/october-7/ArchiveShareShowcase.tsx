@@ -155,7 +155,6 @@ export function ArchiveShareShowcase({
                     shareTitle={sample.title}
                     shareUrl={sample.url}
                     xHref={sample.xHref}
-                    returnTo={sample.href}
                   />
                 ) : undefined}
                 targets={[

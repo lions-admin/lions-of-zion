@@ -1,0 +1,41 @@
+/*
+ * Section — the band wrapper: kicker, heading and lede slots over content.
+ *
+ * This owns only the slots and their spacing; the band's separation from
+ * what surrounds it (the top rule, the margins, the scroll offset) stays in
+ * the surface's own stylesheet, which passes its class through `className`.
+ * The heading renders through `Heading`, so the type role is never
+ * re-stated here — the same four-declaration block this file used to delete
+ * from every route that drew a section head by hand.
+ *
+ * The lede carries no colour of its own: it inherits the surface's running
+ * voice, and the `small` step — the muted meta-lede under a section head —
+ * takes the one colour its role has always had.
+ */
+.band {
+  min-width: 0;
+}
+
+.kicker {
+  composes: kickerLabel from global;
+  margin: 0 0 var(--sp-2);
+  color: var(--gold);
+}
+
+.lede {
+  margin: var(--sp-2) 0 0;
+  text-wrap: pretty;
+}
+
+.lede[data-size="body"] {
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  max-width: var(--measure-reading);
+}
+
+.lede[data-size="small"] {
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  max-width: var(--measure-narrow);
+}

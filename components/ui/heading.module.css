@@ -1,0 +1,69 @@
+/*
+ * Heading — SYS-004's one heading scale as a component.
+ *
+ * The site's heading scale is a set of type roles declared once in
+ * `app/globals.css` (`--t-display`, `--t-h2`, `--t-h3`, `--t-lede`, ...), and
+ * the base layer maps each level onto its role. What pages kept re-stating —
+ * measured at 22 hand-written role blocks across 14 stylesheets at the
+ * consolidation stage — is that same map, four declarations at a time, one
+ * descendant selector per surface. This module is the role map as classes;
+ * the semantic level and the visual size travel separately, so a page can
+ * render an `h2` at the display role or an `h4` at the h3 role without a
+ * private `font-size` anywhere.
+ *
+ * A `size` class is written to win over the base layer's level mapping (the
+ * module is unlayered, `@layer base` is not), so `size` never has to fight
+ * the element name. No size class sets margins, colour, measure or
+ * `max-width` — spacing belongs to the band that renders the heading, and
+ * the base rules own the rest. Leave `size` off and the level's natural role
+ * stands.
+ */
+.display {
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-display);
+  font-weight: var(--t-display-weight);
+  line-height: var(--t-display-lh);
+  letter-spacing: var(--t-display-tracking);
+  text-wrap: balance;
+}
+
+.h2 {
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
+  text-wrap: balance;
+}
+
+.h3 {
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  text-wrap: balance;
+}
+
+.lede {
+  font-family: var(--face-text);
+  font-optical-sizing: auto;
+  font-size: var(--t-lede);
+  font-weight: var(--t-lede-weight);
+  line-height: var(--t-lede-lh);
+  letter-spacing: var(--t-lede-tracking);
+  text-wrap: pretty;
+}
+
+/* The data step's display twin — a figure headline ("01"), not prose. */
+.figure {
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-figure);
+  font-weight: var(--t-figure-weight);
+  line-height: var(--t-figure-lh);
+  font-variant-numeric: tabular-nums;
+}

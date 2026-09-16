@@ -573,12 +573,12 @@ html[data-header-bar] {
 
 /* October 7 alone lowers the display voice (2026-09-16): the archive is read
    quietly, so its headings sit one weight step down and the signal rule is
-   muted. `data-memorial` is the token hook; the shell (`EditorialShell`) does
-   not yet carry a pass-through for it, but it does set `data-quiet` on every
-   October 7 route's `<main>` — so the held profile hangs on that attribute
-   until the pass-through lands, and both spellings say the same two things.
-   This is the hook the archive subtree reads (Midnight Signal, workstream H):
-   index pages and all ~1,177 record pages mute together from one place. */
+   muted. `EditorialShell` sets both spellings of the hook on every October 7
+   route's `<main>` — `data-memorial` is the name the comment that declared
+   the hook gave it, `data-quiet` is the one the transition CSS reads — so
+   the profile hangs on the shell, one place, for the index pages and all
+   ~1,177 record pages (Midnight Signal, workstream H; stage 9 closed the
+   route-level re-point this block had been standing in for). */
 main[data-memorial],
 main[data-quiet] {
   --t-display-weight: 500;

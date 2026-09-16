@@ -57,7 +57,6 @@
 .spreadMap svg { display: block; width: 100%; height: auto; overflow: visible; }
 .networkLinks { stroke: var(--sim-rule); stroke-width: 1.2; fill: none; }
 .networkFeeds { stroke: var(--gold-dim); stroke-width: 1.2; fill: none; opacity: .55; }
-.networkSignals { display: none; }
 .creator { fill: var(--surface-0); stroke: var(--gold-dim); stroke-width: 1; }
 .creator[data-group="second"] { stroke: var(--sim-group-two); }
 .creatorGlyph { fill: none; stroke: var(--ink); stroke-width: 1.2; }

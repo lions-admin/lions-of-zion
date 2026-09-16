@@ -30,6 +30,8 @@ import { EditorialShell } from '@/components/site/EditorialShell';
    as client entries for every page built on this shell to use one. */
 import { Reveal } from '@/components/motion/Reveal';
 import { Breadcrumb } from '@/components/site/Breadcrumb';
+import { Heading } from '@/components/ui/Heading';
+import { Prose } from '@/components/ui/Prose';
 import { getSectionPageNode } from '@/lib/site-navigation';
 import { SectionToc, SectionTocControl } from './SectionToc';
 import styles from './sections.module.css';
@@ -134,7 +136,9 @@ export function SectionPage({
         <article className={styles.panel} id="page-content" data-measure-section={id}>
           <header>
             {kicker ? <p className={styles.kicker}>{kicker}</p> : null}
-            <h1 className={styles.title}>{title}</h1>
+            <Heading level="h1" size="display" className={styles.title}>
+              {title}
+            </Heading>
             <p className={styles.lede}>{lede}</p>
             <div className={styles.ledeRule} aria-hidden="true" />
           </header>
@@ -143,11 +147,14 @@ export function SectionPage({
               above it the rail in the margin takes over and this is hidden.
               `DocPage` mounts it in exactly the same slot. */}
           {withToc ? <SectionTocControl /> : null}
-          {/* `data-toc-source` scopes the rail's heading scan to the page body,
-              so it can never pick up an h2 from the chat modal or the rail. */}
-          <div className={styles.body} data-toc-source>
+          {/* The running-text grammar is the `Prose` primitive (stage 9) —
+              `.body` keeps the scroll offsets and the accent marker, and
+              `data-toc-source` scopes the rail's heading scan to the page
+              body, so it can never pick up an h2 from the chat modal or the
+              rail. */}
+          <Prose className={styles.body} data-toc-source>
             {children}
-          </div>
+          </Prose>
           {/* The page ends where the content ends.
               There was an apparatus here — prev/next, a numbered index of the
               other seven files, policy links — and all of it rested on a
@@ -215,7 +222,9 @@ export function SectionBlock({
           screens is never half visible, so its exposure would never fire.
           The heading's exposure is "the reader got this far". */}
       <div className={styles.blockHeading} data-measure-id={anchor ? `block-${anchor}` : undefined}>
-        <h2 id={anchor}>{heading}</h2>
+        <Heading level="h2" size="h2" id={anchor} className={styles.blockTitle}>
+          {heading}
+        </Heading>
       </div>
       {children}
     </Reveal>

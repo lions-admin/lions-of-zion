@@ -12,15 +12,8 @@
   color: var(--gold);
 }
 
-.dateStamp {
-  color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  font-variant-numeric: tabular-nums;
-}
+/* The private `.dateStamp` class went with the stage-9 sweep: no component
+   named it, and its four declarations are the data roles' own job. */
 
 
 
@@ -196,16 +189,8 @@
   border-left: var(--line-w) solid var(--line);
 }
 
-.unknownGrid h3 {
-  margin: 0;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
-}
+/* The h3 role block went with the stage-9 sweep: every declaration it made
+   was the base layer's own h3 mapping, restated. */
 
 .unknownGrid ul {
   margin: var(--sp-4) 0 0;
@@ -596,130 +581,6 @@
 
 
 
-.card {
-  --card-accent: var(--gold);
-  --card-line: var(--gold-line-strong);
-  position: relative;
-
-  container-type: inline-size;
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  padding: var(--sp-5);
-  border: var(--line-w) solid var(--line);
-  border-left: var(--line-w-thick) solid var(--card-accent);
-  border-radius: var(--radius-3);
-  background: var(--surface-1);
-  box-shadow: var(--shadow-1);
-  transition: border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
-}
-
-.card[data-accent='ember'] {
-  --card-accent: var(--ember);
-  --card-line: var(--ember-line);
-}
-
-
-.cardEyebrow {
-  composes: kickerLabel from global;
-  margin: 0 0 var(--sp-3);
-  color: var(--gold);
-}
-
-.card[data-accent='ember'] .cardEyebrow {
-  color: var(--ember-peak);
-}
-
-.card h3 {
-  margin: 0;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
-  text-wrap: balance;
-}
-
-.card h3 a {
-  color: inherit;
-  text-decoration: none;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-
-.card h3 a::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-}
-
-.card:has(h3 a:hover) {
-  border-color: var(--card-line);
-  background: var(--surface-2);
-}
-
-.card h3 a:hover,
-.card h3 a:focus-visible {
-  color: var(--gold-hi);
-}
-
-
-.card h3 a:focus-visible {
-  outline-offset: 4px;
-}
-
-.cardMeta {
-  margin-top: var(--sp-2);
-  color: var(--ink-lo);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  line-height: var(--t-caption-lh);
-  font-variant-numeric: tabular-nums;
-}
-
-.cardBody {
-  margin-top: var(--sp-3);
-  color: var(--ink);
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-}
-
-.cardBody p {
-  margin: 0;
-}
-
-.cardBody p + p {
-  margin-top: var(--sp-3);
-}
-
-
-@container (min-width: 32rem) {
-  .cardBody {
-    font-size: var(--t-body);
-    line-height: var(--t-body-lh);
-  }
-
-  .cardBody p + p {
-    margin-top: var(--flow);
-  }
-}
-
-.cardFooter {
-  margin-top: var(--sp-4);
-  padding-top: var(--sp-3);
-  border-top: var(--line-w) solid var(--line);
-  color: var(--ink-lo);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-}
-
 
 
 .claimRecord {
@@ -788,8 +649,6 @@
 .claimRecordBody p + p {
   margin-top: var(--flow);
 }
-
-
 
 /* ---------- sensitive material (OCT-005) ----------
  *
@@ -1081,77 +940,10 @@
   outline-offset: 2px;
 }
 
-
-
-.networkFigure {
-  margin: var(--sp-6) 0;
-}
-
-
-.networkScroll {
-  overflow-x: auto;
-}
-
-.networkSvg {
-  display: block;
-  width: 100%;
-  min-width: 20rem;
-  max-width: 32rem;
-  height: auto;
-  margin: 0 auto;
-}
-
-.networkRing {
-  stroke: var(--line);
-  stroke-width: 1;
-}
-
-.networkDisc {
-  fill: var(--ember-wash);
-  stroke: var(--ember-line);
-  stroke-width: 1;
-}
-
-.networkCount {
-  fill: var(--ink-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-caption);
-  font-weight: var(--t-data-weight);
-  font-variant-numeric: tabular-nums;
-}
-
-.networkLabel {
-  fill: var(--ink);
-  font-family: var(--face-text);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-}
-
-.networkCenter {
-  fill: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking-tight);
-}
-
-
-.networkCenterSub {
-  fill: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking-tight);
-}
-
-.networkCaption {
-  margin: var(--sp-4) 0 0;
-  color: var(--ink-lo);
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-}
-
+/* The `.networkFigure` … `.networkCaption` block went with the stage-9
+   sweep: `NetworkFigure` has rendered through `components/network` and its
+   own stylesheet since 2026-09-02, and no rule here was named by any
+   component since. */
 
 
 
@@ -1166,8 +958,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .sourceBody a,
-  .card,
-  .card h3 a,
   .techniqueChip {
     transition: none;
   }
@@ -1233,7 +1023,6 @@
     border-top: var(--line-w) solid var(--line);
   }
 
-  .card,
   .claimPanel,
   .recordPanel,
   .sensitiveGate,

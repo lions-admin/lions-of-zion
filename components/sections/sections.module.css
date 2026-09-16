@@ -89,25 +89,17 @@
   margin-bottom: var(--sp-3);
 }
 
+/* The type role is `components/ui/Heading` (stage 9); the shell keeps the
+   colour it reads its headline in. */
 .title {
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: var(--t-display);
-  font-weight: var(--t-display-weight);
-  line-height: var(--t-display-lh);
-  letter-spacing: var(--t-display-tracking);
   color: var(--ink-hi);
-  text-wrap: balance;
-  overflow-wrap: anywhere;
 }
 
-
+/* The long-title step is the h2 role on an h1 — `Heading` size="h2" — plus
+   the measure and wrap this shell's own: a documentation title is a
+   sentence, not a display headline. */
 .titleLong {
   composes: title;
-  font-size: var(--t-h2);
-  font-weight: var(--t-h2-weight);
-  line-height: var(--t-h2-lh);
-  letter-spacing: var(--t-h2-tracking);
   max-width: var(--measure-title);
   text-wrap: pretty;
 }
@@ -151,14 +143,9 @@
   margin-bottom: var(--sp-4);
 }
 
-
-.blockHeading h2 {
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: var(--t-h2);
-  font-weight: var(--t-h2-weight);
-  line-height: var(--t-h2-lh);
-  letter-spacing: var(--t-h2-tracking);
+/* The h2 role is `Heading` size="h2" (stage 9); the anchor's scroll offset
+   is the shell's, because the offset is the masthead's own number. */
+.blockTitle {
   color: var(--ink-hi);
   scroll-margin-top: var(--anchor-offset);
 }
@@ -171,92 +158,13 @@
   scroll-margin-top: var(--anchor-offset);
 }
 
-
-:where(.body) p {
-  margin: 0 0 var(--flow);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
-  color: var(--ink);
-}
-
-:where(.body) p:last-child {
-  margin-bottom: 0;
-}
-
-
-:where(.body) h3 {
-  margin: var(--sp-6) 0 var(--sp-3);
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
-  color: var(--ink-hi);
-  scroll-margin-top: var(--anchor-offset);
-}
-
-:where(.body) ul,
-:where(.body) ol {
-  margin: 0 0 var(--flow);
-  padding-left: var(--sp-5);
-}
-
-:where(.body) li {
-  margin-bottom: var(--sp-2);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
-  color: var(--ink);
-}
-
-:where(.body) li:last-child {
-  margin-bottom: 0;
-}
-
+/* The body's running-text grammar — paragraphs, lists, headings, quotes,
+   links — is `components/ui/Prose` (2026-09-17, stage 9): the shells mount
+   the primitive and this file keeps only what is this shell's own. The
+   list marker is one of those: it reads the page's accent (gold, or the
+   Fake Resistance pages' ember), which is the surface speaking, not prose. */
 :where(.body) li::marker {
   color: var(--accent);
-}
-
-:where(.body) strong {
-  color: var(--ink-hi);
-  font-weight: 600;
-}
-
-
-:where(.body) a {
-  color: var(--ink-hi);
-  text-decoration: underline;
-  text-decoration-color: var(--gold-line-strong);
-  text-decoration-thickness: var(--line-w);
-  text-underline-offset: 0.2em;
-  transition: color var(--dur-fast) var(--ease-out),
-    text-decoration-color var(--dur-fast) var(--ease-out);
-}
-
-:where(.body) a:hover {
-  color: var(--gold-hi);
-  text-decoration-color: currentColor;
-}
-
-
-:where(.body) blockquote {
-  margin: var(--sp-6) 0;
-  padding-left: var(--sp-5);
-  border-left: var(--line-w-thick) solid var(--gold-line);
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: var(--t-lede);
-  font-weight: var(--t-lede-weight);
-  line-height: var(--t-lede-lh);
-  color: var(--ink-hi);
-  hanging-punctuation: first;
-  text-wrap: pretty;
-}
-
-:where(.body) blockquote p {
-  font-size: inherit;
-  line-height: inherit;
-  color: inherit;
 }
 
 

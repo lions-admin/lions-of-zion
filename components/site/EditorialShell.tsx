@@ -89,7 +89,15 @@ export function EditorialShell({
           data-reading-scroll
           data-public-shell
           data-family={family}
+          /* One held route, two spellings, both read where they are read:
+             `data-quiet` holds the page transition to the plain crossfade
+             (above), and `data-memorial` is the token hook
+             `app/globals.css` names for the display-voice and signal-rule
+             muting — the stage-9 consolidation closed the handoff that had
+             October 7's hub re-pointing those two tokens in its own
+             stylesheet because the shell did not carry this yet. */
           data-quiet={routeId === "october-7" ? "" : undefined}
+          data-memorial={routeId === "october-7" ? "" : undefined}
         >
           {showProgress ? (
             <ReadingProgress

@@ -25,6 +25,8 @@
  */
 import { EditorialShell } from '@/components/site/EditorialShell';
 import { Breadcrumb } from '@/components/site/Breadcrumb';
+import { Heading } from '@/components/ui/Heading';
+import { Prose } from '@/components/ui/Prose';
 import { SectionToc, SectionTocControl } from './SectionToc';
 import styles from './sections.module.css';
 
@@ -134,27 +136,28 @@ export function DocPage({
 
         <article className={styles.panel} id="page-content">
           <header>
-            <h1
-              className={
-                titleScale === 'long' ? styles.titleLong : styles.title
-              }
+            <Heading
+              level="h1"
+              size={titleScale === 'long' ? 'h2' : 'display'}
+              className={titleScale === 'long' ? styles.titleLong : styles.title}
               lang={titleLang}
             >
               {title}
-            </h1>
+            </Heading>
             {tagline ? <p className={styles.lede}>{tagline}</p> : null}
             {dateline}
             <div className={styles.ledeRule} aria-hidden="true" />
           </header>
           {/* Same slot as `SectionPage`'s — under the header, never above the
               headline. See `SectionToc.tsx` for why the control and the rail
-              are two components. */}
+              are two components. The running-text grammar is the `Prose`
+              primitive (stage 9); `.body` keeps the scroll offsets and the
+              accent marker, and `data-toc-source` scopes the rail's heading
+              scan to the page body. */}
           {withToc ? <SectionTocControl /> : null}
-          {/* `data-toc-source` scopes the rail's heading scan to the page body,
-              so it can never pick up an h2 from the chat modal or the rail. */}
-          <div className={styles.body} data-toc-source>
+          <Prose className={styles.body} data-toc-source>
             {children}
-          </div>
+          </Prose>
           {/* No closing apparatus — same reasoning as `SectionPage`. These
               two pages already link to each other from their own prose. */}
         </article>

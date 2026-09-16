@@ -21,9 +21,9 @@
   composes: srOnly from global;
 }
 
-.dataLabel {
-  composes: dataLabel from global;
-}
+/* The `.dataLabel` composition went with the stage-9 sweep: no component in
+   the investigation tree names it, and any future label composes
+   `dataLabel from global` at the element that needs it. */
 
 /* ── The evidence path ─────────────────────────────────────────────────── */
 

@@ -30,7 +30,10 @@ export function SignalMark({ className, rule = true }: { className?: string; rul
         <rect x="12" y="6" width="1.5" height="5" />
         <rect x="16" y="2" width="1.5" height="9" />
       </svg>
-      {rule ? <span className={styles.rule} /> : null}
+      {/* `data-slot` so a composing stylesheet can animate the line itself
+          (the cover draws it on a scroll timeline) without reaching into this
+          module's class names. */}
+      {rule ? <span className={styles.rule} data-slot="rule" /> : null}
     </span>
   );
 }

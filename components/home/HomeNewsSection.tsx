@@ -54,6 +54,9 @@ export function HomeNewsSection({
         {section.items.map((item, index) => (
           <article
             key={item.key}
+            /* The band's first two records arrive with its head (`.enter`,
+               `app/globals.css`); a third would be a list arriving. */
+            className={index < 2 ? "enter" : undefined}
             data-home-record={item.key}
             data-rank={rankOf(index)}
             data-measure-id={`home-news-${item.key}`}

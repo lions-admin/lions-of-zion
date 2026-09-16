@@ -113,7 +113,7 @@ export function HomePeopleSection({ people, heroes, history }: {
       <div className={styles.peopleStack} data-lead={lead ? 'true' : 'false'}>
         {lead ? (
           <article
-            className={styles.peopleLead}
+            className={`${styles.peopleLead} enter`}
             data-rank="lead"
             data-home-record={lead.key}
             data-measure-id={`home-people-${lead.key}`}

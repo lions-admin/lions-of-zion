@@ -1,7 +1,6 @@
 import { readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { HeroVideo } from "@/components/sections/HeroVideo";
 import { EditorialIntro, INTRO_BEATS } from "@/components/home/EditorialIntro";
 
 describe("direct-entry cinematic home", () => {
@@ -9,7 +8,6 @@ describe("direct-entry cinematic home", () => {
     const page = readFileSync("app/page.tsx", "utf8");
     expect(page).not.toContain("CinematicIntroGate");
     expect(page).not.toContain("ScanBackdrop");
-    expect(page).toContain("<HeroVideo className={styles.heroVideo} />");
     expect(page).not.toContain("CinematicHomeMedia");
     expect(page).toContain("<HomepageJourney edition={edition}/>");
     const system = readFileSync("components/home/HomeSystemSection.tsx", "utf8");
@@ -23,6 +21,40 @@ describe("direct-entry cinematic home", () => {
        action, so the literal left `page.tsx`; the destination did not leave
        the homepage, and this asserts the band that renders it. */
     expect(system).toContain('href="/information-war"');
+  });
+
+  it("builds the cover from layers in server HTML, with no video and no script behind them", () => {
+    /* The cover is the layered lion since 2026-09-16 (decision 1 of the
+       round): two `<picture>` layers over a flat CSS-painted ground, inside a
+       held screen the stylesheet pins for the runway. Every part of it is in
+       the server HTML — the wordmark, the standfirst, today's lead, the
+       layers — so a reader without JavaScript, with stillness asked for, or
+       on an engine without scroll timelines gets the same page at rest. The
+       one client component on the cover is the reader's own pause. */
+    const page = readFileSync("app/page.tsx", "utf8");
+    expect(page).not.toContain("HeroVideo");
+    expect(page).not.toContain("<video");
+    expect(page).toContain("<div className={styles.posterField} />");
+    expect(page.indexOf('<CoverLayer name="haze" className={styles.lionHaze} />')).toBeGreaterThan(0);
+    expect(page.indexOf('<CoverLayer name="haze" className={styles.lionHaze} />')).toBeLessThan(
+      page.indexOf('<CoverLayer name="core" className={styles.lionCore} priority />'),
+    );
+    expect(page).toContain("<MotionControl />");
+    expect(page).toContain("<SignalMark className={styles.coverSignal} />");
+    /* Only the core layer is preloaded, and only the cut this viewport
+       draws — never both, never the haze. */
+    expect(page.match(/rel="preload"/g)).toHaveLength(2);
+    expect(page).toMatch(/href="\/brand\/cover\/lion-core-800\.avif"[\s\S]{0,80}media=\{PHONE_CUT\}/);
+    expect(page).toMatch(/href="\/brand\/cover\/lion-core-1254\.avif"[\s\S]{0,80}media="\(min-width: 48rem\)"/);
+    expect(page).not.toContain("lion-haze-1254.avif\"\n      media");
+    /* The layer images are decorative and eager: `alt=""`, sized so the
+       arrival is a fade and never a reflow, high priority on the core only. */
+    expect(page).toMatch(/<img[\s\S]*?alt=""[\s\S]*?decoding="async"[\s\S]*?loading="eager"/);
+    expect(page).toContain('fetchPriority={priority ? "high" : "auto"}');
+    /* The action is the lead's own verb, from the verb table, pointing at
+       the lead itself; the hub is only the fallback. */
+    expect(page).toContain('<JourneyLink href={lead.href}>{lead.cta ?? "Read the story"}</JourneyLink>');
+    expect(page).not.toContain("Read the latest</JourneyLink>");
   });
 
   it("keeps the server-rendered home accessible before JavaScript", () => {
@@ -77,14 +109,5 @@ describe("direct-entry cinematic home", () => {
     expect(intro).toContain('data-shown={!paused}');
     expect(intro).toContain("data-beat={beat}");
     expect(intro).toContain("politeLive");
-  });
-
-  it("renders a poster layer without downloading or requiring video before hydration", () => {
-    const html = renderToStaticMarkup(<HeroVideo />);
-    expect(html.match(/<video/g)).toHaveLength(2);
-    expect(html).toContain('preload="none"');
-    expect(html).not.toMatch(/\ssrc=/);
-    expect(html).not.toContain("inert");
-    expect(html).not.toContain("<button");
   });
 });

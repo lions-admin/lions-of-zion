@@ -42,6 +42,9 @@ export function HomeArchiveSection({
         {section.items.map((item, index) => (
           <article
             key={item.key}
+            /* October 7 arrives by opacity alone (`.enterQuiet`): the held
+               route's profile, nothing rises or staggers. */
+            className={index < 2 ? "enterQuiet" : undefined}
             data-kind={item.kind}
             data-home-record={item.key}
             data-measure-id={`home-october-7-${item.key}`}

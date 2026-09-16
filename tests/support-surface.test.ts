@@ -175,7 +175,9 @@ describe("donation channels are links to the provider, never embedded widgets", 
     const css = read("components/home/homepage-journey.module.css");
     expect(css).not.toContain("@keyframes supportRise");
     expect(css).not.toContain("@keyframes supportSettle");
-    expect(css).toMatch(/\.supportChip\s*\{[^}]*min-height: 44px/);
+    /* The floor by name (2026-09-16): `--control-h` is the one coarse-target
+       token and `tests/ui-contracts` holds it at 44px. */
+    expect(css).toMatch(/\.supportChip\s*\{[^}]*min-height: var\(--control-h\)/);
     const reduced = css.slice(css.indexOf("prefers-reduced-motion: reduce"));
     expect(reduced).toMatch(/supportChip[^{}]*\{[^}]*transition: none/);
   });

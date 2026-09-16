@@ -159,20 +159,23 @@ describe("the home hero's moving layer cannot rise, catch a pointer, or be annou
     expect(home).toMatch(/\.fieldLayer \{[^}]*z-index:\s*-1/);
     expect(home).toMatch(/\.fieldLayer \{[^}]*pointer-events:\s*none/);
     expect(home).not.toMatch(/\.masthead \{[^}]*position:/);
-    /* The layer's contents, in paint order. A video is not pointer-inert by
-       default — it has native controls and is focusable — so the
-       `pointer-events: none` above is load-bearing rather than tidy, and the
-       elements carry `tabIndex={-1}` and `aria-hidden` of their own. Poster,
-       video and scrim carry no z-index at all and stack purely by source
-       order inside that same layer. */
+    /* The layer is the held screen of the cover (2026-09-16): sticky for the
+       runway, then gone with the section. Its contents, in paint order —
+       the flat ground, the haze, the core, the scrim — carry no z-index at
+       all and stack purely by source order inside that same layer, and the
+       whole layer is `aria-hidden` with `alt=""` on each picture: the lion is
+       the brand's image, not information. `pointer-events: none` is still
+       load-bearing — an `<img>` is draggable and a `<picture>` catches a
+       pointer that should reach nothing here. */
+    expect(home).toMatch(/\.fieldLayer \{[^}]*position:\s*sticky/);
     const page = read("app/page.tsx");
-    expect(page).toMatch(/<div className=\{styles\.posterField\} \/>[\s\S]*?<HeroVideo[\s\S]*?<div className=\{styles\.heroScrim\} \/>/);
-    for (const selector of [".posterField", ".heroVideo", ".heroScrim"]) {
-      expect(home, selector).not.toMatch(new RegExp(`\\${selector} \\{[^}]*z-index`));
+    expect(page).toMatch(/<div className=\{styles\.fieldLayer\} aria-hidden="true">/);
+    expect(page).toMatch(/<div className=\{styles\.posterField\} \/>[\s\S]*?<CoverLayer name="haze"[\s\S]*?<CoverLayer name="core"[\s\S]*?<div className=\{styles\.heroScrim\} \/>/);
+    expect(page).toMatch(/<img[^>]*\salt=""/);
+    expect(page).not.toContain("<video");
+    for (const selector of [".posterField", ".lionHaze", ".lionCore", ".lionLayer", ".heroScrim"]) {
+      expect(home, selector).not.toMatch(new RegExp(`\\${selector}[^{]*\\{[^}]*z-index`));
     }
-    const hero = read("components/sections/HeroVideo.tsx");
-    expect(hero.match(/aria-hidden="true"/g)?.length).toBe(2);
-    expect(hero.match(/tabIndex=\{-1\}/g)?.length).toBe(2);
   });
 
   it("is overpainted by the content layer, the masthead and the skip link", () => {
@@ -192,17 +195,28 @@ describe("the home hero's moving layer cannot rise, catch a pointer, or be annou
 });
 
 describe("reduced motion is honoured by every layer that still moves", () => {
-  it("leaves the home's moving layer still — and undownloaded", () => {
-    /* Stillness here is not a paused animation but an absent source: the
-       effect returns before either element is given one, so a reader who
-       asked for stillness does not download 30MB of video to hold on frame
-       one. `.posterField` is what they see, and it is painted by the
-       stylesheet with no script at all. */
-    const hero = read("components/sections/HeroVideo.tsx");
-    expect(hero).toContain('window.matchMedia("(prefers-reduced-motion: reduce)")');
-    expect(hero).toMatch(/if \(reduced\.matches\) \{[\s\S]*?return;/);
-    expect(hero).toMatch(/preload="none"/);
-    expect(home).toMatch(/\.posterField \{[^}]*background:\s*var\(--hero-poster-tall\)/);
+  it("leaves the cover still in all three still states, with its runway at zero", () => {
+    /* Three states, three answers, and the global 0.01ms kill switch is not
+       one of them: it cannot shorten a scroll timeline. So the cover's own
+       reduced-motion block names every timeline element with `animation:
+       none` and sets the runway to zero (no pinned pause — one plain screen,
+       the lion at rest, the rule present); the reader's own pause
+       (`html[data-motion="paused"]`, set by `MotionControl`) does the same;
+       and an engine without scroll-driven animation gets the static default
+       because the timeline is layered on behind `@supports`. No script is
+       involved in any of them — there is no video, nothing to give a source
+       to, nothing to download beyond the layers themselves. */
+    const reduced = home.slice(home.indexOf("@media (prefers-reduced-motion: reduce)"));
+    expect(reduced).toMatch(/\.hero \{ --cover-runway: 0svh; \}/);
+    expect(reduced).toMatch(/\.lionCore, \.lionHaze, \.lionLayer,[^{]*\{ animation: none; \}/);
+    expect(home).toMatch(/html\[data-motion="paused"\] \.hero \{ --cover-runway: 0svh; \}/);
+    expect(home).toMatch(/html\[data-motion="paused"\] \.lionCore,[^{]*\{ animation: none; \}/);
+    expect(home).toMatch(/@supports not \(animation-timeline: scroll\(\)\) \{\s*\.hero \{ --cover-runway: 0svh; \}/);
+    /* The scroll itself lives only behind the feature test. */
+    const timeline = home.slice(home.indexOf("@supports (animation-timeline: scroll())"));
+    expect(timeline).toMatch(/animation-timeline: scroll\(root\)/);
+    expect(home.slice(0, home.indexOf("@supports (animation-timeline: scroll())"))).not.toContain("animation-timeline");
+    expect(read("app/page.tsx")).not.toContain("<video");
   });
 
   it("stills the reading shell's entrance and every transition in its navigation", () => {
@@ -275,11 +289,14 @@ describe("the no-JavaScript home still shows a readable band over the static gro
   });
 
   it("keeps a ground under every state, so none of them is a bare screen", () => {
-    /* The hero's ground is the video's own first frame, painted by the
-       stylesheet rather than by the component, so it is there before any
-       script runs and stays when none ever does. */
-    expect(home).toMatch(/\.posterField \{[^}]*background:\s*var\(--hero-poster-tall\)/);
-    expect(globals).toMatch(/--hero-poster-tall:\s*url\(/);
+    /* The cover's ground is the page's own flat colour with the one
+       vignette the palette allows, painted by the stylesheet rather than by
+       any component, so it is there before any script runs and stays when
+       none ever does. No photograph is declared for it any more: the posters
+       left with the video (2026-09-16). */
+    expect(home).toMatch(/\.posterField \{[^}]*background:[^;]*var\(--ground\)/);
+    expect(home).not.toContain("--hero-poster");
+    expect(globals).not.toContain("--hero-poster");
     /* And the rest of the site is read on the one flat ground. */
     expect(globals).toMatch(/html, body \{[^}]*background-color:\s*var\(--ground\)/);
   });

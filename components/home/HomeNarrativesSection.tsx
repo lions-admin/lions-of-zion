@@ -84,7 +84,7 @@ export function HomeNarrativesSection({
                  grid areas changed with the reading order, and one file should
                  own them. `HomeNarrativesSection.module.css` keeps the two
                  rules that are genuinely local to this card. */
-              className={styles.investigation}
+              className={index < 2 ? `${styles.investigation} enter` : styles.investigation}
               data-home-record={item.key}
               data-measure-id={`home-fake-resistance-${item.key}`}
               data-measure-section="fake-resistance"

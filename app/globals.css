@@ -477,16 +477,14 @@
      (the 48rem block below) because the phone bar is the whole masthead. */
   --header-h-bar: calc(4.25rem + env(safe-area-inset-top, 0px));
 
-  /* The cover stills, declared once here rather than buried in the rules that
-     use them. `HeroVideo` holds the same paths in its `SOURCES` table — it
-     needs them in JavaScript to set a `poster` after it has measured the
-     viewport — and the two lists must not drift. They leave with the video
-     when the layered cover lands; the reading routes no longer paint a
-     photograph under the page (the fixed still and the scan texture were
-     deleted 2026-09-15 — the ground is flat). */
+  /* The one photograph still declared here (2026-09-16): the ground of the
+     editorial introduction (`editorial-intro.module.css`), which stays until
+     that sequence moves to `/we-are`. The cover's posters left with the video
+     when the layered lion landed (`public/brand/cover/`, painted by
+     `app/home.module.css`); the reading routes paint no photograph under the
+     page (the fixed still and the scan texture were deleted 2026-09-15 — the
+     ground is flat). */
   --site-ground-photo: url("/video/lion-hero-poster-desktop.jpg");
-  --hero-poster-wide: url("/video/lion-hero-poster-desktop.jpg");
-  --hero-poster-tall: url("/video/lion-hero-poster-portrait.jpg");
 
   --z-under: -1;
   --z-base: 0;

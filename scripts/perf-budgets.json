@@ -10,7 +10,8 @@
     "font_preload_kb": 579.2,
     "client_module_files": 140,
     "client_page_components": 6,
-    "total_css_gz_kb": 90.3
+    "total_css_gz_kb": 90.3,
+    "cover_assets_mb": 4.0
   },
   "runtime": {
     "home_lcp_ms": null,
@@ -25,5 +26,6 @@
   },
   "//real_finding": "admin.module.css (23.9 kB), archive.module.css (34.2 kB) and visualizer.module.css (34.6 kB) ride on every public route. That is ~93 kB of source CSS the reading routes never use, and it is worth far more than either tripwire. It is Turbopack's client-CSS bucketing, not an import-graph defect: deep-importing the barrel consumers was tried and moved nothing.",
   "//headroom": "50% on sizes, 2x on counts (owner instruction). Previously 5% and +1.",
+  "//cover_assets_mb": "Added by hand, 2026-09-16 (stage 4 of the identity round; never via --update-budgets). The whole public/brand/cover/ set — keyed lion layers, previews and manifest — measured 2.9 MB the day it landed. 4.0 is the hard budget the asset job's ruling set, not a headroom multiple.",
   "//route_css_gz_kb": "Not monotonic in CSS size: deleting ~11 kB of unreachable CSS moved it 38.3 -> 42.8, because Turbopack packs shared CSS into ~120 kB buckets shipped to every route and removing rules moved the bucket boundary. Watch total_css_gz_kb for cleanup work instead."
 }

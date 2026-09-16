@@ -585,6 +585,15 @@ const measured = {
   font_preload_kb: Number(kb(Math.max(...publicRoutes.map((r) => r.fontPreloadBytes)))),
   client_module_files: client.count,
   client_page_components: client.clientPages.length,
+  /* The keyed cover asset set (stage 4 of the 2026-09-16 identity round).
+     The whole directory is measured — layers, previews and manifest —
+     because that is what a re-run of `scripts/brand/key-lion.mjs` replaces
+     wholesale. Budgeted by hand in `scripts/perf-budgets.json` (hard 4 MB);
+     the `--update-budgets` path below does NOT touch a `_mb` key, so the
+     hand-written number stays the record. */
+  cover_assets_mb: Number((readdirSync(path.join(ROOT, "public", "brand", "cover"))
+    .reduce((sum, name) => sum + statSync(path.join(ROOT, "public", "brand", "cover", name)).size, 0)
+    / 1024 / 1024).toFixed(2)),
 };
 
 const checks = [
@@ -596,6 +605,7 @@ const checks = [
   checkBudget("preloaded fonts per route", measured.font_preload_kb, budgets.bundle.font_preload_kb, " kB"),
   checkBudget('"use client" files', measured.client_module_files, budgets.bundle.client_module_files, " files"),
   checkBudget("client route pages", measured.client_page_components, budgets.bundle.client_page_components, " pages"),
+  checkBudget("cover assets", measured.cover_assets_mb, budgets.bundle.cover_assets_mb, " MB"),
 ];
 
 let runtime = null;
@@ -628,7 +638,10 @@ if (UPDATE) {
   for (const [key, value] of Object.entries(measured)) {
     /* Headroom is 5 % on a size and one whole unit on a count, so ordinary
        churn does not turn the build red while a real regression still does.
-       A count budget is an integer: "73.5 client files" is not a thing. */
+       A count budget is an integer: "73.5 client files" is not a thing.
+       The cover-asset budget is hand-written (hard 4.0) and must never be
+       re-calibrated here — see the `//cover_assets_mb` note in the file. */
+    if (key === "cover_assets_mb") continue;
     next.bundle[key] = key.endsWith("_kb") ? Number((value * 1.05).toFixed(1)) : Math.ceil(value) + 1;
   }
   if (runtime) {

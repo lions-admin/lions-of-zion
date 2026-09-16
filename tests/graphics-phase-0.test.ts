@@ -88,6 +88,13 @@ describe("UX-005 Ask lifecycle", () => {
     expect(desk).toContain('"success-with-sources"');
     expect(desk).toContain('"insufficient-evidence"');
     expect(desk).toContain('"no-answer"');
+    /* The composer's `data-ask-composer-state` was pinned when the component
+       existed and was then dead for a week — `AskDesk` had swapped to the
+       vendored `PromptInput` and the attribute hung on a component nothing
+       rendered. On 2026-09-17 (Midnight Signal, workstream F) the composer
+       was rebuilt on `components/ui` and is the desk's box again, so the
+       assertion lives with it rather than retiring beside it: the rule is
+       that a pin goes when the thing it pins goes, and this one came back. */
     expect(read("components/ask/AskComposer.tsx")).toContain("data-ask-composer-state");
   });
 });

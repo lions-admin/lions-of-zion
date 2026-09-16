@@ -1,12 +1,6 @@
-import dynamic from "next/dynamic";
 import { AmplificationFigure } from "./AmplificationFigure";
 import { JourneyLink } from "./HomeJourneyPrimitives";
 import styles from "./homepage-journey.module.css";
-
-const EditorialIntro = dynamic(
-  () => import("./EditorialIntro").then((mod) => mod.EditorialIntro),
-  { ssr: true }
-);
 
 /**
  * One proof of method, and the two doors out of it (VA-21).
@@ -48,7 +42,7 @@ export function HomeSystemSection() {
       <div className={styles.systemActions}>
         <JourneyLink href="/information-war" variant="section">How it works</JourneyLink>
         <JourneyLink href="/methodology" variant="section">Methodology</JourneyLink>
-        <EditorialIntro compact autoOpen={false} />
+        <JourneyLink href="/we-are" variant="section">Why we exist</JourneyLink>
       </div>
     </section>
   );

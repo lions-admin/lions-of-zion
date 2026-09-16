@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { Breadcrumb } from "@/components/site/Breadcrumb";
 import { EditorialShell } from "@/components/site/EditorialShell";
 import { PipelineTrace } from "./information-war/PipelineTrace";
 import { RecentActivity } from "./information-war/LivePanels";
@@ -12,6 +13,12 @@ const REPORT_NODES = ["A", "B", "C", "D", "E"].map((letter, index) => ({ letter,
 export function InformationWarSystem() {
   return (
     <EditorialShell routeId="information-war" className={styles.page} progressTrackClassName={styles.progressTrack}>
+      {/* The document trail, from the shared primitive — the one piece of the
+          section-page shells this page lacked. It sits above the hero, on the
+          same ground, and names the route the way the menu does. */}
+      <div className={styles.trailRow}>
+        <Breadcrumb trail={[]} current="How it works" />
+      </div>
       <section className={styles.hero} id="page-content" aria-labelledby="war-heading">
         <div className={styles.heroTopline}><p className={styles.eyebrow}>Lions of Zion / Israeli-built information-integrity technology</p><a href="#system">Explore the architecture <span aria-hidden="true">↘</span></a></div>
         <div className={styles.heroGrid}>

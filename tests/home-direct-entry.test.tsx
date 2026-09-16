@@ -13,7 +13,12 @@ describe("direct-entry cinematic home", () => {
     expect(page).not.toContain("HeroVideo");
     expect(page).toContain("<HomepageJourney edition={edition}/>");
     const system = readFileSync("components/home/HomeSystemSection.tsx", "utf8");
-    expect(system).toContain("autoOpen={false}");
+    /* Owner decision, 2026-09-17: the typewriter introduction moved to /we-are
+       as "Why we exist" and opens on the reader's action only; the system band
+       points at it with a section link instead of mounting a second copy, and
+       the `autoOpen` path is gone with it. */
+    expect(system).not.toContain("EditorialIntro");
+    expect(system).toContain('href="/we-are"');
     expect(page).not.toContain("SignalRotator");
     expect(page).toContain('href="/geopolitical-brief"');
     /* The how-it-works destination is asserted on the system band, not on the

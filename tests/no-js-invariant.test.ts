@@ -371,7 +371,13 @@ describe("the no-JavaScript invariant: the routes that hold nothing back", () =>
 
   it("renders /ask complete, with its no-JS explanation", async () => {
     const { default: Page } = await import("@/app/ask/page");
-    const html = await fullHtml(Page());
+    /* The route reads one search parameter now — the search empty state hands
+       a query over as `/ask?q=…` — and takes it as a prop, the same contract
+       `/search` uses; it is called bare-by-shape here, as every route below
+       is. */
+    const html = await fullHtml(
+      await Page({ searchParams: Promise.resolve({}) } as never),
+    );
 
     expectShellRenders("/ask", html);
     expect(html).not.toContain('<div hidden id="S:');

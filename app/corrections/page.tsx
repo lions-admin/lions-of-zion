@@ -23,6 +23,12 @@ const CORRECTIONS_JSON_LD = {
   isPartOf: { "@type": "WebSite", name: "Lions of Zion", url: SITE_URL },
 };
 
+/* The "last reviewed" line is a content constant because there is no CMS
+   field for it — this is a static trust page, so the date a person last read
+   it end to end lives here, next to the prose it vouches for. Bump it when
+   the wording of the policy changes, not on every code touch. */
+const LAST_REVIEWED = "2026-09-17";
+
 type LedgerState = { kind: "ready"; entries: Correction[] } | { kind: "unavailable" };
 
 async function readLedger(): Promise<LedgerState> {
@@ -39,7 +45,12 @@ export default async function Page() {
   const count = ledger.kind === "ready" ? ledger.entries.length : null;
 
   return (
-    <DocPage routeId="corrections" title="Corrections" tagline={TAGLINE}>
+    <DocPage
+      routeId="corrections"
+      title="Corrections"
+      tagline={TAGLINE}
+      dateline={<p className={styles.lastReviewed}>Last reviewed {LAST_REVIEWED}</p>}
+    >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(CORRECTIONS_JSON_LD) }} />
 
       <SectionBlock heading="Accountability does not disappear when AI is used">

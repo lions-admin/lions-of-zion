@@ -7,12 +7,6 @@ import {
   IBM_Plex_Sans_Hebrew,
 } from "next/font/google";
 import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site-config";
-/* Tailwind first, then the hand-authored system. Both files open with the same
-   `@layer theme, base, components, utilities;` statement, so order is pinned
-   regardless of how Next chunks them; this import order is the belt to that
-   brace. Removing this one line plus `postcss.config.mjs` reverts Tailwind
-   entirely — see the note at the top of `app/tailwind.css`. */
-import "./tailwind.css";
 import "./globals.css";
 import { PublicSessionProvider } from "@/components/auth/PublicSessionProvider";
 import { Analytics } from "@vercel/analytics/next";

@@ -12,9 +12,15 @@
  * them may reach the home route.
  *
  * `Tabs` and `Tooltip` were removed on 2026-09-14: both had zero importers
- * anywhere in the repository, and the tooltip actually in use is the Radix
+ * anywhere in the repository, and the tooltip actually in use was the Radix
  * one at `components/shadcn/tooltip.tsx`. Two tooltip implementations, one
  * of them dead, is how a component library stops being believable.
+ *
+ * The vendored registry that made the second tooltip went with it on
+ * 2026-09-17 (Midnight Signal, workstream F): `components/shadcn/**` and the
+ * Tailwind pipeline are deleted, the ask desk is rebuilt on these primitives,
+ * and there is one chrome system again. `Kbd` and `SuggestionChips` join on
+ * the same day, extracted from the ask and search trees.
  */
 export * from "./Button";
 export * from "./Card";
@@ -30,3 +36,5 @@ export * from "./FieldGroup";
 export * from "./CheckboxField";
 export * from "./SelectField";
 export * from "./live-region";
+export * from "./Kbd";
+export * from "./SuggestionChips";

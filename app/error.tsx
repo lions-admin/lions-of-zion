@@ -98,16 +98,6 @@ export default function ErrorBoundary({
           border-radius: var(--radius-3);
           background-color: var(--surface-1);
         }
-        /* Two words, so uppercase is allowed: the one gold on the page. */
-        .loz-error-code {
-          font-family: var(--face-data);
-          font-size: var(--t-data);
-          font-weight: var(--t-data-weight);
-          line-height: var(--t-data-lh);
-          letter-spacing: var(--t-data-tracking);
-          text-transform: uppercase;
-          color: var(--gold);
-        }
         .loz-error-title {
           font-family: var(--face-display);
           font-optical-sizing: auto;
@@ -211,18 +201,23 @@ export default function ErrorBoundary({
         }
       `}</style>
       <div className="loz-error-inner">
-        <p className="loz-error-code">Transmission interrupted</p>
-        <h1 className="loz-error-title">Signal dropped</h1>
+        {/* Mid-2026-09 UI round: the copy moved to the 404's register — plain
+            sentences in the reader's own voice, one verb per action, no
+            HTTP status and no metaphor ("signal", "scan") a reader has to
+            decode while something has already gone wrong. `tests/
+            glass-retirement.test.ts` pins the new strings; the rule it kept —
+            banned decorations stay banned, tokens by name stay — is unchanged. */}
+        <h1 className="loz-error-title">Something went wrong loading this page.</h1>
         <p className="loz-error-lede">
-          Something failed while rendering this file. Nothing is lost — the
-          record is intact. Re-establish the signal, or return to the scan.
+          The failure is ours, not yours. Nothing is lost — try again, or go
+          back to the front page and keep reading.
         </p>
         <div className="loz-error-actions">
           <button type="button" className="loz-error-retry" onClick={() => recover()}>
-            Re-establish signal
+            Try again
           </button>
           <Link href="/" className="loz-error-home">
-            ← Back to the scan
+            Back to the front
           </Link>
         </div>
         {error.digest ? <p className="loz-error-digest">Ref {error.digest}</p> : null}

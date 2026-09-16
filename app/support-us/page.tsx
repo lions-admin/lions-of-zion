@@ -167,7 +167,12 @@ const FLOWS: SupportFlow[] = [
 
 export default function Page() {
   return (
-    <SectionPage id="support-us" title="Support Us" tagline={TAGLINE}>
+    /* `withToc={false}` (2026-09-17): the page is one question and one flow
+        — "Choose how to help" is a single section, and a contents rail with
+        one entry is navigation pretending to be a document. The reading bar
+        stays (it is derived from `withToc`, and without a rail there is no
+        second depth reading to hide). */
+    <SectionPage id="support-us" title="Support Us" tagline={TAGLINE} withToc={false}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(SUPPORT_US_JSON_LD) }}

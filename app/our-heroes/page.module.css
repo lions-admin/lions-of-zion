@@ -93,7 +93,9 @@
    the rail is client-side only, and without this a no-JavaScript reader
    would lose the roll entirely. Same trade, same wording, as the era
    index on Israel's Story. */
-@media (min-width: 1220px) and (scripting: enabled) {
+@media (min-width: var(--bp-rails)) and (scripting: enabled) {
+  /* The private 1220px seam re-pointed at --bp-rails (same value, one
+     name — 2026-09-17). */
   .roll {
     display: none;
   }
@@ -301,7 +303,9 @@
   }
 }
 
-@media (min-width: 1220px) {
+@media (min-width: var(--bp-rails)) {
+  /* The private 1220px seam re-pointed at --bp-rails (same value, one
+     name — 2026-09-17). */
   /* The zero-width last column is the whole trick: the note is placed
      in it and overflows into the page margin, so the reading column keeps
      its full measure. Declared here because `Card.row` is already a grid

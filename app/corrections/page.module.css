@@ -43,3 +43,13 @@
 .ledgerState {
   margin-top: var(--sp-5);
 }
+
+/* The "last reviewed" colophon, beside the standfirst. There is no CMS field
+   for it; the date is a content constant in `page.tsx` (2026-09-17) and this
+   only sets it — the data voice, at the floor, in the recessive ink. */
+.lastReviewed {
+  composes: dataMeta from global;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
+}

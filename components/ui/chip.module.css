@@ -1,0 +1,70 @@
+/* The one suggestion-chip primitive (Midnight Signal, workstream F).
+ *
+ * The search primer's recent and starter queries and the ask desk's suggested
+ * questions were three copies of the same control — a ghost `Button` with the
+ * control boundary drawn (A11Y-004: the ghost's own line is transparent, so
+ * the boundary is `--control-line`, tuned to clear 3:1) that wraps its whole
+ * sentence instead of clipping it. One primitive now owns that grammar.
+ *
+ * The control itself stays the product `Button`; the styles here reach it as
+ * a descendant of the list item, so they outrank the button module's own
+ * single-class rules by specificity rather than by file order — the cascade
+ * fact that made the vendored Tailwind stack unfixable, stated in the
+ * direction that works.
+ */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.label {
+  composes: kickerLabel from global;
+  color: var(--ink-lo);
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.item button {
+  max-width: 100%;
+  min-block-size: var(--control-h);
+  white-space: normal;
+  text-align: start;
+  overflow-wrap: anywhere;
+  /* A control boundary, not the ghost's transparent line (A11Y-004). */
+  --btn-line: var(--control-line);
+}
+
+.item button:hover:not(:disabled),
+.item button:focus-visible {
+  --btn-line: var(--control-line);
+}
+
+/* Suggested queries are controls a script drives; without one they are
+   chrome that pretends. The panel's own `<noscript>` copy says why the field
+   will not query, so the chips leave with it. */
+@media (scripting: none) {
+  .group {
+    display: none;
+  }
+}

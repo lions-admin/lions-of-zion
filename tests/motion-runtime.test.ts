@@ -64,10 +64,13 @@ describe("MOTION-002 — the animation-loop inventory", () => {
    * The closed set of files allowed to drive a frame loop. A new entry here
    * is not a failure, it is the prompt to give the loop the four properties
    * and add it to the report — which is the whole point of the list.
+   *
+   * It is empty since 2026-09-17, when `components/pipeline-visualizer/` —
+   * the one entry it held, and the only frame loop in the tree — was deleted
+   * with its test: the module had been unreferenced by any route since the
+   * internal `/pipeline` page was removed on 2026-09-06.
    */
-  const KNOWN_FRAME_LOOPS = [
-    "components/pipeline-visualizer/hooks/usePipelineSimulation.ts",
-  ];
+  const KNOWN_FRAME_LOOPS: string[] = [];
 
   /**
    * Not a loop: one rAF coalesced every beam's layout read into a single
@@ -150,14 +153,11 @@ describe("MOTION-002 — the animation-loop inventory", () => {
      telemetry sampler's interval and the engine's offscreen gate. The
      subsystem was retired on 2026-09-05 (it had been unmounted since
      `dcf4355` and unreachable from any route since), so they were removed
-     with it rather than left asserting on a deleted file. */
+     with it rather than left asserting on a deleted file.
 
-  /** The simulation is the only ambient loop on `/pipeline`; it defers to §21. */
-  it("the pipeline simulation does not auto-play under reduced motion", () => {
-    const hook = read("components/pipeline-visualizer/hooks/usePipelineSimulation.ts");
-    expect(hook).toMatch(/prefers-reduced-motion: reduce/);
-    expect(hook).toMatch(/playIntent \?\? !prefersReducedMotion/);
-  });
+     A third stood here for `components/pipeline-visualizer/hooks/
+     usePipelineSimulation.ts` ("does not auto-play under reduced motion")
+     and went with that directory on 2026-09-17, deleted as unreferenced. */
 });
 
 describe("PERF-007 — observers and listeners are scoped and released", () => {
@@ -274,17 +274,25 @@ describe("A11Y-010 / §21 — every continuous animation has a reduced-motion re
 
   /**
    * The kill switch freezes an animation; it cannot say what should be left
-   * standing in its place. A design-system primitive has to answer that
-   * itself — a stationary bright chip on one corner of a border beam is worse
-   * than no beam, and the removed `ShinyText` was the sharper case: frozen
-   * mid-pass it left transparent glyphs over a background that was gone,
-   * which is no text at all. So the rule is enforced where the answer is
-   * load-bearing rather than everywhere the switch already reaches.
+   * standing in its place. A looping surface has to answer that itself — a
+   * stationary bright chip on one corner of a border beam is worse than no
+   * beam, and the removed `ShinyText` was the sharper case: frozen mid-pass
+   * it left transparent glyphs over a background that was gone, which is no
+   * text at all.
+   *
+   * The rule was scoped to `components/motion/` because that directory was
+   * where looping primitives lived. Since 2026-09-17 (Midnight Signal,
+   * workstream F) it holds none: `BorderBeam` — the last one — was deleted
+   * when the ask desk's wait replaced its nine-second beam with a bounded
+   * sweep on the wait monitor's signal rule. The rule is restated over every
+   * stylesheet that declares an infinite loop, which is broader than before
+   * and can no longer pass by matching an emptied directory: the five-second
+   * floor below is what distinguishes an ambient loop from a processing
+   * indicator, and this is what says both must state their reduced-motion
+   * result in their own file.
    */
-  it("every motion primitive that loops declares its own reduced-motion result", () => {
-    const looping = styleFiles().filter(
-      (file) => file.startsWith("components/motion/") && /\binfinite\b/.test(read(file)),
-    );
+  it("every surface that loops declares its own reduced-motion result", () => {
+    const looping = styleFiles().filter((file) => /\binfinite\b/.test(read(file)));
     expect(looping.length).toBeGreaterThan(0);
     for (const file of looping) {
       expect(read(file), file).toMatch(/@media \(prefers-reduced-motion: reduce\)/);
@@ -299,15 +307,21 @@ describe("A11Y-010 / §21 — every continuous animation has a reduced-motion re
       "components/ui/button.module.css",
       "components/ui/status-state.module.css",
       "components/search/search.module.css",
-      "components/pipeline-visualizer/visualizer.module.css",
+      /* The ask desk's wait monitor (Midnight Signal, workstream F). The
+         signal rule under the strip sweeps at 1.4s while a question is being
+         answered — the same category as the search pulse above: a bounded
+         operation that is genuinely running (an answer being composed, up to
+         two minutes), gated on the request actually being in flight, and the
+         reduced-motion branch leaves a static emphasized rule behind. It
+         replaced BorderBeam's nine-second beam, which never read as activity
+         at all. Registered 2026-09-17. */
+      "components/ask/ask.module.css",
       "components/network/influence-graph.module.css",
-      /* The same category as its two siblings above: a bounded fictional
-         walkthrough, not an ambient background. `data-running` (and so these
-         loops) is only ever true while `HomeEvidencePipeline`'s autoplay is
-         genuinely mid-step — gated on visibility, `prefers-reduced-motion`
-         and reaching the last stage — so it reads as real activity rather
-         than decoration. Registered 2026-09-06. */
-      "components/home/narrative-simulation.module.css",
+      /* `components/home/narrative-simulation.module.css` left this set on
+         2026-09-17 with its two loops: the walkthrough became reader-driven
+         (workstream G), nothing in it autoplays or loops any more, and a
+         whitelist entry for a file with no `infinite` animation passes for
+         the wrong reason — same reasoning as the glass-retirement cleanup. */
     ]);
     for (const file of styleFiles()) {
       if (PROCESSING_INDICATORS.has(file)) continue;

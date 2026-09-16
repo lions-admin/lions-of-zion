@@ -1,0 +1,29 @@
+/* The ledger gutter, shared by every numbered list on the site.
+ *
+ * The search ledger and the ask citation list both count their rows against
+ * a hairline that runs down the start edge. Extracted 2026-09-17
+ * (Midnight Signal, workstream F) from two nearly identical blocks; a caller
+ * composes the base here and states only what differs — the line height, how
+ * far the rule reaches, and which line tone it carries.
+ */
+.ordinal {
+  position: relative;
+  padding-inline-end: var(--sp-3);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--t-data-tracking);
+  color: var(--ink-lo);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.ordinal::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  inline-size: var(--line-w);
+  background: var(--line);
+  transition: background-color var(--dur-fast) var(--ease-out);
+}

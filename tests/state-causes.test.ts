@@ -202,14 +202,15 @@ describe("retry preserves what was typed (STATE-003)", () => {
     expect(desk).toContain("onRetry={retry}");
     expect(desk).toContain("onEdit={recallIntoComposer}");
     /* The edit path has to end somewhere the reader can see and change the
-       text. It was a `seed` prop on `AskComposer`, whose nonce let the same
-       question be recalled twice; the composer is `PromptInput` now, which
-       owns its own text, so the recall writes into it through the controller
-       that `PromptInputProvider` lifts out. What this pins is that
-       `recallIntoComposer` still puts the question somewhere — not which of
-       the two mechanisms is doing it. */
+       text. It was a controller write into `PromptInput`, and stayed a
+       non-rewriting mechanism when the composer was rebuilt on
+       `components/ui` on 2026-09-17 (the vendored stack it depended on was
+       deleted): `recallIntoComposer` seeds the composer from `pending` with a
+       fresh nonce, which is what lets the *same* question be recalled twice.
+       What this pins is that `recallIntoComposer` still puts the question
+       somewhere — not which of the two mechanisms is doing it. */
     expect(desk).toMatch(
-      /const recallIntoComposer = \(\) => \{[\s\S]*?controller\.textInput\.setInput\(question\)/,
+      /const recallIntoComposer = useCallback\(\(\) => \{[\s\S]*?setSeed\(\{ text: question, nonce: nonce\.current \}\)/,
     );
   });
 
@@ -217,9 +218,13 @@ describe("retry preserves what was typed (STATE-003)", () => {
     /* The report form is controlled state that the failure path does not
        touch: `setState({ status: 'error' })` writes nothing else, so a retry
        is the same button over the same values. Pinned as a source assertion
-       because proving it by rendering would need a DOM and a fetch. */
+       because proving it by rendering would need a DOM and a fetch. The
+       slice ends at the component's return: everything after it is render
+       tree, including the "Send another report" reset — a deliberate action
+       on a *received* report, not the failure path. */
     const form = read("components/support/ReportClaimForm.tsx");
-    const failure = form.slice(form.indexOf("catch (cause)"), form.indexOf("if (state.status === 'sent')"));
+    const from = form.indexOf("catch (cause)");
+    const failure = form.slice(from, form.indexOf("return (", from));
     for (const setter of ["setUrl(", "setBody(", "setReporterEmail(", "setReporterNote("]) {
       expect(failure, `the failure path must not call ${setter}`).not.toContain(setter);
     }

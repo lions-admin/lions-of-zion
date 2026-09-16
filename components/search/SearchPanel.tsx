@@ -5,13 +5,14 @@
  *
  * Used twice — inside the overlay and inline on `/search` — because a reader
  * who lands on the page directly should get the same instrument, not a lesser
- * one. `variant` changes chrome and nothing else.
+ * one. `variant` changes chrome and the interaction model, and nothing else.
  *
  * ## Keyboard
  *
- * This is the ARIA 1.2 combobox-with-listbox pattern, which is the one that
- * lets a reader keep typing while moving through results: focus never leaves
- * the input, and `aria-activedescendant` carries the selection. The bindings:
+ * In the overlay this is the ARIA 1.2 combobox-with-listbox pattern, which is
+ * the one that lets a reader keep typing while moving through results: focus
+ * never leaves the input, and `aria-activedescendant` carries the selection.
+ * The bindings:
  *
  *   ↓ / ↑        move, wrapping at both ends
  *   Home / End   first / last result
@@ -21,6 +22,12 @@
  * Escape clearing before closing is deliberate. The alternative — always
  * close — throws away a half-typed query on a keypress people use to mean
  * "undo the last thing", and re-opening starts from nothing.
+ *
+ * On `/search` the overlay's keyboard selection does not exist and the legend
+ * does not pretend it does: the rows are plain tabbable links, the input is a
+ * plain search field, and Escape clears. The page is a document a reader can
+ * tab through, not a dialog — putting a virtual selection on rows the reader
+ * can reach with Tab would be two answers to one question.
  *
  * Combobox ARIA lives on the input, not on FieldShell. FieldShell owns the
  * visible label; a second label would compete with it.
@@ -49,6 +56,7 @@ import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { FieldShell } from "@/components/ui/Field";
 import { StatusState } from "@/components/ui/StatusState";
+import { SuggestionChips } from "@/components/ui/SuggestionChips";
 import fieldStyles from "@/components/ui/field.module.css";
 import { politeLive } from "@/components/ui/live-region";
 import { SearchFilters } from "./SearchFilters";
@@ -114,6 +122,7 @@ export function SearchPanel({
   onScopeChange,
 }: SearchPanelProps) {
   const router = useRouter();
+  const overlay = variant === "overlay";
   const [composing, setComposing] = useState(false);
   const {
     query,
@@ -168,6 +177,24 @@ export function SearchPanel({
     rememberQuery(value);
   }, []);
 
+  /* Recents are recorded when a query *succeeds in taking the reader
+     somewhere* — a navigation — and not when it merely fills the box. A chip
+     pick or a keystroke is not yet a search a reader would want back; the
+     Enter-open and the click-open below are. Recorded before navigating so
+     the write lands even if the navigation unmounts the panel. */
+  const recordAndLeave = useCallback(
+    (value: string) => {
+      remember(value);
+      onDismiss?.();
+    },
+    [remember, onDismiss],
+  );
+
+  const clearRecents = useCallback(() => {
+    forgetRecents();
+    inputRef.current?.focus();
+  }, []);
+
   useEffect(() => {
     if (autoFocus) inputRef.current?.focus();
   }, [autoFocus]);
@@ -187,30 +214,32 @@ export function SearchPanel({
     if (event.nativeEvent.isComposing || composing) return;
     switch (event.key) {
       case "ArrowDown":
+        if (!overlay) break;
         event.preventDefault();
         move(1);
         break;
       case "ArrowUp":
+        if (!overlay) break;
         event.preventDefault();
         move(-1);
         break;
       case "Home":
-        if (!hits.length) break;
+        if (!overlay || !hits.length) break;
         event.preventDefault();
         setActiveIndex(0);
         break;
       case "End":
-        if (!hits.length) break;
+        if (!overlay || !hits.length) break;
         event.preventDefault();
         setActiveIndex(hits.length - 1);
         break;
       case "Enter": {
+        if (!overlay) break;
         const hit = hits[activeIndex];
         if (!hit?.href) break;
         event.preventDefault();
-        remember(query);
+        recordAndLeave(query);
         router.push(hit.href);
-        onDismiss?.();
         break;
       }
       case "Escape":
@@ -238,10 +267,9 @@ export function SearchPanel({
   const fillQuery = useCallback(
     (next: string) => {
       handleChange(next);
-      remember(next);
       inputRef.current?.focus();
     },
-    [handleChange, remember],
+    [handleChange],
   );
 
   /* Focus returns to the input on both of these.
@@ -273,16 +301,16 @@ export function SearchPanel({
   const tooShort = trimmed.length === 1;
   const showingStale = state === "loading" && hits.length > 0;
   /* "There is an answer on screen", which includes the previous one held while
-     the next loads. The filter row and the pager are chrome belonging to the
-     answer, and unmounting them for the 300ms of a page change would make the
-     list jump under the reader's pointer each time they used one. */
+      the next loads. The filter row and the pager are chrome belonging to the
+      answer, and unmounting them for the 300ms of a page change would make the
+      list jump under the reader's pointer each time they used one. */
   const answering =
     state === "results" || state === "fallback" || state === "no-results" || showingStale;
   const body = useMemo(() => {
     if (state === "error" && problem) {
-      return <PanelProblem problem={problem} onRetry={retry} />;
+      return <PanelProblem problem={problem} onRetry={retry} headingLevel={overlay ? 3 : 2} />;
     }
-    if (!trimmed) return <PanelPrimer recents={recents} onPick={fillQuery} />;
+    if (!trimmed) return <PanelPrimer recents={recents} onPick={fillQuery} onClearRecents={clearRecents} />;
     if (tooShort) {
       return <p className={styles.notice}>Type at least two characters to search.</p>;
     }
@@ -290,10 +318,23 @@ export function SearchPanel({
       return <p className={styles.notice}>Searching…</p>;
     }
     if (state === "no-results") {
-      return <PanelEmpty query={answered} semantic={semantic} />;
+      return <PanelEmpty query={answered} semantic={semantic} headingLevel={overlay ? 3 : 2} />;
     }
     return null;
-  }, [state, problem, retry, trimmed, tooShort, hits.length, answered, semantic, recents, fillQuery]);
+  }, [
+    state,
+    problem,
+    retry,
+    trimmed,
+    tooShort,
+    hits.length,
+    answered,
+    semantic,
+    recents,
+    fillQuery,
+    clearRecents,
+    overlay,
+  ]);
 
   /* The count and the matcher, rendered above the list — see `resultStatus`
      in `vocabulary.ts` for why they are not in the footer any more. The range
@@ -320,6 +361,29 @@ export function SearchPanel({
         ? `No results${answered ? ` for ${answered}` : ""}.`
         : "";
 
+  /* The Escape legend reflects the state it describes: in the overlay Escape
+     closes when the query is empty and clears when it is not, and on the page
+     it only ever clears — so on a page with nothing typed there is no Escape
+     row at all, not a row documenting a key that does nothing. A phone, which
+     has neither arrow keys nor Escape, hides the whole footer in the narrow
+     branch. */
+  const legend = overlay
+    ? [
+        <kbd key="up">↑</kbd>,
+        <kbd key="down">↓</kbd>,
+        <span key="move">move</span>,
+        <kbd key="enter">↵</kbd>,
+        <span key="open">open</span>,
+        <kbd key="esc">esc</kbd>,
+        <span key="escWhat">{query ? "clear" : "close"}</span>,
+      ]
+    : trimmed
+      ? [
+          <kbd key="esc">esc</kbd>,
+          <span key="esc-what">clear</span>,
+        ]
+      : [];
+
   return (
     <div className={styles.panel} data-variant={variant} data-search-state={state} data-measure-id="search-panel" data-measure-section="search">
       <div className={styles.queryRow}>
@@ -336,11 +400,15 @@ export function SearchPanel({
               autoCorrect="off"
               spellCheck={false}
               enterKeyHint="search"
-              role="combobox"
-              aria-expanded={hits.length > 0}
-              aria-controls={listboxId}
-              aria-autocomplete="list"
-              aria-activedescendant={activeIndex >= 0 ? optionId(activeIndex) : undefined}
+              /* Combobox ARIA only where the combobox pattern actually runs.
+                 On the page the rows are plain links; announcing a listbox
+                 and an activedescendant that never move is worse than
+                 announcing an ordinary search field. */
+              role={overlay ? "combobox" : undefined}
+              aria-expanded={overlay ? hits.length > 0 : undefined}
+              aria-controls={overlay ? listboxId : undefined}
+              aria-autocomplete={overlay ? "list" : undefined}
+              aria-activedescendant={overlay && activeIndex >= 0 ? optionId(activeIndex) : undefined}
               onChange={(event) => handleChange(event.target.value)}
               onCompositionStart={() => setComposing(true)}
               onCompositionEnd={() => setComposing(false)}
@@ -360,7 +428,7 @@ export function SearchPanel({
                 <Icon name="close" size={18} />
               </Button>
             ) : null}
-            {variant === "overlay" ? (
+            {overlay ? (
               <Button type="button" variant="ghost" size="sm" onClick={() => onDismiss?.()} aria-label="Close search">
                 Esc
               </Button>
@@ -408,24 +476,25 @@ export function SearchPanel({
 
       {hits.length > 0 && !tooShort ? (
         <SearchResults
+          variant={variant}
           hits={hits}
-          activeIndex={activeIndex}
+          activeIndex={overlay ? activeIndex : -1}
           optionId={optionId}
           listboxId={listboxId}
           listboxLabel={answered ? `Results for ${answered}` : "Results"}
-          onHover={setActiveIndex}
+          onHover={overlay ? setActiveIndex : undefined}
           onNavigate={() => {
-            remember(query);
-            onDismiss?.();
+            recordAndLeave(query);
           }}
           stale={showingStale}
           offset={answeredOffset}
         />
-      ) : (
+      ) : overlay ? (
         /* The listbox must exist for `aria-controls` to resolve even when it
-           is empty, or the combobox points at nothing. */
+           is empty, or the combobox points at nothing. The page variant has
+           no combobox and renders no empty stand-in for one. */
         <div id={listboxId} role="listbox" aria-label="Results" className={styles.emptyListbox} />
-      )}
+      ) : null}
 
       {answering && !tooShort ? (
         <SearchPager
@@ -439,24 +508,27 @@ export function SearchPanel({
 
       {/* The footer is the keyboard grammar and nothing else: the matcher
           sentence that used to share it now rides with the count, above the
-          list. It stays last in the DOM, and a phone — which has neither
-          arrow keys nor Escape — hides it outright in the narrow branch. */}
-      <p className={styles.foot}>
-        <span className={styles.footKeys} aria-hidden="true">
-          <kbd>↑</kbd>
-          <kbd>↓</kbd>
-          <span>move</span>
-          <kbd>↵</kbd>
-          <span>open</span>
-          <kbd>esc</kbd>
-          <span>{variant === "overlay" ? "close" : "clear"}</span>
-        </span>
-      </p>
+          list. It stays last in the DOM. */}
+      {legend.length ? (
+        <p className={styles.foot}>
+          <span className={styles.footKeys} aria-hidden="true">
+            {legend}
+          </span>
+        </p>
+      ) : null}
     </div>
   );
 }
 
-function PanelPrimer({ recents, onPick }: { recents: string[]; onPick: (query: string) => void }) {
+function PanelPrimer({
+  recents,
+  onPick,
+  onClearRecents,
+}: {
+  recents: string[];
+  onPick: (query: string) => void;
+  onClearRecents: () => void;
+}) {
   const recentsId = useId();
   const primersId = useId();
   const primers = PRIMER_QUERIES.filter(
@@ -471,15 +543,16 @@ function PanelPrimer({ recents, onPick }: { recents: string[]; onPick: (query: s
       </p>
       {recents.length > 0 ? (
         <SuggestionChips
-          labelledBy={recentsId}
+          labelId={recentsId}
           label="Recent"
           queries={recents}
           onPick={onPick}
+          action={{ label: "Clear", onClick: onClearRecents }}
         />
       ) : null}
       {primers.length > 0 ? (
         <SuggestionChips
-          labelledBy={primersId}
+          labelId={primersId}
           label="Try a claim, a name, or a place"
           queries={primers}
           onPick={onPick}
@@ -489,50 +562,31 @@ function PanelPrimer({ recents, onPick }: { recents: string[]; onPick: (query: s
   );
 }
 
-function SuggestionChips({
-  labelledBy,
-  label,
-  queries,
-  onPick,
-}: {
-  labelledBy: string;
-  label: string;
-  queries: readonly string[];
-  onPick: (query: string) => void;
-}) {
-  return (
-    <div className={styles.suggestions}>
-      <p className={styles.suggestionsLabel} id={labelledBy}>
-        {label}
-      </p>
-      <ul className={styles.chips} aria-labelledby={labelledBy}>
-        {queries.map((query) => (
-          <li key={query}>
-            <Button type="button" variant="ghost" size="md" onClick={() => onPick(query)}>
-              {query}
-            </Button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 /* The one place the matcher is described (UX-28). A reader who got nothing
    can act on "a paraphrase will miss"; a reader looking at eight results, or
    at "Searching…", could not, so the sentence is not rendered there. */
-function PanelEmpty({ query, semantic }: { query: string; semantic: boolean }) {
+function PanelEmpty({
+  query,
+  semantic,
+  headingLevel,
+}: {
+  query: string;
+  semantic: boolean;
+  headingLevel: 2 | 3;
+}) {
   return (
     <StatusState
       status="empty"
       className={styles.status}
-      eyebrow="SEARCH"
+      headingLevel={headingLevel}
       title={`No matches for “${query}”.`}
       description={
         semantic
           ? "Try a name, a place or a claim."
           : "Try a name, a place or a claim. This deployment matches words and names rather than meaning, so a paraphrase will miss."
       }
+      actionText="Ask the desk about this"
+      actionHref={`/ask?q=${encodeURIComponent(query)}`}
     />
   );
 }
@@ -549,13 +603,21 @@ function PanelEmpty({ query, semantic }: { query: string; semantic: boolean }) {
    from the top level, so a real 429 arrived here as `UNKNOWN` and took the
    generic branch — which is how the audit saw an HTTP line under a search
    box. The status is the one fact that survives any parse. */
-function PanelProblem({ problem, onRetry }: { problem: ApiProblem; onRetry: () => void }) {
+function PanelProblem({
+  problem,
+  onRetry,
+  headingLevel,
+}: {
+  problem: ApiProblem;
+  onRetry: () => void;
+  headingLevel: 2 | 3;
+}) {
   const limited = problem.code === "RATE_LIMITED" || problem.status === 429;
   return (
     <StatusState
       status="error"
       className={styles.status}
-      eyebrow="SEARCH"
+      headingLevel={headingLevel}
       title={limited ? "Too many searches, too fast." : "The search failed."}
       description={limited ? "Wait a few seconds and search again." : problem.detail}
       actionText={limited ? undefined : "Try again"}
@@ -605,6 +667,8 @@ function readRecents(): string[] {
   }
 }
 
+/* Recents are recorded on navigation only — a query that actually took the
+   reader somewhere — so a chip pick or a cleared box never writes one. */
 function rememberQuery(query: string) {
   const trimmed = query.trim();
   if (trimmed.length < 2) return;
@@ -612,10 +676,20 @@ function rememberQuery(query: string) {
     0,
     RECENTS_MAX,
   );
+  writeRecents(next);
+}
+
+function forgetRecents() {
+  writeRecents([]);
+}
+
+function writeRecents(next: string[]) {
   try {
-    window.localStorage.setItem(RECENTS_KEY, JSON.stringify(next));
+    if (next.length) window.localStorage.setItem(RECENTS_KEY, JSON.stringify(next));
+    else window.localStorage.removeItem(RECENTS_KEY);
   } catch {
     /* Private mode — recents stay in this visit's memory only if the write fails. */
   }
+  recentsRaw = null;
   window.dispatchEvent(new Event(RECENTS_EVENT));
 }

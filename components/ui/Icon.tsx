@@ -19,6 +19,7 @@ export type IconName =
   | "close"
   | "arrow-right"
   | "arrow-left"
+  | "arrow-down"
   | "chevron-down"
   | "external-link"
   | "filter"
@@ -70,6 +71,9 @@ const ICONS: Record<IconName, React.ReactNode> = {
   close: <><path d="m5 5 14 14" /><path d="m19 5-14 14" /></>,
   "arrow-right": <><path d="M4 12h15" /><path d="m13 6 6 6-6 6" /></>,
   "arrow-left": <><path d="M20 12H5" /><path d="m11 6-6 6 6 6" /></>,
+  /* Added 2026-09-17 for the transcript's return-to-latest control, which
+     was a lucide glyph before the vendored stack retired. Same file style. */
+  "arrow-down": <><path d="M12 4v15" /><path d="m6 13 6 6 6-6" /></>,
   "chevron-down": <path d="m4 8 8 8 8-8" />,
   "external-link": <><path d="M14 4h6v6" /><path d="m20 4-9 9" /><path d="M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5" /></>,
   filter: <><path d="M4 6h16" /><path d="M7 12h10" /><path d="M10 18h4" /></>,

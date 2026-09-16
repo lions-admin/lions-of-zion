@@ -478,7 +478,9 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 45rem) {
+  /* The private 640px seam re-pointed at the canonical phone seam
+     (--bp-seam = 45rem, 2026-09-17). */
   .chapterHead {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--sp-3);

@@ -27,9 +27,13 @@
 }
 
 /* The status box holds its line's height whether or not there is a line, so
-   the row beneath it does not jump when an outcome arrives. */
+   the row beneath it does not jump when an outcome arrives. `1lh` is one
+   line box of the text that will actually land here — the old value was
+   `--t-small-lh`, a bare number (1.5) with no font-size of its own, which
+   computes against an inherited size and measured shorter than the line it
+   reserved. */
 .status {
-  min-height: var(--t-small-lh);
+  min-height: 1lh;
 }
 
 .statusLine {

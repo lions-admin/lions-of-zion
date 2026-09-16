@@ -6,8 +6,8 @@
    rule, and space, and a sign-in page is the last place to spend a blur.
 
    Everything above and below the panel (skip link, masthead, footer) is
-   `EditorialShell`'s. The two classes it asks this file for are the page's
-   own and the skip link's. */
+   `EditorialShell`'s. Since CLEAN-002 the skip link is the masthead's own
+   element, so this file carries nothing for it — the page's own classes only. */
 
 .page {
   /* `--content-w` and `--register` were declared here until 2026-09-14. Both
@@ -73,7 +73,9 @@
   line-height: var(--t-body-lh);
 }
 
-@media (max-width: 480px) {
+@media (max-width: 45rem) {
+  /* The private 480px seam re-pointed at the canonical phone seam
+     (--bp-seam = 45rem, 2026-09-17): one seam vocabulary across the site. */
   .panel {
     padding: var(--sp-5);
     margin-block: var(--sp-6) var(--sp-8);

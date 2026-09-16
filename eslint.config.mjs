@@ -82,34 +82,16 @@ const eslintConfig = defineConfig([
 
   {
     /*
-     * The two primitive systems, and the cascade seam between them.
+     * The frontend's import boundary against `server/`.
      *
-     * `components/ui/**` is the product's own chrome: CSS Modules over the
-     * SYS-001 tokens, 141 button call sites, and the accessibility contracts
-     * that go with them — `iconOnly` demanding an `aria-label` in the type,
-     * `isActive` resolving to `aria-pressed`, `ButtonLink` to `aria-current`.
-     *
-     * `components/shadcn/**` is the registry: Tailwind utilities, `cva`
-     * variants, `asChild`. It exists because the Ask panel is assembled from
-     * upstream registry components that style their interiors by passing
-     * Tailwind classes down through `cn()`.
-     *
-     * They are not interchangeable, and the reason is a cascade fact rather
-     * than a preference. CSS Modules are emitted unlayered, so they outrank
-     * `@layer utilities` unconditionally, at any specificity — measured in the
-     * page: an element carrying an unlayered class and `text-2xl` computes to
-     * the unlayered value. Put the module Button where a registry component
-     * expects to size it with `rounded-full px-4` or
-     * `inputGroupButtonVariants({ size })` and those classes lose silently —
-     * no type error, no runtime error, just the wrong control. `lib/utils.ts`
-     * states the same rule from the `cn()` side and ends "Never merge the two".
-     *
-     * So the registry stays reachable only from the surface built on it. The
-     * boundary is a path rather than a list of filenames so that the next
-     * `npx shadcn add` lands inside it already covered.
+     * A second system — `components/shadcn/**`, the Tailwind-styled registry
+     * the Ask panel was briefly assembled from — stood beside this block with
+     * its own ignores and its own restricted import, until 2026-09-17, when
+     * the vendored stack (registry, Tailwind pipeline, `cn()` merger) was
+     * deleted and the ask desk was rebuilt on `components/ui`. One chrome
+     * system again, so this block is the frontend boundary whole.
      */
     files: ["app/**/*.{ts,tsx}", "components/**/*.{ts,tsx}", "lib/**/*.{ts,tsx}"],
-    ignores: ["components/shadcn/**", "components/ai-elements/**"],
     rules: {
       "no-restricted-imports": [
         "error",
@@ -117,13 +99,13 @@ const eslintConfig = defineConfig([
           patterns: [
             {
               /* Restated from the frontend block above, not inherited. Flat
-                 config REPLACES a rule key rather than merging it, so a second
-                 object naming `no-restricted-imports` for these same files
-                 silently drops whatever the first one restricted. Leaving it
-                 out turned the server boundary off for every file in `app/`,
-                 `components/` and `lib/` — visible only as the `eslint-disable`
-                 in `lib/publications.ts` going unused. The two lists must stay
-                 in step. */
+                  config REPLACES a rule key rather than merging it, so a second
+                  object naming `no-restricted-imports` for these same files
+                  silently drops whatever the first one restricted. Leaving it
+                  out turned the server boundary off for every file in `app/`,
+                  `components/` and `lib/` — visible only as the `eslint-disable`
+                  in `lib/publications.ts` going unused. The two lists must stay
+                  in step. */
               group: [
                 "@/server/*",
                 "@/server/**",
@@ -132,11 +114,6 @@ const eslintConfig = defineConfig([
               ],
               message:
                 "The frontend may only import @/server/contracts/*. Everything else under server/ is backend-only.",
-            },
-            {
-              group: ["@/components/shadcn", "@/components/shadcn/*"],
-              message:
-                "components/shadcn/** is Tailwind-styled and is reachable only from components/shadcn/** and components/ai-elements/**. Everywhere else, import the product primitive from @/components/ui — a CSS Module cannot be restyled by the Tailwind classes a registry component passes down, and the failure is silent. See the note above this rule in eslint.config.mjs.",
             },
           ],
         },

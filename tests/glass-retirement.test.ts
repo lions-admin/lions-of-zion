@@ -97,10 +97,17 @@ describe("the root error boundary is drawn in the open editorial system (VA-30)"
   });
 
   it("does not restate the error copy, which is a trust surface", () => {
-    expect(boundary).toContain("Transmission interrupted");
-    expect(boundary).toContain("Signal dropped");
-    expect(boundary).toContain("Re-establish signal");
-    expect(boundary).toContain("← Back to the scan");
+    /* Restated 2026-09-17 (Midnight Signal workstream G): the boundary's copy
+       moved to the 404's register — plain reader sentences, one verb per
+       action, no status and no metaphor. The rule the old assertions kept —
+       the error screen is a trust surface whose copy is pinned, and the
+       banned decorations above stay banned — is unchanged; only the values
+       moved, and the old "signal/scan" wording went with them. */
+    expect(boundary).toContain("Something went wrong loading this page.");
+    expect(boundary).toContain("Try again");
+    expect(boundary).toContain("Back to the front");
+    expect(boundary).not.toContain("Signal dropped");
+    expect(boundary).not.toContain("the scan");
   });
 });
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import { Card, CardDescription, CardEyebrow, CardHeader, CardTitle } from "@/components/ui/Card";
+import { EditorialIntro } from "@/components/home/EditorialIntro";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
@@ -20,11 +21,11 @@ const WE_ARE_JSON_LD = {
   description: "An independent Israeli-built editorial and public-information platform combining AI-scale research, OSINT, evidence organization and human editorial governance.",
 };
 
-const SYSTEM_STEPS: { title: string; icon: IconName; body: string }[] = [
+const SYSTEM_STEPS: { title: string; icon: IconName; body: string; gate?: string }[] = [
   { title: "Observe", icon: "intake", body: "AI systems help scan large public information environments, monitor developing stories and surface claims, sources and narrative shifts that deserve attention." },
   { title: "Research", icon: "evidence", body: "The system compares sources, traces context and source lineage, organizes evidence and keeps uncertainty visible instead of turning repetition into corroboration." },
   { title: "Assess", icon: "assessment", body: "Claims, evidence, attributed statements, inference and editorial assessment remain different things. Machines can assist analysis; they do not become evidence by producing an answer." },
-  { title: "Govern", icon: "review", body: "People define the mission, source standards, publishing permissions, provenance rules, escalation paths, corrections policy and safety boundaries. Sensitive work can be escalated for human editorial review." },
+  { title: "Govern", icon: "review", gate: "Gate — human governance", body: "People define the mission, source standards, publishing permissions, provenance rules, escalation paths, corrections policy and safety boundaries. Sensitive work can be escalated for human editorial review. Nothing automated sets these rules." },
   { title: "Publish & correct", icon: "publish", body: "Authorized editorial workflows can create or update canonical publications, attach sources and illustrations, and publish through the controlled production path. The public record remains versioned and correctable." },
 ];
 
@@ -43,6 +44,12 @@ const FAQ: { q: string; a: React.ReactNode }[] = [
   { q: "What happens when something published turns out to be wrong?", a: <>The record is corrected rather than quietly erased. Significant changes should be visible, and uncertainty should change when the evidence changes. Read the full <Link href="/corrections">Corrections policy</Link>.</> },
 ];
 
+/* The "last reviewed" line is a content constant because there is no CMS
+   field for it — this page is a source file, so the date a person last read
+   it end to end lives here, next to the prose it vouches for. Bump it when
+   the wording of a claim on this page changes, not on every code touch. */
+const LAST_REVIEWED = "2026-09-17";
+
 export default function Page() {
   return (
     <SectionPage id="we-are" title="We Are" tagline={TAGLINE}>
@@ -54,6 +61,13 @@ export default function Page() {
       </SectionBlock>
 
       <SectionBlock heading="Why this exists">
+        {/* Owner decision, 2026-09-17 (Midnight Signal workstream G): the
+            typewriter introduction lives here now — "Why we exist" is what it
+            always was — and the homepage band's compact copy is gone, so this
+            is the introduction's only mount. It opens on the reader's action
+            only, never on page load: the `autoOpen` path was deleted with the
+            second mount. */}
+        <EditorialIntro compact />
         <p>Modern conflicts are fought in physical space and in the information layer around it. Viral media, selective framing, propaganda, synthetic content and repetition can turn uncertainty into apparent certainty before careful reporting catches up. Israel is one of the clearest arenas in which that problem is visible, but the method applies anywhere information manipulation matters.</p>
         <p>Lions of Zion applies an Israeli culture of technological problem-solving to the integrity of public information: move quickly, inspect deeply, preserve provenance and build systems that can operate at a scale no small newsroom could reach manually.</p>
       </SectionBlock>
@@ -63,17 +77,16 @@ export default function Page() {
         <div className={styles.pipeline}>
           <ol className={styles.pipelineList}>
             {SYSTEM_STEPS.map((step, index) => (
-              <li key={step.title} className={styles.pipelineStage}>
+              <li key={step.title} className={styles.pipelineStage} data-gate={step.gate ? "" : undefined}>
                 <span className={styles.pipelineNode} aria-hidden="true"><Icon name={step.icon} size={18} /></span>
-                <div className={styles.pipelineContent}><div className={styles.pipelineHead}><span className={styles.pipelineNumber}>{String(index + 1).padStart(2, "0")}</span><h3>{step.title}</h3></div><p>{step.body}</p></div>
+                <div className={styles.pipelineContent}>
+                  <div className={styles.pipelineHead}><span className={styles.pipelineNumber}>{String(index + 1).padStart(2, "0")}</span><h3>{step.title}</h3>{step.gate ? <span className={styles.gateLabel}>{step.gate}</span> : null}</div>
+                  <p>{step.body}</p>
+                </div>
               </li>
             ))}
           </ol>
         </div>
-        <nav aria-label="Read next"><ul className={styles.readNext}>
-          <li><Link href="/methodology">Methodology — the publication routes and their provenance rules →</Link></li>
-          <li><Link href="/information-war">How it works — the live system map →</Link></li>
-        </ul></nav>
       </SectionBlock>
 
       <SectionBlock heading="What the AI is used for">
@@ -94,6 +107,22 @@ export default function Page() {
       </SectionBlock>
 
       <SectionBlock heading="FAQ"><dl className={styles.faq}>{FAQ.map((item) => <div key={item.q}><dt>{item.q}</dt><dd>{item.a}</dd></div>)}</dl></SectionBlock>
+
+      {/* UX-11, moved to the foot (2026-09-17): the pointers out of the page
+          follow the page rather than interrupting the pipeline section, so the
+          last thing a reader who reached the end meets is where to go next —
+          above the last-reviewed colophon, which reads as the standard the
+          page is held to. No `SectionBlock` wrapper: a nav heading would put
+          "Read next" into the contents rail as if it were a section. */}
+      <nav aria-label="Read next" className={styles.readNextWrap}><ul className={styles.readNext}>
+        <li><Link href="/methodology">Methodology — the publication routes and their provenance rules →</Link></li>
+        <li><Link href="/information-war">How it works — the live system map →</Link></li>
+        <li><Link href="/corrections">Corrections — what happens when the record is wrong →</Link></li>
+      </ul></nav>
+
+      {/* The last-reviewed colophon. There is no CMS field for it, so the date
+          is a content constant in this file and this paragraph only sets it. */}
+      <p className={styles.lastReviewed}>Last reviewed {LAST_REVIEWED}</p>
     </SectionPage>
   );
 }

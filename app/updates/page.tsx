@@ -1,8 +1,6 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { DocPage } from "@/components/sections/DocPage";
 import { UpdateFeed } from "@/components/live";
-import { SkeletonDesk } from "@/components/ui/Skeleton";
 import { listBriefingPublications } from "@/lib/publications";
 import { PUBLICATION_SECTIONS } from "@/server/contracts/enums";
 import type { PublicationSection } from "@/server/contracts/enums";

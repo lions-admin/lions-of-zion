@@ -1,7 +1,10 @@
 /**
  * Ask the desk.
  *
- * site header. `AskDesk` is the surface itself, rendered by `/ask`.
+ * `AskDock` is the launcher in the site header; `AskDesk` is the surface,
+ * rendered by `/ask` and — lazily — by the drawer. `AskComposer` is the
+ * rebuilt question box on `components/ui` (the vendored Tailwind stack that
+ * briefly served it was deleted on 2026-09-17).
  */
 
 export { AskDock } from "./AskDock";

@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import { EditorialShell } from "@/components/site/EditorialShell";
 import { PublicAuthControl } from "@/components/auth/PublicAuthControl";
+import { pageMetadata } from "@/lib/page-metadata";
 import styles from "./account.module.css";
 
 const LEDE =
   "Signing in is how the desk knows you between visits. It is optional: everything published here is readable without an account.";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Account",
   description: LEDE,
-};
+  path: "/account",
+});
 
 /**
  * The account surface (AUTH-001, extended by AUTH-002).
@@ -20,7 +22,10 @@ export const metadata: Metadata = {
  * system has. It now wears `EditorialShell` like every other institution page,
  * so the chrome, the landmarks, the family density and the way out are the
  * same ones the rest of the site uses, and the page itself is one plain panel
- * on the black ground.
+ * on the black ground. (The skip link it once had to ask the shell for left
+ * with CLEAN-002: the skip link is `SiteHeader`'s own first element now, and
+ * the shell renders nothing for it — this page asks for no skip-link class
+ * any more.)
  *
  * `showProgress={false}`: reading progress measures how far down a document a
  * reader is, and this is not a document. There is nothing to be a third of the

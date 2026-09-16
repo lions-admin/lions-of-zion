@@ -38,6 +38,10 @@ export class ApiProblem extends Error {
     readonly code: ProblemCode,
     readonly status: number,
     readonly detail: string,
+    /** Seconds the API's `Retry-After` named, when it sent one. A rate limit
+     *  that tells the reader when it ends is worth more than one that says
+     *  "wait"; surfaces that get this problem count it down in place. */
+    readonly retryAfter: number | null = null,
   ) {
     super(detail);
     this.name = "ApiProblem";
@@ -81,6 +85,7 @@ export async function requestJson<T>(input: string, init?: RequestInit): Promise
 
   let code: ProblemCode = "UNKNOWN";
   let detail = "";
+  let retryAfter: number | null = null;
   try {
     /* The API nests its problem under `error` (`problem()` in
        `server/http/responses.ts`): `{ error: { code, message } }`. This read
@@ -101,7 +106,24 @@ export async function requestJson<T>(input: string, init?: RequestInit): Promise
        still the truth, so fall through to it rather than discarding it. */
   }
 
-  throw new ApiProblem(code, response.status, detail || fallbackDetail(response.status));
+  /* `Retry-After` is a response header, not part of the problem body, so it is
+     read off the response whatever the body parse did. Seconds or an HTTP
+     date; anything unparseable stays null and the surface keeps its own
+     wording. */
+  const header = response.headers.get("retry-after");
+  if (header) {
+    const seconds = Number.parseInt(header, 10);
+    if (Number.isFinite(seconds)) {
+      retryAfter = Math.max(0, seconds);
+    } else {
+      const at = Date.parse(header);
+      if (Number.isFinite(at)) {
+        retryAfter = Math.max(0, Math.round((at - Date.now()) / 1000));
+      }
+    }
+  }
+
+  throw new ApiProblem(code, response.status, detail || fallbackDetail(response.status), retryAfter);
 }
 
 function fallbackDetail(status: number): string {

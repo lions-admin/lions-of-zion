@@ -105,130 +105,173 @@ export function ReportClaimForm() {
     }
   };
 
-  if (state.status === 'sent') {
-    return (
-      <div className={styles.receipt} {...politeLive}>
-        <p>Report received — reference {state.publicId}.</p>
-        <small>
-          Submitted anonymously unless you gave an email. It will be reviewed by the desk; nothing
-          you sent is published without that review.
-        </small>
-      </div>
-    );
-  }
-
+  /*
+    One stable tree across every state, so the receipt's live region is
+    always mounted (STATE-002): a region inserted in the same commit as its
+    message is frequently announced as nothing at all, so the region exists
+    from the first render and the receipt is what changes inside it. The
+    visual styling moves onto the same element only while a receipt stands.
+  */
   return (
-    /*
-      A11Y-007. Two different messages describe this form as a whole rather
-      than any one field: the no-JavaScript notice (which is why the submit
-      button is not there) and the send failure (which the API reports about
-      the submission, not about a field). Both are referenced here so a reader
-      inside the fields can reach them, while the per-field guard stays on the
-      two fields it actually names. `aria-describedby` tolerates ids that are
-      not in the document, so the failure id can be listed unconditionally —
-      but it is listed conditionally anyway, because an empty reference is one
-      more thing a future edit can get wrong.
-    */
-    <form
-      className={styles.form}
-      onSubmit={submit}
-      aria-busy={submitting || undefined}
-      aria-describedby={["report-noscript", state.status === 'error' ? "report-failure" : null].filter(Boolean).join(" ")}
-    >
-      {/*
-        With scripting off this form has no submit path at all: there is no
-        `action`, so the button performs a native GET to /support-us, the page
-        reloads, and the reload reads as a successful send. Reporting success
-        for something that was discarded is the "no false live state"
-        principle inverted, so the button is removed in that tier rather than
-        left to lie. A `<style>` inside `<noscript>` is the only way a
-        prerendered page can change what it shows based on whether scripting
-        ran. Pointing the form at `/api/v1/reports` was considered and is
-        worse: `server/http/handler.ts` `parseBody` calls `request.json()`,
-        so a native form POST renders a raw problem+json page.
-        The address below is the owner's, given for this purpose on
-        2026-08-27. It is deliberately the same one in both tiers: a reader
-        without scripting gets a channel that works, and a reader with it gets
-        a fallback if the desk is down. A `mailto:` is safe to offer here
-        precisely because it needs no scripting to follow.
-      */}
-      <noscript>
-        <style>{`.${styles.form} button[type='submit'] { display: none; }`}</style>
-        <p id="report-noscript" className={styles.fieldError}>
-          This form needs JavaScript to send a report. Nothing typed here can reach the desk with
-          it turned off — email <a href={`mailto:${REPORTS_INBOX}`}>{REPORTS_INBOX}</a> instead,
-          with the link and what you believe is wrong with it.
-        </p>
-      </noscript>
+    <>
+      {state.status === 'sent' ? null : (
+        /*
+          A11Y-007, as amended by the 2026-09-17 support round: the guard that
+          covers the two content fields at once is one form-level alert rather
+          than the same error stamped on both fields, and the send failure is
+          the other. All are referenced from the form so a reader inside the
+          fields can reach them. `aria-describedby` tolerates ids that are not
+          in the document, but each reference is listed conditionally anyway —
+          an empty reference is one more thing a future edit can get wrong.
+        */
+        <form
+          className={styles.form}
+          onSubmit={submit}
+          aria-busy={submitting || undefined}
+          aria-describedby={[
+            'report-noscript',
+            guardTripped ? 'report-guard' : null,
+            state.status === 'error' ? 'report-failure' : null,
+          ].filter(Boolean).join(' ')}
+        >
+          {/*
+            With scripting off this form has no submit path at all: there is no
+            `action`, so the button performs a native GET to /support-us, the page
+            reloads, and the reload reads as a successful send. Reporting success
+            for something that was discarded is the "no false live state"
+            principle inverted, so the button is removed in that tier rather than
+            left to lie. A `<style>` inside `<noscript>` is the only way a
+            prerendered page can change what it shows based on whether scripting
+            ran. Pointing the form at `/api/v1/reports` was considered and is
+            worse: `server/http/handler.ts` `parseBody` calls `request.json()`,
+            so a native form POST renders a raw problem+json page.
+            The address below is the owner's, given for this purpose on
+            2026-08-27. It is deliberately the same one in both tiers: a reader
+            without scripting gets a channel that works, and a reader with it gets
+            a fallback if the desk is down. A `mailto:` is safe to offer here
+            precisely because it needs no scripting to follow.
+          */}
+          <noscript>
+            <style>{`.${styles.form} button[type='submit'] { display: none; }`}</style>
+            <p id="report-noscript" className={styles.fieldError}>
+              This form needs JavaScript to send a report. Nothing typed here can reach the desk with
+              it turned off — email <a href={`mailto:${REPORTS_INBOX}`}>{REPORTS_INBOX}</a> instead,
+              with the link and what you believe is wrong with it.
+            </p>
+          </noscript>
 
-      <Field
-        ref={urlRef}
-        id="report-url"
-        label="Link to the claim"
-        type="url"
-        value={url}
-        onChange={(event) => setUrl(event.target.value)}
-        placeholder="https://…"
-        disabled={submitting}
-        error={guardTripped ? "A report needs a link or a description." : undefined}
-      />
+          <Field
+            ref={urlRef}
+            id="report-url"
+            label="Link to the claim"
+            type="url"
+            value={url}
+            onChange={(event) => setUrl(event.target.value)}
+            placeholder="https://…"
+            disabled={submitting}
+          />
 
-      <Field
-        id="report-body"
-        label="Or describe it"
-        multiline
-        rows={3}
-        value={body}
-        onChange={(event) => setBody(event.target.value)}
-        placeholder="What did you see, and where?"
-        disabled={submitting}
-        error={guardTripped ? "A report needs a link or a description." : undefined}
-      />
+          <Field
+            id="report-body"
+            label="Or describe it"
+            multiline
+            rows={3}
+            value={body}
+            onChange={(event) => setBody(event.target.value)}
+            placeholder="What did you see, and where?"
+            disabled={submitting}
+          />
 
-      <Field
-        id="report-email"
-        label="Email (optional)"
-        type="email"
-        value={reporterEmail}
-        onChange={(event) => setReporterEmail(event.target.value)}
-        placeholder="Only if you want a follow-up"
-        disabled={submitting}
-      />
+          <Field
+            id="report-email"
+            label="Email (optional)"
+            type="email"
+            value={reporterEmail}
+            onChange={(event) => setReporterEmail(event.target.value)}
+            placeholder="Only if you want a follow-up"
+            disabled={submitting}
+          />
 
-      <Field
-        id="report-note"
-        label="Anything else the desk should know (optional)"
-        multiline
-        rows={2}
-        value={reporterNote}
-        onChange={(event) => setReporterNote(event.target.value)}
-        disabled={submitting}
-      />
+          <Field
+            id="report-note"
+            label="Anything else the desk should know (optional)"
+            multiline
+            rows={2}
+            value={reporterNote}
+            onChange={(event) => setReporterNote(event.target.value)}
+            disabled={submitting}
+          />
 
-      {state.status === 'error' ? (
-        <p id="report-failure" className={styles.fieldError} {...assertiveLive}>
-          {state.message}{' '}
-          {/* STATE-003: the fields below still hold everything that was typed —
-              nothing here clears them — and saying so is the difference
-              between a reader pressing the button again and a reader assuming
-              the report is gone and leaving. */}
-          Nothing you typed was cleared; the button sends it again as it stands.
-          {' '}
-          {/* A failed send with no alternative leaves a reader who found a real
-              error with nowhere to put it. */}
-          You can also email <a href={`mailto:${REPORTS_INBOX}`}>{REPORTS_INBOX}</a>.
-        </p>
-      ) : null}
+          {guardTripped ? (
+            <p id="report-guard" className={styles.fieldError} {...assertiveLive}>
+              A report needs a link or a description.
+            </p>
+          ) : null}
 
-      <Button
-        type="submit"
-        variant="primary"
-        size="md"
-        disabled={submitting}
-        isLoading={submitting}
-      >
-        {submitting ? 'Sending…' : 'Send report'}
-      </Button>
-    </form>
+          {state.status === 'error' ? (
+            <p id="report-failure" className={styles.fieldError} {...assertiveLive}>
+              {state.message}{' '}
+              {/* STATE-003: the fields below still hold everything that was typed —
+                  nothing here clears them — and saying so is the difference
+                  between a reader pressing the button again and a reader assuming
+                  the report is gone and leaving. */}
+              Nothing you typed was cleared; the button sends it again as it stands.
+              {' '}
+              {/* A failed send with no alternative leaves a reader who found a real
+                  error with nowhere to put it. */}
+              You can also email <a href={`mailto:${REPORTS_INBOX}`}>{REPORTS_INBOX}</a>.
+            </p>
+          ) : null}
+
+          <Button
+            type="submit"
+            variant="primary"
+            size="md"
+            disabled={submitting}
+            isLoading={submitting}
+          >
+            {submitting ? 'Sending…' : 'Send report'}
+          </Button>
+        </form>
+      )}
+
+      <div className={state.status === 'sent' ? styles.receipt : undefined} {...politeLive}>
+        {state.status === 'sent' ? (
+          <>
+            <p>Report received — reference {state.publicId}.</p>
+            <small>
+              What happens next: the desk reviews every report against the
+              sourcing standard, and nothing you sent is published without
+              that review. Most reports are read within a few days; giving an
+              email is the only way to hear back.
+            </small>
+            <small>
+              To send one another way, email{' '}
+              <a href={`mailto:${REPORTS_INBOX}`}>{REPORTS_INBOX}</a>.
+            </small>
+            <div className={styles.receiptActions}>
+              <Button
+                type="button"
+                variant="secondary"
+                size="md"
+                onClick={() => {
+                  setUrl('');
+                  setBody('');
+                  setReporterEmail('');
+                  setReporterNote('');
+                  setTouched(false);
+                  setState({ status: 'idle' });
+                }}
+              >
+                Send another report
+              </Button>
+              <a className={styles.receiptAlt} href="#choose-how-to-help">
+                Choose another way
+              </a>
+            </div>
+          </>
+        ) : null}
+      </div>
+    </>
   );
 }

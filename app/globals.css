@@ -76,6 +76,15 @@
   --t-display-weight: 600;
   --t-display-tracking: -0.03em;
 
+  /* The masthead-sized step, born 2026-09-17 for exactly one surface: the
+     `/information-war` hero, whose whole argument is a sentence set at the
+     scale of the site's masthead. The one-heading-scale rule above stands —
+     this is a *role* declared here, not a private clamp in a route file —
+     and a page that does not need a headline this large does not reach for
+     it. Never used below a page's h1. */
+  --t-display-xl: clamp(3.25rem, 2rem + 6vw, 7.625rem);
+  --t-display-xl-lh: 0.9;
+
   --t-h2: clamp(1.6rem, 1.25rem + 1.15vw, 2.125rem);
   --t-h2-lh: 1.1;
   --t-h2-weight: 600;

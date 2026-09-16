@@ -4,6 +4,11 @@ import { RecentActivity } from "@/components/briefs/information-war/LivePanels";
 import { listBriefingPublications } from "@/lib/publications";
 
 vi.mock("@/lib/publications", () => ({ listBriefingPublications: vi.fn() }));
+/* The retry control reads the App Router (`router.refresh()`), which a bare
+   server render does not mount; the mock stands in for it only. */
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: () => {}, push: () => {}, replace: () => {}, back: () => {}, prefetch: () => {} }),
+}));
 const read = vi.mocked(listBriefingPublications);
 afterEach(() => read.mockReset());
 
@@ -26,11 +31,15 @@ describe("information-war published record", () => {
     expect(html).not.toContain("/articles/");
   });
 
-  it("shows an honest read failure and a retry anchor that exists on the page", async () => {
+  it("shows an honest read failure with a retry that re-runs the read", async () => {
     read.mockRejectedValue(new Error("Test read failure"));
     const html = renderToStaticMarkup(await RecentActivity());
     expect(html).toContain("The record could not be loaded.");
-    expect(html).toContain('href="/information-war#activity"');
+    /* Restated 2026-09-17 (workstream G): the old "Try again" was a link to
+       the very anchor it sat on — it could not re-run the read it apologised
+       for. The retry is a control now (`router.refresh()`), asserted in
+       RetryRefresh's own source by tests/information-war.test.ts. */
+    expect(html).toContain("Try again");
     expect(html).not.toContain("/articles/");
   });
 });

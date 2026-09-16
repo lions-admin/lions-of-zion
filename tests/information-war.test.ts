@@ -3,8 +3,16 @@ import path from "node:path";
 import { Writable } from "node:stream";
 import { createElement, type ReactElement } from "react";
 import { renderToPipeableStream } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { InformationWarSystem } from "@/components/briefs/InformationWarSystem";
+
+/* The publication retry control is a client component that reads the App
+   Router (`router.refresh()`), which does not exist in a bare server render.
+   The mock stands in for the router only — the control's contract (a button
+   that re-runs the failed read) is asserted by hand below where it matters. */
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: () => {}, push: () => {}, replace: () => {}, back: () => {}, prefetch: () => {} }),
+}));
 
 const ROOT = process.cwd();
 
@@ -77,7 +85,18 @@ describe("information war surface", () => {
 
   it("offers explicit playback controls and respects motion and visibility changes", async () => {
     const html = await renderFully(createElement(InformationWarSystem));
-    for (const name of ["Previous step", "Next step", "Pause journey"]) expect(html).toContain(name);
+    /* Restated 2026-09-17 for the paused default (workstream G): both step
+       machines now render stopped, so the control a reader meets says
+       "Play journey"; "Pause journey" is its own paused-state twin, one
+       half of the same aria-label expression. The names are asserted from
+       the *source* for the inactive label and from the HTML for the active
+       one, so neither half of the toggle can drift away alone. */
+    expect(html).toContain("Previous step");
+    expect(html).toContain("Next step");
+    expect(html).toContain("Play journey");
+    const trace = readFileSync(path.join(ROOT, "components/briefs/information-war/PipelineTrace.tsx"), "utf8");
+    expect(trace).toContain('"Pause journey"');
+    expect(trace).not.toMatch(/useState\(true\)/);
     const client = readFileSync(path.join(ROOT, "components/briefs/information-war/PipelineTrace.tsx"), "utf8");
     expect(client).toContain('prefers-reduced-motion: reduce');
     expect(client).toContain('preference.addEventListener("change", update)');
@@ -86,6 +105,9 @@ describe("information war surface", () => {
     const css = readFileSync(path.join(ROOT, "components/briefs/information-war-system.module.css"), "utf8");
     expect(css.slice(css.indexOf("prefers-reduced-motion"))).toContain(".packet { display: none; }");
     expect(css).not.toMatch(/position:\s*(sticky|fixed)/);
+    /* The retry control re-runs the failed read with the App Router. */
+    const retry = readFileSync(path.join(ROOT, "components/briefs/information-war/RetryRefresh.tsx"), "utf8");
+    expect(retry).toContain("router.refresh()");
     /* The architecture diagram must not be covered by the Ask launcher. That
        was a per-page exception — `html:has([id="war-heading"]) .dockTrigger`
        pulled the fixed pill into the flow below 1100px — until 2026-09-08,

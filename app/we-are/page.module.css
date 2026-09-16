@@ -280,7 +280,9 @@
 /* UX-11. The pointers to Methodology and How it works were a sentence whose
    only job was navigation, and as inline links they measured 22px tall. They
    are standalone controls now and take the control floor — `--control-h` is
-   44px, and stays so on a coarse pointer (`app/globals.css`). The FAQ's
+   44px, and stays so on a coarse pointer (`app/globals.css`). They moved to
+   the foot of the page on 2026-09-17, after the FAQ, so the way out of the
+   page follows it instead of interrupting the pipeline. The FAQ's
    Corrections link stays inline: it is inside a sentence, and prose links
    are exempt. */
 .readNext {
@@ -289,6 +291,12 @@
   margin: var(--sp-3) 0 0;
   padding: 0;
   list-style: none;
+}
+
+/* The nav wrapper's own margin, so the relocated foot nav clears the FAQ
+   the way a `SectionBlock` would have. */
+.readNextWrap {
+  margin-top: var(--sp-7);
 }
 
 .readNext a {
@@ -310,4 +318,14 @@
 .readNext a:focus-visible {
   color: var(--gold-hi);
   text-decoration-color: currentColor;
+}
+
+/* The last-reviewed colophon. There is no CMS field for it — the date is a
+   content constant in `page.tsx` and this paragraph only sets it: the data
+   voice, at the floor, in the recessive ink. */
+.lastReviewed {
+  composes: dataMeta from global;
+  margin: var(--sp-6) 0 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
 }

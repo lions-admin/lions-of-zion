@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { liveWhenIdle } from "@/components/ui/live-region";
 import styles from "./narrative-simulation.module.css";
 
 const stages = [
@@ -43,10 +42,6 @@ function SpreadMap() {
           <path d="M172 168V194Q172 214 195 214H286Q310 214 310 240V264" />
           <path d="M473 166V194Q473 214 450 214H334Q310 214 310 240" />
         </g>
-        <g className={styles.networkSignals} aria-hidden="true">
-          <path pathLength="100" d="M172 168V194Q172 214 195 214H286Q310 214 310 240V264" />
-          <path pathLength="100" d="M473 166V194Q473 214 450 214H334Q310 214 310 240" />
-        </g>
         {people.map(([x, y], index) => <g key={index} transform={`translate(${x} ${y})`} className={styles.creator} data-group={index < 6 ? "first" : "second"}>
           <circle r={index === 4 || index === 10 ? 21 : 16} />
           <circle cy="-4" r="4" className={styles.creatorGlyph} />
@@ -57,58 +52,44 @@ function SpreadMap() {
   );
 }
 
+/**
+ * The fictional investigation walkthrough — reader-driven since the 2026-09-17
+ * Midnight Signal round (workstream G).
+ *
+ * It used to autoplay on entry, gated on visibility and reduced motion, which
+ * put a second self-advancing machine on `/information-war` beside the
+ * architecture trace. It is click-through now: the reader picks a stage, or
+ * steps through with Previous / Next stage, and nothing advances on its own.
+ * The architecture trace above it is the one explainer that keeps playback.
+ *
+ * The reduced-motion preference is still read and honoured — the walkthrough
+ * states its own stillness in `narrative-simulation.module.css` under the
+ * same media query, and no-JavaScript readers get every stage's copy in the
+ * HTML regardless, because the scene is rendered from state the server sets
+ * to the first step.
+ */
 export function HomeEvidencePipeline() {
   const [step, setStep] = useState(0);
-  const [playing, setPlaying] = useState(true);
-  const [visible, setVisible] = useState(false);
-  const [reduced, setReduced] = useState(true);
   const [activeEvidence, setActiveEvidence] = useState<string | null>(null);
-  const host = useRef<HTMLDivElement>(null);
   const panelId = useId();
-  const running = playing && visible && !reduced && step < stages.length - 1;
   const stage = stages[step];
 
-  useEffect(() => {
-    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const sync = () => setReduced(preference.matches);
-    sync();
-    preference.addEventListener("change", sync);
-    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: 0.2 });
-    if (host.current) observer.observe(host.current);
-    return () => { observer.disconnect(); preference.removeEventListener("change", sync); };
-  }, []);
-
-  useEffect(() => {
-    if (!running) return;
-    const timer = window.setInterval(() => {
-      if (!document.hidden) setStep((current) => Math.min(current + 1, stages.length - 1));
-    }, 8500);
-    return () => window.clearInterval(timer);
-  }, [running, step]);
+  /* Reduced motion needs no script here: the one animation the walkthrough
+     owns (the scene's 240ms arrival) is killed with every other transition
+     under the global reduced-motion switch in `app/globals.css`, and the
+     walkthrough's own stylesheet states its stillness again. What this
+     component owes the preference is that nothing autoplays — and nothing
+     does, at any preference. */
 
   function selectStep(index: number) {
     setStep(index);
-    setPlaying(false);
     setActiveEvidence(null);
   }
 
-  function togglePlayback() {
-    if (step === stages.length - 1) {
-      setStep(0);
-      setActiveEvidence(null);
-      setPlaying(true);
-    } else setPlaying((current) => !current);
-  }
-
   return (
-    <div ref={host} className={styles.simulation} data-running={running} data-step={step}>
+    <div className={styles.simulation} data-step={step}>
       <div className={styles.toolbar}>
         <span>Fictional walkthrough <span className={styles.disclosure}>· No real accounts or live searches</span></span>
-        <button type="button" onClick={togglePlayback} disabled={reduced}
-          aria-label={reduced ? "Autoplay disabled for reduced motion; select a stage below" : step === stages.length - 1 ? "Replay the investigation" : playing ? "Pause the investigation" : "Play the investigation"}>
-          <Icon name={step === stages.length - 1 ? "correction" : "film"} size={17} />
-          {reduced ? "Manual mode" : step === stages.length - 1 ? "Replay" : playing ? "Pause" : "Play"}
-        </button>
       </div>
       <ol className={styles.stages} aria-label="Investigation stages">
         {stages.map((item, index) => <li key={item.name} data-active={step === index} data-reached={step >= index}>
@@ -118,7 +99,7 @@ export function HomeEvidencePipeline() {
         </li>)}
       </ol>
       <p className={styles.stageName}>{stage.name}</p>
-      <div className={styles.scene} id={panelId} {...liveWhenIdle(running)} onFocusCapture={() => setPlaying(false)}>
+      <div className={styles.scene} id={panelId}>
         <div className={styles.case}>
           <span className={styles.eyebrow}>The claim being tested</span>
           <blockquote>“No aid entered the district <mark>all day.</mark>”</blockquote>
@@ -136,14 +117,14 @@ export function HomeEvidencePipeline() {
             <p className={styles.note}>A closed gate in one clip cannot answer an all-day claim.</p>
           </div>}
           {step === 2 && <div className={styles.evidenceSearch}>
-            <div className={styles.searchLine}><Icon name="search" size={18} /><span>Original upload · full sequence · delivery records</span><span className={styles.scan} aria-hidden="true" /></div>
+            <div className={styles.searchLine}><Icon name="search" size={18} /><span>Original upload · full sequence · delivery records</span></div>
             <div className={styles.evidenceColumns}>
               {["supports", "challenges"].map((side) => <div key={side}>
                 <h4>{side === "supports" ? "Supports part of the claim" : "Challenges the all-day claim"}</h4>
                 {evidence.filter((item) => item.side === side).map((item) => <article key={item.id} className={styles.evidenceItem}>
                   <span>{item.time} · {item.type}</span>
                   <button type="button" aria-expanded={activeEvidence === item.id} aria-controls={panelId + item.id}
-                    onClick={() => { setPlaying(false); setActiveEvidence(activeEvidence === item.id ? null : item.id); }}>
+                    onClick={() => setActiveEvidence(activeEvidence === item.id ? null : item.id)}>
                     {item.text}<Icon name="chevron-down" size={17} />
                   </button>
                   <p id={panelId + item.id} hidden={activeEvidence !== item.id}>{item.context}</p>

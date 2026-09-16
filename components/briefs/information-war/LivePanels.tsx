@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { listBriefingPublications } from "@/lib/publications";
 import { SECTION_LABELS } from "@/components/live/publication-labels";
+import { RetryRefresh } from "./RetryRefresh";
 import styles from "../information-war-system.module.css";
 
 function formatStamp(value: string): string {
@@ -17,7 +18,7 @@ export async function RecentActivity() {
   try {
     rows = await listBriefingPublications("?limit=4");
   } catch {
-    return <div className={styles.emptyRecord}><h4>The record could not be loaded.</h4><p>We cannot show the latest publications right now. No example entries have been substituted.</p><Link href="/information-war#activity">Try again ↗︎</Link></div>;
+    return <div className={styles.emptyRecord}><h4>The record could not be loaded.</h4><p>We cannot show the latest publications right now. No example entries have been substituted.</p><RetryRefresh className={styles.retryLink} /></div>;
   }
   if (rows.length === 0) {
     return <div className={styles.emptyRecord}><h4>No publications returned.</h4><p>There are no entries to display for this read. Explore the public sections above.</p></div>;

@@ -273,6 +273,18 @@
    same floor as `.glanceTerm a`; prose links elsewhere on the page stay
    inline. */
 
+/* ---- last reviewed ----
+   A trust page says when a person last read it end to end. There is no CMS
+   field for it, so the date is a content constant in `page.tsx` and this is
+   only where it is set: the data voice, at the floor, in the recessive ink —
+   a colophon, not a claim. */
+.lastReviewed {
+  composes: dataMeta from global;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
+}
+
 .readNext {
   display: flex;
   flex-direction: column;

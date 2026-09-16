@@ -10,19 +10,20 @@
  *
  * Three of the seven that were built are gone, all for one reason — built,
  * never mounted, and never acquiring a caller. `Spotlight`, then `Ticker` on
- * 2026-09-02, then `ShinyText` on 2026-09-03 under CLEAN-008. The document's
- * own instruction for ShinyText was "use only on live processing words;
- * remove if no justified caller", and the two states that qualify already
- * have their marker: Ask's wait carries `BorderBeam`, a live region and a
- * ticking clock, and Search's "Searching the index…" is a sentence, which
- * this primitive explicitly did not take.
+ * 2026-09-02, then `ShinyText` on 2026-09-03 under CLEAN-008, then `BorderBeam`
+ * on 2026-09-17 (Midnight Signal, workstream F): the ask desk's wait replaced
+ * its nine-second beam with a bounded 1.4s sweep on the monitor strip's signal
+ * rule — the same processing-indicator category, registered in
+ * `tests/motion-runtime.test.ts`, at a speed that reads as activity — and the
+ * beam had no other caller. The document's own instruction for ShinyText was
+ * "use only on live processing words; remove if no justified caller", and the
+ * two states that qualify already have their marker: Ask's wait carries the
+ * sweep, a live region and a monitor sentence, and Search's "Searching the
+ * index…" is a sentence, which this primitive explicitly did not take.
  */
 
 export { Reveal } from "./Reveal";
 export type { RevealProps, RevealDirection } from "./Reveal";
-
-export { BorderBeam } from "./BorderBeam";
-export type { BorderBeamProps } from "./BorderBeam";
 
 // Mounted only by interactive feature/panel/dossier Cards; dense records stay static.
 export { PointerHighlight } from "./PointerHighlight";

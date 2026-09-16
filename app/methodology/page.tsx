@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { DocPage } from "@/components/sections/DocPage";
 import { SectionBlock } from "@/components/sections/SectionPage";
+import { Icon, type IconName } from "@/components/ui/Icon";
 import { SITE_URL } from "@/lib/site-config";
 import { PUBLICATION_PROVENANCE } from "@/server/contracts/publication";
 import { pageMetadata } from "@/lib/page-metadata";
@@ -14,11 +15,94 @@ export const metadata: Metadata = pageMetadata({ title: "Methodology", descripti
 
 const METHODOLOGY_JSON_LD = { "@context": "https://schema.org", "@type": "WebPage", name: "Methodology", url: PAGE_URL, description: TAGLINE, isPartOf: { "@type": "WebSite", name: "Lions of Zion", url: SITE_URL } };
 
+/* The "last reviewed" line is a content constant because there is no CMS
+   field for it — trust pages are source files, so the date a person last
+   read the page end to end lives here, next to the prose it vouches for.
+   Bump it when the wording of a rule changes, not on every code touch. */
+const LAST_REVIEWED = "2026-09-17";
+
+/* METHOD-001: the standard in one paragraph, then a contents of itself.
+   Every row links to the section that holds the rule in full. */
+const GLANCE: { href: string; term: string; def: string }[] = [
+  { href: "#the-standard", term: "The standard", def: "Scale does not change what counts as evidence." },
+  { href: "#source-claim-evidence-assessment", term: "Categories", def: "Source, claim, evidence, assessment and uncertainty stay separate." },
+  { href: "#source-families", term: "Source families", def: "Repetition is not corroboration." },
+  { href: "#labels-and-language", term: "Language", def: "The words of a publication say what kind of thing it is." },
+  { href: "#ai-assistance", term: "How AI is used", def: "What the systems may do, and what their output never becomes." },
+  { href: "#human-governance", term: "Human governance", def: "Who sets the rules, and where a person decides." },
+  { href: "#publication-provenance", term: "Publication provenance", def: "The two disclosed paths, and what each one tells the reader." },
+  { href: "#changes-to-the-record", term: "Changes to the record", def: "What kind of change was made, named per change." },
+  { href: "#corrections", term: "Corrections", def: "The correction mechanism, and where to report an error." },
+];
+
+/* METHOD-002: the process as a static relationship diagram — an ordered list
+   with a drawn track, a numeral, a stage name, and, on the one stage nothing
+   automated can pass, a written gate label and a panel of its own. The gate
+   is scoped to what it actually is (the rules people set and the escalation
+   that runs through them), not to a claim that a person approves every
+   publication — see `tests/publication-provenance-copy.test.ts`. */
+const PROCESS: { name: string; icon: IconName; note: string; gate?: string }[] = [
+  { name: "Collect", icon: "intake", note: "Configured sources bring public material in. Collection records what was retrieved; it never composes or publishes a record on its own." },
+  { name: "Preserve provenance", icon: "evidence", note: "Origin, source family and provenance travel with the material, so copies of one account stay one source family." },
+  { name: "Assess", icon: "assessment", note: "Human investigations and authorized machine-authored runs turn evidence into reporting and assessments with the uncertainty kept visible." },
+  { name: "Apply publishing rules", icon: "publish", note: "Server-enforced gates apply publishing rules per provenance path before anything reaches the public record." },
+  { name: "Human governance", icon: "review", gate: "Gate — human governance", note: "People define the mission, standards, permissions, escalation paths, corrections policy and safety boundaries. Sensitive or consequential work is escalated for human editorial review. Nothing automated sets these rules." },
+];
+
 export default function Page() {
   /* VA-59: trust surfaces state the rules; the scan stays silent behind them. */
   return (
-    <DocPage routeId="methodology" title="Methodology" tagline={TAGLINE} rails="toc">
+    <DocPage
+      routeId="methodology"
+      title="Methodology"
+      tagline={TAGLINE}
+      rails="toc"
+      dateline={<p className={styles.lastReviewed}>Last reviewed {LAST_REVIEWED}</p>}
+    >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(METHODOLOGY_JSON_LD) }} />
+
+      {/* METHOD-001 — the standard in one paragraph, scannable before anything else. */}
+      <div className={styles.summary}>
+        <p className={styles.summaryText}>
+          Every record states what kind of thing it is — source, claim,
+          evidence, assessment or uncertainty — and the method below is what
+          keeps those categories visible when a story is moving quickly.
+        </p>
+      </div>
+
+      {/* A glance index: the rules by name, the sentence beside each one, and
+          a link to where the rule lives in full. */}
+      <p className={styles.glanceKicker}>The standard at a glance</p>
+      <dl className={styles.glance}>
+        {GLANCE.map((row) => (
+          <div key={row.href} className={styles.glanceRow}>
+            <dt className={styles.glanceTerm}><a href={row.href}>{row.term}</a></dt>
+            <dd className={styles.glanceDef}>{row.def}</dd>
+          </div>
+        ))}
+      </dl>
+
+      {/* METHOD-002 — the process, drawn as a gated diagram. Static by design:
+          the pipeline is a standard, not an event, so nothing about it arrives
+          and it reads identically with scripting off and under reduced motion. */}
+      <SectionBlock heading="How a record is made" id="how-a-record-is-made">
+        <ol className={styles.process}>
+          {PROCESS.map((stage, index) => (
+            <li key={stage.name} className={styles.stage} data-gate={stage.gate ? "" : undefined}>
+              <span className={styles.stageNode} aria-hidden="true"><Icon name={stage.icon} size={18} strokeWidth={1.5} /></span>
+              <div className={styles.stageBody}>
+                <div className={styles.stageHead}>
+                  <span className={styles.stageNumber}>{String(index + 1).padStart(2, "0")}</span>
+                  <h3 className={styles.stageName}>{stage.name}</h3>
+                  {stage.gate ? <span className={styles.stageGate}>{stage.gate}</span> : null}
+                </div>
+                <p className={styles.stageNote}>{stage.note}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </SectionBlock>
+
       <SectionBlock heading="The standard" id="the-standard"><p>Lions of Zion uses AI, OSINT and editorial research to operate at scale, but scale does not change what counts as evidence. A source is not a claim, a claim is not evidence, evidence is not an assessment, and an assessment is not certainty. The method is designed to keep those categories visible even when a story is moving quickly.</p><p>Technology increases our reach. Standards determine what deserves publication. Human governance defines the boundaries.</p></SectionBlock>
       <SectionBlock heading="Source, claim, evidence, assessment" id="source-claim-evidence-assessment"><dl><div><dt><strong>Source</strong></dt><dd>The original material or reporting that actually says, shows or records something.</dd></div><div><dt><strong>Claim</strong></dt><dd>An assertion attributed to a source, a person, an institution or the public information environment.</dd></div><div><dt><strong>Evidence</strong></dt><dd>Material that genuinely supports, contradicts or constrains a claim.</dd></div><div><dt><strong>Assessment</strong></dt><dd>Lions of Zion&apos;s evidence-based interpretation of what the available record supports.</dd></div><div><dt><strong>Uncertainty</strong></dt><dd>What the reviewed material does not establish, including missing evidence, unresolved contradictions and limits in provenance.</dd></div></dl></SectionBlock>
       <SectionBlock heading="Source families and corroboration" id="source-families"><p>Repetition is not corroboration. Five articles, posts or clips that all trace back to one original account remain one source family for that fact. We preserve source lineage wherever possible and treat independent origin as a different question from the number of copies or headlines repeating the same material.</p><p>Primary material is preferred where it can be reached. Secondary reporting and fact-checking can be valuable, but a citation has to support the specific sentence beside it, not merely discuss the same subject.</p></SectionBlock>

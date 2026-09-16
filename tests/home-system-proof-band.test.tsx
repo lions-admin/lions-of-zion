@@ -11,10 +11,11 @@ const read = (file: string) => readFileSync(file, "utf8");
  *
  * Measured at 375px on 2026-09-07: the band was 3,517px of a 12,047px page
  * (29.2%) and is now 1,428px of a 9,958px page (14.3%). These tests pin the
- * shape rather than the pixels — a second walkthrough, a third link or a
- * second interaction is what would put the length back.
+ * shape rather than the pixels — a second walkthrough or a second interaction
+ * is what would put the length back; the three section doors are links, not
+ * content.
  */
-describe("homepage system band — one proof, one interaction, two links", () => {
+describe("homepage system band — one proof, one interaction, three doors", () => {
   const html = renderToStaticMarkup(<HomeSystemSection />);
 
   it("makes the source-counting test the band's whole argument", () => {
@@ -25,9 +26,13 @@ describe("homepage system band — one proof, one interaction, two links", () =>
     expect(html).toContain("Trace the sources");
   });
 
-  it("offers exactly two links — How it works and Methodology", () => {
+  it("offers its section doors — the walkthrough, the method, and why we exist", () => {
+    /* Owner decision, 2026-09-17: the typewriter introduction moved to
+       /we-are as "Why we exist", so the band gained a third door instead of
+       mounting the intro a second time. The cap stays: still no second
+       interaction and no second walkthrough below the edition. */
     const hrefs = [...html.matchAll(/<a[^>]*href="([^"]+)"/g)].map((m) => m[1]);
-    expect(hrefs).toEqual(["/information-war", "/methodology"]);
+    expect(hrefs).toEqual(["/information-war", "/methodology", "/we-are"]);
   });
 
   it("no longer runs a second product below the edition", () => {
@@ -57,11 +62,18 @@ describe("homepage system band — one proof, one interaction, two links", () =>
     expect(band).not.toContain("HomeEvidencePipeline");
     expect(howItWorks).toContain("HomeEvidencePipeline");
     expect(howItWorks).toContain('id="walkthrough"');
-    /* The walkthrough's own file is untouched: it is the same component, in a
-       new place, so its reduced-motion contract moves with it. */
+    /* Restated 2026-09-17 (workstream G): the walkthrough is reader-driven
+       now — the walkthrough and the architecture trace were two autoplaying
+       machines on one page, and this one became click-through. The
+       reduced-motion contract it carried survives in its stylesheet, which
+       states its own stillness under the media query; the stronger form of
+       the old contract holds in the file: there is no autoplay loop left. */
     const walkthrough = read("components/home/HomeEvidencePipeline.tsx");
-    expect(walkthrough).toContain("prefers-reduced-motion: reduce");
-    expect(walkthrough).toContain("disabled={reduced}");
+    expect(walkthrough).not.toContain("setInterval");
+    expect(walkthrough).not.toContain("playing");
+    expect(read("components/home/narrative-simulation.module.css")).toContain(
+      "@media (prefers-reduced-motion: reduce)",
+    );
   });
 
   it("reserves the annotation line so the one interaction cannot shift the page", () => {

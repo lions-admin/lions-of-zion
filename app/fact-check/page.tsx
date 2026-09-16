@@ -1,8 +1,6 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { DocPage } from "@/components/sections/DocPage";
 import { FactCheckDesk } from "@/components/factcheck";
-import { SkeletonDesk } from "@/components/ui/Skeleton";
 import {
   getPublicPublication,
   isMissingPublication,

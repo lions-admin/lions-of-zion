@@ -77,9 +77,12 @@ export function AskDock({ current = false, onActivate }: AskDockProps) {
         {/* VA-58. This read "AI Chat" while the menu, the page title and the
             dialog all said "Ask the desk" — five names for one destination.
             The menu label wins, per the owner's naming ruling. What "AI Chat"
-            was carrying honestly, that a machine answers, is not lost: the
-            dialog description below says so, and every record now states its
-            authorship (VA-47). On a narrow bar the label is screen-reader-only
+            was carrying honestly, that a machine answers, is carried by the
+            dialog description below and by the authorship line on every
+            answer — "Written by the Lions of Zion editorial system from the
+            records cited below", shipped verbatim on 2026-09-17 after the
+            comment that stood here claimed a disclosure that was not in the
+            interface. On a narrow bar the label is screen-reader-only
             and the glyph carries the control; the word survives in the
             accessible name either way. */}
         <span className={styles.dockLabel}>Ask the desk</span>
@@ -93,7 +96,12 @@ export function AskDock({ current = false, onActivate }: AskDockProps) {
           description="A question answered across what this desk has published. Not a search box: Search finds a record, this reads them. Where there is no evidence, the answer says so."
           variant="drawer"
           size="wide"
-          dismissOnBackdrop={false}
+          /* Ask and Search are one instrument and behave the same (2026-09-17,
+             workstream F): both dismiss on a backdrop click. The `false` that
+             stood here argued unsaved input — but a question being composed is
+             one keystroke from being retyped, and the desk's own transcript
+             restores from the stored thread, so a stray click never destroys
+             work the reader cannot get back. */
           closeLabel="Close the desk"
           className={styles.dockPanel}
         >

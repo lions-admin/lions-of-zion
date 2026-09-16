@@ -1,0 +1,20 @@
+/* The keyboard key, one shape everywhere a legend names one.
+ *
+ * Two legends carried this rule before — the ask composer's Enter contract
+ * and the search footer's key grammar — and two hand-copied `kbd` blocks is
+ * how a system drifts. A key is data chrome: a hairline box on the data
+ * face's own rhythm, sized to one glyph with room to spare. Extracted
+ * 2026-09-17 (Midnight Signal, workstream F).
+ */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 1.4rem;
+  padding: 0 var(--sp-1);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-1);
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--ink);
+}

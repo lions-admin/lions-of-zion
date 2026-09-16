@@ -27,7 +27,6 @@ export const INTRO_BEATS = [
   },
 ] as const;
 
-const SEEN_KEY = "loz:editorial-intro:v1";
 const TICK_MS = 32;
 const HOLD_MS = 3200;
 
@@ -43,7 +42,7 @@ const HOLD_MS = 3200;
  * focus placed on the panel rather than on the way out, Escape, background
  * inertness via `showModal()`, and focus restored to the opener.
  */
-export function EditorialIntro({ compact = false, autoOpen = true }: { compact?: boolean; autoOpen?: boolean }) {
+export function EditorialIntro({ compact = false }: { compact?: boolean }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const replayRef = useRef<HTMLButtonElement>(null);
@@ -73,10 +72,10 @@ export function EditorialIntro({ compact = false, autoOpen = true }: { compact?:
     dialogRef.current?.close();
   }, []);
 
-  const open = useCallback((replay: boolean) => {
+  const open = useCallback(() => {
     const dialog = dialogRef.current;
     if (!dialog || dialog.open) return;
-    returnFocus.current = replay ? replayRef.current : document.getElementById("home-wordmark");
+    returnFocus.current = replayRef.current;
     reducedMotion.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setBeat(0);
     setTyped(reducedMotion.current ? Number.MAX_SAFE_INTEGER : 0);
@@ -88,15 +87,11 @@ export function EditorialIntro({ compact = false, autoOpen = true }: { compact?:
        before the way out of it. Same reasoning as `components/ui/Dialog`. */
     panelRef.current?.focus();
     setActive(true);
-    try { sessionStorage.setItem(SEEN_KEY, "seen"); } catch { /* Storage is optional. */ }
   }, [setTyped]);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       setAvailable(true);
-      let seen = false;
-      try { seen = sessionStorage.getItem(SEEN_KEY) === "seen"; } catch { /* Still skippable. */ }
-      if (autoOpen && !seen && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) open(false);
     });
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
     const onPreferenceChange = () => {
@@ -111,7 +106,7 @@ export function EditorialIntro({ compact = false, autoOpen = true }: { compact?:
       cancelAnimationFrame(frame);
       preference.removeEventListener("change", onPreferenceChange);
     };
-  }, [open, setTyped, autoOpen]);
+  }, [setTyped]);
 
   const advance = useCallback(() => {
     if (beat === INTRO_BEATS.length - 1) { close(); return; }
@@ -139,7 +134,7 @@ export function EditorialIntro({ compact = false, autoOpen = true }: { compact?:
   return (
     <>
       <button ref={replayRef} type="button" className={`${styles.replay}${compact ? ` ${styles.compactReplay}` : ""}`} hidden={!available}
-        onClick={() => open(true)}>
+        onClick={open}>
         <span>Watch introduction</span>
         <span className={styles.playMark} aria-hidden="true">
           <svg viewBox="0 0 16 16" fill="none">

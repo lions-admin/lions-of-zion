@@ -8,18 +8,16 @@
  *
  * Scoped to the desk, not lifted globally: the rest of the site keeps the rule.
  *
- * `:where()` because the eyebrows, source heads and clock inside the desk set
- * their own `uppercase` and must keep it. Written as `.desk *` this rule would
- * match them at the same specificity as their own, and which one won would be
- * decided by their order in this file — true today and one inserted rule away
- * from being false. `:where()` scores zero, so every one of them beats it
- * whatever the order. */
+ * `:where()` because the eyebrows, source heads and monitor sentence inside
+ * the desk set their own `uppercase` and must keep it. Written as `.desk *`
+ * this rule would match them at the same specificity as their own, and which
+ * one won would be decided by their order in this file — true today and one
+ * inserted rule away from being false. `:where()` scores zero, so every one
+ * of them beats it whatever the order. */
 :where(.desk),
 :where(.desk) :where(*) {
   text-transform: none;
 }
-
-
 
 .desk {
   display: flex;
@@ -27,7 +25,30 @@
   gap: var(--sp-6);
 }
 
+/* Header, conversation, composer — in that order, always.
+ *
+ * The composer briefly sat above the examples in the empty state, on the
+ * theory that the box is the point of the panel and should meet the eye
+ * first. It made the panel a search bar over a large empty drawer: the
+ * middle went unused and the one thing that anchors a chat surface moved
+ * between two positions depending on state. It lives at the foot in every
+ * state now. The empty state fills the middle instead of the composer moving
+ * up to meet it. */
+.desk[data-ask-state="idle"] {
+  gap: var(--sp-4);
+}
 
+/* ── The transcript ───────────────────────────────────────────────────── */
+
+/* The frame the scroller fills. It has to be a bounded box with its own
+   scroll, or the whole panel scrolls instead of the conversation. The
+   position is what anchors the return-to-latest button; `min-block-size: 0`
+   is the flex-child rule that makes the scroll real. */
+.transcriptFrame {
+  position: relative;
+  flex: 1 1 auto;
+  min-block-size: 0;
+}
 
 .transcript {
   display: flex;
@@ -64,6 +85,39 @@
   color: var(--state-warn);
 }
 
+/* The question, understated.
+ *
+ * A consumer chat bubble is the one shape this panel should not borrow. The
+ * reader's own question does need to be identifiable as theirs, so the right
+ * alignment stays; what goes is the bubble reading of it. A darker plate
+ * than the ground it sits on, a hairline, and the system's smallest radius:
+ * a noted question rather than a spoken one. */
+.record [data-from="user"] {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.turnUser {
+  max-inline-size: min(85%, 40rem);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface-1);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-1);
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+}
+
+/* The answer keeps the reading measure and its own block, full width of the
+   exchange — see the note at the top of AnswerRecord. */
+.turnDesk {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
 .answer {
   display: flex;
   flex-direction: column;
@@ -78,7 +132,46 @@
   white-space: pre-line;
 }
 
+/* ── The turn's ending: stamp, authorship, copy ───────────────────────── */
 
+.answerMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2) var(--sp-4);
+  margin-block-start: var(--sp-4);
+  max-inline-size: var(--measure-reading);
+}
+
+.answerStamp {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
+}
+
+.authorship {
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+.answerMeta button {
+  margin-inline-start: auto;
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: 400;
+}
+
+.answerMeta button[data-copied] {
+  --btn-fg: var(--state-ok);
+}
+
+/* ── Sources ──────────────────────────────────────────────────────────── */
 
 .sources {
   margin-block-start: var(--sp-5);
@@ -124,25 +217,11 @@
   border-block-start: var(--line-w) solid var(--line-soft);
 }
 
+/* The shared ledger gutter (`components/ui/ordinal.module.css`), with only
+   the desk's own rhythm stated over it. */
 .sourceOrdinal {
-  position: relative;
-  padding-inline-end: var(--sp-3);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
+  composes: ordinal from "@/components/ui/ordinal.module.css";
   line-height: 1.8;
-  font-weight: var(--t-data-weight);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: var(--t-data-tracking);
-  color: var(--ink-lo);
-}
-
-.sourceOrdinal::after {
-  content: "";
-  position: absolute;
-  inset-block: 0;
-  inset-inline-end: 0;
-  inline-size: var(--line-w);
-  background: var(--line);
 }
 
 .sourceBody {
@@ -223,7 +302,6 @@
 .sourceQuote::before { content: "“"; }
 .sourceQuote::after { content: "”"; }
 
-
 .noSources {
   display: flex;
   align-items: baseline;
@@ -249,10 +327,13 @@
   transform: translateY(0.1em);
 }
 
+/* ── The wait ─────────────────────────────────────────────────────────── */
 
-
+/* The plate inside the log: the phase sentence and the mechanism note. The
+ * clock is deliberately not here — it lives on the monitor strip below the
+ * transcript, outside the `role="log"` region, because a ticking number in a
+ * polite region re-announces the wait every second. */
 .waiting {
-  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--sp-3);
@@ -262,7 +343,6 @@
   border: var(--line-w) solid var(--line);
   border-radius: var(--radius-3);
   max-inline-size: var(--measure-reading);
-  overflow: hidden;
 }
 
 .waitingLead {
@@ -281,35 +361,68 @@
   text-wrap: pretty;
 }
 
-.waitingMeta {
+/* The monitor strip: the elapsed-seconds sentence, the stop, and the signal
+ * rule they sit under. It renders only while a request is in flight, so the
+ * sweep runs only while a request is in flight — a bounded operation that is
+ * genuinely running, which is the documented exception to the five-second
+ * ambient floor (registered in `tests/motion-runtime.test.ts`). The strip is
+ * outside the `role="log"` region on purpose; see the note above. */
+.waitMonitor {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: var(--sp-3);
+  gap: var(--sp-2) var(--sp-3);
+  padding-block-start: var(--sp-4);
 }
 
-.waitingClock {
-  display: flex;
-  align-items: baseline;
-  gap: var(--sp-2);
+.waitMonitor::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  block-size: var(--line-w);
+  background: var(--line);
+}
+
+/* The segment that travels the rule. A gradient is a state marker, not a
+   colour invention: the gold arrives from the token, and the gradient is
+   what lets the segment read as light passing rather than a bar jumping. */
+.waitMonitor::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 0;
+  block-size: var(--line-w);
+  inline-size: 22%;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  transform: translateX(-120%);
+  animation: waitSweep 1.4s var(--ease-in-out) infinite;
+}
+
+@keyframes waitSweep {
+  from { transform: translateX(-120%); }
+  to { transform: translateX(560%); }
+}
+
+.waitMonitorSentence {
+  margin: 0;
   font-family: var(--face-data);
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
   color: var(--ink-lo);
 }
 
-.waitingSeconds {
+.waitMonitorSeconds {
+  font-family: var(--face-data);
   font-size: var(--t-figure);
   line-height: var(--t-figure-lh);
   font-weight: var(--t-figure-weight);
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0;
   color: var(--ink-hi);
 }
 
-
+/* ── The primer (drawer empty state) ──────────────────────────────────── */
 
 .primer {
   display: flex;
@@ -318,65 +431,107 @@
   max-inline-size: var(--measure-reading);
 }
 
-.primerLead {
+.primerIntro {
+  margin: 0 0 var(--sp-4);
+  max-inline-size: var(--measure-narrow);
+  color: var(--ink);
   font-family: var(--face-display);
   font-size: var(--t-lede);
   line-height: var(--t-lede-lh);
-  color: var(--ink-hi);
+  letter-spacing: var(--t-lede-tracking);
   text-wrap: balance;
-  font-optical-sizing: auto;
 }
 
-/* The examples, and a lesson in half-overriding a registry component.
- *
- * `Suggestions` is AI Elements' horizontal chip rail: the row it renders
- * carries `flex w-max flex-nowrap`, the pills inside it carry the shadcn
- * button's `whitespace-nowrap`, and its scrollbar is rendered `hidden`. This
- * class used to set only `flex-direction: column`, and CSS Modules outrank
- * `@layer utilities`, so it won that one property and nothing else. The result
- * measured: a column — correct — that was still `width: max-content` at 351px
- * because `w-max` went uncontested, holding three pills of 323, 351 and 331px
- * that could not wrap because `whitespace-nowrap` went uncontested too. Three
- * ragged right edges running past the drawer, with the scrollbar that would
- * have hinted at it explicitly hidden.
- *
- * Overriding a registry component means naming every property that fights,
- * not the first one. `inline-size` answers `w-max` here; the rule below
- * answers the rest on the button itself. */
-.primerExamples {
+.primerLabel {
+  composes: kickerLabel from global;
+  margin: 0 0 var(--sp-3);
+  color: var(--ink-lo);
+}
+
+/* The rows. Full-width, reading from the start edge, separated by one rule
+   rather than three plates — a set, not three buttons demanding to be
+   pressed. The start-edge mark is what says "this is a thing you take"
+   without spending an icon on it. */
+.primerRows {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
-  inline-size: 100%;
-  max-inline-size: 100%;
-  margin-block-start: var(--sp-3);
+  gap: 0;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 
+.primerRows li + li {
+  border-block-start: var(--line-w) solid var(--line-soft);
+}
 
+.primerRows button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  inline-size: 100%;
+  min-block-size: var(--control-h);
+  padding: var(--sp-3) var(--sp-4);
+  text-align: start;
+}
 
+.primerRows button::before {
+  content: "";
+  position: absolute;
+  inset-block: var(--line-w);
+  inset-inline-start: 0;
+  inline-size: var(--line-w-thick);
+  background: transparent;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.primerRows button:hover:not(:disabled),
+.primerRows button:focus-visible {
+  --btn-fg: var(--ink-hi);
+  --btn-line: transparent;
+}
+
+.primerRows button:hover:not(:disabled)::before,
+.primerRows button:focus-visible::before {
+  background: var(--gold);
+}
+
+.primerRowText {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  white-space: normal;
+  text-wrap: pretty;
+}
+
+.primerRowArrow {
+  flex: 0 0 auto;
+  font-family: var(--face-data);
+  font-size: var(--t-caption);
+  color: var(--ink-lo);
+  transition: color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+
+.primerRows button:hover:not(:disabled) .primerRowArrow,
+.primerRows button:focus-visible .primerRowArrow {
+  color: var(--gold);
+  transform: translateX(2px);
+}
+
+/* ── The composer ─────────────────────────────────────────────────────── */
+
+/* One field, not a panel with a form inside it. The well is the shared
+   `Field` control (`components/ui/field.module.css`), composed below; the
+   form is layout, and the footer sits under the well as the field's own
+   controls. One focus ring — the control's own — and no box around the
+   box. */
 .composer {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-3);
-  padding: var(--sp-4);
-  background: var(--surface-1);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-}
-
-/* The ring belongs to the visible box, not to the borderless textarea inside
-   it — which is why `.composerField` suppresses its own outline. But the box
-   was indicating focus with a hairline colour change alone, `--line` to
-   `--line-strong`, well under the 3:1 an indicator owes (A11Y-003). It now
-   carries the same `--focus-outline` every other control in the system uses.
-   `:focus-within` rather than `:focus-visible` because the element that takes
-   focus is the child. */
-.composer:focus-within {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-offset);
-  border-color: var(--line-strong);
+  gap: var(--sp-2);
 }
 
 .composerLabel {
@@ -385,26 +540,29 @@
 }
 
 .composerField {
-  inline-size: 100%;
-  resize: vertical;
-  min-block-size: calc(var(--control-h) * 1.6);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--ink-hi);
+  composes: control from "@/components/ui/field.module.css";
+  /* The question is composed into an editorial corpus, and it is set in the
+     display face at the lede step — the search query's own register. The
+     well's geometry stays the shared one; only the voice changes. */
   font-family: var(--face-display);
   font-size: var(--t-lede);
   line-height: var(--t-lede-lh);
   font-weight: var(--t-lede-weight);
   font-optical-sizing: auto;
+  background: var(--surface-1);
+  min-block-size: calc(var(--control-h) * 1.75);
+  max-block-size: calc(var(--t-lede-lh) * var(--t-lede) * 6);
+  resize: vertical;
 }
 
 .composerField::placeholder {
   color: var(--ink-lo);
+  opacity: 1;
 }
 
 .composerField:focus-visible {
-  outline: none;
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
 }
 
 .composerField:disabled {
@@ -418,8 +576,30 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--sp-3);
-  padding-block-start: var(--sp-3);
-  border-block-start: var(--line-w) solid var(--line-soft);
+}
+
+/* The hint and, once there is conversation behind the desk, the reset share
+   the start edge. The reset is the least urgent control on the panel:
+   caption-sized and muted, like the footer link it was in the drawer. */
+.composerFootStart {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-3);
+  min-inline-size: 0;
+}
+
+.composerFootStart button {
+  margin-inline-start: var(--sp-2);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: 400;
+  color: var(--ink-lo);
+}
+
+.composerFootStart button:hover,
+.composerFootStart button:focus-visible {
+  color: var(--ink-hi);
 }
 
 .composerHint {
@@ -427,19 +607,6 @@
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
   color: var(--ink-lo);
-}
-
-.composerHint kbd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-inline-size: 1.4rem;
-  padding: 0 var(--sp-1);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-1);
-  font-family: inherit;
-  font-size: inherit;
-  color: var(--ink);
 }
 
 .composerActions {
@@ -470,7 +637,7 @@
   color: var(--state-danger);
 }
 
-
+/* ── Problems ─────────────────────────────────────────────────────────── */
 
 .problemLead {
   font-family: var(--face-display);
@@ -501,16 +668,6 @@
   margin-block-start: var(--sp-2);
 }
 
-.unavailable {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-3);
-  padding: var(--sp-5);
-  border: var(--line-w) solid var(--state-warn-line);
-  border-radius: var(--radius-3);
-  background: var(--state-warn-wash);
-}
-
 .systemNote {
   padding: var(--sp-3) var(--sp-4);
   border-inline-start: var(--line-w-thick) solid var(--line-strong);
@@ -522,194 +679,34 @@
   text-wrap: pretty;
 }
 
+/* ── Empty states and the no-JavaScript contract ──────────────────────── */
 
-
-/* One field, not a panel with a form inside it.
+/* The transcript's empty state, which is where the primer and the evidence
+ * boundary live until a question is asked.
  *
- * The textarea and the footer were two stacked boxes, each with its own
- * border, inside a third — three nested rectangles to hold one question. The
- * border moves out here to the container, the textarea goes transparent, and
- * the footer becomes the field's own bottom edge. What the reader sees is a
- * single input with its controls resting in it. */
-.deskPrompt {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
+ * `ConversationEmptyState` centres its children and centres their text, which
+ * is right for the two-line "no messages yet" it was built for and wrong for a
+ * paragraph explaining what an unsourced answer means. Start-aligned, and
+ * capped at the reading measure so the note is a column and not a banner. */
+.deskEmpty {
+  align-items: stretch;
+  justify-content: center;
+  gap: var(--sp-4);
+  padding: var(--sp-5) 0;
+  text-align: start;
 }
 
-/* The field is the registry's own `input-group`, not a box drawn around it.
- *
- * Styling `.deskPrompt` as the field produced two nested rectangles — a 10px
- * one from here and a 6px one from `[data-slot="input-group"]`, which brings
- * its own border, radius and translucent background. The container already
- * holds the textarea and the controls, so it is the field; this rule re-grades
- * it into the system's surfaces and lets the form element go back to being
- * layout. One rectangle. */
-.deskPrompt [data-slot="input-group"] {
-  background: var(--surface-1);
-  border-color: var(--control-line);
-  border-radius: var(--radius-3);
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
-}
-
-.deskPrompt:focus-within [data-slot="input-group"] {
-  border-color: var(--gold-line-strong);
-  background: var(--surface-2);
-}
-
-/* The registry's textarea brings its own border, ring and background; the
-   field around it now owns all three, so they are taken off here rather than
-   drawn twice. */
-.deskPrompt textarea {
-  /* Two lines and a bit — enough that a typed question does not immediately
-     scroll, without opening a hole in the panel before anything is typed. It
-     grows from here. */
-  /* Three lines to start, eight before it scrolls. `field-sizing: content`
-     is what makes it grow with what is typed — no script, no measuring; where
-     unsupported it is simply a fixed three-line box, which is the right
-     fallback. `calc(3 * lh)` rather than a rem: the floor follows the type. */
-  min-block-size: calc(3 * var(--t-small-lh) * var(--t-small) + (2 * var(--sp-2)));
-  max-block-size: calc(8 * var(--t-small-lh) * var(--t-small) + (2 * var(--sp-2)));
-  field-sizing: content;
-  overflow-y: auto;
-  padding: var(--sp-2);
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  color: var(--ink-hi);
-  resize: none;
-}
-
-.deskPrompt textarea:focus,
-.deskPrompt textarea:focus-visible {
-  outline: none;
-  box-shadow: none;
-}
-
-.deskPrompt textarea::placeholder {
-  color: var(--ink-lo);
-}
-
-/* Send is not a focal moment.
- *
- * It shipped as `variant="default"`, which is `--gold` — a saturated amber
- * plate in the corner of every panel state, including the one where nothing
- * has been typed yet. `globals.css` reserves the accent for "selection, active
- * navigation, primary action, verified emphasis, one focal moment per
- * viewport", and a send button that is loud while the field is empty is
- * spending it on nothing.
- *
- * So it waits. Quiet on the surface until the textarea holds something, then
- * it takes the accent, because at that point it IS the primary action.
- * `:placeholder-shown` is what carries that, which keeps it in CSS with no
- * state plumbed through the component. */
-.deskSubmit {
-  /* Softly rectangular, not a circle. A round send button is the consumer-chat
-     signature; the controls on this site are rectangles with a small radius,
-     and the composer should look like it belongs to the same desk as the filter
-     chips and the form fields. */
-  border-radius: var(--radius-1);
-  background: var(--surface-3);
-  border: var(--line-w) solid var(--control-line);
-  color: var(--ink);
-  transition:
-    background-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out);
-}
-
-.deskPrompt:has(textarea:not(:placeholder-shown)) .deskSubmit {
-  background: var(--gold);
-  border-color: var(--gold);
-  color: var(--ground);
-}
-
-.deskPrompt:has(textarea:not(:placeholder-shown)) .deskSubmit:hover:not(:disabled) {
-  background: var(--gold-hi);
-  border-color: var(--gold-hi);
-}
-
-.deskSubmit:disabled {
-  background: transparent;
-  color: var(--ink-lo);
-}
-
-.boundary {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
+.deskEmpty > * {
   max-inline-size: var(--measure-reading);
 }
 
-.boundaryBody {
-  max-inline-size: none;
-  margin: 0;
-}
-
-.deskFoot {
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: var(--sp-4);
-}
-
-.srOnly {
-  composes: srOnly from global;
-}
-
-
-
-.launcher {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
-  min-block-size: var(--control-h-sm);
-  padding: 0 var(--sp-3);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-2);
-  color: var(--ink-lo);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  text-decoration: none;
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
-}
-
-.launcher:hover {
-  color: var(--ink-hi);
-  border-color: var(--line-strong);
-  background: var(--tint-hover);
-}
-
-.launcherGlyph {
-  display: inline-flex;
-}
-
-.launcher[data-variant="icon"] .launcherLabel {
+/* The return-to-latest control sits in the frame's foot, centred. */
+.scrollButton {
   position: absolute;
-  inline-size: 1px;
-  block-size: 1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+  inset-block-end: var(--sp-4);
+  inset-inline-start: 50%;
+  translate: -50% 0;
 }
-
-.launcher[data-variant="icon"] {
-  min-inline-size: var(--control-h-sm);
-  justify-content: center;
-  padding: 0;
-}
-
-
 
 .noScript {
   display: flex;
@@ -718,14 +715,13 @@
   max-inline-size: var(--measure-reading);
 }
 
-
 @media (scripting: none) {
   .desk {
     display: none;
   }
 }
 
-
+/* ── Narrow ───────────────────────────────────────────────────────────── */
 
 @media (max-width: 45rem) {
   .source {
@@ -737,9 +733,8 @@
     justify-content: space-between;
   }
 
-  .waitingMeta {
-    flex-direction: column;
-    align-items: stretch;
+  .turnUser {
+    max-inline-size: 100%;
   }
 }
 
@@ -748,17 +743,22 @@
     scroll-behavior: auto;
   }
 
-  /* BorderBeam hides itself; the waiting answer keeps a static emphasized
-     border so the state is still visible without a travelling beam. */
-  .waiting {
-    border-width: var(--line-w-thick);
-    border-color: var(--ink-hi);
+  /* The sweep freezes; the rule keeps a static emphasized tone so the wait is
+     still visible without a travelling segment. The kill switch in
+     `globals.css` already stops the loop; this states the resting result. */
+  .waitMonitor::after {
+    animation: none;
+    inline-size: 100%;
+    background: var(--gold-dim);
   }
+
+  .primerRows button::before { transition: none; }
+  .primerRowArrow { transition: none; }
 }
 
-/* ---- The launcher, in the masthead ----
- *
- * One control in one place: the utility cluster of `SiteHeader`, on every
+/* ── The launcher, in the masthead ────────────────────────────────────── */
+
+/* One control in one place: the utility cluster of `SiteHeader`, on every
  * route and at every width. This rule was `position: fixed` bottom-right on
  * every non-home page until 2026-09-08, with a second, differently-shaped
  * `.homeDockTrigger` for the cover's bar; the fixed pill covered the footer's
@@ -766,7 +766,11 @@
  * and the two shapes gave the site two headers (UX-08). Both are this rule
  * now. It speaks the bar's grammar — a 44px transparent control, no plate —
  * and the gold ring on the glyph is the one thing that says "this is the
- * desk's tool, not another page".
+ * desk's tool, not another page". (A shared launcher shape with the search
+ * control was considered and rejected the same day: the ring is the desk's
+ * identity mark, and the search launcher's hairline box is the bar's own
+ * field grammar. Two anchors, one masthead, one contract each — pinned by
+ * `tests/ask-launcher.test.ts`.)
  *
  * The label shows only where the bar has room for it. Below 80rem the
  * masthead is already carrying four destination names, Search, Menu, Support
@@ -886,25 +890,25 @@
   }
 }
 
+/* ── The drawer frame ─────────────────────────────────────────────────── */
+
 /* `AskDesk` was written for a document column and sets its own width there.
    Inside the drawer the column is the drawer, so the desk stretches to it and
    scrolls within it rather than the panel scrolling around a fixed-width
    desk. */
-/* ---- The drawer frame ----
- *
- * `Dialog`'s `drawer.wide` gives every consumer `--measure-narrow` (54ch) on
+
+/* `Dialog`'s `drawer.wide` gives every consumer `--measure-narrow` (54ch) on
  * `--surface-1`. Both are wrong for this one. 54ch is a *reading* measure, and
  * at 1440 it put the panel over half the viewport for a column of short
  * questions, which is where the oversized-empty-space feeling came from. And
- * `--surface-1` is #272a2a — a mid charcoal plate laid over a near-black site,
+ * `--surface-1` is a mid charcoal plate laid over a near-black site,
  * which reads as pasted on rather than opened out of it.
  *
  * So: a viewport-relative width that stays substantial without taking half the
  * screen, and the site's own ground with a hairline at the seam. The tonal
  * separation is the border and the header rule, not a lighter slab — this
- * system has no elevation to spend (`--shadow-1` through `--shadow-3` are all
- * `none`) and refuses new glass, so an edge is the whole vocabulary of depth
- * available and it turns out to be enough. */
+ * system has no elevation to spend and refuses new glass, so an edge is the
+ * whole vocabulary of depth available and it turns out to be enough. */
 .dockPanel {
   /* Read by `.drawer .panel` in `dialog.module.css`. 54ch — the shared `wide`
      measure — is a *reading* width, and this panel holds short questions and a
@@ -921,12 +925,10 @@
  * it. Margins on all four sides are what turn it back into an object.
  *
  * The radius is `--radius-3` and the depth is a doubled hairline rather than a
- * shadow. Both are deliberate: `globals.css` caps card radii at 2/4/8px with
- * "no new arbitrary radius", and refuses elevation outright — "surfaces through
- * tonal contrast and 1px hairline borders… no shadow at all". A brighter inner
- * ring over a quieter outer border gives an edge that catches, which is the
- * same trick the rest of the system uses, at the one place that needed to look
- * lifted. */
+ * shadow. Both are deliberate: `globals.css` caps card radii and refuses
+ * elevation outright, so a brighter inner ring over a quieter outer border
+ * gives an edge that catches — the same trick the rest of the system uses, at
+ * the one place that needed to look lifted. */
 .dockPanel [data-slot="panel"] {
   /* A fixed inset height, not `auto`. Sized to content the panel was 504px in
      a 900px viewport with a 372px gap under it, and it would have grown as the
@@ -950,8 +952,8 @@
 }
 
 /* Tighter than the shared dialog's rhythm. The header, the disclosure and the
-   composer were spaced for a document; this is a workspace, and the distance
-   between "what is this" and "ask it something" was doing nothing. */
+ * composer were spaced for a document; this is a workspace, and the distance
+ * between "what is this" and "ask it something" was doing nothing. */
 .dockPanel [data-slot="header"] {
   align-items: center;
   padding: var(--sp-4) var(--sp-4) var(--sp-3) var(--sp-5);
@@ -961,13 +963,16 @@
   padding: var(--sp-4) var(--sp-5) var(--sp-5);
 }
 
-/* The description is a caption, not a paragraph. At body size over three lines
-   it was the largest block on an empty panel — more words than the three
-   example questions under it. */
+/* The description is a caption, not a paragraph — and not in capitals. At
+ * body size over three lines it was the largest block on an empty panel, and
+ * under the uppercase title it read as a wall; the title keeps its capitals
+ * (a name is chrome, a sentence is not), this one sentence does not. */
 .dockPanel [data-slot="header"] p {
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
-  color: var(--ink-lo);
+  max-inline-size: none;
+  color: var(--ink);
+  text-transform: none;
 }
 
 .dockPanel .transcript {
@@ -998,348 +1003,6 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .dockTrigger { transition: none; }
-}
-
-/* The bubble rules that stood here for one commit are gone.
- *
- * They aligned the question right, capped it, rounded it, and squared the one
- * corner it points from — and every line of that is what AI Elements'
- * `MessageContent` already does under `from="user"`, using the semantic colour
- * tokens `tailwind.css` maps onto this palette. Writing it twice meant two
- * places to keep a bubble's shape in step.
- *
- * `.turn` went with them: `Message` is the row that knows which side it is. */
-
-/* The frame the scroller fills. It has to be a bounded box with its own scroll,
-   or `MessageScrollerViewport` has nothing to scroll inside and the whole
-   panel scrolls instead — which is the behaviour the scroller exists to
-   replace. `min-height: 0` is the flex-child rule that makes that real. */
-.transcriptFrame {
-  flex: 1 1 auto;
-  min-block-size: 0;
-}
-
-/* The transcript's empty state, which is where the primer and the evidence
- * boundary live until a question is asked.
- *
- * `ConversationEmptyState` centres its children and centres their text, which
- * is right for the two-line "no messages yet" it was built for and wrong for a
- * paragraph explaining what an unsourced answer means. Start-aligned, and
- * capped at the reading measure so the boundary note is a column and not a
- * banner. `justify-content` is `start` so the block sits under the panel's
- * header rather than floating in the middle of an empty desk. */
-.deskEmpty {
-  align-items: stretch;
-  justify-content: center;
-  gap: var(--sp-4);
-  padding: var(--sp-5) 0;
-  text-align: start;
-}
-
-.deskEmpty > * {
-  max-inline-size: var(--measure-reading);
-}
-
-/* The disclosure line above the input. Caption-sized and in the muted ink,
-   because it is a footnote to the answers and not an introduction to the
-   panel — the six-line bordered card it replaced was the latter. */
-.boundary {
-  margin: 0 0 var(--sp-2);
-  color: var(--ink-lo);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-  text-wrap: pretty;
-}
-
-/* Chat-sized, not heading-sized. The pills inherited `--t-body` and a control
-   height built for a form's primary action; in a rail of three they read as
-   three buttons demanding to be pressed rather than as examples. */
-/* The other half of the override above. Each declaration here answers a
-   specific Tailwind class on the shadcn button that would otherwise decide
-   this control: `block-size` answers `h-8` from `size="sm"` (a fixed height
-   cannot hold a wrapped sentence), `white-space` answers `whitespace-nowrap`,
-   `justify-content` answers `justify-center`, and `border-radius` answers
-   `rounded-full` — a full round is right on a one-line chip and wrong on a
-   two-line row, which is what these become once they are allowed to wrap.
-   These are prompts a reader chooses between, so they are set as full-width
-   rows reading from the start edge rather than centred chips. */
-.primerExamples button {
-  inline-size: 100%;
-  block-size: auto;
-  min-block-size: var(--control-h-sm);
-  justify-content: flex-start;
-  padding-block: var(--sp-3);
-  padding-inline: var(--sp-4);
-  border-radius: var(--radius-2);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  text-align: start;
-  white-space: normal;
-  text-wrap: pretty;
-
-  /* The registry's `outline` variant draws a full-strength border, an opaque
-     background and a shadow on each one. Three of those stacked read as three
-     buttons waiting to be pressed; these are examples of what can be asked, so
-     they sit back until pointed at. The shadow goes because this system has
-     none — `--shadow-1` through `--shadow-3` are all `none`. */
-  background: var(--surface-1);
-  box-shadow: none;
-  color: var(--ink);
-}
-
-/* VA-60. These chips are shadcn `Button variant="outline"`, whose Tailwind
-   `dark:border-input` is specificity 0,2,0 and beat `.primerExamples button` at
-   0,1,1 — so the resting border fell back to a 1.36:1 hairline while the hover
-   rule below, which is 0,2,1, correctly used `--control-line`. The control was
-   legible once you found it and not before, which is the opposite of the point.
-   `[class]` is the specificity bump, not a selector for anything: it exists to
-   win against a utility class, and removing it silently reintroduces
-   A11Y-004 on this surface. */
-.primerExamples button[class] {
-  border-color: var(--control-line);
-}
-
-.primerExamples button:hover:not(:disabled) {
-  background: var(--surface-2);
-  border-color: var(--control-line);
-  color: var(--ink-hi);
-}
-
-/* The title is the only uppercase left in the drawer.
- *
- * `:where(.desk)` above takes the shout off the conversation, but the header is
- * `Dialog`'s chrome and sits outside it — so the disclosure under the title was
- * still set in capitals. One line of that is a label; three are a wall, and
- * this sentence is the one thing on the panel worth reading before you type.
- * The title keeps its capitals: a name is chrome, a sentence is not. */
-.dockPanel [data-slot="header"] p {
-  text-transform: none;
-  max-inline-size: none;
-  color: var(--ink);
-}
-
-/* Header, conversation, composer — in that order, always.
- *
- * The composer briefly sat above the examples in the empty state, on the theory
- * that the box is the point of the panel and should meet the eye first. It made
- * the panel a search bar over a large empty drawer: the middle went unused and
- * the one thing that anchors a chat surface moved between two positions
- * depending on state. It lives at the foot in every state now. The empty state
- * fills the middle instead of the composer moving up to meet it. */
-.desk[data-ask-state="idle"] {
-  gap: var(--sp-4);
-}
-
-.dockPanel .deskEmpty {
-  /* `flex: 1`, because `h-full` cannot do this job: a percentage height
-     resolves against the parent's `height`, and `.transcript` sets only a
-     `min-block-size`, so `height: 100%` computed to `auto` and the block sat
-     under the header with the rest of the frame empty beneath it. Growing as
-     a flex item fills the column the transcript now guarantees, and
-     `justify-content: center` finally has a height to centre in. */
-  flex: 1 1 auto;
-  justify-content: center;
-  gap: var(--sp-3);
-  padding: 0;
-}
-
-.dockPanel .primer {
-  gap: var(--sp-2);
-}
-
-.dockPanel .primerExamples {
-  margin-block-start: var(--sp-2);
-}
-
-/* One line of orientation above the shortcuts. The header already says what
-   the panel is; this says what to do in it, and it is the only prose in the
-   empty state. */
-.primerIntro {
-  margin: 0 0 var(--sp-4);
-  max-inline-size: var(--measure-narrow);
-  color: var(--ink);
-  font-family: var(--face-display);
-  font-size: var(--t-lede);
-  line-height: var(--t-lede-lh);
-  letter-spacing: var(--t-lede-tracking);
-  text-wrap: balance;
-}
-
-.primerLabel {
-  composes: kickerLabel from global;
-  margin: 0 0 var(--sp-3);
-  color: var(--ink-lo);
-}
-
-/* Shortcuts, not form fields.
- *
- * They were the height of a primary control with a full border and an opaque
- * plate, which is why they read as three inputs waiting to be filled. Now they
- * are rows: a hairline, the site's ground, and the accent arriving only on the
- * pointer. The start-edge mark is what says "this is a thing you take" without
- * spending an icon on it. */
-.primerExamples button {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-4);
-  min-block-size: var(--control-h);
-  padding-block: var(--sp-3);
-  padding-inline: var(--sp-5) var(--sp-4);
-  border-radius: var(--radius-2);
-  background-color: var(--surface-1);
-  border-color: var(--line);
-  box-shadow: var(--shadow-1);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  color: var(--ink);
-  transition:
-    background-color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out);
-}
-
-.primerExampleText {
-  flex: 1 1 auto;
-  min-inline-size: 0;
-  white-space: normal;
-  text-wrap: pretty;
-}
-
-.primerExampleArrow {
-  flex: 0 0 auto;
-  font-family: var(--face-data);
-  font-size: var(--t-caption);
-  color: var(--ink-lo);
-  transition: color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
-}
-
-.primerExamples button:hover:not(:disabled) .primerExampleArrow,
-.primerExamples button:focus-visible .primerExampleArrow {
-  color: var(--gold);
-  transform: translateX(2px);
-}
-
-.primerExamples button::before {
-  content: "";
-  position: absolute;
-  inset-block: var(--line-w);
-  inset-inline-start: 0;
-  inline-size: var(--line-w-thick);
-  background: transparent;
-  transition: background-color var(--dur-fast) var(--ease-out);
-}
-
-.primerExamples button:hover:not(:disabled),
-.primerExamples button:focus-visible {
-  background-color: var(--surface-2);
-  border-color: var(--control-line);
-  color: var(--ink-hi);
-  box-shadow: var(--shadow-2);
-}
-
-.primerExamples button:hover:not(:disabled)::before,
-.primerExamples button:focus-visible::before {
-  background: var(--gold);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .primerExamples button::before { transition: none; }
-}
-
-/* The question, understated.
- *
- * `MessageContent` gives `from="user"` a `rounded-lg` plate on `bg-secondary`
- * — a consumer chat bubble, and the one shape this panel should not borrow.
- * The reader's own question does need to be identifiable as theirs, so the
- * right alignment `Message` handles stays; what goes is the bubble reading of
- * it. A darker plate than the ground it sits on, a hairline, and the system's
- * smallest radius: a noted question rather than a spoken one.
- *
- * A note against the comment above, which removed local rules on the grounds
- * that duplicating them meant two places to keep a bubble in step: that held
- * while the registry's shape was the wanted one. It is not, and
- * `components/ai-elements/**` has exactly one consumer — this desk — so the
- * shape is only ever decided here.
- *
- * `:global` because `is-user` is a literal class in the registry's `cn()`
- * string, not a CSS Module export; without it the module hashes the name and
- * matches nothing. */
-.transcript :global(.is-user) > div {
-  padding: var(--sp-3) var(--sp-4);
-  background: var(--surface-1);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-1);
-  color: var(--ink-hi);
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-}
-
-/* The send control sits in the field, not on a shelf under it.
- *
- * `PromptInputFooter` is an `InputGroupAddon align="block-end"`, so it is a
- * full-width row below the textarea: measured, the field was 98px tall around a
- * 46px input — 52px of it a strip holding one 32px button. That is what makes
- * the button read as detached from the thing it submits.
- *
- * Lifting the row into the field's trailing corner and paying for it with
- * trailing padding on the textarea gives back the 52px and puts the control
- * where the sentence ends. The row keeps its contents, so the "New
- * conversation" action that joins it once there is history lands beside the
- * submit rather than under it. */
-.deskPrompt [data-slot="input-group"] {
-  position: relative;
-}
-
-.deskPrompt [data-align="block-end"] {
-  position: absolute;
-  inset-block-end: var(--sp-2);
-  inset-inline-end: var(--sp-2);
-  inline-size: auto;
-  justify-content: flex-end;
-  gap: var(--sp-2);
-  padding: 0;
-  border: 0;
-}
-
-.deskPrompt textarea {
-  padding-block-end: var(--sp-2);
-  padding-inline-end: calc(var(--control-h-sm) + var(--sp-4));
-}
-
-/* Shortcuts as a list, not three cards. The border on every side made each one
-   a plate; a single rule between them makes them a set, which is what they are
-   — and it takes a third of the vertical space back. */
-.dockPanel .primerExamples {
-  gap: 0;
-}
-
-.dockPanel .primerExamples button {
-  min-block-size: 0;
-  padding-block: var(--sp-3);
-  padding-inline: var(--sp-3);
-  border: 0;
-  border-block-end: var(--line-w) solid var(--line-soft);
-  border-radius: 0;
-  background: transparent;
-}
-
-.dockPanel .primerExamples button:last-child {
-  border-block-end: 0;
-}
-
-.dockPanel .primerExamples button:hover:not(:disabled),
-.dockPanel .primerExamples button:focus-visible {
-  background: var(--surface-1);
-  border-color: var(--line-soft);
-}
-
 /* Scroll ownership: the transcript scrolls, the panel does not.
  *
  * `Dialog`'s body is the scroller (`overflow-y: auto`), which is right for a
@@ -1363,24 +1026,21 @@
   inline-size: 100%;
 }
 
-/* "New conversation" shares the field's corner with submit now that the footer
-   sits inside it, and the registry's `font-medium` made it read as a second
-   primary action inside the input. It is a reset, which is the least urgent
-   thing on the panel: caption-sized, muted, and only underlined on approach. */
-.deskPrompt [data-align="block-end"] button:not([class*="deskSubmit"]) {
-  min-block-size: 0;
-  padding-inline: var(--sp-2);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: 400;
-  color: var(--ink-lo);
+.dockPanel .deskEmpty {
+  /* `flex: 1`, because `h-full` cannot do this job: a percentage height
+     resolves against the parent's `height`, and `.transcript` sets only a
+     `min-block-size`, so `height: 100%` computed to `auto` and the block sat
+     under the header with the rest of the frame empty beneath it. Growing as
+     a flex item fills the column the transcript now guarantees, and
+     `justify-content: center` finally has a height to centre in. */
+  flex: 1 1 auto;
+  justify-content: center;
+  gap: var(--sp-3);
+  padding: 0;
 }
 
-.deskPrompt [data-align="block-end"] button:not([class*="deskSubmit"]):hover,
-.deskPrompt [data-align="block-end"] button:not([class*="deskSubmit"]):focus-visible {
-  color: var(--ink-hi);
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
+.dockPanel .primer {
+  gap: var(--sp-2);
 }
 
 /* ---- Phone: a composed sheet, not a squeezed drawer ----

@@ -1,168 +1,78 @@
 "use client";
 
-import { Button } from "@/components/shadcn/button";
-import { cn } from "@/lib/utils";
-import type { UIMessage } from "ai";
-import { ArrowDownIcon, DownloadIcon } from "lucide-react";
-import type { ComponentProps } from "react";
+/**
+ * The transcript scroller, and the one button that returns to its live edge.
+ *
+ * Trimmed on 2026-09-17 (Midnight Signal, workstream F) to the four pieces
+ * the ask desk actually uses — the stick-to-bottom scroller, its content
+ * column, the empty state and the scroll button. What was deleted was never
+ * mounted here: `ConversationDownload` and `messagesToMarkdown` offered the
+ * transcript as a Markdown file, which this desk refuses on the same grounds
+ * `AnswerRecord` refuses to render one, and nothing else in the file had a
+ * caller at all.
+ *
+ * The scroller is `use-stick-to-bottom`, kept deliberately: it anchors the
+ * transcript on its live edge, releases when the reader scrolls away, and
+ * hands the button its state — without this component owning a scroll ref or
+ * reading the motion preference by hand. `role="log"` on the scroller root
+ * is the conversation's live region: an arriving answer is announced by the
+ * region that contains it, and nothing else in the desk builds a second
+ * sentence about the same event.
+ */
+import type { ComponentProps, HTMLAttributes } from "react";
 import { useCallback } from "react";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
+import { Button } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
 
 export type ConversationProps = ComponentProps<typeof StickToBottom>;
 
-export const Conversation = ({ className, ...props }: ConversationProps) => (
-  <StickToBottom
-    className={cn("relative flex-1 overflow-y-hidden", className)}
-    initial="smooth"
-    resize="smooth"
-    role="log"
-    {...props}
-  />
-);
+export function Conversation({ className, ...props }: ConversationProps) {
+  return (
+    <StickToBottom
+      className={className}
+      initial="smooth"
+      resize="smooth"
+      role="log"
+      aria-relevant="additions"
+      {...props}
+    />
+  );
+}
 
-export type ConversationContentProps = ComponentProps<
-  typeof StickToBottom.Content
->;
+export type ConversationContentProps = ComponentProps<typeof StickToBottom.Content>;
 
-export const ConversationContent = ({
-  className,
-  ...props
-}: ConversationContentProps) => (
-  <StickToBottom.Content
-    className={cn("flex flex-col gap-8 p-4", className)}
-    {...props}
-  />
-);
+export function ConversationContent({ className, ...props }: ConversationContentProps) {
+  return <StickToBottom.Content className={className} {...props} />;
+}
 
-export type ConversationEmptyStateProps = ComponentProps<"div"> & {
-  title?: string;
-  description?: string;
-  icon?: React.ReactNode;
-};
+export type ConversationEmptyStateProps = HTMLAttributes<HTMLDivElement>;
 
-export const ConversationEmptyState = ({
-  className,
-  title = "No messages yet",
-  description = "Start a conversation to see messages here",
-  icon,
-  children,
-  ...props
-}: ConversationEmptyStateProps) => (
-  <div
-    className={cn(
-      "flex size-full flex-col items-center justify-center gap-3 p-8 text-center",
-      className
-    )}
-    {...props}
-  >
-    {children ?? (
-      <>
-        {icon && <div className="text-muted-foreground">{icon}</div>}
-        <div className="space-y-1">
-          <h3 className="font-medium text-sm">{title}</h3>
-          {description && (
-            <p className="text-muted-foreground text-sm">{description}</p>
-          )}
-        </div>
-      </>
-    )}
-  </div>
-);
+export function ConversationEmptyState({ className, ...props }: ConversationEmptyStateProps) {
+  return <div className={className} {...props} />;
+}
 
 export type ConversationScrollButtonProps = ComponentProps<typeof Button>;
 
-export const ConversationScrollButton = ({
-  className,
-  ...props
-}: ConversationScrollButtonProps) => {
+export function ConversationScrollButton({ className, ...props }: ConversationScrollButtonProps) {
   const { isAtBottom, scrollToBottom } = useStickToBottomContext();
-
   const handleScrollToBottom = useCallback(() => {
     scrollToBottom();
   }, [scrollToBottom]);
 
-  return (
-    !isAtBottom && (
-      <Button
-        className={cn(
-          "absolute bottom-4 left-[50%] translate-x-[-50%] rounded-full dark:bg-background dark:hover:bg-muted",
-          className
-        )}
-        onClick={handleScrollToBottom}
-        size="icon"
-        type="button"
-        variant="outline"
-        {...props}
-      >
-        <ArrowDownIcon className="size-4" />
-      </Button>
-    )
-  );
-};
-
-const getMessageText = (message: UIMessage): string =>
-  message.parts
-    .filter((part) => part.type === "text")
-    .map((part) => part.text)
-    .join("");
-
-export type ConversationDownloadProps = Omit<
-  ComponentProps<typeof Button>,
-  "onClick"
-> & {
-  messages: UIMessage[];
-  filename?: string;
-  formatMessage?: (message: UIMessage, index: number) => string;
-};
-
-const defaultFormatMessage = (message: UIMessage): string => {
-  const roleLabel =
-    message.role.charAt(0).toUpperCase() + message.role.slice(1);
-  return `**${roleLabel}:** ${getMessageText(message)}`;
-};
-
-export const messagesToMarkdown = (
-  messages: UIMessage[],
-  formatMessage: (
-    message: UIMessage,
-    index: number
-  ) => string = defaultFormatMessage
-): string => messages.map((msg, i) => formatMessage(msg, i)).join("\n\n");
-
-export const ConversationDownload = ({
-  messages,
-  filename = "conversation.md",
-  formatMessage = defaultFormatMessage,
-  className,
-  children,
-  ...props
-}: ConversationDownloadProps) => {
-  const handleDownload = useCallback(() => {
-    const markdown = messagesToMarkdown(messages, formatMessage);
-    const blob = new Blob([markdown], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    document.body.append(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-  }, [messages, filename, formatMessage]);
+  if (isAtBottom) return null;
 
   return (
     <Button
-      className={cn(
-        "absolute top-4 right-4 rounded-full dark:bg-background dark:hover:bg-muted",
-        className
-      )}
-      onClick={handleDownload}
-      size="icon"
+      className={className}
+      iconOnly
+      aria-label="Scroll to the latest"
+      onClick={handleScrollToBottom}
       type="button"
-      variant="outline"
+      variant="secondary"
       {...props}
     >
-      {children ?? <DownloadIcon className="size-4" />}
+      <Icon name="arrow-down" size={16} />
     </Button>
   );
-};
+}

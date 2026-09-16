@@ -4,6 +4,13 @@ import React from "react";
  * The shared line-icon family for chrome, records, provenance, and process
  * states. Icons are deliberately quiet: colour and text carry meaning, while
  * the mark provides a consistent visual anchor at any density.
+ *
+ * One arrow, one close glyph (2026-09-16): every directional mark on the
+ * public site is `arrow-right` / `arrow-left` from here, and every close
+ * control is `close` — the text glyphs (`→`, `←`, `✕`) that used to be drawn
+ * ad hoc in page markup rendered at whatever the ambient face decided an
+ * arrowhead should look like, which is why two pagers never matched.
+ * The travel motion lives in the global `.arrow` utility (`app/globals.css`).
  */
 export type IconName =
   | "search"
@@ -11,6 +18,7 @@ export type IconName =
   | "menu"
   | "close"
   | "arrow-right"
+  | "arrow-left"
   | "chevron-down"
   | "external-link"
   | "filter"
@@ -61,6 +69,7 @@ const ICONS: Record<IconName, React.ReactNode> = {
   menu: <><path d="M3 7h18" /><path d="M3 12h18" /><path d="M3 17h18" /></>,
   close: <><path d="m5 5 14 14" /><path d="m19 5-14 14" /></>,
   "arrow-right": <><path d="M4 12h15" /><path d="m13 6 6 6-6 6" /></>,
+  "arrow-left": <><path d="M20 12H5" /><path d="m11 6-6 6 6 6" /></>,
   "chevron-down": <path d="m4 8 8 8 8-8" />,
   "external-link": <><path d="M14 4h6v6" /><path d="m20 4-9 9" /><path d="M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5" /></>,
   filter: <><path d="M4 6h16" /><path d="M7 12h10" /><path d="M10 18h4" /></>,

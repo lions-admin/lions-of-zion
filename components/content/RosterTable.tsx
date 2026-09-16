@@ -1,4 +1,5 @@
 import type { CaseEntity } from '@/lib/content/fake-resistance-cases';
+import { Badge } from '@/components/ui/Badge';
 import styles from './content.module.css';
 
 export type RosterTableProps = {
@@ -37,6 +38,17 @@ const IDENTITY_EXPLANATION: Record<CaseEntity['identityStatus'], string> = {
   unresolved: 'Identity unresolved: the operator behind this account was not identified.',
 };
 
+/* The identity grade is the point of this column, so it renders the shared
+   `Badge` (2026-09-16) rather than a private chip: one grammar, and a mark
+   that still says something with the colour gone — a filled disc for a
+   confirmed identity, a diamond for an unresolved one. The research's grade
+   is never upgraded by the presentation. */
+const IDENTITY_STATUS: Record<CaseEntity['identityStatus'], 'documented' | 'observed' | 'inferred'> = {
+  confirmed: 'documented',
+  probable: 'observed',
+  unresolved: 'inferred',
+};
+
 export function RosterTable({ entities, noteLabel = 'Note' }: RosterTableProps) {
   if (entities.length === 0) return null;
 
@@ -73,13 +85,13 @@ export function RosterTable({ entities, noteLabel = 'Note' }: RosterTableProps) 
               </th>
               <td className={styles.rosterType}>{TYPE_LABEL[entity.type] ?? entity.type}</td>
               <td>
-                <span
-                  className={styles.identityChip}
+                <Badge
+                  status={IDENTITY_STATUS[entity.identityStatus]}
                   data-identity={entity.identityStatus}
                   title={IDENTITY_EXPLANATION[entity.identityStatus]}
                 >
                   {IDENTITY_LABEL[entity.identityStatus] ?? entity.identityStatus}
-                </span>
+                </Badge>
               </td>
               {hasFollowers ? (
                 <td className={styles.rosterNumeric}>

@@ -60,11 +60,12 @@ describe("direct-entry cinematic home", () => {
        control or shift the one beside it. */
     expect(css).toMatch(/\.swap > span \{ grid-area: 1 \/ 1; \}/);
 
-    /* The ground is the site's own hero still, not the flat black the rest of
-       the site left behind, and the veil over it lifts one step per beat. The
-       steps are asserted because the arc is the point: drop them and the
-       introduction silently goes back to being a black box. */
-    expect(css).toContain("background-image: var(--site-ground-photo)");
+    /* The ground is the site's own hero still — re-pointed from the retired
+       reading-ground token to the hero poster on 2026-09-16, same asset —
+       and the veil over it lifts one step per beat. The steps are asserted
+       because the arc is the point: drop them and the introduction silently
+       goes back to being a black box. */
+    expect(css).toContain("background-image: var(--hero-poster-wide)");
     expect(css).toMatch(/\.ground \{[^}]*opacity: 0\.06/);
     expect(css).toMatch(/\.dialog\[data-beat="1"\] \.ground \{ opacity: 0\.10; \}/);
     expect(css).toMatch(/\.dialog\[data-beat="2"\] \.ground \{ opacity: 0\.14; \}/);

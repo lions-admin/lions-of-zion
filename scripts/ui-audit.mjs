@@ -852,6 +852,50 @@ for (const { route, records } of NO_JS_ROUTES) {
 await noJsContext.close();
 await browser.close();
 
+/* The one focus ring, enforced at the source (2026-09-16).
+ *
+ * Every `:focus-visible` rule under `app/` and `components/` must draw its
+ * outline from `--focus-outline` — the token is the only definition of the
+ * ring, so an outline that restates it by hand (a hue, a width, a third
+ * form) drifts from the system the day after it is written and no runtime
+ * audit can tell which. Comments are stripped first; a prose mention is not
+ * a declaration. Rules that only *offset* the global ring
+ * (`outline-offset: …`) are correct and not checked here.
+ */
+{
+  const { readdirSync, readFileSync } = await import("node:fs");
+  const { join } = await import("node:path");
+  const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const sources = [];
+  const walk = (dir) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (entry.name === "node_modules" || entry.name === ".next") continue;
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (/\.(css|tsx?)$/.test(entry.name)) sources.push(full);
+    }
+  };
+  walk("app");
+  walk("components");
+  const offenders = [];
+  for (const file of sources) {
+    const src = strip(readFileSync(file, "utf8"));
+    for (const m of src.matchAll(/:focus-visible[^{]*\{[^}]*\}/g)) {
+      const outline = m[0].match(/(^|[^-])outline\s*:\s*([^;]+);/);
+      if (outline && !outline[2].includes("var(--focus-outline)")) {
+        offenders.push(`${file}: outline: ${outline[2].trim()}`);
+      }
+    }
+  }
+  if (offenders.length > 0) {
+    console.log("\nsource — focus ring token");
+    for (const o of offenders) {
+      console.log(`  ! [focus-ring-token] ${o}`);
+    }
+    critical += offenders.length;
+  }
+}
+
 const jsonPath = flag("json");
 if (jsonPath) {
   await writeFile(jsonPath, JSON.stringify(results, null, 2));

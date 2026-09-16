@@ -34,6 +34,7 @@ import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } fro
 import { Button, ButtonLink, type ButtonVariant } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import styles from './share-controls.module.css';
+import { politeLive } from '@/components/ui/live-region';
 
 /**
  * Whether this browser can open the system share sheet. Nothing to subscribe
@@ -179,8 +180,7 @@ export function ShareControls({
           (STATE-002). `data-state` carries the outcome to the ok/danger inks. */}
       <div
         className={styles.status}
-        role="status"
-        aria-live="polite"
+        {...politeLive}
         data-state={state === 'idle' ? undefined : state}
       >
         {state === 'copied' ? <p className={styles.statusLine}>Copied — paste it anywhere.</p> : null}

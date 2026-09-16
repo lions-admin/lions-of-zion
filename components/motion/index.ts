@@ -24,11 +24,5 @@ export type { RevealProps, RevealDirection } from "./Reveal";
 export { BorderBeam } from "./BorderBeam";
 export type { BorderBeamProps } from "./BorderBeam";
 
-export { SignalBeam } from "./SignalBeam";
-export type { SignalBeamProps } from "./SignalBeam";
-
-export { ProgressiveBlur } from "./ProgressiveBlur";
-export type { ProgressiveBlurProps } from "./ProgressiveBlur";
-
 // Mounted only by interactive feature/panel/dossier Cards; dense records stay static.
 export { PointerHighlight } from "./PointerHighlight";

@@ -1,0 +1,14 @@
+/* Icon — the shared line-icon family (components/ui/Icon.tsx).
+ *
+ * Deliberately small. The glyphs carry no colour and no size of their own —
+ * `currentColor` and the `size` prop own both — and the travel motion is the
+ * global `.arrow` utility in `app/globals.css`, which this class composes
+ * into so a caller does not restyle the glyph by hand. The module exists so
+ * a directional mark is one class everywhere and not an inline transition in
+ * each page stylesheet.
+ */
+.arrow {
+  composes: arrow from global;
+  display: inline-block;
+  flex: 0 0 auto;
+}

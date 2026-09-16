@@ -12,14 +12,14 @@
    definitions in `globals.css`, and both overrides below are scoped to this
    element and its descendants.
 
-   `--face-data` is redefined rather than replaced. JetBrains Mono has no
-   Hebrew glyphs at all, and CSS font fallback is per-glyph, not per-string:
-   a Latin identifier, an HTTP code or a tabular figure still lands on
-   JetBrains Mono, while a Hebrew word in the same cell falls straight past
-   every Latin-only monospace to IBM Plex Sans Hebrew — the same superfamily
-   the console's running text uses, so the two match in weight and colour.
-   The Hebrew entry goes last on purpose: put first, it would swallow the
-   digits and `font-variant-numeric: tabular-nums` would stop lining columns
+   `--face-data` is redefined rather than replaced. Geist Mono has no Hebrew
+   glyphs at all, and CSS font fallback is per-glyph, not per-string: a Latin
+   identifier, an HTTP code or a tabular figure still lands on Geist Mono —
+   the site's one mono — while a Hebrew word in the same cell falls straight
+   past every Latin-only monospace to IBM Plex Sans Hebrew — the same
+   superfamily the console's running text uses, so the two match in weight and
+   colour. The Hebrew entry goes last on purpose: put first, it would swallow
+   the digits and `font-variant-numeric: tabular-nums` would stop lining columns
    up, which is the whole reason the data face is monospaced. */
 .shell {
   min-height: 100%;
@@ -27,7 +27,7 @@
   color: var(--ink-hi);
   font-family: var(--font-plex-sans-hebrew), var(--face-text);
   --face-data:
-    var(--font-jetbrains-mono), ui-monospace, 'SF Mono', Menlo,
+    var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo,
     var(--font-plex-sans-hebrew), monospace;
 }
 

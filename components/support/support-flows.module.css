@@ -45,7 +45,6 @@
   color: inherit;
   cursor: pointer;
   background-color: var(--surface-1);
-  background-image: var(--surface-grade);
   /* VA-60. `--line` composites to 1.36:1 over `--ground`, and WCAG 1.4.11
      holds a control's own boundary to 3:1. `--control-line` already existed
      for exactly this and was only being used on hover — so the button was

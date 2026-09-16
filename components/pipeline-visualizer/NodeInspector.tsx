@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import type { PipelineNode } from "./types";
 import { CHROME, kindLabel, nodeInspectorCopy } from "./copy";
+import { Icon } from "@/components/ui/Icon";
 import styles from "./visualizer.module.css";
 
 interface NodeInspectorProps {
@@ -129,7 +130,7 @@ function InspectorAside({
           aria-label={CHROME.inspectorClose}
           title={CHROME.inspectorClose}
         >
-          <span aria-hidden="true">✕</span>
+          <Icon name="close" size={14} />
         </Button>
       </div>
 

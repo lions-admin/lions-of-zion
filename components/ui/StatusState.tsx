@@ -116,7 +116,13 @@ export function StatusState({
 }: StatusStateProps) {
   const kind = status ?? "empty";
   const blocking = kind === "error";
-  const shownEyebrow = eyebrow ?? (status ? STATUS_LABEL[status] : "ARCHIVE STATUS");
+  /* The state word is printed once. Before 2026-09-16 a status render printed
+     it twice — once as `.kind` from `STATUS_LABEL`, again as the default
+     eyebrow, which was the same string in a second size — and when no status
+     was given the eyebrow invented a hard-coded "ARCHIVE STATUS" that no
+     caller wrote and no caller read. The eyebrow is now the caller's own
+     words, only ever; the kind label carries the state. */
+  const shownEyebrow = eyebrow ?? "";
   const busy = kind === "loading" || kind === "processing";
   const Heading = `h${headingLevel}` as "h2" | "h3" | "h4";
 

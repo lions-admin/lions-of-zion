@@ -51,7 +51,7 @@
    cannot read. Stated against `--header-h` rather than a pixel: the token is
    4.8rem on a desktop and 3.5rem on a phone, plus the safe-area inset, and a
    literal would be wrong on two of the three. */
-.wordmark { margin: 0; max-width: 100%; scroll-margin-top: calc(var(--header-h) + var(--sp-4)); color: var(--ink-hi); font: 400 clamp(54px, 13.5vw, 100px)/.86 var(--face-home-emphasis); letter-spacing: -.05em; }
+.wordmark { margin: 0; max-width: 100%; scroll-margin-top: calc(var(--header-h) + var(--sp-4)); color: var(--ink-hi); font: var(--t-home-wordmark-weight) var(--t-home-wordmark)/.86 var(--face-home-cover); text-transform: uppercase; letter-spacing: var(--t-home-wordmark-tracking); }
 .wordmarkLine { display: flex; align-items: baseline; gap: .12em; white-space: nowrap; }
 .wordmarkLine + .wordmarkLine { margin-top: .1em; }
 .wordmarkOf { font-size: .29em; letter-spacing: .015em; }
@@ -66,7 +66,7 @@
    with an offset, outside the border that is already there. */
 .actions { display: flex; margin-top: 12px; }
 .actions a { color: var(--ink-hi); min-width: 200px; min-height: 48px; }
-.actions a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+.actions a:focus-visible { outline: var(--focus-outline); outline-offset: 4px; }
 /* The edition rail — the bottom band of the cover (VA-10). A gold hairline
    opens it, the metadata line dates the edition and names the lead's status,
    and one block link carries the headline and the way in, so the whole record
@@ -87,18 +87,18 @@
 .editionRailMeta > * + *::before { content: "·" / ""; margin-inline-end: 10px; color: var(--ink-lo); }
 .editionRailStatus { color: var(--gold); }
 .editionRailFlag { color: var(--ink-lo); }
-.editionRailLead { display: block; min-height: 44px; color: var(--ink-hi); text-decoration: none; }
+.editionRailLead { display: block; min-height: var(--control-h); color: var(--ink-hi); text-decoration: none; }
 .editionRailHeadline { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; min-height: 2.44em; color: var(--ink-hi); font: 400 clamp(20px, 5.3vw, 25px)/1.22 var(--face-home-emphasis); letter-spacing: -.02em; text-wrap: pretty; }
 .editionRailCta { display: inline-flex; align-items: center; gap: 9px; margin-top: 6px; color: var(--gold); font: 500 13px/1.45 var(--face-navigation); letter-spacing: 0; text-transform: none; }
 .editionRailCta svg { flex: none; width: 19px; height: 19px; stroke: currentColor; stroke-width: 1.35; transition: transform var(--dur-fast) var(--ease-out); }
 .editionRailLead:hover .editionRailHeadline { color: var(--gold-hi); }
 .editionRailLead:hover .editionRailCta svg { transform: translateX(4px); }
-.editionRailLead:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+.editionRailLead:focus-visible { outline: var(--focus-outline); outline-offset: 4px; }
 .noscriptNav { margin: 0 var(--home-gutter); padding: 16px; border-block: 1px solid var(--line); background: var(--ground); }
 .noscriptNav ol { display: flex; flex-wrap: wrap; gap: 12px 24px; list-style: none; padding: 0; }
-.noscriptNav a { color: var(--ink); font-size: 14px; }
+.noscriptNav a { color: var(--ink); font-size: var(--t-small); }
 .noscriptNav a:hover, .noscriptNav a:focus-visible { color: var(--gold); }
-.motionControl { position: absolute; z-index: 2; top: calc(var(--header-h) + 16px); right: var(--home-gutter); min-height: 44px; padding: 8px 12px; border: 1px solid var(--line); background: var(--ground); color: var(--ink); cursor: pointer; }
+.motionControl { position: absolute; z-index: 2; top: calc(var(--header-h) + 16px); right: var(--home-gutter); min-height: var(--control-h); padding: 8px 12px; border: 1px solid var(--line); background: var(--ground); color: var(--ink); cursor: pointer; }
 .skipLink { position: fixed; top: 12px; left: 20px; z-index: 1000; transform: translateY(-200%); padding: 14px 20px; background: var(--ground); color: var(--ink-hi); border: 1px solid var(--gold); }
 .skipLink:focus { transform: translateY(0); }
 
@@ -109,7 +109,7 @@
   .heroVideo { object-position: 64% 50%; }
   .heroScrim { background: linear-gradient(90deg, color-mix(in srgb, var(--ground) 78%, transparent), color-mix(in srgb, var(--ground) 38%, transparent) 37%, transparent 68%), linear-gradient(0deg, var(--ground), transparent 33%); }
   .masthead { width: min(46vw, 660px); margin: 44px clamp(24px, 5vw, 80px) 0; }
-  .wordmark { font-size: clamp(76px, 8.5vw, 144px); }
+  .wordmark { font-size: var(--t-home-wordmark); }
   .standfirst { font-size: 18px; margin-top: 20px; }
   .actions { margin-top: 16px; }
   .editionRail { max-width: 40ch; margin-top: 16px; padding-top: 13px; }
@@ -117,7 +117,7 @@
 }
 @media (min-width: 760px) and (aspect-ratio < 6/5) {
   .masthead { margin-top: clamp(120px, 18svh, 260px); }
-  .wordmark { font-size: clamp(80px, 12vw, 112px); }
+  .wordmark { font-size: var(--t-home-wordmark); }
   .editionRail { max-width: 44ch; }
 }
 @media (max-width: 759px) {

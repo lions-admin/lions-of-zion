@@ -12,7 +12,17 @@ function readRepo(rel: string) {
 }
 
 function remToPx(value: string): number | null {
-  const match = value.trim().match(/^([\d.]+)rem$/);
+  const trimmed = value.trim();
+  /* `--t-body` is a clamp() since the 2026-09-16 identity round — body copy
+     widens toward ~19px on a large screen. The floor the contract guards is
+     the clamp's MINIMUM, so a fluid token is evaluated at its lower bound;
+     the parser would otherwise report `null` and the suite would either fail
+     on a working value or pass on a broken one. */
+  const clamp = trimmed.match(/^clamp\(([^,]+),/);
+  if (clamp) {
+    return remToPx(clamp[1]);
+  }
+  const match = trimmed.match(/^([\d.]+)rem$/);
   if (!match) return null;
   return Number(match[1]) * 16;
 }

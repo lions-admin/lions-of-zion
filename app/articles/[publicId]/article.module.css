@@ -83,7 +83,7 @@
 }
 
 .kicker {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin-top: var(--sp-5);
   color: var(--gold);
 }

@@ -11,6 +11,7 @@ import type {
    arrive as types only — those cross the boundary.) */
 import { displayTitle, displayWitness } from '@/lib/content/archive-display';
 import { MediaBlock } from '@/components/content/MediaBlock';
+import { Icon } from "@/components/ui/Icon";
 import styles from './archive.module.css';
 
 /**
@@ -178,9 +179,7 @@ function DocumentationRow({
           {displayTitle(entry.title ?? entry.id)}
         </span>
       </span>
-      <span className={styles.exhibitArrow} aria-hidden="true">
-        →
-      </span>
+      <Icon name="arrow-right" size={16} className={styles.exhibitArrow} />
     </>
   );
 }

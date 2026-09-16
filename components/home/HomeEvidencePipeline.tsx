@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { liveWhenIdle } from "@/components/ui/live-region";
 import styles from "./narrative-simulation.module.css";
 
 const stages = [
@@ -117,7 +118,7 @@ export function HomeEvidencePipeline() {
         </li>)}
       </ol>
       <p className={styles.stageName}>{stage.name}</p>
-      <div className={styles.scene} id={panelId} aria-live={running ? "off" : "polite"} onFocusCapture={() => setPlaying(false)}>
+      <div className={styles.scene} id={panelId} {...liveWhenIdle(running)} onFocusCapture={() => setPlaying(false)}>
         <div className={styles.case}>
           <span className={styles.eyebrow}>The claim being tested</span>
           <blockquote>“No aid entered the district <mark>all day.</mark>”</blockquote>

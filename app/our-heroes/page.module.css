@@ -83,7 +83,7 @@
 }
 
 .rollRole {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   flex: none;
   color: var(--ink-lo);
 }

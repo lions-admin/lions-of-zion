@@ -1,6 +1,8 @@
 import React from "react";
 import { ButtonLink } from "./Button";
+import { Icon } from "./Icon";
 import styles from "./pagination.module.css";
+import iconStyles from "./icon.module.css";
 
 /**
  * Pagination over a long index — the archives run to ~1,177 records and had
@@ -96,7 +98,7 @@ export function Pagination({
             tabIndex={atStart ? -1 : undefined}
             rel="prev"
           >
-            <span aria-hidden="true">←</span>
+            <Icon name="arrow-left" size={14} className={iconStyles.arrow} />
             Previous
           </ButtonLink>
         </li>
@@ -135,7 +137,7 @@ export function Pagination({
             rel="next"
           >
             Next
-            <span aria-hidden="true">→</span>
+            <Icon name="arrow-right" size={14} className={iconStyles.arrow} />
           </ButtonLink>
         </li>
       </ol>

@@ -72,6 +72,10 @@
   border-radius: var(--radius-1);
 }
 
+/* The mark is the same polarity vocabulary the verdict badge carries
+   (2026-09-16): a filled disc affirms, a square negates, a diamond is held at
+   arm's length, a dashed outline is not there yet, and a hollow ring is
+   nothing to report. Greyscale keeps the distinction the ramp cannot. */
 .loading .indicator,
 .processing .indicator {
   border-radius: 50%;
@@ -80,7 +84,7 @@
 }
 
 .success .indicator {
-  border-radius: var(--radius-1);
+  border-radius: 50%;
   background: var(--status-fg);
 }
 
@@ -110,7 +114,7 @@
 }
 
 .eyebrow {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--ink);
   margin-bottom: var(--sp-3);
 }

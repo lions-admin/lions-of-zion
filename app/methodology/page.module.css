@@ -249,7 +249,7 @@
    can pass, so it keeps the tracked data voice. Written out, never a
    colour alone. */
 .stageGate {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--gold);
 }
 

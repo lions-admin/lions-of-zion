@@ -12,6 +12,7 @@ import {
 } from 'react';
 import { Button, Pagination, StatusState, absenceStatus } from '@/components/ui';
 import { displayTitle, displayWitness } from '@/lib/content/archive-display';
+import { politeLive } from '@/components/ui/live-region';
 import {
   type ArchiveListEntry,
   type ArchiveRowVariant,
@@ -410,7 +411,7 @@ export function ArchiveIndex({
           keystroke, and it is a sentence rather than a bare ratio, because
           "24 of 99" does not say which 99 or why. */}
       <div className={styles.summary}>
-        <p id={`${inputId}-summary`} className={styles.summaryLine} role="status" aria-live="polite">
+        <p id={`${inputId}-summary`} className={styles.summaryLine} {...politeLive}>
           {shown === 0
             ? `No record matches. The archive holds ${groupDigits(total)}.`
             : `Showing ${groupDigits(start + 1)}–${groupDigits(start + visible.length)} of ${groupDigits(shown)}${

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { PublicPublication } from "@/server/contracts/publication";
+import { Icon } from "@/components/ui/Icon";
 import styles from "./antisemitism-record.module.css";
 import { publicationCta } from "@/lib/publication-routing";
 import { measurePublicationCard } from "@/components/measurement/attrs";
@@ -25,7 +26,7 @@ export function AntisemitismRecord({ item, compact = false, surface = compact ? 
         {item.arena ? <div><dt>Location or platform</dt><dd>{item.arena}</dd></div> : null}
         {item.editorialTopic ? <div><dt>Record type</dt><dd>{item.editorialTopic}</dd></div> : null}
       </dl>
-      {!compact ? <Link className={styles.read} href={`/articles/${item.publicId}`}>{publicationCta(item.section)} <span aria-hidden="true">→</span></Link> : null}
+      {!compact ? <Link className={styles.read} href={`/articles/${item.publicId}`}>{publicationCta(item.section)} <Icon name="arrow-right" size={14} /></Link> : null}
     </article>
   );
 }

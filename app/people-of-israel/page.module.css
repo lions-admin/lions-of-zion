@@ -22,14 +22,9 @@
 /* ── Shared: kicker, section head, links ───────────────────────────────── */
 
 .kicker {
+  composes: kickerLabel from global;
   margin: 0;
   color: var(--gold-hi);
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 /* Kicker over heading on the left, the count beside them, the door to
@@ -212,10 +207,10 @@
   flex-basis: 100%;
   color: var(--gold-hi);
   font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
 }
 

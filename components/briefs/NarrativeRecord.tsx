@@ -5,6 +5,7 @@ import { isArticleSafeMedia } from "@/server/contracts/editorial-media";
 import type { PublicPublication } from "@/server/contracts/publication";
 import { isAnalysisBasis } from "@/server/contracts/publication";
 import { VERIFICATION_STATES } from "@/components/live/publication-labels";
+import { Icon } from "@/components/ui/Icon";
 import styles from "./narrative-record.module.css";
 import { publicationCta } from "@/lib/publication-routing";
 import { measurePublicationCard } from "@/components/measurement/attrs";
@@ -70,7 +71,7 @@ export function NarrativeRecord({ item, compact = false, surface = compact ? "fr
       ) : null}
       {!compact && item.summary ? <div className={styles.context}><span className={styles.label}>Published context</span><p>{item.summary}</p></div> : null}
       {details && isAnalysisBasis(details) ? <p className={styles.basis}>Organisation analysis — no source cited.</p> : null}
-      {!compact ? <Link className={styles.read} href={`/articles/${item.publicId}`}>{publicationCta(item.section)} <span aria-hidden="true">→</span></Link> : null}
+      {!compact ? <Link className={styles.read} href={`/articles/${item.publicId}`}>{publicationCta(item.section)} <Icon name="arrow-right" size={14} /></Link> : null}
     </article>
   );
 }

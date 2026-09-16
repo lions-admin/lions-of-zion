@@ -26,12 +26,15 @@
     transparent 100%
   );
   transform: translateX(-100%);
-  animation: sweep var(--dur-ambient) var(--ease-in-out) infinite;
+  /* Continuous, not idle-and-sweep: the shimmer runs the full `--dur-shimmer`
+     (1.6s), so the pass is part of the loop rather than a burst that starts,
+     rests for a second and a half and starts again. */
+  animation: sweep var(--dur-shimmer) var(--ease-in-out) infinite;
 }
 
 @keyframes sweep {
-  0%, 60% { transform: translateX(-100%); }
-  85%, 100% { transform: translateX(100%); }
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
 }
 
 .text {
@@ -70,17 +73,12 @@
 }
 
 .card {
-  display: flex;
-  flex-direction: column;
+  /* The skeleton holds the box of a real `Card variant="dossier"`, so it
+     composes that surface cross-file (2026-09-16) instead of transcribing
+     its plate, hairline and dossier top rule — two copies of the card
+     anatomy had already begun to drift. */
+  composes: card dossier from "@/components/ui/card.module.css";
   gap: var(--sp-2);
-  height: 100%;
-  padding: var(--sp-6) var(--sp-5) var(--sp-5);
-  background-color: var(--surface-1);
-  background-image: var(--surface-grade);
-  border: var(--line-w) solid var(--line);
-  border-top: var(--line-w-thick) solid var(--line);
-  border-radius: var(--radius-3);
-  box-shadow: var(--shadow-1);
 }
 
 .cardCta {
@@ -114,7 +112,6 @@
   width: 100%;
   min-height: 100dvh;
   padding-top: var(--header-h);
-  background-image: var(--family-scan);
 }
 
 .familyChrome {
@@ -152,7 +149,7 @@
  * The same family shapes, used as an *inner* boundary's fallback.
  *
  * The standalone geometry above is a whole-page stand-in: a full viewport
- * tall, offset by the header, carrying the family scan. That is right for a
+ * tall, offset by the header, on the flat ground. That is right for a
  * fallback that replaces the page and wrong for one that sits inside a shell
  * already rendered above it — the header offset would be counted twice and
  * `100dvh` would push a viewport of empty tint below real content. The inline

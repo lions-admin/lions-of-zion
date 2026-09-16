@@ -14,7 +14,7 @@
 .page *, .page *::before, .page *::after { box-sizing: border-box; }
 .page :is(h1,h2,h3,h4,p,figure,ol,ul,dl) { margin: 0; }
 .page :is(h1,h2,h3,h4) { text-transform: none; max-width: none; overflow-wrap: normal; }
-.page :is(a,button,summary):focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
+.page :is(a,button,summary):focus-visible { outline: var(--focus-outline); outline-offset: 5px; }
 .page a { text-decoration: none; }
 .page button { font: inherit; text-transform: none; cursor: pointer; }
 .page em { font-weight: inherit; }
@@ -96,7 +96,7 @@
 .playback { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 20px 28px; border-bottom: 1px solid var(--war-rule); }
 .playback > p { font-size: 13px; line-height: 1.6; max-width: 57ch; }
 .playback > div { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-.playback button { border: 1px solid var(--control-line); background: none; color: var(--ink-hi); min-width: 44px; min-height: 44px; padding-inline: 10px; font-size: 12px; }
+.playback button { border: 1px solid var(--control-line); background: none; color: var(--ink-hi); min-width: 44px; min-height: var(--control-h); padding-inline: 10px; font-size: 12px; }
 .playback button:hover { background: var(--ink-hi); color: var(--ground); }
 .playback button:disabled { opacity: .4; cursor: default; }
 .stepCount { font: 10px var(--face-data); color: var(--ink-lo); padding-inline: 8px; white-space: nowrap; }
@@ -149,10 +149,10 @@
 .outputArrow { margin-left: auto; color: var(--ink-lo); }
 .outputMap a:hover .outputArrow, .outputMap a:hover h3 { color: var(--gold-hi); }
 .askReadingLink { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; padding-block: 16px; font-size: 12px; color: var(--ink-lo); }
-.askReadingLink a { color: var(--gold-hi); display: inline-flex; gap: 16px; align-items: center; min-height: 44px; }
+.askReadingLink a { color: var(--gold-hi); display: inline-flex; gap: 16px; align-items: center; min-height: var(--control-h); }
 .recordHeading { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-top: 64px; }
 .recordHeading h3 { font: 400 30px var(--face-system-display); color: var(--ink-hi); }
-.recordHeading a { display: inline-flex; align-items: center; min-height: 44px; font-size: 12px; color: var(--ink); padding-block: 10px; }
+.recordHeading a { display: inline-flex; align-items: center; min-height: var(--control-h); font-size: 12px; color: var(--ink); padding-block: 10px; }
 .recordCaption { font-size: 13px; color: var(--ink-lo); padding: 12px 0 24px; }
 .activityList { list-style: none; padding: 0; border-top: 1px solid var(--war-rule); }
 .activityList li { display: grid; grid-template-columns: 180px 1fr 20px; align-items: center; gap: 32px; padding-block: 24px; border-bottom: 1px solid var(--war-rule); }
@@ -169,7 +169,7 @@
 .support > div > p { font-size: 16px; line-height: 1.7; max-width: 42ch; }
 .supportLink { display: flex; align-items: center; justify-content: space-between; gap: 28px; padding-block: 22px; border-bottom: 1px solid var(--gold-dim); margin-top: 24px; color: var(--gold-hi); font-size: 17px; }
 .supportLink span { font-size: 26px; }
-.methodologyLink { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-lo); font-size: 12px; margin-top: 18px; padding-block: 8px; }
+.methodologyLink { display: inline-flex; align-items: center; min-height: var(--control-h); color: var(--ink-lo); font-size: 12px; margin-top: 18px; padding-block: 8px; }
 
 @media (max-width: 1000px) {
   .heroGrid { gap: 6%; padding-block: 54px; }
@@ -202,7 +202,7 @@
   .hero h1 { font-size: clamp(54px, 17vw, 104px); }
   .hero h1 span:first-child { font-size: .4em; margin-bottom: 22px; }
   .hero .heroStatement { margin-top: 24px; font-size: 17px; }
-  .heroJump { display: inline-flex; align-items: center; justify-content: space-between; gap: 36px; color: var(--gold-hi); font-size: 13px; min-height: 44px; margin-top: 16px; border-bottom: 1px solid var(--gold-dim); }
+  .heroJump { display: inline-flex; align-items: center; justify-content: space-between; gap: 36px; color: var(--gold-hi); font-size: 13px; min-height: var(--control-h); margin-top: 16px; border-bottom: 1px solid var(--gold-dim); }
   .problem { padding: 28px 0 0; border-left: 0; border-top: 1px solid var(--war-rule); }
   .problem > p:last-child { font-size: 14px; max-width: 48ch; margin-top: 24px; }
   .originDiagram { padding-top: 26px; max-width: 430px; margin-inline: auto !important; }
@@ -218,7 +218,7 @@
   .traceTopline .eyebrow { font-size: 13px; }
   .diagramLabel { font-size: 10px; }
   .traceRoutes { padding: 8px 12px; gap: 0; }
-  .traceRoutes button { flex: 1 1 45%; justify-content: flex-start; min-height: 44px; padding: 10px 8px; }
+  .traceRoutes button { flex: 1 1 45%; justify-content: flex-start; min-height: var(--control-h); padding: 10px 8px; }
   .mapColumns, .connectors { display: none; }
   .systemCanvas { display: flex; flex-direction: column; gap: 26px; width: auto; min-height: 0; aspect-ratio: auto; margin: 24px 20px; }
   .mapNode { position: relative; width: 100%; left: auto; top: auto; height: auto; min-height: 78px; padding: 16px 18px; order: var(--node-order); }
@@ -235,7 +235,7 @@
   .inspector dl { grid-column: auto; }
   .routeNote { padding: 20px; font-size: 11px; }
   .textAlternative { padding: 14px 20px; }
-  .textAlternative summary { line-height: 1.6; min-height: 44px; }
+  .textAlternative summary { line-height: 1.6; min-height: var(--control-h); }
   .textAlternative ol { display: block; }
   .textAlternative li { margin-block: 5px; }
   .evidenceLedger { grid-template-columns: 1fr; }

@@ -70,12 +70,12 @@ describe("MOTION-002 — the animation-loop inventory", () => {
   ];
 
   /**
-   * Not a loop: one rAF coalesces every beam's layout read into a single
-   * batch and does not reschedule itself. It needs no cancel — an unmounting
-   * beam leaves the queue, so a frame already booked flushes a batch the beam
-   * is no longer in.
+   * Not a loop: one rAF coalesced every beam's layout read into a single
+   * batch — `components/motion/SignalBeam.tsx`. The beam primitive was
+   * deleted on 2026-09-16 (stage 2 of the identity round) with zero
+   * remaining callers; the batch entry and its release assertions went with
+   * it rather than staying to pass on a file that no longer exists.
    */
-  const KNOWN_FRAME_BATCH = ["components/motion/SignalBeam.tsx"];
 
   /**
    * One-shot `requestAnimationFrame`s that defer a read or a subscription
@@ -122,7 +122,6 @@ describe("MOTION-002 — the animation-loop inventory", () => {
     expect(callers.sort()).toEqual(
       [
         ...KNOWN_FRAME_LOOPS,
-        ...KNOWN_FRAME_BATCH,
         ...KNOWN_SINGLE_FRAME,
         ...KNOWN_FOCUS_FRAME,
       ].sort(),
@@ -132,11 +131,6 @@ describe("MOTION-002 — the animation-loop inventory", () => {
   it("every frame scheduler cancels what it scheduled", () => {
     for (const file of [...KNOWN_FRAME_LOOPS, ...KNOWN_SINGLE_FRAME]) {
       expect(read(file), file).toMatch(/cancelAnimationFrame\s*\(/);
-    }
-    /* The batch's equivalent: the queue releases an unmounting beam, so a
-       booked frame cannot measure a detached node. */
-    for (const file of KNOWN_FRAME_BATCH) {
-      expect(read(file), file).toMatch(/measureQueue\.delete\(beam\)/);
     }
     /* The exempt two stay exempt only while the frame's whole effect is a
        focus move. Anything else in that callback and this fails. */
@@ -203,15 +197,6 @@ describe("PERF-007 — observers and listeners are scoped and released", () => {
     expect(source).toMatch(/return \(\) => sharedObserver\?\.unobserve\(element\)/);
     /* A reveal is once-only: the callback releases each element as it fires. */
     expect(source).toMatch(/observer\.unobserve\(entry\.target\)/);
-  });
-
-  it("SignalBeam releases an element as its last beam unmounts", () => {
-    const source = read("components/motion/SignalBeam.tsx");
-    expect(source).toMatch(/resizeObserver\?\.unobserve\(element\)/);
-    expect(source).toMatch(/intersectionObserver\?\.unobserve\(beam\.container\)/);
-    /* The maps are what would grow; they are deleted with the last member. */
-    expect(source).toMatch(/beamsByElement\.delete\(element\)/);
-    expect(source).toMatch(/beamsByContainer\.delete\(beam\.container\)/);
   });
 });
 

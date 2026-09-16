@@ -42,15 +42,11 @@
   z-index: var(--z-modal);
 }
 
-/* `--glass-bottom` was a HUD-era token — an absolute `rgba(8, 8, 8, 0.64)`
-   that answered to no palette and therefore survived the palette unification
-   unchanged. The scrim is now mixed from the page's own ground, so it tracks
-   the one grade the site has instead of sitting a shade off it. The alpha is
-   what the blur needs to work: fully opaque, and there is nothing behind to
-   blur. */
+/* The page behind the search panel is covered, not blurred: the one solid
+   `--scrim` token (2026-09-16), shared with Dialog and the investigation
+   overlays, so every overlay in the site cuts the page the same way. */
 .dialog::backdrop {
-  background: color-mix(in oklab, var(--ground) 72%, transparent);
-  backdrop-filter: blur(10px) saturate(0.85);
+  background: var(--scrim);
 }
 
 /* ── The panel ────────────────────────────────────────────────────────── */
@@ -231,7 +227,7 @@
 }
 
 .filtersLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--ink-lo);
   padding-inline-end: var(--sp-1);
 }
@@ -292,7 +288,7 @@
 }
 
 .groupHead {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -543,7 +539,7 @@
 }
 
 .suggestionsLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--ink-lo);
 }
 

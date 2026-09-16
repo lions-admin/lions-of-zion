@@ -44,10 +44,10 @@
 
 .eyebrow > span {
   font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   display: inline-flex;
   align-items: center;
@@ -120,10 +120,10 @@
 
 .evidence dt {
   font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   color: var(--ink-lo);
 }
@@ -256,7 +256,6 @@
   min-width: 0;
   padding: var(--sp-5);
   background-color: var(--surface-1);
-  background-image: var(--surface-grade);
   border: var(--line-w) solid var(--line);
   border-radius: var(--radius-3);
   box-shadow: var(--shadow-1);
@@ -337,10 +336,10 @@
 
 .depth a > span:first-child {
   font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   grid-column: 1 / -1;
   color: var(--ink-lo);

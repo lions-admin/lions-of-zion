@@ -77,11 +77,13 @@ describe("homepage system band — one proof, one interaction, two links", () =>
   it("keeps every phone type size on or above the contract's floors", () => {
     const css = read("components/home/homepage-journey.module.css");
     /* The 12px caption and the 11px principle the band used to set below the
-       13px floor are gone; nothing under 759px reintroduces them. */
+       13px floor are gone; nothing under 759px reintroduces them. Since the
+       2026-09-16 identity sweep the band's captions ride `--t-caption`
+       (13px) rather than a literal — same floor, one token. */
     const phone = css.slice(css.indexOf("@media (max-width: 759px)"));
     expect(phone).not.toMatch(/\.echoAnnotation \{[^}]*font-size: 12px/);
     expect(phone).not.toMatch(/\.echoPrinciple \{[^}]*font-size: 11px/);
     expect(css).toMatch(/\.echoPrinciple \{[^}]*13px/);
-    expect(css).toMatch(/\.amplification figcaption \{[^}]*font-size: 13px/);
+    expect(css).toMatch(/\.amplification figcaption \{[^}]*font-size: var\(--t-caption\)/);
   });
 });

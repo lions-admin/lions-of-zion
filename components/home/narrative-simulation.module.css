@@ -4,12 +4,12 @@
   color: var(--ink-hi);
   border-block: 1px solid var(--sim-rule);
 }
-.simulation :is(button, a):focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+.simulation :is(button, a):focus-visible { outline: var(--focus-outline); outline-offset: 4px; }
 .simulation button { cursor: pointer; }
 .simulation button:disabled { color: var(--ink-lo); opacity: .5; cursor: default; }
 .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 60px; color: var(--ink); font-size: 12px; line-height: 1.5; }
 .disclosure { color: var(--ink-lo); }
-.toolbar button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0; min-width: 88px; min-height: 44px; border: 0; background: transparent; color: var(--ink); font: inherit; }
+.toolbar button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0; min-width: 88px; min-height: var(--control-h); border: 0; background: transparent; color: var(--ink); font: inherit; }
 .toolbar button:hover:not(:disabled) { color: var(--gold); }
 .stages { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); list-style: none; padding: 0; margin: 8px 0 32px; }
 .stages li { position: relative; border-top: 1px solid var(--sim-rule); }
@@ -60,7 +60,7 @@
 .evidenceColumns > div:last-child h4 { color: var(--sim-group-two); }
 .evidenceItem { margin: 0 0 20px; padding-bottom: 16px; border-bottom: 1px solid var(--sim-rule); }
 .evidenceItem > span { display: block; color: var(--ink-lo); font-size: 11px; line-height: 1.6; }
-.evidenceItem button { display: flex; justify-content: space-between; align-items: start; gap: 12px; width: 100%; min-height: 44px; padding: 8px 0; border: 0; background: none; color: var(--ink-hi); font: 500 17px/1.4 var(--face-text); text-align: start; }
+.evidenceItem button { display: flex; justify-content: space-between; align-items: start; gap: 12px; width: 100%; min-height: var(--control-h); padding: 8px 0; border: 0; background: none; color: var(--ink-hi); font: 500 17px/1.4 var(--face-text); text-align: start; }
 .evidenceItem button:hover { color: var(--gold); }
 .evidenceItem button > svg { flex-shrink: 0; margin-top: 4px; }
 .evidenceItem button[aria-expanded="true"] > svg { transform: rotate(180deg); }
@@ -81,13 +81,13 @@
 .finding > p { margin: 0; color: var(--ink); font-size: 14px; line-height: 1.7; }
 .finding dl { display: grid; gap: 16px; margin: 22px 0 0; }
 .finding dd { margin: 5px 0 0; color: var(--ink); font-size: 13px; line-height: 1.6; }
-.finding button { display: flex; gap: 16px; align-items: center; min-height: 44px; margin-top: 18px; padding: 0; border: 0; background: none; color: var(--gold); font: 500 13px/1.5 var(--face-text); }
+.finding button { display: flex; gap: 16px; align-items: center; min-height: var(--control-h); margin-top: 18px; padding: 0; border: 0; background: none; color: var(--gold); font: 500 13px/1.5 var(--face-text); }
 .finding button:hover { text-decoration: underline; text-underline-offset: 4px; }
 .explanation { grid-column: 1/-1; display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px 40px; padding-block: 24px; border-top: 1px solid var(--sim-rule); }
 .explanation h3 { margin: 0; font: 400 clamp(25px, 2.7vw, 35px)/1.16 var(--face-display); letter-spacing: -.02em; }
 .explanation > p { margin: 0; color: var(--ink); font-size: 14px; line-height: 1.7; }
 .navigation { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-block: 8px; }
-.navigation button { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 0; border: 0; color: var(--ink-hi); background: none; font: 500 13px/1.5 var(--face-text); }
+.navigation button { display: inline-flex; align-items: center; gap: 10px; min-height: var(--control-h); padding: 8px 0; border: 0; color: var(--ink-hi); background: none; font: 500 13px/1.5 var(--face-text); }
 .navigation button:hover:not(:disabled) { color: var(--gold); }
 .navigation > span { color: var(--ink-lo); font: 400 12px/1.5 var(--face-data); }
 .simulation button:active:not(:disabled) { color: var(--gold-hi); }

@@ -13,6 +13,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Button, ButtonLink } from '@/components/ui';
 import { XMediaPostButton } from './XMediaPostButton';
+import { politeLive } from '@/components/ui/live-region';
 import styles from './archive.module.css';
 
 const NO_SUBSCRIBE = () => () => {};
@@ -128,8 +129,7 @@ export function ShareRecord({ url, title, xHref, facebookHref, caption, xMedia }
 
         <span
           className={styles.shareStatus}
-          role="status"
-          aria-live="polite"
+          {...politeLive}
           data-state={copyState === 'idle' ? undefined : copyState}
         >
           {copyState === 'copied' ? 'Copied.' : null}

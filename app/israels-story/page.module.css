@@ -124,7 +124,7 @@
 /* The word first, the ramp second. Ember means contested everywhere on this
    site, but it is never the only thing saying so. */
 .eraFlag {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   grid-column: 3;
   grid-row: 1;
   color: var(--data-ember);
@@ -345,7 +345,7 @@
 }
 
 .chapterDisclosure {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--gold);
 }
 

@@ -42,7 +42,7 @@
 }
 
 .identityLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin: 0;
   color: var(--ink-lo);
 }
@@ -124,7 +124,7 @@
 /* The provider's name is a heading — `h2` under the page title — but it is a
    label in weight, not a second masthead. */
 .providerName {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin: 0;
   color: var(--ink-lo);
 }

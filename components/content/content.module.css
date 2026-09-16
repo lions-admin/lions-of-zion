@@ -1,130 +1,38 @@
 
-
-.tokens {
-
-  --blue: var(--data-blue);
-  --blue-peak: var(--data-blue-peak);
-  --ember: var(--data-ember);
-  --ember-peak: var(--data-ember-peak);
-  --ember-line: color-mix(in oklab, var(--data-ember) 34%, transparent);
-  --ember-wash: color-mix(in oklab, var(--data-ember) 8%, transparent);
-  --surface-raised: var(--surface-2);
-
-  --mark: 0.42rem;
-  --content-data-tracking: var(--brief-content-data-letter-spacing, var(--t-data-tracking));
-  --content-label-transform: var(--brief-content-label-transform, uppercase);
-}
-
-
+/* The `.tokens` alias layer (a private ramp of ten names that shadowed globals)
+   was deleted on 2026-09-16: every value it aliased is a real token in
+   `app/globals.css` (`--ember*`, `--data-blue*`, `--mark`), and an alias layer
+   that only ever passed through is a second place the palette has to move.
+   The two tracking/transform tokens collapse onto `--t-data-tracking` and
+   uppercase — nothing in the codebase set the override variables. */
 
 .kicker {
-  composes: tokens;
+  composes: kickerLabel from global;
   display: block;
   color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--content-data-tracking);
-  text-transform: var(--content-label-transform);
 }
 
 .dateStamp {
-  composes: tokens;
   color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
-  letter-spacing: var(--content-data-tracking);
+  letter-spacing: var(--t-data-tracking);
   font-variant-numeric: tabular-nums;
 }
 
 
 
 
-.badge {
-  composes: tokens;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
-  width: fit-content;
-  max-width: 100%;
-  color: var(--badge-color, var(--blue-peak));
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  line-height: var(--t-caption-lh);
-}
-
-.badge i {
-  flex: none;
-  width: var(--mark);
-  height: var(--mark);
-  border: var(--line-w) solid currentColor;
-  border-radius: 50%;
-  background: var(--badge-dot, var(--gold));
-}
-
-
-.badgeConfidence {
-  color: var(--ink-lo);
-  font-weight: 400;
-}
-
-
-.badge[data-assessment='verified'] {
-  --badge-color: var(--gold-hi);
-  --badge-dot: color-mix(in oklab, var(--gold) 45%, transparent);
-}
-
-.badge[data-assessment='verified'] i {
-  border-radius: var(--radius-1);
-  transform: rotate(45deg);
-}
-
-.badge[data-assessment='false'],
-.badge[data-assessment='misleading'],
-.badge[data-assessment='manipulated'] {
-  --badge-color: var(--ember-peak);
-  --badge-dot: color-mix(in oklab, var(--ember) 50%, transparent);
-}
-
-.badge[data-assessment='manipulated'] i {
-  border-radius: var(--radius-1);
-}
-
-.badge[data-assessment='out_of_context'],
-.badge[data-assessment='contested'] {
-  /* VA-60: `--ember` reads 4.22:1 on `--surface-1`. `--ember-soft` is the
-     dimmest step that clears 4.5 on every ground this badge can sit on. */
-  --badge-color: var(--ember-soft);
-  --badge-dot: color-mix(in oklab, var(--ember) 38%, transparent);
-}
-
-.badge[data-assessment='unverified'],
-.badge[data-assessment='unsupported'] {
-  --badge-color: var(--blue);
-  --badge-dot: color-mix(in oklab, var(--data-blue-dim) 60%, transparent);
-}
-
-.badge[data-assessment='unsupported'] i {
-  background: transparent;
-}
-
-.badge[data-assessment='satire'] {
-  --badge-color: var(--ink);
-  --badge-dot: transparent;
-}
-
-.badge[data-assessment='satire'] i {
-  border-style: dashed;
-}
-
-
+/* The verdict grammar is `components/ui/badge.module.css` now (2026-09-16):
+   `VerificationBadge` renders the shared `Badge`, one grammar, one mark
+   vocabulary whose shape is a function of verdict polarity — a filled disc
+   affirms, a square negates, a diamond is contested, a dashed disc is
+   altered. This file's private `.badge`, its four-state `--badge-dot` ramp
+   and the `aria-label`-on-a-span pattern went with the migration. */
 
 .sourceList {
-  composes: tokens;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -220,7 +128,7 @@
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
-  letter-spacing: var(--content-data-tracking);
+  letter-spacing: var(--t-data-tracking);
   font-variant-numeric: tabular-nums;
 }
 
@@ -230,13 +138,12 @@
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
-  letter-spacing: var(--content-data-tracking);
+  letter-spacing: var(--t-data-tracking);
 }
 
 
 
 .publicationMeta {
-  composes: tokens;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--sp-5) var(--sp-5);
@@ -256,8 +163,8 @@
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
-  letter-spacing: var(--content-data-tracking);
-  text-transform: var(--content-label-transform);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
 }
 
 
@@ -275,7 +182,6 @@
 
 
 .unknownGrid {
-  composes: tokens;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--sp-6);
@@ -325,20 +231,14 @@
 
 
 .corrections {
-  composes: tokens;
   border-top: var(--line-w) solid var(--gold-line);
 }
 
 .correctionsKicker {
+  composes: kickerLabel from global;
   display: block;
   margin-top: var(--sp-4);
   color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--content-data-tracking);
-  text-transform: var(--content-label-transform);
 }
 
 .corrections ol {
@@ -364,14 +264,14 @@
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
-  letter-spacing: var(--content-data-tracking);
+  letter-spacing: var(--t-data-tracking);
   font-variant-numeric: tabular-nums;
 }
 
 .correctionStamp small {
   color: var(--ink-lo);
   font-size: var(--t-data);
-  letter-spacing: var(--content-data-tracking);
+  letter-spacing: var(--t-data-tracking);
 }
 
 .corrections p {
@@ -404,7 +304,7 @@
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
-  letter-spacing: var(--content-data-tracking);
+  letter-spacing: var(--t-data-tracking);
   text-decoration: underline;
   text-decoration-color: var(--gold-line-strong);
   text-decoration-thickness: var(--line-w);
@@ -426,7 +326,7 @@
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
-  letter-spacing: var(--content-data-tracking);
+  letter-spacing: var(--t-data-tracking);
 }
 
 
@@ -442,7 +342,6 @@
 
 
 .figures {
-  composes: tokens;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--sp-4);
@@ -486,7 +385,6 @@
 
 
 .timeline {
-  composes: tokens;
   --rail: var(--gold-line);
   --dot: var(--gold);
   list-style: none;
@@ -554,7 +452,7 @@
   color: var(--ink-lo);
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
-  letter-spacing: var(--content-data-tracking);
+  letter-spacing: var(--t-data-tracking);
   font-variant-numeric: tabular-nums;
 }
 
@@ -562,8 +460,8 @@
   color: var(--ink-lo);
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
-  letter-spacing: var(--content-data-tracking);
-  text-transform: var(--content-label-transform);
+  letter-spacing: var(--t-data-tracking);
+  text-transform: uppercase;
 }
 
 .timeline[data-variant='spread'] .timelineTag {
@@ -692,7 +590,6 @@
 
 
 .card {
-  composes: tokens;
   --card-accent: var(--gold);
   --card-line: var(--gold-line-strong);
   position: relative;
@@ -718,7 +615,7 @@
 
 
 .cardEyebrow {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin: 0 0 var(--sp-3);
   color: var(--gold);
 }
@@ -819,7 +716,6 @@
 
 
 .claimRecord {
-  composes: tokens;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   overflow: hidden;
@@ -904,7 +800,6 @@
  */
 
 .sensitive {
-  composes: tokens;
   --sensitive-line: color-mix(in oklab, var(--data-ember) 30%, transparent);
 }
 
@@ -912,7 +807,7 @@
   border: var(--line-w) solid var(--line);
   border-left: var(--line-w-thick) solid var(--sensitive-line);
   border-radius: var(--radius-2);
-  background: var(--surface-raised);
+  background: var(--surface-2);
 }
 
 /* Inside a media frame the gate *is* the frame's content: it fills the box the
@@ -1042,34 +937,11 @@
 
 
 
-.gradeChip {
-  composes: tokens;
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
-  color: var(--grade-color, var(--ink));
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking-tight);
-  white-space: nowrap;
-}
-
-.gradeChip[data-confidence='high'] {
-  --grade-color: var(--ink-hi);
-}
-
-.gradeChip[data-confidence='low'],
-.gradeChip[data-evidence='inferred_coordination'] {
-  --grade-color: var(--ember-peak);
-}
-
-
-
+/* The confidence and evidence-class chips are `Badge`s too (2026-09-16) —
+   the grade chip's private ramp, its `[data-confidence]` colour rules and
+   `.identityChip`'s alias of it are the shared grammar's job now. */
 
 .rosterScroll {
-  composes: tokens;
   overflow-x: auto;
   margin: var(--sp-5) 0;
   border-top: var(--line-w) solid var(--gold-line);
@@ -1149,23 +1021,7 @@
   min-width: 18ch;
 }
 
-.identityChip {
-  composes: gradeChip;
-}
-
-.identityChip[data-identity='confirmed'] {
-  --grade-color: var(--ink-hi);
-}
-
-
-.identityChip[data-identity='unresolved'] {
-  --grade-color: var(--ember-peak);
-}
-
-
-
 .techniqueChips {
-  composes: tokens;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -1174,7 +1030,7 @@
 }
 
 .techniqueChipsLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--gold);
 }
 
@@ -1221,7 +1077,6 @@
 
 
 .networkFigure {
-  composes: tokens;
   margin: var(--sp-6) 0;
 }
 

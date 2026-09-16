@@ -443,7 +443,7 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
               <UpdatedMarker item={lead} />
               <Metadata item={lead} />
               <Link className={styles.readLink} href={`/articles/${lead.publicId}`}>
-                {publicationCta(lead.section)} <span aria-hidden="true">→</span>
+                {publicationCta(lead.section)} <Icon name="arrow-right" size={14} />
               </Link>
             </article>
             {sidebarUpdates.length ? (

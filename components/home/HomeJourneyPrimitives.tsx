@@ -8,6 +8,8 @@ import type {
 } from "@/server/contracts/homepage";
 import { previewSentences } from "@/lib/preview-sentences";
 import { ISRAEL_TIME_SUFFIX, formatDateTime, formatDay } from "@/lib/format-date";
+import { Icon } from "@/components/ui/Icon";
+import iconStyles from "@/components/ui/icon.module.css";
 import styles from "./homepage-journey.module.css";
 
 /**
@@ -92,9 +94,7 @@ export function JourneyLink({
       data-link-role={variant}
     >
       <span>{children}</span>
-      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
-        <path d="M4 12h15M13 5l7 7-7 7" />
-      </svg>
+      <Icon name="arrow-right" className={iconStyles.arrow} size={18} />
     </Link>
   );
 }

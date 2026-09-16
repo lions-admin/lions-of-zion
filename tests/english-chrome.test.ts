@@ -65,29 +65,27 @@ describe("English product chrome", () => {
        the public site Hebrew. */
     expect(layout).toMatch(/lang=["']en["']/);
 
-    /* The face reaches exactly one consumer. `--face-text` and `--face-data`
-       are what every public surface renders in, and neither may name the
-       Hebrew variable: that single substitution is all it would take for the
-       whole site to change face without one string changing.
+    /* The face reaches exactly one consumer. `--face-text`, `--face-display`
+       and `--face-data` are what every public surface renders in, and none
+       of them may name the Hebrew variable: that single substitution is all
+       it would take for the whole site to change face without one string
+       changing.
 
-       This counted every `--face-*` line in the file and required exactly
-       three, which held only while the console declared its own faces in
-       `app/admin/workspace.module.css`. That route file was a SYS-001
-       violation on nine other tokens as well and its overlay now lives here as
-       `[data-surface="admin"]`, so a flat count would forbid the correct
-       shape. The property the test was always after is narrower and is now
-       checked directly: `:root` declares the three site faces and none of them
-       names the Hebrew variable, and the admin overlay is the only block in
-       the file allowed to. That is stronger than the count it replaces — the
-       count never said *which* block a Hebrew face could appear in. */
+       `:root` declares the site's faces, counted here as exactly four since
+       the 2026-09-16 identity round — display and text share Schibsted
+       Grotesk, Geist Mono is the one data face, and `--face-quote` is the
+       new Literata role for quoted human testimony — and none of them names
+       the Hebrew variable. The admin overlay is the only block in the file
+       allowed to. The count never said *which* block a Hebrew face could
+       appear in; this direct check is stronger than it. */
     const rootBlock = globals.slice(
       globals.indexOf(":root {"),
       globals.indexOf("\n}", globals.indexOf(":root {")),
     );
     const rootFaces = rootBlock
       .split(/\n/)
-      .filter((line) => /^\s*--face-(text|display|data)\s*:/.test(line));
-    expect(rootFaces.length, "the three site face tokens are declared on :root").toBe(3);
+      .filter((line) => /^\s*--face-(text|display|data|quote)\s*:/.test(line));
+    expect(rootFaces.length, "the four site face tokens are declared on :root").toBe(4);
     for (const token of rootFaces) {
       expect(token, "no site face token reaches for the Hebrew webfont")
         .not.toMatch(/plex-sans-hebrew/);

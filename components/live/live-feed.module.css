@@ -39,7 +39,7 @@
    strip reads as a masthead, so it is set at data scale rather than as an h2
    step. */
 .statusHeading {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin: 0 0 var(--sp-4);
   color: var(--ink-lo);
 }
@@ -99,7 +99,7 @@
 }
 
 .filter {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   display: inline-flex;
   align-items: center;
   max-width: 100%;

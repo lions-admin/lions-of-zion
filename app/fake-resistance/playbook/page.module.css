@@ -121,7 +121,7 @@
    a data label — three words at most — so it takes the data face; the
    global heading rule would otherwise set an h3 in the serif. */
 .partHeading {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin-bottom: var(--sp-3);
   padding-top: var(--sp-3);
   border-top: var(--line-w) solid var(--data-ember);

@@ -119,14 +119,15 @@
   color: var(--ink-hi);
 }
 
-/* The one place the display face appears in the chrome. Newsreader's optical
-   size axis is what lets a 17px cut still read as a masthead rather than as a
-   paragraph that wandered in, so no tracking is added on top of it. */
+/* The wordmark: 700 caps, −0.045em, in ink (2026-09-16 identity). One voice
+   from the bar to the home cover — the bar sets the same wordmark tokens the
+   cover's h1 reads, at its own scale. */
 .brandName {
   font-family: var(--face-display);
-  font-optical-sizing: auto;
   font-size: var(--t-body);
-  font-weight: 500;
+  font-weight: var(--t-home-wordmark-weight);
+  text-transform: uppercase;
+  letter-spacing: var(--t-home-wordmark-tracking);
   line-height: 1.1;
   white-space: nowrap;
 }
@@ -166,7 +167,9 @@
 .account,
 .menuTrigger {
   font-family: var(--face-navigation);
-  font-size: 13px;
+  /* `--t-caption` (13px), not a literal — the bar rides the token like every
+     other caption on the site (2026-09-16 sweep). */
+  font-size: var(--t-caption);
   font-weight: 500;
   line-height: 1;
   letter-spacing: 0;

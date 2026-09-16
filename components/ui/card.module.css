@@ -17,17 +17,15 @@
   color: inherit;
   text-decoration: none;
   /* A lighter plate on a darker canvas, with a line around it. That is the
-   * whole of the depth — the system refuses elevation, so there is no shadow
-   * here and `--shadow-*` are `none` anyway.
-   *
-   * The separation is tonal and it is slight by design: #272a2a on #0b0b0b is
-   * 1.36:1, which is a difference you read as a surface rather than as a
-   * colour. The 1px hairline is what makes the edge legible at that ratio, and
-   * is why it is a real border again rather than the inset stroke it briefly
-   * was — with no shadow token left to carry it, an inset shadow would have
-   * been an edge that disappears the moment elevation is reversed. */
+   * whole of the depth — the system is tonal, so elevation is `--shadow-1`
+   * at its most restrained and the separation is a surface you read rather
+   * than a colour you notice. `--surface-1` on `--ground` is 1.18:1, which is
+   * a difference you read as a surface. The 1px hairline is what makes the
+   * edge legible at that ratio, and is why it is a real border rather than
+   * the inset stroke it briefly was — with a shadow this quiet, an inset
+   * shadow would have been an edge that disappears the moment elevation is
+   * reversed. */
   background-color: var(--surface-1);
-  background-image: var(--surface-grade);
   border: var(--line-w) solid var(--line);
   border-radius: var(--radius-3);
   box-shadow: var(--shadow-1);
@@ -219,7 +217,7 @@
 }
 
 .eyebrow {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--card-eyebrow);
 }
 

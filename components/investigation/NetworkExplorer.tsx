@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { ConfidenceChip, EvidenceClassChip } from '@/components/content';
+import { politeLive } from '@/components/ui/live-region';
 import { Button } from '@/components/ui/Button';
 import type {
   CaseEdge,
@@ -294,7 +295,7 @@ export function NetworkExplorer({ roster, edges, communities, topNodes, cases }:
           })}
         </ol>
 
-        <div className={styles.networkInspector} aria-live="polite">
+        <div className={styles.networkInspector} {...politeLive}>
           {selectedEntity ? (
             <>
               <div className={styles.inspectorHead}>

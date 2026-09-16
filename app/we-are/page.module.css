@@ -133,7 +133,7 @@
 /* "Gate — human only": short, and genuinely a status stamp on the one stage
    nothing automated can pass, so it keeps the uppercase data voice. */
 .gateLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   display: block;
   margin: 0 0 var(--sp-3);
   color: var(--gold);

@@ -71,7 +71,10 @@ describe("share and payment (SUPPORT-003)", () => {
 
   it("announces a copied link and hands over the URL when it cannot copy", () => {
     const source = read("components/support/ShareControls.tsx");
-    expect(source).toContain('aria-live="polite"');
+    /* The live-region contract is `politeLive` from `components/ui/live-region`
+       since 2026-09-16 — role, live and atomic in one spread, the same
+       polite contract this assertion pinned line by line. */
+    expect(source).toContain("politeLive");
     expect(source).toContain("Copied");
     /* The failure branch must expose the link itself — a control that did
        nothing and said nothing is the defect this replaced. */
@@ -175,7 +178,7 @@ describe("donation channels are links to the provider, never embedded widgets", 
     const css = read("components/home/homepage-journey.module.css");
     expect(css).not.toContain("@keyframes supportRise");
     expect(css).not.toContain("@keyframes supportSettle");
-    expect(css).toMatch(/\.supportChip\s*\{[^}]*min-height: 44px/);
+    expect(css).toMatch(/\.supportChip\s*\{[^}]*min-height: var\(--control-h\)/);
     const reduced = css.slice(css.indexOf("prefers-reduced-motion: reduce"));
     expect(reduced).toMatch(/supportChip[^{}]*\{[^}]*transition: none/);
   });

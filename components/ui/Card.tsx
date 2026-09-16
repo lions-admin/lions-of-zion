@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { PointerHighlight } from "@/components/motion/PointerHighlight";
+import { Icon } from "@/components/ui/Icon";
 import styles from "./card.module.css";
 
 /**
@@ -197,7 +198,7 @@ export function CardCta({
   return (
     <span className={`${styles.cta} ${className}`.trim()} aria-hidden="true" {...props}>
       {children}
-      <span className={styles.ctaArrow}>→</span>
+      <Icon name="arrow-right" size="1em" className={styles.ctaArrow} />
     </span>
   );
 }

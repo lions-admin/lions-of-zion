@@ -7,23 +7,22 @@
  * accessibility tree, never move without being asked, and never spend the
  * foreground's contrast budget.
  *
- * Until 2026-09-14 the layer this file was mostly about was the scan
- * backdrop — sixteen drifting rows of the monitoring corpus behind every
- * reading page. That is retired; `tests/scan-backdrop-retired.test.ts` pins
- * its absence. What is left behind a reader is two things, and both are
- * checked here:
+ * Until 2026-09-16 the layer this file was mostly about was the scan
+ * backdrop and the still photograph behind the reading routes. The 2026-09-16
+ * identity round retired both — plus the plate grade — and the ground is now
+ * one flat colour, so what is left behind a reader is two things, and both
+ * are checked here:
  *
- *  1. **the page ground** — `--scan-ground` over `--site-ground-photo`, a
- *     still texture that composites nothing on top of itself, so the ink
- *     tokens are read straight against it;
+ *  1. **the page ground** — `--ground`, flat, declared once on html and body.
+ *     The ink tokens are read straight against it, and against
+ *     `--surface-3`, the lightest plate text may land on;
  *  2. **the home hero's video layer** — pointer-inert, out of the
  *     accessibility tree, and not downloaded at all under reduced motion.
  *
  * The contrast block earns its keep. `--ink-lo` — captions, metadata, TOC
- * links — is the binding token, and it reads against the brightest pixel the
- * ground can produce rather than against a flat `--ground`. The helpers
- * recompute that from the tokens the stylesheet actually carries, so changing
- * a ground gradient fails this suite instead of a review.
+ * links — is the binding token; the helpers recompute every pair from the
+ * tokens the stylesheet actually carries, so changing a value without
+ * re-measuring fails this suite instead of a review.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -64,15 +63,6 @@ export function contrastRatio(a: Rgb, b: Rgb): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-/** Source-over composite of `fg` at `alpha` on an opaque `bg`. */
-export function composite(fg: Rgb, alpha: number, bg: Rgb): Rgb {
-  return [
-    alpha * fg[0] + (1 - alpha) * bg[0],
-    alpha * fg[1] + (1 - alpha) * bg[1],
-    alpha * fg[2] + (1 - alpha) * bg[2],
-  ] as const;
-}
-
 /** The value of a `--token: #rrggbb;` declaration in `app/globals.css`. */
 function token(name: string): Rgb {
   const match = globals.match(new RegExp(`${name}:\\s*(#[0-9a-fA-F]{3,6})\\s*;`));
@@ -84,52 +74,72 @@ const INK_HI = token("--ink-hi");
 const INK = token("--ink");
 const INK_LO = token("--ink-lo");
 const GOLD = token("--gold");
-const BLACK = [0, 0, 0] as const;
+const GROUND = token("--ground");
+const SURFACE_3 = token("--surface-3");
 
 /**
- * The ground a page is read on, recomposed from `--scan-ground` in
- * `app/globals.css`: a 1px-in-9 rule at `rgba(228, 224, 215, 0.027)` under a
- * radial highlight at `rgba(246, 243, 235, 0.055)`.
- *
- * `GROUND_PEAK` is the brightest pixel anywhere — a rule line at the radial's
- * centre, 50%/26% of the viewport, which is `background-attachment: fixed`
- * and therefore the spot every line of an article scrolls through. It is the
- * worst case for every foreground token, so it is the only one worth pinning.
+ * The Midnight Signal ground is one flat colour (2026-09-16): the scan
+ * texture, the fixed photograph under the reading routes and the plate grade
+ * were all retired with them, so the ink tokens are read straight against
+ * `--ground` — there is no brightest-pixel worst case any more, because the
+ * ground no longer has one. The lightest surface a line of text may land on
+ * is `--surface-3`, and it is checked as the second worst case.
  */
-const GROUND_EDGE = composite([228, 224, 215], 0.027, BLACK);
-const GROUND_PEAK = composite([246, 243, 235], 0.055, GROUND_EDGE);
-
 const AA_BODY = 4.5;
-const AA_UI = 3;
 
 /* ------------------------------------------------------------------- tests */
 
-describe("the reading ground is read against directly, nothing composited over it", () => {
-  it("keeps body, caption and metadata text at AA on the brightest pixel of the ground", () => {
+describe("the ground is one flat colour, and the ink is read against it", () => {
+  it("keeps body, caption and metadata text at AA on the ground", () => {
     /* `--ink-lo` is the binding token: captions, `.tocLink`, `.tocNumber`,
        `.sideRailInner dt`, at `--t-caption` and `--t-data`, so 4.5 and not 3.
-       With the scan retired these have the whole budget rather than the
-       0.43 of ratio that was left after a drifting row took its share. */
+       On the flat navy ground every ink token has the whole budget: the
+       retired scan backdrop used to take 0.43 of a ratio away from these
+       same numbers. */
     for (const [name, ink] of [
       ["--ink-lo", INK_LO],
       ["--ink", INK],
       ["--ink-hi", INK_HI],
       ["--gold", GOLD],
     ] as const) {
-      expect(contrastRatio(ink, GROUND_PEAK), name).toBeGreaterThanOrEqual(AA_BODY);
+      expect(contrastRatio(ink, GROUND), name).toBeGreaterThanOrEqual(AA_BODY);
     }
   });
 
-  it("keeps an input's control boundary at 3:1 against the surround it sits in", () => {
-    /* `--control-line` is `rgba(246, 243, 235, 0.4)` over the field's own
-       `--surface-2`; the ground is what surrounds it. */
-    const border = composite([246, 243, 235], 0.4, token("--surface-2"));
-    expect(contrastRatio(border, GROUND_PEAK)).toBeGreaterThanOrEqual(AA_UI);
+  it("keeps the same floor on the lightest surface text can land on", () => {
+    for (const [name, ink] of [
+      ["--ink-lo", INK_LO],
+      ["--ink", INK],
+      ["--ink-hi", INK_HI],
+      ["--gold", GOLD],
+    ] as const) {
+      expect(contrastRatio(ink, SURFACE_3), name).toBeGreaterThanOrEqual(AA_BODY);
+    }
   });
 
-  it("still paints that ground, and the quiet variant under the institution family", () => {
-    expect(globals).toMatch(/background-image:\s*var\(--scan-ground\)/);
-    expect(globals).toMatch(/body:has\(\[data-family="institution"\]\) \{[^}]*--scan-ground-quiet/);
+  it("keeps an input's control boundary at 3:1 against every surface it sits on", () => {
+    /* `--control-line` is a solid hex since the 2026-09-16 re-grade; the
+       identity round pinned a 3.6 floor on it (A11Y-004 wanted 3). It owes
+       the floor on the lightest surface, not just the ground. */
+    const controlLine = token("--control-line");
+    for (const surface of ["--surface-0", "--surface-1", "--surface-2", "--surface-3"] as const) {
+      expect(contrastRatio(controlLine, token(surface)), surface)
+        .toBeGreaterThanOrEqual(3.6);
+    }
+  });
+
+  it("paints one flat ground and no layer behind it", () => {
+    /* The scan texture (`--scan-ground*`), the fixed photograph
+       (`--site-ground-photo` and `body::before`) and the plate grade
+       (`--surface-grade*`) are retired; `tests/scan-backdrop-retired.test.ts`
+       pins the scan's component-level absence, and this is the token-level
+       half: the ground is `--ground`, declared once, on html and body. */
+    expect(globals).toMatch(/html, body \{[^}]*background-color:\s*var\(--ground\)/);
+    expect(globals).not.toMatch(/--scan-ground/);
+    expect(globals).not.toMatch(/--surface-grade/);
+    expect(globals).not.toMatch(/--site-ground-photo/);
+    expect(globals).not.toMatch(/body::before/);
+    expect(globals).not.toMatch(/background-attachment:\s*fixed/);
   });
 });
 
@@ -266,9 +276,8 @@ describe("the no-JavaScript home still shows a readable band over the static gro
        script runs and stays when none ever does. */
     expect(home).toMatch(/\.posterField \{[^}]*background:\s*var\(--hero-poster-tall\)/);
     expect(globals).toMatch(/--hero-poster-tall:\s*url\(/);
-    /* And the rest of the site keeps the ground texture over its own still. */
-    expect(globals).toMatch(/background-image:\s*var\(--scan-ground\)/);
-    expect(globals).toMatch(/body::before \{[\s\S]{0,400}?var\(--site-ground-photo\)/);
+    /* And the rest of the site reads on the same flat ground the home does. */
+    expect(globals).toMatch(/html, body \{[^}]*background-color:\s*var\(--ground\)/);
   });
 
   it("renders the hero wordmark, fallback links and editorial journey as server HTML", () => {

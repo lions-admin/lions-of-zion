@@ -119,7 +119,7 @@ section:first-child > .heading {
 }
 
 .advisoryLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   display: flex;
   align-items: center;
   gap: var(--sp-2);
@@ -314,7 +314,7 @@ section:first-child > .heading {
 }
 
 .descriptionHeading {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin: 0 0 var(--sp-3);
   color: var(--ink-lo);
   max-width: none;
@@ -463,7 +463,7 @@ section:first-child > .heading {
 
 .languagesLabel,
 .languagesAlso {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--ink-lo);
 }
 
@@ -576,24 +576,15 @@ section:first-child > .heading {
 }
 
 /* A form control, so the text face: what gets typed here is a witness's
-   name or a place, not data. A dark well over the glass, the control radius,
-   and the hairline stepping up on hover and to gold on focus beside the
-   global ring. */
+   name or a place, not data. The shared field well is composed cross-file
+   (2026-09-16) — `Field.tsx` exports it and two search inputs render it —
+   with the archive's own geometry (inline padding, 44px height) on top. */
 .searchInput {
+  composes: control from "@/components/ui/field.module.css";
   flex: 1 1 9rem;
   min-height: var(--control-h);
   padding: 0 var(--sp-3);
-  /* A control boundary (A11Y-004: measured 1.28:1 against a floor of 3). */
-  border: var(--line-w) solid var(--control-line);
-  border-radius: var(--radius-2);
   background: color-mix(in srgb, var(--ground) 55%, transparent);
-  color: var(--ink-hi);
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
 }
 
 .searchInput::placeholder {
@@ -903,7 +894,7 @@ section:first-child > .heading {
    face and the tracking say "this is who", the way a byline does; the account
    itself answers in the display face below it. */
 .witnessName {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--ink-lo);
   transition: color var(--dur-fast) var(--ease-out);
 }
@@ -1216,7 +1207,7 @@ section:first-child > .heading {
 }
 
 .provenanceHeading {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin: 0 0 var(--sp-3);
   color: var(--ink-lo);
   max-width: none;
@@ -1370,7 +1361,7 @@ section:first-child > .heading {
 }
 
 .neighbourWay {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--ink-lo);
 }
 

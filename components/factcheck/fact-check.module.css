@@ -255,7 +255,7 @@
 }
 
 .rungLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   display: flex;
   align-items: baseline;
   gap: var(--sp-2);

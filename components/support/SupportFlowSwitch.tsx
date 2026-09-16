@@ -131,7 +131,7 @@ export function SupportFlowSwitch({ flows }: { flows: readonly SupportFlow[] }) 
               ) : null}
               <span className={styles.choiceLabel}>{flow.label}</span>
               <span className={styles.choiceSummary}>{flow.summary}</span>
-              <span className={styles.choiceArrow} aria-hidden="true">→</span>
+              <Icon name="arrow-right" size={16} className={styles.choiceArrow} />
             </button>
           </li>
         ))}

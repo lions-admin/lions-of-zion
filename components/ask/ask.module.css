@@ -51,7 +51,7 @@
 }
 
 .recordLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--ink-lo);
 }
 
@@ -88,7 +88,7 @@
 }
 
 .sourcesHead {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -380,7 +380,7 @@
 }
 
 .composerLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--ink-lo);
 }
 
@@ -1150,7 +1150,7 @@
 }
 
 .primerLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin: 0 0 var(--sp-3);
   color: var(--ink-lo);
 }
@@ -1173,7 +1173,6 @@
   padding-inline: var(--sp-5) var(--sp-4);
   border-radius: var(--radius-2);
   background-color: var(--surface-1);
-  background-image: var(--surface-grade);
   border-color: var(--line);
   box-shadow: var(--shadow-1);
   font-size: var(--t-small);

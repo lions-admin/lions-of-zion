@@ -17,7 +17,6 @@
   border: var(--line-w) solid var(--line-strong);
   border-radius: var(--radius-3);
   background-color: var(--surface-1);
-  background-image: var(--surface-grade);
   box-shadow: var(--shadow-3);
 }
 
@@ -63,9 +62,10 @@
 }
 
 .dialog::backdrop {
-  background: color-mix(in oklab, var(--ground) 78%, transparent);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+  /* The page behind a modal is covered, not suggestively dimmed (2026-09-16):
+     a blur behind glass is a texture the reader pays for and then reads
+     through, and the same token serves every overlay on the site. */
+  background: var(--scrim);
 }
 
 .dialog,

@@ -59,6 +59,21 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com", pathname: "/**" },
     ],
+    /* AVIF first. The editorial photography on this site is dark and
+       flat-toned, which is the shape AVIF compresses best — a hero frame
+       drops a third to a half of its WebP weight. WebP stays as the fallback
+       the formats array is ordered for. */
+    formats: ["image/avif", "image/webp"],
+    /* The real measures this site serves, not the default ladder: a 780px
+       article column (the reading measure plus its margins), a 24vw portrait
+       rail (the side-rail figures), and the phone/tablet edges between them.
+       Every entry below 780 is a phone step; `deviceSizes` keeps the large
+       end for full-bleed heroes and cover art. */
+    deviceSizes: [390, 430, 768, 1080, 1280, 1668, 2048, 3840],
+    imageSizes: [128, 160, 240, 320, 480, 640, 780],
+    /* AVIF re-encodes are expensive; these are content-addressed, immutable
+       assets, so a long TTL costs nothing in freshness. */
+    minimumCacheTTL: 2678400,
   },
   // Kept from the retired particle entrance, which the badge used to sit on
   // top of. Harmless either way, and a dev-only surface.
@@ -101,6 +116,19 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: securityHeaders,
       },
+      /* The brand and media assets are content-addressed or versioned by
+       * deployment; every URL changes when the bytes change, so the browser
+       * may hold them for a year. The icons are hashed by the build. A short
+       * TTL here buys a re-download of a 396 kB poster on every visit for
+       * nothing. */
+      ...["/video/:path*", "/images/:path*", "/brand/:path*", "/icon-192.png", "/icon-512.png", "/apple-icon.png", "/favicon.ico"].map(
+        (source) => ({
+          source,
+          headers: [
+            { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          ],
+        }),
+      ),
     ];
   },
 };

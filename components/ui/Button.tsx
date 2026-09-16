@@ -19,9 +19,12 @@ import styles from "./button.module.css";
  *   `danger`     destructive, always outlined in the danger hue and never
  *                the only cue.
  *
- * `solid`, `toolbar` and `filter` remain as mapped aliases so existing
- * callers typecheck; `outline` and `link` are the hierarchy's own names for
- * `secondary` and `text`, added so a caller can say what it means.
+ * `toolbar` and `filter` remain as mapped aliases so existing callers
+ * typecheck; `outline` is the hierarchy's own name for `secondary`. The
+ * `solid` and `link` aliases went out on 2026-09-16 with zero callers —
+ * `solid` had been mapped to the *secondary* plate since the hierarchy
+ * landed, which is the opposite of what the word says, and `link` was
+ * `text` twice over. New code says `primary` / `text`.
  */
 export type ButtonVariant =
   | "primary"
@@ -30,8 +33,6 @@ export type ButtonVariant =
   | "text"
   | "danger"
   | "outline"
-  | "link"
-  | "solid"
   | "toolbar"
   | "filter";
 
@@ -43,7 +44,7 @@ export const BUTTON_SEMANTIC_VARIANTS = [
   "danger",
 ] as const;
 
-export type ButtonSize = "xs" | "sm" | "md" | "lg";
+export type ButtonSize = "xs" | "sm" | "md";
 
 const VARIANT_CLASS: Record<ButtonVariant, string> = {
   primary: styles.primary,
@@ -52,13 +53,6 @@ const VARIANT_CLASS: Record<ButtonVariant, string> = {
   text: styles.text,
   danger: styles.danger,
   outline: styles.secondary,
-  link: styles.text,
-  /* `solid` predates the hierarchy and was mapped to the *secondary* plate,
-     which is the opposite of what the word says today. It keeps that mapping
-     on purpose: the callers that wrote it were asking for a neutral plate,
-     not for the one primary action, and re-reading them as primary would put
-     several solid buttons on one surface. New code says `primary`. */
-  solid: styles.secondary,
   toolbar: styles.toolbar,
   filter: styles.filter,
 };

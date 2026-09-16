@@ -1,6 +1,19 @@
 import React, { forwardRef, useId } from "react";
 import styles from "./field.module.css";
 
+/**
+ * The bare control well, exported for composition (2026-09-16).
+ *
+ * A caller that renders its own `<input>`/`<select>` element — the archive
+ * index's find field, the search panel's combobox, a date-range pair — keeps
+ * its own layout and its own ARIA wiring, and composes this class instead of
+ * re-transcribing the well: `composes: control from
+ * "@/components/ui/field.module.css"` in a stylesheet, or this export from a
+ * component. The full `Field` shell owns the label and the message plumbing;
+ * the well is the part worth sharing.
+ */
+export const controlClass = styles.control;
+
 export type FieldMessageProps = {
   id?: string;
   children: React.ReactNode;

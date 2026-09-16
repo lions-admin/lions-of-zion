@@ -334,7 +334,7 @@
 }
 
 .communityIndex {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--gold);
 }
 
@@ -386,7 +386,7 @@
 }
 
 .overturnedLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   display: block;
   margin-bottom: var(--sp-1);
   color: var(--gold);

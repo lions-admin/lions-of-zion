@@ -41,7 +41,7 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-image: var(--site-ground-photo);
+  background-image: var(--hero-poster-wide);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: 68% center;
@@ -193,7 +193,7 @@
 .dialog button:hover, .replay:hover { color: var(--ink-hi); }
 .dialog button:active, .replay:active { color: var(--gold); }
 .dialog button:focus-visible, .replay:focus-visible {
-  outline: 2px solid var(--gold);
+  outline: var(--focus-outline);
   outline-offset: var(--sp-1);
 }
 /* The header's escape hatch. `.dialog button` above carries the shared

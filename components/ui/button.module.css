@@ -9,8 +9,7 @@
  *                           primary and left the pair with no hierarchy at all.
  *   link     `.text`      — navigation, underlined.
  * `.ghost` is chrome (masthead, toolbars); `.danger` is outlined in the danger
- * hue. Aliases: outline → secondary, link → text, solid → secondary; toolbar
- * and filter keep mapped classes.
+ * hue. Aliases: outline → secondary; toolbar and filter keep mapped classes.
  *
  * What every tier shares and no consumer may change: radius `--radius-2` at
  * most, the global focus ring, icon spacing, the 44px coarse floor, and a busy
@@ -84,27 +83,16 @@
   font-size: var(--t-small);
 }
 
-.lg {
-  --btn-h: calc(var(--control-h) + var(--sp-2));
-  padding: 0 calc(var(--sp-5) + var(--sp-1));
-  font-size: var(--t-body);
-}
-
 @media (pointer: coarse) {
   .xs,
   .sm,
   .md,
-  .lg,
   .iconOnly {
     --btn-h: var(--control-h);
     /* The height floor alone left a short label ("1x", "AI", a zoom glyph)
        44px tall and 34px wide, which is half a target. The floor is a square,
        so it belongs on both axes. */
     min-width: var(--control-h);
-  }
-
-  .lg {
-    --btn-h: calc(var(--control-h) + var(--sp-2));
   }
 }
 
@@ -117,31 +105,33 @@
 
 .primary {
   --btn-bg: var(--gold);
+  /* Navy ink on gold: the bar's one filled control. */
   --btn-fg: var(--ground);
   --btn-line: var(--gold);
-  /* A sheen along the top of the plate and a warm short drop under it, so the
-     one filled control on a page reads as a pressable object. */
-  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 55%);
+  /* A sheen along the top of the plate and a short navy drop under it, so the
+     one filled control on a page reads as a pressable object. Every colour
+     here is a token: the sheen is the cool lit edge (`--edge-hi`), the drops
+     are the tonal navy-black steps, and the halo is `--gold-glow` — derived
+     from `--gold`, so a change to the accent moves the glow with it. */
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    0 1px 2px rgba(0, 0, 0, 0.35),
-    0 6px 16px -8px rgba(240, 180, 41, 0.55);
+    inset 0 1px 0 var(--edge-hi-strong),
+    var(--shadow-1),
+    0 6px 16px -8px var(--gold-glow);
 }
 
 .primary:hover:not(:disabled) {
   --btn-bg: var(--gold-hi);
   --btn-line: var(--gold-hi);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.32),
-    0 2px 4px rgba(0, 0, 0, 0.35),
-    0 10px 22px -8px rgba(240, 180, 41, 0.6);
+    inset 0 1px 0 var(--edge-hi-strong),
+    var(--shadow-2),
+    0 10px 22px -8px var(--gold-glow);
 }
 
 .primary:active:not(:disabled) {
   --btn-bg: var(--gold-dim);
   --btn-line: var(--gold-dim);
-  background-image: none;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 1px 2px rgba(2, 6, 18, 0.3);
 }
 
 .secondary {
@@ -362,10 +352,5 @@
     animation: none;
     border-right-color: currentColor;
     opacity: 0.7;
-  }
-
-  .primary::after {
-    animation: none;
-    opacity: 0;
   }
 }

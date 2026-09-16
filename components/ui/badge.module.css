@@ -1,20 +1,27 @@
 /* Badge — SYS-011
  *
- * One grammar for system, evidence, and verification status.
- * Text is required; the mark shape differs by ramp so colour is never the
- * only cue. Radius --radius-1. Not a pill.
+ * One grammar for system, evidence, and verification status — the whole
+ * site's verdict grammar as of 2026-09-16: `VerificationBadge`,
+ * `EvidenceGrade` and the roster's identity chip all render this.
+ * Text is required; the mark shape is a function of verdict *polarity*, so
+ * two states in the same ramp still differ when the colour is gone:
+ *
+ *   affirming   circle  — a filled disc (Verified, Documented, High)
+ *   negating    square  — (False, Misleading, Refuted)
+ *   uncertain   diamond — a rotated square (Contested, Disputed, Inferred)
+ *   altered     dashed  — a dashed disc (Manipulated, Out of context, Satire)
+ *   unassessed  hollow  — (Unverified, Unsupported, Idle, Empty)
+ *
+ * Radius --radius-pill. Not a plate.
  */
 
 .badge {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
   max-width: 100%;
   padding: var(--sp-1) var(--sp-2);
-  /* Pill, like the buttons. In the reference system every badge and every
-     control is a stadium and only the cards are rectangles, which is what makes
-     the two families readable apart at a glance. */
   border-radius: var(--radius-pill);
   border: var(--line-w) solid transparent;
   overflow-wrap: anywhere;
@@ -30,6 +37,13 @@
 
 .label {
   min-width: 0;
+}
+
+/* The confidence step on a verdict badge — visibly there, and quieter than
+   the verdict itself. */
+.confidence {
+  color: var(--ink-lo);
+  font-weight: 400;
 }
 
 .square .mark {
@@ -90,4 +104,11 @@
   background: var(--state-danger-wash);
   color: var(--state-danger);
   border-color: var(--state-danger-line);
+}
+
+/* The visually-hidden contract lives once, in `app/globals.css`. The verdict
+   explanation rides behind the visible label here rather than on an
+   `aria-label`, so it can be found, selected and translated. */
+.srOnly {
+  composes: srOnly from global;
 }

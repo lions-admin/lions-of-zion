@@ -30,7 +30,7 @@
 .field input,
 .field textarea {
   width: 100%;
-  min-height: 44px;
+  min-height: var(--control-h);
   padding: var(--sp-3) var(--sp-4);
   background: var(--surface-2);
   border: 1px solid var(--line);

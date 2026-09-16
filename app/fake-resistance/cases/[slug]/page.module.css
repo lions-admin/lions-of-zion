@@ -373,7 +373,7 @@
 }
 
 .rosterFallback > summary {
-  min-height: 44px;
+  min-height: var(--control-h);
   padding: var(--sp-3) 0;
   color: var(--gold);
   font-family: var(--face-data);

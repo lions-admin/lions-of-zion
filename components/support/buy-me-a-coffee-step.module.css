@@ -15,7 +15,7 @@
 }
 
 .label {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin: 0;
   color: var(--ink-lo);
 }

@@ -29,6 +29,40 @@
 - Public search and archive labels are English; this does not authorize
   replacing the authenticated administration area's existing language.
 
+## Motion — September 16, 2026
+
+The identity's second half. One take: nothing moves on its own except the
+cover, everything else moves because the reader scrolled or navigated, and
+every scroll-driven effect is CSS with no script, no observer and no
+animation library.
+
+- **The cover** is the layered lion on the flat ground. It is a track one
+  screen plus a runway long: the field is held for the runway while the
+  masthead travels off it, the lion's core and haze leave at two depths, and
+  the signal rule draws from its stub to the edition rail's measure. One
+  ambient loop exists on the whole site — the haze's nine-second breath, on
+  the cover only.
+- **The signal rule** is rationed to three places: the cover, where it is
+  born; the head of a hub's or a record's masthead; the colophon's closing
+  rule. Everywhere else the rule is a plain hairline doing structural work.
+- **Entrances** are the `.enter` view timeline on a band's head and its first
+  two records — at most three things arrive, never a list, and never the
+  archive index, the update feed or search results.
+- **Page transitions**: the document crossfades and rises; a record's
+  headline and plate morph from the list surface that opened them; the
+  masthead is anchored and never travels.
+- **Three still states, each a complete design**: an engine without
+  scroll-driven animation or view transitions, `prefers-reduced-motion`, and
+  the reader's own pause — the cover's visible control (WCAG 2.2.2), which
+  persists and freezes the cover, the entrances and the transitions. In all
+  three the runway is zero, the lion is at rest, the rule is drawn, and every
+  page is navigable and complete.
+- **October 7 is the quiet exception, by contract**: the same ground and the
+  same crossfade with no rise; no cover layers, no parallax, no stagger, no
+  ambient motion, no accent fill, no auto-rotation, no shared-element names.
+  Entrances are opacity only, testimony is set in the quote role, and the
+  route's rule is unbroken and unlit.
+
 ## Verification boundary
 
 Use rendered desktop and mobile viewports, not build success alone. Browser

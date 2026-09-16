@@ -55,6 +55,7 @@ import { Card, CardDescription, CardEyebrow, CardTitle } from "@/components/ui/C
 import { measurePublicationCard, measureSection } from "@/components/measurement/attrs";
 import styles from "./article.module.css";
 import { Icon } from "@/components/ui/Icon";
+import { ViewTransition } from "@/components/motion";
 
 type Props = { params: Promise<{ publicId: string }> };
 
@@ -386,11 +387,25 @@ export default async function ArticlePage({ params }: Props) {
               <span className={styles.kickerFacets}>{kickerFacets.join(" · ")}</span>
             ) : null}
           </div>
-          <h1>{article.title}</h1>
+          {/* The record's half of the shared element (2026-09-16). The list
+              surface that opened this page — a hub row, a homepage card, a
+              search result — carries the same two names, so the headline and
+              the plate morph across the navigation while the rest of the page
+              changes under them: the thing the reader pressed is the thing
+              that opened. `share="morph"` names the class the CSS times and
+              `default="none"` keeps them out of every unrelated transition;
+              the pair silently stops morphing if either is dropped. */}
+          <ViewTransition name={`record-${article.publicId}-headline`} share="morph" default="none">
+            <h1>{article.title}</h1>
+          </ViewTransition>
           {article.summary ? <p className={styles.summary}>{article.summary}</p> : null}
         </header>
 
-        {deferHeroMedia ? null : heroMedia}
+        {deferHeroMedia ? null : (
+          <ViewTransition name={`record-${article.publicId}-plate`} share="morph" default="none">
+            {heroMedia}
+          </ViewTransition>
+        )}
 
         <section className={styles.facts} aria-label="Publication facts">
           <PublicationMeta

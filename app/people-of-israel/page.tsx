@@ -25,6 +25,7 @@ import { Icon } from '@/components/ui/Icon';
 import { Card, CardCount, CardDescription, CardEyebrow, CardHeader, CardTitle } from '@/components/ui/Card';
 import { StatusState, absenceStatus } from '@/components/ui/StatusState';
 import { isArticleSafeMedia, type EditorialMedia } from '@/server/contracts/editorial-media';
+import { ViewTransition } from "@/components/motion";
 
 /* The one sentence a listing picture owes the reader, by role. A record's own
    `disclosure` wins; this is the fallback for the two roles that must never
@@ -97,15 +98,22 @@ function RecordRow({ publication, rank }: { publication: PublicPublication; rank
           <CardEyebrow>{LABELS[publication.section]}</CardEyebrow>
           <CardCount><time dateTime={publication.publishedAt}>{formatDay(publication.publishedAt)}</time></CardCount>
         </CardHeader>
-        <CardTitle><Link href={publicationHref(publication.publicId)}>{publication.title}</Link></CardTitle>
+      {/* The shared elements (2026-09-16): the headline and the plate carry
+          the record's own name here and on the record page, so the row morphs
+          into the page rather than being replaced by it. */}
+        <ViewTransition name={`record-${publication.publicId}-headline`} share="morph" default="none">
+          <CardTitle><Link href={publicationHref(publication.publicId)}>{publication.title}</Link></CardTitle>
+        </ViewTransition>
         {publication.summary ? <CardDescription className={styles.recordSummary}>{publication.summary}</CardDescription> : null}
       </div>
-      {image ? <figure className={styles.recordImage}>
+      {image ? <ViewTransition name={`record-${publication.publicId}-plate`} share="morph" default="none">
+        <figure className={styles.recordImage}>
         <Image className={styles.recordPlate} src={image.src} alt={image.alt} width={image.width} height={image.height}
           loading="lazy" sizes="(max-width: 45rem) 6rem, 9rem"
           style={{ objectPosition: `${image.focalPoint.x}% ${image.focalPoint.y}%` }} />
         {disclosure ? <figcaption className={styles.recordDisclosure}>{disclosure}</figcaption> : null}
-      </figure> : null}
+        </figure>
+      </ViewTransition> : null}
     </Card>
   </li>;
 }

@@ -13,6 +13,7 @@ import { HubMasthead, HubUpdated, type HubJumpLink } from "@/components/site/Hub
 import { SECTION_LABELS } from "@/components/live/publication-labels";
 import { groupByDay } from "@/components/live/feed-time";
 import { Icon } from "@/components/ui/Icon";
+import { ViewTransition } from "@/components/motion";
 import {
   Card,
   CardCount,
@@ -487,8 +488,18 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
                 <span className={styles.leadFlag}>Latest story</span>
                 <time dateTime={lead.publishedAt}>{formatDateTime(lead.publishedAt)}</time>
               </p>
-              <LeadMedia media={hubMedia(lead)} />
-              <CardTitle as="h3"><Link href={publicationHref(lead.publicId)}>{lead.title}</Link></CardTitle>
+            {/* The shared elements (2026-09-16): this headline and this plate
+                carry the record's own name here and on the record page, so the
+                row morphs into the page the reader opened rather than being
+                replaced by it. `share="morph"` names the class the CSS times;
+                `default="none"` keeps them out of unrelated transitions, and
+                the pair stops morphing if either is dropped. */}
+            <ViewTransition name={`record-${lead.publicId}-plate`} share="morph" default="none">
+                <LeadMedia media={hubMedia(lead)} />
+              </ViewTransition>
+              <ViewTransition name={`record-${lead.publicId}-headline`} share="morph" default="none">
+                <CardTitle as="h3"><Link href={publicationHref(lead.publicId)}>{lead.title}</Link></CardTitle>
+              </ViewTransition>
               {lead.summary ? <CardDescription>{lead.summary}</CardDescription> : null}
               <UpdatedMarker item={lead} />
               <Metadata item={lead} />
@@ -721,7 +732,9 @@ function PublicationSection({ title, surface, stories, byDay = false }: {
                 <time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time>
               </CardCount>
             </CardHeader>
-            <CardTitle as={titleTag}><Link href={href}>{item.title}</Link></CardTitle>
+            <ViewTransition name={`record-${item.publicId}-headline`} share="morph" default="none">
+              <CardTitle as={titleTag}><Link href={href}>{item.title}</Link></CardTitle>
+            </ViewTransition>
             {item.summary ? (
               <CardDescription className={styles.liveRowSummary}>{item.summary}</CardDescription>
             ) : null}

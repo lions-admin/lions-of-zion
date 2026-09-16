@@ -16,6 +16,7 @@ import { measureCard, measurePublicationCard } from "@/components/measurement/at
 import styles from "./page.module.css";
 import { pageMetadata } from "@/lib/page-metadata";
 import { Icon } from "@/components/ui/Icon";
+import { ViewTransition } from "@/components/motion";
 
 /* The hub's lede (docs/audits/2026-09-08-copy-table.md, UX-02). */
 const description = "See the claim. See what it was built from. Take the sourced version with you.";
@@ -141,7 +142,11 @@ export default async function Page() {
                     <CardEyebrow>Influence operation</CardEyebrow>
                     <CardCount><time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time></CardCount>
                   </CardHeader>
-                  <CardTitle>{item.title}</CardTitle>
+                  {/* The shared element: a tile's headline carries the
+                      record's own name here and on the record page. */}
+                  <ViewTransition name={`record-${item.publicId}-headline`} share="morph" default="none">
+                    <CardTitle>{item.title}</CardTitle>
+                  </ViewTransition>
                   {item.summary ? <CardDescription clamp>{item.summary}</CardDescription> : null}
                 </Card>
               ))}</div>

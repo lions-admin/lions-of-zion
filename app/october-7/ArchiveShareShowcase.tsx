@@ -47,12 +47,21 @@ export type ArchiveShareSample = {
  * Facebook, and the original file where the archive holds one.
  */
 export function ArchiveShareShowcase({
-  kind, samples, count, detail,
+  kind, samples, count, detail, demoted = false,
 }: {
   kind: "testimony" | "documentation";
   samples: ArchiveShareSample[];
   count: number;
   detail: string;
+  /**
+   * One featured record per page (2026-09-16). The testimony showcase is
+   * this route's one peak; the documentation showcase renders under it a
+   * step down — its heading at `h3`, no lit rule of its own — rather than
+   * as a second equal spread. Two full spreads made a survivor's account
+   * and a reel of graphic material peers of each other on the quietest
+   * surface the site has.
+   */
+  demoted?: boolean;
 }) {
   const [index, setIndex] = useState(0);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -68,10 +77,12 @@ export function ArchiveShareShowcase({
   }
 
   return (
-    <section className={styles.archiveFeature} data-kind={kind} aria-labelledby={headingId}>
+    <section className={styles.archiveFeature} data-kind={kind} data-demoted={demoted ? "" : undefined} aria-labelledby={headingId}>
       <header className={styles.featureHeading}>
         <p className={styles.eyebrow}>{isStory ? "From the testimony archive" : "From the documentation archive"}</p>
-        <h2 id={headingId}>{isStory ? "Featured survivor story" : "Featured documented record"}</h2>
+        {demoted
+          ? <h3 id={headingId}>Featured documented record</h3>
+          : <h2 id={headingId}>{isStory ? "Featured survivor story" : "Featured documented record"}</h2>}
         <p>{isStory ? "One account, shown here before you browse the rest." : "One record, shown here before you browse the rest."}</p>
         {/* UX-05 / UX-23. The verb table's hub link. The count it used to
             carry is printed once, on the collection card above. */}

@@ -69,6 +69,12 @@ export function EditorialShell({
      nothing that travels. `routeFamily` already knows the route; the class
      names are read by `::view-transition-*` in `app/globals.css`. */
   const transition = routeId.startsWith("october-7") ? "page-quiet" : "page";
+  /* October 7 is the held route, and `data-memorial` is how the stylesheet
+     knows: one step lighter in the display face, the signal rule unlit, no
+     accent fill. It is on `<main>` so a route's own stylesheet and
+     `app/globals.css` can both read it, and it is derived from the route id
+     rather than passed in, so no page can forget it. */
+  const memorial = routeId.startsWith("october-7") || undefined;
 
   return (
     <>
@@ -89,7 +95,7 @@ export function EditorialShell({
           persists across a navigation, and a persisting element never fires
           enter or exit. */}
       <ViewTransition enter={transition} exit={transition} default="none">
-      <main className={className} data-reading-scroll data-public-shell data-family={family}>
+      <main className={className} data-reading-scroll data-public-shell data-family={family} data-memorial={memorial}>
         {showProgress ? (
           <ReadingProgress
             trackClassName={progressTrackClassName}

@@ -1,23 +1,32 @@
-/* Hub masthead · shared by the front routes.
+/* Hub masthead · shared by the four front routes.
  *
  * Grid: the headline block on the left, the status sentence at the right
- * foot, and a row of in-page jumps along the foot, closed by a strong rule.
- * The rule is the seam between "what this front is" and "what it holds
- * today". */
+ * foot, closed by a strong rule. Under it, as a sibling, the in-page jumps —
+ * a row that stays under the site bar for the whole page (`HubJumps`) and
+ * marks the section in view. The rule is the seam between "what this front
+ * is" and "what it holds today".
+ *
+ * No device literal here or anywhere in `components/site`: the seams are the
+ * two canonical ones (76.25rem rails, 45rem phone) and the 64rem step where
+ * the status drops under the headline. */
 
 .masthead {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-  grid-template-areas:
-    "headline status"
-    "jumps jumps";
+  grid-template-areas: "headline status";
   align-items: end;
   gap: var(--sp-5) var(--sp-7);
   /* One step less air above the kicker (2026-09-11): the masthead was
      spending most of a laptop viewport before the first record. */
-  padding-block: clamp(var(--sp-4), 3vw, var(--sp-6)) 0;
+  padding-block: clamp(var(--sp-4), 3vw, var(--sp-6)) var(--sp-5);
   border-bottom: var(--line-w) solid var(--line-strong);
   scroll-margin-top: var(--header-h);
+}
+
+/* The jumps row carries the closing rule when there is one. */
+.masthead[data-jumps] {
+  border-bottom: 0;
+  padding-bottom: var(--sp-4);
 }
 
 .masthead:focus-visible { outline: none; }
@@ -37,7 +46,7 @@
   align-items: center;
   gap: var(--sp-3);
   margin: 0;
-  color: var(--gold);
+  color: var(--signal-rule-color);
 }
 
 .signal {
@@ -48,7 +57,7 @@
 /* The display role itself, no longer a size above it (2026-09-11). At 5rem
    "The People of Israel" broke onto two lines and pushed the first profile
    below the fold; the hub name is the page's h1 and the display role is what
-   an h1 is. The phone rule below keeps its own size. */
+   an h1 is. The weight is the token's, which October 7 re-points to 500. */
 .title {
   max-width: none;
   margin: 0;
@@ -83,7 +92,7 @@
   justify-self: end;
   max-width: 28ch;
   margin: 0;
-  padding-bottom: var(--sp-2);
+  padding-bottom: var(--sp-1);
   /* Full ink (2026-09-11): "Updated … Jerusalem time" is how old the front
      is, and in the muted step it was the least readable line on it. */
   color: var(--ink);
@@ -105,20 +114,36 @@
 
 /* ── Jumps ─────────────────────────────────────────────────────────────── */
 
+/* Sticky under the site bar: `--header-h-bar` is the bar's height once the
+   page has scrolled, and the strip sits exactly under it. The veil is the
+   ground itself, flat, with the hairline as its edge — the same language as
+   the chrome. One row, scrolling sideways on a phone rather than wrapping
+   into a third of the screen. */
 .jumps {
-  grid-area: jumps;
+  position: sticky;
+  top: var(--header-h-bar);
+  z-index: var(--z-sticky);
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0 var(--sp-6);
-  margin-bottom: calc(-1 * var(--line-w));
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  background: var(--ground);
+  border-bottom: var(--line-w) solid var(--line-strong);
 }
+
+.jumps::-webkit-scrollbar { display: none; }
 
 /* Plain links on a rule, never chips (UX-17). A step taller than the 44px
    floor and a step further apart, in full ink, so the row reads as the
-   front's contents rather than as its fine print. */
+   front's contents rather than as its fine print. The current section is
+   marked by the rule under it, the one gold hairline on the strip — the same
+   mark the bar gives the current destination. */
 .jump {
   position: relative;
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
   min-height: calc(var(--control-h) + var(--sp-1));
   color: var(--ink);
@@ -126,6 +151,7 @@
   font-size: var(--t-caption);
   font-weight: var(--t-caption-weight);
   line-height: 1;
+  white-space: nowrap;
   text-decoration: none;
   transition: color var(--dur-fast) var(--ease-out);
 }
@@ -134,15 +160,25 @@
   content: "";
   position: absolute;
   inset-inline: 0;
-  bottom: 0;
+  bottom: calc(-1 * var(--line-w));
   block-size: var(--line-w-thick);
   background: transparent;
   transition: background-color var(--dur-fast) var(--ease-out);
 }
 
-.jump:hover { color: var(--ink-hi); }
-.jump:hover::after { background: var(--line-strong); }
+.jump:hover,
+.jump:focus-visible { color: var(--ink-hi); }
+.jump:hover::after,
+.jump:focus-visible::after { background: var(--line-strong); }
 .jump:active::after { background: var(--gold); }
+
+.jump[aria-current] {
+  color: var(--ink-hi);
+}
+
+.jump[aria-current]::after {
+  background: var(--signal-rule-color);
+}
 
 .jump:focus-visible {
   outline-offset: calc(-1 * var(--line-w-thick));
@@ -156,8 +192,7 @@
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "headline"
-      "status"
-      "jumps";
+      "status";
     align-items: start;
     gap: var(--sp-5);
   }
@@ -172,6 +207,10 @@
 
 @media (max-width: 45rem) {
   .jumps { gap: 0 var(--sp-4); }
+}
+
+@media (forced-colors: active) {
+  .jump[aria-current]::after { background: Highlight; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,9 +1,9 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { SignalMark } from "@/components/brand/SignalMark";
+import { HubJumps, type HubJumpLink } from "./HubJumps";
 import styles from "./hub-masthead.module.css";
 
-export type HubJumpLink = { href: string; label: string };
+export type { HubJumpLink } from "./HubJumps";
 
 interface HubMastheadProps {
   /** Short label above the title: "What is happening", "Who Israel is". */
@@ -13,23 +13,27 @@ interface HubMastheadProps {
   standfirst?: ReactNode;
   /**
    * One sentence at the masthead's foot carrying the fact a reader can act on —
-   * when this hub last changed. Usually `<HubUpdated at={…} />`.
+   * when this hub last changed. Usually `<HubUpdated at={…} />`. Every hub
+   * fills it; a hub whose read failed leaves it empty rather than stating a
+   * time it does not have.
    */
   status?: ReactNode;
-  /** In-page destinations along the masthead's foot. */
-  jumps?: HubJumpLink[];
+  /** In-page destinations, at most five, rendered as the sticky row under
+   *  the masthead. Anchors only — a route link is a door and lives in the page. */
+  jumps?: readonly HubJumpLink[];
   className?: string;
 }
 
 /**
  * The masthead of a hub route — News & Analysis, Fake Resistance, The People
- * of Israel.
+ * of Israel and, since 2026-09-16, October 7.
  *
  * Both hubs used to open with a 28px title on one line and a grey sentence on
  * the other, which is the register of a settings page. A hub is a front: it
  * carries the site's display face at display size, a kicker that says what the
- * reader does here, and the in-page destinations a reader would otherwise have
- * to scroll to discover.
+ * reader does here — opened by the signal rule, the mark's one appearance on
+ * the page — and the in-page destinations a reader would otherwise have to
+ * scroll to discover.
  *
  * UX-15 — the `facts` rail is gone. It was a `<dl>` of small integers in mono
  * caps ("STORIES ON FILE 23 · ANTISEMITISM RECORDS 1"): a dashboard convention
@@ -38,41 +42,43 @@ interface HubMastheadProps {
  * with the useful fact — when the hub last changed — and any count that
  * matters moved into the section head it belongs to.
  *
+ * The jumps row is a sibling of the `<header>`, not a child of it: a sticky
+ * element can only travel inside its parent's box, and the row has to stay
+ * under the site bar for the whole page (`HubJumps`).
+ *
  * Server component. The root carries `id="page-content"` so the shell's skip
- * link and the footer's "Back to the top" both land here.
+ * link and the footer's "Back to the top" both land here. On October 7 the
+ * route sets `--signal-rule-color` to `--ink-lo` and the display weight to
+ * 500 on its `<main>`, and this component reads both without a prop.
  */
 export function HubMasthead({ kicker, title, standfirst, status, jumps, className }: HubMastheadProps) {
+  const hasJumps = Boolean(jumps?.length);
   return (
-    <header
-      className={[styles.masthead, className].filter(Boolean).join(" ")}
-      id="page-content"
-      tabIndex={-1}
-    >
-      <div className={styles.headline}>
-        {/* The signal rule's second place on a page: the head of the masthead
-            rule, in place of the dash the kicker used to draw itself. */}
-        {kicker ? (
-          <p className={styles.kicker}>
-            <SignalMark className={styles.signal} />
-            {kicker}
-          </p>
-        ) : null}
-        <h1 className={styles.title}>{title}</h1>
-        {standfirst ? <p className={styles.standfirst}>{standfirst}</p> : null}
-      </div>
+    <>
+      <header
+        className={[styles.masthead, className].filter(Boolean).join(" ")}
+        id="page-content"
+        tabIndex={-1}
+        data-jumps={hasJumps ? "" : undefined}
+      >
+        <div className={styles.headline}>
+          {/* The signal rule's second place on a page: the head of the masthead
+              rule, in place of the dash the kicker used to draw itself. */}
+          {kicker ? (
+            <p className={styles.kicker}>
+              <SignalMark className={styles.signal} />
+              {kicker}
+            </p>
+          ) : null}
+          <h1 className={styles.title}>{title}</h1>
+          {standfirst ? <p className={styles.standfirst}>{standfirst}</p> : null}
+        </div>
 
-      {status ? <p className={styles.status}>{status}</p> : null}
+        {status ? <p className={styles.status}>{status}</p> : null}
+      </header>
 
-      {jumps?.length ? (
-        <nav className={styles.jumps} aria-label="Jump to">
-          {jumps.map((jump) => (
-            <Link key={jump.href} href={jump.href} className={styles.jump}>
-              {jump.label}
-            </Link>
-          ))}
-        </nav>
-      ) : null}
-    </header>
+      {hasJumps && jumps ? <HubJumps jumps={jumps} /> : null}
+    </>
   );
 }
 
@@ -124,9 +130,9 @@ export function hubUpdatedSentence(at: string, now: Date = new Date()): string {
 
 /**
  * The status sentence with its instant machine-readable: the words in the
- * text face, the clock alone inside `<time>`. Exported for the news desk,
- * which renders it inside its edition rather than through the masthead — the
- * desk shell is deliberately synchronous and cannot know the read's result.
+ * text face, the clock alone inside `<time>`. Every hub renders it through
+ * the masthead's `status` slot; the news desk hands the slot an async
+ * component that shares the edition's read (`NewsDeskStatus`).
  */
 export function HubUpdated({ at }: { at: string }) {
   const parts = hubUpdatedParts(at);

@@ -52,7 +52,6 @@
 /* ── Head ─────────────────────────────────────────────────────────────── */
 
 .head,
-.heroMedia,
 .facts,
 .narrativeDetails,
 .unknowns,
@@ -136,48 +135,12 @@
   text-wrap: pretty;
 }
 
-.heroMedia {
-  margin: var(--sp-6) 0 0;
-}
+/* `.heroMedia` and its figcaption rules were deleted on 2026-09-16. The
+   article hero has rendered through `MediaBlock` — frame, disclosure,
+   caption, credit, provenance — since SYS-013; these five rules had styled
+   nothing for as long as that, and a second media anatomy sitting in a
+   route's stylesheet is an invitation to grow one back. */
 
-.heroMedia img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 8 / 5;
-  object-fit: cover;
-}
-
-.heroMedia figcaption {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--sp-4);
-  margin-top: var(--sp-2);
-  color: var(--ink-lo);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-}
-
-.heroMedia figcaption span:last-child {
-  flex: 0 0 auto;
-  text-align: end;
-}
-
-@media (max-width: 44.99rem) {
-  .heroMedia figcaption {
-    display: block;
-  }
-
-  .heroMedia figcaption span {
-    display: block;
-  }
-
-  .heroMedia figcaption span:last-child {
-    margin-top: var(--sp-1);
-    text-align: start;
-  }
-}
 
 /* ── Publication facts ────────────────────────────────────────────────── */
 
@@ -244,18 +207,72 @@
   color: var(--ink-lo);
 }
 
+/* ── The record's one peak ────────────────────────────────────────────────
+   The claim the record answers, set once and large. A rule and space, never
+   a panel: the gold hairline down its inline start is the same one the
+   fact-check ladder draws around the claim it is examining, so a reader who
+   has seen one recognises the other. */
+.claimPeak {
+  margin: var(--sp-6) 0;
+  padding-inline-start: var(--sp-5);
+  border-inline-start: var(--line-w-thick) solid var(--gold-line-strong);
+}
+
+/* "The claim this answers" — words a person wrote, so the kicker role. */
+.claimPeakLabel {
+  composes: kickerLabel from global;
+  display: block;
+  margin: 0 0 var(--sp-2);
+  color: var(--ink-lo);
+}
+
+.claimPeakQuote {
+  margin: 0;
+}
+
+/* Somebody else's words: the quote role (Literata, roman), in drawn
+   quotation marks. Never the display face — that is how this desk writes its
+   own headlines, and a claim in circulation set in it reads as the desk's
+   own assertion. The role's own ceiling keeps it under `--t-h2`, so the
+   sentence the record exists to answer never out-typesets the record. */
+.claimPeakText {
+  composes: quoteText from global;
+  margin: 0;
+  color: var(--ink-hi);
+  hanging-punctuation: first last;
+  text-wrap: pretty;
+}
+
+.claimPeakText::before { content: "\201C"; }
+.claimPeakText::after { content: "\201D"; }
+
+.claimPeakVerdict {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+
 .passageSources {
   composes: marginNote from '../../../components/content/content.module.css';
   min-width: 0;
 }
 
+/* THE CITATION RAIL, ONLY WHERE THERE IS A CITATION.
+   `data-sources` is set by the page on a passage that actually carries
+   sources. Every passage became a two-column grid before 2026-09-16, so a
+   passage citing nothing still opened a margin column beside itself and the
+   body's measure stepped in and out down the page for no reason a reader
+   could see. A passage with nothing to cite is now one column, full measure,
+   like the prose it is. */
 @media (min-width: 76.25rem) {
-  .passage {
+  .passage[data-sources] {
     display: grid;
     grid-template-columns: minmax(0, var(--reading-w)) 0;
   }
 
-  .passageMain {
+  .passage[data-sources] > .passageMain {
     grid-column: 1;
     grid-row: 1;
     min-width: 0;
@@ -282,10 +299,37 @@
   margin-top: var(--sp-6);
 }
 
+/* NUMBERED, AND THE NUMBERS ARE MACHINE VALUES.
+   A citation number is a machine value — the same register as a date, a count
+   or an id — so it is set in the data face and drawn by a counter rather than
+   typed into the markup. The list carried `list-style: none` and no numbers
+   at all until 2026-09-16: a reader could not say "source 3" about a page
+   that never numbered its sources. */
 .sourceStack {
+  counter-reset: source;
   margin: var(--sp-4) 0 0;
   padding: 0;
   list-style: none;
+}
+
+.sourceStack > li {
+  counter-increment: source;
+  position: relative;
+  padding-inline-start: var(--sp-6);
+}
+
+.sourceStack > li::before {
+  content: counter(source, decimal-leading-zero);
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0;
+  color: var(--gold-dim);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--control-h);
+  letter-spacing: var(--t-data-tracking);
+  font-variant-numeric: tabular-nums;
 }
 
 .sourceStack > li > a,
@@ -329,8 +373,10 @@
   overflow-wrap: anywhere;
 }
 
-.relatedList,
-.narrativeList {
+/* `.narrativeList` went with `.heroMedia` (2026-09-16): the related-narrative
+   list it described was replaced by the claim record's own `<dl>` and nothing
+   has referenced it since. */
+.relatedList {
   display: grid;
   gap: var(--sp-3);
   margin: var(--sp-4) 0 0;
@@ -362,12 +408,6 @@
 .deskLink:hover,
 .deskLink:focus-visible {
   text-decoration-color: currentColor;
-}
-
-.narrativeList li {
-  margin-bottom: var(--sp-3);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
 }
 
 .narrativeDetails {

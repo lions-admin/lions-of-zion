@@ -1,14 +1,21 @@
-/* Card — SYS-008
+/* Card — SYS-008 (2026-09-16: three compositions, one grammar)
  *
- * Three compositions — feature, row, dossier. Radii 2 / 4 / 8 only
- * (--radius-1/2/3). No outer glow. `metric`, `note`, `panel` and `quiet`
- * went on 2026-09-15 with no caller.
+ *   lead   rule and space — no plate, no box. The headline at the h2 step
+ *          with the signal stub under it; the standfirst at the lede step.
+ *   row    a ledger row: hairline below, the stub under the headline.
+ *   tile   the one box, only where the whole thing is pressable.
+ *
+ * The stub is the record's hover and focus state: a 24px hairline under the
+ * headline (`--card-rule`, the signal rule's colour by default — so it is
+ * unlit on October 7, where the route re-points `--signal-rule-color`) that
+ * extends to the headline's full measure as a `scaleX` transform. The
+ * headline keeps its colour; the rule is the state. No glow, no wash, no
+ * pointer-tracking gradient. Radii 4 / 6 / 8 only (--radius-1/2/3).
  */
 
 .card {
-  --card-rule: var(--line);
-  --card-rule-peak: var(--line-strong);
-  --card-eyebrow: var(--ink);
+  --card-rule: var(--signal-rule-color);
+  --card-eyebrow: var(--ink-lo);
 
   position: relative;
   isolation: isolate;
@@ -17,111 +24,115 @@
   min-width: 0;
   color: inherit;
   text-decoration: none;
-  /* A lighter plate on a darker canvas, with a line around it. That is the
-   * whole of the depth — the system refuses elevation, so there is no shadow
-   * here and `--shadow-*` are `none` anyway.
-   *
-   * The separation is tonal and it is slight by design: #272a2a on #0b0b0b is
-   * 1.36:1, which is a difference you read as a surface rather than as a
-   * colour. The 1px hairline is what makes the edge legible at that ratio, and
-   * is why it is a real border again rather than the inset stroke it briefly
-   * was — with no shadow token left to carry it, an inset shadow would have
-   * been an edge that disappears the moment elevation is reversed. */
-  background-color: var(--surface-1);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-  box-shadow: var(--shadow-1);
-  transition:
-    background-color var(--dur-base) var(--ease-out),
-    border-color var(--dur-base) var(--ease-out),
-    box-shadow var(--dur-base) var(--ease-out),
-    transform var(--dur-base) var(--ease-out);
 }
 
-/* Feature — lead / section entry. Raised, room for media + title. */
-.feature {
-  height: 100%;
-  padding: var(--sp-6) var(--sp-5) var(--sp-5);
-  box-shadow: var(--shadow-1);
+/* ── lead ─────────────────────────────────────────────────────────────── */
+
+.lead {
+  gap: var(--sp-4);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
-/* List-row — one record in a column. Hairline, no object-like box. */
+.lead .title {
+  max-width: 26ch;
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
+}
+
+.lead .description {
+  max-width: var(--measure-reading);
+  color: var(--ink);
+  font-size: var(--t-lede);
+  line-height: var(--t-lede-lh);
+  letter-spacing: var(--t-lede-tracking);
+}
+
+.lead .media {
+  border-radius: var(--radius-2);
+}
+
+/* ── row ──────────────────────────────────────────────────────────────── */
+
 .row {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-2);
   height: auto;
-  padding: var(--sp-4) 0;
+  padding: var(--sp-5) 0;
   background: transparent;
   border: 0;
   border-bottom: var(--line-w) solid var(--line);
   border-radius: 0;
   box-shadow: none;
+  transition: border-color var(--dur-fast) var(--ease-out);
 }
 
-/* Dossier — case / article card. Thick top rule, tighter radius. */
-.dossier {
+.row:is(:hover, :focus-within) {
+  border-bottom-color: var(--line-strong);
+}
+
+.row.interactive:is(:hover, :focus-visible) {
+  background-color: transparent;
+  border-bottom-color: var(--line-strong);
+}
+
+/* ── tile ─────────────────────────────────────────────────────────────── */
+
+/* A lighter plate on a darker canvas with a hairline around it: tonal depth,
+   slight by design, and the 1px line is what makes the edge legible. */
+.tile {
   height: 100%;
-  padding: var(--sp-6) var(--sp-5) var(--sp-5);
+  gap: var(--sp-2);
+  padding: var(--sp-5);
+  background-color: var(--surface-1);
+  border: var(--line-w) solid var(--line);
   border-top: var(--line-w-thick) solid var(--card-rule);
+  border-radius: var(--radius-3);
   box-shadow: var(--shadow-1);
+  transition:
+    background-color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
 }
 
-/* PointerHighlight supplies local coordinates only during mouse movement.
-   The two layers are confined to the surface: a quiet wash and a border. */
-.pointerSurface {
-  --pointer-radius: 16rem;
-  --pointer-wash: color-mix(in oklab, var(--gold) 7%, transparent);
-  --pointer-edge: color-mix(in oklab, var(--gold-hi) 45%, transparent);
-  --pointer-mask: linear-gradient(var(--ground) 0 0);
+/* The top rule of a tile is structural, not the accent, unless the caller
+   names one: the stub colour stays for the headline. */
+.tile:not(.gold):not(.ember) {
+  border-top-color: var(--line-strong);
 }
 
-.pointerSurface::before,
-.pointerSurface::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--dur-base) var(--ease-out);
+.tile.interactive:is(:hover, :focus-visible) {
+  background-color: var(--surface-2);
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-2);
 }
 
-.pointerSurface::before {
-  background: radial-gradient(
-    var(--pointer-radius) circle at var(--pointer-x, 50%) var(--pointer-y, 0%),
-    var(--pointer-wash), transparent 100%
-  );
+.tile.gold.interactive:is(:hover, :focus-visible),
+.tile.ember.interactive:is(:hover, :focus-visible) {
+  border-top-color: var(--card-rule);
 }
 
-.pointerSurface::after {
-  padding: var(--line-w);
-  background: radial-gradient(
-    var(--pointer-radius) circle at var(--pointer-x, 50%) var(--pointer-y, 0%),
-    var(--pointer-edge), transparent 100%
-  );
-  -webkit-mask: var(--pointer-mask) content-box, var(--pointer-mask);
-  -webkit-mask-composite: xor;
-  mask: var(--pointer-mask) content-box, var(--pointer-mask);
-  mask-composite: exclude;
+.tile.interactive:active {
+  background-color: var(--surface-1);
+  box-shadow: var(--shadow-1);
+  transition-duration: var(--dur-fast);
 }
 
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .pointerSurface[data-pointer-highlight]:not(:focus-visible)::before,
-  .pointerSurface[data-pointer-highlight]:not(:focus-visible)::after {
-    opacity: 1;
-  }
-}
+/* ── accents ──────────────────────────────────────────────────────────── */
 
 .gold {
   --card-rule: var(--gold);
-  --card-rule-peak: var(--gold-hi);
   --card-eyebrow: var(--gold-hi);
 }
 
 .ember {
   --card-rule: var(--ember);
-  --card-rule-peak: var(--ember-peak);
   --card-eyebrow: var(--ember-peak);
 }
 
@@ -129,47 +140,12 @@
   cursor: pointer;
 }
 
-/* Hover raises the plate a tone, strengthens its line, and lifts it one pixel
-   onto the second elevation step. The lift is small on purpose: it should be
-   felt as a response, not seen as a jump. */
-.interactive:hover,
-.interactive:focus-visible {
-  background-color: var(--surface-2);
-  border-color: var(--line-strong);
-  box-shadow: var(--shadow-2);
-}
-
-.feature.interactive:hover,
-.dossier.interactive:hover {
-  transform: translateY(-2px);
-}
-
-.feature.interactive:hover,
-.feature.interactive:focus-visible,
-.dossier.interactive:hover,
-.dossier.interactive:focus-visible {
-  border-top-color: var(--card-rule-peak);
-}
-
-.interactive:active {
-  background-color: var(--surface-1);
-  box-shadow: var(--shadow-1);
-  transform: translateY(0);
-  transition-duration: var(--dur-fast);
-}
-
 .interactive:focus-visible {
   outline: var(--focus-outline);
   outline-offset: calc(var(--focus-offset) + var(--line-w));
 }
 
-.row.interactive:hover,
-.row.interactive:focus-visible {
-  background-color: var(--tint-active);
-  box-shadow: none;
-  transform: none;
-  border-bottom-color: var(--line-strong);
-}
+/* ── parts ────────────────────────────────────────────────────────────── */
 
 .header {
   display: flex;
@@ -177,11 +153,13 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--sp-2) var(--sp-4);
-  margin-bottom: var(--sp-4);
+  margin-bottom: var(--sp-2);
 }
 
+/* A phrase a person wrote: the kicker role, not the mono stamp it borrowed
+   until 2026-09-16. */
 .eyebrow {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--card-eyebrow);
 }
 
@@ -199,9 +177,14 @@
   display: inline-block;
   padding-block: 0.5rem;
   margin-block: -0.5rem;
+  color: inherit;
+  text-decoration: none;
 }
 
 .title {
+  position: relative;
+  margin: 0;
+  padding-bottom: var(--sp-3);
   font-family: var(--face-display);
   font-optical-sizing: auto;
   font-size: var(--t-h3);
@@ -209,23 +192,52 @@
   line-height: var(--t-h3-lh);
   letter-spacing: var(--t-h3-tracking);
   color: var(--ink-hi);
-  margin-bottom: var(--sp-2);
   text-wrap: balance;
   overflow-wrap: anywhere;
-  transition: color var(--dur-base) var(--ease-out);
 }
 
-.interactive:hover .title,
-.interactive:focus-visible .title {
-  color: var(--gold-hi);
+/* The stub at rest, and the rule it becomes. Two pseudo-elements rather than
+   an animated width: the extension is a transform, so nothing lays out per
+   frame. `--sp-5` is the 24px the identity names for the stub. */
+.title::before,
+.title::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  bottom: 0;
+  block-size: var(--signal-rule);
+  background: var(--card-rule);
+  pointer-events: none;
+}
+
+.title::before {
+  inline-size: var(--sp-5);
+}
+
+.title::after {
+  inline-size: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.card:is(:hover, :focus-visible, :focus-within) .title::after {
+  transform: scaleX(1);
+}
+
+/* A tile's plate is its state; the stub stays a stub. */
+.tile .title::after {
+  display: none;
 }
 
 .description {
+  margin: 0;
   font-family: var(--face-text);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
-  color: var(--ink-lo);
+  color: var(--ink);
   max-width: var(--measure-narrow);
+  text-wrap: pretty;
 }
 
 .clamp {
@@ -236,27 +248,30 @@
 }
 
 .media {
-  position: relative;
+  composes: mediaPlate from global;
   width: 100%;
-  margin-bottom: var(--sp-4);
-  border-radius: var(--radius-2);
-  overflow: hidden;
-  background: var(--surface-2);
-  border: var(--line-w) solid var(--line-soft);
+  border-radius: var(--radius-1);
 }
 
 .media img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card:is(:hover, :focus-visible, :focus-within) .media img {
+    transform: scale(1.02);
+  }
 }
 
 .cta {
   display: inline-flex;
   align-items: baseline;
   margin-top: auto;
-  padding-top: var(--sp-5);
-  color: var(--gold);
+  padding-top: var(--sp-4);
+  color: var(--ink-hi);
   font-size: var(--t-caption);
   font-weight: var(--t-caption-weight);
   line-height: var(--t-caption-lh);
@@ -285,15 +300,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .feature.interactive:hover,
-  .dossier.interactive:hover {
-    transform: none;
-  }
-
-  .card,
-  .title,
-  .pointerSurface::before,
-  .pointerSurface::after {
+  .row,
+  .tile,
+  .title::after {
     transition: none;
   }
 }

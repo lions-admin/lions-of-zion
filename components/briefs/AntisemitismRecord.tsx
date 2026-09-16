@@ -4,9 +4,17 @@ import styles from "./antisemitism-record.module.css";
 import { publicationCta } from "@/lib/publication-routing";
 import { measurePublicationCard } from "@/components/measurement/attrs";
 import { formatDay } from "@/lib/format-date";
+import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
 
-/** A documented record, kept visually and semantically distinct from a circulating claim. */
+/**
+ * A documented record, kept visually and semantically distinct from a
+ * circulating claim. Its stamp renders through the one badge grammar as
+ * `documented` — the affirming square in the ok ramp — and never in the
+ * ember that marks a contested claim: documented antisemitism is not drawn
+ * in the "fake claim" ramp (clarity; 2026-09-16). Until then the label sat
+ * in `--data-ember-peak`, the same hue as "Refuted" one row up.
+ */
 export function AntisemitismRecord({ item, compact = false, surface = compact ? "fr-antisemitism" : "antisemitism" }: {
   item: PublicPublication;
   compact?: boolean;
@@ -17,7 +25,7 @@ export function AntisemitismRecord({ item, compact = false, surface = compact ? 
   return (
     <article className={[styles.record, compact ? styles.compact : ""].join(" ")} {...measurePublicationCard(surface, item)}>
       <div className={styles.meta}>
-        <span>Antisemitism record</span>
+        <Badge status="documented" domain="evidence">Antisemitism record</Badge>
         <time dateTime={item.publishedAt}>{date}</time>
       </div>
       <h3><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h3>

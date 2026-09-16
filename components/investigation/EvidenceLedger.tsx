@@ -1,8 +1,15 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ConfidenceChip, TechniqueChips, VerificationBadge } from '@/components/content';
+import {
+  ConfidenceChip,
+  TechniqueChips,
+  VerificationBadge,
+  assessmentKey,
+  confidenceKey,
+} from '@/components/content';
 import { Button } from '@/components/ui/Button';
+import { Explainer } from '@/components/ui/Explainer';
 import {
   SOURCE_TYPE_LABEL,
   type InvestigationClaim,
@@ -39,6 +46,13 @@ const SOURCE_TYPES: SourceType[] = [
  *
  * "Show evidence" opens the sources in place. No reader is sent to another
  * screen to see what a finding rests on.
+ *
+ * Two things sit behind one disclosure each (2026-09-16). The source-type
+ * filters open from a single "Filter by source type" control rather than
+ * standing as a row of nine chips above the first finding (Hick: the ledger
+ * is read far more often than it is filtered). And what the grades mean —
+ * every verdict and confidence this ledger actually carries — is a visible
+ * key under the rows (`Explainer`), not a `title` tooltip on each badge.
  */
 export function EvidenceLedger() {
   const { model, selection, active, related, toggle, interactive, entityById, narrativeById, inRange } =
@@ -67,31 +81,55 @@ export function EvidenceLedger() {
     setMutedTypes((current) =>
       current.includes(type) ? current.filter((t) => t !== type) : [...current, type],
     );
+  const presentTypes = SOURCE_TYPES.filter((type) => (typeCounts.get(type) ?? 0) > 0);
+  /* The key lists only the grades this ledger draws, in the order they first
+     appear, so a reader is never asked to learn a grade that is not on the
+     page. Verdicts first, then the research's confidence grades. */
+  const gradeKey = [
+    ...assessmentKey(model.claims.map((claim) => claim.verdict)),
+    ...confidenceKey(
+      model.claims
+        .map((claim) => claim.confidence)
+        .filter((value): value is NonNullable<typeof value> => Boolean(value)),
+    ),
+  ];
 
   return (
     <div className={styles.ledger}>
-      <div className={styles.layerSwitch} role="group" aria-label="Kinds of source shown">
-        {SOURCE_TYPES.filter((type) => (typeCounts.get(type) ?? 0) > 0).map((type) => (
-          <Button
-            key={type}
-            type="button"
-            variant="ghost"
-            size="sm"
-            className={styles.layerChip}
-            isActive={!mutedTypes.includes(type)}
-            tabIndex={interactive ? 0 : -1}
-            onClick={() => toggleType(type)}
-          >
-            {SOURCE_TYPE_LABEL[type]}
-            <span className={styles.layerCount}>{typeCounts.get(type)}</span>
-          </Button>
-        ))}
-        {mutedTypes.length > 0 ? (
-          <Button type="button" variant="text" size="sm" onClick={() => setMutedTypes([])}>
-            Show every source type
-          </Button>
-        ) : null}
-      </div>
+      {presentTypes.length > 1 ? (
+        <details className={styles.ledgerFilters}>
+          <summary className={styles.ledgerFiltersSummary}>
+            Filter by source type
+            {mutedTypes.length > 0 ? (
+              <span className={styles.ledgerFiltersState}>
+                {' '}· {mutedTypes.length} hidden
+              </span>
+            ) : null}
+          </summary>
+          <div className={styles.layerSwitch} role="group" aria-label="Kinds of source shown">
+            {presentTypes.map((type) => (
+              <Button
+                key={type}
+                type="button"
+                variant="ghost"
+                size="sm"
+                className={styles.layerChip}
+                isActive={!mutedTypes.includes(type)}
+                tabIndex={interactive ? 0 : -1}
+                onClick={() => toggleType(type)}
+              >
+                {SOURCE_TYPE_LABEL[type]}
+                <span className={styles.layerCount}>{typeCounts.get(type)}</span>
+              </Button>
+            ))}
+            {mutedTypes.length > 0 ? (
+              <Button type="button" variant="text" size="sm" onClick={() => setMutedTypes([])}>
+                Show every source type
+              </Button>
+            ) : null}
+          </div>
+        </details>
+      ) : null}
 
       {narrative ? (
         <p className={styles.filterNote} role="status">
@@ -132,6 +170,7 @@ export function EvidenceLedger() {
           {hidden} {hidden === 1 ? 'finding is' : 'findings are'} outside the current selection.
         </p>
       ) : null}
+      <Explainer summary="What the grades mean" items={gradeKey} />
     </div>
   );
 }

@@ -29,3 +29,6 @@ export * from "./FieldGroup";
 export * from "./CheckboxField";
 export * from "./SelectField";
 export * from "./live-region";
+/* The grade/verdict key: the explanations that used to live in `title`
+   tooltips, where a touch reader could not reach them at all. */
+export * from "./Explainer";

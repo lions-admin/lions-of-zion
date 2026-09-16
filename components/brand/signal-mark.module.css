@@ -18,6 +18,16 @@
   fill: currentColor;
 }
 
+/* October 7: unbroken and unlit. The colour is re-pointed by the route
+   (`--signal-rule-color` becomes `--ink-lo` on its `<main>`); the stub — the
+   lion's last particles, the lit head of the mark — is not drawn at all, so
+   the memorial rule is one continuous line. Keyed to the shell's own
+   attribute rather than to a prop, so no page can render the mark on that
+   route and forget (2026-09-16). */
+:global(main[data-memorial]) .stub {
+  display: none;
+}
+
 .rule {
   flex: 1 1 auto;
   block-size: var(--signal-rule);

@@ -6,22 +6,58 @@
    belongs on the page's `<h1>`, which `SectionPage` renders outside this
    module — it is set in `components/sections/sections.module.css` on the
    shell's `.title`, keyed to this route, not here. Nothing in this file adds
-   an accent fill or a gold rule that was not already drawn. The pixel
+   an accent fill or a gold rule. Nothing in this file spends gold at all
+   since 2026-09-16: every accent it carried — the collection cards' inset
+   rule and their counts, the two feature links and their glyphs, the
+   category browser's hover, the inscription figures — now reads either
+   `--signal-rule-color`, which `.page` re-points to `--ink-lo` on this
+   route, or the ink ramp. Dignity is carried by measure, leading and
+   silence; the one accent element per viewport belongs to every other
+   route. The pixel
    margins and minimum heights that remain are more than one space step from
    any `--sp-*` value and are left as measured (the sweep rule of 2026-09-16:
    within 2px re-points, otherwise the number stands). */
+
+/* ── The memorial profile ──────────────────────────────────────────────── */
+
+/* The route's `<main>`. `EditorialShell` puts this class on that element, so
+   the two token re-points here are exactly the `main[data-memorial]` profile
+   the identity names — the shell takes a class, not an attribute, and the
+   element is the same one either way.
+     · the display step one weight lighter (500 against the site's 600), so
+       the h1 this route now renders through `HubMasthead` is quieter than
+       every other front's without being smaller;
+     · the signal rule unlit: `--signal-rule-color` becomes `--ink-lo`, which
+       reaches the masthead kicker, its mark, the jumps row's current mark
+       and every `Card` stub on the route from one line. Nothing on October 7
+       is gold. */
+.page {
+  --t-display-weight: 500;
+  --signal-rule-color: var(--ink-lo);
+}
+
+/* The 100rem hub container, the same one the other three fronts use. This
+   route was the only hub built on the 68ch `SectionPage` shell. */
+.hub {
+  max-width: 100rem;
+  margin-inline: auto;
+  padding-inline: clamp(var(--sp-5), 4vw, var(--sp-8));
+  padding-bottom: var(--sp-8);
+}
 
 /* "Archive collections", "From the testimony archive": labels a person wrote,
    so the kicker role — not the mono data face they borrowed until 2026-09-15. */
 .eyebrow {
   composes: kickerLabel from global;
   margin: 0;
-  color: var(--gold);
+  color: var(--ink-lo);
 }
 
 .archiveExplorer {
-  margin: 0 0 clamp(44px, 7vw, 76px);
+  margin: clamp(var(--sp-6), 4vw, var(--sp-7)) 0 clamp(44px, 7vw, 76px);
+  scroll-margin-top: calc(var(--header-h-bar) + var(--sp-6));
 }
+
 .explorerHeading {
   display: grid;
   gap: var(--sp-2);
@@ -72,7 +108,7 @@
   right: var(--sp-5);
   bottom: calc(-1 * var(--line-w));
   height: var(--line-w-thick);
-  background: var(--gold);
+  background: var(--signal-rule-color);
   transform: scaleX(0);
   transform-origin: left center;
   transition: transform var(--dur-fast) var(--ease-out);
@@ -80,7 +116,7 @@
 }
 .archiveEntry:hover {
   background: var(--surface-1);
-  box-shadow: inset 3px 0 0 var(--gold);
+  box-shadow: inset 3px 0 0 var(--signal-rule-color);
 }
 .archiveEntry:hover::after,
 .archiveEntry:focus-visible::after {
@@ -96,7 +132,7 @@
 .archiveEntry:focus-visible {
   z-index: 1;
   background: var(--surface-1);
-  box-shadow: inset 3px 0 0 var(--gold);
+  box-shadow: inset 3px 0 0 var(--signal-rule-color);
 }
 .archiveEntry:visited .entryKind {
   color: var(--ink-lo);
@@ -104,7 +140,7 @@
 /* "Testimony collection" — the kind is a phrase, not a stamp. */
 .entryKind {
   composes: kickerLabel from global;
-  color: var(--gold);
+  color: var(--ink-lo);
 }
 .entryTitle {
   color: var(--ink-hi);
@@ -133,7 +169,7 @@
   gap: var(--sp-2);
 }
 .entryCountNumber {
-  color: var(--gold-hi);
+  color: var(--ink-hi);
   font-family: var(--face-display);
   font-size: var(--t-figure);
   line-height: 1;
@@ -162,12 +198,12 @@
 }
 .entryAction svg {
   flex-shrink: 0;
-  color: var(--gold);
+  color: var(--signal-rule-color);
   transition: transform var(--dur-fast) var(--ease-out);
 }
 .archiveEntry:hover .entryAction,
 .archiveEntry:focus-visible .entryAction {
-  color: var(--gold);
+  color: var(--ink-hi);
 }
 .archiveEntry:hover .entryAction svg,
 .archiveEntry:focus-visible .entryAction svg {
@@ -175,16 +211,37 @@
 }
 
 .archiveShowcase {
+  scroll-margin-top: calc(var(--header-h-bar) + var(--sp-6));
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 36px;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: clamp(var(--sp-6), 4vw, var(--sp-8));
   align-items: start;
 }
 .archiveFeature {
   min-width: 0;
-  border-top: var(--line-w-thick) solid var(--gold-dim);
+  border-top: var(--line-w-thick) solid var(--line-strong);
   padding-top: var(--sp-5);
-  scroll-margin-top: var(--sp-9);
+  scroll-margin-top: calc(var(--header-h-bar) + var(--sp-6));
+}
+
+/* One featured record. The documentation showcase renders under the
+   testimony one a step down: its heading at the h3 role, a hairline instead
+   of the 2px rule, and the whole block held to the reading measure so it
+   reads as a second thing rather than a second peak. */
+.archiveFeature[data-demoted] {
+  border-top-width: var(--line-w);
+  border-top-color: var(--line);
+}
+
+.featureHeading h3 {
+  margin: var(--sp-2) 0 var(--sp-3);
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  line-height: var(--t-h3-lh);
+  font-weight: var(--t-h3-weight);
+  letter-spacing: var(--t-h3-tracking);
+  text-wrap: balance;
 }
 .featureHeading h2 {
   margin: var(--sp-2) 0 var(--sp-3);
@@ -219,7 +276,7 @@
 .browseLink svg,
 .readLink svg {
   flex-shrink: 0;
-  color: var(--gold);
+  color: var(--ink-lo);
   transition: transform var(--dur-fast) var(--ease-out);
 }
 .browseLink:hover svg,
@@ -240,7 +297,7 @@
   line-height: var(--t-caption-lh);
 }
 .browseLink:hover,
-.browseLink:focus-visible { color: var(--gold); }
+.browseLink:focus-visible { color: var(--ink-hi); }
 
 /* Primary tier: the strongest weight this panel spends outside its one solid
    Share button. A bordered control, not a line of text — the whole point of
@@ -267,8 +324,8 @@
 }
 .readLink:hover,
 .readLink:focus-visible {
-  color: var(--gold-hi);
-  border-color: var(--gold);
+  color: var(--ink-hi);
+  border-color: var(--line-strong);
   background: var(--surface-1);
 }
 /* "Accounts available across 12 languages" — a sentence with a figure in it,
@@ -340,7 +397,7 @@
 
 .rotationControls button:hover:not(:disabled),
 .rotationControls button:focus-visible:not(:disabled) {
-  color: var(--gold);
+  color: var(--ink-hi);
   background: var(--surface-1);
 }
 .rotationControls button:active:not(:disabled) { background: var(--surface-2); }
@@ -368,7 +425,7 @@
 }
 .sampleType svg {
   flex-shrink: 0;
-  color: var(--gold);
+  color: var(--ink-lo);
 }
 .sampleReading h3 {
   margin: 0;
@@ -390,7 +447,7 @@
   overflow-wrap: anywhere;
 }
 .sampleReading h3 a:hover,
-.sampleReading h3 a:focus-visible { color: var(--gold); }
+.sampleReading h3 a:focus-visible { color: var(--ink-hi); }
 /* Three lines of the small role: the clamp height is 3 × `--t-small-lh`. */
 .sampleExcerpt {
   display: -webkit-box;
@@ -489,7 +546,7 @@
   white-space: nowrap;
 }
 .categoryBrowser summary:hover,
-.categoryBrowser summary:focus-visible { color: var(--gold); }
+.categoryBrowser summary:focus-visible { color: var(--ink-hi); }
 .categoryBrowser ul {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -523,13 +580,13 @@
   font-variant-numeric: tabular-nums;
 }
 .categoryBrowser a:hover,
-.categoryBrowser a:focus-visible { color: var(--gold); }
+.categoryBrowser a:focus-visible { color: var(--ink-hi); }
 
 .section {
   margin-top: clamp(44px, 6vw, 72px);
   padding-top: 28px;
   border-top: var(--line-w) solid var(--line);
-  scroll-margin-top: var(--sp-9);
+  scroll-margin-top: calc(var(--header-h-bar) + var(--sp-6));
 }
 .sectionHeading {
   margin: 0 0 20px;
@@ -572,7 +629,7 @@
   line-height: 1;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  color: var(--gold-hi);
+  color: var(--ink-hi);
 }
 .inscription > dl > div > dd {
   max-width: none;
@@ -608,6 +665,7 @@
     grid-template-columns: 1fr;
     gap: 44px;
   }
+  .hub { padding-inline: var(--sp-4); }
   .featureHeading > p:not(.eyebrow) { max-width: 44ch; }
   .sampleReading h3 a {
     -webkit-line-clamp: 3;
@@ -649,6 +707,29 @@
   }
   .record ol > li {
     padding-bottom: var(--sp-5);
+  }
+}
+
+/* The timeline's source rail, on a hub container.
+   `content.module.css` `.marginNote` puts a record's sources in a 13rem
+   margin rail above 1220px, inside a two-column `.timelineEntry` whose
+   second track is 0 wide — which works in the 68ch reading shell, where
+   there is page gutter to the right of the column to hang it in. This route
+   moved onto the 100rem hub container on 2026-09-16, where the column runs
+   to the container edge and the rail overflowed the viewport by ~190px at
+   1280. The sources go back under the entry, full width. `LiveBriefHub`
+   carries the same guard for the same reason. */
+.page :global([class*="timelineSources"]) {
+  width: 100%;
+  margin-block-start: var(--sp-4);
+  margin-inline-start: 0;
+}
+
+@media (min-width: 76.25rem) {
+  .page :global([class*="timelineEntry"]) { display: block; }
+  .page :global([class*="timelineSources"]) {
+    grid-column: auto;
+    grid-row: auto;
   }
 }
 

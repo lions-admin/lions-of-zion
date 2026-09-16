@@ -1,5 +1,6 @@
 import type { EvidenceClass, ResearchConfidence } from '@/lib/content/fake-resistance-cases';
 import { Badge, BADGE_GRAMMAR, type BadgeStatus } from '@/components/ui/Badge';
+import type { ExplainerItem } from '@/components/ui/Explainer';
 import styles from './content.module.css';
 
 /**
@@ -14,6 +15,11 @@ import styles from './content.module.css';
  * their own explanations and the `evidence` domain, so "we are fairly sure"
  * never reads as "this is verified", which is the single most likely way for
  * this section to overstate itself.
+ *
+ * The explanations reach a sighted reader through the ledger's visible key
+ * (`components/ui/Explainer`, built from `confidenceKey` / `evidenceClassKey`)
+ * and a screen reader through the hidden sentence after each label. Neither
+ * is a `title` tooltip any more (2026-09-16).
  */
 const CONFIDENCE_LABEL: Record<ResearchConfidence, string> = {
   high: BADGE_GRAMMAR.high.label,
@@ -21,7 +27,7 @@ const CONFIDENCE_LABEL: Record<ResearchConfidence, string> = {
   low: BADGE_GRAMMAR.low.label,
 };
 
-const CONFIDENCE_EXPLANATION: Record<ResearchConfidence, string> = {
+export const CONFIDENCE_EXPLANATION: Record<ResearchConfidence, string> = {
   high: 'High confidence: multiple independent methods or sources agree.',
   medium: 'Medium confidence: supported, with material gaps acknowledged.',
   low: 'Low confidence: a single source or an unresolved alternative explanation.',
@@ -39,7 +45,7 @@ const EVIDENCE_LABEL: Record<EvidenceClass, string> = {
   inferred_coordination: BADGE_GRAMMAR.inferred.label,
 };
 
-const EVIDENCE_EXPLANATION: Record<EvidenceClass, string> = {
+export const EVIDENCE_EXPLANATION: Record<EvidenceClass, string> = {
   documented_relationship:
     'Documented relationship: stated on the record, by the parties or by reporting.',
   observed_interaction:
@@ -48,11 +54,35 @@ const EVIDENCE_EXPLANATION: Record<EvidenceClass, string> = {
     'Inferred coordination: a pattern consistent with coordination that was not established.',
 };
 
+/** The key for the confidence grades a ledger carries, each once, in order. */
+export function confidenceKey(values: readonly ResearchConfidence[]): ExplainerItem[] {
+  const seen = new Set<ResearchConfidence>();
+  const items: ExplainerItem[] = [];
+  for (const value of values) {
+    if (seen.has(value) || !CONFIDENCE_LABEL[value]) continue;
+    seen.add(value);
+    items.push({ status: value, label: CONFIDENCE_LABEL[value], explanation: CONFIDENCE_EXPLANATION[value] });
+  }
+  return items;
+}
+
+/** The key for the evidence classes a ledger carries, each once, in order. */
+export function evidenceClassKey(values: readonly EvidenceClass[]): ExplainerItem[] {
+  const seen = new Set<EvidenceClass>();
+  const items: ExplainerItem[] = [];
+  for (const value of values) {
+    if (seen.has(value) || !EVIDENCE_LABEL[value]) continue;
+    seen.add(value);
+    items.push({ status: EVIDENCE_STATUS[value], label: EVIDENCE_LABEL[value], explanation: EVIDENCE_EXPLANATION[value] });
+  }
+  return items;
+}
+
 export function ConfidenceChip({ value }: { value: ResearchConfidence }) {
   const label = CONFIDENCE_LABEL[value];
   if (!label) return null;
   return (
-    <Badge status={value} domain="evidence" title={CONFIDENCE_EXPLANATION[value]}>
+    <Badge status={value} domain="evidence">
       {label}
       <span className={styles.badgeNote}> — {CONFIDENCE_EXPLANATION[value]}</span>
     </Badge>
@@ -63,7 +93,7 @@ export function EvidenceClassChip({ value }: { value: EvidenceClass }) {
   const label = EVIDENCE_LABEL[value];
   if (!label) return null;
   return (
-    <Badge status={EVIDENCE_STATUS[value]} domain="evidence" title={EVIDENCE_EXPLANATION[value]}>
+    <Badge status={EVIDENCE_STATUS[value]} domain="evidence">
       {label}
       <span className={styles.badgeNote}> — {EVIDENCE_EXPLANATION[value]}</span>
     </Badge>

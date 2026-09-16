@@ -1,4 +1,9 @@
-export { VerificationBadge, type VerificationBadgeProps } from './VerificationBadge';
+export {
+  VerificationBadge,
+  ASSESSMENT_PRESENTATION,
+  assessmentKey,
+  type VerificationBadgeProps,
+} from './VerificationBadge';
 export { SourceList, type SourceListProps, type Source } from './SourceList';
 export { PublicationMeta, type PublicationMetaProps } from './PublicationMeta';
 export { KnownUnknownPanel, type KnownUnknownPanelProps } from './KnownUnknownPanel';
@@ -19,9 +24,16 @@ export {
   type SensitiveContentProps,
   type SensitiveContentState,
 } from './SensitiveContent';
-export { RosterTable, type RosterTableProps } from './RosterTable';
+export { RosterTable, identityKey, IDENTITY_EXPLANATION, type RosterTableProps } from './RosterTable';
 export { TechniqueChip, TechniqueChips, type TechniqueChipProps } from './TechniqueChip';
-export { ConfidenceChip, EvidenceClassChip } from './EvidenceGrade';
+export {
+  ConfidenceChip,
+  EvidenceClassChip,
+  confidenceKey,
+  evidenceClassKey,
+  CONFIDENCE_EXPLANATION,
+  EVIDENCE_EXPLANATION,
+} from './EvidenceGrade';
 export { ResearchText } from './ResearchText';
 export { NetworkFigure, type NetworkFigureProps } from './NetworkFigure';
 export { MediaBlock, type MediaBlockProps } from './MediaBlock';

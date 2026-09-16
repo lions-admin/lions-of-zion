@@ -104,21 +104,17 @@
   line-height: var(--t-small-lh);
 }
 
-/* The researchers' overall confidence statement, on the ember stream. */
-.confidence {
-  margin-bottom: var(--sp-5);
-  padding: var(--sp-4) var(--sp-5);
-  border-left: var(--line-w-thick) solid var(--data-ember);
-  border-radius: 0 var(--radius-2) var(--radius-2) 0;
-  background: color-mix(in oklab, var(--data-ember) 8%, transparent);
-  color: var(--ink-hi);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-}
+/* Deleted on 2026-09-16: `.confidence`, `.exhibits`/`.exhibitMain`/
+   `.exhibitHead`/`.exhibitStatement`/`.exhibitSources`, `.edges`/`.edgeHead`/
+   `.edgePair`/`.edgeTest`, `.firstSeen`/`.firstSeenLabel`/`.firstSeenBody`
+   and `.narratives`/`.narrativeFrame`/`.narrativeAudience` — eighteen rules
+   describing blocks this page stopped rendering when the graded findings, the
+   connection list, the first-seen ledger and the narrative frames moved into
+   `components/investigation/*`. None had a `styles.*` reference left. A dead
+   description of a layout is worse than none: the next editor reads it as the
+   shape the page has. */
 
 .bottomLine,
-.exhibits,
-.edges,
 .contradictions {
   margin: 0;
   padding: 0;
@@ -199,170 +195,29 @@
   composes: marginNote from '../../../../components/content/content.module.css';
 }
 
-/* ── Graded findings ───────────────────────────────────────────────────── */
-
-.exhibits > li {
-  padding-top: var(--sp-5);
-  border-top: var(--line-w) solid var(--gold-line);
-  /* The playbook's finding links land on these ids. The shell's anchor rule
-     covers h2s and sectioning elements, not list items, so the header
-     clearance has to live here — same number `sections.module.css` sets. */
-  scroll-margin-top: var(--anchor-offset, 5.5rem);
-}
-
-.exhibits > li + li {
-  margin-top: var(--sp-5);
-}
-
-.exhibitMain {
-  min-width: 0;
-}
-
-.exhibitHead {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-2) var(--sp-4);
-  margin-bottom: var(--sp-3);
-}
-
-/* A date is data: mono, sentence case, tabular. */
-.exhibitHead time {
-  color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  font-variant-numeric: tabular-nums;
-}
-
-.exhibitStatement {
-  margin: 0;
-  color: var(--ink-hi);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
-}
-
-.exhibitSources {
-  composes: marginNote from '../../../../components/content/content.module.css';
-}
-
 /* The two-track hosts. The second track is zero-wide, so the claim keeps the
    reading measure exactly while its citation overflows into the margin and
    still contributes its height to the row. */
 @media (min-width: 76.25rem) {
-  .bottomLine > li,
-  .exhibits > li {
+  .bottomLine > li {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 0;
   }
 
-  .pointMain,
-  .exhibitMain {
+  .pointMain {
     grid-column: 1;
     grid-row: 1;
   }
 }
 
-/* ── Frames ────────────────────────────────────────────────────────────── */
-
-.narratives {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-4);
-  margin-top: var(--sp-5);
-  padding: 0;
-  list-style: none;
-}
-
-.narratives .narrativeFrame,
-.narratives .narrativeAudience {
-  margin-top: var(--sp-3);
-  color: var(--ink-lo);
-}
-
-.narrativeFrame > span,
-.narrativeAudience > span {
-  display: block;
-  margin-bottom: var(--sp-1);
-  color: var(--data-ember-peak);
-  font-family: var(--face-kicker);
-  font-size: var(--t-kicker);
-  font-weight: var(--t-kicker-weight);
-  line-height: var(--t-kicker-lh);
-  letter-spacing: var(--t-kicker-tracking);
-  text-transform: uppercase;
-}
-
 /* ── Connections and contradictions ────────────────────────────────────── */
 
-.edges > li,
 .contradictions > li {
   padding: var(--sp-4) 0;
   border-top: var(--line-w) solid var(--line);
   color: var(--ink);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
-}
-
-.edges > li > p {
-  margin: var(--sp-2) 0 0;
-}
-
-.edgeHead {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-2) var(--sp-4);
-}
-
-.edgePair {
-  composes: dataValue from global;
-  color: var(--ink-hi);
-  overflow-wrap: anywhere;
-}
-
-.edgePair > span {
-  padding: 0 var(--sp-1);
-  color: var(--data-ember-peak);
-}
-
-/* The test behind an inferred edge — measurements a reader checks, set as
-   data rather than prose. */
-.edgeTest {
-  margin: var(--sp-2) 0 0;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  color: var(--ink-lo);
-  overflow-wrap: anywhere;
-}
-
-.firstSeen {
-  list-style: none;
-  margin: var(--sp-5) 0 0;
-  padding: 0;
-}
-
-.firstSeen > li {
-  padding: var(--sp-4) 0;
-  border-top: var(--line-w) solid var(--line-soft);
-}
-
-.firstSeenLabel {
-  margin: 0 0 var(--sp-2);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  color: var(--ink-hi);
-  max-width: 68ch;
-}
-
-.firstSeenBody {
-  margin: 0;
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  color: var(--ink-lo);
-  max-width: 68ch;
 }
 
 /* ── The investigation surface's hosts ─────────────────────────────────── */
@@ -404,4 +259,65 @@
   font-weight: var(--t-h3-weight);
   line-height: var(--t-h3-lh);
   letter-spacing: var(--t-h3-tracking);
+}
+
+/* ── How a file ends ───────────────────────────────────────────────────── */
+
+/* The activation band, clear of the sources above it. The band brings its own
+   plate and its own rule; this only sets the distance, so the ending reads as
+   a new movement rather than as the last paragraph of the source list. */
+.activation {
+  margin-top: var(--sp-7);
+}
+
+/* One file to read next, and the desk under it. A rule and space, not a
+   panel: the card inside is the pressable thing, and a box around a box is
+   how an ending stops looking like an ending. */
+.continue {
+  margin-top: var(--sp-7);
+  padding-top: var(--sp-5);
+  border-top: var(--line-w) solid var(--line);
+}
+
+.continueHeading {
+  margin: 0 0 var(--sp-4);
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+}
+
+.continueDesk {
+  margin: var(--sp-4) 0 0;
+}
+
+/* The verb table's hub link on a target that clears the coarse floor — the
+   same shape the article route ends with, so the two endings agree.
+   Set in ink, not gold: the activation band directly above it spends this
+   viewport's one accent on "Trace the sources", and a second gold element
+   under it makes neither of them the thing to do. The gold is in the rule
+   under the words, which is emphasis without being an accent. */
+.deskLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--control-h);
+  color: var(--ink-hi);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line);
+  text-decoration-thickness: var(--line-w);
+  text-underline-offset: 0.2em;
+}
+
+.deskLink:hover,
+.deskLink:focus-visible {
+  text-decoration-color: currentColor;
 }

@@ -224,6 +224,17 @@
   gap: var(--sp-3);
 }
 
+/* CONTRADICTIONS — a rule, never a panel.
+   The other side of the ledger is marked the way the investigation's
+   contradicting column is: a single rule in the softer ember (`--ember-soft`)
+   down the rung's inline start. A filled red block would read as an alarm
+   about the method; this reads as part of it. The rung is set in the ordinary
+   ink at the ordinary size — only the rule changes (2026-09-16). */
+.rungBlock[data-rung='contradictions'] {
+  padding-inline-start: var(--sp-4);
+  border-inline-start: var(--line-w-thick) solid var(--ember-soft);
+}
+
 /* "The claim", "Sources", "Assessment": the rung's name is a label a person
    wrote, so the kicker register; the rung number beside it is a machine value
    and stays mono, in the dim gold that owes 4.5:1 for exactly this text. */
@@ -256,14 +267,24 @@
 
 .claimQuote p {
   margin: 0;
+}
+
+/* Somebody else's words, so the quote role: Literata, roman, in quotation
+   marks — the one serif on the site and its one job (2026-09-16). It was the
+   display face in italic, which is how this desk writes its own headlines,
+   so the claim in circulation and the finding about it were set in the same
+   voice. The marks are drawn by the rule rather than typed into the record,
+   and they hang outside the measure so the first letter stays on the rule. */
+.claimQuoteText {
+  composes: quoteText from global;
+  margin: 0;
   color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-lede);
-  font-style: italic;
-  font-weight: var(--t-lede-weight);
-  line-height: var(--t-lede-lh);
+  hanging-punctuation: first last;
   text-wrap: pretty;
 }
+
+.claimQuoteText::before { content: "\201C"; }
+.claimQuoteText::after { content: "\201D"; }
 
 .claimFacts {
   display: grid;

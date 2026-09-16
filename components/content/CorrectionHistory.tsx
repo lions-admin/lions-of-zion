@@ -153,6 +153,14 @@ function CorrectionList({ corrections }: { corrections: readonly Correction[] })
  * the first seen is the latest). Every note the projection carries, whatever
  * its class, stays verbatim under the disclosure: collapsing is a matter of
  * emphasis, never of omission.
+ *
+ * The block always names itself (2026-09-16). It used to print "Correction
+ * history" only when a substantive correction existed, so a record whose
+ * versions were all attachments showed two mono lines and a bare "Version
+ * history" disclosure with nothing above them saying what the block was.
+ * The kicker is "Correction history" when there is one to read and "Version
+ * history" otherwise; the disclosure under it is then labelled for what it
+ * opens — every version note, verbatim.
  */
 function RecordHistory({ corrections }: { corrections: readonly Correction[] }) {
   const substantive = corrections.filter((correction) => classifyCorrection(correction.note) === 'correction');
@@ -165,13 +173,11 @@ function RecordHistory({ corrections }: { corrections: readonly Correction[] }) 
   const showsHistory = substantive.length < corrections.length;
 
   return (
-    <div className={styles.corrections}>
-      {substantive.length ? (
-        <>
-          <span className={styles.correctionsKicker}>Correction history</span>
-          <CorrectionList corrections={substantive} />
-        </>
-      ) : null}
+    <div className={styles.corrections} data-variant="record">
+      <span className={styles.correctionsKicker}>
+        {substantive.length ? 'Correction history' : 'Version history'}
+      </span>
+      {substantive.length ? <CorrectionList corrections={substantive} /> : null}
       {attachments.size ? (
         <ul className={recordStyles.attachmentLines}>
           {[...attachments].map(([label, correction]) => (
@@ -185,7 +191,7 @@ function RecordHistory({ corrections }: { corrections: readonly Correction[] }) 
       ) : null}
       {showsHistory ? (
         <details className={recordStyles.versionHistory}>
-          <summary>Version history</summary>
+          <summary>{substantive.length ? 'Every version note' : 'Every version note, verbatim'}</summary>
           <CorrectionList corrections={corrections} />
         </details>
       ) : null}

@@ -294,22 +294,16 @@
   border-top: var(--line-w) solid var(--line);
 }
 
+/* `Card variant="row"` draws the hairline, the hover and the stub under the
+   headline (2026-09-16). What stays here is the column seam. */
 .record {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--sp-5);
-  padding-block: var(--sp-5);
-  border-bottom: var(--line-w) solid var(--line);
-  transition: border-color var(--dur-fast) var(--ease-out);
+  column-gap: var(--sp-5);
 }
-
-.record:hover,
-.record:focus-within { border-bottom-color: var(--line-strong); }
 
 /* The row is one column until a picture arrives; a list that reserves space
    for an image it has not got reads as a broken layout rather than a plain
-   one. */
-.recordWithMedia { grid-template-columns: minmax(0, 1fr) auto; }
+   one. The list selector out-specifies `Card`'s own `.row`. */
+.recordList .recordWithMedia { grid-template-columns: minmax(0, 1fr) auto; }
 
 .recordBody {
   display: grid;
@@ -363,29 +357,34 @@
 
 .record .read { margin-top: var(--sp-1); }
 
+/* The picture is a `<figure>` with its honesty line under it, not an
+   `aria-hidden` link holding `alt=""` (2026-09-16): a listing picture on
+   this hub is content, it carries the record's own alt text, and the label
+   that says what it is stays visible — the standing owner ruling. */
 .recordImage {
-  composes: mediaPlate from global;
+  display: grid;
+  gap: var(--sp-2);
   align-self: start;
   inline-size: 9rem;
-  border-radius: var(--radius-1);
+  margin: 0;
 }
 
-.recordImage img {
+/* `composes` is only legal on a single-class rule, so the plate is a class
+   the picture carries rather than a `.recordImage img` descendant rule. */
+.recordPlate {
+  composes: mediaPlate from global;
   display: block;
   inline-size: 100%;
   block-size: auto;
   aspect-ratio: 4 / 3;
   object-fit: cover;
+  border-radius: var(--radius-1);
 }
 
-.empty {
-  max-width: 52ch;
-  margin: 0;
-  padding-block: var(--sp-5);
-  border-top: var(--line-w) solid var(--line);
+.recordDisclosure {
+  composes: dataMeta from global;
   color: var(--ink-lo);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
+  text-wrap: balance;
 }
 
 .records > .sectionLink { margin-top: var(--sp-4); }
@@ -454,6 +453,48 @@
 
 .history > .sectionLink { margin-top: var(--sp-5); }
 
+/* ── The ending (Peak-End) ─────────────────────────────────────────────── */
+
+/* One next step after the activation band: the hub that holds the day this
+   hub's people live after. A rule and space, never a plate. */
+.peopleBridge {
+  display: grid;
+  gap: var(--sp-2);
+  margin-block: var(--sp-7) var(--sp-6);
+  padding-block-start: var(--sp-5);
+  border-block-start: var(--line-w) solid var(--line-strong);
+}
+
+.bridgeKicker {
+  composes: kickerLabel from global;
+  margin: 0;
+  color: var(--ink-lo);
+}
+
+.peopleBridge h2 {
+  max-width: none;
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+}
+
+.peopleBridge > p:last-of-type {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+.bridgeLink {
+  composes: read;
+  margin-block-start: var(--sp-2);
+}
+
 /* ── Seams ─────────────────────────────────────────────────────────────── */
 
 @media (max-width: 76.25rem) {
@@ -475,7 +516,7 @@
   .profile[data-featured] { grid-column: auto; }
   .sectionHead { gap: var(--sp-2) var(--sp-4); }
   .sectionHead > .sectionLink { margin-inline-start: 0; flex-basis: 100%; }
-  .recordWithMedia { grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-4); }
+  .recordList .recordWithMedia { grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--sp-4); }
   .recordImage { inline-size: 6rem; }
   .record h3 { max-width: none; }
 }
@@ -484,7 +525,7 @@
    the plate while the record is hovered or holds keyboard focus. */
 @media (prefers-reduced-motion: no-preference) {
   .profile:is(:hover, :has(a:focus-visible)) .portraitFrame img,
-  .record:is(:hover, :has(a:focus-visible)) .recordImage img { transform: scale(1.02); }
+  .record:is(:hover, :has(a:focus-visible)) .recordPlate { transform: scale(1.02); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -492,8 +533,7 @@
   .read > span,
   .sectionLink > span,
   .hub h2 a,
-  .hub h3 a,
-  .record { transition: none; }
+  .hub h3 a { transition: none; }
   .read:hover > span,
   .read:focus-visible > span,
   .sectionLink:hover > span,

@@ -16,6 +16,12 @@
  * intent links — which need no script — are printed in a `<noscript>` beside
  * it. A no-JS reader keeps the two targets that work for them rather than a
  * button that does nothing.
+ *
+ * The sheet's first control is its primary (2026-09-16): copying is the one
+ * act that works everywhere and the one whose outcome is announced, so it
+ * takes the surface's single filled control. Until then the sheet opened
+ * with no primary at all — five outlines of equal weight, which is a menu,
+ * not a decision.
  */
 import type { ReactNode } from 'react';
 import { Dialog } from '@/components/ui/Dialog';
@@ -62,6 +68,7 @@ export function ShareSheet({
           title={shareTitle ?? title}
           text={text}
           copyLabel={copyLabel}
+          copyVariant="primary"
           actions={actions}
           targets={targets}
           className={styles.controls}

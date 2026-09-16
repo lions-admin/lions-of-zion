@@ -104,6 +104,15 @@ const nextConfig: NextConfig = {
     "/october-7/**": ["./content-packages/october7/**", "./content-packages/hamas-massacre/**"],
     "/our-heroes": ["./content-packages/homepage/**"],
     "/israels-story": ["./content-packages/homepage/**"],
+    /* The share card sets its own type, and it reads the faces off disk at
+       request time. Next traces what it can see statically, and a
+       `readFile(join(process.cwd(), "assets", …))` is invisible to it — so
+       without these two lines the files simply are not in the deployed
+       bundle, `loadBrandFonts()` returns nothing, and every card on the live
+       site quietly renders in the fallback face while every local check
+       passes. Both card routes, because they are separate entry points. */
+    "/articles/[publicId]/opengraph-image": ["./assets/brand/fonts/**"],
+    "/articles/[publicId]/twitter-image": ["./assets/brand/fonts/**"],
   },
   devIndicators: false,
   async headers() {

@@ -13,10 +13,19 @@ describe("narrative hub", () => {
     cases.mockResolvedValue([sample]); watch.mockRejectedValue(new Error("unavailable"));
     const html = renderToStaticMarkup(await Page());
     expect(html).toContain("A documented investigation");
-    expect(html).toContain("Monitoring is temporarily unavailable");
+    expect(html).toContain("Monitoring could not be loaded.");
     expect(html).not.toContain("Further investigations");
-    expect(html).not.toContain("On this page");
     expect(html).not.toContain("The consciousness war");
+    /* The contents row is in-page anchors only (2026-09-16): a route link in
+       it is a door, and the doors are in the page. It was labelled "Jump to"
+       and this line asserted the absence of "On this page"; the row is the
+       reader's in-page contents now and says so, so what is pinned is the
+       rule the assertion was protecting — every href in the row is a
+       fragment — rather than the label it used to have. */
+    const contents = /<nav [^>]*aria-label="On this page">([\s\S]*?)<\/nav>/.exec(html)?.[1] ?? "";
+    expect(contents).not.toBe("");
+    expect([...contents.matchAll(/href="([^"]*)"/g)].map((match) => match[1]))
+      .toEqual(["#investigation-heading", "#latest-monitoring", "#antisemitism", "#influence"]);
   });
   it("distinguishes research failure from an empty research collection", async () => {
     cases.mockRejectedValue(new Error("unavailable")); watch.mockResolvedValue([]);
@@ -30,7 +39,8 @@ describe("narrative hub", () => {
     const html = renderToStaticMarkup(await Page());
     expect(html).toContain("A documented investigation");
     expect(html).toContain("No monitoring records have been published");
-    expect(html).toContain("Antisemitism records are temporarily unavailable");
+    expect(html).toContain("Antisemitism records could not be loaded.");
+    expect(html).not.toContain("No antisemitism records have been published yet");
   });
   /* Each of the four reads on this hub is settled independently. The influence
      section is the newest of them, and it must not be the one that takes the
@@ -39,7 +49,7 @@ describe("narrative hub", () => {
     cases.mockResolvedValue([sample]); watch.mockResolvedValue([]); influence.mockRejectedValue(new Error("unavailable"));
     const html = renderToStaticMarkup(await Page());
     expect(html).toContain("A documented investigation");
-    expect(html).toContain("Influence investigations are temporarily unavailable");
+    expect(html).toContain("Influence investigations could not be loaded.");
     expect(html).not.toContain("No influence investigations have been published yet");
   });
 });

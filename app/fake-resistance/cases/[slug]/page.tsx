@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { SectionBlock, SectionPage } from '@/components/sections/SectionPage';
-import { ResearchText, RosterTable, SourceList } from '@/components/content';
+import { ActivationBand, ResearchText, RosterTable, SourceList } from '@/components/content';
+import { Card, CardCta, CardEyebrow, CardTitle } from '@/components/ui/Card';
+import { Icon } from '@/components/ui/Icon';
 import {
   CaseStoryHeader,
   EntityInspector,
@@ -29,11 +31,12 @@ import {
   getCase,
   getCaseIndex,
   type ResearchCase,
+  type ResearchCaseSummary,
 } from '@/lib/content/fake-resistance-cases';
 import { buildInvestigationModel, type ElsewhereLink } from '@/lib/content/investigation-model';
 import { SITE_URL } from '@/lib/site-config';
 import styles from './page.module.css';
-import { publicationHubCrumb } from '@/lib/publication-routing';
+import { publicationCta, publicationHubCrumb } from '@/lib/publication-routing';
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -124,6 +127,45 @@ async function crossCaseLinks(record: ResearchCase): Promise<Record<string, Else
   return out;
 }
 
+/**
+ * THE ONE FILE TO READ NEXT.
+ *
+ * Exactly one, and never a grid: an ending that offers six files offers none
+ * (Hick), and the point of a research file is that a reader finishes it. The
+ * ladder is the same shape `lib/continue-the-record.ts` uses for a
+ * publication — a shared *field* first, recency only as the floor — because a
+ * resemblance between two titles is not a reason to read the second one.
+ *
+ * Rung one: the file that shares the most accounts with this one, which is a
+ * real join over the rosters and already computed for "Where this appears
+ * elsewhere". Rung two: the most recently updated other file. `null` only
+ * when this is the only published file, in which case the section is not
+ * rendered at all rather than shown empty.
+ */
+function nextFile(
+  record: ResearchCase,
+  index: readonly ResearchCaseSummary[],
+  elsewhere: Record<string, ElsewhereLink[]>,
+): { slug: string; title: string; reason: 'accounts' | 'recent'; shared: number } | null {
+  const others = index.filter((entry) => entry.slug !== record.slug);
+  if (others.length === 0) return null;
+
+  const shared = new Map<string, number>();
+  for (const links of Object.values(elsewhere)) {
+    for (const link of links) shared.set(link.slug, (shared.get(link.slug) ?? 0) + 1);
+  }
+  const best = [...shared.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0];
+  if (best) {
+    const entry = others.find((other) => other.slug === best[0]);
+    if (entry) {
+      return { slug: entry.slug, title: shortTitle(entry.title), reason: 'accounts', shared: best[1] };
+    }
+  }
+
+  const recent = [...others].sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1))[0]!;
+  return { slug: recent.slug, title: shortTitle(recent.title), reason: 'recent', shared: 0 };
+}
+
 /** A date the reader can read, from the ISO stamp the research recorded. */
 function dateLabel(value?: string) {
   if (!value) return '';
@@ -149,6 +191,10 @@ export default async function Page({ params }: Params) {
      computed once here, on the server, from the delivered record. */
   const elsewhere = await crossCaseLinks(record);
   const model = buildInvestigationModel(record, { elsewhere });
+  /* One file to read next, chosen by a shared roster rather than by
+     resemblance — see `nextFile`. Computed here so the ending is server-
+     rendered with the rest of the document. */
+  const next = nextFile(record, await getCaseIndex(), elsewhere);
 
   /* An analysis of an information environment, not a report of an event and
      not a fact-check of one claim — so `AnalysisNewsArticle` is the honest
@@ -474,6 +520,52 @@ export default async function Page({ params }: Params) {
           ) : null}
           <SourceList sources={record.sources} />
         </SectionBlock>
+
+        {/* HOW A FILE ENDS (Peak-End, `docs/editorial-dna.md` §9).
+            Sources, then what to do with them, then one file to read next —
+            the same ending an article has, because a reader who has just read
+            fifty screens of evidence is the reader most able to act on it and
+            was previously handed the entity inspector and nothing else. The
+            band's first action traces this file's own source list. */}
+        <ActivationBand
+          className={styles.activation}
+          sourcesHref="#sources"
+          share={{
+            url,
+            title: shortTitle(record.title),
+            text: `${shortTitle(record.title)} — ${lead}`,
+          }}
+        />
+
+        {next ? (
+          <section className={styles.continue} aria-labelledby="continue-the-file">
+            <h2 id="continue-the-file" className={styles.continueHeading}>
+              Continue the file
+            </h2>
+            <Card href={`/fake-resistance/cases/${next.slug}`} variant="row">
+              <CardEyebrow>
+                {next.reason === 'accounts'
+                  ? `Shares ${next.shared === 1 ? 'an account' : `${next.shared} accounts`} with this file`
+                  : 'The most recent file'}
+              </CardEyebrow>
+              <CardTitle as="h3">{next.title}</CardTitle>
+              {/* The verb the routing map gives an investigation, as the
+                  card's pinned affordance rather than as a description of
+                  it: the card is the link, so the words belong at its foot
+                  with the one arrow, not in the place a summary goes. */}
+              <CardCta>{publicationCta('influence_investigation')}</CardCta>
+            </Card>
+            <p className={styles.continueDesk}>
+              <Link
+                className={styles.deskLink}
+                href={publicationHubCrumb('fakeResistance').href}
+              >
+                All of {publicationHubCrumb('fakeResistance').label}{' '}
+                <Icon name="arrow-right" inline className="arrow" />
+              </Link>
+            </p>
+          </section>
+        ) : null}
 
         {/* The bottom-sheet form of the inspector, below the rails breakpoint. */}
         <EntityInspector variant="sheet" />

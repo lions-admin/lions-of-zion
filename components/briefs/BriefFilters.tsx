@@ -1,5 +1,7 @@
 "use client";
 
+import Form from "next/form";
+import { useFormStatus } from "react-dom";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
@@ -102,14 +104,38 @@ function FilterFields({
 }
 
 /**
- * Desktop is a GET form; below ~44rem a Filters control opens the same
- * fields in a drawer. `@media (scripting: none)` shows the GET form at
+ * The submit, with the wait shown on it (Doherty, 2026-09-16). `next/form`
+ * turns the GET submission into a client-side navigation inside a
+ * transition, so `useFormStatus` reports the archive read as pending from
+ * the click until the filtered rows have replaced the old ones; the button
+ * keeps its width while busy (`Button` lays the spinner over the label) and
+ * the result count under the form is a live region, so the answer is
+ * announced when it lands. With scripting off the same form is a plain GET.
+ */
+function FilterSubmit() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" variant="primary" size="md" isLoading={pending} leftIcon={<Icon name="filter" size={16} />}>
+      {pending ? "Filtering the archive" : "Filter archive"}
+    </Button>
+  );
+}
+
+/**
+ * Desktop is a GET form; below the phone seam a Filters control opens the
+ * same fields in a drawer. `@media (scripting: none)` shows the GET form at
  * every width and hides the trigger, so filtering works without JavaScript.
+ *
+ * This component also opens the archive it lives in when the page arrives
+ * on, or moves to, `#news-archive` (the masthead's jump and the "Clear
+ * filters" action both point there): a `<details>` reached by fragment used
+ * to stay shut, so the jump scrolled the reader to a closed summary.
  */
 export function BriefFilters({ filters, actors, topics, arenas }: BriefFiltersProps) {
   const [open, setOpen] = useState(false);
   const dialogId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const parts = activeParts(filters);
   const hasFilters = parts.length > 0;
   const summary = parts.join(" · ");
@@ -128,12 +154,23 @@ export function BriefFilters({ filters, actors, topics, arenas }: BriefFiltersPr
     return () => query.removeEventListener("change", onChange);
   }, []);
 
+  useEffect(() => {
+    const disclosure = rootRef.current?.closest("details");
+    if (!disclosure?.id) return;
+    const openOnFragment = () => {
+      if (window.location.hash === `#${disclosure.id}`) disclosure.open = true;
+    };
+    openOnFragment();
+    window.addEventListener("hashchange", openOnFragment);
+    return () => window.removeEventListener("hashchange", openOnFragment);
+  }, []);
+
   return (
-    <div className={styles.filterCluster}>
-      <form
+    <div className={styles.filterCluster} ref={rootRef}>
+      <Form
         className={styles.filterBar}
         action={FILTER_ACTION}
-        method="get"
+        scroll={false}
         aria-label="Filter archive"
       >
         <FilterFields
@@ -144,15 +181,13 @@ export function BriefFilters({ filters, actors, topics, arenas }: BriefFiltersPr
           arenas={arenas}
           fieldClassName={styles.filterField}
         />
-        <Button type="submit" variant="primary" size="md" leftIcon={<Icon name="filter" size={16} />}>
-          Filter archive
-        </Button>
+        <FilterSubmit />
         {hasFilters ? (
           <ButtonLink href={FILTER_ACTION} variant="ghost" size="md">
             Clear all
           </ButtonLink>
         ) : null}
-      </form>
+      </Form>
 
       <div className={styles.filterMobile}>
         <Button
@@ -190,10 +225,10 @@ export function BriefFilters({ filters, actors, topics, arenas }: BriefFiltersPr
         description="Narrow the archive by date, actor, topic, or arena."
         variant="drawer"
       >
-        <form
+        <Form
           className={styles.filterDrawerForm}
           action={FILTER_ACTION}
-          method="get"
+          scroll={false}
           aria-label="Filter archive"
         >
           <FilterFields
@@ -204,16 +239,14 @@ export function BriefFilters({ filters, actors, topics, arenas }: BriefFiltersPr
             arenas={arenas}
           />
           <div className={styles.filterDrawerActions}>
-            <Button type="submit" variant="primary" size="md" leftIcon={<Icon name="filter" size={16} />}>
-              Filter archive
-            </Button>
+            <FilterSubmit />
             {hasFilters ? (
               <ButtonLink href={FILTER_ACTION} variant="ghost" size="md">
                 Clear all
               </ButtonLink>
             ) : null}
           </div>
-        </form>
+        </Form>
       </Dialog>
     </div>
   );

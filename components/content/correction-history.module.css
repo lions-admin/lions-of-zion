@@ -26,8 +26,19 @@
   color: var(--ink);
 }
 
+/* The last-child rule (2026-09-16). The open correction list and the
+   attachment lines each rule every row's foot, so where the disclosure
+   follows either of them two hairlines met with nothing between; and where
+   nothing follows, a rule closed a block the page had already closed. The
+   last line of each list drops its rule and the disclosure draws its own
+   top, so every seam is exactly one hairline. */
+.attachmentLines > li:last-child {
+  border-bottom: 0;
+}
+
 .versionHistory {
   margin: 0;
+  border-top: var(--line-w) solid var(--line);
 }
 
 /* The disclosure is a control, so it keeps the coarse-target floor; its

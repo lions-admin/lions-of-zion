@@ -27,8 +27,16 @@
 
 /* ── The evidence path ─────────────────────────────────────────────────── */
 
+/* In the flow until there is something to follow. The path pins under the
+   section strip only once a selection or a range exists
+   (`[data-active='yes']`, below): a reader who has chosen nothing was
+   carrying a second sticky bar of hint text down the whole file
+   (progressive disclosure, 2026-09-16). The pinned offset is the strip's
+   foot — `--anchor-offset` less the strip's own clearance — so the two bars
+   stack rather than overlap; `--anchor-offset` is derived on the case file's
+   wrapper (`app/fake-resistance/cases/[slug]/page.module.css`). */
 .path {
-  position: sticky;
+  position: static;
   top: calc(var(--anchor-offset, 5.5rem) - var(--sp-3));
   z-index: var(--z-sticky);
   display: flex;
@@ -46,6 +54,12 @@
 }
 
 .path[data-active='yes'] {
+  position: sticky;
+  transition: top var(--dur-base) var(--ease-out);
+  /* Under the section strip, not on it: the masthead's bar height plus the
+     strip's own. `--case-nav-h` is absent on any host without the strip, and
+     the path then pins directly under the bar. */
+  top: calc(var(--header-h-bar, var(--header-h, 4rem)) + var(--case-nav-h, 0px));
   border-top-color: var(--data-ember);
   border-bottom-color: var(--data-ember-dim);
 }
@@ -82,14 +96,52 @@
 
 .sectionNav {
   position: sticky;
-  top: var(--header-h, 4rem);
+  /* Pinned to the foot of the masthead as it actually is once the page has
+     scrolled — `--header-h-bar`, the shortened bar, which is the same offset
+     `HubMasthead` pins its own sticky row to. Until 2026-09-16 this read
+     `--header-h`, the *tall* height the masthead only has at the very top of
+     a document: by the time a reader could see this strip the bar had already
+     shortened, and the strip floated a bar's height below it with the page
+     scrolling through the gap.
+     Its own height is `--case-nav-h`, declared with `--anchor-offset` on the
+     page shell (`components/sections/sections.module.css`) so that the strip,
+     the evidence path under it and every anchored heading all read one
+     number. */
+  top: var(--header-h-bar, var(--header-h, 4rem));
+  min-block-size: var(--case-nav-h, auto);
   z-index: var(--z-sticky);
   margin: var(--sp-4) calc(-1 * var(--sp-4)) 0;
   padding: 0 var(--sp-4);
-  /* The one scrim (app/globals.css): a solid tint, no blur — a backdrop
-     filter over a page of type costs a repaint per frame and read as glass. */
-  background: var(--scrim);
+  /* The ground itself, not the scrim: the strip is chrome sitting on the
+     page, and a 72% tint over scrolling type read as a smear. */
+  background: var(--ground);
   border-bottom: var(--line-w) solid var(--line);
+  transition: top var(--dur-base) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sectionNav,
+  .path[data-active='yes'] {
+    transition: none;
+  }
+}
+
+/* THE MASTHEAD IS NOT ALWAYS THERE.
+   Scrolling down, the site header sets `data-retracted` and translates itself
+   entirely off-screen; scrolling up brings it back. Measured on this route at
+   1280x900: the header sat at `top: -68px` from roughly 600px of scroll to the
+   foot of a 58,000px document, so a strip pinned at `--header-h-bar` hung a
+   bar's height below nothing at all, with the file scrolling through the gap.
+   While it is gone the strip takes the top of the viewport and the evidence
+   path takes the strip's foot. Both slide rather than jump — `.sectionNav`
+   transitions `top` above, and `@media (prefers-reduced-motion: reduce)`
+   turns that off. */
+:global(body:has(header[data-retracted])) .sectionNav {
+  top: 0;
+}
+
+:global(body:has(header[data-retracted])) .path[data-active='yes'] {
+  top: var(--case-nav-h, 0px);
 }
 
 .sectionNavList {
@@ -155,10 +207,9 @@
   box-shadow: inset 0 0 0 var(--line-w) var(--gold-line);
 }
 
-.sectionNavIndex {
-  color: var(--gold);
-  font-variant-numeric: tabular-nums;
-}
+/* The ordinals ("01 Finding") left the strip on 2026-09-16: a contents list
+   is not a sequence a reader counts through, and a mono figure in front of
+   every label made nine kickers read as a data table. */
 
 /* This used to be `@media (min-width: 1220px) { .sectionNav { display: none } }`.
    The strip deferred to the shell's sticky contents rail above the rails
@@ -700,6 +751,69 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* The ledger's source-type filters behind one disclosure (Hick, 2026-09-16).
+   The summary is a kicker and a control at the coarse floor; the chip row
+   inside keeps `.layerSwitch` exactly as the flows section draws it. */
+.ledgerFilters {
+  margin-bottom: var(--sp-4);
+  border-bottom: var(--line-w) solid var(--line);
+}
+
+.ledgerFiltersSummary {
+  composes: kickerLabel from global;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--control-h);
+  width: fit-content;
+  max-width: 100%;
+  color: var(--ink-lo);
+  cursor: pointer;
+  list-style: none;
+}
+
+.ledgerFiltersSummary::-webkit-details-marker {
+  display: none;
+}
+
+.ledgerFiltersSummary::after {
+  content: '';
+  flex: 0 0 auto;
+  width: 0.42em;
+  height: 0.42em;
+  border-right: var(--line-w) solid currentColor;
+  border-bottom: var(--line-w) solid currentColor;
+  transform: translateY(-0.12em) rotate(45deg);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.ledgerFilters[open] > .ledgerFiltersSummary::after {
+  transform: translateY(0.1em) rotate(-135deg);
+}
+
+.ledgerFiltersSummary:hover,
+.ledgerFiltersSummary:focus-visible {
+  color: var(--ink-hi);
+}
+
+/* "· 2 hidden": a count, so the data face. */
+.ledgerFiltersState {
+  composes: dataMeta from global;
+  color: var(--ink);
+  text-transform: none;
+  letter-spacing: var(--t-data-tracking-tight);
+}
+
+.ledgerFilters .layerSwitch {
+  border-bottom: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ledgerFiltersSummary::after {
+    transition: none;
+  }
+}
+
 .flowList {
   margin: 0;
   padding: 0;
@@ -982,8 +1096,10 @@
   border-left-color: var(--gold-line-strong);
 }
 
+/* Contradicting evidence is marked by a rule in the softer ember, never by a
+   panel: it is the other side of the ledger, not an alarm (2026-09-16). */
 .ledgerColumn[data-side='contradicting'] {
-  border-left-color: var(--data-ember);
+  border-left-color: var(--ember-soft);
 }
 
 .ledgerColumnLabel {
@@ -1232,9 +1348,14 @@
   color: var(--gold-hi);
 }
 
+/* The change notice is a status plate, not the page's emphasis (2026-09-16).
+   It was gold while "What survives" below it was ember, so a case file spent
+   two accents in one viewport on top of the masthead's Support fill — the one
+   rule the identity states most plainly. The plate keeps its rule and its
+   link; the accent moved to the finding. */
 .updateLabel {
   composes: kickerLabel from global;
-  color: var(--gold);
+  color: var(--ink-lo);
 }
 
 .survives {
@@ -1271,9 +1392,14 @@
   text-wrap: pretty;
 }
 
+/* The finding is what the reader came for, so it takes the one accent. It
+   was ember, which this system reserves for the adversarial side — a
+   contested claim, a false verdict, a danger — and what survives a case is
+   precisely the part that is NOT contested. Reading it in the refutation hue
+   inverted the page's own argument. */
 .survivesLabel {
   composes: kickerLabel from global;
-  color: var(--data-ember-peak);
+  color: var(--gold);
 }
 
 .storyConfidence {
@@ -1448,8 +1574,8 @@
   }
 
   /* Below the seam the section strip is the one sticky thing; the path
-     stays in flow and the bottom sheet carries the selection. */
-  .path {
+     stays in flow even with a selection, and the bottom sheet carries it. */
+  .path[data-active='yes'] {
     position: static;
   }
 }

@@ -55,10 +55,14 @@
 }
 
 /* Muted, not off: the class is still in the legend and still counted, so it
-   keeps its label and loses its solid rule. */
+   keeps its label and loses its emphasis.
+   `border-style: dashed` was here until 2026-09-16 and painted nothing: the
+   chip is a `ghost` button, whose `--btn-line` is `transparent`, so the
+   dashes were drawn in no colour. The muting is now stated through the
+   button's own foreground token, which survives a variant change, rather
+   than through a `color` that only won on specificity. */
 .chip[aria-pressed='false'] {
-  color: var(--ink-lo);
-  border-style: dashed;
+  --btn-fg: var(--ink-lo);
 }
 
 

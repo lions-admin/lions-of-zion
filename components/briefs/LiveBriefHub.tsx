@@ -1,27 +1,27 @@
+import { cache } from "react";
 import { ActivationBand } from "@/components/content";
 import { SITE_URL } from "@/lib/site-config";
 import { formatDateTime, formatDay } from "@/lib/format-date";
 import Image from "next/image";
 import Link from "next/link";
 import { listBriefingPublications } from "@/lib/publications";
-import { SECTIONS_BY_HOMEPAGE_SECTION, publicationCta } from "@/lib/publication-routing";
+import { SECTIONS_BY_HOMEPAGE_SECTION, publicationCta, publicationHref } from "@/lib/publication-routing";
 import { measurePublicationCard } from "@/components/measurement/attrs";
 import { isArticleSafeMedia, type EditorialMedia } from "@/server/contracts/editorial-media";
-import { isAnalysisBasis } from "@/server/contracts/publication";
 import { EditorialShell } from "@/components/site/EditorialShell";
-import { HubMasthead, HubUpdated } from "@/components/site/HubMasthead";
-import { SECTION_LABELS, VERIFICATION_STATES } from "@/components/live/publication-labels";
-import { ButtonLink } from "@/components/ui/Button";
+import { HubMasthead, HubUpdated, type HubJumpLink } from "@/components/site/HubMasthead";
+import { SECTION_LABELS } from "@/components/live/publication-labels";
+import { groupByDay } from "@/components/live/feed-time";
 import { Icon } from "@/components/ui/Icon";
 import {
   Card,
   CardCount,
   CardDescription,
   CardEyebrow,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
+import { politeLive } from "@/components/ui/live-region";
 import { StatusState, absenceStatus } from "@/components/ui/StatusState";
 import { BriefFilters, type BriefFilterValues } from "./BriefFilters";
 import styles from "./live-brief.module.css";
@@ -253,12 +253,67 @@ export function emptyArchiveState(filtering: boolean, liveRecordCount: number): 
   };
 }
 
-const JUMPS = [
+/* In-page anchors only (2026-09-16): the way to `/updates` is a door at the
+   archive's foot, not a jump. */
+const JUMPS: HubJumpLink[] = [
   { href: "#latest-news", label: "Latest news" },
   { href: "#daily-brief", label: "The daily briefing" },
   { href: "#news-archive", label: "News archive" },
-  { href: "/updates", label: "Every publication ↗︎" },
 ];
+
+type Publication = Awaited<ReturnType<typeof listBriefingPublications>>[number];
+
+/** Every story section, newest first. */
+function newsOnly(items: Publication[]): Publication[] {
+  return items
+    .filter((item) => (NEWS_SECTIONS as readonly string[]).includes(item.section))
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+}
+
+async function readNews(selection: URLSearchParams): Promise<Publication[]> {
+  const batches = await Promise.all(NEWS_SECTIONS.map((section) => {
+    const params = new URLSearchParams(selection);
+    params.set("section", section);
+    params.set("limit", "50");
+    return listBriefingPublications(params.toString());
+  }));
+  return newsOnly(batches.flat());
+}
+
+/**
+ * The current edition's read, shared for the length of one request.
+ *
+ * Two components need it: the masthead's status sentence, which the shell
+ * hands to `HubMasthead` as an async child, and the edition itself. React's
+ * `cache` makes the second call return the first call's promise inside a
+ * server render, so the masthead does not cost a second projection read —
+ * `publicReadCache` memoises a *settled* value and would let two concurrent
+ * callers both load. A failed read resolves to `null` rather than throwing:
+ * the status sentence then says nothing, and the edition renders the
+ * `unavailable` state, which is the one thing an outage must never be
+ * mistaken for (`tests/state-causes.test.ts`).
+ */
+const readCurrentNews = cache(async (): Promise<Publication[] | null> => {
+  try {
+    return await readNews(new URLSearchParams());
+  } catch {
+    return null;
+  }
+});
+
+/**
+ * UX-15 — when the desk last changed, as one sentence in the masthead's
+ * status slot rather than a rail of "LAST PUBLISHED · STORIES ON FILE 23".
+ * An async component, so the synchronous shell below can hand it to the
+ * masthead without knowing the read's result; on a failed read it renders
+ * nothing rather than a time it does not have.
+ */
+export async function NewsDeskStatus() {
+  const current = await readCurrentNews();
+  const newest = current?.[0];
+  if (!newest) return null;
+  return <HubUpdated at={newest.publishedAt} />;
+}
 
 /**
  * The desk shell — masthead, skip link, footer, kicker, h1, standfirst.
@@ -301,10 +356,10 @@ const JUMPS = [
  * is real and bounded: TTFB now includes one public-projection read. That read
  * is cached three deep — `publicReadCache` (5 min, in-process),
  * `unstable_cache` (300s, tag-invalidated) and `withLastGoodRead` (24h
- * fallback) — and the reads are `Promise.allSettled`, so a failure renders the
- * `unavailable` state rather than hanging. No deadline is imposed on top: a
- * slow-but-successful read would then be reported as "News could not be
- * loaded", which is a lie, and a worse answer than the skeleton it replaced.
+ * fallback) — and a failure renders the `unavailable` state rather than
+ * hanging. No deadline is imposed on top: a slow-but-successful read would
+ * then be reported as "News could not be loaded", which is a lie, and a worse
+ * answer than the skeleton it replaced.
  *
  * `StatusState`'s three-way distinction — loading / empty / unavailable — is
  * unchanged and load-bearing: "nothing is published" and "the service is
@@ -322,13 +377,26 @@ export function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
           kicker="What is happening"
           title={<>News &amp; Analysis</>}
           standfirst="What happened today in Israel and the region — every line with its source, so you can check it before you repeat it."
+          status={<NewsDeskStatus />}
           jumps={JUMPS}
         />
 
         <LiveBriefEdition filters={filters} />
+        {/* The ending (Peak-End): the band with this desk's own sentence, then
+            one next step — the desk that holds what is being *said* about
+            the news. */}
         <ActivationBand
+          heading="Check the story before you repeat it."
           share={{ url: `${SITE_URL}/geopolitical-brief`, text: "News & Analysis — what happened, with the sources behind every line." }}
         />
+        <aside className={styles.watchBridge} aria-label="Separate narrative coverage">
+          <p className={styles.bridgeKicker}>Next in the record</p>
+          <h2>Looking for what is being claimed?</h2>
+          <p>Circulating claims, their assessment status and disinformation research live on the dedicated narrative desk, kept separate from the news.</p>
+          <Link className={styles.bridgeLink} href="/fake-resistance" data-measure-id="brief-to-fake-resistance">
+            All of Fake Resistance <Icon name="arrow-right" inline className="arrow" />
+          </Link>
+        </aside>
       </div>
     </EditorialShell>
   );
@@ -339,31 +407,21 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
   const filtering = Object.values(filters).some(Boolean);
   const query = new URLSearchParams({ limit: "100" });
   for (const [key, value] of Object.entries(filters)) if (value) query.set(key, value);
-  let current: Publication[] = [];
-  let archive: Publication[] = [];
-  let currentUnavailable = false;
-  let archiveUnavailable = false;
-  const readNews = async (selection: URLSearchParams) => {
-    const batches = await Promise.all(NEWS_SECTIONS.map((section) => {
-      const params = new URLSearchParams(selection);
-      params.set("section", section);
-      params.set("limit", "50");
-      return listBriefingPublications(params.toString());
-    }));
-    return batches.flat();
-  };
-  const reads = await Promise.allSettled([
-    readNews(new URLSearchParams()),
-    filtering ? readNews(query) : Promise.resolve(null),
-  ]);
-  const newsOnly = (items: Publication[]) => items
-    .filter((item) => (NEWS_SECTIONS as readonly string[]).includes(item.section))
-    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
-  if (reads[0].status === "fulfilled") current = newsOnly(reads[0].value);
-  else currentUnavailable = true;
-  if (reads[1].status === "fulfilled") archive = reads[1].value === null ? current : newsOnly(reads[1].value);
-  else archiveUnavailable = true;
-  if (!filtering && currentUnavailable) archiveUnavailable = true;
+
+  const currentRead = await readCurrentNews();
+  const currentUnavailable = currentRead === null;
+  const current: Publication[] = currentRead ?? [];
+  let archive: Publication[] = current;
+  let archiveUnavailable = currentUnavailable;
+  if (filtering) {
+    try {
+      archive = await readNews(query);
+      archiveUnavailable = false;
+    } catch {
+      archive = [];
+      archiveUnavailable = true;
+    }
+  }
 
   const briefing = current.find((item) => item.section === BRIEFING_SECTION);
   /* Every story section on this desk, the daily edition excepted — it has its
@@ -407,45 +465,37 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
   const archiveStories = groupByCanonicalStory(
     filtering ? archiveRecords : archiveRecords.filter((item) => !shownAbove.has(item.publicId)),
   );
+  const storyNoun = (count: number) => (count === 1 ? "story" : "stories");
 
   return (
     <>
-      {/* UX-15 — when the desk last changed, as one sentence rather than a rail
-          of "LAST PUBLISHED · STORIES ON FILE 23 · DAILY BRIEFINGS 8 · TIMES
-          Jerusalem". It renders here and not in the masthead because the shell
-          above is deliberately synchronous and cannot know the read's result.
-          The story count moved into the section head it describes. */}
-      {!currentUnavailable && current[0] ? (
-        <p className={styles.editionStatus}><HubUpdated at={current[0].publishedAt} /></p>
-      ) : null}
-
       <section id="latest-news" className={styles.newsOpening} aria-labelledby="latest-news-heading">
         <div className={styles.sectionHeading}>
           <h2 id="latest-news-heading">Latest news</h2>
           {!currentUnavailable && storyCount ? (
-            <p><span data-numeric="">{storyCount}</span> {storyCount === 1 ? "story" : "stories"}, newest first</p>
+            <p><span data-numeric="">{storyCount}</span> {storyNoun(storyCount)}, newest first</p>
           ) : null}
         </div>
         {currentUnavailable ? (
-          <StatusState status={absenceStatus("unavailable")} title="News could not be loaded."
+          <StatusState status={absenceStatus("unavailable")} eyebrow="Latest news" title="News could not be loaded."
             description="The publication service is unavailable. This is not an empty news feed."
             actionText="Try again" actionHref="/geopolitical-brief" />
         ) : lead ? (
           <div className={styles.newsFront} data-sidebar={sidebarUpdates.length || briefing ? "" : undefined}>
-            <article className={styles.newsLead} {...measurePublicationCard("brief-lead", lead, "news:lead")}>
+            <Card variant="lead" as="article" className={styles.newsLead} {...measurePublicationCard("brief-lead", lead, "news:lead")}>
               <p className={styles.liveEyebrow}>
                 <span className={styles.leadFlag}>Latest story</span>
                 <time dateTime={lead.publishedAt}>{formatDateTime(lead.publishedAt)}</time>
               </p>
               <LeadMedia media={hubMedia(lead)} />
-              <h3><Link href={`/articles/${lead.publicId}`}>{lead.title}</Link></h3>
-              {lead.summary ? <p className={styles.newsSummary}>{lead.summary}</p> : null}
+              <CardTitle as="h3"><Link href={publicationHref(lead.publicId)}>{lead.title}</Link></CardTitle>
+              {lead.summary ? <CardDescription>{lead.summary}</CardDescription> : null}
               <UpdatedMarker item={lead} />
               <Metadata item={lead} />
-              <Link className={styles.readLink} href={`/articles/${lead.publicId}`}>
+              <Link className={styles.readLink} href={publicationHref(lead.publicId)}>
                 {publicationCta(lead.section)} <Icon name="arrow-right" inline className="arrow" />
               </Link>
-            </article>
+            </Card>
             {sidebarUpdates.length ? (
               <aside className={styles.newsSidebar} aria-label="More updates">
                 <h2>More updates</h2>
@@ -453,15 +503,16 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
                   {sidebarUpdates.map((item, index) => {
                     const media = hubMedia(item);
                     return (
-                      <li key={item.publicId} className={media ? styles.timelineWithMedia : undefined}
+                      <Card as="li" variant="row" key={item.publicId}
+                        className={media ? `${styles.timelineEntry} ${styles.timelineWithMedia}` : styles.timelineEntry}
                         {...measurePublicationCard("brief-update", item, `news:update-${index + 1}`)}>
-                        <div>
+                        <div className={styles.timelineBody}>
                           <time dateTime={item.publishedAt}>{formatDateTime(item.publishedAt)}</time>
-                          <h3><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h3>
+                          <CardTitle as="h3"><Link href={publicationHref(item.publicId)}>{item.title}</Link></CardTitle>
                           <UpdatedMarker item={item} />
                         </div>
                         {media ? <Thumbnail media={media} className={styles.timelineThumb} sizes="72px" /> : null}
-                      </li>
+                      </Card>
                     );
                   })}
                 </ol>
@@ -473,6 +524,7 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
         ) : (
           <StatusState
             status={absenceStatus("nothing-published")}
+            eyebrow="Latest news"
             title="No individual news updates have been published yet."
             description="Published daily briefings appear below as they arrive."
           />
@@ -488,20 +540,6 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
         <PublicationSection title="Earlier updates" surface="brief-earlier" stories={groupByCanonicalStory(earlierUpdates)} />
       ) : null}
 
-      <aside className={styles.watchBridge} aria-label="Separate narrative coverage">
-        <span className={styles.watchMark} aria-hidden="true">
-          <Icon name="search" size={18} strokeWidth={1.5} />
-        </span>
-        <div>
-          <h2>Looking for what is being claimed?</h2>
-          <p>Circulating claims, their assessment status and disinformation research live on the dedicated narrative desk, kept separate from the news.</p>
-        </div>
-        <ButtonLink href="/fake-resistance" variant="text" size="md" rightIcon={<Icon name="arrow-right" className="arrow" />}
-          data-measure-id="brief-to-fake-resistance">
-          Fake Resistance
-        </ButtonLink>
-      </aside>
-
       <details className={styles.newsArchive} id="news-archive" open={filtering} data-measure-id="brief-archive" data-measure-section="news">
         <summary>
           <span className={styles.archiveTitle}>
@@ -509,7 +547,7 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
             <span className={styles.archiveHint}>{filtering ? "Filters active" : "Browse earlier reporting by date, actor, topic or arena"}</span>
           </span>
           <span className={styles.archiveMeta}>
-            {archiveUnavailable ? "Unavailable" : `${archiveStories.length} ${archiveStories.length === 1 ? "story" : "stories"}`}
+            {archiveUnavailable ? "Unavailable" : `${archiveStories.length} ${storyNoun(archiveStories.length)}`}
             <Icon className={styles.archiveChevron} name="chevron-down" size={14} strokeWidth={1.5} />
           </span>
         </summary>
@@ -518,7 +556,7 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
               above is the count after the collapse and after the exclusion, and
               a reader comparing it against `/updates` is entitled to know why
               the two differ. */}
-          <p>
+          <p className={styles.archiveNote}>
             Up to 50 recent records from each news section, daily briefings included. Narrative monitoring is kept separate.
             {filtering
               ? " Every matching record is listed here, including any also shown above."
@@ -528,9 +566,22 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
           <BriefFilters key={query.toString()} filters={filters}
             actors={uniqueValues(current, "primaryActor")} topics={uniqueValues(current, "editorialTopic")}
             arenas={uniqueValues(current, "arena")} />
-          {archiveUnavailable ? <StatusState status={absenceStatus("unavailable")} title="The archive could not be loaded." description="Please try this selection again later." />
-            : archiveStories.length ? <PublicationSection title={filtering ? "Matching reports" : "Recent reporting"} surface="brief-archive" stories={archiveStories} />
-            : <StatusState {...emptyArchiveState(filtering, current.length)} />}
+          {/* The answer to a filter, said once it lands (Doherty): a polite
+              region, so a submission announces its count rather than leaving
+              the reader to find the rows. */}
+          <p className={styles.archiveResult} {...politeLive}>
+            {archiveUnavailable
+              ? "The archive could not be read."
+              : filtering
+                ? `${archiveStories.length} matching ${storyNoun(archiveStories.length)}`
+                : `${archiveStories.length} ${storyNoun(archiveStories.length)} in the archive, grouped by day`}
+          </p>
+          {archiveUnavailable ? <StatusState status={absenceStatus("unavailable")} eyebrow="News archive" title="The archive could not be loaded." description="Please try this selection again later." />
+            : archiveStories.length ? <PublicationSection title={filtering ? "Matching reports" : "Recent reporting"} surface="brief-archive" stories={archiveStories} byDay />
+            : <StatusState eyebrow="News archive" {...emptyArchiveState(filtering, current.length)} />}
+          <p className={styles.archiveFoot}>
+            <Link className={styles.archiveFootLink} href="/updates">All of Updates <Icon name="arrow-right" inline className="arrow" /></Link>
+          </p>
         </div>
       </details>
     </>
@@ -583,7 +634,7 @@ function LeadMedia({ media }: { media: EditorialMedia | null }) {
           width={media.width}
           height={media.height}
           loading="eager"
-          sizes="(max-width: 44.99rem) 100vw, (max-width: 68.75rem) 55vw, 60vw"
+          sizes="(max-width: 44.99rem) 100vw, (max-width: 76.24rem) 55vw, 60vw"
           style={{ objectPosition: `${media.focalPoint.x}% ${media.focalPoint.y}%` }}
         />
       </span>
@@ -612,79 +663,107 @@ function Thumbnail({ media, className, sizes }: { media: EditorialMedia; classNa
   );
 }
 
+/** The daily briefing: a ruled block, not a plate — rule and space do the
+ *  work a raised card did until 2026-09-16. */
 function Briefing({ item, headingId }: { item: Publication; headingId?: string }) {
   return <div id="daily-brief" className={styles.briefingContent} {...measurePublicationCard("brief-daily", item, "news:daily-brief")}>
     <p className={styles.liveEyebrow}>
       <span className={styles.briefingFlag}>The daily briefing</span>
       <time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time>
     </p>
-    <h2 id={headingId}><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h2>
+    <h2 id={headingId}><Link href={publicationHref(item.publicId)}>{item.title}</Link></h2>
     {item.summary ? <p className={styles.newsSummary}>{item.summary}</p> : null}
     <UpdatedMarker item={item} />
-    <Link className={styles.readLink} href={`/articles/${item.publicId}`}>Read the briefing <Icon name="arrow-right" inline className="arrow" /></Link>
+    <Link className={styles.readLink} href={publicationHref(item.publicId)}>Read the briefing <Icon name="arrow-right" inline className="arrow" /></Link>
   </div>;
 }
-
-type Publication = Awaited<ReturnType<typeof listBriefingPublications>>[number];
 
 function uniqueValues(publications: Publication[], key: "primaryActor" | "editorialTopic" | "arena"): string[] {
   return [...new Set(publications.map((item) => item[key]).filter((value): value is string => Boolean(value)))].sort();
 }
 
 /**
- * A listing of stories. One card per editorial identity, never one per row.
+ * A listing of stories. One row per editorial identity, never one per row of
+ * the projection.
  *
- * The count says "stories" rather than "records" because that is what a card
+ * The count says "stories" rather than "records" because that is what a row
  * now is: the archive answers "how many things happened", and a developing
- * story that was revised four times is one of them.
+ * story that was revised four times is one of them. `byDay` groups the rows
+ * under a Jerusalem-day heading the way `/updates` does (Miller): an archive
+ * of a hundred and fifty rows is a wall, the same rows in days are a calendar.
  */
-function PublicationSection({ title, surface, stories, narrative = false }: {
+function PublicationSection({ title, surface, stories, byDay = false }: {
   title: string;
   /** The measurement surface: every card is `<surface>-<publicId>`. */
   surface: string;
   stories: StoryGroup<Publication>[];
-  narrative?: boolean;
+  byDay?: boolean;
 }) {
-  return (
-    <section className={styles.liveSection}>
-      <div className={styles.liveSectionHead}>
-        <h2>{title}</h2>
-        <p data-numeric="">{stories.length} {stories.length === 1 ? "story" : "stories"}</p>
-      </div>
-      <ol className={styles.liveList}>{stories.map((story, index) => {
-        const item = story.latest;
-        const media = hubMedia(item);
-        return (
+  const days = byDay ? groupByDay(stories, (story) => story.latest.publishedAt) : null;
+  const rows = (items: StoryGroup<Publication>[], titleTag: "h3" | "h4", offset = 0) => (
+    <ol className={styles.liveList}>{items.map((story, index) => {
+      const item = story.latest;
+      const media = hubMedia(item);
+      const href = publicationHref(item.publicId);
+      return (
         <li key={item.publicId}>
-          {/* Nested Read-record control: the row is a surface, not a link. */}
+          {/* The row is a surface, not a link: it carries the headline link,
+              the verb, and any earlier updates of the same story at their own
+              addresses, and a link cannot hold links. */}
           <Card variant="row" as="article" className={media ? `${styles.liveRow} ${styles.liveRowMedia}` : styles.liveRow}
-            {...measurePublicationCard(surface, item, `${surface}:${index + 1}`)}>
+            {...measurePublicationCard(surface, item, `${surface}:${offset + index + 1}`)}>
             <CardHeader className={styles.liveRowHeader}>
               <CardEyebrow>
-                {rowStatus(item, narrative)}
+                {SECTION_LABELS[item.section]}
                 {item.editorialTopic ? ` · ${humanize(item.editorialTopic)}` : ""}
               </CardEyebrow>
               <CardCount>
                 <time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time>
               </CardCount>
             </CardHeader>
-            <Headline title={item.title} narrative={narrative} />
+            <CardTitle as={titleTag}><Link href={href}>{item.title}</Link></CardTitle>
             {item.summary ? (
               <CardDescription className={styles.liveRowSummary}>{item.summary}</CardDescription>
             ) : null}
             <UpdatedMarker item={item} />
-            <Metadata item={item} narrative={narrative} />
+            <Metadata item={item} />
             <UpdateLog earlier={story.earlier} />
-            <CardFooter className={styles.liveRowAction}>
-              <ButtonLink href={`/articles/${item.publicId}`} variant="text" size="md">
-                {publicationCta(item.section)}
-              </ButtonLink>
-            </CardFooter>
             {media ? <Thumbnail media={media} className={styles.rowThumb} sizes="112px" /> : null}
           </Card>
         </li>
-        );
-      })}</ol>
+      );
+    })}</ol>
+  );
+
+  return (
+    <section className={styles.liveSection}>
+      <div className={styles.liveSectionHead}>
+        <h2>{title}</h2>
+        <p data-numeric="">{stories.length} {stories.length === 1 ? "story" : "stories"}</p>
+      </div>
+      {days ? (
+        <div className={styles.liveDays}>
+          {days.map((day, dayIndex) => {
+            /* The measurement position is the row's place in the whole
+               archive, not in its day, so a placement string stays stable
+               when a day is added above it. Counted from the days already
+               rendered rather than from a running total: a variable mutated
+               inside `map` is a reassignment after render (`react-hooks/
+               immutability`), and there are at most a handful of days. */
+            const start = days
+              .slice(0, dayIndex)
+              .reduce((total, previous) => total + previous.entries.length, 0);
+            return (
+              <section key={day.key} className={styles.liveDay} aria-labelledby={`${surface}-day-${day.key}`}>
+                <h3 className={styles.liveDayHeading} id={`${surface}-day-${day.key}`}>
+                  <time dateTime={day.key}>{day.label}</time>
+                </h3>
+                {rows(day.entries, "h4", start)}
+              </section>
+            );
+          })}
+        </div>
+      ) : rows(stories, "h3")}
     </section>
   );
 }
@@ -721,42 +800,17 @@ function UpdateLog({ earlier }: { earlier: Publication[] }) {
   if (!earlier.length) return null;
   return (
     <div className={styles.updateLog}>
-      <h4>Earlier in this story</h4>
+      <p className={styles.updateLogLabel}>Earlier in this story</p>
       <ol>
         {earlier.map((item) => (
           <li key={item.publicId}>
             <time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time>
-            <Link href={`/articles/${item.publicId}`}>{item.title}</Link>
+            <Link href={publicationHref(item.publicId)}>{item.title}</Link>
           </li>
         ))}
       </ol>
     </div>
   );
-}
-
-/**
- * Splits the public headline prefix `narrativeWatchTitle()` wrote — "Reported
- * claim: " or "Analysis: " — off the title so it renders as a kicker above the
- * headline rather than as the headline's first two words. Display-side only:
- * this reads what the contract wrote and never writes a prefix, so
- * `server/contracts/publication.ts` stays the single prefixer. A title with
- * neither prefix renders unchanged.
- */
-function Headline({ title, narrative }: { title: string; narrative: boolean }) {
-  const match = narrative ? /^(Reported claim|Analysis):\s*/.exec(title) : null;
-  if (!match) return <CardTitle>{title}</CardTitle>;
-  return (
-    <>
-      <CardEyebrow className={styles.claimKicker}>{match[1]}</CardEyebrow>
-      <CardTitle>{title.slice(match[0].length)}</CardTitle>
-    </>
-  );
-}
-
-function rowStatus(item: Publication, narrative: boolean): string {
-  const details = item.narrativeWatchDetails;
-  if (narrative && details) return VERIFICATION_STATES[details.verificationState].label;
-  return SECTION_LABELS[item.section];
 }
 
 /** A machine facet — `international_arms_sales` — as words. */
@@ -773,33 +827,14 @@ function humanize(value: string): string {
  * links. The values arrive in sentence case from the record and are printed
  * as they are; the separator is the only thing added.
  */
-function Metadata({ item, narrative = false }: { item: Publication; narrative?: boolean }) {
+function Metadata({ item }: { item: Publication }) {
   const values = [item.editorialTopic, item.primaryActor, item.arena]
     .filter((value): value is string => Boolean(value))
     .map(humanize);
-  const details = item.narrativeWatchDetails;
-  return <>
-    {values.length ? (
-      <p className={styles.storyMeta}>
-        {narrative ? <span className={styles.metaLabel}>Monitored signal</span> : null}
-        <span className={styles.metaFacets}>{values.join(" · ")}</span>
-      </p>
-    ) : null}
-    {narrative && details ? (
-      <dl className={styles.claimRecord}>
-        <dt>Claim</dt>
-        <dd>{details.exactClaim}</dd>
-        <dt>Trend</dt>
-        <dd data-value="">{details.trendDirection}</dd>
-        <dt>Status</dt>
-        <dd data-value="">{details.verificationState}</dd>
-        {isAnalysisBasis(details) ? (
-          <>
-            <dt>Basis</dt>
-            <dd>Organisation analysis, no source cited</dd>
-          </>
-        ) : null}
-      </dl>
-    ) : null}
-  </>;
+  if (!values.length) return null;
+  return (
+    <p className={styles.storyMeta}>
+      <span className={styles.metaFacets}>{values.join(" · ")}</span>
+    </p>
+  );
 }

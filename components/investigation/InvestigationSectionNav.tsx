@@ -88,23 +88,28 @@ export function InvestigationSectionNav({ sections }: { sections: InvestigationS
   }, [activeId]);
 
   return (
-    <nav className={styles.sectionNav} aria-label="Sections of this case">
+    /* `data-case-nav` is the hook the page shell reads: `sections.module.css`
+       matches `.page:has([data-case-nav])` and adds this strip's height to
+       `--anchor-offset`, so an in-page jump on a case file clears both sticky
+       bars rather than only the masthead. It is a contract between two
+       stylesheets, so it lives on the element rather than in a class name. */
+    <nav className={styles.sectionNav} data-case-nav aria-label="Sections of this case">
       <ol
         ref={listRef}
         className={styles.sectionNavList}
         data-overflow={edges}
         onScroll={measure}
       >
-        {sections.map((section, index) => (
+        {/* No ordinals (2026-09-16): a contents list is not a sequence a
+            reader counts through, and a mono figure before every label made
+            the strip read as a data table rather than a set of places. */}
+        {sections.map((section) => (
           <li key={section.id}>
             <a
               href={`#${section.id}`}
               className={styles.sectionNavLink}
               aria-current={activeId === section.id ? 'location' : undefined}
             >
-              <span className={styles.sectionNavIndex} aria-hidden="true">
-                {String(index + 1).padStart(2, '0')}
-              </span>
               {section.label}
             </a>
           </li>

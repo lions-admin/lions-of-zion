@@ -6,19 +6,17 @@
   border-top: var(--line-w) solid var(--line);
 }
 
-/* "Antisemitism record" is a label a person wrote — the kicker role. The
-   instant beside it is a machine value and keeps the data face (UX-31). */
+/* The stamp is the one badge grammar (`documented`, never the ember ramp —
+   see AntisemitismRecord.tsx). The instant beside it is a machine value and
+   keeps the data face (UX-31). */
 .meta {
-  composes: kickerLabel from global;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   gap: var(--sp-2);
   color: var(--ink-lo);
 }
-
-.meta span { color: var(--data-ember-peak); }
 
 .meta time {
   font-family: var(--face-data);

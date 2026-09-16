@@ -170,9 +170,11 @@
 
 
 /* "Published", "Reviewed by", "Sources": the terms a person wrote, so the
-   kicker register; the values under them stay tabular. */
+   kicker register — and in ink, not gold. Six gold terms stood in this row on
+   every record, which is six accents on one screen; the accent belongs to the
+   one thing a reader should do next, not to the names of the bookkeeping. */
 .publicationMeta dt {
-  color: var(--gold);
+  color: var(--ink-lo);
   font-family: var(--face-kicker);
   font-size: var(--t-kicker);
   font-weight: var(--t-kicker-weight);
@@ -189,8 +191,20 @@
   font-size: var(--t-caption);
   font-weight: var(--t-caption-weight);
   line-height: var(--t-caption-lh);
-  font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
+}
+
+/* A date, an edition id, a source count: machine values, so the data face.
+   `PublicationMeta` decides which row is which — see the comment there. The
+   whole row used to be set in the text face with `tabular-nums` bolted on,
+   which is the shape of a value that could not decide what it was. */
+.publicationMeta dd[data-register='data'] {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  font-variant-numeric: tabular-nums;
 }
 
 
@@ -267,6 +281,16 @@
   gap: var(--sp-5);
   padding: var(--sp-4) 0;
   border-bottom: var(--line-w) solid var(--line);
+}
+
+/* The last row of a record's correction list drops its rule (2026-09-16).
+   Every row ruled its own foot, so where the version-history disclosure
+   follows — and the disclosure now draws its own top — two hairlines met with
+   nothing between them, and where nothing follows, a rule closed a block the
+   page had already closed. Scoped to the record variant: the sitewide ledger
+   at `/corrections` is a list of detached entries and keeps its last rule. */
+.corrections[data-variant='record'] ol > li:last-child {
+  border-bottom: 0;
 }
 
 .correctionStamp {
@@ -951,6 +975,12 @@
 }
 
 
+
+/* The table and its visible key (`Explainer`) as one block, so the key sits
+   under the scroll container rather than inside it. */
+.rosterBlock {
+  min-width: 0;
+}
 
 .rosterScroll {
   overflow-x: auto;

@@ -116,7 +116,10 @@ export function SensitiveContent({
           <Button
             ref={revealRef}
             type="button"
-            variant="secondary"
+            /* A reveal is an inline act on the plate, not the page's second
+               tier: ghost, by the Button audit of 2026-09-16. The gate's
+               category line and warning are what carry the weight here. */
+            variant="ghost"
             size="md"
             aria-expanded={false}
             aria-controls={regionId}

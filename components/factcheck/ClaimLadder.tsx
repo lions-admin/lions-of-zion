@@ -8,6 +8,7 @@ import { CorrectionHistory, KnownUnknownPanel } from "@/components/content";
 import { TREND_LABELS, VERIFICATION_STATES } from "@/components/live/publication-labels";
 import { stamp } from "@/components/live/feed-time";
 import { Badge } from "@/components/ui/Badge";
+import { Icon } from "@/components/ui/Icon";
 import { ANALYSIS_AUTHOR, isAnalysisBasis } from "@/server/contracts/publication";
 import type { PublicPublicationDetail } from "@/server/contracts/publication";
 import { EvidenceChain } from "./EvidenceChain";
@@ -48,8 +49,10 @@ export function ClaimLadder({ record }: { record: PublicPublicationDetail }) {
         <h3 className={styles.rungLabel}>
           <span>01</span> The claim
         </h3>
+        {/* Somebody else's words: the quote role (Literata, roman, in
+            quotation marks) — the one serif on the desk and its one job. */}
         <blockquote className={styles.claimQuote}>
-          <p>{details.exactClaim}</p>
+          <p className={styles.claimQuoteText}>{details.exactClaim}</p>
         </blockquote>
         <dl className={styles.claimFacts}>
           <div>
@@ -105,7 +108,10 @@ export function ClaimLadder({ record }: { record: PublicPublicationDetail }) {
         ) : null}
       </section>
 
-      <section className={styles.rungBlock}>
+      {/* The other side of the ledger, marked by a rule in the softer ember —
+          never a red panel: contradiction is part of the method, not an
+          alarm about it. */}
+      <section className={styles.rungBlock} data-rung="contradictions">
         <h3 className={styles.rungLabel}>
           <span>03</span> Contradictions
         </h3>
@@ -173,7 +179,7 @@ export function ClaimLadder({ record }: { record: PublicPublicationDetail }) {
 
       <footer className={styles.ladderFoot}>
         <Link href={`/articles/${record.publicId}`} className={styles.readFull}>
-          Read the full record <span aria-hidden="true">&rarr;</span>
+          Read the full record <Icon name="arrow-right" inline className="arrow" />
         </Link>
         <p className={styles.ladderStamp}>
           Published <time dateTime={record.publishedAt}>{stamp(record.publishedAt)}</time>
@@ -186,7 +192,11 @@ export function ClaimLadder({ record }: { record: PublicPublicationDetail }) {
         </p>
         {record.corrections.length ? (
           <div className={styles.correctionsHost}>
+            {/* The record variant, as on the article page: a substantive
+                correction opens; an attachment-only history is one line each
+                with every note kept verbatim behind the disclosure. */}
             <CorrectionHistory
+              variant="record"
               corrections={record.corrections.map((correction) => ({
                 date: stamp(correction.changedAt),
                 note: correction.summary,

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { StatusState } from "@/components/ui/StatusState";
+import { publicationHubCrumb } from "@/lib/publication-routing";
 import styles from "./article.module.css";
 
 /**
@@ -12,7 +13,13 @@ import styles from "./article.module.css";
  * Must be a Client Component so `reset` can re-render the segment
  * (Next.js `error.tsx` convention). Distinct from `not-found.tsx`: that
  * page is a missing publicId; this one is a record the desk could not read.
+ *
+ * The way out derives its label from `publicationHubCrumb`, as the 404 does:
+ * until 2026-09-16 this boundary still called the desk "Daily Brief", a
+ * section retired on 2026-09-05 — on the one page a reader meets only when
+ * something has already gone wrong.
  */
+const DESK = publicationHubCrumb("news");
 export default function ArticleError({
   error,
   reset,
@@ -49,8 +56,8 @@ export default function ArticleError({
             onAction={() => recover()}
           />
           <nav className={styles.recoveryNav} aria-label="Recovery">
-            <ButtonLink href="/geopolitical-brief" variant="ghost" size="md">
-              Daily Brief
+            <ButtonLink href={DESK.href} variant="ghost" size="md">
+              {DESK.label}
             </ButtonLink>
             <ButtonLink href="/search" variant="text" size="md">
               Search

@@ -103,6 +103,40 @@ describe("the article 404 no longer points at a retired section", () => {
   });
 });
 
+describe("the article error boundary names the same desk as the 404", () => {
+  const page = read("app/articles/[publicId]/error.tsx");
+
+  it("derives the way out instead of spelling it", () => {
+    const markup = page.replace(/\/\*[\s\S]*?\*\//g, "");
+    expect(markup).toContain('publicationHubCrumb("news")');
+    expect(markup).not.toContain("Daily Brief");
+  });
+
+  it("offers the reader the same two exits the 404 does", () => {
+    // Recovering, the desk, and search — the 404's shape, so the two pages a
+    // reader meets after something went wrong do not disagree.
+    expect(page).toContain('href="/search"');
+  });
+});
+
+describe("the share card names the section the way every other surface does", () => {
+  const card = read("app/articles/[publicId]/opengraph-image.tsx");
+
+  it("reads the canonical label table rather than combing the enum", () => {
+    expect(card).toContain("PUBLICATION_SECTION_LABELS[article.section]");
+    /* The card printed the raw enum until 2026-09-16: `science_medicine`
+       arrived on a crawler as "SCIENCE MEDICINE". A replace of the underscore
+       is the shape of that bug, so it must not come back. */
+    expect(card).not.toMatch(/section\.replace\(/);
+  });
+
+  it("covers every section the label table can hand it", () => {
+    for (const section of Object.values(SECTIONS_BY_HOMEPAGE_SECTION).flat()) {
+      expect(PUBLICATION_SECTION_LABELS[section]).toBeTruthy();
+    }
+  });
+});
+
 describe("the People hub derives its lanes", () => {
   const page = read("app/people-of-israel/page.tsx");
 
@@ -170,24 +204,45 @@ describe("one verb per kind of record, derived from its section", () => {
     expect(publicationCta("antisemitism")).toBe("Read the story");
   });
 
+  /* The strings that were chosen at the call site. A kind-based fallback
+     survives in the narratives card on purpose — a snapshot serialized before
+     `cta` existed carries none, and collapsing every investigation to one
+     verb would lose the distinction this task exists to make — but none of
+     the retired wording does. */
+  const RETIRED_VERBS = ["Read the daily brief", "Read the sourced record", "Read record", "Read the article", "Read the analysis"];
+  const strip = (path: string) =>
+    read(path).replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
+
   it.each([
     "components/home/HomeNewsSection.tsx",
     "components/home/HomeNarrativesSection.tsx",
     "components/briefs/NarrativeRecord.tsx",
     "components/briefs/AntisemitismRecord.tsx",
     "components/briefs/LiveBriefHub.tsx",
-    "app/people-of-israel/page.tsx",
   ])("%s prefers the derived verb over one of its own", (path) => {
-    const markup = read(path).replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
+    const markup = strip(path);
     expect(markup).toMatch(/publicationCta|item\.cta/);
-    /* The strings that were chosen at the call site. A kind-based fallback
-       survives in the narratives card on purpose — a snapshot serialized before
-       `cta` existed carries none, and collapsing every investigation to one
-       verb would lose the distinction this task exists to make — but none of
-       the retired wording does. */
-    for (const retired of ["Read the daily brief", "Read the sourced record", "Read record", "Read the article", "Read the analysis"]) {
-      expect(markup).not.toContain(retired);
-    }
+    for (const retired of RETIRED_VERBS) expect(markup).not.toContain(retired);
+  });
+
+  /* The hubs whose ledger rows print no verb at all (2026-09-16, workstream
+     D): a `Card variant="row"` carries one control — the headline — and the
+     extending stub under it is the affordance, so a second link to the same
+     address in a fifty-row ledger buys a tab stop and no destination. The
+     kind of record is still said, by the row's eyebrow. There is therefore
+     no verb to derive; what still has to hold is that none of the retired
+     wording comes back, and that a verb, if one ever returns here, comes
+     from `publicationCta` rather than from the page. */
+  it.each([
+    "app/people-of-israel/page.tsx",
+  ])("%s names no record verb of its own", (path) => {
+    const markup = strip(path);
+    for (const retired of RETIRED_VERBS) expect(markup).not.toContain(retired);
+    const verbs = markup.match(/>(Read|Open|See) [^<{]*/g) ?? [];
+    /* "Read their story" on a hero profile is the one that stays: a profile
+       at `/our-heroes#<id>` is not a publication and has no section to
+       derive a verb from. */
+    expect(verbs.map((verb) => verb.trim())).toEqual([">Read their story"]);
   });
 });
 

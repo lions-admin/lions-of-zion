@@ -1,30 +1,57 @@
 import React from "react";
 import Link from "next/link";
-import { PointerHighlight } from "@/components/motion/PointerHighlight";
 import { Icon } from "./Icon";
 import styles from "./card.module.css";
 
 /**
- * Editorial surface compositions: feature, list-row and dossier. Accent is
- * the top/start rule colour, not a glow.
+ * The three editorial compositions, and the whole of the card grammar
+ * (2026-09-16, workstream D). Sixteen row designs across the four hubs became
+ * these three:
  *
- * `metric`, `note`, `panel` and `quiet` (and the `tone` alias of `variant`)
- * were removed on 2026-09-15 (workstream J): none had a caller, and a
- * composition nothing renders is a fourth card design waiting to happen.
+ *   lead   the spread that opens a band — rule and space, never a box: an
+ *          optional plate, the headline at the h2 step with the signal stub
+ *          under it, the standfirst at the lede step.
+ *   row    one record in a ruled ledger: a hairline below, the 24px stub
+ *          under the headline that extends to the headline's full measure
+ *          on hover and on focus. The rule is the hover state; the headline
+ *          keeps its colour.
+ *   tile   the one box, and only where the whole thing is pressable — a
+ *          plate with a hairline that answers as one control. A tile needs
+ *          an `href` (or `interactive`, when the caller owns the semantics).
+ *
+ * `feature` and `dossier` were the names until 2026-09-16 and still resolve
+ * — both onto `tile`, the pressable plate they drew — for the two callers
+ * outside this workstream (`components/content/ContentCard.tsx`,
+ * `app/fake-resistance/official-narrative/page.tsx`). They go with those
+ * callers; nothing new may use them. `PointerHighlight` left the card at the
+ * same time: a pointer-following gold wash is a glow, and the identity spends
+ * gold as a hairline and one filled control.
  */
-export type CardVariant = "feature" | "row" | "dossier";
+export type CardVariant = "lead" | "row" | "tile";
+
+/** @deprecated Resolve to `tile`; kept only for the two callers named above. */
+export type LegacyCardVariant = "feature" | "dossier";
 
 export type CardAccent = "none" | "gold" | "ember";
 
 const VARIANT_CLASS: Record<CardVariant, string> = {
-  feature: styles.feature,
+  lead: styles.lead,
   row: styles.row,
-  dossier: styles.dossier,
+  tile: styles.tile,
 };
 
+const LEGACY_VARIANT: Record<LegacyCardVariant, CardVariant> = {
+  feature: "tile",
+  dossier: "tile",
+};
+
+export function resolveCardVariant(variant: CardVariant | LegacyCardVariant): CardVariant {
+  return variant in LEGACY_VARIANT ? LEGACY_VARIANT[variant as LegacyCardVariant] : (variant as CardVariant);
+}
+
 type CardOwnProps = {
-  variant?: CardVariant;
-  /** Colour of the accent rule and the eyebrow. */
+  variant?: CardVariant | LegacyCardVariant;
+  /** Colour of the stub under the headline, and of a tile's top rule. */
   accent?: CardAccent;
   /** Renders the whole card as a link and arms the interactive treatment. */
   href?: string;
@@ -40,7 +67,7 @@ export type CardProps = Omit<React.HTMLAttributes<HTMLElement>, "children"> &
   CardOwnProps;
 
 export function Card({
-  variant = "feature",
+  variant = "row",
   accent = "none",
   href,
   interactive,
@@ -49,16 +76,14 @@ export function Card({
   children,
   ...props
 }: CardProps) {
-  const composition = variant;
+  const composition = resolveCardVariant(variant);
   const isInteractive = interactive ?? href !== undefined;
-  const tracksPointer = isInteractive && composition !== "row";
 
   const classes = [
     styles.card,
     VARIANT_CLASS[composition],
     accent === "none" ? "" : styles[accent],
     isInteractive ? styles.interactive : "",
-    tracksPointer ? styles.pointerSurface : "",
     className,
   ]
     .filter(Boolean)
@@ -66,8 +91,7 @@ export function Card({
 
   if (href !== undefined) {
     return (
-      <Link href={href} className={classes} {...props}>
-        {tracksPointer ? <PointerHighlight /> : null}
+      <Link href={href} className={classes} data-composition={composition} {...props}>
         {children}
       </Link>
     );
@@ -75,8 +99,7 @@ export function Card({
 
   return React.createElement(
     Component,
-    { className: classes, ...props },
-    tracksPointer ? <PointerHighlight /> : null,
+    { className: classes, "data-composition": composition, ...props },
     children,
   );
 }
@@ -95,6 +118,8 @@ export function CardHeader({
   );
 }
 
+/** A phrase a person wrote to name the record — a section, a flag, a
+ *  status word. The kicker register, never mono. */
 export function CardEyebrow({
   className = "",
   children,
@@ -154,6 +179,9 @@ export function CardDescription({
   );
 }
 
+/** The media plate — `app/globals.css` `.mediaPlate` — sized by the
+ *  composition. The picture inside it moves 2% when the record is hovered
+ *  or holds keyboard focus, and holds still under reduced motion. */
 export function CardMedia({
   className = "",
   aspectRatio = "16 / 9",

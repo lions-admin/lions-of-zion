@@ -4,12 +4,14 @@ import { formatDay } from "@/lib/format-date";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EditorialShell } from "@/components/site/EditorialShell";
-import { HubMasthead, HubUpdated } from "@/components/site/HubMasthead";
+import { HubMasthead, HubUpdated, type HubJumpLink } from "@/components/site/HubMasthead";
 import { getCaseIndex } from "@/lib/content/fake-resistance-cases";
 import { getAntisemitismFeed, getInfluenceInvestigationFeed, getNarrativeWatchFeed } from "@/lib/content/fake-resistance-watch";
 import { NarrativeRecord } from "@/components/briefs/NarrativeRecord";
 import { AntisemitismRecord } from "@/components/briefs/AntisemitismRecord";
 import { publicationHref } from "@/lib/publication-routing";
+import { Card, CardCount, CardDescription, CardEyebrow, CardHeader, CardTitle } from "@/components/ui/Card";
+import { StatusState, absenceStatus } from "@/components/ui/StatusState";
 import { measureCard, measurePublicationCard } from "@/components/measurement/attrs";
 import styles from "./page.module.css";
 import { pageMetadata } from "@/lib/page-metadata";
@@ -36,6 +38,17 @@ export default async function Page() {
      only — the hand-curated case files above keep their own higher bar. */
   const influenceItems = influence.status === "fulfilled" ? [...influence.value].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)) : [];
   const [featured, ...otherCases] = cases;
+  /* In-page anchors only, and only to sections that are on the page: the
+     "Further investigations" ledger renders only when there is more than one
+     case file, and a contents row that points at an id nobody wrote is a
+     control that does nothing. */
+  const jumps: HubJumpLink[] = [
+    { href: "#investigation-heading", label: "Latest investigation" },
+    { href: "#latest-monitoring", label: "On the watch" },
+    { href: "#antisemitism", label: "Antisemitism" },
+    { href: "#influence", label: "Influence operations" },
+    ...(otherCases.length ? [{ href: "#research-heading" as const, label: "Further investigations" }] : []),
+  ];
   /* When this desk last changed: the newest instant across every read that
      succeeded. A failed read contributes nothing rather than a date it does
      not have, and a desk with nothing published says nothing here. */
@@ -53,14 +66,7 @@ export default async function Page() {
           title={<>Fake Resistance</>}
           standfirst={description}
           status={latest ? <HubUpdated at={latest} /> : undefined}
-          jumps={[
-            { href: "#investigation-heading", label: "Latest investigation" },
-            { href: "#latest-monitoring", label: "On the watch" },
-            { href: "#antisemitism", label: "Antisemitism" },
-            { href: "#influence", label: "Influence operations" },
-            { href: "/fake-resistance/network", label: "The influence network" },
-            { href: "/fake-resistance/playbook", label: "The playbook" },
-          ]}
+          jumps={jumps}
         />
         <div className={styles.front}>
           <section className={styles.investigation} aria-labelledby="investigation-heading"
@@ -74,7 +80,14 @@ export default async function Page() {
                 <div><dt>Sources on record</dt><dd>{featured.counts.sources}</dd></div>
               </dl>
               <Link className={styles.action} href={`/fake-resistance/cases/${featured.slug}`}>Open the investigation <Icon name="arrow-right" inline className="arrow" /></Link>
-            </> : <><h2 id="investigation-heading">Investigations</h2><p role={research.status === "rejected" ? "alert" : undefined}>{research.status === "rejected" ? "Investigations could not be loaded. Monitoring remains available alongside." : "No investigations are available yet."}</p></>}
+            </> : <><h2 id="investigation-heading">Investigations</h2>
+              {research.status === "rejected"
+                ? <StatusState status={absenceStatus("unavailable")} eyebrow="Latest investigation"
+                    title="Investigations could not be loaded."
+                    description="Monitoring below remains available. This is not an empty case file." />
+                : <StatusState status={absenceStatus("nothing-published")} eyebrow="Latest investigation"
+                    title="No investigations have been published yet."
+                    description="Published monitoring records appear beside this panel as they arrive." />}</>}
           </section>
           <section id="latest-monitoring" className={styles.monitoring} aria-labelledby="monitoring-heading">
             {/* UX-15 — the counts that used to sit in the masthead's facts
@@ -90,7 +103,12 @@ export default async function Page() {
               <Link href="/fake-resistance/watch">All of Narrative Watch <Icon name="arrow-right" inline className="arrow" /></Link>
             </header>
             <p className={styles.disclosure}>Published monitoring. Not a live scan.</p>
-            {monitoring.status === "rejected" ? <p role="alert">Monitoring is temporarily unavailable.</p> : items.length ? items.slice(0, 3).map(item => <NarrativeRecord key={item.publicId} item={item} compact />) : <p>No monitoring records have been published yet.</p>}
+            {monitoring.status === "rejected"
+              ? <StatusState status={absenceStatus("unavailable")} eyebrow="On the watch" title="Monitoring could not be loaded."
+                  description="The publication service is unavailable. This is not an empty watch list." />
+              : items.length ? items.slice(0, 3).map(item => <NarrativeRecord key={item.publicId} item={item} compact />)
+              : <StatusState status={absenceStatus("nothing-published")} eyebrow="On the watch" title="No monitoring records have been published yet."
+                  description="Assessed claims appear here as they clear review." />}
           </section>
         </div>
         <section id="antisemitism" className={styles.antisemitism} aria-labelledby="antisemitism-heading">
@@ -100,46 +118,71 @@ export default async function Page() {
             <Link href="/fake-resistance/antisemitism">All of Antisemitism <Icon name="arrow-right" inline className="arrow" /></Link>
           </header>
           <p className={styles.disclosure}>Documented incidents and trends. A report names what is known, its context, and what remains unconfirmed.</p>
-          {antisemitism.status === "rejected" ? <p role="alert">Antisemitism records are temporarily unavailable.</p> : antisemitismItems.length ? antisemitismItems.slice(0, 2).map(item => <AntisemitismRecord key={item.publicId} item={item} compact />) : <p>No antisemitism records have been published yet.</p>}
+          {antisemitism.status === "rejected"
+            ? <StatusState status={absenceStatus("unavailable")} eyebrow="Antisemitism" title="Antisemitism records could not be loaded."
+                description="The publication service is unavailable. This is not an empty record." />
+            : antisemitismItems.length ? antisemitismItems.slice(0, 2).map(item => <AntisemitismRecord key={item.publicId} item={item} compact />)
+            : <StatusState status={absenceStatus("nothing-published")} eyebrow="Antisemitism" title="No antisemitism records have been published yet."
+                description="Documented incidents appear here as they are filed." />}
         </section>
         <section id="influence" className={styles.more} aria-labelledby="influence-heading">
           <header className={styles.sectionHead}>
             <h2 id="influence-heading">Influence operations</h2>
             <SectionCount settled={influence.status === "fulfilled"} count={influenceItems.length} noun="investigation" />
-            <Link href="/fake-resistance/network">The influence network <span aria-hidden="true">↗︎</span></Link>
+            <Link href="/fake-resistance/network">The influence network <Icon name="arrow-right" inline className="arrow" /></Link>
           </header>
           <p className={styles.disclosure}>Published investigations into coordinated influence — state-aligned, networked and anti-Western operations — kept apart from the claims they circulate.</p>
-          {influence.status === "rejected" ? <p role="alert">Influence investigations are temporarily unavailable.</p>
-            : influenceItems.length ? <div className={styles.researchGrid}>{influenceItems.slice(0, 3).map(item => <article key={item.publicId} {...measurePublicationCard("fr-influence", item)}>
-                <time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time>
-                <h3><Link href={publicationHref(item.publicId)}>{item.title}</Link></h3>
-                {item.summary ? <p>{item.summary}</p> : null}
-                <Link className={styles.action} href={publicationHref(item.publicId)}>Open the investigation <Icon name="arrow-right" inline className="arrow" /></Link>
-              </article>)}</div>
-            : <p>No influence investigations have been published yet.</p>}
+          {influence.status === "rejected"
+            ? <StatusState status={absenceStatus("unavailable")} eyebrow="Influence operations" title="Influence investigations could not be loaded."
+                description="The publication service is unavailable. This is not an empty file." />
+            : influenceItems.length ? <div className={styles.researchGrid}>{influenceItems.slice(0, 3).map(item => (
+                <Card key={item.publicId} variant="tile" href={publicationHref(item.publicId)} {...measurePublicationCard("fr-influence", item)}>
+                  <CardHeader>
+                    <CardEyebrow>Influence operation</CardEyebrow>
+                    <CardCount><time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time></CardCount>
+                  </CardHeader>
+                  <CardTitle>{item.title}</CardTitle>
+                  {item.summary ? <CardDescription clamp>{item.summary}</CardDescription> : null}
+                </Card>
+              ))}</div>
+            : <StatusState status={absenceStatus("nothing-published")} eyebrow="Influence operations" title="No influence investigations have been published yet."
+                description="Coordinated-influence files appear here once they are published." />}
         </section>
         {otherCases.length ? <section className={styles.more} aria-labelledby="research-heading">
           <header className={styles.sectionHead}>
             <h2 id="research-heading">Further investigations</h2>
-            <SectionCount settled count={cases.length} noun="investigation" />
-            <Link href="/fake-resistance/social-media">All investigations <Icon name="arrow-right" inline className="arrow" /></Link>
+            <SectionCount settled count={otherCases.length} noun="investigation" />
           </header>
-          <div className={styles.researchGrid}>{otherCases.slice(0,3).map(item => <article key={item.slug}
-            {...measureCard({ id: `fr-case-${item.slug}`, section: "fake-resistance", content: `case:${item.slug}`, type: "case" })}>
-            <time dateTime={item.updatedAt}>{formatDay(item.updatedAt)}</time>
-            <h3><Link href={`/fake-resistance/cases/${item.slug}`}>{item.title}</Link></h3>
-            <p>{item.question}</p>
-            <Link className={styles.action} href={`/fake-resistance/cases/${item.slug}`}>Open the investigation <Icon name="arrow-right" inline className="arrow" /></Link>
-          </article>)}</div>
+          <div className={styles.researchGrid}>{otherCases.slice(0, 3).map(item => (
+            <Card key={item.slug} variant="tile" href={`/fake-resistance/cases/${item.slug}`}
+              {...measureCard({ id: `fr-case-${item.slug}`, section: "fake-resistance", content: `case:${item.slug}`, type: "case" })}>
+              <CardHeader>
+                <CardEyebrow>Case file</CardEyebrow>
+                <CardCount><time dateTime={item.updatedAt}>{formatDay(item.updatedAt)}</time></CardCount>
+              </CardHeader>
+              <CardTitle>{item.title}</CardTitle>
+              <CardDescription clamp>{item.question}</CardDescription>
+            </Card>
+          ))}</div>
         </section> : null}
         <nav className={styles.depth} aria-label="Explore the research" data-measure-id="fr-depth-nav" data-measure-section="fake-resistance">
-          <Link href="/fake-resistance/network"><span>Connections &amp; amplification</span><strong>The influence network</strong><span aria-hidden="true">↗︎</span></Link>
-          <Link href="/fake-resistance/playbook"><span>Recognise the techniques</span><strong>The manipulation playbook</strong><span aria-hidden="true">↗︎</span></Link>
+          <Link href="/fake-resistance/network"><span>Connections &amp; amplification</span><strong>The influence network</strong><Icon name="arrow-right" inline className="arrow" /></Link>
+          <Link href="/fake-resistance/playbook"><span>Recognise the techniques</span><strong>The manipulation playbook</strong><Icon name="arrow-right" inline className="arrow" /></Link>
+          <Link href="/fake-resistance/official-narrative"><span>How a state tells it</span><strong>Official narrative engineering</strong><Icon name="arrow-right" inline className="arrow" /></Link>
+          <Link href="/fake-resistance/social-media"><span>Where it spreads</span><strong>The social-media front</strong><Icon name="arrow-right" inline className="arrow" /></Link>
         </nav>
-        <div className={styles.bottomLinks}><Link href="/fake-resistance/official-narrative">Documented narrative investigations <Icon name="arrow-right" inline className="arrow" /></Link><Link href="/fake-resistance/antisemitism">Antisemitism records <Icon name="arrow-right" inline className="arrow" /></Link><Link href="/geopolitical-brief">Looking for news? All of News &amp; Analysis <Icon name="arrow-right" inline className="arrow" /></Link></div>
         <ActivationBand
+          heading="Carry the sourced version back."
           share={{ url: `${SITE_URL}/fake-resistance`, text: "Fake Resistance — the claims in circulation, what they were built from, and the sourced version to carry back." }}
         />
+        <aside className={styles.watchBridge} aria-label="The news desk">
+          <p className={styles.bridgeKicker}>Next in the record</p>
+          <h2>Looking for what happened?</h2>
+          <p>Reporting on events — every line with the source behind it — is kept on the news desk, apart from the claims made about them.</p>
+          <Link className={styles.bridgeLink} href="/geopolitical-brief" data-measure-id="fr-to-brief">
+            All of News &amp; Analysis <Icon name="arrow-right" inline className="arrow" />
+          </Link>
+        </aside>
       </div>
     </EditorialShell>
   );

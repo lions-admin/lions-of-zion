@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SectionPage } from "@/components/sections/SectionPage";
-import { FigureRow, PublicationMeta, SourceList, Timeline } from "@/components/content";
+import { ActivationBand, FigureRow, PublicationMeta, SourceList, Timeline } from "@/components/content";
+import { EditorialShell } from "@/components/site/EditorialShell";
+import { HubMasthead, HubUpdated } from "@/components/site/HubMasthead";
+import { formatSourceDay } from "@/lib/format-date";
 import { Icon } from "@/components/ui/Icon";
 import { getOctober7Record } from "@/lib/content/october-7";
 import {
@@ -92,9 +94,10 @@ async function shareSamples(
     const url = `${SITE_URL}${href}`;
     const source = kind === "testimony" ? "October7.org" : "Hamas-Massacre.net";
     const witness = record.witness_name ? displayWitness(record.witness_name) : null;
-    const timestamp = record.publication_date ? new Date(record.publication_date) : null;
-    const date = timestamp && Number.isFinite(timestamp.getTime())
-      ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(timestamp) : null;
+    /* `formatSourceDay` — the site's one publisher-stated-day formatter, on
+       the publisher's UTC day. This was a fourth hand-rolled `Intl` instance
+       printing the same string until 2026-09-16. */
+    const date = record.publication_date ? formatSourceDay(record.publication_date) : null;
     const attribution = `Source: ${source}${date ? ` · Published ${date}` : ""}`;
     const warning = kind === "documentation"
       ? "Content warning: graphic material. Open the record to choose whether to view."
@@ -162,23 +165,40 @@ export default async function Page() {
   const languageCount = manifestLanguages(testimonies).length;
 
   return (
-    <SectionPage
-      kicker="The record"
-      id="october-7"
-      title="October 7 Archive"
-      tagline={TAGLINE}
-      withToc={false}
-    >
+    /* October 7 is a hub, and since 2026-09-16 it is built like one: the same
+       `HubMasthead` inside the same 100rem container as the other three
+       fronts, rather than the 68ch `SectionPage` shell it alone used. Its
+       child routes — the testimony and documentation indexes and their
+       records — stay on `SectionPage`, which is a reading shell and right
+       for them.
+       The memorial profile (no accent fill, the display step one weight
+       lighter, the signal rule unlit and unbroken, fade-only entrances) is
+       carried by `.page` on this route's own `<main>`. */
+    <EditorialShell routeId="october-7" showProgress={false} className={styles.page}>
+      <div className={styles.hub}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(october7JsonLd(record)) }} />
+
+      <HubMasthead
+        kicker="The record"
+        title={<>October 7 Archive</>}
+        standfirst={TAGLINE}
+        status={<HubUpdated at={record.publishedAt} />}
+        jumps={[
+          { href: "#explore-archive", label: "The collections" },
+          { href: "#archive-showcase", label: "From the archive" },
+          { href: "#in-the-record", label: "In the record" },
+          { href: "#what-followed", label: "What followed" },
+        ]}
+      />
 
       {/* UX-23. The counts used to open the page and then repeat on the two
           collection cards a viewport later. They print once now, on the cards,
           next to the collection each one measures; the language count stays
           on the testimony showcase's detail line. */}
-      <section className={styles.archiveExplorer} aria-labelledby="explore-archive">
+      <section id="explore-archive" className={`${styles.archiveExplorer} enterQuiet`} aria-labelledby="explore-archive-heading">
         <header className={styles.explorerHeading}>
           <p className={styles.eyebrow}>Archive collections</p>
-          <h2 id="explore-archive">Explore the archive</h2>
+          <h2 id="explore-archive-heading">Explore the archive</h2>
         </header>
         <nav className={styles.archiveEntries} aria-label="Choose an archive collection">
           <Link className={styles.archiveEntry} href="/october-7/testimonies" data-measure-id="o7-entry-testimonies">
@@ -212,10 +232,10 @@ export default async function Page() {
           about to see" arriving after they had already seen it. */}
       <p className={styles.sharingNote}>Graphic media stays covered in previews. Share the record — the original is one click behind the warning.</p>
 
-      <div className={styles.archiveShowcase}>
+      <div id="archive-showcase" className={`${styles.archiveShowcase} enterQuiet`}>
         <ArchiveShareShowcase kind="testimony" samples={stories} count={storyCount}
           detail={`Accounts available across ${languageCount} languages`} />
-        <ArchiveShareShowcase kind="documentation" samples={records} count={recordCount}
+        <ArchiveShareShowcase kind="documentation" demoted samples={records} count={recordCount}
           detail={`${counts.films} films · ${counts.photographs} photographs`} />
       </div>
 
@@ -232,7 +252,7 @@ export default async function Page() {
         </ul>
       </details>
 
-      <section className={styles.section} aria-labelledby="the-record">
+      <section id="in-the-record" className={styles.section} aria-labelledby="the-record">
         <h2 className={styles.sectionHeading} id="the-record">October 7, in the record</h2>
         <p>The attacks were documented by survivors, first responders, forensic teams and
           the perpetrators themselves. These figures come from public reporting;
@@ -240,8 +260,8 @@ export default async function Page() {
         <div className={styles.inscription}><FigureRow figures={record.figures} /></div>
       </section>
 
-      <section className={styles.section} aria-labelledby="what-followed">
-        <h2 className={styles.sectionHeading} id="what-followed">What followed October 7</h2>
+      <section id="what-followed" className={styles.section} aria-labelledby="what-followed-heading">
+        <h2 className={styles.sectionHeading} id="what-followed-heading">What followed October 7</h2>
         <div className={styles.record}><Timeline variant="feed" entries={record.timeline} /></div>
       </section>
 
@@ -252,6 +272,15 @@ export default async function Page() {
         <SourceList sources={record.archives} />
       </section>
       <PublicationMeta publishedAt={record.publishedAt} reviewedBy={record.reviewedBy} />
-    </SectionPage>
+      {/* The ending this route lacked (Peak-End). It promised "yours to
+          share" in its own standfirst and then stopped on a metadata
+          footer. The band's sentence is this route's own, and the share
+          carries the archive rather than a record. */}
+      <ActivationBand
+        heading="Yours to carry."
+        share={{ url: PAGE_URL, text: "The October 7 archive — survivor testimony and documented records, held with their sources." }}
+      />
+      </div>
+    </EditorialShell>
   );
 }

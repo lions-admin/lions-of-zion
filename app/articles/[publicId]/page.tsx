@@ -37,6 +37,8 @@ import {
   hasSubstantiveCorrections,
   KnownUnknownPanel,
   PublicationMeta,
+  ResearchText,
+  SensitiveContent,
   SourceList,
   type Source,
 } from "@/components/content";
@@ -177,11 +179,18 @@ export default async function ArticlePage({ params }: Props) {
      take the article down with it — the page falls back to the hub link, which
      is the same thing an empty result produces. */
   const deskSections = SECTIONS_BY_HOMEPAGE_SECTION[publicationHomepageSection(article.section)];
+  /* One, and the ladder's strongest — not three (2026-09-16). The ending
+     exists so a reader who finished a record has somewhere to go, and an
+     ending that offers three destinations plus the desk is a menu, which is
+     the state a reader leaves from (Hick, Peak-End). `continueTheRecord`
+     already ranks by shared field and then by recency, so the first row is by
+     construction the best one it found; taking the rest was only taking what
+     was left. The desk link under it stays for everyone else. */
   const continuations = continueTheRecord(
     article,
     await continuationPool(deskSections, (section) =>
       listBriefingPublications(`section=${section}&limit=25`)),
-  );
+  ).slice(0, 1);
   const desk = publicationHubCrumb(publicationHomepageSection(article.section));
 
   const jsonLd = {
@@ -263,6 +272,30 @@ export default async function ArticlePage({ params }: Props) {
     articleMedia !== null &&
     publicationSupportsInvestigationExplorer(article.section) &&
     isManufacturedMedia(articleMedia.role);
+  /* The one passage whose claim becomes the record's pull quote: the first
+     that has one. A record can reference several claim records, and quoting
+     all of them would give the page four peaks and therefore none. */
+  const peakPosition = passages.find((passage) => passage.claim)?.position ?? null;
+  /* The media contract's own `sensitivity`. A cleared picture may still be
+     distressing, and the record says which: `sensitive` puts the hero behind
+     `SensitiveContent` in `frame` layout, so the disclosure, the caption, the
+     credit and the provenance row all stay readable outside the gate and the
+     picture itself is not in the document until the reader asks for it.
+     `unknown` falls to the safe side of `sensitive` here — the article hero is
+     the largest thing on the page and the first thing seen, which is exactly
+     where an unrecorded value should not be guessed generously. */
+  const heroIsSensitive = articleMedia?.sensitivity === "sensitive";
+  const heroPicture = articleMedia ? (
+    <Image
+      src={articleMedia.src}
+      width={articleMedia.width}
+      height={articleMedia.height}
+      alt={articleMedia.alt}
+      priority={!deferHeroMedia && !heroIsSensitive}
+      sizes="(min-width: 1220px) 780px, calc(100vw - 40px)"
+      style={{ objectPosition: `${articleMedia.focalPoint.x}% ${articleMedia.focalPoint.y}%` }}
+    />
+  ) : null;
   const heroMedia = articleMedia ? (
     <MediaBlock
       layout="reading"
@@ -288,15 +321,24 @@ export default async function ArticlePage({ params }: Props) {
       provenance={`Rights ${articleMedia.rights.status} · ${articleMedia.rights.basis}`}
       provenanceLabel="Image credit and provenance"
     >
-      <Image
-        src={articleMedia.src}
-        width={articleMedia.width}
-        height={articleMedia.height}
-        alt={articleMedia.alt}
-        priority={!deferHeroMedia}
-        sizes="(min-width: 1220px) 780px, calc(100vw - 40px)"
-        style={{ objectPosition: `${articleMedia.focalPoint.x}% ${articleMedia.focalPoint.y}%` }}
-      />
+      {heroIsSensitive ? (
+        <SensitiveContent
+          layout="frame"
+          /* The same category `NarrativeRecord` names, so a reader who has
+             met the gate on a listing meets the same words on the record.
+             What kind of picture it is is the warning's job — it is already
+             the disclosure line, verbatim. */
+          category="Sensitive image"
+          warning={
+            mediaDisclosure(articleMedia)
+            ?? "This picture was cleared for publication but may be distressing. It is shown only when you ask for it."
+          }
+        >
+          {heroPicture}
+        </SensitiveContent>
+      ) : (
+        heroPicture
+      )}
     </MediaBlock>
   ) : null;
 
@@ -425,22 +467,55 @@ export default async function ArticlePage({ params }: Props) {
 
         {showsInvestigationExplorer ? <InvestigationExplorer record={article} /> : null}
 
+        {/* THE BODY, AND ITS ONE DESIGNED PEAK.
+            Each passage runs through `ResearchText`, so the emphasis the
+            editorial run wrote — the clause it considers the finding, the word
+            a sentence turns on, a handle — survives instead of leaking
+            asterisks onto the page or being flattened away.
+            The first passage that answers a claim record is the record's peak
+            (Peak-End): the claim is set once, large, in the quote role, because
+            it is somebody else's words and the serif is what says so. Every
+            later claim reference stays the compact line it was — one peak per
+            record, or it is not a peak.
+            `data-sources` opens the citation rail, so a passage that cites
+            nothing is a single column rather than a column plus an empty
+            margin. */}
         <div className={styles.body} data-measure-id="article-body">
           {passages.map((passage) => (
-            <section className={styles.passage} key={passage.position}>
+            <section
+              className={styles.passage}
+              key={passage.position}
+              data-sources={passage.sources.length ? "" : undefined}
+            >
               <div className={styles.passageMain}>
-                <p>{passage.text}</p>
+                <p><ResearchText>{passage.text}</ResearchText></p>
                 {passage.claim ? (
-                  <p className={styles.claimRef}>
-                    <span>
-                      Claim record: {passage.claim.title}
-                    </span>
-                    {passage.claim.assessment ? (
-                      <Badge status={badgeStatus(passage.claim.assessment)}>
-                        {passage.claim.assessment.replaceAll("_", " ")}
-                      </Badge>
-                    ) : null}
-                  </p>
+                  passage.position === peakPosition ? (
+                    <figure className={styles.claimPeak}>
+                      <p className={styles.claimPeakLabel}>The claim this answers</p>
+                      <blockquote className={styles.claimPeakQuote}>
+                        <p className={styles.claimPeakText}>{passage.claim.title}</p>
+                      </blockquote>
+                      {passage.claim.assessment ? (
+                        <figcaption className={styles.claimPeakVerdict}>
+                          <Badge status={badgeStatus(passage.claim.assessment)}>
+                            {passage.claim.assessment.replaceAll("_", " ")}
+                          </Badge>
+                        </figcaption>
+                      ) : null}
+                    </figure>
+                  ) : (
+                    <p className={styles.claimRef}>
+                      <span>
+                        Claim record: {passage.claim.title}
+                      </span>
+                      {passage.claim.assessment ? (
+                        <Badge status={badgeStatus(passage.claim.assessment)}>
+                          {passage.claim.assessment.replaceAll("_", " ")}
+                        </Badge>
+                      ) : null}
+                    </p>
+                  )
                 ) : null}
               </div>
               {passage.sources.length ? (

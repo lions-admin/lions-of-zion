@@ -11,9 +11,11 @@ import styles from "./signal-mark.module.css";
  * Rationed, by design, to three places: the head of the cover rule where it
  * is born, the head of a page's masthead rule (once per page, in place of the
  * kicker dash), and the head of the colophon's closing rule. Everywhere else
- * a rule is a plain hairline doing structural work. On October 7 the rule is
- * unbroken and unlit: `main[data-memorial]` re-points `--signal-rule-color`
- * to `--ink-lo` and this component is not rendered there.
+ * a rule is a plain hairline doing structural work. On October 7 the mark IS
+ * rendered — the route took `HubMasthead` on 2026-09-16 like every other
+ * front — and it is unbroken and unlit there: the route re-points
+ * `--signal-rule-color` to `--ink-lo`, and `main[data-memorial]` drops the
+ * stub in `signal-mark.module.css`, leaving one continuous line.
  *
  * A server component with no client JavaScript. The stub is inline SVG so it
  * takes the text colour; the line is a flex child so its length is whatever

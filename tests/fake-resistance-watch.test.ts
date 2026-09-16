@@ -171,7 +171,8 @@ describe("influence investigations", () => {
     listBriefingPublications.mockResolvedValue([]);
     listPublicPublications.mockRejectedValue(new Error("no database"));
     const markup = await render(await HubPage());
-    expect(markup).toContain("Influence investigations are temporarily unavailable");
+    expect(markup).toContain("Influence investigations could not be loaded.");
+    expect(markup).not.toContain("No influence investigations have been published yet");
     /* UX-15 moved the count from the masthead rail into the section head. A
        failed read prints no count there at all — never a `0`. */
     expect(markup).not.toMatch(/Influence operations<\/h2><p[^>]*><span[^>]*>\d+<\/span> (?:<!-- -->)?investigation/);
@@ -201,7 +202,8 @@ describe("/fake-resistance hub — the live branch card", () => {
        lose in a redesign — it must not print a count it does not have. Both
        reads settle to `[]` on failure, so an unguarded `items.length` would
        state "0" as fact beside a body that says the feed is unavailable. */
-    expect(markup).toContain("Monitoring is temporarily unavailable");
+    expect(markup).toContain("Monitoring could not be loaded.");
+    expect(markup).not.toContain("No monitoring records have been published yet");
     expect(markup).not.toMatch(/On the watch<\/h2><p[^>]*><span[^>]*>\d+<\/span> (?:<!-- -->)?record/);
   });
 });

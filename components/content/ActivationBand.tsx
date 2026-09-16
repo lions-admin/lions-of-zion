@@ -108,7 +108,11 @@ export function ActivationBand({
         ) : null}
         <ButtonLink
           href={reportHref}
-          variant="secondary"
+          /* The third act in the row, and the rarest: ghost, so the band has
+             one filled control and one outline rather than a primary and two
+             equal outlines (Button audit, 2026-09-16). Reporting a claim is
+             always available and almost never the reason a reader is here. */
+          variant="ghost"
           size="md"
           leftIcon={<Icon name="correction" size={16} />}
           data-measure-id="activation-report"

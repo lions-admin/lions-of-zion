@@ -10,9 +10,25 @@
 
   --accent: var(--gold);
 
+  /* Both derived from the masthead, not restated (2026-09-16).
 
-  --anchor-offset: 5.5rem;
+     `--anchor-offset` was a fixed 5.5rem against a 6rem fixed header, so
+     every in-page jump parked its heading a few pixels under the bar. It is
+     the masthead's *tall* height plus a breath: the tall one, deliberately,
+     because a link arriving with a hash lands before the bar has shortened,
+     and clearance that is a few pixels generous never hides a heading while
+     clearance that is a few pixels short always does.
 
+     `--progress-top` hangs `ReadingProgress`'s hairline on the foot of the
+     bar as it actually is once a reader has scrolled — the shortened
+     `--header-h-bar`, the offset `HubMasthead` pins its own sticky row to.
+     The track is transparent and its fill rests at `scaleX(0)`, so at the
+     top of a document, where the masthead is still tall, there is nothing
+     to see hanging inside it. The bar sat at `top: 0` on every section page
+     and was never seen at all; the article route and `/information-war` had
+     each fixed that alone, and the shell fixes it once. */
+  --anchor-offset: calc(var(--header-h) + var(--sp-4));
+  --progress-top: var(--header-h-bar, var(--header-h));
 
   min-height: 100dvh;
 
@@ -21,6 +37,39 @@
   background: transparent;
   color: var(--ink);
   font-family: var(--face-text);
+}
+
+/* THE SECOND STICKY BAR.
+   A case file carries its own section strip (`InvestigationSectionNav`,
+   marked `data-case-nav`) pinned under the masthead, so an anchored heading
+   has two bars to clear rather than one. `--case-nav-h` is that strip's
+   height, declared here — on the page, above both of them — so the strip
+   itself, the evidence path that pins under it and every anchored heading in
+   the document all read one number instead of three guesses. Only
+   `--anchor-offset` changes; the strip's own geometry stays in
+   `components/investigation/investigation.module.css`.
+   Matched by `:has()` rather than by a route flag because the strip is the
+   thing that costs the clearance: a page that stops rendering it stops
+   paying for it, with nothing to remember. */
+.page:has([data-case-nav]) {
+  --case-nav-h: 4.3125rem;
+  /* The *bar* height here, not the tall one: a jump inside a case file always
+     happens after the document has scrolled, when the masthead is the short
+     bar or retracted entirely, and the strip is the thing that must be
+     cleared. Measured at 1280x900 against the tall height the heading landed
+     a hundred pixels below the strip; against this it lands just under it,
+     and it still clears both bars when the jump goes upwards and brings the
+     masthead back. */
+  --anchor-offset: calc(var(--header-h-bar, var(--header-h)) + var(--case-nav-h) + var(--sp-3));
+}
+
+/* The masthead retracts entirely while a reader scrolls down
+   (`header[data-retracted]` — see `components/investigation/investigation.module.css`,
+   which pins the case file's section strip the same way). While it is gone
+   the reading-progress hairline belongs at the top of the viewport rather
+   than a bar's height below a bar that is not there. */
+:global(body:has(header[data-retracted])) .page {
+  --progress-top: 0px;
 }
 
 .accentEmber {
@@ -92,11 +141,12 @@
 }
 
 /* The memorial route (2026-09-15 identity): October 7 alone sets its display
-   one weight lighter than the site's 600. The hook is the route id the shell
-   already stamps on `.panel` for measurement (`data-measure-section`); the
-   identity plan names a `main[data-memorial]` attribute for this, which no
-   shell sets yet — when it does, key this rule to it and drop the id. */
-.panel[data-measure-section="october-7"] .title {
+   one weight lighter than the site's 600. `EditorialShell` stamps
+   `data-memorial` on `<main>` since 2026-09-16, so this is keyed to the
+   attribute the identity names rather than to a measurement id — and it
+   reaches the route's child pages (testimonies, documentation), which are
+   the ones still on this shell after the hub moved to `HubMasthead`. */
+:global(main[data-memorial]) .title {
   font-weight: 500;
 }
 

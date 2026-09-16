@@ -1,0 +1,99 @@
+/* Explainer — the visible key to a ledger's grades. See Explainer.tsx.
+ *
+ * A rule and space, not a card: the key sits under the ledger it explains
+ * behind one native disclosure. The summary is a kicker (a label a person
+ * wrote) and a control, so it clears the coarse target floor; the marker is
+ * the same small chevron the media plate's provenance disclosure draws. Each
+ * row is the badge the ledger prints, then its sentence, in the caption step.
+ */
+
+.explainer {
+  margin-top: var(--sp-4);
+  border-top: var(--line-w) solid var(--line);
+}
+
+.summary {
+  composes: kickerLabel from global;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--control-h);
+  width: fit-content;
+  max-width: 100%;
+  color: var(--ink-lo);
+  cursor: pointer;
+  list-style: none;
+}
+
+.summary::-webkit-details-marker {
+  display: none;
+}
+
+.summary::after {
+  content: "";
+  flex: 0 0 auto;
+  width: 0.42em;
+  height: 0.42em;
+  border-right: var(--line-w) solid currentColor;
+  border-bottom: var(--line-w) solid currentColor;
+  transform: translateY(-0.12em) rotate(45deg);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.explainer[open] > .summary::after {
+  transform: translateY(0.1em) rotate(-135deg);
+}
+
+.summary:hover,
+.summary:focus-visible {
+  color: var(--ink-hi);
+}
+
+/* One grid for the whole key, not a grid per row: the badge column has to be
+   the same width down the list or the sentences start at five different
+   x-positions and the key stops reading as a table of meanings. `.row` is
+   `display: contents` so the `<dt>`/`<dd>` pairs land in that one grid while
+   the markup keeps the grouping a definition list wants. */
+.key {
+  display: grid;
+  grid-template-columns: minmax(9rem, max-content) minmax(0, 1fr);
+  gap: var(--sp-3) var(--sp-4);
+  align-items: baseline;
+  margin: var(--sp-2) 0 var(--sp-4);
+}
+
+.row {
+  display: contents;
+}
+
+.term {
+  min-width: 0;
+}
+
+.detail {
+  margin: 0;
+  max-width: var(--measure-narrow);
+  color: var(--ink);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  text-wrap: pretty;
+}
+
+/* On a phone the badge and its sentence stack: `display: contents` means the
+   two cells simply fall into one column, with the row gap between pairs. */
+@media (max-width: 44.99rem) {
+  .key {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-1) 0;
+  }
+
+  .detail {
+    margin-bottom: var(--sp-3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .summary::after {
+    transition: none;
+  }
+}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Reveal } from "@/components/motion";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { Icon } from "@/components/ui/Icon";
 import { VERIFICATION_STATES } from "@/components/live/publication-labels";
 import { stamp } from "@/components/live/feed-time";
 import { isAnalysisBasis } from "@/server/contracts/publication";
@@ -110,7 +111,7 @@ export function ClaimEntry({
           ) : (
             <p className={styles.entryLink}>
               <Link href={`/articles/${record.publicId}`}>
-                See how this one was checked <span aria-hidden="true">&rarr;</span>
+                See how this one was checked <Icon name="arrow-right" inline className="arrow" />
               </Link>
             </p>
           )}

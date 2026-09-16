@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   CONTINUATION_LABELS,
@@ -176,5 +178,32 @@ describe("the pool never decides whether the article renders", () => {
     const rows = await continuationPool(["a", "b"], async (s) =>
       s === "a" ? [{ publicId: "one" }] : [{ publicId: "two" }]);
     expect(rows.map((r) => r.publicId)).toEqual(["one", "two"]);
+  });
+});
+
+describe("a record ends with exactly one destination", () => {
+  const read = (path: string) =>
+    readFileSync(join(process.cwd(), path), "utf8");
+
+  it("takes the strongest row the ladder found, and only that one", () => {
+    /* Peak-End: the last screen is the one a reader keeps, and an ending that
+       offers three records plus the desk is a menu (Hick). The ladder already
+       ranks by shared field and then by recency, so the first row is by
+       construction its best answer — the rest was only what was left. */
+    const page = read("app/articles/[publicId]/page.tsx");
+    expect(page).toMatch(/continueTheRecord\([\s\S]*?\)\.slice\(0, 1\)/);
+  });
+
+  it("keeps the desk link under it, so an empty ladder still ends somewhere", () => {
+    const page = read("app/articles/[publicId]/page.tsx");
+    expect(page).toContain("All of {desk.label}");
+  });
+
+  it("ends a case file the same way — one file, then the hub", () => {
+    const page = read("app/fake-resistance/cases/[slug]/page.tsx");
+    expect(page).toContain("Continue the file");
+    expect(page).toContain("<ActivationBand");
+    // One card, chosen by a shared roster rather than by resemblance.
+    expect(page).toMatch(/const next = nextFile\(/);
   });
 });

@@ -285,6 +285,16 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
     <header
       ref={headerRef}
       className={styles.header}
+      /* The page transition's anchor (2026-09-16), and the one inline style
+         in this file. A fixed bar that crossfades with the document reads as
+         the whole viewport moving, which costs the reader the single thing
+         that stays put between two pages; `::view-transition-group(chrome)`
+         in `app/globals.css` holds it still and paints it above the
+         travelling content. The name is set here rather than in the
+         stylesheet because CSS Modules scope `view-transition-name` like any
+         other identity — it compiled to `…module__xLOsra__chrome`, which no
+         global rule can address. Measured in Chromium, not assumed. */
+      style={{ viewTransitionName: "chrome" }}
       data-home={home || undefined}
       data-mode={mode}
       data-scrolled={scrolled || undefined}

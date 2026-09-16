@@ -13,6 +13,7 @@ import {
 } from "./HomeJourneyPrimitives";
 import styles from "./homepage-journey.module.css";
 import { homepageBand } from "@/lib/homepage-bands";
+import { ViewTransition } from "@/components/motion";
 import { measureContentId } from "@/components/measurement/attrs";
 
 const BAND = homepageBand("news");
@@ -66,14 +67,26 @@ export function HomeNewsSection({
             data-measure-placement={`news:${rankOf(index)}`}
             data-measure-card
           >
-            <h3>
-              <a href={item.href}>{item.title}</a>
-            </h3>
+            {/* The shared elements (2026-09-16). The headline and the plate
+                carry the record's own name on this card and on the record
+                page, so pressing the card morphs those two into the page
+                rather than replacing one screen with another — "the thing
+                you pressed is the thing that opened". `share="morph"` names
+                the class the CSS times; `default="none"` keeps these two out
+                of every unrelated transition, and the pair silently stops
+                morphing if either is dropped. */}
+            <ViewTransition name={`record-${measureContentId(item.key)}-headline`} share="morph" default="none">
+              <h3>
+                <a href={item.href}>{item.title}</a>
+              </h3>
+            </ViewTransition>
             <div className={styles.byline}>
               <span>{item.category}</span>
               <HomeTime date={item.date} updatedAt={item.updatedAt} includeTime />
             </div>
-            <HomeMedia media={item.media} lead={index === 0} />
+            <ViewTransition name={`record-${measureContentId(item.key)}-plate`} share="morph" default="none">
+              <HomeMedia media={item.media} lead={index === 0} />
+            </ViewTransition>
             <div className={styles.newsBody}>
             <p className={styles.summary}>
               <PreviewText

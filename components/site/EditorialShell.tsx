@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ViewTransition } from "@/components/motion";
 import { ReadingProgress } from "@/components/sections/ReadingProgress";
 import { resolveActiveChromeSection } from "@/lib/site-navigation";
 import { routeFamily } from "./route-family";
@@ -64,6 +65,10 @@ export function EditorialShell({
 }: EditorialShellProps) {
   const activeSection = activeChromeSection(routeId);
   const family = routeFamily(routeId);
+  /* October 7 is the quiet exception by contract: the same crossfade, and
+     nothing that travels. `routeFamily` already knows the route; the class
+     names are read by `::view-transition-*` in `app/globals.css`. */
+  const transition = routeId.startsWith("october-7") ? "page-quiet" : "page";
 
   return (
     <>
@@ -75,6 +80,15 @@ export function EditorialShell({
           reader nothing, and it read as a label belonging to the content
           under it. (It drove scan strength too until the ambient backdrop was
           retired on 2026-09-14.) */}
+      {/* The document is what transitions; the masthead above it and the
+          colophon below it are siblings, so neither is inside the named
+          group. `default="none"` keeps this wrapper out of every unrelated
+          transition on the page — without it a shared-element morph would
+          drag the whole document through its own crossfade. The wrapper
+          lives here rather than in `app/layout.tsx` because a layout
+          persists across a navigation, and a persisting element never fires
+          enter or exit. */}
+      <ViewTransition enter={transition} exit={transition} default="none">
       <main className={className} data-reading-scroll data-public-shell data-family={family}>
         {showProgress ? (
           <ReadingProgress
@@ -96,6 +110,7 @@ export function EditorialShell({
             ambient version of it here. */}
         {children}
       </main>
+      </ViewTransition>
       <SiteFooter activeSection={activeSection} />
     </>
   );

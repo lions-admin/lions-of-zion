@@ -17,6 +17,7 @@ import styles from "./homepage-journey.module.css";
 import narrativeStyles from "./HomeNarrativesSection.module.css";
 import { FAKE_RESISTANCE_GRAMMAR, FAKE_RESISTANCE_INTRO } from "@/lib/fake-resistance-grammar";
 import { homepageBand } from "@/lib/homepage-bands";
+import { ViewTransition } from "@/components/motion";
 import { measureContentId } from "@/components/measurement/attrs";
 
 const BAND = homepageBand("fakeResistance");
@@ -127,13 +128,23 @@ export function HomeNarrativesSection({
                   by the band's own `h2`. The cap is in the stylesheet, on
                   `[data-kind="watch"]`, so it holds for every claim rather
                   than for the ones an author remembered. */}
-              <h3>
-                <a href={item.href}>{heading}</a>
-              </h3>
+              {/* The shared elements: this headline and this plate carry the
+                  record's own name here and on the record page, so pressing
+                  the row morphs the two into the page. `share="morph"` names
+                  the class the CSS times and `default="none"` keeps them out
+                  of unrelated transitions — the pair stops morphing if
+                  either is dropped. */}
+              <ViewTransition name={`record-${measureContentId(item.key)}-headline`} share="morph" default="none">
+                <h3>
+                  <a href={item.href}>{heading}</a>
+                </h3>
+              </ViewTransition>
               {item.media && (
-                <div className={styles.dossierCover}>
-                  <HomeMedia media={item.media} />
-                </div>
+                <ViewTransition name={`record-${measureContentId(item.key)}-plate`} share="morph" default="none">
+                  <div className={styles.dossierCover}>
+                    <HomeMedia media={item.media} />
+                  </div>
+                </ViewTransition>
               )}
               <div className={`${styles.dossier} ${narrativeStyles.dossierBody}`}>
                 <div className={styles.byline}>

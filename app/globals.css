@@ -1058,6 +1058,87 @@ html[data-motion="paused"] ::view-transition-new(*) {
   }
 }
 
+/* Page transitions (2026-09-16) — the second half of the cinematic system,
+   and the only part of it that spends JavaScript. React's `<ViewTransition>`
+   (imported from `react`; the App Router needs no configuration flag for it)
+   wraps the document in `EditorialShell`, so every reading route crossfades
+   and rises rather than cutting; a record's headline, kicker and plate carry
+   a `record-<publicId>-*` name on the list surface AND on the record page, so
+   those three morph between the two while the rest of the page changes under
+   them. That is the one thing a transition is for here: "the thing you
+   pressed is the thing that opened".
+
+   Four rules the browser needs and React does not supply:
+
+   - The overlay swallows pointer events for the length of the animation, so
+     a click during a transition is simply lost. It passes through.
+   - The masthead is fixed and must not travel: it takes a name of its own
+     and no animation, with the old snapshot hidden so the two bars never
+     both paint. Above the sliding content, below a modal.
+   - The morph is the shared class React assigns when a named pair declares
+     `share="morph"`; it runs at `--dur-transition-shared`.
+   - The page itself leaves quickly and arrives gently — the asymmetry is the
+     grammar: old content should stop competing for attention, new content
+     should have time to be read.
+
+   Everything is behind `@supports`, and both stillness switches above reset
+   every `::view-transition-*` animation, so a reader who asked for stillness
+   or pressed pause navigates plainly. October 7 sets `data-quiet` and gets
+   the crossfade with no rise at all. */
+@supports (view-transition-name: x) {
+  ::view-transition {
+    pointer-events: none;
+  }
+
+  ::view-transition-group(chrome) {
+    animation: none;
+    z-index: var(--z-transition);
+  }
+
+  ::view-transition-old(chrome) {
+    display: none;
+  }
+
+  ::view-transition-new(chrome) {
+    animation: none;
+  }
+
+  ::view-transition-group(.morph) {
+    animation-duration: var(--dur-transition-shared);
+    animation-timing-function: var(--ease-out);
+  }
+
+  ::view-transition-old(.page) {
+    animation: var(--dur-transition-out) var(--ease-out) both transition-fade reverse;
+  }
+
+  ::view-transition-new(.page) {
+    animation:
+      var(--dur-transition-in) var(--ease-out) var(--dur-transition-out) both transition-fade,
+      var(--dur-transition-shared) var(--ease-out) both transition-rise;
+  }
+
+  /* The held route: the same crossfade, no rise. Nothing about October 7
+     travels. */
+  ::view-transition-new(.page-quiet) {
+    animation: var(--dur-transition-in) var(--ease-out) var(--dur-transition-out) both transition-fade;
+  }
+
+  ::view-transition-old(.page-quiet) {
+    animation: var(--dur-transition-out) var(--ease-out) both transition-fade reverse;
+  }
+}
+
+@keyframes transition-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes transition-rise {
+  from { transform: translateY(12px); }
+  to { transform: none; }
+}
+
 /* The entrance (2026-09-15). One utility, composed with
    `composes: enter from global`, for the few things that arrive as the reader
    scrolls to them: a band's head and its first two records on the homepage

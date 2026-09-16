@@ -11,6 +11,7 @@ import {
 } from './HomeJourneyPrimitives';
 import styles from './homepage-journey.module.css';
 import { homepageBand } from '@/lib/homepage-bands';
+import { ViewTransition } from "@/components/motion";
 import { measureContentId } from '@/components/measurement/attrs';
 
 const BAND = homepageBand('people');
@@ -123,11 +124,15 @@ export function HomePeopleSection({ people, heroes, history }: {
             data-measure-placement="people:lead"
             data-measure-card
           >
-            <h3><a href={lead.href}>{lead.title}</a></h3>
+            <ViewTransition name={`record-${measureContentId(lead.key)}-headline`} share="morph" default="none">
+              <h3><a href={lead.href}>{lead.title}</a></h3>
+            </ViewTransition>
             <div className={styles.byline}><span>{lead.category}</span></div>
             {/* The frame is decided at the source (`homepage-adapters.ts`)
                 from the record's section, not by comparing label strings. */}
-            <HomeMedia media={lead.media} portrait={lead.portrait} />
+            <ViewTransition name={`record-${measureContentId(lead.key)}-plate`} share="morph" default="none">
+              <HomeMedia media={lead.media} portrait={lead.portrait} />
+            </ViewTransition>
             <p className={styles.summary}>
               <PreviewText text={lead.summary} budget={PREVIEW_BUDGET.lead} />
             </p>

@@ -30,3 +30,8 @@ export type { BorderBeamProps } from "./BorderBeam";
 
 // Mounted only by interactive feature/panel/dossier Cards; dense records stay static.
 export { PointerHighlight } from "./PointerHighlight";
+
+/* The page transition's own wrapper: React's `<ViewTransition>` where the
+   build has it, a passthrough where it does not. See the file. */
+export { ViewTransition } from "./ViewTransition";
+export type { ViewTransitionProps } from "./ViewTransition";

@@ -2,7 +2,7 @@
 
    Two things here are grids with a zero-wide second track — the bottom-line
    points and the graded findings — because both carry citations that leave
-   the reading column for the right margin above 1220px. That placement is
+   the reading column for the right margin above the rails seam (76.25rem). That placement is
    `marginNote` in the content library and it is a grid, never absolute
    positioning: a citation taller than its claim lengthens its own row instead
    of running into the next one. Each host therefore keeps its claim and its
@@ -32,13 +32,15 @@
   gap: var(--sp-1);
 }
 
+/* The terms name the figures — "Opened", "Entities" — so they take the kicker
+   role; the figures under them are the machine values and keep the data face. */
 .fileFact dt {
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
 }
 
@@ -78,11 +80,11 @@
   display: block;
   margin-bottom: var(--sp-2);
   color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
 }
 
@@ -248,7 +250,7 @@
 /* The two-track hosts. The second track is zero-wide, so the claim keeps the
    reading measure exactly while its citation overflows into the margin and
    still contributes its height to the row. */
-@media (min-width: 1220px) {
+@media (min-width: 76.25rem) {
   .bottomLine > li,
   .exhibits > li {
     display: grid;
@@ -284,11 +286,11 @@
   display: block;
   margin-bottom: var(--sp-1);
   color: var(--data-ember-peak);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
 }
 
@@ -373,14 +375,14 @@
 }
 
 .rosterFallback > summary {
-  min-height: 44px;
+  min-height: var(--control-h);
   padding: var(--sp-3) 0;
   color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   cursor: pointer;
 }

@@ -1,10 +1,19 @@
-/* October 7 is a hub before it is an explainer: archive entry comes first. */
+/* October 7 is a hub before it is an explainer: archive entry comes first.
+
+   The memorial route (2026-09-15). Every size, weight, space step, duration
+   and seam here reads the tokens in app/globals.css; the file declares no
+   scale of its own. The display step one weight lighter than the site's 600
+   belongs on the page's `<h1>`, which `SectionPage` renders outside this
+   module — it arrives with `main[data-memorial]` (see the signal-rule note in
+   app/globals.css), not here. Nothing in this file adds an accent fill or a
+   gold rule that was not already drawn. */
+
+/* "Archive collections", "From the testimony archive": labels a person wrote,
+   so the kicker role — not the mono data face they borrowed until 2026-09-15. */
 .eyebrow {
+  composes: kickerLabel from global;
   margin: 0;
   color: var(--gold);
-  font: 400 13px/1.6 var(--face-data);
-  letter-spacing: .09em;
-  text-transform: uppercase;
 }
 
 .archiveExplorer {
@@ -12,7 +21,7 @@
 }
 .explorerHeading {
   display: grid;
-  gap: 8px;
+  gap: var(--sp-2);
   margin-bottom: 20px;
 }
 .explorerHeading h2 {
@@ -28,38 +37,42 @@
 .archiveEntries {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  border-top: 1px solid var(--line-strong);
+  border-top: var(--line-w) solid var(--line-strong);
 }
 .archiveEntry {
   position: relative;
   display: grid;
   grid-template-rows: auto auto 1fr auto auto;
-  gap: 12px;
+  gap: var(--sp-3);
   min-width: 0;
   min-height: 282px;
-  padding: 24px 24px 22px;
-  border-bottom: 1px solid var(--line-strong);
+  padding: var(--sp-5) var(--sp-5) var(--sp-5);
+  border-bottom: var(--line-w) solid var(--line-strong);
   box-shadow: inset 3px 0 0 transparent;
   color: var(--ink-hi);
   background: transparent;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 160ms ease, box-shadow 160ms ease, color 160ms ease, transform 100ms ease;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
 }
 .archiveEntry + .archiveEntry {
-  border-left: 1px solid var(--line-strong);
+  border-left: var(--line-w) solid var(--line-strong);
 }
 .archiveEntry::after {
   content: "";
   position: absolute;
-  left: 24px;
-  right: 24px;
-  bottom: -1px;
-  height: 2px;
+  left: var(--sp-5);
+  right: var(--sp-5);
+  bottom: calc(-1 * var(--line-w));
+  height: var(--line-w-thick);
   background: var(--gold);
   transform: scaleX(0);
   transform-origin: left center;
-  transition: transform 180ms ease;
+  transition: transform var(--dur-fast) var(--ease-out);
   pointer-events: none;
 }
 .archiveEntry:hover {
@@ -74,20 +87,19 @@
   transform: translateY(1px);
   background: var(--surface-2);
 }
+/* The ring itself is the global `:focus-visible` rule; only the stack order
+   and the inset bar are the entry's own. */
 .archiveEntry:focus-visible {
   z-index: 1;
-  outline: 2px solid var(--gold);
-  outline-offset: 4px;
   box-shadow: inset 3px 0 0 var(--gold);
 }
 .archiveEntry:visited .entryKind {
   color: var(--ink-lo);
 }
+/* "Testimony collection" — the kind is a phrase, not a stamp. */
 .entryKind {
+  composes: kickerLabel from global;
   color: var(--gold);
-  font: 400 13px/1.5 var(--face-data);
-  letter-spacing: .1em;
-  text-transform: uppercase;
 }
 .entryTitle {
   color: var(--ink-hi);
@@ -101,8 +113,8 @@
 .entryDescription {
   max-width: 35ch;
   color: var(--ink);
-  font-size: 15px;
-  line-height: 1.55;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 /* The count is a stat, not another sentence — until this it was one more
    13px data line sitting under the description, indistinguishable at a
@@ -113,7 +125,7 @@
 .entryCount {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: var(--sp-2);
 }
 .entryCountNumber {
   color: var(--gold-hi);
@@ -123,29 +135,33 @@
   font-weight: var(--t-figure-weight);
   font-variant-numeric: tabular-nums;
 }
+/* "stories held" — the unit is words, so it takes the kicker role beside the
+   figure rather than the mono stamp. */
 .entryCountUnit {
+  composes: kickerLabel from global;
   color: var(--ink-lo);
-  font: 400 12px/1.4 var(--face-data);
-  letter-spacing: .08em;
-  text-transform: uppercase;
 }
 .entryAction {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
-  min-height: 44px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
+  gap: var(--sp-4);
+  min-height: var(--control-h);
+  padding-top: var(--sp-4);
+  border-top: var(--line-w) solid var(--line);
   color: var(--ink-hi);
-  font: 500 14px/1.4 var(--face-text);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  font-weight: 500;
+  line-height: var(--t-small-lh);
 }
 .entryAction svg {
   flex-shrink: 0;
   color: var(--gold);
-  transition: transform 160ms ease;
+  transition: transform var(--dur-fast) var(--ease-out);
 }
-.archiveEntry:hover .entryAction {
+.archiveEntry:hover .entryAction,
+.archiveEntry:focus-visible .entryAction {
   color: var(--gold);
 }
 .archiveEntry:hover .entryAction svg,
@@ -161,12 +177,12 @@
 }
 .archiveFeature {
   min-width: 0;
-  border-top: 2px solid var(--gold-dim);
-  padding-top: 22px;
-  scroll-margin-top: 96px;
+  border-top: var(--line-w-thick) solid var(--gold-dim);
+  padding-top: var(--sp-5);
+  scroll-margin-top: var(--sp-9);
 }
 .featureHeading h2 {
-  margin: 8px 0 12px;
+  margin: var(--sp-2) 0 var(--sp-3);
   color: var(--ink-hi);
   font-family: var(--face-display);
   font-size: var(--t-h2);
@@ -179,8 +195,8 @@
   margin: 0;
   max-width: 36ch;
   color: var(--ink);
-  font-size: 16px;
-  line-height: 1.5;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 /* Two tiers of the same taxonomy (UX-22): `.readLink` opens one record and is
    the primary action on this panel short of the solid Share button;
@@ -191,7 +207,7 @@
 .readLink {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--sp-4);
   text-decoration: none;
   cursor: pointer;
 }
@@ -199,7 +215,7 @@
 .readLink svg {
   flex-shrink: 0;
   color: var(--gold);
-  transition: transform 160ms ease;
+  transition: transform var(--dur-fast) var(--ease-out);
 }
 .browseLink:hover svg,
 .readLink:hover svg,
@@ -210,10 +226,13 @@
    never competes with the primary action below it. */
 .browseLink {
   justify-content: space-between;
-  margin-top: 12px;
-  min-height: 44px;
+  margin-top: var(--sp-3);
+  min-height: var(--control-h);
   color: var(--ink-lo);
-  font: 500 13px/1.4 var(--face-text);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
 }
 .browseLink:hover,
 .browseLink:focus-visible { color: var(--gold); }
@@ -221,17 +240,25 @@
 /* Primary tier: the strongest weight this panel spends outside its one solid
    Share button. A bordered control, not a line of text — the whole point of
    OCT's CTA taxonomy is that "Read the testimony" must never blend into the
-   surrounding prose the way it did when it shared `.browseLink`'s styling. */
+   surrounding prose the way it did when it shared `.browseLink`'s styling.
+   The boundary is what identifies it as a control, so it reads
+   `--control-line` (the 3:1 line), not the decorative hairline. */
 .readLink {
   justify-content: space-between;
   min-height: 48px;
-  margin: 14px 0 20px;
-  padding: 0 18px;
-  border: 1px solid var(--line-strong);
+  margin: var(--sp-4) 0 20px;
+  padding: 0 var(--sp-4);
+  border: var(--line-w) solid var(--control-line);
   border-radius: var(--radius-2);
   color: var(--ink-hi);
-  font: 600 15px/1.3 var(--face-text);
-  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  font-weight: 600;
+  line-height: 1.3;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
 .readLink:hover,
 .readLink:focus-visible {
@@ -239,28 +266,37 @@
   border-color: var(--gold);
   background: var(--surface-1);
 }
+/* "Accounts available across 12 languages" — a sentence with a figure in it,
+   set as a caption in the text face; it is not a stamp. */
 .archiveDetail {
   display: block;
   color: var(--ink-lo);
-  font: 400 13px/1.6 var(--face-data);
-  margin-bottom: 24px;
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
+  margin-bottom: var(--sp-5);
 }
 .rotationControls {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 6px;
-  border-block: 1px solid var(--line);
+  gap: var(--sp-2);
+  border-block: var(--line-w) solid var(--line);
   min-height: 52px;
 }
 .rotationControls > span {
   display: grid;
-  gap: 2px;
+  gap: var(--sp-1);
   color: var(--ink-lo);
-  font: 400 11px/1.4 var(--face-data);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
 }
+/* "1 / 3" is the one machine value in that line. */
 .sampleCount {
-  font-size: 13px;
+  composes: dataValue from global;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
@@ -276,8 +312,8 @@
      the back arrow to 43px, one pixel under the coarse-pointer floor the width
      was written to hold. */
   flex: none;
-  width: 44px;
-  min-height: 44px;
+  width: var(--control-h);
+  min-height: var(--control-h);
   border: 0;
   padding: 0;
   color: var(--ink);
@@ -289,12 +325,16 @@
    pause control for it to sit between. */
 .rotationControls .nextButton {
   width: auto;
-  gap: 8px;
-  padding-inline: 12px 6px;
-  font: 500 12px/1.4 var(--face-text);
+  gap: var(--sp-2);
+  padding-inline: var(--sp-3) var(--sp-2);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
 }
 
-.rotationControls button:hover:not(:disabled) {
+.rotationControls button:hover:not(:disabled),
+.rotationControls button:focus-visible:not(:disabled) {
   color: var(--gold);
   background: var(--surface-1);
 }
@@ -304,19 +344,22 @@
   cursor: default;
 }
 .previousIcon { transform: rotate(180deg); }
-.sample { padding-top: 22px; }
+.sample { padding-top: var(--sp-5); }
 .sampleReading {
   display: grid;
   align-content: start;
-  gap: 16px;
+  gap: var(--sp-4);
 }
 .sampleType {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--sp-2);
   min-height: 30px;
   color: var(--ink-hi);
-  font: 500 15px/1.4 var(--face-text);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  font-weight: 500;
+  line-height: var(--t-small-lh);
 }
 .sampleType svg {
   flex-shrink: 0;
@@ -341,36 +384,41 @@
   overflow: hidden;
   overflow-wrap: anywhere;
 }
-.sampleReading h3 a:hover { color: var(--gold); }
+.sampleReading h3 a:hover,
+.sampleReading h3 a:focus-visible { color: var(--gold); }
+/* Three lines of the small role: the clamp height is 3 × `--t-small-lh`. */
 .sampleExcerpt {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
   line-clamp: 3;
-  height: 4.8em;
+  height: 4.5em;
   overflow: hidden;
   margin: 0;
   color: var(--ink);
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 .sampleProvenance {
   display: grid;
   align-content: end;
-  gap: 5px;
+  gap: var(--sp-1);
   margin: 0;
   color: var(--ink-lo);
-  font: 400 12px/1.6 var(--face-text);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: var(--t-caption-weight);
+  line-height: var(--t-caption-lh);
 }
 .sampleProvenance > span:first-child:not(:last-child) { color: var(--ink); }
 .mediaWarning {
   display: flex;
-  gap: 12px;
+  gap: var(--sp-3);
   align-items: flex-start;
-  padding: 18px 16px;
+  padding: var(--sp-4) var(--sp-4);
   min-height: 102px;
   background: var(--surface-1);
-  border-left: 2px solid var(--data-ember);
+  border-left: var(--line-w-thick) solid var(--data-ember);
 }
 .mediaWarning svg {
   flex-shrink: 0;
@@ -380,19 +428,18 @@
 .mediaWarning p {
   margin: 0;
   color: var(--ink);
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 .shareSample { padding-top: 2px; }
 .emptySample {
-  padding-block: 24px;
-  font-size: 15px;
+  padding-block: var(--sp-5);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
-.archiveFeature :is(a, button):focus-visible,
-.categoryBrowser :is(a, summary):focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 4px;
-}
+/* The showcases' links, buttons and the category summary take the global
+   `:focus-visible` ring; the private gold ring that used to sit here was one
+   of eleven copies (2026-09-15). */
 
 /* The graphic-media disclosure, which now leads the showcases instead of
    closing them. A rule *above* it said "that was the end of something"; the
@@ -401,7 +448,7 @@
    type steps up from 12px muted — a disclosure a reader is meant to act on
    cannot be the quietest thing on the page. */
 .sharingNote {
-  margin: 28px 0 22px;
+  margin: 28px 0 var(--sp-5);
   max-width: 82ch;
   padding: var(--sp-3) var(--sp-4);
   border-left: var(--line-w-thick) solid
@@ -411,27 +458,37 @@
   text-wrap: pretty;
 }
 .categoryBrowser {
-  margin-top: 18px;
-  border-block: 1px solid var(--line-strong);
+  margin-top: var(--sp-4);
+  border-block: var(--line-w) solid var(--line-strong);
 }
 .categoryBrowser summary {
-  padding: 18px 0;
+  padding: var(--sp-4) 0;
   min-height: 56px;
   color: var(--ink-hi);
-  font: 500 15px/1.5 var(--face-text);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  font-weight: 500;
+  line-height: var(--t-small-lh);
   cursor: pointer;
 }
+/* "12 categories": a count, so the data role — at the phone floor, no longer
+   the 11px it declared. */
 .categoryBrowser summary > span {
-  margin-left: 12px;
+  margin-left: var(--sp-3);
   color: var(--ink-lo);
-  font: 400 11px/1.6 var(--face-data);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking-tight);
   white-space: nowrap;
 }
-.categoryBrowser summary:hover { color: var(--gold); }
+.categoryBrowser summary:hover,
+.categoryBrowser summary:focus-visible { color: var(--gold); }
 .categoryBrowser ul {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 32px;
+  column-gap: var(--sp-6);
   list-style: none;
   margin: 0 0 20px;
   padding: 0;
@@ -441,42 +498,52 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--sp-4);
   min-height: 48px;
-  padding-block: 10px;
-  border-top: 1px solid var(--line);
+  padding-block: var(--sp-2);
+  border-top: var(--line-w) solid var(--line);
   color: var(--ink);
-  font: 400 14px/1.45 var(--face-text);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
   text-decoration: none;
   cursor: pointer;
 }
 .categoryBrowser a span:last-child {
-  font: 400 12px/1.6 var(--face-data);
   color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
 }
-.categoryBrowser a:hover { color: var(--gold); }
+.categoryBrowser a:hover,
+.categoryBrowser a:focus-visible { color: var(--gold); }
 
 .section {
   margin-top: clamp(44px, 6vw, 72px);
   padding-top: 28px;
-  border-top: 1px solid var(--line);
-  scroll-margin-top: 96px;
+  border-top: var(--line-w) solid var(--line);
+  scroll-margin-top: var(--sp-9);
 }
 .sectionHeading {
   margin: 0 0 20px;
-  font: 400 var(--t-h2)/var(--t-h2-lh) var(--face-display);
+  font-family: var(--face-display);
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
   letter-spacing: var(--t-h2-tracking);
   color: var(--ink-hi);
 }
 .section > p {
-  font-size: 17px;
-  line-height: 1.7;
-  max-width: 68ch;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  max-width: var(--measure-reading);
 }
 .inscription {
   margin: 28px 0 0;
-  padding-block: 26px;
-  border-block: 1px solid var(--line);
+  padding-block: var(--sp-5);
+  border-block: var(--line-w) solid var(--line);
 }
 .inscription > dl {
   display: grid;
@@ -490,43 +557,47 @@
   padding: 0 20px;
   text-align: center;
 }
-.inscription > dl > div + div { border-left: 1px solid var(--line-soft); }
+.inscription > dl > div + div { border-left: var(--line-w) solid var(--line-soft); }
+/* The figures are numbers, so the figure role — set solid, the way
+   `.entryCountNumber` above sets its count. */
 .inscription > dl > div > dt {
-  font: 400 var(--t-h2)/1 var(--face-display);
-  letter-spacing: var(--t-h2-tracking);
+  font-family: var(--face-display);
+  font-size: var(--t-figure);
+  font-weight: var(--t-figure-weight);
+  line-height: 1;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   color: var(--gold-hi);
 }
 .inscription > dl > div > dd {
   max-width: none;
-  margin: 12px auto 0;
+  margin: var(--sp-3) auto 0;
   color: var(--ink-lo);
   font: 400 var(--t-caption)/var(--t-caption-lh) var(--face-text);
   letter-spacing: 0;
   text-transform: none;
 }
-.record ol > li { padding-bottom: 32px; }
-.record ol > li:last-child { padding-bottom: 4px; }
+.record ol > li { padding-bottom: var(--sp-6); }
+.record ol > li:last-child { padding-bottom: var(--sp-1); }
 
-@media (max-width: 760px) {
+/* The token file's phone block (48rem). This read 760px until 2026-09-15. */
+@media (max-width: 48rem) {
   .archiveEntries {
     grid-template-columns: 1fr;
   }
   .archiveEntry {
     min-height: 0;
-    padding: 22px 18px 18px;
+    padding: var(--sp-5) var(--sp-4) var(--sp-4);
   }
   .archiveEntry + .archiveEntry {
     border-left: 0;
   }
   .archiveEntry::after {
-    left: 18px;
-    right: 18px;
+    left: var(--sp-4);
+    right: var(--sp-4);
   }
   .entryDescription {
     max-width: 40ch;
-    font-size: 15px;
   }
   .archiveShowcase {
     grid-template-columns: 1fr;
@@ -540,25 +611,28 @@
   }
   .rotationControls > span {
     display: flex;
-    gap: 12px;
+    gap: var(--sp-3);
   }
-  .rotationControls button { width: 44px; }
+  .rotationControls button { width: var(--control-h); }
   .categoryBrowser ul { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 480px) {
+/* The phone seam (45rem). This read 480px until 2026-09-15; the intent — the
+   inscription stacks and the figures tighten on a phone — now turns at the
+   same width as every other phone rule on the site. */
+@media (max-width: 45rem) {
   .categoryBrowser summary > span {
     display: block;
-    margin: 4px 0 0 20px;
+    margin: var(--sp-1) 0 0 20px;
   }
   .inscription > dl {
     grid-template-columns: 1fr;
-    gap: 22px;
+    gap: var(--sp-5);
   }
   .inscription > dl > div + div {
     border-left: 0;
-    padding-top: 22px;
-    border-top: 1px solid var(--line-soft);
+    padding-top: var(--sp-5);
+    border-top: var(--line-w) solid var(--line-soft);
   }
   /* The figures and the timeline are valuable but dense, and they now sit
      below two archive collections and two featured showcases a phone reader
@@ -566,10 +640,10 @@
      hiding them, so the page reads lighter without losing content. */
   .section {
     margin-top: clamp(36px, 8vw, 56px);
-    padding-top: 22px;
+    padding-top: var(--sp-5);
   }
   .record ol > li {
-    padding-bottom: 24px;
+    padding-bottom: var(--sp-5);
   }
 }
 

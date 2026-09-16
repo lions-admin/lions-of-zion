@@ -28,7 +28,7 @@
 }
 
 .filterLegend {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--gold);
 }
 
@@ -519,7 +519,7 @@
 }
 
 .panelGrade {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--ink-lo);
   white-space: nowrap;
 }
@@ -691,7 +691,7 @@
 }
 
 .listGrade {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--ink-lo);
   white-space: nowrap;
 }
@@ -710,7 +710,7 @@
 
 /* The textual half of the muted treatment: opacity alone is a colour cue. */
 .listMutedNote {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin: var(--sp-1) 0 0;
   color: var(--ink-lo);
 }

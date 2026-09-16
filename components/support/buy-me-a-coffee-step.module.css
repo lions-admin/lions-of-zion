@@ -1,7 +1,7 @@
 /* The Buy Me a Coffee hand-off · design V3 (`app/globals.css`).
 
    Sits under the PayPal step as the quieter second channel: a hairline above,
-   a data label naming the provider, one sentence, and the shared secondary
+   a kicker naming the provider, one sentence, and the shared secondary
    `Button`. Nothing here draws a button and nothing here is the provider's
    brand — the plain link is the whole mechanism. */
 
@@ -15,7 +15,7 @@
 }
 
 .label {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin: 0;
   color: var(--ink-lo);
 }

@@ -16,6 +16,10 @@
  * have their marker: Ask's wait carries `BorderBeam`, a live region and a
  * ticking clock, and Search's "Searching the index…" is a sentence, which
  * this primitive explicitly did not take.
+ *
+ * `SignalBeam` and `ProgressiveBlur` followed on 2026-09-15 (workstream J):
+ * neither had a caller outside this barrel, and the blur was five stacked
+ * `backdrop-filter` layers the identity no longer has a seam for.
  */
 
 export { Reveal } from "./Reveal";
@@ -23,12 +27,6 @@ export type { RevealProps, RevealDirection } from "./Reveal";
 
 export { BorderBeam } from "./BorderBeam";
 export type { BorderBeamProps } from "./BorderBeam";
-
-export { SignalBeam } from "./SignalBeam";
-export type { SignalBeamProps } from "./SignalBeam";
-
-export { ProgressiveBlur } from "./ProgressiveBlur";
-export type { ProgressiveBlurProps } from "./ProgressiveBlur";
 
 // Mounted only by interactive feature/panel/dossier Cards; dense records stay static.
 export { PointerHighlight } from "./PointerHighlight";

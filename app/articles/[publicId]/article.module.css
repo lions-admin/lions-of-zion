@@ -1,6 +1,6 @@
 /* A published article as a Dossier record: breadcrumb, title/standfirst,
    publication facts, narrative assessment, passages with a citation rail
-   that hangs into the margin above 1220px, then sources, unknowns, the
+   that hangs into the margin above the rails seam (76.25rem), then sources, unknowns, the
    activation band, corrections, and what to read next (UX-20: proof, then
    what to do with it, then what changed, then where to go). Values answer
    to the V3 tokens in app/globals.css. The rail is CSS placement of the same
@@ -30,7 +30,7 @@
   overflow: visible;
 }
 
-@media (min-width: 1220px) {
+@media (min-width: 76.25rem) {
   .article {
     width: min(
       calc(var(--reading-w) + var(--rail-w) + var(--rail-gap)),
@@ -82,8 +82,10 @@
   overflow-wrap: anywhere;
 }
 
+/* "Narrative Watch": a section name a person wrote — the kicker role, not the
+   mono data stamp it composed until 2026-09-15. */
 .kicker {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin-top: var(--sp-5);
   color: var(--gold);
 }
@@ -96,12 +98,16 @@
   overflow-wrap: anywhere;
 }
 
-/* 3.5rem at 4.5vw set a long headline as a four- and five-line wall above
-   the lede (2026-09-11). The ceiling is now 3rem and the growth slower; the
-   32px floor is unchanged. */
+/* The record's headline is the display role — the same step `SectionPage`
+   gives every other reading route's `<h1>`. This rule carried a private
+   `clamp(2rem, 1.25rem + 2.6vw, 3rem)` from 2026-09-11 (a lower ceiling so a
+   long headline was not a five-line wall); the site's one heading scale lives
+   in app/globals.css (SYS-004), so the ceiling is the role's now, and a long
+   title's answer is the `.titleLong` step-down `sections.module.css` already
+   has, not a second scale here. */
 .article h1 {
   margin: var(--sp-2) 0 var(--sp-4);
-  font-size: clamp(2rem, 1.25rem + 2.6vw, 3rem);
+  font-size: var(--t-display);
   font-weight: var(--t-display-weight);
   line-height: var(--t-display-lh);
   letter-spacing: var(--t-display-tracking);
@@ -243,7 +249,7 @@
   min-width: 0;
 }
 
-@media (min-width: 1220px) {
+@media (min-width: 76.25rem) {
   .passage {
     display: grid;
     grid-template-columns: minmax(0, var(--reading-w)) 0;
@@ -257,7 +263,7 @@
 }
 
 .article a:focus-visible {
-  outline-offset: 4px;
+  outline-offset: var(--focus-offset);
 }
 
 /* ── Apparatus ────────────────────────────────────────────────────────── */
@@ -267,7 +273,7 @@
 .related {
   margin-top: var(--sp-7);
   padding-top: var(--sp-5);
-  border-top: 1px solid var(--line);
+  border-top: var(--line-w) solid var(--line);
 }
 
 /* After the band, which carries its own gold rule, the corrections sit one
@@ -285,7 +291,8 @@
 
 .sourceStack > li > a,
 .sourceStack > li a[href] {
-  /* UX-11: the source link is the proof; a 44px target without a 44px row. */
+  /* UX-11: the source link is the proof; a control-height target without a
+     control-height row. */
   display: inline-flex;
   align-items: center;
   min-block-size: var(--control-h);
@@ -367,8 +374,8 @@
 .narrativeDetails {
   margin-top: var(--sp-7);
   padding: var(--sp-5) 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  border-top: var(--line-w) solid var(--line);
+  border-bottom: var(--line-w) solid var(--line);
 }
 
 .narrativeDetails dl {
@@ -377,13 +384,15 @@
   margin: var(--sp-5) 0 0;
 }
 
+/* The terms are words a person wrote ("Frame", "Assessment"), so the kicker
+   role — written out because a descendant selector cannot `composes`. */
 .narrativeDetails dt {
   color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
 }
 
@@ -416,7 +425,7 @@
   max-width: 62ch;
   margin: var(--sp-5) 0 0;
   padding-left: var(--sp-4);
-  border-left: 2px solid var(--gold-line);
+  border-left: var(--line-w-thick) solid var(--gold-line);
   color: var(--ink);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);

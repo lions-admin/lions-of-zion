@@ -42,8 +42,10 @@
 /* ---- a contents of the standard ---- */
 
 .glanceKicker {
-  composes: kicker from '../../components/content/content.module.css';
+  composes: kickerLabel from global;
+  display: block;
   margin-bottom: var(--sp-3);
+  color: var(--gold);
 }
 
 .glance {
@@ -81,11 +83,11 @@
   align-items: center;
   min-height: var(--control-h-sm);
   color: var(--ink-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   text-decoration: none;
   border-bottom: var(--line-w) solid var(--line-strong);
@@ -245,11 +247,11 @@
   color: var(--ink-hi);
 }
 
-/* "Gate — human only": a status stamp on the one stage nothing automated
-   can pass, so it keeps the tracked data voice. Written out, never a
+/* "Gate — human only": a label a person wrote over the one stage nothing
+   automated can pass, so it is the kicker role. Written out, never a
    colour alone. */
 .stageGate {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--gold);
 }
 

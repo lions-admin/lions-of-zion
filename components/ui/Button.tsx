@@ -11,17 +11,24 @@ import styles from "./button.module.css";
  *                Ask send, a support card's action, a share sheet's first
  *                button. One per surface; a second solid button is a second
  *                primary action, which is a design error rather than a style.
- *   `secondary`  outline — the secondary action beside it. Alias: `outline`.
+ *   `secondary`  outline — the action beside a primary on a task surface,
+ *                and nothing else. A toolbar toggle, a filter chip, an
+ *                inline "Show evidence" or a quiet in-flow action is `ghost`
+ *                or `text`; an outline that appears wherever a button is
+ *                wanted is not a second tier, it is the absence of one
+ *                (workstream J, 2026-09-15). Alias: `outline`.
  *   `text`       link — navigation and quiet in-flow actions, set as an
- *                underlined link. Alias: `link`.
+ *                underlined link.
  *   `ghost`      chrome — toolbar and masthead controls that borrow the
  *                surface they sit on.
  *   `danger`     destructive, always outlined in the danger hue and never
  *                the only cue.
  *
- * `solid`, `toolbar` and `filter` remain as mapped aliases so existing
- * callers typecheck; `outline` and `link` are the hierarchy's own names for
- * `secondary` and `text`, added so a caller can say what it means.
+ * `toolbar` and `filter` remain as mapped aliases so existing callers
+ * typecheck; `outline` is the hierarchy's own name for `secondary`, kept so
+ * a caller can say what it means. `solid` and `link` were removed on
+ * 2026-09-15 with no remaining caller: `solid` had come to mean the
+ * *secondary* plate, which is the opposite of what the word says.
  */
 export type ButtonVariant =
   | "primary"
@@ -30,8 +37,6 @@ export type ButtonVariant =
   | "text"
   | "danger"
   | "outline"
-  | "link"
-  | "solid"
   | "toolbar"
   | "filter";
 
@@ -43,7 +48,9 @@ export const BUTTON_SEMANTIC_VARIANTS = [
   "danger",
 ] as const;
 
-export type ButtonSize = "xs" | "sm" | "md" | "lg";
+/** Three sizes. `lg` was removed on 2026-09-15: nothing asked for it, and a
+ *  fourth height is a fourth thing for a page to disagree about. */
+export type ButtonSize = "xs" | "sm" | "md";
 
 const VARIANT_CLASS: Record<ButtonVariant, string> = {
   primary: styles.primary,
@@ -52,13 +59,6 @@ const VARIANT_CLASS: Record<ButtonVariant, string> = {
   text: styles.text,
   danger: styles.danger,
   outline: styles.secondary,
-  link: styles.text,
-  /* `solid` predates the hierarchy and was mapped to the *secondary* plate,
-     which is the opposite of what the word says today. It keeps that mapping
-     on purpose: the callers that wrote it were asking for a neutral plate,
-     not for the one primary action, and re-reading them as primary would put
-     several solid buttons on one surface. New code says `primary`. */
-  solid: styles.secondary,
   toolbar: styles.toolbar,
   filter: styles.filter,
 };

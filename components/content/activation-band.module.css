@@ -8,7 +8,7 @@
 .band {
   margin-top: var(--sp-7);
   padding-top: var(--sp-5);
-  border-top: 2px solid var(--gold-dim);
+  border-top: var(--line-w-thick) solid var(--gold-dim);
 }
 
 .heading {
@@ -31,8 +31,8 @@
   text-wrap: pretty;
 }
 
-/* Wraps rather than scrolls: three controls at 44px do not fit 390px in one
-   line, and each keeps its full width on a phone so the row reads as a list
+/* Wraps rather than scrolls: three controls at `--control-h` do not fit 390px
+   in one line, and each keeps its full width on a phone so the row reads as a list
    of things to do rather than a toolbar. */
 .actions {
   display: flex;

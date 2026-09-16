@@ -33,7 +33,11 @@
 
 .claimRecord dt {
   color: var(--data-ember-peak);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
 }
 
@@ -57,6 +61,10 @@
 
 .fileEvidence > span {
   color: var(--data-ember-peak);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
 }

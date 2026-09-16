@@ -16,8 +16,7 @@ import { describe, expect, it } from "vitest";
  * They read source text on purpose. The subjects are browser-runtime
  * scheduling — rAF, IntersectionObserver, backdrop-filter layer counts — and
  * none of it exists under vitest's node environment, so the alternative is
- * not a better test, it is no test. `tests/information-war.test.ts` pins
- * SignalBeam's shared-observer contract the same way.
+ * not a better test, it is no test.
  */
 
 const ROOT = process.cwd();
@@ -70,14 +69,6 @@ describe("MOTION-002 — the animation-loop inventory", () => {
   ];
 
   /**
-   * Not a loop: one rAF coalesces every beam's layout read into a single
-   * batch and does not reschedule itself. It needs no cancel — an unmounting
-   * beam leaves the queue, so a frame already booked flushes a batch the beam
-   * is no longer in.
-   */
-  const KNOWN_FRAME_BATCH = ["components/motion/SignalBeam.tsx"];
-
-  /**
    * One-shot `requestAnimationFrame`s that defer a read or a subscription
    * past the commit. They hold a frame handle across an unmount, so they
    * cancel it.
@@ -122,7 +113,6 @@ describe("MOTION-002 — the animation-loop inventory", () => {
     expect(callers.sort()).toEqual(
       [
         ...KNOWN_FRAME_LOOPS,
-        ...KNOWN_FRAME_BATCH,
         ...KNOWN_SINGLE_FRAME,
         ...KNOWN_FOCUS_FRAME,
       ].sort(),
@@ -132,11 +122,6 @@ describe("MOTION-002 — the animation-loop inventory", () => {
   it("every frame scheduler cancels what it scheduled", () => {
     for (const file of [...KNOWN_FRAME_LOOPS, ...KNOWN_SINGLE_FRAME]) {
       expect(read(file), file).toMatch(/cancelAnimationFrame\s*\(/);
-    }
-    /* The batch's equivalent: the queue releases an unmounting beam, so a
-       booked frame cannot measure a detached node. */
-    for (const file of KNOWN_FRAME_BATCH) {
-      expect(read(file), file).toMatch(/measureQueue\.delete\(beam\)/);
     }
     /* The exempt two stay exempt only while the frame's whole effect is a
        focus move. Anything else in that callback and this fails. */
@@ -205,14 +190,6 @@ describe("PERF-007 — observers and listeners are scoped and released", () => {
     expect(source).toMatch(/observer\.unobserve\(entry\.target\)/);
   });
 
-  it("SignalBeam releases an element as its last beam unmounts", () => {
-    const source = read("components/motion/SignalBeam.tsx");
-    expect(source).toMatch(/resizeObserver\?\.unobserve\(element\)/);
-    expect(source).toMatch(/intersectionObserver\?\.unobserve\(beam\.container\)/);
-    /* The maps are what would grow; they are deleted with the last member. */
-    expect(source).toMatch(/beamsByElement\.delete\(element\)/);
-    expect(source).toMatch(/beamsByContainer\.delete\(beam\.container\)/);
-  });
 });
 
 describe("MOTION-003 — Reveal is limited to sections and ordered processes", () => {

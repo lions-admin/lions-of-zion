@@ -1,21 +1,18 @@
 import React from "react";
 import Link from "next/link";
 import { PointerHighlight } from "@/components/motion/PointerHighlight";
+import { Icon } from "./Icon";
 import styles from "./card.module.css";
 
 /**
- * Editorial surface compositions: feature, list-row, dossier, metric, and
- * quiet-note. `panel` maps to feature and `quiet` maps to row so existing
- * types keep compiling. Accent is the top/start rule colour, not a glow.
+ * Editorial surface compositions: feature, list-row and dossier. Accent is
+ * the top/start rule colour, not a glow.
+ *
+ * `metric`, `note`, `panel` and `quiet` (and the `tone` alias of `variant`)
+ * were removed on 2026-09-15 (workstream J): none had a caller, and a
+ * composition nothing renders is a fourth card design waiting to happen.
  */
-export type CardVariant =
-  | "feature"
-  | "row"
-  | "dossier"
-  | "metric"
-  | "note"
-  | "panel"
-  | "quiet";
+export type CardVariant = "feature" | "row" | "dossier";
 
 export type CardAccent = "none" | "gold" | "ember";
 
@@ -23,16 +20,10 @@ const VARIANT_CLASS: Record<CardVariant, string> = {
   feature: styles.feature,
   row: styles.row,
   dossier: styles.dossier,
-  metric: styles.metric,
-  note: styles.note,
-  panel: styles.feature,
-  quiet: styles.row,
 };
 
 type CardOwnProps = {
   variant?: CardVariant;
-  /** Alias of `variant` — same five compositions. */
-  tone?: CardVariant;
   /** Colour of the accent rule and the eyebrow. */
   accent?: CardAccent;
   /** Renders the whole card as a link and arms the interactive treatment. */
@@ -49,8 +40,7 @@ export type CardProps = Omit<React.HTMLAttributes<HTMLElement>, "children"> &
   CardOwnProps;
 
 export function Card({
-  variant,
-  tone,
+  variant = "feature",
   accent = "none",
   href,
   interactive,
@@ -59,11 +49,9 @@ export function Card({
   children,
   ...props
 }: CardProps) {
-  const composition = variant ?? tone ?? "feature";
+  const composition = variant;
   const isInteractive = interactive ?? href !== undefined;
-  const tracksPointer = isInteractive && (
-    composition === "feature" || composition === "panel" || composition === "dossier"
-  );
+  const tracksPointer = isInteractive && composition !== "row";
 
   const classes = [
     styles.card,
@@ -185,9 +173,9 @@ export function CardMedia({
 
 /**
  * The pinned affordance at a card's foot. Not a control — the card itself is
- * the link — so it renders as text with an arrow that travels on hover, and
- * carries `aria-hidden` because the card's own accessible name already says
- * where it goes.
+ * the link — so it renders as text with the one arrow, which travels on
+ * hover through the global `.arrow` utility, and carries `aria-hidden`
+ * because the card's own accessible name already says where it goes.
  */
 export function CardCta({
   className = "",
@@ -197,7 +185,7 @@ export function CardCta({
   return (
     <span className={`${styles.cta} ${className}`.trim()} aria-hidden="true" {...props}>
       {children}
-      <span className={styles.ctaArrow}>→</span>
+      <Icon name="arrow-right" inline className={styles.ctaArrow} />
     </span>
   );
 }

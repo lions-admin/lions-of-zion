@@ -1,0 +1,34 @@
+{
+  "source": "assets/reference/crowned-lion-particle-reference.png",
+  "ground": "#0b1220",
+  "crownRamp": [
+    296,
+    352
+  ],
+  "outer": {
+    "cx": 627,
+    "cy": 780,
+    "rx": 590,
+    "ry": 640,
+    "feather": 90
+  },
+  "core": {
+    "cx": 627,
+    "cy": 700,
+    "rx": 330,
+    "ry": 400,
+    "feather": 140
+  },
+  "files": [
+    "public/brand/cover/lion-core-1254.avif",
+    "public/brand/cover/lion-core-1254.webp",
+    "public/brand/cover/lion-core-800.avif",
+    "public/brand/cover/lion-core-800.webp",
+    "public/brand/cover/lion-haze-1254.avif",
+    "public/brand/cover/lion-haze-1254.webp",
+    "public/brand/cover/lion-haze-800.avif",
+    "public/brand/cover/lion-haze-800.webp"
+  ],
+  "desktopAvifKb": 462,
+  "phoneAvifKb": 187
+}

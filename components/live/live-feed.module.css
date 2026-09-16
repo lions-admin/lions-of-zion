@@ -36,10 +36,10 @@
 }
 
 /* The heading is here for the document outline and the contents rail; the
-   strip reads as a masthead, so it is set at data scale rather than as an h2
+   strip reads as a masthead, so it is set as a kicker rather than as an h2
    step. */
 .statusHeading {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin: 0 0 var(--sp-4);
   color: var(--ink-lo);
 }
@@ -53,11 +53,11 @@
 
 .statusGrid dt {
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  letter-spacing: var(--t-kicker-tracking);
+  line-height: var(--t-kicker-lh);
   text-transform: uppercase;
 }
 
@@ -99,7 +99,7 @@
 }
 
 .filter {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   display: inline-flex;
   align-items: center;
   max-width: 100%;
@@ -163,7 +163,7 @@
   font-family: var(--face-data);
   font-size: var(--t-caption);
   font-weight: var(--t-caption-weight);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--t-data-tracking-tight);
   line-height: var(--t-caption-lh);
   overflow-wrap: anywhere;
 }
@@ -233,12 +233,18 @@
 .clock {
   color: var(--ink-hi);
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
+  letter-spacing: var(--t-data-tracking-tight);
 }
 
+/* A section name a person wrote, inside the mono dateline: the kicker role,
+   spelled out because a class shared with the dateline cannot compose. */
 .section {
   color: var(--ink-lo);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
 }
 
@@ -342,8 +348,7 @@
 }
 
 .verdict {
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  composes: kickerLabel from global;
 }
 
 .facet { text-transform: capitalize; }

@@ -9,8 +9,9 @@
  *                           primary and left the pair with no hierarchy at all.
  *   link     `.text`      — navigation, underlined.
  * `.ghost` is chrome (masthead, toolbars); `.danger` is outlined in the danger
- * hue. Aliases: outline → secondary, link → text, solid → secondary; toolbar
- * and filter keep mapped classes.
+ * hue. Alias: outline → secondary; toolbar and filter keep mapped classes.
+ * `solid` and `link` went on 2026-09-15 along with the `lg` size — three
+ * sizes, and the same three heights everywhere.
  *
  * What every tier shares and no consumer may change: radius `--radius-2` at
  * most, the global focus ring, icon spacing, the 44px coarse floor, and a busy
@@ -84,27 +85,16 @@
   font-size: var(--t-small);
 }
 
-.lg {
-  --btn-h: calc(var(--control-h) + var(--sp-2));
-  padding: 0 calc(var(--sp-5) + var(--sp-1));
-  font-size: var(--t-body);
-}
-
 @media (pointer: coarse) {
   .xs,
   .sm,
   .md,
-  .lg,
   .iconOnly {
     --btn-h: var(--control-h);
     /* The height floor alone left a short label ("1x", "AI", a zoom glyph)
        44px tall and 34px wide, which is half a target. The floor is a square,
        so it belongs on both axes. */
     min-width: var(--control-h);
-  }
-
-  .lg {
-    --btn-h: calc(var(--control-h) + var(--sp-2));
   }
 }
 

@@ -46,11 +46,11 @@
 }
 
 .stripItem dt {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   color: var(--gold);
   margin-bottom: var(--sp-2);
@@ -161,7 +161,7 @@
 }
 
 .swatchControl {
-  border: 1px solid var(--ink-lo);
+  border: var(--line-w) solid var(--ink-lo);
 }
 
 /* ---------- lag ---------- */
@@ -217,14 +217,14 @@
    drawn hollow, so it cannot be read as a result. */
 .lagRowWeak .lagBar {
   background: none;
-  border-top: 1px dotted var(--ink-lo);
-  border-bottom: 1px dotted var(--ink-lo);
+  border-top: var(--line-w) dotted var(--ink-lo);
+  border-bottom: var(--line-w) dotted var(--ink-lo);
   height: 0.3rem;
 }
 
 .lagRowWeak .lagDot {
   background: none;
-  border: 1px solid var(--ink-lo);
+  border: var(--line-w) solid var(--ink-lo);
 }
 
 .lagRowWeak .lagPair,
@@ -296,13 +296,13 @@
 
 .communitySize {
   font-family: var(--face-data);
-  font-size: 0.75rem;
+  font-size: var(--t-data);
   fill: var(--ink-hi);
 }
 
 .communityLabel {
   font-family: var(--face-text);
-  font-size: 0.6875rem;
+  font-size: var(--t-caption);
   fill: var(--ink-lo);
 }
 
@@ -359,11 +359,11 @@
 }
 
 .communityHubs span {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   color: var(--gold);
   margin-right: var(--sp-2);
@@ -386,7 +386,7 @@
 }
 
 .overturnedLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   display: block;
   margin-bottom: var(--sp-1);
   color: var(--gold);
@@ -425,11 +425,11 @@
 }
 
 .dataFallback summary {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   color: var(--gold);
   cursor: pointer;
@@ -463,11 +463,11 @@
 
 .dataTable thead th {
   color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
 }
 

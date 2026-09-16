@@ -29,7 +29,9 @@
 }
 
 .ledgerKicker {
-  composes: kicker from '../../components/content/content.module.css';
+  composes: kickerLabel from global;
+  display: block;
+  color: var(--gold);
 }
 
 /* The count is the ledger's one number, and it is a count of records —

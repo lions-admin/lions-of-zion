@@ -35,7 +35,7 @@
 }
 
 .embedLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin: 0 0 var(--sp-4);
   padding-bottom: var(--sp-3);
   border-bottom: var(--line-w) solid var(--line-soft);

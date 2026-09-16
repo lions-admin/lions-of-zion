@@ -31,7 +31,9 @@
 }
 
 .rollKicker {
-  composes: kicker from '../../components/content/content.module.css';
+  composes: kickerLabel from global;
+  display: block;
+  color: var(--gold);
 }
 
 .rollList {
@@ -83,17 +85,17 @@
 }
 
 .rollRole {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   flex: none;
   color: var(--ink-lo);
 }
 
-/* Above 1220px `SectionToc`'s rail lists these same names, so a second
+/* Above the 76.25rem rails seam `SectionToc`'s rail lists these same names, so a second
    full list of them on one screen is noise. Hidden rather than deleted:
    the rail is client-side only, and without this a no-JavaScript reader
    would lose the roll entirely. Same trade, same wording, as the era
    index on Israel's Story. */
-@media (min-width: 1220px) and (scripting: enabled) {
+@media (min-width: 76.25rem) and (scripting: enabled) {
   .roll {
     display: none;
   }
@@ -202,7 +204,7 @@
 }
 
 .portraitDisclosure {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--gold);
 }
 
@@ -231,7 +233,7 @@
    record itself would have cut the story to roughly 38 characters a line
    and the citations to less than half a rail. The margin costs the
    reading measure nothing, because the column it lands in is zero-width.
-   Below 1220px the note comes back under the story, which is the correct
+   Below the 76.25rem rails seam the note comes back under the story, which is the correct
    reading order and the only one that fits a phone. */
 .sources {
   composes: marginNote from '../../components/content/content.module.css';
@@ -246,8 +248,10 @@
 }
 
 .sourcesKicker {
-  composes: kicker from '../../components/content/content.module.css';
+  composes: kickerLabel from global;
+  display: block;
   margin-bottom: var(--sp-3);
+  color: var(--gold);
 }
 
 /* From the tablet seam the picture takes a column of its own and the record
@@ -301,7 +305,7 @@
   }
 }
 
-@media (min-width: 1220px) {
+@media (min-width: 76.25rem) {
   /* The zero-width last column is the whole trick: the note is placed
      in it and overflows into the page margin, so the reading column keeps
      its full measure. Declared here because `Card.row` is already a grid
@@ -377,7 +381,7 @@
 /* The consent boundary's standfirst, at the foot of the page since
    2026-09-14 — see the note in `page.tsx` for why it is no longer the first
    thing a mourner meets. Local rather than composed from War Update's
-   `.advisory`: the two say different things. A data label, a left rule and
+   `.advisory`: the two say different things. A kicker, a left rule and
    the italic reading voice — a limit on what the page claims, not chrome a
    reader may skip. The label is this block's one gold. */
 .standfirst {
@@ -392,11 +396,7 @@
 }
 
 .standfirstLabel {
+  composes: kickerLabel from global;
   font-style: normal;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
   color: var(--gold);
 }

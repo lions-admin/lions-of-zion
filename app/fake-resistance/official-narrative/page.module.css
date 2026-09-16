@@ -33,11 +33,11 @@
   padding: 0 var(--sp-4) var(--sp-2) 0;
   border-bottom: var(--line-w) solid var(--line-strong);
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  letter-spacing: var(--t-kicker-tracking);
+  line-height: var(--t-kicker-lh);
   text-align: left;
   text-transform: uppercase;
 }
@@ -141,11 +141,11 @@
     display: block;
     margin-bottom: var(--sp-1);
     color: var(--ink-lo);
-    font-family: var(--face-data);
-    font-size: var(--t-data);
-    font-weight: var(--t-data-weight);
-    letter-spacing: var(--t-data-tracking);
-    line-height: var(--t-data-lh);
+    font-family: var(--face-kicker);
+    font-size: var(--t-kicker);
+    font-weight: var(--t-kicker-weight);
+    letter-spacing: var(--t-kicker-tracking);
+    line-height: var(--t-kicker-lh);
     text-transform: uppercase;
   }
 
@@ -177,7 +177,7 @@
 /* Two tracks, the second zero-wide: the case keeps the reading measure while
    its sources overflow into the margin, and because the note still occupies
    the grid row it can never run into the case below. */
-@media (min-width: 1220px) {
+@media (min-width: 76.25rem) {
   .caseFile.caseFile {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 0;
@@ -306,8 +306,10 @@
 }
 
 .caseLogLabel {
-  composes: kicker from '../../../components/content/content.module.css';
+  composes: kickerLabel from global;
+  display: block;
   margin-bottom: var(--sp-2);
+  color: var(--gold);
 }
 
 .caseLog p {
@@ -322,8 +324,10 @@
 }
 
 .caseFileTellsLabel {
-  composes: kicker from '../../../components/content/content.module.css';
+  composes: kickerLabel from global;
+  display: block;
   margin-bottom: var(--sp-3);
+  color: var(--gold);
 }
 
 .caseFileTells ul {
@@ -343,7 +347,7 @@
   color: var(--data-ember);
 }
 
-@media (max-width: 540px) {
+@media (max-width: 45rem) {
   /* No room for a floating corner stamp beside wrapped header text — drop it
      into normal flow above the header instead of overlapping it. */
   .stamp {

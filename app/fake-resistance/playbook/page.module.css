@@ -118,10 +118,10 @@
 
 /* The label sits on the ember rule rather than above it, so the four parts
    read as one block with internal structure instead of four sections. It is
-   a data label — three words at most — so it takes the data face; the
-   global heading rule would otherwise set an h3 in the serif. */
+   a label a person wrote — three words at most — so it takes the kicker
+   role; the global heading rule would otherwise set an h3 in the serif. */
 .partHeading {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin-bottom: var(--sp-3);
   padding-top: var(--sp-3);
   border-top: var(--line-w) solid var(--data-ember);

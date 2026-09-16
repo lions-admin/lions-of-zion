@@ -3,8 +3,8 @@
  * UX-16. It was a single column a third of the measure wide with the rest of
  * the viewport empty, a blank band under the jump row, and three thinly
  * populated headed groups. Now: the profiles as the opening band, three
- * across with their portraits; then a two-column editorial grid at 64rem and
- * up — the merged record list on the left, the history rail on the right —
+ * across with their portraits; then a two-column editorial grid at the
+ * 76.25rem rails seam and up — the merged record list on the left, the history rail on the right —
  * and one column below that.
  *
  * Two type roles, kept apart (UX-31): a kicker or section label is sans caps
@@ -22,14 +22,9 @@
 /* ── Shared: kicker, section head, links ───────────────────────────────── */
 
 .kicker {
+  composes: kickerLabel from global;
   margin: 0;
   color: var(--gold-hi);
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 /* Kicker over heading on the left, the count beside them, the door to
@@ -209,14 +204,9 @@
 }
 
 .disclosure {
+  composes: kickerLabel from global;
   flex-basis: 100%;
   color: var(--gold-hi);
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 .profileBody {
@@ -460,7 +450,7 @@
 
 /* ── Seams ─────────────────────────────────────────────────────────────── */
 
-@media (max-width: 63.99rem) {
+@media (max-width: 76.25rem) {
   .columns { grid-template-columns: minmax(0, 1fr); gap: var(--sp-8); }
   .history {
     padding-inline-start: 0;

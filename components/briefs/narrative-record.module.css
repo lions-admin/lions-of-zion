@@ -1,10 +1,16 @@
-.record { padding-block: var(--sp-5); border-top: 1px solid var(--line); min-width: 0; overflow-wrap: anywhere; }
-.meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--sp-2); color: var(--ink-lo); font: 13px/1.6 var(--face-data); }
-.status { border-inline-start: 2px solid currentColor; padding-inline-start: var(--sp-2); color: var(--ink); }
+.record { padding-block: var(--sp-5); border-top: var(--line-w) solid var(--line); min-width: 0; overflow-wrap: anywhere; }
+/* The verdict is a word a person chose and reads in the text face at the
+   caption step; the instant beside it is a machine value and keeps the data
+   face. Until 2026-09-15 both sat in one 13px mono line. */
+.meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--sp-2); color: var(--ink-lo); font-family: var(--face-text); font-size: var(--t-caption); font-weight: var(--t-caption-weight); line-height: var(--t-caption-lh); }
+.meta time { font-family: var(--face-data); font-size: var(--t-data); font-weight: var(--t-data-weight); line-height: var(--t-data-lh); font-variant-numeric: tabular-nums; }
+.status { border-inline-start: var(--line-w-thick) solid currentColor; padding-inline-start: var(--sp-2); color: var(--ink); }
 .status[data-tone="danger"] { color: var(--data-ember-peak); }
 .status[data-tone="warn"] { color: var(--gold-hi); }
 .status[data-tone="ok"] { color: var(--ink-hi); }
-.label { display: block; font: 13px/1.6 var(--face-data); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-lo); margin: var(--sp-4) 0 var(--sp-2); }
+/* "Claim in circulation", "Published context": words a person wrote to name
+   what follows — the kicker role, not the data one (UX-31). */
+.label { composes: kickerLabel from global; display: block; color: var(--ink-lo); margin: var(--sp-4) 0 var(--sp-2); }
 /* THE CLAIM CAP — by kind, not by call site.
    A claim under examination is a heading *inside* a record, and it must never
    out-typeset the verdict on it or the heading of the section carrying it. It
@@ -27,31 +33,37 @@
   letter-spacing: var(--t-h3-tracking);
 }
 .record h3 a { text-decoration: none; }
-.record h3 a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .15em; }
-.meaning { margin: var(--sp-3) 0; color: var(--ink-hi); font-size: 15px; }
-.propagators, .basis { color: var(--ink-lo); font-size: 13px; }
+.record h3 a:hover,
+.record h3 a:focus-visible { text-decoration: underline; text-decoration-thickness: var(--line-w); text-underline-offset: .15em; }
+.meaning { margin: var(--sp-3) 0; color: var(--ink-hi); font-size: var(--t-small); line-height: var(--t-small-lh); }
+.propagators, .basis { color: var(--ink-lo); font-size: var(--t-caption); line-height: var(--t-caption-lh); }
 .propagators span { display: block; }
-.context { max-width: 65ch; border-inline-start: 1px solid var(--line-strong); padding-inline-start: var(--sp-4); }
-.context p { margin: 0; font: 15px/1.7 var(--face-text); }
-.read { display: inline-flex; align-items: center; gap: var(--sp-3); min-height: 44px; margin-top: var(--sp-3); font-size: 13px; color: var(--ink-hi); text-underline-offset: 5px; }
-.record a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+.context { max-width: 65ch; border-inline-start: var(--line-w) solid var(--line-strong); padding-inline-start: var(--sp-4); }
+.context p { margin: 0; font-family: var(--face-text); font-size: var(--t-small); line-height: var(--t-small-lh); }
+.read { display: inline-flex; align-items: center; gap: var(--sp-3); min-height: var(--control-h); margin-top: var(--sp-3); font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-hi); text-underline-offset: 5px; }
+/* No local focus ring: the global `:focus-visible` rule in app/globals.css
+   draws the one ring the site has. */
 
-.compact { padding-block: 16px; }
+.compact { padding-block: var(--sp-4); }
 /* The compact excerpt carries no size of its own: one kind, one cap. It was
-   21px here, a second scale a reader could not read rank from. */
-.compact .label { margin-top: 10px; }
-.compact .meaning { font-size: 14px; margin-block: 10px 0; }
-.compact .read { margin-top: 4px; }
+   21px here, a second scale a reader could not read rank from; the 14px that
+   followed it went the same way (2026-09-15) — `.meaning` sets the size. */
+.compact .label { margin-top: var(--sp-2); }
+.compact .meaning { margin-block: var(--sp-2) 0; }
+.compact .read { margin-top: var(--sp-1); }
 .status { font-weight: 600; color: var(--ink-hi); }
-.compact h3 a { text-decoration: underline; text-decoration-color: var(--line-strong); text-decoration-thickness: 1px; text-underline-offset: 4px; }
-.compact .label { margin-block: 8px 4px; }
+.compact h3 a { text-decoration: underline; text-decoration-color: var(--line-strong); text-decoration-thickness: var(--line-w); text-underline-offset: 4px; }
+.compact .label { margin-block: var(--sp-2) var(--sp-1); }
 
 /* Enrichment, not evidence: constrained so it never out-weighs the headline
    above it, and rendered only when the record actually carries a picture —
    there is no placeholder for the many that do not. */
 .media { margin: var(--sp-4) 0 0; display: grid; gap: var(--sp-2); max-inline-size: 30rem; min-width: 0; }
-.media img { display: block; inline-size: 100%; block-size: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: var(--radius-1); border: 1px solid var(--line); }
-.media figcaption { display: grid; gap: 2px; color: var(--ink-lo); font: 12px/1.6 var(--face-data); overflow-wrap: anywhere; }
-.mediaNote { letter-spacing: .08em; text-transform: uppercase; color: var(--gold-hi); }
+.media img { display: block; inline-size: 100%; block-size: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: var(--radius-1); border: var(--line-w) solid var(--line); }
+.media figcaption { display: grid; gap: var(--sp-1); color: var(--ink-lo); font-family: var(--face-data); font-size: var(--t-data); font-weight: var(--t-data-weight); line-height: var(--t-data-lh); overflow-wrap: anywhere; }
+/* The disclosure — "Editorial illustration — not evidence" — is a label a
+   person wrote: the kicker role. The credit under it is a stamped value and
+   stays in the data face it inherits. */
+.mediaNote { composes: kickerLabel from global; color: var(--gold-hi); }
 .mediaCredit { color: var(--ink-lo); }
-.compact .media { max-inline-size: 11rem; margin-top: 10px; }
+.compact .media { max-inline-size: 11rem; margin-top: var(--sp-2); }

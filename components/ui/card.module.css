@@ -1,7 +1,8 @@
 /* Card — SYS-008
  *
- * Five compositions. Radii 2 / 4 / 8 only (--radius-1/2/3). No outer glow.
- * panel → feature, quiet → row.
+ * Three compositions — feature, row, dossier. Radii 2 / 4 / 8 only
+ * (--radius-1/2/3). No outer glow. `metric`, `note`, `panel` and `quiet`
+ * went on 2026-09-15 with no caller.
  */
 
 .card {
@@ -27,7 +28,6 @@
    * was — with no shadow token left to carry it, an inset shadow would have
    * been an edge that disappears the moment elevation is reversed. */
   background-color: var(--surface-1);
-  background-image: var(--surface-grade);
   border: var(--line-w) solid var(--line);
   border-radius: var(--radius-3);
   box-shadow: var(--shadow-1);
@@ -113,37 +113,6 @@
   }
 }
 
-/* Metric — a figure and its name. Compact, tabular. */
-.metric {
-  padding: var(--sp-4);
-  gap: var(--sp-2);
-}
-
-.metric .title {
-  font-family: var(--face-data);
-  font-size: var(--t-figure);
-  font-weight: var(--t-figure-weight);
-  line-height: var(--t-figure-lh);
-  letter-spacing: 0;
-  font-variant-numeric: tabular-nums;
-  margin-bottom: 0;
-}
-
-.metric .description {
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-}
-
-/* Quiet-note — aside, not a destination. Start-edge rule, no shadow. */
-.note {
-  padding: var(--sp-4) var(--sp-5);
-  background: var(--surface-1);
-  border: 0;
-  border-inline-start: var(--line-w-thick) solid var(--card-rule);
-  border-radius: var(--radius-1);
-  box-shadow: none;
-}
-
 .gold {
   --card-rule: var(--gold);
   --card-rule-peak: var(--gold-hi);
@@ -200,13 +169,6 @@
   box-shadow: none;
   transform: none;
   border-bottom-color: var(--line-strong);
-}
-
-.note.interactive:hover,
-.note.interactive:focus-visible {
-  background-color: var(--surface-2);
-  box-shadow: none;
-  transform: none;
 }
 
 .header {
@@ -300,15 +262,12 @@
   line-height: var(--t-caption-lh);
 }
 
+/* The one arrow: the glyph is `<Icon name="arrow-right" inline>` and the
+   travel is the global utility, so a card's arrow moves exactly as a link's
+   or a button's does. Only the spacing is the card's own. */
 .ctaArrow {
-  display: inline-block;
+  composes: arrow from global;
   margin-inline-start: 0.4em;
-  transition: transform var(--dur-base) var(--ease-out);
-}
-
-.interactive:hover .ctaArrow,
-.interactive:focus-visible .ctaArrow {
-  transform: translateX(0.3em);
 }
 
 .footer {
@@ -333,14 +292,8 @@
 
   .card,
   .title,
-  .ctaArrow,
   .pointerSurface::before,
   .pointerSurface::after {
     transition: none;
-  }
-
-  .interactive:hover .ctaArrow,
-  .interactive:focus-visible .ctaArrow {
-    transform: none;
   }
 }

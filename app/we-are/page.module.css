@@ -130,10 +130,10 @@
   color: var(--ink-hi);
 }
 
-/* "Gate — human only": short, and genuinely a status stamp on the one stage
-   nothing automated can pass, so it keeps the uppercase data voice. */
+/* "Gate — human only": a label a person wrote over the one stage nothing
+   automated can pass, so it is the kicker role; mono is for machine values. */
 .gateLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   display: block;
   margin: 0 0 var(--sp-3);
   color: var(--gold);
@@ -183,11 +183,11 @@
 
 .principles dt {
   min-width: 0;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   color: var(--ink-hi);
 }

@@ -43,11 +43,11 @@
 }
 
 .eyebrow > span {
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   display: inline-flex;
   align-items: center;
@@ -119,11 +119,11 @@
 }
 
 .evidence dt {
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   color: var(--ink-lo);
 }
@@ -336,11 +336,11 @@
 }
 
 .depth a > span:first-child {
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   grid-column: 1 / -1;
   color: var(--ink-lo);
@@ -387,7 +387,7 @@
 
 /* ── Seams ─────────────────────────────────────────────────────────────── */
 
-@media (max-width: 68.75rem) {
+@media (max-width: 76.25rem) {
   .front { grid-template-columns: 1fr; gap: var(--sp-6); }
   .investigation { border-inline-end: 0; padding-inline-end: 0; }
   .researchGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

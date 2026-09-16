@@ -73,7 +73,7 @@
   line-height: var(--t-body-lh);
 }
 
-@media (max-width: 480px) {
+@media (max-width: 45rem) {
   .panel {
     padding: var(--sp-5);
     margin-block: var(--sp-6) var(--sp-8);

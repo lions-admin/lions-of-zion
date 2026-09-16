@@ -1,9 +1,15 @@
 import React from "react";
+import styles from "./icon.module.css";
 
 /**
  * The shared line-icon family for chrome, records, provenance, and process
  * states. Icons are deliberately quiet: colour and text carry meaning, while
  * the mark provides a consistent visual anchor at any density.
+ *
+ * `arrow-right` is *the* arrow (workstream J, 2026-09-15): every "→" a page
+ * used to type is this glyph, `inline` when it sits in running text or a
+ * link label, with `className="arrow"` for the global travel-on-hover. The
+ * `arrow-left` mirror is the pager's and a playback control's "previous".
  */
 export type IconName =
   | "search"
@@ -11,6 +17,7 @@ export type IconName =
   | "menu"
   | "close"
   | "arrow-right"
+  | "arrow-left"
   | "chevron-down"
   | "external-link"
   | "filter"
@@ -38,6 +45,12 @@ export type IconName =
 export type IconProps = Omit<React.SVGProps<SVGSVGElement>, "name"> & {
   name: IconName;
   size?: number | string;
+  /**
+   * Set in running text or a link label: a 1em square sat on the text's
+   * optical centre. An SVG's baseline is its bottom edge, so without this a
+   * glyph beside words rides a quarter-em high. Overrides `size`.
+   */
+  inline?: boolean;
 };
 
 const ICONS: Record<IconName, React.ReactNode> = {
@@ -61,6 +74,7 @@ const ICONS: Record<IconName, React.ReactNode> = {
   menu: <><path d="M3 7h18" /><path d="M3 12h18" /><path d="M3 17h18" /></>,
   close: <><path d="m5 5 14 14" /><path d="m19 5-14 14" /></>,
   "arrow-right": <><path d="M4 12h15" /><path d="m13 6 6 6-6 6" /></>,
+  "arrow-left": <><path d="M20 12H5" /><path d="m11 6-6 6 6 6" /></>,
   "chevron-down": <path d="m4 8 8 8 8-8" />,
   "external-link": <><path d="M14 4h6v6" /><path d="m20 4-9 9" /><path d="M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5" /></>,
   filter: <><path d="M4 6h16" /><path d="M7 12h10" /><path d="M10 18h4" /></>,
@@ -88,12 +102,22 @@ const ICONS: Record<IconName, React.ReactNode> = {
   coffee: <><path d="M5 8.5h11v5.5a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z" /><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16" /><path d="M4 21h14" /><path d="M9 3.5v2M12.5 3.5v2" /></>,
 };
 
-export function Icon({ name, size = 20, strokeWidth = 1.6, ...props }: IconProps) {
+export function Icon({
+  name,
+  size = 20,
+  strokeWidth = 1.6,
+  inline = false,
+  className,
+  ...props
+}: IconProps) {
+  const dimension = inline ? "1em" : size;
+  const classes = [inline ? styles.inline : "", className].filter(Boolean).join(" ");
   return (
     <svg
       {...props}
-      width={size}
-      height={size}
+      className={classes || undefined}
+      width={dimension}
+      height={dimension}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"

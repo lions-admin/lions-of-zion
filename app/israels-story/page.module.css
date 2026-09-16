@@ -44,7 +44,9 @@
 
 /* One word. */
 .eraKicker {
-  composes: kicker from '../../components/content/content.module.css';
+  composes: kickerLabel from global;
+  display: block;
+  color: var(--gold);
 }
 
 .eraArc {
@@ -124,7 +126,7 @@
 /* The word first, the ramp second. Ember means contested everywhere on this
    site, but it is never the only thing saying so. */
 .eraFlag {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   grid-column: 3;
   grid-row: 1;
   color: var(--data-ember);
@@ -345,7 +347,7 @@
 }
 
 .chapterDisclosure {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--gold);
 }
 
@@ -380,12 +382,8 @@
    intro: the whole intro *is* the framing of the dispute, so the label
    opens the sentence it qualifies instead of standing over it. */
 .chapterIntroLabel {
+  composes: kickerLabel from global;
   font-style: normal;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
   color: var(--data-ember-peak);
   white-space: nowrap;
 }
@@ -478,7 +476,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 45rem) {
   .chapterHead {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--sp-3);

@@ -30,10 +30,10 @@
 .field input,
 .field textarea {
   width: 100%;
-  min-height: 44px;
+  min-height: var(--control-h);
   padding: var(--sp-3) var(--sp-4);
   background: var(--surface-2);
-  border: 1px solid var(--line);
+  border: var(--line-w) solid var(--line);
   border-radius: var(--radius-2);
   color: var(--ink-hi);
   font-family: var(--face-text);
@@ -106,7 +106,7 @@
 .fieldError {
   margin: calc(-1 * var(--sp-2)) 0 var(--sp-4);
   padding-left: var(--sp-3);
-  border-left: 2px solid var(--state-danger-line);
+  border-left: var(--line-w-thick) solid var(--state-danger-line);
   color: var(--state-danger);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
@@ -136,7 +136,7 @@
 .receipt {
   max-width: 30rem;
   padding: var(--sp-4) var(--sp-5);
-  border: 1px solid var(--state-ok-line);
+  border: var(--line-w) solid var(--state-ok-line);
   border-left: 3px solid var(--state-ok);
   border-radius: var(--radius-2);
   background: color-mix(in srgb, var(--state-ok-wash) 60%, var(--surface-1));

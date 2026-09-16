@@ -1,0 +1,13 @@
+/* Icon — the one inline-glyph rule.
+ *
+ * An SVG's baseline is its bottom edge, so a 1em box set on the baseline of
+ * running text rides a quarter-em high. `inline` sizes the mark to the text
+ * around it and sits it on the text's optical centre. Travel, when the glyph
+ * is the arrow, is the global `.arrow` utility the caller adds — this rule
+ * carries geometry only.
+ */
+.inline {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+}

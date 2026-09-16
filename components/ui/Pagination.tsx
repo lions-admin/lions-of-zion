@@ -1,5 +1,6 @@
 import React from "react";
 import { ButtonLink } from "./Button";
+import { Icon } from "./Icon";
 import styles from "./pagination.module.css";
 
 /**
@@ -95,8 +96,8 @@ export function Pagination({
             aria-disabled={atStart || undefined}
             tabIndex={atStart ? -1 : undefined}
             rel="prev"
+            leftIcon={<Icon name="arrow-left" size={16} />}
           >
-            <span aria-hidden="true">←</span>
             Previous
           </ButtonLink>
         </li>
@@ -133,9 +134,9 @@ export function Pagination({
             aria-disabled={atEnd || undefined}
             tabIndex={atEnd ? -1 : undefined}
             rel="next"
+            rightIcon={<Icon name="arrow-right" size={16} className="arrow" />}
           >
             Next
-            <span aria-hidden="true">→</span>
           </ButtonLink>
         </li>
       </ol>

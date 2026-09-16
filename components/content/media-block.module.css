@@ -82,9 +82,9 @@
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
-  /* A control: the UX contract's 44px target, which a 13px line of text and
-     its padding does not reach on its own. */
-  min-height: 44px;
+  /* A control: the UX contract's coarse target (`--control-h`), which a
+     caption line of text and its padding does not reach on its own. */
+  min-height: var(--control-h);
   width: fit-content;
   max-width: 100%;
   border-radius: var(--radius-1);
@@ -94,7 +94,7 @@
   line-height: var(--t-caption-lh);
   cursor: pointer;
   /* The default marker is replaced below so the row can be a flex line and
-     still centre its text against a 44px box. */
+     still centre its text against the control-height box. */
   list-style: none;
 }
 

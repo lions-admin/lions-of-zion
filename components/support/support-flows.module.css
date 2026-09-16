@@ -140,7 +140,7 @@
   transform: translateX(0.25em);
 }
 
-@media (width < 40rem) {
+@media (width < 45rem) {
   .chooser { grid-template-columns: minmax(0, 1fr); }
   .choiceButton { padding: var(--sp-4); }
 }

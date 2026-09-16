@@ -14,6 +14,18 @@
 > document with real figures; until then, read every particle line as a record
 > of what was, not of what ships.
 
+> ⚠️ **The font section is stale as of 2026-09-16, and this one is worth
+> reading before you act on it.** The identity round replaced seven families
+> with four — Schibsted Grotesk (display and text), Geist Mono (machine
+> values), Literata (the quote role, `preload: false`) and IBM Plex Sans
+> Hebrew (admin only, `preload: false`). The fix this document proposes below
+> — a second Newsreader instance for italic — is moot: Newsreader is gone.
+> Preloaded font weight per route measured **117.3 kB** against a 579.2 kB
+> budget on 2026-09-16, down from the 386.1 kB recorded here. The static-asset
+> table is also short by 43 MB of hero video and one component, all deleted in
+> `0c26d56`. As above, the numbers are left rather than invented: re-run the
+> report to replace them.
+
 Measured on 2026-09-03 against a Next.js 16.3.2 Turbopack production build of
 this repository. Every number here was produced by `npm run perf:report` after
 `npm run build`; nothing in this document is an estimate, and nothing is a

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SignalMark } from "@/components/brand/SignalMark";
 import { SITE_DESCRIPTION } from "@/lib/site-config";
 import { SECTION_LINKS, REFERENCE_LINKS, isCurrentChromeLink } from "./navigation-model";
 import { ChromeLinkGroup } from "./ChromeLink";
@@ -11,11 +12,15 @@ interface SiteFooterProps {
 }
 
 const TRUST_HREFS = new Set(["/methodology", "/corrections"]);
+/** The year the desk began publishing; the range runs to the current one. */
+const FOUNDED = 2024;
 
 /**
- * Compact colophon: whose desk this is, Methodology and Corrections, a dense
- * index of the files, and the year. It is not a second wall of the same
- * destinations the header already offered on a long archive page.
+ * The colophon: whose desk this is, Methodology and Corrections, an index of
+ * the sections, and the closing line. It closes every page the same way —
+ * the site opens on the signal rule and closes on it (Peak-End: the last
+ * thing on every page is the signature and the nameplate, never a donation
+ * banner) — rather than as a second toolbar.
  *
  * A server component with no client JavaScript: every link is in the
  * prerendered HTML, so on any reading route this remains a complete index for
@@ -24,11 +29,8 @@ const TRUST_HREFS = new Set(["/methodology", "/corrections"]);
  * because a link hidden by an ancestor's `display: none` is still in the DOM.
  *
  * Every link below is the shared `ChromeLink`, the same anchor the masthead
- * drawer and the mobile sheet draw. This file used to own three more
- * treatments of its own — `.trustLink`, `.furtherLink`, `.fileLink` — each
- * with its own current-page mark, hover, focus behaviour and target floor,
- * none of which agreed with the header's four. What is left here is where the
- * groups sit, which is the colophon's own business.
+ * drawer and the mobile sheet draw. The group labels are headings, so a
+ * screen reader can walk the colophon by section (2026-09-15).
  *
  * No newsletter capture, no social row, no "trusted by" strip.
  */
@@ -76,7 +78,8 @@ export function SiteFooter({ activeSection, home = false }: SiteFooterProps) {
       </div>
 
       <ChromeLinkGroup
-        label="Explore"
+        label="Sections"
+        heading
         links={SECTION_LINKS}
         current={current}
         /* One arrow per row, because each cell here *is* a row — the one
@@ -87,12 +90,16 @@ export function SiteFooter({ activeSection, home = false }: SiteFooterProps) {
       />
 
       <div className={styles.colophon}>
-        <p className={styles.copyright}>© {year} Lions of Zion</p>
-        {/* `#page-content` is the same anchor `EditorialShell`'s skip link
+        {/* The closing rule: the third and last of the signal rule's three
+            places on a page. */}
+        <SignalMark className={styles.signal} />
+        <p className={styles.copyright}>
+          © {FOUNDED}–{year} Lions of Zion
+        </p>
+        {/* `#page-content` is the same anchor the masthead's skip link
             targets, so this works with no JavaScript and no extra markup. */}
         <a className={styles.toTop} href="#page-content" data-measure-id="footer-to-top" data-measure-exposure="none">
           Back to the top
-          <span aria-hidden="true"> ↑</span>
         </a>
       </div>
     </footer>

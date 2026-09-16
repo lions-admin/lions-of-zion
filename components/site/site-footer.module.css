@@ -1,16 +1,11 @@
-/* Site colophon · design V4
+/* Site colophon · Midnight Signal (2026-09-15)
  *
- * One footer for every route. It closes the page as a colophon — a large
- * display nameplate, the desk's statement, Methodology and Corrections at
- * reading size, then a four-column index of the sections — rather than as a
- * second toolbar. The homepage used to carry this composition alone while
- * reading routes got a compact strip; the strip made every article end on a
- * different note from the front, so the colophon is now the shared close.
- *
- * `--ground` is opaque black and `--z-raised` keeps the slab above the page.
- * It used to say this was what stopped `ScanBackdrop` painting through the
- * colophon; that ambient layer was retired on 2026-09-14 and the opacity is
- * now simply what makes the close of the page a close.
+ * One footer for every route. It closes the page as a colophon — the
+ * nameplate at display size in the site grotesk, the desk's statement,
+ * Methodology and Corrections at reading size, the index of the sections,
+ * and the closing line under the signal rule — rather than as a second
+ * toolbar. The same flat ground as the page: the colophon is the end of the
+ * document, not a slab laid over it.
  */
 
 .footer {
@@ -20,20 +15,15 @@
   z-index: var(--z-raised);
   border-top: var(--line-w) solid var(--line-strong);
   background-color: var(--ground);
-  background-image: linear-gradient(180deg, rgba(246, 243, 235, 0.025), transparent 28%);
   color: var(--ink);
   font-family: var(--face-navigation);
   text-transform: none;
   padding-bottom: calc(var(--sp-6) + env(safe-area-inset-bottom, 0px));
 }
 
-/* VA-41. The colophon already kept itself above the home indicator; it had
-   nothing for the sensor housing, which is the inset that exists only in
-   landscape — where `--footer-inset` resolves to 4.5vw ≈ 37px on an 812px
-   phone against a 47-59px housing, so the nameplate and the file index would
-   have run under it the moment `viewport-fit=cover` was switched on.
-   `max()`, not `calc(… + …)`: the inset raises a floor rather than adding to
-   the gutter, so at a zero inset this is byte-for-byte the old rule. */
+/* VA-41. `max()`, not `calc(… + …)`: the inset raises a floor rather than
+   adding to the gutter, and it is written outside every width query because
+   the horizontal insets exist only in landscape. */
 .inner,
 .colophon {
   max-width: var(--footer-width);
@@ -67,20 +57,18 @@
   color: var(--ink-hi);
 }
 
+/* The nameplate: the wordmark's own weight and tracking, in ink. */
 .brandName {
   font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: clamp(2.375rem, 5.8vw, 5.125rem);
-  font-weight: 400;
-  line-height: 1.02;
-  letter-spacing: -0.045em;
+  font-size: var(--t-home-wordmark);
+  font-weight: var(--t-home-wordmark-weight);
+  line-height: 0.95;
+  letter-spacing: var(--t-home-wordmark-tracking);
   text-wrap: balance;
 }
 
-/* The same sentence the masthead carries, in the same face and case — see
-   `.brandRole` in `site-header.module.css`. One step larger here, because it
-   sits under a nameplate ten times its size and at 13px it read as a credit
-   line rather than the claim it is. */
+/* The same sentence the masthead carries, in the same face and case. One
+   step larger here, because it sits under a nameplate ten times its size. */
 .brandRole {
   font-family: var(--face-kicker);
   font-size: var(--t-small);
@@ -101,16 +89,8 @@
   text-wrap: pretty;
 }
 
-/* ── Reference: Methodology and Corrections first ──────────────────────────
- *
- * Layout only. Every anchor in these three rows is the shared `ChromeLink`
- * (`chrome-link.module.css`) — the same one the masthead drawer and the
- * mobile sheet draw, with the same current-page rule, the same focus ring and
- * the same 44px floor. `.trustLink`, `.furtherLink`, `.fileLink` and
- * `.fileName` were this file's own four treatments of those same
- * destinations; they disagreed with the header's in every one of those
- * respects, and they are gone.
- */
+/* ── Reference: Methodology and Corrections first ────────────────────────
+ * Layout only. Every anchor in these rows is the shared `ChromeLink`. */
 
 .reference {
   display: grid;
@@ -120,8 +100,6 @@
   padding-top: var(--sp-2);
 }
 
-/* Methodology and Corrections, at reading size: the two a reader is most
-   likely to want from a colophon, so they are named larger than the rest. */
 .trustRow ul {
   justify-items: end;
 }
@@ -145,8 +123,11 @@
   border-top: var(--line-w) solid var(--line-soft);
 }
 
+/* `auto-fit` rather than a fixed count: seven destinations in four columns
+   left an orphan cell; the grid now fills whatever width there is, with no
+   cell narrower than a name wants. */
 .files ul {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
   gap: var(--sp-2) var(--sp-6);
 }
 
@@ -165,13 +146,18 @@
 /* ── Colophon ──────────────────────────────────────────────────────────── */
 
 .colophon {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: var(--sp-2) var(--sp-5);
-  padding-block: var(--sp-4);
+  padding-block: var(--sp-5) var(--sp-4);
   border-top: var(--line-w) solid var(--line);
+}
+
+/* The closing rule: the signal mark, in gold, at the head of the line. */
+.signal {
+  inline-size: var(--signal-rule-w);
+  color: var(--signal-rule-color);
 }
 
 .copyright {
@@ -196,21 +182,12 @@
 
 .toTop:hover { color: var(--ink-hi); }
 
-.footer a:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-offset);
-}
-
 .footer a:active { color: var(--gold-hi); }
 
-/* Keep the colophon above mobile browser chrome. Ask now lives in the header. */
+/* Keep the colophon above mobile browser chrome. */
 .home { padding-bottom: calc(var(--sp-6) + env(safe-area-inset-bottom, 0px)); }
 
 /* ── Seams ─────────────────────────────────────────────────────────────── */
-
-@media (max-width: 64rem) {
-  .files ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
 
 @media (max-width: 48rem) {
   .home { padding-bottom: calc(var(--sp-7) + env(safe-area-inset-bottom, 0px)); }
@@ -219,6 +196,7 @@
     gap: var(--sp-5);
     padding-block: var(--sp-6) var(--sp-5);
   }
+  .brandName { font-size: var(--t-home-wordmark-mobile); }
   .reference { justify-items: start; padding-top: 0; }
   .trustRow ul {
     display: flex;
@@ -227,17 +205,15 @@
     gap: var(--sp-5);
   }
   .furtherRow ul { justify-content: flex-start; }
-  .colophon { gap: var(--sp-2) var(--sp-5); }
-  .toTop,
-  .home .toTop { padding-inline-end: 0; }
-}
-
-@media (max-width: 26rem) {
-  .files ul { grid-template-columns: minmax(0, 1fr); }
+  .colophon {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--sp-3) var(--sp-5);
+  }
+  .signal { grid-column: 1 / -1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   /* The links' own transitions are stilled by `chrome-link.module.css`. */
   .brandRole,
-  .toTop { transition-duration: 0ms; }
+  .toTop { transition: none; }
 }

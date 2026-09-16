@@ -23,18 +23,6 @@ import {
 import { ChromeLinkGroup } from "./ChromeLink";
 import styles from "./site-header.module.css";
 
-/**
- * The two tools, as chrome links rather than as a hand-written pair.
- *
- * They are destinations like any other and belong in the same component; they
- * are not in `navigation-model.ts` because nothing outside this panel lists
- * them, and putting them there would put them in the colophon's index too.
- */
-const TOOL_LINKS = [
-  { label: "Search", href: "/search", description: "Find a published record." },
-  { label: "Ask the desk", href: "/ask", description: "Put a question to the record." },
-] as const;
-
 interface SiteHeaderProps {
   /**
    * A section id (`october-7`), a bare route id (`methodology`), or
@@ -51,6 +39,27 @@ function Chevron() {
 }
 
 /**
+ * What the desktop menu shows: only what the bar cannot. The bar carries the
+ * three reporting destinations, the system page, Support and the account, so
+ * the drawer is the rest — The People of Israel, We Are, and the three
+ * reference pages — five links, not the twelve it listed until 2026-09-15
+ * (Hick: a menu that repeats the bar is a second decision about the same
+ * thing). The bar's own destinations still appear in the drawer *below the
+ * width at which the bar hides them*, because there they are what the drawer
+ * is for; that group is hidden by the stylesheet at the widths where the bar
+ * shows them, and it is what the no-JavaScript index on a phone reads.
+ */
+const OFF_BAR_ABOUT = ABOUT_LINKS.filter((link) => !BAR_LINKS.some((bar) => bar.href === link.href));
+const OFF_BAR_REFERENCE = REFERENCE_LINKS.filter((link) => link.href !== ACCOUNT_LINK.href);
+
+/** How far the page scrolls before the tall masthead becomes the bar. */
+const BAR_AT = 48;
+/** How far a sustained scroll down runs before the bar retracts. */
+const RETRACT_AFTER = 160;
+/** The smallest scroll delta that counts as a direction. */
+const DIRECTION_DEADBAND = 4;
+
+/**
  * The masthead.
  *
  * Three jobs, in this order: say whose desk this is, say where the reader is,
@@ -59,6 +68,17 @@ function Chevron() {
  * generic product-nav this site is least able to afford — the whole argument
  * of a verification desk is that it is *somebody's* desk, and the masthead is
  * where that is stated.
+ *
+ * ── TWO MODES, ONE BAR (2026-09-15) ────────────────────────────────────────
+ * At the top of a document the masthead is tall: the nameplate at its own
+ * size with the role line under it, the way a publication opens. Once the
+ * page has scrolled it is the bar — the same controls, shorter — and on a
+ * sustained scroll down it retracts out of the way of the reading, returning
+ * the moment the reader scrolls up, reaches the top, opens a panel or moves
+ * focus into it. `<main>` is offset by `--header-h`, the tall height, at all
+ * times: nothing reflows, and a retracted bar is a transform, not a layout.
+ * The state is three data attributes set from one passive scroll listener;
+ * no rAF, no observer.
  *
  * ── THE NO-JAVASCRIPT CONTRACT ───────────────────────────────────────────
  * `filesPanel` may not be mounted on client state. It is always in the server
@@ -76,6 +96,13 @@ function Chevron() {
  * group, the phone breakpoint's `display: none` on that group hid the drawer
  * along with it, so a phone with scripting off had *no* navigation at all —
  * the desktop-viewport smoke test could not see it.
+ *
+ * ── THE SKIP LINK ────────────────────────────────────────────────────────
+ * It lives here, as the header's first child, since 2026-09-15. It used to be
+ * `EditorialShell`'s, which meant the three routes that mount this header
+ * directly — the root error boundary, the 404 and the cover — either shipped
+ * none or shipped a different one. One control, one target: `#page-content`,
+ * which every route's `<main>` or masthead carries.
  */
 export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
   const [filesOpen, setFilesOpen] = useState(false);
@@ -83,6 +110,7 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
   const filesPanelId = useId();
   const menuPanelId = useId();
   const headerRef = useRef<HTMLElement>(null);
+  const filesPanelRef = useRef<HTMLDivElement>(null);
   const filesTriggerRef = useRef<HTMLButtonElement>(null);
   const menuTriggerRef = useRef<HTMLButtonElement>(null);
   /* One reading of the session for the whole tree, from the provider mounted
@@ -113,6 +141,15 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
     };
   }, [filesOpen]);
 
+  /* The drawer takes focus when it opens, so a keyboard reader lands in the
+     list rather than having to tab past the rest of the bar to reach it, and
+     it closes when focus leaves the header — Tab off the last link is the
+     same as Escape. */
+  useEffect(() => {
+    if (!filesOpen) return;
+    filesPanelRef.current?.focus({ preventScroll: true });
+  }, [filesOpen]);
+
   /* The mobile sheet is a full-height surface over the document; the drawer is
      a dropdown and deliberately does not lock the page. */
   useEffect(() => {
@@ -124,12 +161,28 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
     };
   }, [menuOpen]);
 
-  /* Once the page has scrolled under the bar, the bar picks up a shadow and a
-     firmer ground so it reads as chrome over content rather than as part of
-     the masthead area. Passive listener, one boolean, no layout work. */
+  /* Three booleans from one passive scroll listener: past the top (a shadow
+     and a firmer ground), past the tall band (the bar), and on a sustained
+     scroll down (retracted). Direction is measured with a deadband so a
+     trackpad's jitter does not flicker the bar; the run length is measured so
+     a single wheel notch does not take it away. */
   const [scrolled, setScrolled] = useState(false);
+  const [mode, setMode] = useState<"tall" | "bar">("tall");
+  const [retracted, setRetracted] = useState(false);
   useEffect(() => {
-    const read = () => setScrolled(window.scrollY > 8);
+    let last = window.scrollY;
+    let run = 0;
+    const read = () => {
+      const y = window.scrollY;
+      const delta = y - last;
+      setScrolled(y > 8);
+      setMode(y > BAR_AT ? "bar" : "tall");
+      if (delta > DIRECTION_DEADBAND) run = Math.max(0, run) + delta;
+      else if (delta < -DIRECTION_DEADBAND) run = Math.min(0, run) + delta;
+      if (y <= BAR_AT || run < 0) setRetracted(false);
+      else if (run > RETRACT_AFTER) setRetracted(true);
+      last = y;
+    };
     read();
     window.addEventListener("scroll", read, { passive: true });
     return () => window.removeEventListener("scroll", read);
@@ -183,54 +236,48 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
   const accountLabel = ACCOUNT_LINK.label;
 
   /*
-   * The same hierarchy in the desktop drawer and the mobile dialog, and every
-   * cell in it is the shared `ChromeLink` — the same anchor the colophon
-   * draws, with the same current-page rule, the same focus ring and the same
-   * 44px floor. The always-rendered drawer remains the no-JavaScript
-   * navigation fallback; see the contract at the top of this file.
+   * The same cells in the desktop drawer and the mobile sheet, and every one
+   * of them is the shared `ChromeLink` — the same anchor the colophon draws,
+   * with the same current-page rule, the same focus ring and the same 44px
+   * floor. The always-rendered drawer remains the no-JavaScript navigation
+   * fallback; see the contract at the top of this file.
+   *
+   * `sheet` is the phone: it lists the bar's destinations too, because the
+   * phone bar carries none. The desktop drawer lists them as well, in a group
+   * the stylesheet shows only below the seam where the bar hides them.
    */
-  const renderNavigation = () => (
+  const renderNavigation = (surface: "drawer" | "sheet") => (
     <div className={styles.navigationContent}>
       <div className={styles.menuLayout}>
         <ChromeLinkGroup
-          label="Reporting & evidence"
+          label="Sections"
           links={REPORTING_LINKS}
           current={current}
           density="detail"
           size="feature"
           onNavigate={closePanels}
-          measureId="header-menu-reporting"
+          className={surface === "drawer" ? styles.barMirror : undefined}
+          measureId={`header-${surface}-reporting`}
         />
         <ChromeLinkGroup
-          label="People & purpose"
-          links={ABOUT_LINKS}
+          label="Also on this site"
+          links={OFF_BAR_ABOUT}
           current={current}
           density="detail"
           size="standard"
           onNavigate={closePanels}
-          measureId="header-menu-people"
+          measureId={`header-${surface}-people`}
         />
       </div>
-      <div className={styles.menuUtilities}>
-        <ChromeLinkGroup
-          label="Standards and account"
-          hiddenLabel
-          links={REFERENCE_LINKS}
-          current={current}
-          className={`${styles.menuRow} ${styles.menuReference}`}
-          onNavigate={closePanels}
-          measureId="header-menu-reference"
-        />
-        <ChromeLinkGroup
-          label="Search and conversation"
-          hiddenLabel
-          links={TOOL_LINKS}
-          current={current}
-          className={styles.menuRow}
-          onNavigate={closePanels}
-          measureId="header-menu-tools"
-        />
-      </div>
+      <ChromeLinkGroup
+        label="Standards and reference"
+        hiddenLabel
+        links={OFF_BAR_REFERENCE}
+        current={current}
+        className={`${styles.menuRow} ${styles.menuReference}`}
+        onNavigate={closePanels}
+        measureId={`header-${surface}-reference`}
+      />
     </div>
   );
 
@@ -239,12 +286,23 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
       ref={headerRef}
       className={styles.header}
       data-home={home || undefined}
+      data-mode={mode}
       data-scrolled={scrolled || undefined}
+      data-retracted={retracted && !filesOpen && !menuOpen ? "" : undefined}
       /* Every click in the bar is `click_nav`, the brand and the support
          link included. Nothing here reports an exposure: the bar is on
          screen on every page, so one would only restate the page view. */
       data-measure-nav=""
+      onBlur={(event) => {
+        if (!filesOpen) return;
+        const next = event.relatedTarget as Node | null;
+        if (next && headerRef.current?.contains(next)) return;
+        setFilesOpen(false);
+      }}
     >
+      <a href="#page-content" className={styles.skipLink}>
+        Skip to content
+      </a>
       <div className={styles.bar}>
         <Link href="/" className={styles.brand} onClick={closePanels} data-measure-id="header-brand" data-measure-exposure="none">
           <span className={styles.brandName}>Lions of Zion</span>
@@ -268,10 +326,12 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
         <div className={styles.utility}>
           {/* The two tools, on every route. Ask was in this slot on the cover
               only and a viewport-fixed pill everywhere else until 2026-09-08;
-              see `AskDock` for why one home won (UX-07, UX-08). */}
-          <div className={styles.deskActions}>
+              see `AskDock` for why one home won (UX-07, UX-08). Opening either
+              closes the drawer: they are the same instrument and the reader
+              has moved on. */}
+          <div className={styles.deskActions} onClickCapture={() => setFilesOpen(false)}>
             <AskDock current={activeSection === "ask"} />
-            <SearchLauncher variant="icon" className={styles.deskSearch} />
+            <SearchLauncher variant="bar" current={activeSection === "search"} className={styles.deskSearch} />
           </div>
           <Button
             ref={filesTriggerRef}
@@ -302,7 +362,7 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
             {/* Owner ruling 2026-09-11: Support Us stays in the bar at every
                 width. Where the word does not fit, the phone makes it
                 screen-reader-only — the same box `.accountLabel` and
-                `.menuLabel` use — and the gold-outlined glyph carries it. */}
+                `.menuLabel` use — and the gold glyph carries it. */}
             <span className={styles.supportLabel}>{SUPPORT_LINK.label}</span>
           </Link>
 
@@ -364,12 +424,22 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
       </div>
 
       {/* The drawer. Always rendered; `hidden` carries the state. */}
-      <div className={styles.filesPanel} id={filesPanelId} hidden={!filesOpen}>
+      <div
+        className={styles.filesPanel}
+        id={filesPanelId}
+        hidden={!filesOpen}
+        ref={filesPanelRef}
+        tabIndex={-1}
+        aria-label="Menu"
+      >
         <div className={styles.filesInner}>
-          {renderNavigation()}
+          {renderNavigation("drawer")}
         </div>
       </div>
 
+      {/* The sheet's copy renders only while it is open: the drawer above is
+          the server-rendered index, and a second copy of every destination in
+          a closed `<dialog>` on every page was weight with no reader. */}
       <Dialog
         id={menuPanelId}
         open={menuOpen}
@@ -382,7 +452,7 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
         variant="drawer"
         className={styles.mobilePanel}
       >
-        {renderNavigation()}
+        {menuOpen ? renderNavigation("sheet") : null}
       </Dialog>
     </header>
   );

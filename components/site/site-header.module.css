@@ -1,36 +1,42 @@
-/* Site masthead · design V3
+/* Site masthead · Midnight Signal (2026-09-15)
  *
- * A full-bleed bar of exactly `--header-h`: the site's own ground at 95%,
- * closed by a hairline above and below. It replaced a floating centred pill,
- * for a reason that is design direction rather than taste: a pill of six
- * anonymous links is the generic product-nav, and this site's whole argument
- * is that it is *somebody's* desk. The masthead states whose, then where you
- * are, then where you can go.
+ * A full-bleed bar of exactly `--header-h` at rest: the site's own ground at
+ * 98%, closed by a hairline below. It states whose desk this is, then where
+ * you are, then where you can go. It replaced a floating centred pill, for a
+ * reason that is design direction rather than taste: a pill of six anonymous
+ * links is the generic product-nav, and this site's whole argument is that
+ * it is *somebody's* desk.
  *
- * It said "over glass" until 2026-09-14, and by then that was wrong: the
- * `--glass-*` ramp was deleted from `app/globals.css` the same day, once this
- * file's last read of it went. See `.bar` below for what the ground is now.
+ * Two modes, one bar. `[data-mode="tall"]` at the top of a document — the
+ * nameplate at its own size with the role line under it; `[data-mode="bar"]`
+ * once the page has scrolled — the same controls at `--header-h-bar`. On a
+ * sustained scroll down `[data-retracted]` moves the bar out of the way as a
+ * transform; it returns on scroll-up, at the top, when a panel is open, or
+ * the moment focus enters it (`:focus-within` — the keyboard never loses the
+ * chrome). `<main>` is offset by the tall height at all times, so no mode
+ * change reflows the page. SiteHeader.tsx sets the three attributes from one
+ * passive scroll listener.
  *
- * Three things carry state and nothing else does:
- *   · a hairline under a bar link — `--line-strong` on hover, `--gold` when
- *     it is the page you are on. One element, three states, no layout shift.
- *   · a gold hairline on the "All files" trigger when the current file is one
- *     the bar cannot show at this width, so "you are here" always has a home.
- *   · a gold spine on the drawer/sheet row for the current file.
- * Gold is spent on two ideas in this component and no third: *here*, and the
- * Support control. The second is an owner ruling of 2026-09-11 — donations
- * are to be prominent — and it outranks the earlier line that kept Support
- * in ink. Hover and the trigger's open state still resolve to ink.
+ * One current mark, for every bar-level control: a 1px gold hairline under
+ * the control (`::after`), `--line-strong` on hover. The Menu trigger takes
+ * it when the current file is one the bar cannot show at this width, so "you
+ * are here" always has a home. Gold is spent on two ideas in this component
+ * and no third: *here*, and the Support control — the bar's one filled
+ * control (owner ruling of 2026-09-11 made it prominent; the 2026-09-15
+ * identity made it the one gold fill on the first screen, with the ground's
+ * navy as its text). Hover resolves to ink.
  *
- * Faces: Newsreader for the wordmark (the one editorial mark in the chrome),
- * Plex Sans for every label and control — the brand role and the menu group
- * labels included, since 2026-09-08 (UX-31): they are words a person wrote,
- * not machine values, so they take the kicker role rather than the mono data
- * role. Nothing in this bar is data any more.
+ * No blur, at any width. The previous bar blurred the 5% of the page that
+ * showed through it, composited every frame over a playing video, on the
+ * device least able to pay for it. A 98% ground veil reads the same.
  *
- * Behaviour — files-panel Escape/outside-click and iOS body scroll lock live
- * in SiteHeader.tsx. The menu Dialog owns trap, Escape, backdrop, and focus
- * return.
+ * Faces: the site grotesk for everything — nameplate at the display weight,
+ * every label at the caption size in the text face. Nothing in this bar is a
+ * machine value; nothing here is mono.
+ *
+ * Behaviour — files-panel Escape/outside-click, focus-in on open, focus-out
+ * to close, and iOS body scroll lock live in SiteHeader.tsx. The menu Dialog
+ * owns trap, Escape, backdrop, and focus return.
  */
 
 .header {
@@ -41,6 +47,45 @@
   font-family: var(--face-navigation);
   direction: ltr;
   text-transform: none;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+/* Retracted: out of the way of the reading, never gone. */
+.header[data-retracted] {
+  transform: translateY(-100%);
+}
+
+.header[data-retracted]:focus-within {
+  transform: none;
+}
+
+/* ── The skip link ─────────────────────────────────────────────────────────
+ *
+ * The header's first child, for every route that mounts it. Fixed at the
+ * top-left corner, translated out of view, back on focus; `--z-overlay` so it
+ * opens above the bar rather than behind it. */
+.skipLink {
+  position: fixed;
+  top: var(--sp-3);
+  left: var(--sp-3);
+  z-index: var(--z-overlay);
+  padding: var(--sp-3) var(--sp-4);
+  border: var(--line-w) solid var(--gold-line-strong);
+  border-radius: var(--radius-2);
+  background: var(--surface-3);
+  box-shadow: var(--shadow-2);
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  transform: translateY(-180%);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.skipLink:focus {
+  transform: translateY(0);
 }
 
 /* ── The bar ───────────────────────────────────────────────────────────── */
@@ -48,16 +93,13 @@
 .bar {
   /* One name for the bar's side gutter, so the safe-area floor below is
      written once and every seam that wants a different gutter sets the value
-     rather than restating the `max()`. See the note on `--bar-gutter` under
-     the phone block. */
+     rather than restating the `max()`. */
   --bar-gutter: clamp(var(--sp-4), 3vw, var(--sp-7));
   /* The other half of the safe-area pair described on `--header-h` in
-     `app/globals.css`. That token now includes the top inset, so this padding
-     is what keeps the *content* strip its designed height and moves it clear
-     of the sensor housing rather than shrinking it. `box-sizing: border-box`
-     is global, so total height stays `--header-h` exactly. At a zero inset —
-     every non-notched device, and every browser before cover — both lines are
-     byte-for-byte what they were. */
+     `app/globals.css`. That token includes the top inset, so this padding is
+     what keeps the *content* strip its designed height and moves it clear of
+     the sensor housing rather than shrinking it. `box-sizing: border-box` is
+     global, so total height stays `--header-h` exactly. */
   padding-top: env(safe-area-inset-top, 0px);
   height: var(--header-h);
   display: grid;
@@ -65,45 +107,30 @@
   align-items: center;
   gap: clamp(var(--sp-4), 2.5vw, var(--sp-7));
   /* VA-41. `max()`, never `calc(… + …)`: the gutter is a floor the sensor
-     housing raises, not padding to add to. At a zero inset — every desktop,
-     every Android, iOS in portrait — this is exactly `--bar-gutter` and
-     nothing moves.
-     This rule used to live at `@media (max-width: 48rem)` on
-     `.header[data-home] .bar` alone, which is the one scope where it could
-     never fire: left and right insets are non-zero only in landscape, and a
-     landscape phone is 812-932px wide — outside a 768px query — and reads
-     every route, not only the home cover. */
+     housing raises, not padding to add to. Written here, outside every width
+     query, because left and right insets are non-zero only in landscape,
+     where a phone is 812-932px wide. */
   padding-inline:
     max(var(--bar-gutter), env(safe-area-inset-left, 0px))
     max(var(--bar-gutter), env(safe-area-inset-right, 0px));
-  /* Over the home scene this is 77px of veil on a black field; over a reading
-     page it is the same veil on the same ground. One treatment, both. */
   border-bottom: var(--line-w) solid var(--line);
-  background: color-mix(in srgb, var(--ground) 95%, transparent);
-  /* The hairline that reads as the bar's top edge. It was
-     `--glass-inner`, a HUD token retired this round; `--line-strong` is the
-     palette's own line at the same job. */
-  box-shadow: inset 0 var(--line-w) 0 var(--line-strong);
-  -webkit-backdrop-filter: blur(16px) saturate(0.76);
-  backdrop-filter: blur(16px) saturate(0.76);
+  background: color-mix(in srgb, var(--ground) 98%, transparent);
   transition:
+    height var(--dur-base) var(--ease-out),
     box-shadow var(--dur-base) var(--ease-out),
     border-color var(--dur-base) var(--ease-out),
     background-color var(--dur-base) var(--ease-out);
 }
 
-/* Scrolled: the bar sits on the page, so it casts onto it. */
-.header[data-scrolled] .bar {
-  background: color-mix(in srgb, var(--ground) 98%, transparent);
-  border-bottom-color: var(--line-strong);
-  box-shadow:
-    inset 0 var(--line-w) 0 var(--line-strong),
-    0 12px 32px -16px rgba(0, 0, 0, 0.75),
-    0 1px 0 rgba(0, 0, 0, 0.4);
+/* The bar mode: shorter, and the role line goes. */
+.header[data-mode="bar"] .bar {
+  height: var(--header-h-bar);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .bar { transition: none; }
+/* Scrolled: the bar sits on the page, so it casts onto it. */
+.header[data-scrolled] .bar {
+  border-bottom-color: var(--line-strong);
+  box-shadow: var(--shadow-2);
 }
 
 /* ── Brand ─────────────────────────────────────────────────────────────── */
@@ -119,24 +146,26 @@
   color: var(--ink-hi);
 }
 
-/* The one place the display face appears in the chrome. Newsreader's optical
-   size axis is what lets a 17px cut still read as a masthead rather than as a
-   paragraph that wandered in, so no tracking is added on top of it. */
+/* The nameplate: the display weight in the site grotesk, tight, and at its
+   own size when the masthead is tall. It condenses to a line of the bar once
+   the page has scrolled. Font size animates; the role line fades. */
 .brandName {
   font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: var(--t-body);
-  font-weight: 500;
-  line-height: 1.1;
+  font-size: var(--t-h3);
+  font-weight: var(--t-home-wordmark-weight);
+  line-height: 1;
+  letter-spacing: -0.03em;
   white-space: nowrap;
+  transition: font-size var(--dur-base) var(--ease-out);
 }
 
-/* "Evidence, not narratives" — a claim, set as a sentence. It was "Evidence
-   desk" in tracked mono caps, i.e. a stamp; the copy ruling of 2026-09-08
-   (UX-01) made it a sentence with a comma in it, and a sentence is not
-   uppercased. The kicker role at 13px is the floor UX-10 sets for a phone and
-   the size this holds at every width; the 9px and 8px home overrides that
-   used to sit at the foot of this file are gone. */
+.header[data-mode="bar"] .brandName {
+  font-size: var(--t-body);
+}
+
+/* "Evidence, not narratives" — a claim, set as a sentence. The kicker role
+   at 13px is the floor UX-10 sets for a phone and the size this holds at
+   every width; it is not uppercased, because it is a sentence. */
 .brandRole {
   font-family: var(--face-kicker);
   font-size: var(--t-kicker);
@@ -145,10 +174,18 @@
   letter-spacing: 0.01em;
   color: var(--ink-lo);
   white-space: nowrap;
-  transition: color var(--dur-fast) var(--ease-out);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out);
 }
 
 .brand:hover .brandRole { color: var(--ink); }
+
+.header[data-mode="bar"] .brandRole {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
 
 /* ── Bar links ─────────────────────────────────────────────────────────── */
 
@@ -166,7 +203,7 @@
 .account,
 .menuTrigger {
   font-family: var(--face-navigation);
-  font-size: 13px;
+  font-size: var(--t-caption);
   font-weight: 500;
   line-height: 1;
   letter-spacing: 0;
@@ -182,19 +219,18 @@
   display: inline-flex;
   align-items: center;
   padding-inline: var(--link-pad);
-  border-radius: var(--radius-2);
+  border-radius: var(--radius-1);
   color: var(--ink);
-  /* One weight step down from the shared control rule: label-only links,
-     no pills — the hairline carries the three link states, so the labels
-     sit quieter than the "All files" trigger beside them. */
   font-weight: 400;
   transition: color var(--dur-fast) var(--ease-out);
 }
 
-/* The state rule. Reserved on every link, painted on the ones that are here. */
+/* The one state rule. Reserved on every bar-level control, painted on the
+   ones that are hovered or here. */
 .barLink::after,
 .filesTrigger::after,
-.account::after {
+.account::after,
+.support::after {
   content: "";
   position: absolute;
   left: var(--link-pad);
@@ -227,26 +263,29 @@
 }
 
 /* The two tools sit together: `AskDock` brings its own rule from
-   `ask.module.css`, Search is styled here. Both are 44px squares below 80rem
-   and Ask grows a label above it. */
-/* Three classes deep on purpose: `SearchLauncher`'s own
-   `.launcher[data-variant="icon"]` sets a 36px `min-inline-size` for a fine
-   pointer, and at equal specificity whichever stylesheet loads last would
-   win. In the bar the control is a 44px square at every width (UX-11). */
+   `ask.module.css`, Search from `search.module.css`. Both are 44px targets
+   at every width (UX-11). Three classes deep on purpose: the launcher's own
+   `[data-variant]` rule sets a smaller fine-pointer size, and at equal
+   specificity whichever stylesheet loads last would win. */
 .header .deskActions .deskSearch {
   min-height: var(--control-h);
-  min-width: var(--control-h);
   min-inline-size: var(--control-h);
 }
 
+/* The launcher's word and its keyboard hint: visible only where the bar has
+   the room for them, which is above the rails seam; below it the control is
+   the 44px glyph. `data-slot` because the spans' own classes belong to the
+   search module. */
+.header .deskSearch [data-slot="label"],
+.header .deskSearch [data-slot="hint"] { display: none; }
+
 /* Shared Button wraps children in its own content span. Gap, hairline and
    chevron must target through that span; Button's border/background/weight
-   must not paint a pill over the masthead. `.header` beats Button's single
+   must not paint a plate over the masthead. `.header` beats Button's single
    class for display, padding, and hover wash. */
 .header .filesTrigger {
   --link-pad: var(--sp-3);
   --btn-bg: transparent;
-  text-transform: none;
   --btn-fg: var(--ink-hi);
   --btn-line: transparent;
   position: relative;
@@ -258,6 +297,7 @@
   font-weight: 500;
   color: var(--ink-hi);
   box-shadow: none;
+  text-transform: none;
 }
 
 .header .filesTrigger > * {
@@ -267,8 +307,8 @@
 .header .filesTrigger:hover:not(:disabled),
 .header .filesTrigger:active:not(:disabled) {
   --btn-bg: transparent;
-  text-transform: none;
   background: transparent;
+  text-transform: none;
 }
 
 .filesTrigger:hover::after { background: var(--line-strong); }
@@ -276,7 +316,6 @@
 .filesTrigger[data-here]::after { background: var(--gold); }
 
 .chevron {
-  /* Height comes from the 10×6 viewBox, so the glyph can never be squashed. */
   width: var(--sp-3);
   height: auto;
   flex: 0 0 auto;
@@ -290,21 +329,22 @@
   color: var(--ink-hi);
 }
 
-/* The desk's action, stated in the site's own words. Still an outline and
-   never a fill — a filled gold button on every page would be the urgency
-   theatre this site documents — but the outline is gold (owner ruling,
-   2026-09-11): `--gold-line-strong` is the control-boundary gold, measured to
-   clear 3:1 on every ground, and the glyph takes the full accent. The label
-   stays in high ink so it reads as a sentence, not as a badge. */
+/* The desk's one filled control. Gold with the ground's navy on it — 9.5:1 —
+   on the chip corner, never a pill: over a picture a pill reads as a
+   sticker. Hover lifts to `--gold-hi`; the current-page rule sits under it
+   like every other control's. */
 .support {
+  --link-pad: var(--sp-3);
+  position: relative;
   height: var(--control-h);
   display: inline-flex;
   align-items: center;
   padding-inline: var(--sp-4);
   gap: var(--sp-2);
-  border: var(--line-w) solid var(--gold-line-strong);
-  border-radius: var(--radius-pill);
-  color: var(--ink-hi);
+  border: var(--line-w) solid var(--gold);
+  border-radius: var(--radius-1);
+  background: var(--gold);
+  color: var(--ground);
   font-weight: 600;
   transition:
     border-color var(--dur-fast) var(--ease-out),
@@ -312,34 +352,23 @@
     color var(--dur-fast) var(--ease-out);
 }
 
-.support > svg { color: var(--gold); flex: 0 0 auto; }
+.support > svg { flex: 0 0 auto; }
 
 .support:hover {
-  border-color: var(--gold);
-  background: var(--gold-wash);
-  color: var(--gold-hi);
+  border-color: var(--gold-hi);
+  background: var(--gold-hi);
 }
 
-.support[aria-current="page"] {
-  border-color: var(--gold);
-}
+.support::after { bottom: var(--sp-1); }
+.support[aria-current="page"]::after { background: var(--ground); }
 
 /* ── The account control ───────────────────────────────────────────────────
  *
- * The reader's own destination, permanent at every width — it was a line in
- * the drawer before, which is not a place a reader looks to find out whether
- * they are signed in.
- *
- * It speaks the bar's existing grammar rather than inventing one: a label-only
- * link whose hairline carries the three states, `--line-strong` on hover and
- * `--gold` when this is the page. No pill and no filled avatar plate — gold is
- * spent on one idea in this component, and a permanently accented account chip
- * would be a second.
- *
- * Geometry is fixed across every session state, because the states arrive
- * asynchronously: the mark is one 28px slot whether it holds a glyph or two
- * letters, and the label reserves its width so "Account" and "Sign in" cannot
- * nudge the bar when the check lands.
+ * The reader's own destination, permanent at every width. It speaks the
+ * bar's grammar: a label-only link whose hairline carries the states. The
+ * mark is one 28px slot whether it holds the glyph or two initials, and the
+ * label reserves its width, so the bar cannot move when the session check
+ * lands.
  */
 .account {
   --link-pad: var(--sp-2);
@@ -349,7 +378,7 @@
   align-items: center;
   gap: var(--sp-2);
   padding-inline: var(--link-pad);
-  border-radius: var(--radius-2);
+  border-radius: var(--radius-1);
   color: var(--ink);
   font-weight: 400;
   transition: color var(--dur-fast) var(--ease-out);
@@ -360,8 +389,6 @@
 .account[aria-current="page"] { color: var(--ink-hi); }
 .account[aria-current="page"]::after { background: var(--gold); }
 
-/* One slot, two contents. Signed out and unknown both hold the line glyph;
-   signed in holds initials on a quiet ink wash. Same box either way. */
 .accountMark {
   inline-size: 1.75rem;
   block-size: 1.75rem;
@@ -393,15 +420,12 @@
 .account:hover .accountMark { border-color: var(--line-strong); }
 .account:hover .accountGlyph { color: var(--ink); }
 
-/* Reserved width. "Account" and "Sign in" differ by a few pixels, and the bar
-   must not move between them when the session check resolves. */
+/* Reserved width, so the bar does not move when the session check lands. */
 .accountLabel {
   min-inline-size: 3.5rem;
 }
 
-/* Who is signed in, for a screen reader only. The visible label stays the
-   stable word; the name is added to the accessible name rather than replacing
-   it, so the control still announces where it goes. */
+/* Who is signed in, for a screen reader only. */
 .accountWho {
   composes: srOnly from global;
 }
@@ -410,9 +434,9 @@
 .support:active,
 .account:active,
 .filesTrigger:active,
-.menuTrigger:active { opacity: 0.7; }
+.menuTrigger:active { opacity: 0.8; }
 
-/* The global gold ring, hugged a little tighter to these small controls. */
+/* The global ring, hugged a little tighter to these small controls. */
 .barLink:focus-visible,
 .header .filesTrigger:focus-visible,
 .support:focus-visible,
@@ -423,9 +447,13 @@
 /* ── The drawer ────────────────────────────────────────────────────────────
  *
  * Full-bleed under the bar, so it reads as the file cabinet opening rather
- * than a floating card. The eight are a hairline contact sheet: the grid's own
- * background shows through 1px gaps, which is what keeps the rules perfect at
- * four, two and one column with no per-cell border arithmetic.
+ * than a floating card. Five cells: the two destinations the bar does not
+ * carry, and the three reference pages. The bar's own destinations appear
+ * in `.barMirror`, shown only below the seam where the bar hides them.
+ *
+ * Exit animates the same way entry does, through `transition-behavior:
+ * allow-discrete` on `display` and `@starting-style` for the entry — one
+ * mechanism, no keyframes, no class toggled by script.
  */
 
 .filesPanel {
@@ -435,62 +463,86 @@
   max-height: calc(100dvh - var(--header-h));
   overflow-y: auto;
   overscroll-behavior: contain;
-  border-bottom: 1px solid var(--line-strong);
+  border-bottom: var(--line-w) solid var(--line-strong);
   background: var(--ground);
-  animation: drawerIn var(--dur-base) var(--ease-out) both;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out),
+    display var(--dur-base) allow-discrete;
 }
+
+.filesPanel:focus-visible { outline: none; }
+
+@starting-style {
+  .filesPanel:not([hidden]) {
+    opacity: 0;
+    transform: translateY(-0.4rem);
+  }
+}
+
 .filesInner {
-  max-width: 1120px;
+  max-width: 70rem;
   margin-inline: auto;
-  padding: 30px clamp(24px, 4vw, 56px) 20px;
+  padding: var(--sp-6) clamp(var(--sp-5), 4vw, var(--sp-8)) var(--sp-5);
 }
+
 .navigationContent {
   color: var(--ink);
   font-family: var(--face-navigation);
   text-transform: none;
 }
-/* No `a` rules here on purpose. The panel's links are `ChromeLink`s and that
-   stylesheet owns their decoration, their focus ring and their states — this
-   file carried a second `:focus-visible` rule at a different colour, which is
-   exactly the kind of quiet divergence the shared component exists to end. */
-/* Layout only.
- *
- * Every cell inside these two columns is the shared `ChromeLink`
- * (`chrome-link.module.css`), which owns the type, the arrow, the hover, the
- * focus ring, the 44px floor and the current-page rule. This file used to own
- * all of that twice over — `.primaryMenuLink`, `.secondaryMenuLink`,
- * `.menuLinkTitle`, `.menuLinkArrow`, `.menuLinkDescription` and a fourth
- * treatment under `.menuUtilities a` — while `site-footer.module.css` owned a
- * fifth, sixth and seventh for the same destinations. They are one now; what
- * is left here is where the groups sit on the panel.
- *
- * `.menuSupport` went with them: it was an anchor to `/support-us` that had
- * been `display: none` since the owner ruled Support Us permanent in the bar
- * at every width (2026-09-11), so the drawer was carrying an invisible
- * duplicate of a control one row above it. */
-.menuLayout { display: grid; grid-template-columns: 1.3fr 1fr; gap: clamp(32px, 6vw, 80px); }
-.menuUtilities { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 24px; border-top: 1px solid var(--line-strong); margin-top: 18px; padding-top: 8px; }
 
-/* A row of reference links rather than a column of destinations. The list
-   inside is the shared one; only its direction is this panel's business. */
-.menuRow ul { display: flex; flex-wrap: wrap; gap: 4px 22px; }
+/* Layout only. Every cell inside is the shared `ChromeLink`
+   (`chrome-link.module.css`), which owns the type, the arrow, the hover, the
+   focus ring, the 44px floor and the current-page rule. */
+.menuLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-6);
+}
 
-/* Standards and the account read one step back from the two tools beside
-   them. Both rows are secondary to the destinations above; the tools are the
-   ones a reader came to use. Colour only — the state, the focus ring and the
-   target floor are the link's and are identical in both rows. */
+.barMirror { display: none; }
+
+.menuRow {
+  border-top: var(--line-w) solid var(--line-strong);
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-2);
+}
+
+/* A row of reference links rather than a column of destinations. */
+.menuRow ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-5);
+}
+
+/* Standards read one step back from the destinations above them. */
 .menuReference a { color: var(--ink-lo); }
 
-
 .mobilePanel [data-slot="panel"] { background: var(--ground); }
-.mobilePanel [data-slot="body"] { padding: 0 24px 24px; }
-.mobilePanel [data-slot="header"] { background: var(--ground); padding: 24px; }
-.mobilePanel [data-slot="header"] h2 { font: 400 32px/1.1 var(--face-navigation-display); text-transform: none; }
-.mobilePanel [data-slot="header"] p { font: 400 var(--t-caption)/1.6 var(--face-navigation); text-transform: none; color: var(--ink-lo); }
+.mobilePanel [data-slot="body"] { padding: 0 var(--sp-5) var(--sp-5); }
+.mobilePanel [data-slot="header"] { background: var(--ground); padding: var(--sp-5); }
+.mobilePanel [data-slot="header"] h2 {
+  font-family: var(--face-navigation-display);
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
+  text-transform: none;
+}
+.mobilePanel [data-slot="header"] p {
+  font-family: var(--face-navigation);
+  font-size: var(--t-caption);
+  font-weight: 400;
+  line-height: var(--t-caption-lh);
+  text-transform: none;
+  color: var(--ink-lo);
+}
 
 .header .menuTrigger {
   --btn-bg: transparent;
-  text-transform: none;
   --btn-fg: var(--ink-hi);
   --btn-line: transparent;
   height: var(--control-h);
@@ -502,6 +554,7 @@
   font-weight: 500;
   color: var(--ink-hi);
   box-shadow: none;
+  text-transform: none;
 }
 
 .header .menuTrigger > * {
@@ -511,12 +564,12 @@
 .header .menuTrigger:hover:not(:disabled),
 .header .menuTrigger:active:not(:disabled) {
   --btn-bg: transparent;
-  text-transform: none;
   background: transparent;
+  text-transform: none;
 }
 
 /* The menu mark uses the same quiet line language as the rest of the chrome;
-   it takes the current-file gold state when the bar cannot show that route. */
+   it takes the current-file gold when the bar cannot show that route. */
 .menuIcon {
   width: var(--sp-4);
   height: var(--sp-4);
@@ -528,111 +581,61 @@
 .menuTrigger[data-here] .menuIcon { color: var(--gold); }
 .menuTrigger[aria-expanded="true"] .menuIcon { color: var(--ink-hi); }
 
-@keyframes drawerIn {
-  from { opacity: 0; transform: translateY(-0.4rem); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 /* ── Seams ─────────────────────────────────────────────────────────────────
  *
- * Two of the three are the canonical ones named in `globals.css`: 76.25rem
- * (`--bp-rails`, where reading pages grow their side rails) and 45rem
- * (`--bp-seam`, the one breakpoint the orbit and the intro share). The third,
- * 64rem, is a fit constraint rather than a design seam — four destination
- * names set at `--t-small` stop fitting beside the brand and the utility
- * cluster below roughly 1024px — and it is the seam the previous header
- * already used. A prelude cannot read a custom property, so these are
- * literals; see the honest note beside `--bp-seam`.
+ * Two canonical seams from `globals.css` — 76.25rem (`--bp-rails`) and 45rem
+ * (`--bp-seam`) — plus 64rem, which is a fit constraint rather than a design
+ * seam: four destination names stop fitting beside the brand and the utility
+ * cluster below roughly 1024px. A prelude cannot read a custom property, so
+ * these are literals.
  */
 
+@media (min-width: 76.25rem) {
+  /* "Search ⌘K", where there is room to say it. */
+  .header .deskSearch [data-slot="label"],
+  .header .deskSearch [data-slot="hint"] { display: inline-flex; }
+}
+
 @media (max-width: 76.25rem) {
-  /* The band between this seam and the one below is where four destination
-     names are tightest against the brand and the utility cluster. Tightening
-     the padding buys ~32px; the state rule follows it, because both read
-     `--link-pad`. */
   .barLink { --link-pad: var(--sp-2); }
 }
 
-/* Below this the bar carries no destination names at all — the set is dropped
-   whole rather than thinned, and the drawer carries all twelve links. */
+/* Below this the bar carries no destination names — the set is dropped whole
+   rather than thinned — and the drawer's mirror of them appears. */
 @media (max-width: 64rem) {
   .barNav { display: none; }
+  .barMirror { display: block; }
+  .menuLayout { grid-template-columns: 1.3fr 1fr; gap: clamp(var(--sp-6), 6vw, var(--sp-9)); }
 }
 
 /* ── The phone seam is not a width ─────────────────────────────────────────
  *
  * VA-45: a phone on its side is 812 or 932 CSS pixels wide, so a width-only
- * seam read it as a small tablet and served the desktop mega-panel — a
- * two-column contact sheet with 29px titles — into 298px of remaining height.
- * Reproduced 2026-09-07 at 812x375 and 932x430: `filesTrigger` visible,
- * `filesPanel` open at 812x298, `menuTrigger` `display: none`, no `<dialog>`.
- *
- * The real distinction is not "narrow", it is "a handheld with little
- * vertical room", so the second condition states exactly that and nothing
- * device-specific: a **coarse primary pointer** with a **short viewport**.
- *
- * Why 30rem (480px). Every phone's short side is at or under ~440px
- * (iPhone 15 Pro Max landscape is 430); every tablet's short side starts at
- * 744px (iPad mini) or 768px. 480px sits in that gap with headroom at both
- * ends, so no tablet in either orientation can fall through it.
- *
- * Why `pointer: coarse` is required alongside it. Without it a desktop window
- * dragged short — 1400x400 — would lose its navigation drawer for no reason;
- * the drawer scrolls perfectly well there. `pointer` reports the *primary*
- * input, so a touchscreen laptop with a trackpad still reports `fine` and is
- * correctly excluded. Verified: 1400x400 keeps the drawer, 812x375 does not.
- *
- * Not extended to the `48rem` phone-chrome block below on purpose. That block
- * compresses the bar to 3.5rem, and the matching `--header-h` token is set in
- * `app/globals.css` under its own `48rem` query. Compressing the bar here
- * without moving the token would desync every surface that offsets by
- * `--header-h` — the hero, the section pages, the drawer's own max-height.
- * If the bar should also shorten in landscape, the token has to move with it,
- * and that is a `globals.css` edit.
+ * seam read it as a small tablet and served the desktop panel into 298px of
+ * remaining height. The real distinction is "a handheld with little vertical
+ * room": a coarse primary pointer with a short viewport. 30rem (480px) sits
+ * between every phone's short side (≤ ~440px) and every tablet's (≥ 744px).
+ * `pointer: coarse` keeps a desktop window dragged short on the drawer.
  */
 @media (max-width: 45rem), (max-height: 30rem) and (pointer: coarse) {
   .bar { grid-template-columns: minmax(0, 1fr) auto; }
-  /* Support Us is no longer dropped here (owner ruling, 2026-09-11); below
-     45rem it becomes a glyph, see the block after the phone chrome. */
   .header .filesTrigger { display: none; }
-  /* The role does not fit here. Four 44px controls — Ask, Search, Account,
-     Menu — and the gutters leave about 160px for the lockup on a 375px bar,
-     and "Evidence, not narratives" at the 13px floor measures more than that.
-     The previous answer was to shrink it to 8px (UX-10); the honest one is
-     to let the wordmark stand alone and let the footer, which states the role
-     at full size on every route, say it. From 45rem up it is back. */
-  .brandRole { display: none; }
   .header .menuTrigger { display: inline-flex; }
   /* A drawer left open on a wide viewport must not survive a resize past the
-     seam that removes its trigger — there would be no way to close it. The
-     `scripting: none` block below re-opens it as a static index, and wins
-     because `[hidden]` outranks this. */
+     seam that removes its trigger. The `scripting: none` block below re-opens
+     it as a static index, and wins because `[hidden]` outranks this. */
   .filesPanel { display: none; }
-  .menuLayout { grid-template-columns: 1fr; gap: 24px; }
-  .filesInner { padding-inline: 24px; }
-  .menuUtilities { margin-top: 20px; }
-  /* The cells' own phone scale is `chrome-link.module.css`'s, at this same
-     seam — it is the link's business, and the colophon wants it too. */
+  .menuLayout { grid-template-columns: 1fr; gap: var(--sp-5); }
+  .filesInner { padding-inline: var(--sp-5); }
 }
 
-/* The sheet, in a 375px-tall box.
- *
- * The drawer's own body scrolls, so nothing is unreachable — but a 32px
- * nameplate plus a description over 24px of padding spends a third of the
- * viewport before the first link. Nothing here changes what the sheet
- * contains or how it behaves; it only stops the header and the prose from
- * eating the list. Touch targets are untouched: every cell keeps the 44px
- * floor `chrome-link.module.css` puts on the anchor itself.
- *
- * The two descriptions are clipped, not `display: none`d. The sheet's own
- * description is the `aria-describedby` target `Dialog` wires to the
- * `<dialog>`, and each link's description is part of that link's accessible
- * name; `display: none` would take both out of the accessibility tree and
- * leave the landscape sheet saying less than the portrait one. This is the
- * same screen-reader-only box `.menuLabel` uses on the phone trigger. */
+/* The sheet, in a 375px-tall box: the header and the prose stop eating the
+   list. The descriptions are clipped, not `display: none`d — the sheet's own
+   description is the `aria-describedby` target, and each link's description
+   is part of its accessible name. */
 @media (max-height: 30rem) and (pointer: coarse) {
-  .mobilePanel [data-slot="header"] { padding: 14px 20px 12px; }
-  .mobilePanel [data-slot="header"] h2 { font-size: 24px; }
+  .mobilePanel [data-slot="header"] { padding: var(--sp-3) var(--sp-5) var(--sp-3); }
+  .mobilePanel [data-slot="header"] h2 { font-size: var(--t-h3); }
   .mobilePanel [data-slot="header"] p {
     position: absolute;
     inline-size: 1px;
@@ -644,58 +647,45 @@
     white-space: nowrap;
     border: 0;
   }
-  .mobilePanel [data-slot="body"] { padding: 0 20px 20px; }
-  .menuUtilities { margin-top: 14px; }
-  /* Each cell's own description is clipped by the same rule in
-     `chrome-link.module.css`, at this same query. */
+  .mobilePanel [data-slot="body"] { padding: 0 var(--sp-5) var(--sp-5); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .filesPanel { animation: none; }
+  .header,
+  .bar,
+  .brandName,
+  .brandRole,
+  .filesPanel,
+  .skipLink,
   .barLink,
   .barLink::after,
   .filesTrigger::after,
   .chevron,
   .support,
+  .support::after,
   .account,
   .account::after,
   .accountMark,
-  .menuIcon,
-  .brandRole { transition-duration: 0ms; }
+  .menuIcon { transition: none; }
 }
 
 /* ── Panel visibility, and the no-JavaScript tier ──────────────────────────
  *
  * `filesPanel` always ships in the server HTML and carries its state in
- * `hidden`; it may not be mounted on client state. When it was, five of the
- * eight destinations had no reachable link anywhere on the site without
- * JavaScript. `hidden` is a UA-stylesheet `display: none`; the attribute
- * selector wins against the phone block's `.filesPanel { display: none }`.
+ * `hidden`; it may not be mounted on client state. `hidden` is a UA
+ * `display: none`; this attribute selector wins against the phone block's
+ * `.filesPanel { display: none }`, and the exit transition rides on it.
  *
- * The menu is a JS-only Dialog. Native `<dialog>` without `open` is already
- * not shown; filesPanel is the no-JS index, so the Dialog may stay JS-only.
- *
- * With scripting off, `hidden` is never removed — a panel opened only by a
- * click handler can never be opened. So the drawer stops being a dropdown
- * and takes its place in the flow as a static index.
- *
- * This block is width-independent on purpose. Its predecessor was not, and the
- * gap was real: the drawer lived inside the group the phone breakpoint hides,
- * and the phone sheet was suppressed here, so a phone with scripting off had
- * *no* navigation at all. `ci-smoke.mjs` runs at a desktop viewport and could
- * not see it. The drawer is now a direct child of `<header>`, so hiding the
- * bar's links at any width cannot take the index with them.
- *
- * `scripting: none` is the mechanism `components/motion/Reveal.tsx` already
- * relies on, so support is assumed rather than newly bet on.
+ * With scripting off, `hidden` is never removed — so the drawer stops being a
+ * dropdown and takes its place in the flow as a static index, at every width.
  */
 .filesPanel[hidden] {
   display: none;
+  opacity: 0;
+  transform: translateY(-0.4rem);
 }
 
 @media (scripting: none) {
-  /* A control that cannot do anything should not claim it can.
-     `.header` beats Button's `.button { display: inline-flex }`. */
   .header .filesTrigger,
   .header .menuTrigger {
     display: none;
@@ -703,6 +693,7 @@
 
   .header {
     position: static;
+    transform: none;
   }
 
   .bar {
@@ -711,22 +702,25 @@
     padding-block: var(--sp-3);
   }
 
+  .barMirror { display: block; }
+
   .filesPanel[hidden] {
     display: block;
     position: static;
     max-height: none;
     overflow: visible;
+    opacity: 1;
+    transform: none;
     box-shadow: none;
-    animation: none;
-    border-bottom: 1px solid var(--line-strong);
-    background: color-mix(in srgb, var(--surface-0) 95%, var(--ground));
+    border-bottom: var(--line-w) solid var(--line-strong);
+    background: var(--surface-0);
   }
 
   .filesPanel[hidden]::before {
     content: "Navigation index";
     display: block;
-    padding: var(--sp-2) clamp(24px, 4vw, 56px) 0;
-    max-width: 1120px;
+    padding: var(--sp-2) clamp(var(--sp-5), 4vw, var(--sp-8)) 0;
+    max-width: 70rem;
     margin-inline: auto;
     /* The kicker role by hand — a pseudo-element cannot compose. */
     font: var(--t-kicker-weight) var(--t-kicker)/var(--t-kicker-lh) var(--face-kicker);
@@ -743,7 +737,6 @@
 @media (scripting: none) and (max-width: 48rem) {
   .filesPanel[hidden] {
     padding: var(--sp-3) var(--sp-3) var(--sp-4);
-    background: color-mix(in srgb, var(--surface-0) 92%, var(--ground));
   }
 
   .filesPanel[hidden]::before {
@@ -757,104 +750,58 @@
   .filesPanel[hidden] .menuLayout {
     gap: var(--sp-3);
   }
-
-  .filesPanel[hidden] .menuUtilities {
-    margin-top: var(--sp-3);
-    padding-top: var(--sp-2);
-    gap: var(--sp-2) var(--sp-3);
-  }
-
-  /* The cells inside compact themselves — `chrome-link.module.css` carries a
-     `@media (scripting: none) and (max-width: 48rem)` block of its own, so
-     the static index is tight without this file reaching into the link. The
-     44px target floor is on the anchor and is never one of the things a
-     compaction may take. */
 }
 
-/* ---- Phone: the header stops being a separate block ----
+/* ---- Phone: the bar is the whole masthead ----
  *
- * This paragraph carried a contrast argument about a gradient that no longer
- * exists, so here is the argument against what the bar actually is.
- *
- * The old bar was `--glass-middle → --glass-bottom` behind a 16px blur, and
- * `--glass-middle` was `rgba(45, 44, 42, 0.29)` — 71% of the backdrop coming
- * through at the bar's top edge. Over the home hero that put `.brandRole`
- * (`--ink-lo`, the smallest text up here) at roughly 1.2:1 against the
- * brightest pixel of the photograph. It did not read as chrome over an image;
- * it read as a grey slab laid across one, and it was illegible where the
- * picture was bright.
- *
- * What `.bar` is now is one flat ground — `--ground` at 95% on a reading
- * route, 94% over the home cover (`.header[data-home] .bar`), 98% once
- * scrolled — with a hairline above and below. Five or six per cent of the
- * backdrop comes through, so the worst case is arithmetic rather than a
- * judgement call. Measured against a *white* pixel, which is brighter than
- * anything in the photograph: the reading bar composites to #272727 and
- * `--ink-lo` reads 7.0:1; the home bar to #282828 and 6.9:1. Over the actual
- * hero both read higher. The bar is no longer where legibility is at risk, at
- * any width.
- *
- * Which leaves the phone rule below resting on cost alone, and that is the
- * honest reason for it: a full-width `backdrop-filter` over a playing video
- * is composited every frame, on the device least able to pay for it, and at
- * 94% opacity it is blurring the 6% of the image that still shows — close to
- * nothing, for the most expensive thing in the frame. So the phone drops the
- * blur and firms the ground one step instead.
- *
- * Height comes down with it. 77px of chrome above a cinematic hero is a
- * seventh of a 430px-wide phone screen spent on a wordmark and two controls. */
+ * 3.5rem, matched by `--header-h` and `--header-h-bar` in `app/globals.css`
+ * under their own 48rem query. The lockup keeps both lines — the nameplate
+ * and the role — inside it, at the caption floor: two 44px controls' worth of
+ * chrome above a full-bleed hero was a seventh of the screen; two lines of
+ * type in 56px is not. */
 @media (max-width: 48rem) {
   .bar {
-    height: 3.5rem;
     gap: var(--sp-3);
     /* Set the gutter, not the padding — the `max()` against the sensor
        housing lives on `.bar` once and reads this. */
     --bar-gutter: var(--sp-4);
-    background: color-mix(in srgb, var(--ground) 96%, transparent);
     border-bottom-color: var(--line-soft);
-    box-shadow: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
   }
 
-  /* The lockup, tightened. Two lines at this size want less air between them
-     than the desktop pairing does, not more. */
-  .brandName {
+  .header[data-mode="bar"] .brandRole {
+    position: static;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .brandName,
+  .header[data-mode="bar"] .brandName {
     font-size: var(--t-small);
-    letter-spacing: 0.06em;
+    letter-spacing: -0.01em;
   }
 
-  /* Four 44px controls across a phone bar: Ask, Search, Account, Menu. The
-     gaps go so the lockup keeps its room; each control is its own target and
-     needs no air between it and the next. */
+  .brand { min-width: 0; }
+
+  .brandRole {
+    font-size: var(--t-kicker);
+    line-height: 1.1;
+  }
+
+  /* Five 44px controls across a phone bar — Ask, Search, Support, Account,
+     Menu — one step of air between them (Fitts: a gap is what stops a thumb
+     landing on the neighbour), and only Support keeps a ring. */
   .utility,
-  .deskActions { gap: 0; }
+  .deskActions { gap: var(--sp-1); }
 
-  /* One trigger, not a word and a glyph saying the same thing. The word stays
-     in the accessibility tree — see the note in `SiteHeader.tsx`. */
-  .menuLabel {
-    position: absolute;
-    inline-size: 1px;
-    block-size: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-    border: 0;
+  .accountMark {
+    border-color: transparent;
+    background: transparent;
   }
 
-  .menuTrigger {
-    min-inline-size: var(--control-h-coarse);
-    justify-content: center;
-    padding-inline: 0;
-  }
-
-  /* The account control loses its word the same way, and for the same reason:
-     three labelled controls plus the lockup do not fit across 320px, and a
-     `display: none` here would leave a person glyph with no name. The reserved
-     label width has to go with it — `min-inline-size` would otherwise beat the
-     1px box the screen-reader-only contract depends on. */
+  /* One trigger, not a word and a glyph saying the same thing. The words stay
+     in the accessibility tree — the same screen-reader-only box for all
+     three; see the note in `SiteHeader.tsx`. */
+  .menuLabel,
   .accountLabel {
     position: absolute;
     inline-size: 1px;
@@ -868,31 +815,18 @@
     border: 0;
   }
 
+  .menuTrigger,
   .account {
     min-inline-size: var(--control-h-coarse);
     justify-content: center;
     padding-inline: 0;
   }
-
-  /* The search box was an outlined plate around a 15px glyph. The 44px touch
-     target stays — it is the only part of it that was doing a job — and the
-     plate goes. */
-  .header .deskSearch {
-    border-color: transparent;
-    background: transparent;
-  }
-
-  .header .deskSearch:hover {
-    border-color: var(--control-line);
-  }
 }
 
-/* Support Us on a phone (owner ruling, 2026-09-11). It used to be dropped
-   below 45rem, which left a phone reader no way to give from the bar. Five
-   44px controls now share it — Ask, Search, Support, Account, Menu — so the
-   word goes screen-reader-only the way Account's and Menu's do, and what is
-   left is a 44px gold-outlined glyph that still says "Support Us" to anyone
-   who cannot see it. Ask and Search are not dropped to make room. */
+/* Support Us on a phone (owner ruling, 2026-09-11): five 44px controls share
+   the bar, so the word goes screen-reader-only the way Account's and Menu's
+   do, and what is left is a 44px gold square whose glyph still says "Support
+   Us" to anyone who cannot see it. Ask and Search are not dropped. */
 @media (max-width: 45rem) {
   .supportLabel {
     position: absolute;
@@ -914,33 +848,26 @@
   }
 
   .support > svg { inline-size: 18px; block-size: 18px; }
-
-  /* A ring, on the cover too. The cover's near-square corner is for chrome
-     that sits over the moving film; on a phone the bar is opaque ground, and
-     the glyph sits between Ask's and Account's rings, where a gold square
-     read as a sticker of its own. Specific enough to beat the `[data-home]`
-     corner rule at the foot of this file. */
-  .header[data-home] .utility .support { border-radius: var(--radius-pill); }
 }
 
-/* What the fifth control costs, measured rather than guessed: the gutters,
-   the wordmark (101px at 15px with its tracking), the bar gap and five 44px
-   targets need 365px. A 360px Android missed by five pixels, a 320px phone by
-   forty-five. The targets do not shrink — 44px is the contract — so the
-   chrome around them gives first: a narrower gutter, a tighter gap and less
-   tracking, which holds the wordmark on one line down to 345px. */
+/* What five 44px controls cost, measured rather than guessed: with the
+   gutters and the bar gap they leave a 390px bar about 110px for the lockup,
+   which is the nameplate alone. The role line — "Evidence, not narratives"
+   at the 13px floor is wider than that — yields below 30rem and comes back
+   where it fits; the colophon states it at full size on every route. */
+@media (max-width: 30rem) {
+  .brandRole { display: none; }
+}
+
+/* Narrower still, the chrome around the targets gives first — the targets
+   do not shrink, 44px is the contract — and the nameplate sets on two
+   balanced lines, "Lions of / Zion", inside the same 56px bar. */
 @media (max-width: 23rem) {
   .bar {
     --bar-gutter: var(--sp-3);
     gap: var(--sp-2);
   }
 
-  .brandName { letter-spacing: 0.02em; }
-}
-
-/* Below that the wordmark sets on two balanced lines — "Lions of / Zion" —
-   inside the same 56px bar, rather than running under the Ask control. */
-@media (max-width: 21.5rem) {
   .brandName {
     white-space: normal;
     text-wrap: balance;
@@ -948,24 +875,36 @@
   }
 }
 
-/* The home film must never wash out account and navigation controls. */
+/* The cover: the same bar over the picture, with the home chrome's own corner
+   on the two controls that sit over it (recorded with the token). */
 .header[data-home] .bar {
   background: color-mix(in srgb, var(--ground) 94%, transparent);
-  box-shadow: none;
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
   border-bottom-color: var(--line-soft);
 }
 .header[data-home][data-scrolled] .bar {
   background: color-mix(in srgb, var(--ground) 98%, transparent);
 }
-/* Over the cover film these two drop out of the pill vocabulary and into the
-   home chrome's own corner — deliberate, and recorded with the token. */
 .header[data-home] .support { border-radius: var(--radius-home-chrome); }
 .header[data-home] .deskSearch { border-radius: var(--radius-home-chrome); }
-/* That is the whole of what the cover changes: the ground under the bar and
-   two corner radii. Until 2026-09-08 this block also hid the section links
-   below 80rem, set the wordmark at 21px/18px and the role at 9px/8px, and
-   tightened the gutter — so the reader learned one bar on the cover and met
-   another on page two (UX-08), and the role fell under every floor the
-   contract sets (UX-10). One bar now; the seams above apply to it here too. */
+
+/* Forced colours: the current-page rule and the one fill take the system's
+   own colours, so "here" and "give" survive a high-contrast theme. */
+@media (forced-colors: active) {
+  .barLink[aria-current="page"]::after,
+  .account[aria-current="page"]::after,
+  .filesTrigger[data-here]::after {
+    background: Highlight;
+  }
+
+  .support {
+    border: var(--line-w) solid ButtonText;
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .filesPanel,
+  .bar {
+    border-color: CanvasText;
+  }
+}

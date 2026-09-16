@@ -29,6 +29,9 @@ export interface SearchLauncherProps {
   /** `bar` is the header's field-shaped control; `icon` is the compact one for
    *  a narrow bar. */
   variant?: "bar" | "icon";
+  /** True on `/search` itself: the control is marked as the page you are on,
+   *  and a click goes to the page rather than opening the overlay over it. */
+  current?: boolean;
   className?: string;
 }
 
@@ -53,7 +56,7 @@ const NO_CHANGES = () => () => {};
 const readIsMac = () => /Mac|iPhone|iPad/.test(navigator.userAgent);
 const readIsMacOnServer = () => false;
 
-export function SearchLauncher({ variant = "bar", className }: SearchLauncherProps) {
+export function SearchLauncher({ variant = "bar", current = false, className }: SearchLauncherProps) {
   const [open, setOpen] = useState(false);
   const mac = useSyncExternalStore(NO_CHANGES, readIsMac, readIsMacOnServer);
   const triggerRef = useRef<HTMLAnchorElement>(null);
@@ -83,22 +86,24 @@ export function SearchLauncher({ variant = "bar", className }: SearchLauncherPro
         href="/search"
         className={[styles.launcher, className].filter(Boolean).join(" ")}
         data-variant={variant}
+        aria-current={current ? "page" : undefined}
         onClick={(event) => {
+          if (current) return;
           /* Leave the modified clicks alone — they mean "somewhere else". */
           if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
           event.preventDefault();
           setOpen(true);
         }}
       >
-        <span className={styles.launcherGlyph} aria-hidden="true">
+        <span className={styles.launcherGlyph} data-slot="glyph" aria-hidden="true">
           <Icon name="search" size={16} strokeWidth={1.5} />
         </span>
-        <span className={styles.launcherLabel}>Search</span>
-        <span className={styles.launcherHint} aria-hidden="true">
+        <span className={styles.launcherLabel} data-slot="label">Search</span>
+        <span className={styles.launcherHint} data-slot="hint" aria-hidden="true">
           {mac ? "⌘K" : "Ctrl K"}
         </span>
       </Link>
-      <SearchDialog open={open} onClose={close} />
+      {current ? null : <SearchDialog open={open} onClose={close} />}
     </>
   );
 }

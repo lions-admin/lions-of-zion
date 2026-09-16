@@ -39,10 +39,11 @@
   text-wrap: pretty;
 }
 
+/* The one arrow (`<Icon name="arrow-right" />`), travelling 2px on hover. */
 .arrow {
   align-self: center;
+  display: inline-flex;
   flex: 0 0 auto;
-  font-size: var(--t-body);
   color: var(--ink-lo);
   transition:
     color var(--dur-fast) var(--ease-out),
@@ -84,23 +85,22 @@
 
 .feature .name {
   font-family: var(--face-navigation-display);
-  font-size: clamp(1.625rem, 2.5vw, 2.125rem);
-  font-weight: 400;
-  line-height: 1.12;
-  letter-spacing: -0.025em;
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
 }
 
 .feature .arrow {
   align-self: start;
-  padding-top: 0.1875rem;
-  font-size: 1.0625rem;
+  padding-top: var(--sp-2);
 }
 
 .standard .name {
-  font-size: 1.125rem;
-  font-weight: 400;
+  font-size: var(--t-lede);
+  font-weight: 500;
   line-height: 1.3;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 .standard .description {
@@ -152,9 +152,12 @@
 
 /* ── Group ───────────────────────────────────────────────────────────────── */
 
+/* A `<p>` in the panels, an `<h2>` in the colophon; the same kicker either
+   way, so the heading does not inherit the display scale. */
 .groupLabel {
   composes: kickerLabel from global;
   margin: 0 0 var(--sp-3);
+  max-width: none;
   color: var(--ink-lo);
 }
 
@@ -183,7 +186,7 @@
   }
 
   .feature .name {
-    font-size: 1.8125rem;
+    font-size: var(--t-h3);
   }
 
   .standard:has(.description) {
@@ -191,7 +194,7 @@
   }
 
   .standard .name {
-    font-size: 1rem;
+    font-size: var(--t-body);
   }
 
   /* One line each. A stacked column of three-line descriptions pushes the
@@ -234,7 +237,7 @@
   }
 
   .feature .name {
-    font-size: 1.375rem;
+    font-size: var(--t-h3);
   }
 }
 
@@ -246,12 +249,12 @@
   }
 
   .feature .name {
-    font-size: 1.125rem;
+    font-size: var(--t-lede);
     line-height: 1.2;
   }
 
   .standard .name {
-    font-size: 0.9375rem;
+    font-size: var(--t-small);
   }
 
   .description {

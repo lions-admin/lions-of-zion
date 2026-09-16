@@ -55,7 +55,9 @@ export default function NotFound() {
                   <Link href={node.href} className={styles.entry}>
                     <span className={styles.entryLabel}>{node.label}</span>
                     <span className={styles.entryDescription}>{node.description}</span>
-                    <span className={styles.entryArrow} aria-hidden="true">↗︎</span>
+                    <span className={styles.entryArrow} aria-hidden="true">
+                      <Icon name="arrow-right" size={16} className="arrow" />
+                    </span>
                   </Link>
                 </li>
               ))}

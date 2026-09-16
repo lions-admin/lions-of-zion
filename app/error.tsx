@@ -26,6 +26,7 @@
 import Link from 'next/link';
 import { useEffect } from 'react';
 import { SiteHeader } from '@/components/site/SiteHeader';
+import { SiteFooter } from '@/components/site/SiteFooter';
 
 export default function ErrorBoundary({
   error,
@@ -51,9 +52,13 @@ export default function ErrorBoundary({
      is the root boundary catching up to it rather than a new idea. */
   const recover = retry ?? reset;
 
+  /* The masthead and the colophon are siblings of `<main>`, as they are on
+     every other route: inside it the header is not a banner landmark and the
+     page had no way on from a failure except the retry (2026-09-15). */
   return (
-    <main className="loz-error">
-      <SiteHeader />
+    <>
+    <SiteHeader />
+    <main className="loz-error" id="page-content" tabIndex={-1}>
       <style>{`
         .loz-error {
           /* The document scrolls — converted with the other reading
@@ -61,7 +66,7 @@ export default function ErrorBoundary({
           min-height: 100dvh;
           display: grid;
           place-items: center;
-          padding: var(--sp-5);
+          padding: calc(var(--header-h) + var(--sp-5)) var(--sp-5) var(--sp-8);
           /* The real ground, not a panel over it. */
           background-color: var(--ground);
           color: var(--ink);
@@ -217,5 +222,7 @@ export default function ErrorBoundary({
         {error.digest ? <p className="loz-error-digest">Ref {error.digest}</p> : null}
       </div>
     </main>
+    <SiteFooter />
+    </>
   );
 }

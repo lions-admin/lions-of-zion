@@ -467,7 +467,15 @@
      stays exactly 4.8rem / 3.5rem and simply sits below the housing. The two
      halves are one change — neither works alone, and shipping only the
      padding would shrink the visible strip instead of moving it. */
-  --header-h: calc(4.8rem + env(safe-area-inset-top, 0px));
+  --header-h: calc(6rem + env(safe-area-inset-top, 0px));
+  /* The masthead's two modes (2026-09-15). `--header-h` is the tall
+     masthead at the top of a document — the nameplate at its own size with
+     the role line under it — and it is the offset `<main>` keeps at all
+     times, so no mode change reflows the page. `--header-h-bar` is the same
+     bar once the page has scrolled: the same controls, a step shorter. Both
+     carry the top inset for the reason above; on a phone they are one value
+     (the 48rem block below) because the phone bar is the whole masthead. */
+  --header-h-bar: calc(4.25rem + env(safe-area-inset-top, 0px));
 
   /* The cover stills, declared once here rather than buried in the rules that
      use them. `HeroVideo` holds the same paths in its `SOURCES` table — it
@@ -542,6 +550,7 @@
 @media (max-width: 48rem) {
   :root {
     --header-h: calc(3.5rem + env(safe-area-inset-top, 0px));
+    --header-h-bar: calc(3.5rem + env(safe-area-inset-top, 0px));
   }
 }
 
@@ -791,6 +800,13 @@ html:has([data-handoff-blocked]) body {
 :focus:not(:focus-visible) { outline: none; }
 
 [data-public-shell] { padding-top: var(--header-h); }
+
+/* With scripting off the masthead is static in the flow (see
+   `site-header.module.css`), so the offset that clears a fixed bar would
+   only open a gap under a bar that is no longer fixed. */
+@media (scripting: none) {
+  [data-public-shell] { padding-top: 0; }
+}
 
 /* The reader's own pause (WCAG 2.2.2). The cover renders a real button that
    sets `data-motion="paused"` on the root and persists it; this is the third

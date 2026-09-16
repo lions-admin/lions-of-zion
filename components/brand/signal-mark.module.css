@@ -1,0 +1,26 @@
+/* The signal rule. See SignalMark.tsx. The colour is the text colour of the
+   composing element; the resting length is `--signal-rule-w` unless the
+   composing rule sets `inline-size` on the mark itself. */
+.mark {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: var(--sp-1);
+  inline-size: var(--signal-rule-w);
+  max-inline-size: 100%;
+  color: var(--signal-rule-color);
+  vertical-align: baseline;
+}
+
+.stub {
+  flex: 0 0 auto;
+  inline-size: 18px;
+  block-size: 11px;
+  fill: currentColor;
+}
+
+.rule {
+  flex: 1 1 auto;
+  block-size: var(--signal-rule);
+  margin-bottom: 0;
+  background: currentColor;
+}

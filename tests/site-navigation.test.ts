@@ -58,7 +58,9 @@ describe("purpose-led site navigation", () => {
       ),
     );
     for (const link of [...SECTION_LINKS, ...REFERENCE_LINKS]) expect(html).toContain(`href="${link.href}"`);
-    expect(html).toContain("Reporting &amp; evidence");
+    /* The drawer's group labels since 2026-09-15: the bar's destinations,
+       mirrored for the widths where the bar hides them, and the rest. */
+    expect(html).toContain("Also on this site");
     expect(html).not.toMatch(/All files|The eight files|Reference pages|fileIndex/);
     const source = read("components/site/SiteHeader.tsx");
     expect(source).toContain('hidden={!filesOpen}');

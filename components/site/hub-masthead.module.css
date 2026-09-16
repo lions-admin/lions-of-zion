@@ -29,28 +29,20 @@
   min-width: 0;
 }
 
+/* A section label, not a machine value: the kicker role (UX-31), opened by
+   the signal rule — the mark's one appearance on a hub. */
 .kicker {
-  /* A section label, not a machine value: sans caps at the kicker size, with
-     mono kept for dates and counts (UX-31). `--t-kicker` is defined in
-     `app/globals.css`; the fallback holds the size if the token is absent. */
+  composes: kickerLabel from global;
   display: inline-flex;
   align-items: center;
   gap: var(--sp-3);
   margin: 0;
   color: var(--gold);
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
-.kicker::before {
-  content: "";
-  inline-size: var(--sp-5);
-  block-size: var(--line-w);
-  background: currentColor;
+.signal {
+  inline-size: var(--signal-rule-w);
+  color: var(--signal-rule-color);
 }
 
 /* The display role itself, no longer a size above it (2026-09-11). At 5rem
@@ -64,8 +56,8 @@
   font-family: var(--face-display);
   font-size: var(--t-display);
   font-weight: var(--t-display-weight);
-  line-height: 1.02;
-  letter-spacing: -0.03em;
+  line-height: var(--t-display-lh);
+  letter-spacing: var(--t-display-tracking);
   text-wrap: balance;
 }
 
@@ -153,7 +145,6 @@
 .jump:active::after { background: var(--gold); }
 
 .jump:focus-visible {
-  outline: var(--focus-outline);
   outline-offset: calc(-1 * var(--line-w-thick));
   border-radius: var(--radius-1);
 }
@@ -180,7 +171,6 @@
 }
 
 @media (max-width: 45rem) {
-  .title { font-size: clamp(2.5rem, 11vw, 3.25rem); }
   .jumps { gap: 0 var(--sp-4); }
 }
 

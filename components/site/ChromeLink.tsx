@@ -38,6 +38,7 @@
  * agree.
  */
 import Link from "next/link";
+import { Icon } from "@/components/ui/Icon";
 import type { ChromeLink as ChromeLinkModel } from "./navigation-model";
 import styles from "./chrome-link.module.css";
 
@@ -92,7 +93,7 @@ export function ChromeLink({
            and the colophon's PayPal and coffee links use it that way; it was
            on every internal link too until 2026-09-08 (UX-09). */
         <span className={styles.arrow} aria-hidden="true">
-          →
+          <Icon name="arrow-right" size={16} strokeWidth={1.5} />
         </span>
       ) : null}
       {density === "detail" ? (
@@ -112,6 +113,7 @@ export function ChromeLink({
 export function ChromeLinkGroup({
   label,
   hiddenLabel = false,
+  heading = false,
   links,
   current,
   density = "compact",
@@ -124,6 +126,8 @@ export function ChromeLinkGroup({
   label: string;
   /** Keep the landmark's name without printing it — the colophon's own rows. */
   hiddenLabel?: boolean;
+  /** Print the label as a heading (the colophon's index), not a paragraph. */
+  heading?: boolean;
   links: readonly ChromeLinkModel[];
   current: (href: string) => boolean;
   density?: ChromeLinkDensity;
@@ -141,7 +145,11 @@ export function ChromeLinkGroup({
       data-measure-id={measureId}
       data-measure-exposure={measureId ? "none" : undefined}
     >
-      {hiddenLabel ? null : <p className={styles.groupLabel}>{label}</p>}
+      {hiddenLabel ? null : heading ? (
+        <h2 className={styles.groupLabel}>{label}</h2>
+      ) : (
+        <p className={styles.groupLabel}>{label}</p>
+      )}
       <ul className={styles.list}>
         {links.map((link) => (
           <li key={link.href}>

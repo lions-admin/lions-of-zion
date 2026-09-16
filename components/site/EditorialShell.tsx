@@ -10,13 +10,6 @@ interface EditorialShellProps {
   routeId: string;
   showProgress?: boolean;
   className: string;
-  /**
-   * Escape hatch, and the last caller of it is `app/account`. The shell styles
-   * its own skip link (CLEAN-002); passing a class replaces that styling
-   * wholesale rather than adding to it, so a caller that passes one owns the
-   * whole control including its coarse target floor and its focus transform.
-   */
-  skipLinkClassName?: string;
   /** Deltas over `ReadingProgress`'s own bar, not replacements for it — see
    *  the note in `reading-progress.module.css`. Both optional; most routes
    *  want the bar exactly as the primitive draws it. */
@@ -49,13 +42,11 @@ const activeChromeSection = resolveActiveChromeSection;
  * render inside `<main>`, so the site had no banner landmark on any route and
  * its primary navigation was announced as part of the article.
  *
- * **The skip link stays first in the DOM**, ahead of the masthead, so it is
- * still the first thing a keyboard reaches. `.skipHost` exists only to give it
- * a stacking context above `--z-header`: the link is `position: fixed` at the
- * top-left corner, which is now under a full-bleed bar rather than beside a
- * centred pill, and at a lower z-index it would have opened behind it. The
- * link's own styling is this module's, not the page's — there were five
- * copies of it before CLEAN-002.
+ * **The skip link is the masthead's first child** (2026-09-15), so it is
+ * still the first thing a keyboard reaches and every route that mounts the
+ * header — the error boundary, the 404 and the cover included — ships the
+ * same one with the same target. It was this shell's until then, which left
+ * those three routes with none or with a divergent copy.
  *
  * **The footer is mounted here rather than in `app/layout.tsx`.** The root
  * layout wraps `/`, `/admin` and `/pipeline` as well, and the home scene owns
@@ -67,7 +58,6 @@ export function EditorialShell({
   routeId,
   showProgress = true,
   className,
-  skipLinkClassName,
   progressTrackClassName,
   progressValueClassName,
   children,
@@ -77,11 +67,6 @@ export function EditorialShell({
 
   return (
     <>
-      <div className={styles.skipHost}>
-        <a href="#page-content" className={skipLinkClassName ?? styles.skipLink}>
-          Skip to content
-        </a>
-      </div>
       <SiteHeader activeSection={activeSection} />
       {/* `data-family` drives density and measure from `app/globals.css`. It
           stays; the paragraph that used to print its value above every

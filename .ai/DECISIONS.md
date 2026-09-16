@@ -2935,6 +2935,14 @@ Consequences for earlier rulings, stated rather than silently overridden:
   the video. Named fallback if the owner wants moving footage: a ≤4 MB loop
   rendered from the new lion art through the owner's pipeline, played
   through the existing `HeroVideo` handoff, which is kept alive for that.
+
+  **Carried out 2026-09-16** (`0c26d56`). The video, its four files and the
+  portrait poster are deleted and `HeroVideo.tsx` with them — so the named
+  fallback above now costs a new component rather than a kept one, which is
+  the honest price and is recorded here rather than left implied. The cover
+  is two keyed layers over the flat ground, moved by a `scroll(root)`
+  timeline; `scripts/brand/key-lion.mjs` regenerates them from the reference
+  render, and the desktop AVIF pair is 462 kB against the 4 MB budget.
 - **VA-10 (bounded desktop cover)** — changed on desktop only: 100svh plus a
   40svh runway for the lion condensing into the rule, with today's lead
   still a 44px block link inside the first screen. Phone untouched.

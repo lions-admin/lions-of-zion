@@ -22,7 +22,7 @@
   - *Context:* Current LCP measures ~5.8s–7.5s on mobile. `cls: 0` is already achieved and must be preserved.
   - *Actions:*
     - Optimize SSR rendering / caching in `app/page.tsx` (`export const revalidate = 60` with on-demand invalidation via `publication-cache.ts`).
-    - Preloaded hero poster images (`lion-hero-poster-portrait.jpg` and `lion-hero-poster-desktop.jpg`) in `<head>` for immediate network fetch.
+    - Preloaded the cover's core lion layer (`public/brand/cover/lion-core-*.avif`, one cut per viewport) in `<head>` for immediate network fetch. Until 2026-09-16 this was the video's poster stills, which left with the video.
     - Added `priority={lead}` and `fetchPriority={lead ? "high" : "auto"}` in `HomeMedia` (`components/home/HomeJourneyPrimitives.tsx`).
   - *Files:* `app/page.tsx`, `components/home/HomeJourneyPrimitives.tsx`.
 
@@ -102,7 +102,7 @@
 ## 5. Verified Completed Foundations (Reference)
 
 The following core modules are implemented, tested, and verified clean in code (`git HEAD`):
-- [x] **Homepage Editorial Journey:** 6 distinct chapters server-rendered via `HomepageJourney.tsx`, responsive hero aspect-ratio in `HeroVideo.tsx`, and unified CSS tokens.
+- [x] **Homepage Editorial Journey:** 6 distinct chapters server-rendered via `HomepageJourney.tsx`, the layered cover in `app/page.tsx` + `app/home.module.css` (`HeroVideo.tsx` was retired with the video on 2026-09-16), and unified CSS tokens.
 - [x] **Fault Isolation:** `lib/homepage.ts` uses `Promise.allSettled` across all sections; missing data displays honest designed `SectionState`.
 - [x] **Editorial Contracts & Schemas:** `server/contracts/homepage.ts`, `server/contracts/editorial-media.ts`, `server/db/schema/homepage.ts` (`homepageEdition`).
 - [x] **Geopolitical Brief Rebuild:** Direct RSS/Atom feeds, verified claim matrices, author analysis disclosures, quality checks gate, and retired `war_update`.

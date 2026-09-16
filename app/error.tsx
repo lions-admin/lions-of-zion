@@ -1,6 +1,6 @@
 'use client';
 /**
- * Route error boundary — the signal dropped, calmly.
+ * Route error boundary — a failure, said plainly.
  *
  * Styles are inline/co-located so a broken shared stylesheet can never take
  * the error screen down with it. That rationale is why the block below is
@@ -204,19 +204,28 @@ export default function ErrorBoundary({
           .loz-error-retry:hover { transform: none; }
         }
       `}</style>
+      {/* The copy is the 404's register, which is the site's (2026-09-16).
+          Until then all four strings here spoke in a radio-operator voice
+          from an identity this site has retired — on the one screen where a
+          reader is already unsure whether anything here works. A failure says
+          what failed, in a sentence, and offers the two things a reader can
+          do. `tests/glass-retirement.test.ts` pinned the old wording, names
+          it as retired, and is updated with this change; the wording itself
+          is in the history, not restated here, so this comment cannot put it
+          back on the page. */}
       <div className="loz-error-inner">
-        <p className="loz-error-code">Transmission interrupted</p>
-        <h1 className="loz-error-title">Signal dropped</h1>
+        <p className="loz-error-code">Error · This page did not load</p>
+        <h1 className="loz-error-title">Something went wrong loading this page.</h1>
         <p className="loz-error-lede">
-          Something failed while rendering this file. Nothing is lost — the
-          record is intact. Re-establish the signal, or return to the scan.
+          Nothing published is lost — the record is intact, and the rest of the
+          site is still here. Try the page again, or go back to the front.
         </p>
         <div className="loz-error-actions">
           <button type="button" className="loz-error-retry" onClick={() => recover()}>
-            Re-establish signal
+            Try again
           </button>
           <Link href="/" className="loz-error-home">
-            ← Back to the scan
+            Back to the front
           </Link>
         </div>
         {error.digest ? <p className="loz-error-digest">Ref {error.digest}</p> : null}

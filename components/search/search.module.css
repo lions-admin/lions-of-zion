@@ -569,12 +569,25 @@
 .chips button {
   max-width: 100%;
   height: auto;
+  /* Fitts: the 44px floor survives `height: auto`, which a wrapped
+     two-line suggestion needs and which otherwise lets a one-word chip fall
+     under the target size. */
+  min-block-size: var(--control-h);
+  padding-block: var(--sp-2);
   white-space: normal;
   text-align: start;
   overflow-wrap: anywhere;
   /* A control boundary, so `--control-line` rather than the editorial
      hairline (A11Y-004; this measured 1.28:1 against a floor of 3). */
   border-color: var(--control-line);
+}
+
+/* The one control that empties the recents list, under the chips it clears —
+   a text button on its own line rather than a fourth chip, so it is never
+   mistaken for a query to take. */
+.recentsClear {
+  margin: 0;
+  display: flex;
 }
 
 .status {
@@ -617,6 +630,15 @@
 
 .footKeys {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+}
+
+/* One binding: its key or keys, then what it does. Grouping them is what
+   stops the legend reading as one run of glyphs and words when it wraps. */
+.footItem {
+  display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
 }

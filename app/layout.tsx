@@ -2,12 +2,12 @@ import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Geist_Mono, IBM_Plex_Sans_Hebrew, Literata, Schibsted_Grotesk } from "next/font/google";
 import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site-config";
-/* Tailwind first, then the hand-authored system. Both files open with the same
-   `@layer theme, base, components, utilities;` statement, so order is pinned
-   regardless of how Next chunks them; this import order is the belt to that
-   brace. Removing this one line plus `postcss.config.mjs` reverts Tailwind
-   entirely — see the note at the top of `app/tailwind.css`. */
-import "./tailwind.css";
+/* One stylesheet, hand-authored (2026-09-16). Tailwind was here for exactly
+   one consumer — the vendored shadcn registry the Ask desk was assembled from
+   — and the desk is built on `components/ui` now, so the entry file, the
+   PostCSS plugin that compiled it and the two dependencies behind `cn()` all
+   left with it. The cascade note at the top of `globals.css` still describes
+   the layer order, which is now this file's alone. */
 import "./globals.css";
 import { PublicSessionProvider } from "@/components/auth/PublicSessionProvider";
 import { Analytics } from "@vercel/analytics/next";

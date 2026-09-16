@@ -10,6 +10,12 @@ import { pageMetadata } from "@/lib/page-metadata";
 const TAGLINE = "Israeli-built technology for the information battlefield — AI-powered, evidence-led and human-governed.";
 const PAGE_URL = `${SITE_URL}/we-are`;
 
+/* The date this page was last read through and confirmed, printed at the foot
+   the way `/methodology` and `/corrections` print theirs. A trust page without
+   one asks a reader to trust a document of unknown age. */
+const LAST_REVIEWED = "2026-09-16";
+const LAST_REVIEWED_LABEL = "16 September 2026";
+
 export const metadata: Metadata = pageMetadata({ title: "We Are", description: TAGLINE, path: "/we-are" });
 
 const WE_ARE_JSON_LD = {
@@ -20,11 +26,22 @@ const WE_ARE_JSON_LD = {
   description: "An independent Israeli-built editorial and public-information platform combining AI-scale research, OSINT, evidence organization and human editorial governance.",
 };
 
-const SYSTEM_STEPS: { title: string; icon: IconName; body: string }[] = [
+/* One of these five is the stage people own outright, and the stylesheet has
+   always described it — `data-gate` turns the node into the gold diamond,
+   gives the stage a panel of its own and prints `.gateLabel` beside the name.
+   Nothing rendered the attribute until 2026-09-16, so the one structural
+   difference on the page existed only in CSS.
+
+   The label is "Human-governed", not "gate": governance here is the rules,
+   the permissions, the escalation paths and the corrections policy, and
+   calling it a gate would claim a person approves every record before it
+   publishes. The FAQ two sections down says explicitly that they do not, and
+   the two must not disagree on one page. */
+const SYSTEM_STEPS: { title: string; icon: IconName; body: string; gate?: string }[] = [
   { title: "Observe", icon: "intake", body: "AI systems help scan large public information environments, monitor developing stories and surface claims, sources and narrative shifts that deserve attention." },
   { title: "Research", icon: "evidence", body: "The system compares sources, traces context and source lineage, organizes evidence and keeps uncertainty visible instead of turning repetition into corroboration." },
   { title: "Assess", icon: "assessment", body: "Claims, evidence, attributed statements, inference and editorial assessment remain different things. Machines can assist analysis; they do not become evidence by producing an answer." },
-  { title: "Govern", icon: "review", body: "People define the mission, source standards, publishing permissions, provenance rules, escalation paths, corrections policy and safety boundaries. Sensitive work can be escalated for human editorial review." },
+  { title: "Govern", icon: "review", gate: "Human-governed", body: "People define the mission, source standards, publishing permissions, provenance rules, escalation paths, corrections policy and safety boundaries. Sensitive work can be escalated for human editorial review." },
   { title: "Publish & correct", icon: "publish", body: "Authorized editorial workflows can create or update canonical publications, attach sources and illustrations, and publish through the controlled production path. The public record remains versioned and correctable." },
 ];
 
@@ -63,17 +80,13 @@ export default function Page() {
         <div className={styles.pipeline}>
           <ol className={styles.pipelineList}>
             {SYSTEM_STEPS.map((step, index) => (
-              <li key={step.title} className={styles.pipelineStage}>
+              <li key={step.title} className={styles.pipelineStage} data-gate={step.gate ? "" : undefined}>
                 <span className={styles.pipelineNode} aria-hidden="true"><Icon name={step.icon} size={18} /></span>
-                <div className={styles.pipelineContent}><div className={styles.pipelineHead}><span className={styles.pipelineNumber}>{String(index + 1).padStart(2, "0")}</span><h3>{step.title}</h3></div><p>{step.body}</p></div>
+                <div className={styles.pipelineContent}><div className={styles.pipelineHead}><span className={styles.pipelineNumber}>{String(index + 1).padStart(2, "0")}</span><h3>{step.title}</h3>{step.gate ? <span className={styles.gateLabel}>{step.gate}</span> : null}</div><p>{step.body}</p></div>
               </li>
             ))}
           </ol>
         </div>
-        <nav aria-label="Read next"><ul className={styles.readNext}>
-          <li><Link href="/methodology">Methodology — the publication routes and their provenance rules <Icon name="arrow-right" inline className="arrow" /></Link></li>
-          <li><Link href="/information-war">How it works — the live system map <Icon name="arrow-right" inline className="arrow" /></Link></li>
-        </ul></nav>
       </SectionBlock>
 
       <SectionBlock heading="What the AI is used for">
@@ -94,6 +107,18 @@ export default function Page() {
       </SectionBlock>
 
       <SectionBlock heading="FAQ"><dl className={styles.faq}>{FAQ.map((item) => <div key={item.q}><dt>{item.q}</dt><dd>{item.a}</dd></div>)}</dl></SectionBlock>
+
+      {/* The ending, at the end: "Read next" sat two thirds up the page, inside
+          the pipeline section, where a reader has not finished anything yet.
+          Peak-End — the last thing on a reading surface is where it goes. */}
+      <nav aria-label="Read next"><ul className={styles.readNext}>
+        <li><Link href="/methodology">Methodology — the publication routes and their provenance rules <Icon name="arrow-right" inline className="arrow" /></Link></li>
+        <li><Link href="/information-war">How it works — the live system map <Icon name="arrow-right" inline className="arrow" /></Link></li>
+      </ul></nav>
+
+      <p className={styles.colophon}>
+        Last reviewed <time className={styles.colophonDate} dateTime={LAST_REVIEWED}>{LAST_REVIEWED_LABEL}</time>. Read alongside the <Link href="/methodology">Methodology</Link> and the <Link href="/corrections">Corrections policy</Link>.
+      </p>
     </SectionPage>
   );
 }

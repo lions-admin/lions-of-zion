@@ -1,14 +1,16 @@
 /**
  * Ask the desk.
  *
- * site header. `AskDesk` is the surface itself, rendered by `/ask`.
+ * `AskDock` is the launcher, mounted once in the site header. `AskDesk` is the
+ * surface itself, rendered by `/ask` and lazily by the dock's drawer.
  */
 
 export { AskDock } from "./AskDock";
 export { AskDesk } from "./AskDesk";
-export { AskComposer } from "./AskComposer";
-export type { AskComposerProps } from "./AskComposer";
+export type { AskDeskLayout, AskDeskProps } from "./AskDesk";
+export { AskField } from "./AskField";
+export type { AskFieldProps } from "./AskField";
 export { CitationList } from "./CitationList";
-export { AnswerRecord } from "./AnswerRecord";
+export { AnswerRecord, ANSWER_AUTHORSHIP } from "./AnswerRecord";
 export { toExchanges } from "./exchanges";
 export type { Exchange } from "./exchanges";

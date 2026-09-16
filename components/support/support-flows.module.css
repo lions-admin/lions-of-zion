@@ -123,20 +123,23 @@
   text-wrap: pretty;
 }
 
+/* The travel is the global `.arrow` (`app/globals.css`): 3px on hover and on
+   focus of the control that holds it, held still under reduced motion. This
+   rule drew its own — 0.25em over `--dur-base`, with its own reduced-motion
+   twin below — and being the more specific selector it won, so the site had
+   two arrow behaviours. What stays here is the placement and the colour. */
 .choiceArrow {
+  composes: arrow from global;
   grid-area: arrow;
   align-self: center;
   color: var(--ink-lo);
   font-size: var(--t-h3);
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    transform var(--dur-base) var(--ease-out);
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .choiceButton:hover .choiceArrow,
 .choiceButton:focus-visible .choiceArrow {
   color: var(--gold);
-  transform: translateX(0.25em);
 }
 
 @media (width < 45rem) {
@@ -151,8 +154,7 @@
   .choiceArrow { transition: none; }
   .choiceButton:hover,
   .choiceButton:focus-visible { transform: none; }
-  .choiceButton:hover .choiceArrow,
-  .choiceButton:focus-visible .choiceArrow { transform: none; }
+  /* The arrow's own reduced-motion result is the global rule's. */
 }
 
 /* An open flow. It replaces the chooser in place, so it opens with its own

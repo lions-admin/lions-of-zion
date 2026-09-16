@@ -3,8 +3,15 @@ import path from "node:path";
 import { Writable } from "node:stream";
 import { createElement, type ReactElement } from "react";
 import { renderToPipeableStream } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { InformationWarSystem } from "@/components/briefs/InformationWarSystem";
+
+/* There is no database behind this render, so `RecentActivity` always takes
+   its failure branch — which is the branch worth rendering here, because it
+   is the one that owns the retry control. That control is a client component
+   holding `useRouter()`, and a bare `renderToPipeableStream` has no app
+   router mounted, so the router is stubbed rather than the branch avoided. */
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: () => {} }) }));
 
 const ROOT = process.cwd();
 
@@ -43,8 +50,15 @@ describe("information war surface", () => {
      are asserted here so neither can drift back alone. */
   it("keeps the editorial heading intact", async () => {
     const html = await renderFully(createElement(InformationWarSystem));
-    const h1 = html.match(/<h1[^>]*id="war-heading"[^>]*>([\s\S]*?)<\/h1>/);
+    /* The `id="war-heading"` this used to key on belonged to the page's own
+       shell. The route is on `DocPage` since 2026-09-16 — the shell
+       `/methodology` and `/corrections` wear — and the shell owns the `<h1>`.
+       What IW-002 asked for is unchanged and is what is asserted: the page
+       has exactly one first-level heading and it reads the editorial
+       sentence. */
+    const h1 = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/);
     expect(h1).not.toBeNull();
+    expect((html.match(/<h1[\s>]/g) ?? []).length).toBe(1);
     const text = h1![1].replace(/<!--[\s\S]*?-->/g, "").replace(/<[^>]+>/g, "");
     expect(text).toBe("This is an information war.");
     const page = readFileSync(path.join(ROOT, "app/information-war/page.tsx"), "utf8");
@@ -63,10 +77,10 @@ describe("information war surface", () => {
     }
   });
 
-  it("renders inspectable architecture and a no-animation reading alternative", async () => {
+  it("renders all nine parts of the architecture and a plain-text alternative", async () => {
     const html = await renderFully(createElement(InformationWarSystem));
     expect((html.match(/aria-controls="node-inspector"/g) ?? []).length).toBe(9);
-    expect(html).toContain("Read every journey without the animation");
+    expect(html).toContain("Read every journey as plain text");
     expect(html).toContain("Interactive explanation · not live telemetry");
     expect(html).toContain("Illustrative source relationship");
     expect(html).toContain("Machine-authored editorial run");
@@ -75,16 +89,25 @@ describe("information war surface", () => {
     expect(html).not.toContain("all twelve checks");
   });
 
-  it("offers explicit playback controls and respects motion and visibility changes", async () => {
+  /* This page carried two self-advancing step machines and two infinite
+     packet loops on one screen. The architecture is reader-driven now: there
+     is no clock, so the four assertions that used to check the clock's
+     reduced-motion listener, its visibility gate and its `document.hidden`
+     check are replaced by the stronger property — there is nothing to gate.
+     The one explainer left, `HomeEvidencePipeline`, starts paused. */
+  it("drives the architecture from the reader, with no clock to pause", async () => {
     const html = await renderFully(createElement(InformationWarSystem));
-    for (const name of ["Previous step", "Next step", "Pause journey"]) expect(html).toContain(name);
+    for (const name of ["Previous step", "Next step"]) expect(html).toContain(name);
     const client = readFileSync(path.join(ROOT, "components/briefs/information-war/PipelineTrace.tsx"), "utf8");
-    expect(client).toContain('prefers-reduced-motion: reduce');
-    expect(client).toContain('preference.addEventListener("change", update)');
-    expect(client).toContain('!document.hidden');
-    expect(client).toContain('!playing || reduced || !visible');
+    /* Code, not prose: the doc comment above the component names both of the
+       things that were removed. */
+    expect(client).not.toMatch(/window\.set(Interval|Timeout)\(|new IntersectionObserver\(/);
+    expect(client).not.toContain("Pause journey");
+    const walkthrough = readFileSync(path.join(ROOT, "components/home/HomeEvidencePipeline.tsx"), "utf8");
+    expect(walkthrough).toContain("const [playing, setPlaying] = useState(false)");
+    expect(walkthrough).not.toMatch(/new IntersectionObserver\(/);
     const css = readFileSync(path.join(ROOT, "components/briefs/information-war-system.module.css"), "utf8");
-    expect(css.slice(css.indexOf("prefers-reduced-motion"))).toContain(".packet { display: none; }");
+    expect(css.replace(/\/\*[\s\S]*?\*\//g, "")).not.toMatch(/\binfinite\b/);
     expect(css).not.toMatch(/position:\s*(sticky|fixed)/);
     /* The architecture diagram must not be covered by the Ask launcher. That
        was a per-page exception — `html:has([id="war-heading"]) .dockTrigger`
@@ -94,6 +117,19 @@ describe("information war surface", () => {
        is now that there is no floating launcher to make an exception for. */
     const dock = readFileSync(path.join(ROOT, "components/ask/ask.module.css"), "utf8");
     expect(dock).not.toMatch(/\.dockTrigger\s*\{[^}]*position:\s*fixed/);
+  });
+
+  /* The failure state used to end on a link to the anchor the reader was
+     already standing on, so "Try again" moved the scroll and re-read nothing.
+     The control re-runs the server render that failed. */
+  it("offers a retry that actually retries the failed read", async () => {
+    const html = await renderFully(createElement(InformationWarSystem));
+    expect(html).toContain("The record could not be loaded.");
+    expect(html).toContain("Try again");
+    expect(html).not.toContain('href="/information-war#activity"');
+    const control = readFileSync(path.join(ROOT, "components/briefs/information-war/RecordUnavailable.tsx"), "utf8");
+    expect(control).toContain("router.refresh()");
+    expect(control).toContain('absenceStatus("unavailable")');
   });
 
   it("keeps real public destinations, with no pretend uptime claim", async () => {

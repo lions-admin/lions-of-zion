@@ -371,7 +371,9 @@ describe("the no-JavaScript invariant: the routes that hold nothing back", () =>
 
   it("renders /ask complete, with its no-JS explanation", async () => {
     const { default: Page } = await import("@/app/ask/page");
-    const html = await fullHtml(Page());
+    /* `?q=` is the handover from search's empty state; the bare route is the
+       one this invariant is about. */
+    const html = await fullHtml(await Page({ searchParams: Promise.resolve({}) } as never));
 
     expectShellRenders("/ask", html);
     expect(html).not.toContain('<div hidden id="S:');

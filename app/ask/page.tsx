@@ -18,10 +18,26 @@ export const metadata: Metadata = pageMetadata({
    here to prerender or cache. */
 export const dynamic = "force-dynamic";
 
-export default function AskRoute() {
+type Props = { searchParams: Promise<{ q?: string | string[] }> };
+
+/**
+ * `?q=` — the handover from search.
+ *
+ * A reader whose query matched no record is offered "Ask the desk about this",
+ * and it arrives here with the words they already typed. Read from
+ * `searchParams` on the server rather than through `useSearchParams()`, for
+ * the reason `/search` records: that hook forces the page under a Suspense
+ * boundary during prerender, which is the mechanism that broke this site's
+ * no-JavaScript render once already. Capped at the 600 characters the message
+ * schema accepts, so a long URL fills the box with what will actually send.
+ */
+export default async function AskRoute({ searchParams }: Props) {
+  const params = await searchParams;
+  const handover = (Array.isArray(params.q) ? params.q[0] : params.q)?.slice(0, 600);
+
   return (
     <DocPage routeId="ask" title="Ask the desk" tagline={TAGLINE}>
-      <AskDesk layout="page" />
+      <AskDesk layout="page" initialQuestion={handover} />
 
       <noscript>
         <div className={styles.noScript}>

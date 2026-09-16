@@ -38,10 +38,37 @@ export class ApiProblem extends Error {
     readonly code: ProblemCode,
     readonly status: number,
     readonly detail: string,
+    /**
+     * Seconds until the caller may try again, from the response's
+     * `Retry-After` header — the one fact a rate limit carries that a reader
+     * can act on. Null when the header was absent or unparseable, which is
+     * the honest state: "wait a few seconds" rather than a countdown to a
+     * number nobody sent.
+     */
+    readonly retryAfter: number | null = null,
   ) {
     super(detail);
     this.name = "ApiProblem";
   }
+}
+
+/**
+ * `Retry-After` as whole seconds, or null.
+ *
+ * The header is either a delta in seconds or an HTTP date (RFC 9110); both are
+ * read, and anything else — including a date already in the past — is null
+ * rather than a guess. Capped at an hour so a misconfigured gateway cannot
+ * park a countdown on screen for a day.
+ */
+function retryAfterSeconds(header: string | null): number | null {
+  if (!header) return null;
+  const trimmed = header.trim();
+  const delta = Number(trimmed);
+  const seconds = Number.isFinite(delta)
+    ? Math.ceil(delta)
+    : Math.ceil((Date.parse(trimmed) - Date.now()) / 1000);
+  if (!Number.isFinite(seconds) || seconds <= 0) return null;
+  return Math.min(seconds, 3600);
 }
 
 const KNOWN_CODES = new Set<ProblemCode>([
@@ -101,7 +128,12 @@ export async function requestJson<T>(input: string, init?: RequestInit): Promise
        still the truth, so fall through to it rather than discarding it. */
   }
 
-  throw new ApiProblem(code, response.status, detail || fallbackDetail(response.status));
+  throw new ApiProblem(
+    code,
+    response.status,
+    detail || fallbackDetail(response.status),
+    retryAfterSeconds(response.headers.get("retry-after")),
+  );
 }
 
 function fallbackDetail(status: number): string {

@@ -4,6 +4,9 @@ import { RecentActivity } from "@/components/briefs/information-war/LivePanels";
 import { listBriefingPublications } from "@/lib/publications";
 
 vi.mock("@/lib/publications", () => ({ listBriefingPublications: vi.fn() }));
+/* The failure branch renders a client control holding `useRouter()`, and a
+   bare `renderToStaticMarkup` has no app router mounted. */
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: () => {} }) }));
 const read = vi.mocked(listBriefingPublications);
 afterEach(() => read.mockReset());
 
@@ -26,11 +29,18 @@ describe("information-war published record", () => {
     expect(html).not.toContain("/articles/");
   });
 
-  it("shows an honest read failure and a retry anchor that exists on the page", async () => {
+  /* The retry used to be `<Link href="/information-war#activity">` — a link to
+     the anchor the reader is already standing on, so it moved the scroll and
+     re-read nothing. It is a control that re-runs the server render now
+     (`RecordUnavailable`), and the old anchor's absence is asserted so it
+     cannot come back as a link that cannot retry. */
+  it("shows an honest read failure and a retry that actually retries", async () => {
     read.mockRejectedValue(new Error("Test read failure"));
     const html = renderToStaticMarkup(await RecentActivity());
     expect(html).toContain("The record could not be loaded.");
-    expect(html).toContain('href="/information-war#activity"');
+    expect(html).toContain("Try again");
+    expect(html).toContain('role="alert"');
+    expect(html).not.toContain('href="/information-war#activity"');
     expect(html).not.toContain("/articles/");
   });
 });

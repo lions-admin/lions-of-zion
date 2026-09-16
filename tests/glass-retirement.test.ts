@@ -96,11 +96,21 @@ describe("the root error boundary is drawn in the open editorial system (VA-30)"
     );
   });
 
+  /* Rewritten on 2026-09-16 with the copy itself: the boundary spoke in a
+     radio-operator voice ("Transmission interrupted / Signal dropped /
+     Re-establish signal / ← Back to the scan") from an identity the site has
+     retired, on the one screen where a reader is already unsure whether
+     anything here works. It now reads in the 404's register, which is the
+     site's. The strings stay pinned because the copy is a trust surface. */
   it("does not restate the error copy, which is a trust surface", () => {
-    expect(boundary).toContain("Transmission interrupted");
-    expect(boundary).toContain("Signal dropped");
-    expect(boundary).toContain("Re-establish signal");
-    expect(boundary).toContain("← Back to the scan");
+    expect(boundary).toContain("Error · This page did not load");
+    expect(boundary).toContain("Something went wrong loading this page.");
+    expect(boundary).toContain("Try again");
+    expect(boundary).toContain("Back to the front");
+    /* The retired voice, kept out by name so it cannot drift back. */
+    for (const gone of ["Transmission interrupted", "Signal dropped", "Re-establish signal", "Back to the scan"]) {
+      expect(boundary, gone).not.toContain(gone);
+    }
   });
 });
 

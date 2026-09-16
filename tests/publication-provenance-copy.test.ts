@@ -78,6 +78,22 @@ describe("the trust pages describe both pathways, not one", () => {
   it("scopes the Methodology human-review gate to the human path", () => {
     expect(methodology).toMatch(/Human governance is not the same thing as claiming that a person manually approves every sentence before publication/);
     expect(methodology).not.toContain('gate: "Gate — human only"');
+    /* METHOD-002's process diagram landed on 2026-09-16 and draws a review
+       gate, so the scoping is now a positive assertion as well as an absence:
+       the gate names the path it belongs to, the sentence above the diagram
+       says which route is drawn, and the gate's own note says the
+       machine-authored route does not pass through it. */
+    expect(methodology).toContain('gate: "Gate — human assessments only"');
+    expect(methodology).toMatch(/The route below is the <strong>human-assessed claim<\/strong>/);
+    expect(methodology).toMatch(/A machine-authored editorial run does not pass through this stage/);
+  });
+
+  /* The same trap on the other trust page: We Are draws the identical gold
+     diamond on its "Govern" stage, and its own FAQ says a person does not
+     approve every publication. The marker names governance, never a gate. */
+  it("does not turn We Are's governance stage into a per-record approval", () => {
+    expect(weAre).toContain('gate: "Human-governed"');
+    expect(weAre).not.toMatch(/gate: "Gate/);
   });
 
   it("renders the two pathways on Methodology from the shared constant", () => {

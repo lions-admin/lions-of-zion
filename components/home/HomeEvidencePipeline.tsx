@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { liveWhenIdle } from "@/components/ui/live-region";
 import styles from "./narrative-simulation.module.css";
@@ -59,13 +59,18 @@ function SpreadMap() {
 
 export function HomeEvidencePipeline() {
   const [step, setStep] = useState(0);
-  const [playing, setPlaying] = useState(true);
-  const [visible, setVisible] = useState(false);
+  /* Paused, with the first stage revealed (2026-09-16). It used to start
+     playing the moment the plate entered the viewport, which put two
+     self-advancing machines on one screen beside reading text. This one is
+     the page's single explainer and it waits to be asked; the architecture
+     beside it is reader-driven with no clock at all. The viewport gate went
+     with the autoplay: nothing starts on arrival, so there is nothing for an
+     observer to start. */
+  const [playing, setPlaying] = useState(false);
   const [reduced, setReduced] = useState(true);
   const [activeEvidence, setActiveEvidence] = useState<string | null>(null);
-  const host = useRef<HTMLDivElement>(null);
   const panelId = useId();
-  const running = playing && visible && !reduced && step < stages.length - 1;
+  const running = playing && !reduced && step < stages.length - 1;
   const stage = stages[step];
 
   useEffect(() => {
@@ -73,9 +78,7 @@ export function HomeEvidencePipeline() {
     const sync = () => setReduced(preference.matches);
     sync();
     preference.addEventListener("change", sync);
-    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: 0.2 });
-    if (host.current) observer.observe(host.current);
-    return () => { observer.disconnect(); preference.removeEventListener("change", sync); };
+    return () => { preference.removeEventListener("change", sync); };
   }, []);
 
   useEffect(() => {
@@ -101,7 +104,7 @@ export function HomeEvidencePipeline() {
   }
 
   return (
-    <div ref={host} className={styles.simulation} data-running={running} data-step={step}>
+    <div className={styles.simulation} data-running={running} data-step={step}>
       <div className={styles.toolbar}>
         <span>Fictional walkthrough <span className={styles.disclosure}>· No real accounts or live searches</span></span>
         <button type="button" onClick={togglePlayback} disabled={reduced}

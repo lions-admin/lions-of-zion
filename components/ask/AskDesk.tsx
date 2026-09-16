@@ -3,17 +3,38 @@
 /**
  * The desk: transcript, the wait, and the box — in one of two orders.
  *
- * `layout="dock"` (the default, and what the drawer mounts) is header,
- * conversation, composer: the box at the foot in every state, the suggested
- * questions filling the empty transcript above it. `layout="page"` (`/ask`)
- * is the other way up: the box first, the suggestions as chips under it, the
- * transcript below. On the page the drawer's order put the box below the fold
- * at 390px, under a lede and three bordered rows, and the first screen of a
- * page whose whole job is a question should be the place to type it (UX-24).
- * The page's one line of provenance promise is its lede — "Every answer shows
- * what it was built from — or says it found nothing." — so the desk does not
- * say it a second time 300px lower; in the drawer the same promise is the
- * dialog's own description.
+ * `layout="dock"` (the default, and what the drawer mounts) is conversation
+ * then composer: the box at the foot in every state, the suggested questions
+ * filling the empty transcript above it. `layout="page"` (`/ask`) is the other
+ * way up: the box first, the suggestions as chips under it, the transcript
+ * below. On the page the drawer's order put the box below the fold at 390px,
+ * under a lede and three bordered rows, and the first screen of a page whose
+ * whole job is a question should be the place to type it (UX-24). The page's
+ * one line of provenance promise is its lede — "Every answer shows what it was
+ * built from — or says it found nothing." — so the desk does not say it a
+ * second time 300px lower; in the drawer the same promise is the dialog's own
+ * description.
+ *
+ * ## The vendored stack is gone (owner decision 3, 2026-09-16)
+ *
+ * This file imported `PromptInput`, `Conversation`, `Message` and `Suggestions`
+ * from `components/ai-elements`, which imported ten `components/shadcn`
+ * modules, which imported Tailwind, Radix, cmdk and lucide — about 3,960 lines
+ * and a second icon family beside `Icon`'s twenty-seven marks, all of it
+ * reachable from one feature. Every part that was actually load-bearing has a
+ * primitive here already: `FieldControl multiline` grows with its content,
+ * `Button` is the control hierarchy, `Card` is the row, and the transcript is
+ * a `role="log"`. What the registry added on top of those was overrides — six
+ * rules in `ask.module.css` existed only to undo its borders and its `w-max`
+ * rail — and a scroll-pinning library. See `AskField` and `AnswerRecord`.
+ *
+ * The scroller went with it. `Conversation` stuck the view to the live edge
+ * through `use-stick-to-bottom`, which is the right behaviour for a streaming
+ * chat and the wrong one here: this endpoint answers whole, so there is no
+ * edge that moves, and pinning the viewport to the bottom of a long answer
+ * lands the reader at the sources rather than at the first sentence. The
+ * transcript is an ordinary block that grows downward; the browser keeps the
+ * reading position, which is what a reader expects of a document.
  *
  * ## The waiting state is where the guarantee gets explained
  *
@@ -26,46 +47,37 @@
  * documents people who do that for a living.
  *
  * So `asking` is thinking, not streaming. The wait says what is happening and
- * why, and shows the only honest measurement available — elapsed seconds,
- * which are never announced. `BorderBeam` is the one moving thing, and only
- * around the active waiting answer; it unmounts on success, error, or abort.
- * Under `prefers-reduced-motion` the beam is gone and the waiting panel keeps
- * a static emphasized border.
+ * why, and shows the only honest measurement available — elapsed seconds.
+ * **The clock sits outside the transcript's live region**, which is the whole
+ * reason the wait is not rendered inside it: a ticking number inside a
+ * `role="log"` is a screen reader counting out loud for two minutes.
+ * `BorderBeam` is the one moving thing, and only around the active waiting
+ * answer; it unmounts on success, error, or abort. Under
+ * `prefers-reduced-motion` the beam is gone and the waiting panel keeps a
+ * static emphasized border.
  *
  * ## Errors are records, not toasts
  *
  * A rate limit and an unconfigured gateway are different facts with different
  * remedies, and both are answers to the question that was just asked. They
- * belong in the transcript where the answer would have been, carrying the
- * API's own `detail` — which names the actual ceiling and window rather than a
- * number this component would have to keep in step with the server.
+ * belong where the answer would have been, carrying the API's own `detail` —
+ * which names the actual ceiling and window rather than a number this
+ * component would have to keep in step with the server — and, for a rate
+ * limit, the `Retry-After` the response actually sent, counted down.
+ *
+ * A failure is announced **once**: the problem record is the assertive region
+ * and it sits outside the transcript's polite `role="log"`, so the two cannot
+ * both narrate the same event.
  */
 
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { StatusState } from "@/components/ui/StatusState";
-import { assertiveLive, politeLive } from "@/components/ui/live-region";
+import { assertiveLive, politeLive, silentLive } from "@/components/ui/live-region";
 import { BorderBeam } from "@/components/motion";
-import { Message, MessageContent } from "@/components/ai-elements/message";
-import {
-  PromptInput,
-  PromptInputBody,
-  PromptInputProvider,
-  PromptInputFooter,
-  PromptInputSubmit,
-  PromptInputTextarea,
-  usePromptInputController,
-} from "@/components/ai-elements/prompt-input";
-import {
-  Suggestion,
-  Suggestions,
-} from "@/components/ai-elements/suggestion";
-import {
-  Conversation,
-  ConversationContent,
-  ConversationEmptyState,
-  ConversationScrollButton,
-} from "@/components/ai-elements/conversation";
+import { SuggestionChips } from "@/components/search/instrument";
 import { AnswerRecord } from "./AnswerRecord";
+import { AskField } from "./AskField";
 import { toExchanges } from "./exchanges";
 import { useAskThread } from "./useAskThread";
 import styles from "./ask.module.css";
@@ -81,54 +93,55 @@ const EXAMPLES = [
 
 export type AskDeskLayout = "page" | "dock";
 
-/* The provider is here and not inside `PromptInput` so the input's text can be
-   set from outside the box — which is what "take the failed question back into
-   the composer and edit it" needs. `PromptInput` is self-managing without it;
-   with it, `usePromptInputController` reaches the same state from the desk. */
-export function AskDesk({ layout = "dock" }: { layout?: AskDeskLayout }) {
-  return (
-    <PromptInputProvider>
-      <AskDeskBody layout={layout} />
-    </PromptInputProvider>
-  );
+export interface AskDeskProps {
+  layout?: AskDeskLayout;
+  /**
+   * Put the cursor in the box on mount. The drawer does; `/ask` does not,
+   * because the page has a heading and a lede a reader arrives to read.
+   * Search's overlay makes the same distinction for the same reason — the two
+   * are one instrument.
+   */
+  autoFocus?: boolean;
+  /**
+   * A question to open the box with. `/search` hands its unmatched query over
+   * this way — "Ask the desk about this" carries the words already typed
+   * rather than asking for them again. It fills the field; it does not send,
+   * because the reader is the one asking.
+   */
+  initialQuestion?: string;
 }
 
-function AskDeskBody({ layout }: { layout: AskDeskLayout }) {
-  const controller = usePromptInputController();
+export function AskDesk({ layout = "dock", autoFocus = false, initialQuestion }: AskDeskProps) {
   const { messages, status, problem, pending, elapsed, ask, retry, recall, cancel, lostThread, reset } =
     useAskThread();
   const exchanges = toExchanges(messages);
 
   /* STATE-003. The composer clears on submit, so a failed turn would otherwise
      leave the reader with the question visible in an error record and no way
-     back to it but retyping. Two ways back: send it again unchanged, or take it
-     into the box and edit it.
-     The `seed` prop and its nonce that used to carry this are gone with
-     `AskComposer` — `PromptInput` holds its own text, so the recall writes
-     straight into it through the controller. Re-recalling the same question
-     works without a nonce because the write is unconditional. */
+     back to it but retyping. Two ways back: send it again unchanged, or take
+     it into the box and edit it. The nonce is what lets the *same* question be
+     recalled twice — a bare string would compare equal and be ignored. */
+  const [seed, setSeed] = useState<{ text: string; nonce: number } | undefined>(
+    initialQuestion ? { text: initialQuestion, nonce: 0 } : undefined,
+  );
+  const nonce = useRef(0);
   const recallIntoComposer = () => {
     const question = recall();
-    if (question) controller.textInput.setInput(question);
+    if (question) setSeed({ text: question, nonce: ++nonce.current });
   };
 
-  /* Scroll position belongs to `Conversation` now. What stood here was an
-     effect that moved a `tail` ref into view on every new record and had to
-     read `prefers-reduced-motion` by hand, because an explicit `"smooth"`
-     overrides the CSS kill switch in `globals.css`. The scroller anchors on the
-     question instead of chasing the bottom, and reads the preference itself. */
-  const count = exchanges.length;
+  const composerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!autoFocus) return;
+    composerRef.current?.querySelector("textarea")?.focus();
+  }, [autoFocus]);
 
-  /* `settled` is still the last exchange — the state chip below reads it. What
-     went with the transcript rewrite is the announcement string it used to
-     build: `ConversationContent` is a `role="log"` with
-     `aria-relevant="additions"`, so the arriving answer is announced by the
-     region that contains it. Building a second sentence about the same event
-     and putting it in a second live region announced it twice. */
+  const count = exchanges.length;
   const settled = exchanges.at(-1);
 
   const unavailable = problem?.code === "NOT_IMPLEMENTED";
   const busy = status === "submitting" || status === "loading";
+  const restoring = status === "restoring";
   const hasHistory = count > 0;
   const visibleState =
     busy
@@ -146,52 +159,49 @@ function AskDeskBody({ layout }: { layout: AskDeskLayout }) {
   const onPage = layout === "page";
   const showPrimer = count === 0 && status === "idle";
 
-  /* The transcript is AI Elements' `Conversation`, which is the same job
-     the `MessageScroller` here did for an hour and is the one Vercel keeps
-     in step with its own chat SDK. It sticks to the live edge, releases
-     when the reader scrolls away, and offers the button back — all of it
-     without this component owning a ref or reading a motion preference,
-     which is what stood here before it. */
+  /* One `role="log"` holding settled records and nothing else. `aria-relevant`
+     is additions, so an arriving answer is announced by the region that
+     contains it — which is why no second sentence about the same event is
+     built anywhere in this file. The wait and the failure render after it,
+     outside it. */
   const transcript = (
-    <Conversation className={styles.transcriptFrame}>
-      <ConversationContent className={styles.transcript}>
-        {/* In the drawer the primer lives *inside* the transcript, as its
-            empty state: it occupies the space it is explaining, and the
-            moment a question is asked it gives it up. On the page the
-            transcript starts empty and the primer is the chip row under the
-            composer instead. */}
-        {showPrimer && !onPage ? (
-          <ConversationEmptyState className={styles.deskEmpty}>
-            <AskPrimer onPick={ask} disabled={busy} />
-          </ConversationEmptyState>
-        ) : null}
+    <div className={styles.transcriptFrame}>
+      {showPrimer && !onPage && !unavailable ? (
+        <AskPrimer onPick={ask} disabled={busy} />
+      ) : null}
 
+      <div
+        className={styles.transcript}
+        role="log"
+        aria-relevant="additions"
+        aria-label="Conversation with the desk"
+      >
         {exchanges.map((exchange) => (
           <AnswerRecord key={exchange.key} exchange={exchange} />
         ))}
+      </div>
 
-        {busy && pending ? (
-          <Waiting
-            question={pending}
-            elapsed={elapsed}
-            phase={status === "submitting" ? "submitting" : "loading"}
-            onStop={cancel}
-          />
-        ) : null}
+      {busy && pending ? (
+        <Waiting
+          question={pending}
+          elapsed={elapsed}
+          phase={status === "submitting" ? "submitting" : "loading"}
+          onStop={cancel}
+        />
+      ) : null}
 
-        {problem && !unavailable ? (
-          <ProblemRecord
-            code={problem.code}
-            status={problem.status}
-            detail={problem.detail}
-            question={pending}
-            onRetry={retry}
-            onEdit={recallIntoComposer}
-          />
-        ) : null}
-      </ConversationContent>
-      <ConversationScrollButton />
-    </Conversation>
+      {problem && !unavailable ? (
+        <ProblemRecord
+          code={problem.code}
+          status={problem.status}
+          detail={problem.detail}
+          retryAfter={problem.retryAfter}
+          question={pending}
+          onRetry={retry}
+          onEdit={recallIntoComposer}
+        />
+      ) : null}
+    </div>
   );
 
   const composer = unavailable ? (
@@ -204,62 +214,32 @@ function AskDeskBody({ layout }: { layout: AskDeskLayout }) {
       actionHref="/search"
     />
   ) : (
-    /* One box, which is what a chat input is. `AskComposer` was a labelled
-       form with its own counter and hint rows stacked under it — correct as
-       a form, and a third block of chrome on a panel that already had two.
-       `PromptInput` carries file attachments and a drop target this desk
-       has no use for; they are inert with no `accept` and no menu mounted,
-       and the parts used here are the textarea, the footer and the submit.
-       `status` drives the button's own spinner and stop control, so the
-       cancel path that lived in the composer's chrome is the button.
-       The evidence boundary used to be rendered here as well as in the
-       drawer's own description, which stated the same disclosure twice about
-       200px apart and in two different typographic registers. One statement:
-       the drawer's description, or the page's lede. */
-    <PromptInput
-      className={styles.deskPrompt}
-      onSubmit={(message) => {
-        const question = message.text.trim();
-        if (question) ask(question);
-      }}
-    >
-      <PromptInputBody>
-        <PromptInputTextarea
-          disabled={busy || status === "restoring"}
-          placeholder={hasHistory ? "Ask a follow-up…" : "Ask about a claim, a video, a source…"}
-        />
-      </PromptInputBody>
-      <PromptInputFooter>
-        {hasHistory ? (
-          <Button type="button" variant="ghost" size="sm" onClick={reset}>
+    <div ref={composerRef}>
+      <AskField
+        onAsk={ask}
+        busy={busy}
+        disabled={restoring}
+        seed={seed}
+        placeholder={hasHistory ? "Ask a follow-up…" : "Ask about a claim, a video, a source…"}
+        hint={
+          busy ? (
+            /* The field stays live through the wait — this says why the send
+               will not fire yet, rather than the box going grey under the
+               cursor. */
+            "The desk is answering. Draft the next question; it sends when this turn lands."
+          ) : restoring ? (
+            "Reopening the last conversation."
+          ) : undefined
+        }
+      />
+      {hasHistory ? (
+        <div className={styles.deskFoot}>
+          <Button type="button" variant="text" size="sm" onClick={reset}>
             New conversation
           </Button>
-        ) : (
-          <span />
-        )}
-        {/* UX-26. The registry's submit is a 32px glyph; `deskStyles.submit`
-            makes it a 44px target and shows the word from 768. `children`
-            replaces the registry's icon outright, so the label is passed
-            only in the state where the button sends: while a turn is in
-            flight it is the registry's spinner and stops the turn, and
-            after a failure it is the registry's mark. The accessible name
-            follows the visible word (WCAG 2.5.3), and the registry's own
-            `aria-label` is spread before this one so it loses. */}
-        <PromptInputSubmit
-          className={`${styles.deskSubmit} ${deskStyles.submit}`}
-          status={busy ? "submitted" : problem ? "error" : undefined}
-          onStop={cancel}
-          aria-label={busy ? "Stop" : "Send"}
-        >
-          {busy || problem ? undefined : (
-            <>
-              <span className={deskStyles.submitLabel}>Send</span>
-              <span aria-hidden="true">↵</span>
-            </>
-          )}
-        </PromptInputSubmit>
-      </PromptInputFooter>
-    </PromptInput>
+        </div>
+      ) : null}
+    </div>
   );
 
   return (
@@ -269,14 +249,17 @@ function AskDeskBody({ layout }: { layout: AskDeskLayout }) {
       data-ask-layout={layout}
     >
       {lostThread ? (
+        /* One sentence with a verb. What stood here was three clauses of
+           mechanism — RLS, network identity, "not deleted, simply no longer
+           addressable" — which is true and is not what a reader who just lost
+           a transcript needs in the first line. */
         <p className={styles.systemNote}>
-          An earlier conversation from this browser could not be reopened. A thread is tied to
-          the network connection that started it, so changing network loses the link to it —
-          the transcript is not deleted, it is simply no longer addressable from here.
+          Start again: the earlier conversation belongs to the network it was opened on, and this
+          browser can no longer reach it.
         </p>
       ) : null}
 
-      {status === "restoring" ? (
+      {restoring ? (
         <p className={styles.systemNote} {...politeLive} aria-busy="true">
           Reopening the last conversation from this browser.
         </p>
@@ -285,7 +268,15 @@ function AskDeskBody({ layout }: { layout: AskDeskLayout }) {
       {onPage ? (
         <>
           {composer}
-          {showPrimer && !unavailable ? <AskChips onPick={ask} disabled={busy} /> : null}
+          {showPrimer && !unavailable ? (
+            <SuggestionChips
+              label="Try one of these"
+              queries={EXAMPLES}
+              onPick={ask}
+              disabled={busy}
+              className={deskStyles.chips}
+            />
+          ) : null}
           {transcript}
         </>
       ) : (
@@ -295,31 +286,6 @@ function AskDeskBody({ layout }: { layout: AskDeskLayout }) {
         </>
       )}
     </div>
-  );
-}
-
-/* The page's suggested questions: plain chips, no label, no arrow glyph. The
-   drawer's `AskPrimer` below renders the same three as full-width rows with
-   an intro line, which is right for a drawer whose middle would otherwise be
-   empty and wrong under a composer that is already the first thing on the
-   page (UX-24). */
-function AskChips({ onPick, disabled }: { onPick: (q: string) => void; disabled: boolean }) {
-  return (
-    <ul className={deskStyles.chips} aria-label="Suggested questions">
-      {EXAMPLES.map((example) => (
-        <li key={example}>
-          <Button
-            type="button"
-            variant="ghost"
-            size="md"
-            disabled={disabled}
-            onClick={() => onPick(example)}
-          >
-            {example}
-          </Button>
-        </li>
-      ))}
-    </ul>
   );
 }
 
@@ -336,19 +302,15 @@ function Waiting({
 }) {
   return (
     <article className={styles.record} aria-busy="true">
-      {/* The pending question renders as the same bubble it will keep once the
-          answer lands under it — the turn does not change shape when it
-          resolves. The label goes, because the alignment already says whose
-          turn this is. */}
-      <Message from="user">
-        <MessageContent>{question}</MessageContent>
-      </Message>
+      <div className={styles.question}>
+        <p className={styles.srOnly}>Question</p>
+        <p className={styles.questionText}>{question}</p>
+      </div>
       <div className={styles.waiting}>
         {/* The default ink tone, not gold. Gold is reserved for the one
             primary control on a screen; a border beam is a state marker. */}
         <BorderBeam duration={9} size={120} />
-        {/* Live region is the lead only. The elapsed clock ticks every second and
-            must not sit inside a polite region or it would re-announce the wait. */}
+        {/* The lead is the only announced part of the wait. */}
         <p className={styles.waitingLead} {...politeLive}>
           {phase === "submitting" ? "Sending the question." : "Searching the index, then composing."}
         </p>
@@ -359,11 +321,13 @@ function Waiting({
           minutes.
         </p>
         <div className={styles.waitingMeta}>
-          <p className={styles.waitingClock}>
+          {/* Explicitly silenced: it changes every second, and a region that
+              was merely un-announced is one refactor away from being read. */}
+          <p className={styles.waitingClock} {...silentLive}>
             <span className={styles.waitingSeconds}>{String(elapsed).padStart(2, "0")}</span>
             <span>seconds elapsed</span>
           </p>
-          <Button type="button" variant="ghost" size="md" onClick={onStop}>
+          <Button type="button" variant="secondary" size="md" onClick={onStop}>
             Stop
           </Button>
         </div>
@@ -372,10 +336,40 @@ function Waiting({
   );
 }
 
+/**
+ * A rate limit's remaining wait, counted down from the response's own header.
+ *
+ * Null whenever the server did not send a usable `Retry-After`; the copy then
+ * says "once the window has passed" rather than inventing a number. Returns
+ * null again the moment it reaches zero, so the sentence turns itself back
+ * into "you can ask again" without a second state to keep in step.
+ */
+function useCountdown(seconds: number | null): number | null {
+  const [left, setLeft] = useState(seconds);
+  const [source, setSource] = useState(seconds);
+  if (source !== seconds) {
+    setSource(seconds);
+    setLeft(seconds);
+  }
+
+  useEffect(() => {
+    if (seconds === null) return;
+    const until = Date.now() + seconds * 1000;
+    const timer = window.setInterval(() => {
+      const remaining = Math.ceil((until - Date.now()) / 1000);
+      setLeft(remaining > 0 ? remaining : null);
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [seconds]);
+
+  return left;
+}
+
 function ProblemRecord({
   code,
   status,
   detail,
+  retryAfter,
   question,
   onRetry,
   onEdit,
@@ -383,6 +377,7 @@ function ProblemRecord({
   code: string;
   status: number;
   detail: string;
+  retryAfter: number | null;
   question: string | null;
   onRetry: () => void;
   onEdit: () => void;
@@ -392,12 +387,15 @@ function ProblemRecord({
      shared `requestJson` reads the top level, so the code can arrive as
      `UNKNOWN` on a real rate limit. The status cannot. */
   const rateLimited = code === "RATE_LIMITED" || status === 429;
+  const left = useCountdown(rateLimited ? retryAfter : null);
+
   return (
     <article className={styles.record} data-tone="alert" {...assertiveLive}>
       {question ? (
-        <Message from="user">
-          <MessageContent>{question}</MessageContent>
-        </Message>
+        <div className={styles.question}>
+          <p className={styles.srOnly}>Question</p>
+          <p className={styles.questionText}>{question}</p>
+        </div>
       ) : null}
       <p className={styles.recordLabel}>Not answered</p>
       <p className={styles.problemLead}>
@@ -406,7 +404,18 @@ function ProblemRecord({
       <p className={styles.problemDetail}>{detail}</p>
       {rateLimited ? (
         <p className={styles.problemDetail}>
-          Nothing was lost — ask again once the window has passed.
+          Nothing was lost —{" "}
+          {left === null ? (
+            "ask again once the window has passed."
+          ) : (
+            <>
+              ask again in{" "}
+              <span className={styles.countdown}>
+                {left} {left === 1 ? "second" : "seconds"}
+              </span>
+              .
+            </>
+          )}
         </p>
       ) : null}
       {/* STATE-003: the question above is the only surviving copy of what was
@@ -432,36 +441,24 @@ function ProblemRecord({
   );
 }
 
+/* The drawer's empty middle: an intro line and the same three suggestions the
+   page shows as chips under its box, in the one chip primitive both surfaces
+   use. The registry's horizontal pill rail that stood here set
+   `whitespace-nowrap` on whole-sentence suggestions, so at 390px they ran off
+   the drawer with the scrollbar that would have hinted at it rendered hidden. */
 function AskPrimer({ onPick, disabled }: { onPick: (q: string) => void; disabled: boolean }) {
   return (
     <div className={styles.primer}>
-      {/* The lead sentence that stood here is gone. It said "ask about what
-          this desk has published, and the claims behind it" — which is what
-          the three examples below it demonstrate, at the size of a heading,
-          above a panel whose whole job is the box at the foot.
-          AI Elements' `Suggestions` is a horizontal rail of pills. Worth
-          knowing about the trade it makes here: it sets `whitespace-nowrap`,
-          and these three examples are whole sentences, so on a narrow drawer
-          they scroll sideways instead of stacking. That is the library's
-          shape — a row of short prompts — and these are long ones. If they
-          read badly, the fix is shorter examples, not a re-styled rail. */}
       <p className={styles.primerIntro}>
         Ask about anything this desk has published, or the claims behind it.
       </p>
-      <p className={styles.primerLabel}>Suggested questions</p>
-      <Suggestions className={styles.primerExamples}>
-        {EXAMPLES.map((example) => (
-          <Suggestion
-            key={example}
-            suggestion={example}
-            onClick={onPick}
-            disabled={disabled}
-          >
-            <span className={styles.primerExampleText}>{example}</span>
-            <span className={styles.primerExampleArrow} aria-hidden="true">↵</span>
-          </Suggestion>
-        ))}
-      </Suggestions>
+      <SuggestionChips
+        label="Suggested questions"
+        queries={EXAMPLES}
+        onPick={onPick}
+        disabled={disabled}
+        className={deskStyles.chips}
+      />
     </div>
   );
 }

@@ -311,3 +311,36 @@
   color: var(--gold-hi);
   text-decoration-color: currentColor;
 }
+
+/* ---- the colophon ----
+   A trust page without a review date asks a reader to trust a document of
+   unknown age. The three of them — Methodology, Corrections and We Are —
+   each carry the date in their own content and print it in the same shape at
+   the foot of the page. */
+
+.colophon {
+  margin: var(--sp-7) 0 0;
+  padding-top: var(--sp-4);
+  border-top: var(--line-w) solid var(--line);
+  max-width: var(--measure-reading);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
+}
+
+.colophonDate {
+  composes: dataValue from global;
+  color: var(--ink);
+}
+
+.colophon a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-underline-offset: 0.2em;
+}
+
+.colophon a:hover,
+.colophon a:focus-visible {
+  color: var(--gold-hi);
+}

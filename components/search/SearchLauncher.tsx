@@ -87,6 +87,12 @@ export function SearchLauncher({ variant = "bar", current = false, className }: 
         className={[styles.launcher, className].filter(Boolean).join(" ")}
         data-variant={variant}
         aria-current={current ? "page" : undefined}
+        /* The bindings the effect above installs, declared where a screen
+           reader can announce them — and the same declaration `AskDock`
+           carries for ⌘/, because the two are one instrument. The visible
+           hint stays too: it is the desktop convention (Jakob) and it is what
+           teaches the family in the first place. */
+        aria-keyshortcuts={current ? undefined : "Meta+K Control+K /"}
         onClick={(event) => {
           if (current) return;
           /* Leave the modified clicks alone — they mean "somewhere else". */

@@ -88,7 +88,13 @@ describe("UX-005 Ask lifecycle", () => {
     expect(desk).toContain('"success-with-sources"');
     expect(desk).toContain('"insufficient-evidence"');
     expect(desk).toContain('"no-answer"');
-    expect(read("components/ask/AskComposer.tsx")).toContain("data-ask-composer-state");
+    /* `AskComposer`'s `data-ask-composer-state` was pinned here and had no
+       reader: the component had been unmounted since the desk moved to a
+       vendored prompt input, and the attribute described a box nothing
+       rendered. Both went on 2026-09-16 with the registry (owner decision 3).
+       What the desk's states are actually read through is `data-ask-state`
+       above, which `SearchPanel`'s `data-search-state` mirrors. */
+    expect(desk).toContain("data-ask-state={visibleState}");
   });
 });
 

@@ -50,10 +50,43 @@ export function VolunteerInterestForm() {
     }
   };
 
+  const reset = () => {
+    setName('');
+    setEmail('');
+    setSkills([]);
+    setLanguages('');
+    setAvailability('');
+    setStatus('idle');
+  };
+
+  /* The same receipt shape as the report form (2026-09-16): what was
+     recorded, what happens next, how long that takes, where to write — and
+     two ways on. This one was a single sentence and nothing else, so a reader
+     who had just typed five fields was told only that they had arrived. */
   if (status === 'sent') {
     return (
       <div className={styles.receipt} {...politeLive}>
-        <p>Thanks — your interest reached the volunteer desk.</p>
+        <p>Your interest reached the volunteer desk.</p>
+        <dl className={styles.receiptFacts}>
+          <div>
+            <dt className={styles.receiptTerm}>What happens next</dt>
+            <dd>A person reads it and matches your skills and languages against the work that is open.</dd>
+          </div>
+          <div>
+            <dt className={styles.receiptTerm}>Expected</dt>
+            <dd>Within about a week. You will hear back at the email you gave, whether or not there is a fit right now.</dd>
+          </div>
+          <div>
+            <dt className={styles.receiptTerm}>Where to write</dt>
+            <dd><a href={`mailto:${VOLUNTEER_INBOX}`}>{VOLUNTEER_INBOX}</a> — if anything changes before then.</dd>
+          </div>
+        </dl>
+        <div className={styles.receiptActions}>
+          <Button type="button" variant="secondary" size="md" onClick={reset}>
+            Send another
+          </Button>
+          <a className={styles.receiptLink} href="#report">Report a claim instead</a>
+        </div>
       </div>
     );
   }
@@ -73,7 +106,7 @@ export function VolunteerInterestForm() {
       className={styles.form}
       onSubmit={submit}
       aria-busy={sending || undefined}
-      aria-describedby={['volunteer-noscript', status === 'error' ? 'volunteer-failure' : null].filter(Boolean).join(' ')}
+      aria-describedby="volunteer-noscript volunteer-failure"
     >
       {/*
         Same failure as the report form with scripting off — no `action`, so
@@ -148,12 +181,17 @@ export function VolunteerInterestForm() {
         placeholder="A few hours a week, evenings…"
       />
 
-      {status === 'error' ? (
-        <p id="volunteer-failure" className={styles.fieldError} {...assertiveLive}>
-          We could not send this right now. Nothing you typed was cleared — press Send interest
-          again, or email <a href={`mailto:${VOLUNTEER_INBOX}`}>{VOLUNTEER_INBOX}</a> instead.
-        </p>
-      ) : null}
+      {/* One form-level alert, mounted whether or not it has anything to say:
+          a live region that appears at the same moment as its text is a region
+          the screen reader was not watching when the text arrived. */}
+      <p id="volunteer-failure" className={styles.fieldError} hidden={status !== 'error'} {...assertiveLive}>
+        {status === 'error' ? (
+          <>
+            We could not send this right now. Nothing you typed was cleared — press Send interest
+            again, or email <a href={`mailto:${VOLUNTEER_INBOX}`}>{VOLUNTEER_INBOX}</a> instead.
+          </>
+        ) : null}
+      </p>
       <Button
         type="submit"
         variant="primary"

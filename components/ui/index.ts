@@ -15,6 +15,9 @@
  * anywhere in the repository, and the tooltip actually in use is the Radix
  * one at `components/shadcn/tooltip.tsx`. Two tooltip implementations, one
  * of them dead, is how a component library stops being believable.
+ * (That registry was deleted on 2026-09-16 with the rest of the vendored
+ * stack; there is no tooltip on the site now, which is the right number —
+ * nothing that carries meaning may live in one.)
  */
 export * from "./Button";
 export * from "./Card";

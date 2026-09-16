@@ -39,11 +39,26 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
+import { ViewTransition } from "@/components/motion";
 import type { SearchHit } from "@/server/contracts/search";
 import { entityLabel, entityLabelPlural, groupByEntity } from "./vocabulary";
 import styles from "./search.module.css";
 
+/**
+ * Which keyboard model this list is in.
+ *
+ * `listbox` is the overlay: rows are `role="option"`, out of the tab order,
+ * selected through the combobox's `aria-activedescendant`. `links` is
+ * `/search`, where the results are the page and a reader arriving by Tab
+ * expects to walk into them — so they are ordinary links, in the tab order,
+ * inside a plain labelled region. They cannot be one markup with an attribute
+ * flipped: `aria-activedescendant` cannot address a link, and a `role="option"`
+ * with `tabIndex={0}` is neither pattern.
+ */
+export type SearchResultsMode = "listbox" | "links";
+
 interface SearchResultsProps {
+  mode: SearchResultsMode;
   hits: SearchHit[];
   /** Index into the flattened list, or -1. Drives `aria-activedescendant`. */
   activeIndex: number;
@@ -60,6 +75,7 @@ interface SearchResultsProps {
 }
 
 export function SearchResults({
+  mode,
   hits,
   activeIndex,
   optionId,
@@ -71,45 +87,63 @@ export function SearchResults({
   offset,
 }: SearchResultsProps) {
   const groups = groupByEntity(hits);
+  const listbox = mode === "listbox";
   let flat = -1;
 
   return (
     <div
       className={styles.results}
       id={listboxId}
-      role="listbox"
+      role={listbox ? "listbox" : "region"}
       aria-label={listboxLabel}
       aria-busy={stale || undefined}
       data-stale={stale ? "" : undefined}
     >
-      {groups.map((group) => (
-        <div className={styles.group} key={group.type}>
-          <p className={styles.groupHead}>
-            <span>{group.items.length === 1 ? entityLabel(group.type) : entityLabelPlural(group.type)}</span>
-            <span className={styles.groupCount}>{String(group.items.length).padStart(2, "0")}</span>
-          </p>
-          {group.items.map((hit) => {
-            const index = ++flat;
-            return (
-              <SearchHitOption
-                key={hit.documentId}
-                hit={hit}
-                index={index}
-                ordinal={offset + index + 1}
-                active={index === activeIndex}
-                id={optionId(index)}
-                onHover={onHover}
-                onNavigate={onNavigate}
-              />
-            );
-          })}
-        </div>
-      ))}
+      {groups.map((group) => {
+        const label = group.items.length === 1 ? entityLabel(group.type) : entityLabelPlural(group.type);
+        const headId = `${listboxId}-${group.type}`;
+        return (
+          /* A listbox's children are options and groups, and nothing else. The
+             kind headings put a plain `<div>` between the list and its rows,
+             which makes every option an orphan as far as the accessibility
+             tree is concerned — the count a screen reader reports comes out of
+             the group, not the list. `role="group"` named by its own heading
+             is what the pattern asks for and costs nothing visually. */
+          <div
+            className={styles.group}
+            key={group.type}
+            role={listbox ? "group" : undefined}
+            aria-labelledby={listbox ? headId : undefined}
+          >
+            <p className={styles.groupHead} id={headId}>
+              <span>{label}</span>
+              <span className={styles.groupCount}>{String(group.items.length).padStart(2, "0")}</span>
+            </p>
+            {group.items.map((hit) => {
+              const index = ++flat;
+              return (
+                <SearchHitOption
+                  key={hit.documentId}
+                  listbox={listbox}
+                  hit={hit}
+                  index={index}
+                  ordinal={offset + index + 1}
+                  active={index === activeIndex}
+                  id={optionId(index)}
+                  onHover={onHover}
+                  onNavigate={onNavigate}
+                />
+              );
+            })}
+          </div>
+        );
+      })}
     </div>
   );
 }
 
 function SearchHitOption({
+  listbox,
   hit,
   index,
   ordinal,
@@ -118,6 +152,7 @@ function SearchHitOption({
   onHover,
   onNavigate,
 }: {
+  listbox: boolean;
   hit: SearchHit;
   index: number;
   ordinal: number;
@@ -131,6 +166,17 @@ function SearchHitOption({
      standfirst of `""` or a line of whitespace must render as nothing, not as
      an empty description with the spacing of a real one. */
   const summary = hit.summary?.trim() || null;
+  /* Stage 7: the headline a reader pressed in a list is the headline that
+     opens on the record, so a result carries the same `view-transition-name`
+     the hub rows, the homepage cards and the article page carry. Only where a
+     `publicId` is actually in hand — a hit with none is an indexed document
+     whose page is addressed some other way, and a name invented for it would
+     match nothing on the other side. */
+  const title = (
+    <CardTitle as="span" className={styles.hitTitle}>
+      {hit.title}
+    </CardTitle>
+  );
   const inner = (
     <>
       <span className={styles.hitOrdinal} aria-hidden="true">
@@ -140,9 +186,13 @@ function SearchHitOption({
         <CardHeader className={styles.hitHeader}>
           <CardEyebrow>{entityLabel(hit.entityType)}</CardEyebrow>
         </CardHeader>
-        <CardTitle as="span" className={styles.hitTitle}>
-          {hit.title}
-        </CardTitle>
+        {hit.publicId ? (
+          <ViewTransition name={`record-${hit.publicId}-headline`} share="morph" default="none">
+            {title}
+          </ViewTransition>
+        ) : (
+          title
+        )}
         {summary ? (
           <CardDescription className={styles.hitSummary}>{summary}</CardDescription>
         ) : null}
@@ -157,18 +207,18 @@ function SearchHitOption({
         variant="row"
         as="div"
         id={id}
-        role="option"
-        aria-selected={active}
+        role={listbox ? "option" : undefined}
+        aria-selected={listbox ? active : undefined}
         aria-disabled="true"
         tabIndex={-1}
         className={`${styles.hit} ${styles.hitInert}`}
-        data-active={active ? "" : undefined}
+        data-active={listbox && active ? "" : undefined}
         data-entity-type={hit.entityType}
       data-measure-id={`search-result-${hit.documentId}`}
       data-measure-event="search_result_click"
       data-measure-section="search"
       data-measure-content={hit.publicId ?? hit.entityId}
-        onPointerMove={() => onHover(index)}
+        onPointerMove={listbox ? () => onHover(index) : undefined}
       >
         {inner}
       </Card>
@@ -180,11 +230,13 @@ function SearchHitOption({
       variant="row"
       href={href}
       id={id}
-      role="option"
-      aria-selected={active}
-      tabIndex={-1}
+      role={listbox ? "option" : undefined}
+      aria-selected={listbox ? active : undefined}
+      /* Out of the tab order in the overlay, where the combobox owns the
+         selection; an ordinary link on the page, where the reader tabs. */
+      tabIndex={listbox ? -1 : undefined}
       className={styles.hit}
-      data-active={active ? "" : undefined}
+      data-active={listbox && active ? "" : undefined}
       data-entity-type={hit.entityType}
       /* `search_result_click` was declared on the *inert* branch only, so the
          one thing worth measuring — a reader opening a result — was measured
@@ -193,7 +245,7 @@ function SearchHitOption({
       data-measure-event="search_result_click"
       data-measure-section="search"
       data-measure-content={hit.publicId ?? hit.entityId}
-      onPointerMove={() => onHover(index)}
+      onPointerMove={listbox ? () => onHover(index) : undefined}
       onClick={onNavigate}
     >
       {inner}

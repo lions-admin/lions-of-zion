@@ -20,13 +20,11 @@
 }
 
 
-
 .desk {
   display: flex;
   flex-direction: column;
   gap: var(--sp-6);
 }
-
 
 
 .transcript {
@@ -64,6 +62,84 @@
   color: var(--state-warn);
 }
 
+/* The question, understated.
+ *
+ * It is the reader's own utterance, so it is identifiable as theirs — a plate
+ * one tone off the ground, a hairline, the smallest radius, indented from the
+ * start edge. What it is not is a consumer-chat bubble: no tail, no round
+ * corners, no right alignment. A noted question rather than a spoken one.
+ *
+ * Text face, not the quote face: `--face-quote` is for a *human being quoted*
+ * — testimony, a claim in circulation, a source's words — and a reader typing
+ * into their own box is not being quoted by anyone. */
+.question {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-inline-start: var(--sp-5);
+}
+
+.questionText {
+  margin: 0;
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface-1);
+  border: var(--line-w) solid var(--line);
+  border-radius: var(--radius-1);
+  max-inline-size: var(--measure-reading);
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+}
+
+.answerBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-block-start: var(--sp-4);
+}
+
+/* VA-47 — the authorship line, under "Answer" and above the words it is
+   about. Caption-sized and muted: it is a byline, not a warning, and a
+   warning is what a bordered notice would have made it. It is never hidden
+   behind a disclosure and never merged into the answer's first paragraph,
+   because a reader scrolling to the sources must be able to pass it. */
+.authorship {
+  margin: 0;
+  max-inline-size: var(--measure-reading);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+  color: var(--ink-lo);
+  text-wrap: pretty;
+}
+
+/* The turn's ending (Peak-End): when it was written, and the one action that
+   takes it away with its sources attached. A rule and space, not a bar. */
+.recordFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-block-start: var(--sp-4);
+  padding-block-start: var(--sp-3);
+  border-block-start: var(--line-w) solid var(--line-soft);
+  max-inline-size: var(--measure-reading);
+}
+
+/* A timestamp is a machine value: the data face, tabular, never the text one. */
+.recordTime {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-lo);
+}
+
 .answer {
   display: flex;
   flex-direction: column;
@@ -77,7 +153,6 @@
 
   white-space: pre-line;
 }
-
 
 
 .sources {
@@ -214,11 +289,14 @@
   color: var(--ink-lo);
 }
 
+/* A source's exact words — a human being quoted — so the quote face, which is
+   the register's one job for it. Not `--t-quote`'s size: that is a pull quote
+   in a record, and this is a supporting span under a citation. */
 .sourceQuote {
   margin: 0;
   padding-inline-start: var(--sp-4);
   border-inline-start: var(--line-w-thick) solid var(--line-strong);
-  font-family: var(--face-display);
+  font-family: var(--face-quote);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
   color: var(--ink);
@@ -254,7 +332,6 @@
   border-radius: var(--radius-pill);
   transform: translateY(0.1em);
 }
-
 
 
 .waiting {
@@ -313,7 +390,6 @@
 }
 
 
-
 .primer {
   display: flex;
   flex-direction: column;
@@ -321,98 +397,31 @@
   max-inline-size: var(--measure-reading);
 }
 
-.primerLead {
-  font-family: var(--face-display);
-  font-size: var(--t-lede);
-  line-height: var(--t-lede-lh);
-  color: var(--ink-hi);
-  text-wrap: balance;
-  font-optical-sizing: auto;
-}
 
-/* The examples, and a lesson in half-overriding a registry component.
+/* One field with a row of controls under it — not a box drawn around a box.
  *
- * `Suggestions` is AI Elements' horizontal chip rail: the row it renders
- * carries `flex w-max flex-nowrap`, the pills inside it carry the shadcn
- * button's `whitespace-nowrap`, and its scrollbar is rendered `hidden`. This
- * class used to set only `flex-direction: column`, and CSS Modules outrank
- * `@layer utilities`, so it won that one property and nothing else. The result
- * measured: a column — correct — that was still `width: max-content` at 351px
- * because `w-max` went uncontested, holding three pills of 323, 351 and 331px
- * that could not wrap because `whitespace-nowrap` went uncontested too. Three
- * ragged right edges running past the drawer, with the scrollbar that would
- * have hinted at it explicitly hidden.
- *
- * Overriding a registry component means naming every property that fights,
- * not the first one. `inline-size` answers `w-max` here; the rule below
- * answers the rest on the button itself. */
-.primerExamples {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
-  inline-size: 100%;
-  max-inline-size: 100%;
-  margin-block-start: var(--sp-3);
-  padding: 0;
-  list-style: none;
-}
-
-
-
+ * Three nested rectangles held one question here for most of a year: a plate
+ * with its own border, a bordered textarea inside it, and a bordered footer
+ * under that. The field primitive already draws the well, the hairline that
+ * clears 3:1, the hover and the focus ring, so the plate is gone and the
+ * controls sit on the ground beneath the box they belong to. */
 .composer {
   display: flex;
   flex-direction: column;
   gap: var(--sp-3);
-  padding: var(--sp-4);
-  background: var(--surface-1);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
 }
 
-/* The ring belongs to the visible box, not to the borderless textarea inside
-   it — which is why `.composerField` suppresses its own outline. But the box
-   was indicating focus with a hairline colour change alone, `--line` to
-   `--line-strong`, well under the 3:1 an indicator owes (A11Y-003). It now
-   carries the same `--focus-outline` every other control in the system uses.
-   `:focus-within` rather than `:focus-visible` because the element that takes
-   focus is the child. */
-.composer:focus-within {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-offset);
-  border-color: var(--line-strong);
+.composerShell {
+  gap: var(--sp-2);
 }
 
-.composerLabel {
-  composes: kickerLabel from global;
-  color: var(--ink-lo);
-}
-
+/* `field.module.css` gives `textarea.control` `field-sizing: content`, so the
+   box grows with what is typed and needs no script and no measuring. What is
+   set here is only where it starts and where it stops: three lines, then a
+   scroll at eight, so a long question never pushes the send off a phone. */
 .composerField {
-  inline-size: 100%;
-  resize: vertical;
-  min-block-size: calc(var(--control-h) * 1.6);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-lede);
-  line-height: var(--t-lede-lh);
-  font-weight: var(--t-lede-weight);
-  font-optical-sizing: auto;
-}
-
-.composerField::placeholder {
-  color: var(--ink-lo);
-}
-
-.composerField:focus-visible {
-  outline: none;
-}
-
-.composerField:disabled {
-  color: var(--ink-lo);
-  cursor: not-allowed;
+  min-block-size: calc(3 * var(--t-body-lh) * var(--t-body) + (2 * var(--sp-3)));
+  max-block-size: calc(8 * var(--t-body-lh) * var(--t-body) + (2 * var(--sp-3)));
 }
 
 .composerFoot {
@@ -425,11 +434,17 @@
   border-block-start: var(--line-w) solid var(--line-soft);
 }
 
+/* A sentence a person wrote, so the text face — the register's rule, and it
+   was in the data face at 12px saying "The desk is answering. Draft the next
+   question…", which is prose set as a machine value. The `<kbd>` marks inside
+   it stay mono, because a real keyboard hint is one of the things mono is
+   for. */
 .composerHint {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
   color: var(--ink-lo);
+  text-wrap: pretty;
 }
 
 .composerHint kbd {
@@ -440,8 +455,8 @@
   padding: 0 var(--sp-1);
   border: var(--line-w) solid var(--line);
   border-radius: var(--radius-1);
-  font-family: inherit;
-  font-size: inherit;
+  font-family: var(--face-data);
+  font-size: var(--t-data);
   color: var(--ink);
 }
 
@@ -469,10 +484,19 @@
   color: var(--state-warn);
 }
 
+/* The seconds a rate limit has left: a number the server sent, so the data
+   face, tabular so it does not jitter as it counts down. */
+.countdown {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
 .counter[data-tone="over"] {
   color: var(--state-danger);
 }
-
 
 
 .problemLead {
@@ -504,16 +528,6 @@
   margin-block-start: var(--sp-2);
 }
 
-.unavailable {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-3);
-  padding: var(--sp-5);
-  border: var(--line-w) solid var(--state-warn-line);
-  border-radius: var(--radius-3);
-  background: var(--state-warn-wash);
-}
-
 .systemNote {
   padding: var(--sp-3) var(--sp-4);
   border-inline-start: var(--line-w-thick) solid var(--line-strong);
@@ -525,135 +539,6 @@
   text-wrap: pretty;
 }
 
-
-
-/* One field, not a panel with a form inside it.
- *
- * The textarea and the footer were two stacked boxes, each with its own
- * border, inside a third — three nested rectangles to hold one question. The
- * border moves out here to the container, the textarea goes transparent, and
- * the footer becomes the field's own bottom edge. What the reader sees is a
- * single input with its controls resting in it. */
-.deskPrompt {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
-}
-
-/* The field is the registry's own `input-group`, not a box drawn around it.
- *
- * Styling `.deskPrompt` as the field produced two nested rectangles — a 10px
- * one from here and a 6px one from `[data-slot="input-group"]`, which brings
- * its own border, radius and translucent background. The container already
- * holds the textarea and the controls, so it is the field; this rule re-grades
- * it into the system's surfaces and lets the form element go back to being
- * layout. One rectangle. */
-.deskPrompt [data-slot="input-group"] {
-  background: var(--surface-1);
-  border-color: var(--control-line);
-  border-radius: var(--radius-3);
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
-}
-
-.deskPrompt:focus-within [data-slot="input-group"] {
-  border-color: var(--gold-line-strong);
-  background: var(--surface-2);
-}
-
-/* The registry's textarea brings its own border, ring and background; the
-   field around it now owns all three, so they are taken off here rather than
-   drawn twice. */
-.deskPrompt textarea {
-  /* Two lines and a bit — enough that a typed question does not immediately
-     scroll, without opening a hole in the panel before anything is typed. It
-     grows from here. */
-  /* Three lines to start, eight before it scrolls. `field-sizing: content`
-     is what makes it grow with what is typed — no script, no measuring; where
-     unsupported it is simply a fixed three-line box, which is the right
-     fallback. `calc(3 * lh)` rather than a rem: the floor follows the type. */
-  min-block-size: calc(3 * var(--t-small-lh) * var(--t-small) + (2 * var(--sp-2)));
-  max-block-size: calc(8 * var(--t-small-lh) * var(--t-small) + (2 * var(--sp-2)));
-  field-sizing: content;
-  overflow-y: auto;
-  padding: var(--sp-2);
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  color: var(--ink-hi);
-  resize: none;
-}
-
-.deskPrompt textarea:focus,
-.deskPrompt textarea:focus-visible {
-  outline: none;
-  box-shadow: none;
-}
-
-.deskPrompt textarea::placeholder {
-  color: var(--ink-lo);
-}
-
-/* Send is not a focal moment.
- *
- * It shipped as `variant="default"`, which is `--gold` — a saturated amber
- * plate in the corner of every panel state, including the one where nothing
- * has been typed yet. `globals.css` reserves the accent for "selection, active
- * navigation, primary action, verified emphasis, one focal moment per
- * viewport", and a send button that is loud while the field is empty is
- * spending it on nothing.
- *
- * So it waits. Quiet on the surface until the textarea holds something, then
- * it takes the accent, because at that point it IS the primary action.
- * `:placeholder-shown` is what carries that, which keeps it in CSS with no
- * state plumbed through the component. */
-.deskSubmit {
-  /* Softly rectangular, not a circle. A round send button is the consumer-chat
-     signature; the controls on this site are rectangles with a small radius,
-     and the composer should look like it belongs to the same desk as the filter
-     chips and the form fields. */
-  border-radius: var(--radius-1);
-  background: var(--surface-3);
-  border: var(--line-w) solid var(--control-line);
-  color: var(--ink);
-  transition:
-    background-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out);
-}
-
-.deskPrompt:has(textarea:not(:placeholder-shown)) .deskSubmit {
-  background: var(--gold);
-  border-color: var(--gold);
-  color: var(--ground);
-}
-
-.deskPrompt:has(textarea:not(:placeholder-shown)) .deskSubmit:hover:not(:disabled),
-.deskPrompt:has(textarea:not(:placeholder-shown)) .deskSubmit:focus-visible:not(:disabled) {
-  background: var(--gold-hi);
-  border-color: var(--gold-hi);
-}
-
-.deskSubmit:disabled {
-  background: transparent;
-  color: var(--ink-lo);
-}
-
-.boundary {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
-  max-inline-size: var(--measure-reading);
-}
-
-.boundaryBody {
-  max-inline-size: none;
-  margin: 0;
-}
 
 .deskFoot {
   display: flex;
@@ -668,53 +553,11 @@
 }
 
 
-
-.launcher {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
-  min-block-size: var(--control-h-sm);
-  padding: 0 var(--sp-3);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-2);
-  color: var(--ink-lo);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  text-decoration: none;
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
-}
-
-.launcher:hover,
-.launcher:focus-visible {
-  color: var(--ink-hi);
-  border-color: var(--line-strong);
-  background: var(--tint-hover);
-}
-
-.launcherGlyph {
-  display: inline-flex;
-}
-
-.launcher[data-variant="icon"] .launcherLabel {
-  position: absolute;
-  inline-size: 1px;
-  block-size: 1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-.launcher[data-variant="icon"] {
-  min-inline-size: var(--control-h-sm);
-  justify-content: center;
-  padding: 0;
-}
-
-
+/* The search launcher's rules stood here — `.launcher`, `.launcherGlyph`, and
+   the icon variant — as a second copy of what `search.module.css` defines and
+   `SearchLauncher` actually imports. Two stylesheets describing one control is
+   how the two halves of this instrument drift apart; there is now one, in the
+   file the component reads. */
 
 .noScript {
   display: flex;
@@ -729,7 +572,6 @@
     display: none;
   }
 }
-
 
 
 @media (max-width: 45rem) {
@@ -963,13 +805,7 @@
   max-inline-size: none;
   gap: var(--sp-6);
   padding: 0;
-  /* Fill the frame. `ConversationContent` sizes to its content inside the
-     scroll viewport, so on a tall panel the empty state sat 16px under the
-     header with 412px of nothing under it — `justify-content: center` had no
-     height to centre in. `min-block-size: 100%` gives the empty state the
-     frame to sit in; once a conversation outgrows it the transcript is taller
-     than 100% anyway and scrolls as before. */
-  min-block-size: 100%;
+
 }
 
 /* On a phone a 34rem drawer with a strip of backdrop beside it is a worse
@@ -991,112 +827,22 @@
   .dockTrigger { transition: none; }
 }
 
-/* The bubble rules that stood here for one commit are gone.
+/* The frame that holds the transcript, the wait and the failure.
  *
- * They aligned the question right, capped it, rounded it, and squared the one
- * corner it points from — and every line of that is what AI Elements'
- * `MessageContent` already does under `from="user"`, using the semantic colour
- * tokens `tailwind.css` maps onto this palette. Writing it twice meant two
- * places to keep a bubble's shape in step.
+ * In the drawer it is the scroller: `Dialog`'s body is a fixed frame, this
+ * grows into it, and `min-block-size: 0` is the flex-child rule that lets it
+ * shrink below its content so the overflow stays here instead of moving up to
+ * the body — which is what put the composer off the bottom of the panel.
  *
- * `.turn` went with them: `Message` is the row that knows which side it is. */
-
-/* The frame the scroller fills. It has to be a bounded box with its own scroll,
-   or `MessageScrollerViewport` has nothing to scroll inside and the whole
-   panel scrolls instead — which is the behaviour the scroller exists to
-   replace. `min-height: 0` is the flex-child rule that makes that real. */
+ * On `/ask` it is nothing at all: the page scrolls, as a document does. */
 .transcriptFrame {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
   flex: 1 1 auto;
   min-block-size: 0;
 }
 
-/* The transcript's empty state, which is where the primer and the evidence
- * boundary live until a question is asked.
- *
- * `ConversationEmptyState` centres its children and centres their text, which
- * is right for the two-line "no messages yet" it was built for and wrong for a
- * paragraph explaining what an unsourced answer means. Start-aligned, and
- * capped at the reading measure so the boundary note is a column and not a
- * banner. `justify-content` is `start` so the block sits under the panel's
- * header rather than floating in the middle of an empty desk. */
-.deskEmpty {
-  align-items: stretch;
-  justify-content: center;
-  gap: var(--sp-4);
-  padding: var(--sp-5) 0;
-  text-align: start;
-}
-
-.deskEmpty > * {
-  max-inline-size: var(--measure-reading);
-}
-
-/* The disclosure line above the input. Caption-sized and in the muted ink,
-   because it is a footnote to the answers and not an introduction to the
-   panel — the six-line bordered card it replaced was the latter. */
-.boundary {
-  margin: 0 0 var(--sp-2);
-  color: var(--ink-lo);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-  text-wrap: pretty;
-}
-
-/* Chat-sized, not heading-sized. The pills inherited `--t-body` and a control
-   height built for a form's primary action; in a rail of three they read as
-   three buttons demanding to be pressed rather than as examples. */
-/* The other half of the override above. Each declaration here answers a
-   specific Tailwind class on the shadcn button that would otherwise decide
-   this control: `block-size` answers `h-8` from `size="sm"` (a fixed height
-   cannot hold a wrapped sentence), `white-space` answers `whitespace-nowrap`,
-   `justify-content` answers `justify-center`, and `border-radius` answers
-   `rounded-full` — a full round is right on a one-line chip and wrong on a
-   two-line row, which is what these become once they are allowed to wrap.
-   These are prompts a reader chooses between, so they are set as full-width
-   rows reading from the start edge rather than centred chips. */
-.primerExamples button {
-  inline-size: 100%;
-  block-size: auto;
-  min-block-size: var(--control-h-sm);
-  justify-content: flex-start;
-  padding-block: var(--sp-3);
-  padding-inline: var(--sp-4);
-  border-radius: var(--radius-2);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  text-align: start;
-  white-space: normal;
-  text-wrap: pretty;
-
-  /* The registry's `outline` variant draws a full-strength border, an opaque
-     background and a shadow on each one. Three of those stacked read as three
-     buttons waiting to be pressed; these are examples of what can be asked, so
-     they sit back until pointed at. The shadow goes because this system has
-     none — `--shadow-1` through `--shadow-3` are all `none`. */
-  background: var(--surface-1);
-  box-shadow: none;
-  color: var(--ink);
-}
-
-/* VA-60. These chips are shadcn `Button variant="outline"`, whose Tailwind
-   `dark:border-input` is specificity 0,2,0 and beat `.primerExamples button` at
-   0,1,1 — so the resting border fell back to a 1.36:1 hairline while the hover
-   rule below, which is 0,2,1, correctly used `--control-line`. The control was
-   legible once you found it and not before, which is the opposite of the point.
-   `[class]` is the specificity bump, not a selector for anything: it exists to
-   win against a utility class, and removing it silently reintroduces
-   A11Y-004 on this surface. */
-.primerExamples button[class] {
-  border-color: var(--control-line);
-}
-
-.primerExamples button:hover:not(:disabled),
-.primerExamples button:focus-visible {
-  background: var(--surface-2);
-  border-color: var(--control-line);
-  color: var(--ink-hi);
-}
 
 /* The title is the only uppercase left in the drawer.
  *
@@ -1123,26 +869,6 @@
   gap: var(--sp-4);
 }
 
-.dockPanel .deskEmpty {
-  /* `flex: 1`, because `h-full` cannot do this job: a percentage height
-     resolves against the parent's `height`, and `.transcript` sets only a
-     `min-block-size`, so `height: 100%` computed to `auto` and the block sat
-     under the header with the rest of the frame empty beneath it. Growing as
-     a flex item fills the column the transcript now guarantees, and
-     `justify-content: center` finally has a height to centre in. */
-  flex: 1 1 auto;
-  justify-content: center;
-  gap: var(--sp-3);
-  padding: 0;
-}
-
-.dockPanel .primer {
-  gap: var(--sp-2);
-}
-
-.dockPanel .primerExamples {
-  margin-block-start: var(--sp-2);
-}
 
 /* One line of orientation above the shortcuts. The header already says what
    the panel is; this says what to do in it, and it is the only prose in the
@@ -1158,178 +884,6 @@
   text-wrap: balance;
 }
 
-.primerLabel {
-  composes: kickerLabel from global;
-  margin: 0 0 var(--sp-3);
-  color: var(--ink-lo);
-}
-
-/* Shortcuts, not form fields.
- *
- * They were the height of a primary control with a full border and an opaque
- * plate, which is why they read as three inputs waiting to be filled. Now they
- * are rows: a hairline, the site's ground, and the accent arriving only on the
- * pointer. The start-edge mark is what says "this is a thing you take" without
- * spending an icon on it. */
-.primerExamples button {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-4);
-  min-block-size: var(--control-h);
-  padding-block: var(--sp-3);
-  padding-inline: var(--sp-5) var(--sp-4);
-  border-radius: var(--radius-2);
-  background-color: var(--surface-1);
-  background-image: var(--surface-grade);
-  border-color: var(--line);
-  box-shadow: var(--shadow-1);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  color: var(--ink);
-  transition:
-    background-color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out);
-}
-
-.primerExampleText {
-  flex: 1 1 auto;
-  min-inline-size: 0;
-  white-space: normal;
-  text-wrap: pretty;
-}
-
-.primerExampleArrow {
-  flex: 0 0 auto;
-  font-family: var(--face-data);
-  font-size: var(--t-caption);
-  color: var(--ink-lo);
-  transition: color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
-}
-
-.primerExamples button:hover:not(:disabled) .primerExampleArrow,
-.primerExamples button:focus-visible .primerExampleArrow {
-  color: var(--gold);
-  transform: translateX(2px);
-}
-
-.primerExamples button::before {
-  content: "";
-  position: absolute;
-  inset-block: var(--line-w);
-  inset-inline-start: 0;
-  inline-size: var(--line-w-thick);
-  background: transparent;
-  transition: background-color var(--dur-fast) var(--ease-out);
-}
-
-.primerExamples button:hover:not(:disabled),
-.primerExamples button:focus-visible {
-  background-color: var(--surface-2);
-  border-color: var(--control-line);
-  color: var(--ink-hi);
-  box-shadow: var(--shadow-2);
-}
-
-.primerExamples button:hover:not(:disabled)::before,
-.primerExamples button:focus-visible::before {
-  background: var(--gold);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .primerExamples button::before { transition: none; }
-}
-
-/* The question, understated.
- *
- * `MessageContent` gives `from="user"` a `rounded-lg` plate on `bg-secondary`
- * — a consumer chat bubble, and the one shape this panel should not borrow.
- * The reader's own question does need to be identifiable as theirs, so the
- * right alignment `Message` handles stays; what goes is the bubble reading of
- * it. A darker plate than the ground it sits on, a hairline, and the system's
- * smallest radius: a noted question rather than a spoken one.
- *
- * A note against the comment above, which removed local rules on the grounds
- * that duplicating them meant two places to keep a bubble in step: that held
- * while the registry's shape was the wanted one. It is not, and
- * `components/ai-elements/**` has exactly one consumer — this desk — so the
- * shape is only ever decided here.
- *
- * `:global` because `is-user` is a literal class in the registry's `cn()`
- * string, not a CSS Module export; without it the module hashes the name and
- * matches nothing. */
-.transcript :global(.is-user) > div {
-  padding: var(--sp-3) var(--sp-4);
-  background: var(--surface-1);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-1);
-  color: var(--ink-hi);
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-}
-
-/* The send control sits in the field, not on a shelf under it.
- *
- * `PromptInputFooter` is an `InputGroupAddon align="block-end"`, so it is a
- * full-width row below the textarea: measured, the field was 98px tall around a
- * 46px input — 52px of it a strip holding one 32px button. That is what makes
- * the button read as detached from the thing it submits.
- *
- * Lifting the row into the field's trailing corner and paying for it with
- * trailing padding on the textarea gives back the 52px and puts the control
- * where the sentence ends. The row keeps its contents, so the "New
- * conversation" action that joins it once there is history lands beside the
- * submit rather than under it. */
-.deskPrompt [data-slot="input-group"] {
-  position: relative;
-}
-
-.deskPrompt [data-align="block-end"] {
-  position: absolute;
-  inset-block-end: var(--sp-2);
-  inset-inline-end: var(--sp-2);
-  inline-size: auto;
-  justify-content: flex-end;
-  gap: var(--sp-2);
-  padding: 0;
-  border: 0;
-}
-
-.deskPrompt textarea {
-  padding-block-end: var(--sp-2);
-  padding-inline-end: calc(var(--control-h-sm) + var(--sp-4));
-}
-
-/* Shortcuts as a list, not three cards. The border on every side made each one
-   a plate; a single rule between them makes them a set, which is what they are
-   — and it takes a third of the vertical space back. */
-.dockPanel .primerExamples {
-  gap: 0;
-}
-
-.dockPanel .primerExamples button {
-  min-block-size: 0;
-  padding-block: var(--sp-3);
-  padding-inline: var(--sp-3);
-  border: 0;
-  border-block-end: var(--line-w) solid var(--line-soft);
-  border-radius: 0;
-  background: transparent;
-}
-
-.dockPanel .primerExamples button:last-child {
-  border-block-end: 0;
-}
-
-.dockPanel .primerExamples button:hover:not(:disabled),
-.dockPanel .primerExamples button:focus-visible {
-  background: var(--surface-1);
-  border-color: var(--line-soft);
-}
 
 /* Scroll ownership: the transcript scrolls, the panel does not.
  *
@@ -1354,25 +908,6 @@
   inline-size: 100%;
 }
 
-/* "New conversation" shares the field's corner with submit now that the footer
-   sits inside it, and the registry's `font-medium` made it read as a second
-   primary action inside the input. It is a reset, which is the least urgent
-   thing on the panel: caption-sized, muted, and only underlined on approach. */
-.deskPrompt [data-align="block-end"] button:not([class*="deskSubmit"]) {
-  min-block-size: 0;
-  padding-inline: var(--sp-2);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: 400;
-  color: var(--ink-lo);
-}
-
-.deskPrompt [data-align="block-end"] button:not([class*="deskSubmit"]):hover,
-.deskPrompt [data-align="block-end"] button:not([class*="deskSubmit"]):focus-visible {
-  color: var(--ink-hi);
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}
 
 /* ---- Phone: a composed sheet, not a squeezed drawer ----
  *

@@ -27,9 +27,17 @@
 }
 
 /* The status box holds its line's height whether or not there is a line, so
-   the row beneath it does not jump when an outcome arrives. */
+   the row beneath it does not jump when an outcome arrives.
+
+   It reserved `var(--t-small-lh)` — 1.5, a unitless *ratio* — and a unitless
+   number is not a length, so the declaration was dropped and nothing was
+   reserved at all: the row jumped on every copy. `1lh` is the line box of
+   this element's own type, which is why the two type declarations are here
+   rather than only on `.statusLine` (2026-09-16). */
 .status {
-  min-height: var(--t-small-lh);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  min-height: 1lh;
 }
 
 .statusLine {

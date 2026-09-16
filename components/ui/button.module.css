@@ -135,10 +135,17 @@
   box-shadow: inset 0 1px 2px rgba(2, 6, 18, 0.3);
 }
 
+/* The outline tier, and its boundary owes WCAG 1.4.11 (2026-09-16). It was
+   `--line-strong`, a 24% ivory over the ground — measured at **2.01:1** by
+   `npm run audit:ui` on the archive's "Copy caption" control, against a floor
+   of 3. A decorative hairline may be that quiet; the only thing telling a
+   reader where a button begins may not. `--control-line` is the token the
+   palette reserves for exactly this and clears the floor on every surface it
+   can sit on (5.45 on the ground, 3.63 on the lightest plate). */
 .secondary {
   --btn-bg: transparent;
   --btn-fg: var(--ink-hi);
-  --btn-line: var(--line-strong);
+  --btn-line: var(--control-line);
 }
 
 .secondary:hover:not(:disabled) {
@@ -203,10 +210,15 @@
   --btn-fg: var(--gold-hi);
 }
 
+/* The same floor, and the same failure: `--state-danger-line` is a 40% rose,
+   2.21:1 on the ground and 1.98 on the lightest plate. The full-strength
+   `--state-danger` is the hue at 7.9:1 and is already this button's own text
+   colour, so the boundary and the label now agree — which is also how the
+   control reads as one object rather than a label inside a tint. */
 .danger {
   --btn-bg: var(--state-danger-wash);
   --btn-fg: var(--state-danger);
-  --btn-line: var(--state-danger-line);
+  --btn-line: var(--state-danger);
 }
 
 .danger:hover:not(:disabled) {

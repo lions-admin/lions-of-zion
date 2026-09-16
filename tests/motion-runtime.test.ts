@@ -64,9 +64,12 @@ describe("MOTION-002 — the animation-loop inventory", () => {
    * is not a failure, it is the prompt to give the loop the four properties
    * and add it to the report — which is the whole point of the list.
    */
-  const KNOWN_FRAME_LOOPS = [
-    "components/pipeline-visualizer/hooks/usePipelineSimulation.ts",
-  ];
+  /* Empty since 2026-09-16: `components/pipeline-visualizer/**` held the
+     site's only frame loop and was deleted with workstream G — 304 kB of
+     source behind a `/pipeline` route that has not existed for some time and
+     that nothing imported. The list stays because it is the thing a new loop
+     has to be added to. */
+  const KNOWN_FRAME_LOOPS: string[] = [];
 
   /**
    * One-shot `requestAnimationFrame`s that defer a read or a subscription
@@ -143,12 +146,9 @@ describe("MOTION-002 — the animation-loop inventory", () => {
      `dcf4355` and unreachable from any route since), so they were removed
      with it rather than left asserting on a deleted file. */
 
-  /** The simulation is the only ambient loop on `/pipeline`; it defers to §21. */
-  it("the pipeline simulation does not auto-play under reduced motion", () => {
-    const hook = read("components/pipeline-visualizer/hooks/usePipelineSimulation.ts");
-    expect(hook).toMatch(/prefers-reduced-motion: reduce/);
-    expect(hook).toMatch(/playIntent \?\? !prefersReducedMotion/);
-  });
+  /* An assertion stood here that the pipeline simulation did not auto-play
+     under reduced motion. It was the only ambient loop on `/pipeline`, and
+     both the loop and the route are gone (2026-09-16). */
 });
 
 describe("PERF-007 — observers and listeners are scoped and released", () => {
@@ -267,14 +267,14 @@ describe("A11Y-010 / §21 — every continuous animation has a reduced-motion re
       "components/ui/button.module.css",
       "components/ui/status-state.module.css",
       "components/search/search.module.css",
-      "components/pipeline-visualizer/visualizer.module.css",
       "components/network/influence-graph.module.css",
       /* The same category as its two siblings above: a bounded fictional
          walkthrough, not an ambient background. `data-running` (and so these
-         loops) is only ever true while `HomeEvidencePipeline`'s autoplay is
-         genuinely mid-step — gated on visibility, `prefers-reduced-motion`
-         and reaching the last stage — so it reads as real activity rather
-         than decoration. Registered 2026-09-06. */
+         loops) is only ever true while `HomeEvidencePipeline` is genuinely
+         mid-step, which now requires the reader to have pressed Play —
+         autoplay-on-arrival and its viewport gate went on 2026-09-16, so the
+         loops read as an answer to a click rather than as decoration.
+         Registered 2026-09-06. */
       "components/home/narrative-simulation.module.css",
     ]);
     for (const file of styleFiles()) {

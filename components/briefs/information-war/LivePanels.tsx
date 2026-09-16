@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { listBriefingPublications } from "@/lib/publications";
 import { SECTION_LABELS } from "@/components/live/publication-labels";
+import { RecordUnavailable } from "./RecordUnavailable";
 import styles from "../information-war-system.module.css";
+import { Icon } from "@/components/ui/Icon";
 
 function formatStamp(value: string): string {
   const date = new Date(value);
@@ -17,14 +19,14 @@ export async function RecentActivity() {
   try {
     rows = await listBriefingPublications("?limit=4");
   } catch {
-    return <div className={styles.emptyRecord}><h4>The record could not be loaded.</h4><p>We cannot show the latest publications right now. No example entries have been substituted.</p><Link href="/information-war#activity">Try again ↗︎</Link></div>;
+    return <RecordUnavailable />;
   }
   if (rows.length === 0) {
     return <div className={styles.emptyRecord}><h4>No publications returned.</h4><p>There are no entries to display for this read. Explore the public sections above.</p></div>;
   }
   return <ol className={styles.activityList}>{rows.map((row) => <li key={row.publicId}>
-    <time dateTime={row.publishedAt}>{formatStamp(row.publishedAt)}</time>
-    <div><span>{SECTION_LABELS[row.section]}</span><Link href={`/articles/${row.publicId}`}>{row.title}</Link></div>
-    <span aria-hidden="true">↗︎</span>
+    <time className={styles.activityTime} dateTime={row.publishedAt}>{formatStamp(row.publishedAt)}</time>
+    <div><span className={styles.activitySection}>{SECTION_LABELS[row.section]}</span><Link href={`/articles/${row.publicId}`}>{row.title}</Link></div>
+    <Icon name="arrow-right" inline className="arrow" />
   </li>)}</ol>;
 }

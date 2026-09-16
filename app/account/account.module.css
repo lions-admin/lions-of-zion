@@ -6,8 +6,9 @@
    rule, and space, and a sign-in page is the last place to spend a blur.
 
    Everything above and below the panel (skip link, masthead, footer) is
-   `EditorialShell`'s. The two classes it asks this file for are the page's
-   own and the skip link's. */
+   `EditorialShell`'s — the skip link moved into `SiteHeader` on 2026-09-15,
+   and this file has not carried a rule for it since. The one class the shell
+   asks for is the page's own. */
 
 .page {
   /* `--content-w` and `--register` were declared here until 2026-09-14. Both
@@ -25,8 +26,6 @@
   font-family: var(--face-text);
 }
 
-/* Same shape as `components/sections/sections.module.css`: fixed at the
-   top-left corner, above the header, and off-screen until it is focused. */
 .panel {
   position: relative;
   z-index: var(--z-raised);

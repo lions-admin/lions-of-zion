@@ -111,9 +111,10 @@ export function Dialog({
    * ground rather than the shared `--surface-1` — has no way to reach it: the
    * inner classes are CSS Module hashes, private to this file. The choice was
    * a `panelClassName`/`headerClassName`/`bodyClassName` prop each, or one
-   * stable attribute per part. These are the same `data-slot` marks the
-   * registry primitives in `components/shadcn/` already use, so it is the
-   * idiom already in the codebase rather than a second one.
+   * stable attribute per part. The idiom came from the vendored registry the
+   * Ask desk used to be built on, which marked its own parts the same way;
+   * that registry was deleted on 2026-09-16 and the idiom stayed, because it
+   * is the right shape — `SignalMark` and the cover's drawn rule use it too.
    *
    * They are a styling surface, not an API: nothing reads them in JS. */
   return (

@@ -48,8 +48,14 @@ const SHELLS = [
   "components/sections/SectionPage.tsx",
   "components/sections/DocPage.tsx",
   "components/briefs/LiveBriefHub.tsx",
-  "components/briefs/InformationWarSystem.tsx",
 ];
+
+/* Pages that used to be shells. `InformationWarSystem` built its own — a
+   1320px private layout on `EditorialShell` — until 2026-09-16, when it moved
+   onto `DocPage` like `/methodology` and `/corrections`. It reaches the chrome
+   through that shell now, so it is checked for the backdrop's absence but not
+   for a shell's mount. */
+const PAGES_ON_A_SHELL = ["components/briefs/InformationWarSystem.tsx"];
 
 describe("the ambient scan layer is gone from the source", () => {
   it("has no component and no profile map left to import", () => {
@@ -58,7 +64,7 @@ describe("the ambient scan layer is gone from the source", () => {
   });
 
   it("is mounted by no shell and no page", () => {
-    for (const file of SHELLS) {
+    for (const file of [...SHELLS, ...PAGES_ON_A_SHELL]) {
       const source = read(file);
       expect(source, file).not.toMatch(/ScanBackdrop|scanProfileForRoute/);
     }
@@ -69,6 +75,11 @@ describe("the ambient scan layer is gone from the source", () => {
   it("every reading shell still reaches EditorialShell for its chrome", () => {
     for (const file of SHELLS.filter((f) => !f.endsWith("EditorialShell.tsx"))) {
       expect(read(file), file).toContain("<EditorialShell");
+    }
+    /* And a page that gave up its own shell reaches one of those instead,
+       rather than growing a third layout of its own. */
+    for (const file of PAGES_ON_A_SHELL) {
+      expect(read(file), file).toMatch(/<(DocPage|SectionPage|LiveBriefHub)\b/);
     }
   });
 });

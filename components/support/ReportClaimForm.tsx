@@ -67,6 +67,18 @@ export function ReportClaimForm() {
 
   const hasContent = Boolean(url.trim() || body.trim());
   const submitting = state.status === 'submitting';
+
+  /* "Send another": the receipt's own way back to an empty form. Without it
+     the panel is where the page ends, and a reader with a second thing to
+     report has to reload the route to say it. */
+  const reset = () => {
+    setUrl('');
+    setBody('');
+    setReporterEmail('');
+    setReporterNote('');
+    setTouched(false);
+    setState({ status: 'idle' });
+  };
   /* The guard covers two fields at once, so it is described by both of them
      rather than left to sit between them as a loose alert. */
   const guardTripped = touched && !hasContent;
@@ -105,14 +117,42 @@ export function ReportClaimForm() {
     }
   };
 
+  /* One receipt shape across both support forms (2026-09-16): what was
+     recorded, what happens next, how long that takes, where to write if it
+     matters — and two ways on, so the page does not end on a dead panel. The
+     two receipts said different amounts of this in different orders, and the
+     report's gave a reference number with no way to use it. */
   if (state.status === 'sent') {
     return (
       <div className={styles.receipt} {...politeLive}>
-        <p>Report received — reference {state.publicId}.</p>
-        <small>
-          Submitted anonymously unless you gave an email. It will be reviewed by the desk; nothing
-          you sent is published without that review.
-        </small>
+        <p>Report received.</p>
+        <dl className={styles.receiptFacts}>
+          <div>
+            <dt className={styles.receiptTerm}>Reference</dt>
+            <dd className={styles.receiptValue}>{state.publicId}</dd>
+          </div>
+          <div>
+            <dt className={styles.receiptTerm}>What happens next</dt>
+            <dd>The desk reads it and checks the material. Nothing you sent is published without that review.</dd>
+          </div>
+          <div>
+            <dt className={styles.receiptTerm}>Expected</dt>
+            <dd>Within about three working days. You will only hear back if you gave an email.</dd>
+          </div>
+          <div>
+            <dt className={styles.receiptTerm}>Where to write</dt>
+            <dd><a href={`mailto:${REPORTS_INBOX}`}>{REPORTS_INBOX}</a> — quote the reference.</dd>
+          </div>
+        </dl>
+        <div className={styles.receiptActions}>
+          <Button type="button" variant="secondary" size="md" onClick={reset}>
+            Send another report
+          </Button>
+          {/* A way sideways, not a dead panel. The switch's own "Choose
+              another way" sits in the header above this; this one names where
+              it goes, and the hash is what opens that flow. */}
+          <a className={styles.receiptLink} href="#volunteer">Lend a skill instead</a>
+        </div>
       </div>
     );
   }
@@ -133,7 +173,7 @@ export function ReportClaimForm() {
       className={styles.form}
       onSubmit={submit}
       aria-busy={submitting || undefined}
-      aria-describedby={["report-noscript", state.status === 'error' ? "report-failure" : null].filter(Boolean).join(" ")}
+      aria-describedby="report-noscript report-failure"
     >
       {/*
         With scripting off this form has no submit path at all: there is no
@@ -205,20 +245,24 @@ export function ReportClaimForm() {
         disabled={submitting}
       />
 
-      {state.status === 'error' ? (
-        <p id="report-failure" className={styles.fieldError} {...assertiveLive}>
-          {state.message}{' '}
-          {/* STATE-003: the fields below still hold everything that was typed —
-              nothing here clears them — and saying so is the difference
-              between a reader pressing the button again and a reader assuming
-              the report is gone and leaving. */}
-          Nothing you typed was cleared; the button sends it again as it stands.
-          {' '}
-          {/* A failed send with no alternative leaves a reader who found a real
-              error with nowhere to put it. */}
-          You can also email <a href={`mailto:${REPORTS_INBOX}`}>{REPORTS_INBOX}</a>.
-        </p>
-      ) : null}
+      {/* One form-level alert, mounted whether or not it has anything to say.
+          A live region that appears at the same moment as its text is a region
+          the screen reader was not watching when the text arrived, so half the
+          time the failure is silent; this one is in the DOM from first render
+          and only its contents change. STATE-003: the fields below still hold
+          everything that was typed — nothing here clears them — and saying so
+          is the difference between a reader pressing the button again and a
+          reader assuming the report is gone and leaving. A failed send with no
+          alternative leaves someone who found a real error with nowhere to put
+          it, so the inbox is in the same sentence. */}
+      <p id="report-failure" className={styles.fieldError} hidden={state.status !== 'error'} {...assertiveLive}>
+        {state.status === 'error' ? (
+          <>
+            {state.message} Nothing you typed was cleared; the button sends it again as it stands.
+            {' '}You can also email <a href={`mailto:${REPORTS_INBOX}`}>{REPORTS_INBOX}</a>.
+          </>
+        ) : null}
+      </p>
 
       <Button
         type="submit"

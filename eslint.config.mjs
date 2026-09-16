@@ -82,31 +82,30 @@ const eslintConfig = defineConfig([
 
   {
     /*
-     * The two primitive systems, and the cascade seam between them.
+     * One primitive system, since 2026-09-16.
      *
      * `components/ui/**` is the product's own chrome: CSS Modules over the
-     * SYS-001 tokens, 141 button call sites, and the accessibility contracts
+     * SYS-001 tokens, the button call sites, and the accessibility contracts
      * that go with them — `iconOnly` demanding an `aria-label` in the type,
      * `isActive` resolving to `aria-pressed`, `ButtonLink` to `aria-current`.
      *
-     * `components/shadcn/**` is the registry: Tailwind utilities, `cva`
-     * variants, `asChild`. It exists because the Ask panel is assembled from
-     * upstream registry components that style their interiors by passing
-     * Tailwind classes down through `cn()`.
+     * There used to be a second: `components/shadcn/**`, a vendored registry
+     * of Tailwind-styled components that the Ask desk was assembled from, with
+     * `components/ai-elements/**` on top of it. The seam between the two was a
+     * cascade fact rather than a preference — CSS Modules are emitted
+     * unlayered, so they outrank `@layer utilities` unconditionally at any
+     * specificity, and a registry component that sized the module Button with
+     * `rounded-full px-4` lost silently, with no type error and no runtime
+     * error. The rule below kept the registry reachable only from the surface
+     * built on it.
      *
-     * They are not interchangeable, and the reason is a cascade fact rather
-     * than a preference. CSS Modules are emitted unlayered, so they outrank
-     * `@layer utilities` unconditionally, at any specificity — measured in the
-     * page: an element carrying an unlayered class and `text-2xl` computes to
-     * the unlayered value. Put the module Button where a registry component
-     * expects to size it with `rounded-full px-4` or
-     * `inputGroupButtonVariants({ size })` and those classes lose silently —
-     * no type error, no runtime error, just the wrong control. `lib/utils.ts`
-     * states the same rule from the `cn()` side and ends "Never merge the two".
-     *
-     * So the registry stays reachable only from the surface built on it. The
-     * boundary is a path rather than a list of filenames so that the next
-     * `npx shadcn add` lands inside it already covered.
+     * The desk was rebuilt on `components/ui` and both directories were
+     * deleted with Tailwind, `cn()` and six dependencies (owner decision 3).
+     * The ignore and the import restriction are kept, pointing at paths that
+     * no longer exist: they cost nothing, and they are what makes the next
+     * `npx shadcn add` fail loudly at the boundary instead of quietly
+     * reintroducing the seam. Delete them only with a decision to allow a
+     * second styling system back.
      */
     files: ["app/**/*.{ts,tsx}", "components/**/*.{ts,tsx}", "lib/**/*.{ts,tsx}"],
     ignores: ["components/shadcn/**", "components/ai-elements/**"],
@@ -136,7 +135,7 @@ const eslintConfig = defineConfig([
             {
               group: ["@/components/shadcn", "@/components/shadcn/*"],
               message:
-                "components/shadcn/** is Tailwind-styled and is reachable only from components/shadcn/** and components/ai-elements/**. Everywhere else, import the product primitive from @/components/ui — a CSS Module cannot be restyled by the Tailwind classes a registry component passes down, and the failure is silent. See the note above this rule in eslint.config.mjs.",
+                "components/shadcn/** was deleted on 2026-09-16 and must not come back uninvited: import the product primitive from @/components/ui. A CSS Module cannot be restyled by the Tailwind classes a registry component passes down, and the failure is silent. See the note above this rule in eslint.config.mjs.",
             },
           ],
         },

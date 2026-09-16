@@ -53,6 +53,7 @@ import { politeLive } from "@/components/ui/live-region";
 import { SearchFilters } from "./SearchFilters";
 import { SearchPager } from "./SearchPager";
 import { SearchResults } from "./SearchResults";
+import { KeyLegend, SuggestionChips } from "./instrument";
 import { resultStatus } from "./vocabulary";
 import { useSearch, type SearchScope } from "./useSearch";
 import { ApiProblem } from "./http";
@@ -113,6 +114,16 @@ export function SearchPanel({
   onScopeChange,
 }: SearchPanelProps) {
   const router = useRouter();
+  /* The combobox model belongs to the overlay only.
+     It is the right pattern over a page: focus stays in the box, the arrows
+     move a virtual selection, and nothing under the overlay takes a tab stop.
+     On `/search` it is the wrong one — the results *are* the page, a reader
+     arriving by Tab expects to walk into them, and `tabIndex={-1}` on every
+     row meant the keyboard could reach the pager and the filters but not a
+     single result. The page renders plain links; the overlay renders options.
+     `aria-activedescendant` cannot address a link, so the two cannot be the
+     same markup with one attribute changed. */
+  const combobox = variant === "overlay";
   const [composing, setComposing] = useState(false);
   const {
     query,
@@ -172,9 +183,9 @@ export function SearchPanel({
   }, [autoFocus]);
 
   useEffect(() => {
-    if (activeIndex < 0) return;
+    if (!combobox || activeIndex < 0) return;
     document.getElementById(optionId(activeIndex))?.scrollIntoView({ block: "nearest" });
-  }, [activeIndex, optionId]);
+  }, [combobox, activeIndex, optionId]);
 
   const move = (delta: number) => {
     if (!hits.length) return;
@@ -184,6 +195,7 @@ export function SearchPanel({
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.nativeEvent.isComposing || composing) return;
+    if (!combobox && event.key !== "Escape") return;
     switch (event.key) {
       case "ArrowDown":
         event.preventDefault();
@@ -234,14 +246,23 @@ export function SearchPanel({
     [setQuery, onQueryChange],
   );
 
+  /* A suggestion fills the box and nothing else. It used to be recorded as a
+     recent search on the click, so the list filled up with the five primers
+     the panel had just offered — a history of the panel's own suggestions.
+     A query is remembered when it takes the reader somewhere: `onNavigate`
+     and the Enter binding, both below. */
   const fillQuery = useCallback(
     (next: string) => {
       handleChange(next);
-      remember(next);
       inputRef.current?.focus();
     },
-    [handleChange, remember],
+    [handleChange],
   );
+
+  const clearRecents = useCallback(() => {
+    forgetQueries();
+    inputRef.current?.focus();
+  }, []);
 
   /* Focus returns to the input on both of these.
 
@@ -270,6 +291,11 @@ export function SearchPanel({
 
   const trimmed = query.trim();
   const tooShort = trimmed.length === 1;
+  /* Heading order. On `/search` a status card stands directly under the page
+     title, so it is the page's h2; inside the overlay the dialog's own title
+     is the h2 and the card is one level in. The primitive cannot know its own
+     depth — the surface says. */
+  const statusHeading = variant === "page" ? (2 as const) : (3 as const);
   const showingStale = state === "loading" && hits.length > 0;
   /* "There is an answer on screen", which includes the previous one held while
      the next loads. The filter row and the pager are chrome belonging to the
@@ -279,9 +305,11 @@ export function SearchPanel({
     state === "results" || state === "fallback" || state === "no-results" || showingStale;
   const body = useMemo(() => {
     if (state === "error" && problem) {
-      return <PanelProblem problem={problem} onRetry={retry} />;
+      return <PanelProblem problem={problem} onRetry={retry} headingLevel={statusHeading} />;
     }
-    if (!trimmed) return <PanelPrimer recents={recents} onPick={fillQuery} />;
+    if (!trimmed) {
+      return <PanelPrimer recents={recents} onPick={fillQuery} onClearRecents={clearRecents} />;
+    }
     if (tooShort) {
       return <p className={styles.notice}>Type at least two characters to search.</p>;
     }
@@ -289,10 +317,23 @@ export function SearchPanel({
       return <p className={styles.notice}>Searching…</p>;
     }
     if (state === "no-results") {
-      return <PanelEmpty query={answered} semantic={semantic} />;
+      return <PanelEmpty query={answered} semantic={semantic} headingLevel={statusHeading} />;
     }
     return null;
-  }, [state, problem, retry, trimmed, tooShort, hits.length, answered, semantic, recents, fillQuery]);
+  }, [
+    state,
+    problem,
+    retry,
+    trimmed,
+    tooShort,
+    hits.length,
+    answered,
+    semantic,
+    recents,
+    fillQuery,
+    clearRecents,
+    statusHeading,
+  ]);
 
   /* The count and the matcher, rendered above the list — see `resultStatus`
      in `vocabulary.ts` for why they are not in the footer any more. The range
@@ -319,6 +360,20 @@ export function SearchPanel({
         ? `No results${answered ? ` for ${answered}` : ""}.`
         : "";
 
+  const legend: Array<readonly [readonly string[], string]> = [
+    ...(combobox
+      ? ([
+          [["\u2191", "\u2193"], "move"],
+          [["\u21b5"], "open"],
+        ] as const)
+      : []),
+    ...(query
+      ? ([[["esc"], "clear"]] as const)
+      : combobox
+        ? ([[["esc"], "close"]] as const)
+        : []),
+  ];
+
   return (
     <div className={styles.panel} data-variant={variant} data-search-state={state} data-measure-id="search-panel" data-measure-section="search">
       <div className={styles.queryRow}>
@@ -335,11 +390,13 @@ export function SearchPanel({
               autoCorrect="off"
               spellCheck={false}
               enterKeyHint="search"
-              role="combobox"
-              aria-expanded={hits.length > 0}
-              aria-controls={listboxId}
-              aria-autocomplete="list"
-              aria-activedescendant={activeIndex >= 0 ? optionId(activeIndex) : undefined}
+              role={combobox ? "combobox" : undefined}
+              aria-expanded={combobox ? hits.length > 0 : undefined}
+              aria-controls={combobox ? listboxId : undefined}
+              aria-autocomplete={combobox ? "list" : undefined}
+              aria-activedescendant={
+                combobox && activeIndex >= 0 ? optionId(activeIndex) : undefined
+              }
               onChange={(event) => handleChange(event.target.value)}
               onCompositionStart={() => setComposing(true)}
               onCompositionEnd={() => setComposing(false)}
@@ -407,6 +464,7 @@ export function SearchPanel({
 
       {hits.length > 0 && !tooShort ? (
         <SearchResults
+          mode={combobox ? "listbox" : "links"}
           hits={hits}
           activeIndex={activeIndex}
           optionId={optionId}
@@ -420,11 +478,12 @@ export function SearchPanel({
           stale={showingStale}
           offset={answeredOffset}
         />
-      ) : (
+      ) : combobox ? (
         /* The listbox must exist for `aria-controls` to resolve even when it
-           is empty, or the combobox points at nothing. */
+           is empty, or the combobox points at nothing. The page has no
+           `aria-controls` to resolve, so it renders no empty box. */
         <div id={listboxId} role="listbox" aria-label="Results" className={styles.emptyListbox} />
-      )}
+      ) : null}
 
       {answering && !tooShort ? (
         <SearchPager
@@ -439,25 +498,29 @@ export function SearchPanel({
       {/* The footer is the keyboard grammar and nothing else: the matcher
           sentence that used to share it now rides with the count, above the
           list. It stays last in the DOM, and a phone — which has neither
-          arrow keys nor Escape — hides it outright in the narrow branch. */}
-      <p className={styles.foot}>
-        <span className={styles.footKeys} aria-hidden="true">
-          <kbd>↑</kbd>
-          <kbd>↓</kbd>
-          <span>move</span>
-          <kbd>↵</kbd>
-          <span>open</span>
-          <kbd>esc</kbd>
-          <span>{variant === "overlay" ? "close" : "clear"}</span>
-        </span>
-      </p>
+          arrow keys nor Escape — hides it outright in the narrow branch.
+
+          It states this surface's bindings rather than a fixed three. Arrows
+          and Enter are the combobox's, so they are printed in the overlay and
+          nowhere else — on `/search` the results are plain links a reader
+          tabs into, and a legend promising ↑↓ over them was describing a
+          panel that no longer exists. Escape reads the state: with something
+          typed it clears, on an empty box in the overlay it closes, and on an
+          empty box in the page it does nothing worth printing. */}
+      {legend.length ? <KeyLegend items={legend} /> : null}
     </div>
   );
 }
 
-function PanelPrimer({ recents, onPick }: { recents: string[]; onPick: (query: string) => void }) {
-  const recentsId = useId();
-  const primersId = useId();
+function PanelPrimer({
+  recents,
+  onPick,
+  onClearRecents,
+}: {
+  recents: string[];
+  onPick: (query: string) => void;
+  onClearRecents: () => void;
+}) {
   const primers = PRIMER_QUERIES.filter(
     (query) => !recents.some((recent) => recent.toLowerCase() === query.toLowerCase()),
   );
@@ -469,50 +532,20 @@ function PanelPrimer({ recents, onPick }: { recents: string[]; onPick: (query: s
         transliterations match even when spelled differently.
       </p>
       {recents.length > 0 ? (
-        <SuggestionChips
-          labelledBy={recentsId}
-          label="Recent"
-          queries={recents}
-          onPick={onPick}
-        />
-      ) : null}
-      {primers.length > 0 ? (
-        <SuggestionChips
-          labelledBy={primersId}
-          label="Try a claim, a name, or a place"
-          queries={primers}
-          onPick={onPick}
-        />
-      ) : null}
-    </div>
-  );
-}
-
-function SuggestionChips({
-  labelledBy,
-  label,
-  queries,
-  onPick,
-}: {
-  labelledBy: string;
-  label: string;
-  queries: readonly string[];
-  onPick: (query: string) => void;
-}) {
-  return (
-    <div className={styles.suggestions}>
-      <p className={styles.suggestionsLabel} id={labelledBy}>
-        {label}
-      </p>
-      <ul className={styles.chips} aria-labelledby={labelledBy}>
-        {queries.map((query) => (
-          <li key={query}>
-            <Button type="button" variant="ghost" size="md" onClick={() => onPick(query)}>
-              {query}
+        <>
+          <SuggestionChips label="Recent" queries={recents} onPick={onPick} />
+          {/* A list of what someone searched for, held in their browser, with
+              no way to empty it is a small privacy problem on a site about
+              open-source evidence — and on a shared machine it is a large
+              one. One text control, beside the thing it clears. */}
+          <p className={styles.recentsClear}>
+            <Button type="button" variant="text" size="sm" onClick={onClearRecents}>
+              Clear recent searches
             </Button>
-          </li>
-        ))}
-      </ul>
+          </p>
+        </>
+      ) : null}
+      <SuggestionChips label="Try a claim, a name, or a place" queries={primers} onPick={onPick} />
     </div>
   );
 }
@@ -520,18 +553,32 @@ function SuggestionChips({
 /* The one place the matcher is described (UX-28). A reader who got nothing
    can act on "a paraphrase will miss"; a reader looking at eight results, or
    at "Searching…", could not, so the sentence is not rendered there. */
-function PanelEmpty({ query, semantic }: { query: string; semantic: boolean }) {
+function PanelEmpty({
+  query,
+  semantic,
+  headingLevel,
+}: {
+  query: string;
+  semantic: boolean;
+  headingLevel: 2 | 3;
+}) {
   return (
     <StatusState
       status="empty"
       className={styles.status}
-      eyebrow="SEARCH"
-      title={`No matches for “${query}”.`}
+      headingLevel={headingLevel}
+      title={`No matches for \u201c${query}\u201d.`}
       description={
         semantic
           ? "Try a name, a place or a claim."
           : "Try a name, a place or a claim. This deployment matches words and names rather than meaning, so a paraphrase will miss."
       }
+      /* Search finds a record; the desk reads them. A query that matched no
+         title is exactly the question the other half of this instrument is
+         for, and it carries the words already typed rather than asking for
+         them again. */
+      actionText="Ask the desk about this"
+      actionHref={`/ask?q=${encodeURIComponent(query)}`}
     />
   );
 }
@@ -548,13 +595,21 @@ function PanelEmpty({ query, semantic }: { query: string; semantic: boolean }) {
    from the top level, so a real 429 arrived here as `UNKNOWN` and took the
    generic branch — which is how the audit saw an HTTP line under a search
    box. The status is the one fact that survives any parse. */
-function PanelProblem({ problem, onRetry }: { problem: ApiProblem; onRetry: () => void }) {
+function PanelProblem({
+  problem,
+  onRetry,
+  headingLevel,
+}: {
+  problem: ApiProblem;
+  onRetry: () => void;
+  headingLevel: 2 | 3;
+}) {
   const limited = problem.code === "RATE_LIMITED" || problem.status === 429;
   return (
     <StatusState
       status="error"
       className={styles.status}
-      eyebrow="SEARCH"
+      headingLevel={headingLevel}
       title={limited ? "Too many searches, too fast." : "The search failed."}
       description={limited ? "Wait a few seconds and search again." : problem.detail}
       actionText={limited ? undefined : "Try again"}
@@ -602,6 +657,16 @@ function readRecents(): string[] {
     recentsSnapshot = EMPTY_RECENTS;
     return recentsSnapshot;
   }
+}
+
+/** Empties the stored list. The event is what redraws every open panel. */
+function forgetQueries() {
+  try {
+    window.localStorage.removeItem(RECENTS_KEY);
+  } catch {
+    /* Private mode — there was nothing stored to clear. */
+  }
+  window.dispatchEvent(new Event(RECENTS_EVENT));
 }
 
 function rememberQuery(query: string) {

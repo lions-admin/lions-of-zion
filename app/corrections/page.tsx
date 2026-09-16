@@ -12,6 +12,11 @@ import { pageMetadata } from "@/lib/page-metadata";
 const TAGLINE = "How Lions of Zion corrects errors, records significant changes and keeps automated publishing accountable.";
 const PAGE_URL = `${SITE_URL}/corrections`;
 
+/* The date this policy was last read through and confirmed, printed at the
+   foot the way `/methodology` and `/we-are` print theirs. */
+const LAST_REVIEWED = "2026-09-16";
+const LAST_REVIEWED_LABEL = "16 September 2026";
+
 export const metadata: Metadata = pageMetadata({ title: "Corrections", description: TAGLINE, path: "/corrections" });
 
 const CORRECTIONS_JSON_LD = {
@@ -80,6 +85,10 @@ export default async function Page() {
       <SectionBlock heading="Report an error">
         <p>If you find a factual problem, missing context or a source that no longer supports the claim beside it, report it. The question is not whether a person or an AI produced the original record; the question is whether the public record now reflects the best available evidence. Use the <Link href="/support-us#report">report form</Link>.</p>
       </SectionBlock>
+
+      <p className={styles.colophon}>
+        Last reviewed <time className={styles.colophonDate} dateTime={LAST_REVIEWED}>{LAST_REVIEWED_LABEL}</time>. The policy is reviewed whenever a correction shows a rule needed one.
+      </p>
     </DocPage>
   );
 }

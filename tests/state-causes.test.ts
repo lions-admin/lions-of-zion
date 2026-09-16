@@ -34,7 +34,7 @@ import {
   absenceStatus,
   type AbsenceCause,
 } from "@/components/ui/StatusState";
-import { AskComposer } from "@/components/ask/AskComposer";
+import { AskField } from "@/components/ask/AskField";
 import { ReportClaimForm } from "@/components/support/ReportClaimForm";
 import { VolunteerInterestForm } from "@/components/support/VolunteerInterestForm";
 import { UpdateFeed } from "@/components/live";
@@ -179,9 +179,8 @@ describe("/updates absences (STATE-005)", () => {
 describe("retry preserves what was typed (STATE-003)", () => {
   it("refills the Ask composer from a seed, without a paint of empty box", async () => {
     const markup = await render(
-      createElement(AskComposer, {
+      createElement(AskField, {
         onAsk: () => {},
-        disabled: false,
         seed: { text: "What does the desk hold on the northern border?", nonce: 1 },
       }),
     );
@@ -202,14 +201,13 @@ describe("retry preserves what was typed (STATE-003)", () => {
     expect(desk).toContain("onRetry={retry}");
     expect(desk).toContain("onEdit={recallIntoComposer}");
     /* The edit path has to end somewhere the reader can see and change the
-       text. It was a `seed` prop on `AskComposer`, whose nonce let the same
-       question be recalled twice; the composer is `PromptInput` now, which
-       owns its own text, so the recall writes into it through the controller
-       that `PromptInputProvider` lifts out. What this pins is that
-       `recallIntoComposer` still puts the question somewhere — not which of
-       the two mechanisms is doing it. */
+       text. It went through `PromptInput`'s controller while the vendored
+       registry was here; the registry was deleted on 2026-09-16 and the seed
+       prop — whose nonce is what lets the *same* question be recalled twice —
+       is the mechanism again. What this pins is that `recallIntoComposer`
+       still puts the question somewhere, not which mechanism carries it. */
     expect(desk).toMatch(
-      /const recallIntoComposer = \(\) => \{[\s\S]*?controller\.textInput\.setInput\(question\)/,
+      /const recallIntoComposer = \(\) => \{[\s\S]*?setSeed\(\{ text: question/,
     );
   });
 
@@ -262,10 +260,7 @@ function controls(markup: string): Array<{ tag: string; attrs: string }> {
 const namedForms: Array<[string, () => Promise<string>]> = [
   ["report a claim", () => render(createElement(ReportClaimForm))],
   ["volunteer interest", () => render(createElement(VolunteerInterestForm))],
-  [
-    "Ask composer",
-    () => render(createElement(AskComposer, { onAsk: () => {}, disabled: false })),
-  ],
+  ["Ask composer", () => render(createElement(AskField, { onAsk: () => {} }))],
 ];
 
 describe("form semantics (A11Y-007)", () => {
@@ -319,7 +314,7 @@ describe("form semantics (A11Y-007)", () => {
        reason the box is disabled when it is not. Neither reaches a
        screen-reader user unless it is referenced. */
     const markup = await render(
-      createElement(AskComposer, { onAsk: () => {}, disabled: true, hint: "Waiting for the current answer." }),
+      createElement(AskField, { onAsk: () => {}, busy: true, hint: "Waiting for the current answer." }),
     );
     const described = /<textarea\b[^>]*aria-describedby="([^"]+)"/.exec(markup)?.[1];
     expect(described, "the composer textarea must be described").toBeTruthy();

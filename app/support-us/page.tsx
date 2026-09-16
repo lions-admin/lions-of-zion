@@ -166,8 +166,12 @@ const FLOWS: SupportFlow[] = [
 ];
 
 export default function Page() {
+  /* No contents rail: this is three actions, not a document with sections to
+     navigate. The rail listed the three a second time beside the page's own
+     switch, and a reader who picked one from the rail landed above the control
+     that does the thing. */
   return (
-    <SectionPage id="support-us" title="Support Us" tagline={TAGLINE}>
+    <SectionPage id="support-us" title="Support Us" tagline={TAGLINE} withToc={false}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(SUPPORT_US_JSON_LD) }}

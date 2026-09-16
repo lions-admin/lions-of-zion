@@ -9,6 +9,7 @@ import { ROLE_ORDER } from '@/lib/content/fake-resistance-roles';
 import { useInvestigation } from './InvestigationProvider';
 import { IdentityLabel, KIND_LABEL, KindLabel, TypeLabel, dateLabel, durationLabel, pValueLabel } from './labels';
 import styles from './investigation.module.css';
+import { Icon } from '@/components/ui/Icon';
 
 /**
  * The selected entity, connection, narrative or finding, restated in words.
@@ -99,7 +100,7 @@ export function EntityInspector({ variant }: { variant: 'rail' | 'sheet' }) {
       {edge ? (
         <div className={styles.inspectorBody}>
           <p className={styles.inspectorTitle}>
-            {edge.from} {edge.directed ? '→' : '↔'} {edge.to}
+            {edge.from} <Icon name={edge.directed ? 'arrow-right' : 'arrow-both'} inline /> {edge.to}
           </p>
           <p className={styles.inspectorGrades}>
             <KindLabel kind={edge.kind} />

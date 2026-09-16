@@ -50,8 +50,9 @@
   border-bottom-color: var(--data-ember-dim);
 }
 
+/* "Following", "Range": the kicker role. */
 .pathLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--data-ember-peak);
 }
 
@@ -85,8 +86,9 @@
   z-index: var(--z-sticky);
   margin: var(--sp-4) calc(-1 * var(--sp-4)) 0;
   padding: 0 var(--sp-4);
-  background: color-mix(in oklab, var(--ground) 94%, transparent);
-  backdrop-filter: blur(6px);
+  /* The one scrim (app/globals.css): a solid tint, no blur — a backdrop
+     filter over a page of type costs a repaint per frame and read as glass. */
+  background: var(--scrim);
   border-bottom: var(--line-w) solid var(--line);
 }
 
@@ -133,7 +135,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
-  min-height: 44px;
+  min-height: var(--control-h);
   padding: 0 var(--sp-3);
   border-radius: var(--radius-pill);
   color: var(--ink-lo);
@@ -151,11 +153,6 @@
   color: var(--ink-hi);
   background: var(--gold-wash);
   box-shadow: inset 0 0 0 var(--line-w) var(--gold-line);
-}
-
-.sectionNavLink:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-offset);
 }
 
 .sectionNavIndex {
@@ -191,7 +188,6 @@
 .identityLabel,
 .stateLabel,
 .kindLabel,
-.laneLabel,
 .flowMeasure,
 .entityHandle {
   font-family: var(--face-data);
@@ -223,9 +219,10 @@
   color: var(--data-ember-peak);
 }
 
+/* "Attributed to", "Names", "Relation": words a person wrote to name what
+   follows — the kicker role, not the mono stamp the grades beside it use. */
 .laneLabel {
-  text-transform: uppercase;
-  letter-spacing: var(--t-data-tracking);
+  composes: kickerLabel from global;
   color: var(--gold);
 }
 
@@ -350,7 +347,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: var(--sp-1) var(--sp-4);
-  min-height: 44px;
+  min-height: var(--control-h);
   padding: var(--sp-4) 0;
   cursor: pointer;
   list-style: none;
@@ -358,11 +355,6 @@
 
 .roleSummary::-webkit-details-marker {
   display: none;
-}
-
-.roleSummary:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-offset);
 }
 
 .roleLabel {
@@ -415,7 +407,7 @@
   flex-wrap: wrap;
   align-items: baseline;
   gap: var(--sp-1) var(--sp-4);
-  min-height: 44px;
+  min-height: var(--control-h);
   padding: var(--sp-3) 0;
   cursor: pointer;
   list-style: none;
@@ -423,11 +415,6 @@
 
 .profileSummary::-webkit-details-marker {
   display: none;
-}
-
-.profileSummary:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-offset);
 }
 
 .entityName {
@@ -477,18 +464,20 @@
   gap: var(--sp-1);
 }
 
-/* Descendant selectors cannot `composes` (see the note in app/globals.css),
-   so the data-label role is spelled out here by hand. */
+/* The terms and the field labels are words a person wrote ("Followers",
+   "From", "Community") — the kicker role, spelled out by hand because a
+   descendant selector cannot `composes` (see the note in app/globals.css).
+   The values under them stay in the data face. */
 .profileFacts dt,
 .inspectorFacts dt,
 .edgeEvidence dt,
 .storyFacts dt,
 .rangeField > span {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   color: var(--ink-lo);
 }
@@ -519,7 +508,7 @@
 .profileLink {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
+  min-height: var(--control-h);
   color: var(--gold);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
@@ -614,15 +603,16 @@
   line-height: var(--t-small-lh);
 }
 
+/* "The move", "Aimed at": a label a person wrote — the kicker role. */
 .laneFrame > span {
   display: block;
   margin-bottom: var(--sp-1);
   color: var(--data-ember-peak);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
 }
 
@@ -661,11 +651,6 @@
   text-decoration: underline;
   text-decoration-color: var(--gold-line-strong);
   text-underline-offset: 0.2em;
-}
-
-.laneClaimLink:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-offset);
 }
 
 .laneClaimText {
@@ -773,7 +758,7 @@
   content: '';
   position: absolute;
   top: calc(-1 * var(--line-w-thick) - 3px);
-  right: -1px;
+  right: calc(-1 * var(--line-w));
   width: 0;
   height: 0;
   border-top: 4px solid transparent;
@@ -903,7 +888,7 @@
 }
 
 .rangeField input {
-  min-height: 44px;
+  min-height: var(--control-h);
   padding: 0 var(--sp-3);
   border: var(--line-w) solid var(--control-line, var(--line-strong));
   border-radius: var(--radius-2);
@@ -912,11 +897,6 @@
   font-family: var(--face-data);
   font-size: var(--t-small);
   color-scheme: dark;
-}
-
-.rangeField input:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-offset);
 }
 
 .activityBand {
@@ -936,8 +916,9 @@
   scroll-margin-top: var(--anchor-offset, 5.5rem);
 }
 
+/* The event's kind, in words ("Post", "Amplification"): the kicker role. */
 .eventType {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--gold);
 }
 
@@ -1006,7 +987,7 @@
 }
 
 .ledgerColumnLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--ink-lo);
 }
 
@@ -1031,7 +1012,7 @@
 }
 
 .sourceColumnHeading {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin: 0 0 var(--sp-2);
   color: var(--gold);
 }
@@ -1114,7 +1095,7 @@
 }
 
 .inspectorKicker {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--gold);
 }
 
@@ -1159,7 +1140,7 @@
 }
 
 .inspectorSub {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   margin: var(--sp-4) 0 var(--sp-2);
   padding-top: var(--sp-3);
   border-top: var(--line-w) solid var(--line-soft);
@@ -1187,18 +1168,19 @@
 .inspectorRowButton {
   justify-content: space-between;
   width: 100%;
-  min-height: 44px;
+  min-height: var(--control-h);
   text-align: left;
   white-space: normal;
 }
 
-@media (min-width: 1220px) {
+/* The rails seam, `--bp-rails` (76.25rem = 1220px), on both sides. */
+@media (min-width: 76.25rem) {
   .inspector[data-variant='rail'] {
     display: block;
   }
 }
 
-@media (max-width: 1219.98px) {
+@media (max-width: 76.24rem) {
   .inspector[data-variant='sheet'] {
     position: fixed;
     inset: auto 0 0 0;
@@ -1251,7 +1233,7 @@
 }
 
 .updateLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--gold);
 }
 
@@ -1290,7 +1272,7 @@
 }
 
 .survivesLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--data-ember-peak);
 }
 
@@ -1351,7 +1333,7 @@
 }
 
 .storyQuestionLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   display: block;
   margin-bottom: var(--sp-1);
   color: var(--ink-lo);
@@ -1538,7 +1520,7 @@
 }
 
 .rangeField select {
-  min-height: 44px;
+  min-height: var(--control-h);
   padding: 0 var(--sp-3);
   border: var(--line-w) solid var(--control-line, var(--line-strong));
   border-radius: var(--radius-2);
@@ -1546,11 +1528,6 @@
   color: var(--ink-hi);
   font-family: var(--face-data);
   font-size: var(--t-small);
-}
-
-.rangeField select:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-offset);
 }
 
 .networkBody {
@@ -1562,7 +1539,8 @@
   border-top: var(--line-w) solid var(--line);
 }
 
-@media (min-width: 60rem) {
+/* The token file's phone block (48rem); a private 60rem until 2026-09-16. */
+@media (min-width: 48rem) {
   .networkBody {
     grid-template-columns: minmax(0, 1.1fr) minmax(16rem, 0.9fr);
     align-items: start;
@@ -1590,7 +1568,7 @@
   align-items: flex-start;
   gap: var(--sp-1);
   width: 100%;
-  min-height: 44px;
+  min-height: var(--control-h);
   padding: var(--sp-2) var(--sp-3);
   text-align: left;
   white-space: normal;

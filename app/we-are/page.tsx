@@ -71,8 +71,8 @@ export default function Page() {
           </ol>
         </div>
         <nav aria-label="Read next"><ul className={styles.readNext}>
-          <li><Link href="/methodology">Methodology — the publication routes and their provenance rules →</Link></li>
-          <li><Link href="/information-war">How it works — the live system map →</Link></li>
+          <li><Link href="/methodology">Methodology — the publication routes and their provenance rules <Icon name="arrow-right" inline className="arrow" /></Link></li>
+          <li><Link href="/information-war">How it works — the live system map <Icon name="arrow-right" inline className="arrow" /></Link></li>
         </ul></nav>
       </SectionBlock>
 

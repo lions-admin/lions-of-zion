@@ -387,10 +387,7 @@
   cursor: pointer;
 }
 
-.rosterFallback > summary:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-offset);
-}
+/* The summary takes the global `:focus-visible` ring from app/globals.css. */
 
 /* A figure that belongs to a section but is not its first thing. */
 .figureBlock {

@@ -13,6 +13,7 @@ import { publicationHref } from "@/lib/publication-routing";
 import { measureCard, measurePublicationCard } from "@/components/measurement/attrs";
 import styles from "./page.module.css";
 import { pageMetadata } from "@/lib/page-metadata";
+import { Icon } from "@/components/ui/Icon";
 
 /* The hub's lede (docs/audits/2026-09-08-copy-table.md, UX-02). */
 const description = "See the claim. See what it was built from. Take the sourced version with you.";
@@ -72,7 +73,7 @@ export default async function Page() {
                 <div><dt>Graded findings</dt><dd>{featured.counts.exhibits}</dd></div>
                 <div><dt>Sources on record</dt><dd>{featured.counts.sources}</dd></div>
               </dl>
-              <Link className={styles.action} href={`/fake-resistance/cases/${featured.slug}`}>Open the investigation <span aria-hidden="true">→</span></Link>
+              <Link className={styles.action} href={`/fake-resistance/cases/${featured.slug}`}>Open the investigation <Icon name="arrow-right" inline className="arrow" /></Link>
             </> : <><h2 id="investigation-heading">Investigations</h2><p role={research.status === "rejected" ? "alert" : undefined}>{research.status === "rejected" ? "Investigations could not be loaded. Monitoring remains available alongside." : "No investigations are available yet."}</p></>}
           </section>
           <section id="latest-monitoring" className={styles.monitoring} aria-labelledby="monitoring-heading">
@@ -86,7 +87,7 @@ export default async function Page() {
             <header className={styles.sectionHead}>
               <h2 id="monitoring-heading">On the watch</h2>
               <SectionCount settled={monitoring.status === "fulfilled"} count={items.length} noun="record" />
-              <Link href="/fake-resistance/watch">All of Narrative Watch <span aria-hidden="true">→</span></Link>
+              <Link href="/fake-resistance/watch">All of Narrative Watch <Icon name="arrow-right" inline className="arrow" /></Link>
             </header>
             <p className={styles.disclosure}>Published monitoring. Not a live scan.</p>
             {monitoring.status === "rejected" ? <p role="alert">Monitoring is temporarily unavailable.</p> : items.length ? items.slice(0, 3).map(item => <NarrativeRecord key={item.publicId} item={item} compact />) : <p>No monitoring records have been published yet.</p>}
@@ -96,7 +97,7 @@ export default async function Page() {
           <header className={styles.sectionHead}>
             <h2 id="antisemitism-heading">Antisemitism</h2>
             <SectionCount settled={antisemitism.status === "fulfilled"} count={antisemitismItems.length} noun="record" />
-            <Link href="/fake-resistance/antisemitism">All of Antisemitism <span aria-hidden="true">→</span></Link>
+            <Link href="/fake-resistance/antisemitism">All of Antisemitism <Icon name="arrow-right" inline className="arrow" /></Link>
           </header>
           <p className={styles.disclosure}>Documented incidents and trends. A report names what is known, its context, and what remains unconfirmed.</p>
           {antisemitism.status === "rejected" ? <p role="alert">Antisemitism records are temporarily unavailable.</p> : antisemitismItems.length ? antisemitismItems.slice(0, 2).map(item => <AntisemitismRecord key={item.publicId} item={item} compact />) : <p>No antisemitism records have been published yet.</p>}
@@ -113,7 +114,7 @@ export default async function Page() {
                 <time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time>
                 <h3><Link href={publicationHref(item.publicId)}>{item.title}</Link></h3>
                 {item.summary ? <p>{item.summary}</p> : null}
-                <Link className={styles.action} href={publicationHref(item.publicId)}>Open the investigation <span aria-hidden="true">→</span></Link>
+                <Link className={styles.action} href={publicationHref(item.publicId)}>Open the investigation <Icon name="arrow-right" inline className="arrow" /></Link>
               </article>)}</div>
             : <p>No influence investigations have been published yet.</p>}
         </section>
@@ -121,21 +122,21 @@ export default async function Page() {
           <header className={styles.sectionHead}>
             <h2 id="research-heading">Further investigations</h2>
             <SectionCount settled count={cases.length} noun="investigation" />
-            <Link href="/fake-resistance/social-media">All investigations <span aria-hidden="true">→</span></Link>
+            <Link href="/fake-resistance/social-media">All investigations <Icon name="arrow-right" inline className="arrow" /></Link>
           </header>
           <div className={styles.researchGrid}>{otherCases.slice(0,3).map(item => <article key={item.slug}
             {...measureCard({ id: `fr-case-${item.slug}`, section: "fake-resistance", content: `case:${item.slug}`, type: "case" })}>
             <time dateTime={item.updatedAt}>{formatDay(item.updatedAt)}</time>
             <h3><Link href={`/fake-resistance/cases/${item.slug}`}>{item.title}</Link></h3>
             <p>{item.question}</p>
-            <Link className={styles.action} href={`/fake-resistance/cases/${item.slug}`}>Open the investigation <span aria-hidden="true">→</span></Link>
+            <Link className={styles.action} href={`/fake-resistance/cases/${item.slug}`}>Open the investigation <Icon name="arrow-right" inline className="arrow" /></Link>
           </article>)}</div>
         </section> : null}
         <nav className={styles.depth} aria-label="Explore the research" data-measure-id="fr-depth-nav" data-measure-section="fake-resistance">
           <Link href="/fake-resistance/network"><span>Connections &amp; amplification</span><strong>The influence network</strong><span aria-hidden="true">↗︎</span></Link>
           <Link href="/fake-resistance/playbook"><span>Recognise the techniques</span><strong>The manipulation playbook</strong><span aria-hidden="true">↗︎</span></Link>
         </nav>
-        <div className={styles.bottomLinks}><Link href="/fake-resistance/official-narrative">Documented narrative investigations →</Link><Link href="/fake-resistance/antisemitism">Antisemitism records →</Link><Link href="/geopolitical-brief">Looking for news? All of News &amp; Analysis →</Link></div>
+        <div className={styles.bottomLinks}><Link href="/fake-resistance/official-narrative">Documented narrative investigations <Icon name="arrow-right" inline className="arrow" /></Link><Link href="/fake-resistance/antisemitism">Antisemitism records <Icon name="arrow-right" inline className="arrow" /></Link><Link href="/geopolitical-brief">Looking for news? All of News &amp; Analysis <Icon name="arrow-right" inline className="arrow" /></Link></div>
         <ActivationBand
           share={{ url: `${SITE_URL}/fake-resistance`, text: "Fake Resistance — the claims in circulation, what they were built from, and the sourced version to carry back." }}
         />

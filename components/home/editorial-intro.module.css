@@ -114,12 +114,11 @@
   padding-block: var(--sp-8);
 }
 
+/* An eyebrow a person wrote: the kicker role, not the mono it borrowed. */
 .label {
+  composes: kickerLabel from global;
   margin: 0 0 var(--sp-6);
   color: var(--gold);
-  font: var(--t-caption)/var(--t-caption-lh) var(--face-data);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
 }
 
 /* A reservation, not a floor: it holds the composition still as the beats
@@ -130,9 +129,9 @@
   max-width: 19ch;
   margin: 0;
   font-family: var(--face-home-emphasis);
-  font-size: clamp(2.375rem, 5.5vw, 5.5rem);
+  font-size: var(--t-display);
   font-weight: var(--t-display-weight);
-  line-height: 1.06;
+  line-height: var(--t-display-lh);
   letter-spacing: var(--t-display-tracking);
   text-transform: none;
   white-space: pre-line;
@@ -149,20 +148,11 @@
 
 /* Reserve every glyph's position: typing never reflows the composition. */
 .unwritten { visibility: hidden; }
-.accessible {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
+.accessible { composes: srOnly from global; }
 
-.footer { border-top: 1px solid var(--line-strong); padding-top: var(--sp-4); }
+.footer { border-top: var(--line-w) solid var(--line-strong); padding-top: var(--sp-4); }
 .progress { display: flex; gap: var(--sp-2); }
-.progress span { width: var(--sp-6); height: 2px; background: var(--control-line); }
+.progress span { width: var(--sp-6); height: var(--line-w-thick); background: var(--control-line); }
 .progress span[data-reached="true"] { background: var(--gold); }
 .controls { gap: var(--sp-6); }
 
@@ -192,17 +182,14 @@
 }
 .dialog button:hover, .replay:hover { color: var(--ink-hi); }
 .dialog button:active, .replay:active { color: var(--gold); }
-.dialog button:focus-visible, .replay:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: var(--sp-1);
-}
+/* No local focus ring: the controls take the global `:focus-visible`. */
 /* The header's escape hatch. `.dialog button` above carries the shared
    control shape; this only marks it as the quieter of the two controls on
    the screen, so the eye lands on the statement rather than on the way out. */
 .skip { color: var(--ink-lo); }
 .skip:hover { color: var(--ink-hi); }
 
-.replay { margin-top: var(--sp-2); border-bottom: 1px solid var(--control-line); }
+.replay { margin-top: var(--sp-2); border-bottom: var(--line-w) solid var(--control-line); }
 .replay[hidden] { display: none; }
 
 /* On the cover it belongs beside the explanatory link, rather than reading as
@@ -211,7 +198,7 @@
 .compactReplay {
   gap: var(--sp-2);
   margin-top: 0;
-  border-bottom: 1px solid var(--control-line);
+  border-bottom: var(--line-w) solid var(--control-line);
 }
 
 .playMark {

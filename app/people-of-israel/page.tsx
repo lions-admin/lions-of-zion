@@ -22,6 +22,7 @@ import { measureCard, measurePublicationCard } from '@/components/measurement/at
 import type { PublicPublication } from '@/server/contracts/publication';
 import type { PublicationSection } from '@/server/contracts/enums';
 import styles from './page.module.css';
+import { Icon } from '@/components/ui/Icon';
 
 /* The hub's lede (docs/audits/2026-09-08-copy-table.md, UX-02). */
 const DESCRIPTION = 'The people the narrative leaves out — with the sources, so you can show them.';
@@ -70,7 +71,7 @@ function RecordRow({ publication, rank }: { publication: PublicPublication; rank
         </p>
         <h3><Link href={publicationHref(publication.publicId)}>{publication.title}</Link></h3>
         {publication.summary ? <p className={styles.recordSummary}>{publication.summary}</p> : null}
-        <Link className={styles.read} href={publicationHref(publication.publicId)}>{publicationCta(publication.section)} <span aria-hidden="true">→</span></Link>
+        <Link className={styles.read} href={publicationHref(publication.publicId)}>{publicationCta(publication.section)} <Icon name="arrow-right" inline className="arrow" /></Link>
       </div>
       {image ? <Link className={styles.recordImage} href={publicationHref(publication.publicId)} tabIndex={-1} aria-hidden="true">
         <Image src={image.src} alt="" width={image.width} height={image.height} sizes="(max-width: 45rem) 6rem, 9rem" />
@@ -123,7 +124,7 @@ function Profile({ profile, featured = false }: { profile: HeroProfile; featured
       <h3><Link href={href}>{profile.name}</Link></h3>
       <p className={styles.profileMeta}>{profile.meta}</p>
       <p className={styles.profileSummary}>{shown}{hidden ? <span className={styles.profileSummaryRest}> {hidden}</span> : null}</p>
-      <Link className={styles.read} href={href}>Read their story <span aria-hidden="true">→</span></Link>
+      <Link className={styles.read} href={href}>Read their story <Icon name="arrow-right" inline className="arrow" /></Link>
     </div>
   </article>;
 }
@@ -190,7 +191,7 @@ export default async function Page() {
             <h2 id="courage-title">Courage &amp; service</h2>
           </div>
           <p className={styles.sectionCount}><span data-numeric="">{profiles.length}</span> {profiles.length === 1 ? 'profile' : 'profiles'}</p>
-          <Link className={styles.sectionLink} href="/our-heroes">All of Our Heroes <span aria-hidden="true">→</span></Link>
+          <Link className={styles.sectionLink} href="/our-heroes">All of Our Heroes <Icon name="arrow-right" inline className="arrow" /></Link>
         </header>
         {/* Which of the three kinds of thing on this hub these are. The hub
             merges live records with two preserved editions that kept their
@@ -217,7 +218,7 @@ export default async function Page() {
             ? <ol className={styles.recordList}>{shown.map((publication, index) => <RecordRow key={publication.publicId} publication={publication} rank={index + 1} />)}</ol>
             : <p className={styles.empty}>No records have been published here yet. The profiles above and the story below are the standing collection.</p>}
           {records.length > shown.length
-            ? <Link className={styles.sectionLink} href="/updates">Everything published, every section <span aria-hidden="true">→</span></Link>
+            ? <Link className={styles.sectionLink} href="/updates">Everything published, every section <Icon name="arrow-right" inline className="arrow" /></Link>
             : null}
         </section>
 
@@ -243,7 +244,7 @@ export default async function Page() {
                 chapter's place in the story, not a rank. */}
             <ol className={styles.chapters} data-measure-id="people-history-chapters" data-measure-section="people">{history.chapters.slice(0, 4).map((chapter, index) => <li key={chapter.id}><Link href={`/israels-story#${chapter.id}`}><span>{String(index + 1).padStart(2, '0')}</span>{chapter.title}</Link></li>)}</ol>
           </div>
-          <Link className={styles.sectionLink} href="/israels-story">All of Israel’s Story <span aria-hidden="true">→</span></Link>
+          <Link className={styles.sectionLink} href="/israels-story">All of Israel’s Story <Icon name="arrow-right" inline className="arrow" /></Link>
         </section>
       </div>
       <ActivationBand

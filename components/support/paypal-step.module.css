@@ -78,6 +78,7 @@
   text-underline-offset: 0.15em;
 }
 
-.fallbackLink:hover {
+.fallbackLink:hover,
+.fallbackLink:focus-visible {
   text-decoration-color: var(--gold);
 }

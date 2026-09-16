@@ -60,6 +60,7 @@
   overflow-wrap: anywhere;
 }
 
-.directLink:hover {
+.directLink:hover,
+.directLink:focus-visible {
   text-decoration-color: var(--gold);
 }

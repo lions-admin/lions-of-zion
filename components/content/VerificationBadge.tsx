@@ -1,5 +1,5 @@
 import type { AssessmentValue, ConfidenceSummary } from '@/server/contracts/enums';
-import { BADGE_GRAMMAR } from '@/components/ui/Badge';
+import { Badge, BADGE_GRAMMAR } from '@/components/ui/Badge';
 import styles from './content.module.css';
 
 export type VerificationBadgeProps = {
@@ -56,6 +56,16 @@ const CONFIDENCE_LABELS: Record<ConfidenceSummary, string> = {
   limited: 'Limited confidence',
 };
 
+/**
+ * The verdict on an information item, rendered through the one badge grammar
+ * (SYS-011). This file owns the words — the label the reader sees and the
+ * sentence that explains it — and `Badge` owns the shape, the ramp and the
+ * mark, so "Verified" and "False" differ by shape as well as by colour.
+ *
+ * The badge carries visible text, so it needs no `role` and no `aria-label`:
+ * the explanation is a `title` for a pointer and a visually hidden sentence
+ * for a screen reader, after the label rather than instead of it.
+ */
 export function VerificationBadge({ assessment, confidence }: VerificationBadgeProps) {
   const presentation = ASSESSMENT_PRESENTATION[assessment];
   const explanation = confidence
@@ -63,19 +73,12 @@ export function VerificationBadge({ assessment, confidence }: VerificationBadgeP
     : presentation.explanation;
 
   return (
-    <span
-      className={styles.badge}
-      data-assessment={assessment}
-      title={explanation}
-      aria-label={explanation}
-    >
-      <i aria-hidden="true" />
+    <Badge status={assessment} domain="verification" title={explanation}>
       {presentation.label}
       {confidence ? (
-        <span className={styles.badgeConfidence} aria-hidden="true">
-          · {CONFIDENCE_LABELS[confidence]}
-        </span>
+        <span className={styles.badgeConfidence}> · {CONFIDENCE_LABELS[confidence]}</span>
       ) : null}
-    </span>
+      <span className={styles.badgeNote}> — {presentation.explanation}</span>
+    </Badge>
   );
 }

@@ -6,19 +6,29 @@
   border-top: var(--line-w) solid var(--line);
 }
 
+/* "Antisemitism record" is a label a person wrote — the kicker role. The
+   instant beside it is a machine value and keeps the data face (UX-31). */
 .meta {
+  composes: kickerLabel from global;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  align-items: baseline;
   gap: var(--sp-2);
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
 }
 
 .meta span { color: var(--data-ember-peak); }
+
+.meta time {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking-tight);
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
+}
 
 .record h3 {
   margin: 0;
@@ -31,12 +41,23 @@
 }
 
 .record h3 a { color: inherit; text-decoration: none; }
-.record h3 a:hover { text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 0.16em; }
+.record h3 a:hover,
+.record h3 a:focus-visible { text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 0.16em; }
 .record p { max-width: 65ch; margin: 0; color: var(--ink); line-height: var(--t-body-lh); }
 
 .context { display: flex; flex-wrap: wrap; gap: var(--sp-4); margin: 0; }
 .context div { display: grid; gap: var(--sp-1); }
-.context dt { color: var(--ink-lo); font-family: var(--face-data); font-size: var(--t-data); letter-spacing: var(--t-data-tracking); text-transform: uppercase; }
+/* "Location or platform", "Record type": terms a person wrote, so the kicker
+   role — written out because a descendant selector cannot `composes`. */
+.context dt {
+  color: var(--ink-lo);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
+  text-transform: uppercase;
+}
 .context dd { margin: 0; font-size: var(--t-small); }
 
 .read { color: var(--ink-hi); font-weight: 600; text-decoration-color: var(--gold-line-strong); text-underline-offset: 0.2em; }

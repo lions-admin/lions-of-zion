@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { PIPELINE_ROUTES, SYSTEM_EDGES, SYSTEM_NODES, type SystemNodeId } from "./pipeline-data";
 import styles from "../information-war-system.module.css";
+import { Icon } from "@/components/ui/Icon";
+import { liveWhenIdle } from "@/components/ui/live-region";
 
 export function PipelineTrace() {
   const [routeIndex, setRouteIndex] = useState(0);
@@ -66,11 +68,11 @@ export function PipelineTrace() {
       <div className={styles.playback}>
         <p>{route.subject}</p>
         <div role="group" aria-label="Journey playback">
-          <button type="button" onClick={() => advance(-1)} aria-label="Previous step">←</button>
+          <button type="button" onClick={() => advance(-1)} aria-label="Previous step"><Icon name="arrow-left" size={16} /></button>
           <button type="button" disabled={reduced} onClick={() => { setSelected(null); setPlaying((p) => !p); }}
             aria-label={playing && !reduced ? "Pause journey" : "Play journey"}>{playing && !reduced ? "Pause" : "Play"}</button>
           <span className={styles.stepCount}>{position + 1} / {route.steps.length}</span>
-          <button type="button" onClick={() => advance(1)} aria-label="Next step">→</button>
+          <button type="button" onClick={() => advance(1)} aria-label="Next step"><Icon name="arrow-right" size={16} /></button>
         </div>
       </div>
       <div className={styles.mapColumns} aria-hidden="true"><span>01 / Material in</span><span>02 / Work on the evidence</span><span>03 / Public access</span></div>
@@ -97,7 +99,7 @@ export function PipelineTrace() {
           </button>;
         })}
       </div>
-      <section className={styles.inspector} id="node-inspector" aria-label="Selected system node" aria-live={playing && !reduced ? "off" : "polite"}>
+      <section className={styles.inspector} id="node-inspector" aria-label="Selected system node" {...liveWhenIdle(playing && !reduced)}>
         <div><span className={styles.eyebrow}>Inside this step</span><h3>{node.name}</h3></div>
         <p>{node.detail}</p>
         <dl><dt>Receives</dt><dd>{node.input}</dd><dt>Produces</dt><dd>{node.output}</dd></dl>

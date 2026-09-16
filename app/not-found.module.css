@@ -118,15 +118,18 @@
     transform var(--dur-base) var(--ease-out);
 }
 
-.entry:hover {
+.entry:hover,
+.entry:focus-visible {
   border-color: var(--line-strong);
   background-color: var(--surface-2);
   box-shadow: var(--shadow-2);
   transform: translateY(-2px);
 }
 
-.entry:hover .entryLabel { color: var(--gold-hi); }
-.entry:hover .entryArrow { color: var(--gold); transform: translate(2px, -2px); }
+.entry:hover .entryLabel,
+.entry:focus-visible .entryLabel { color: var(--gold-hi); }
+.entry:hover .entryArrow,
+.entry:focus-visible .entryArrow { color: var(--gold); transform: translate(2px, -2px); }
 
 .entryLabel {
   grid-area: label;
@@ -176,7 +179,8 @@
   transition: color var(--dur-fast) var(--ease-out);
 }
 
-.referenceLink:hover { color: var(--ink-hi); }
+.referenceLink:hover,
+.referenceLink:focus-visible { color: var(--ink-hi); }
 
 @media (max-width: 45rem) {
   .list { grid-template-columns: minmax(0, 1fr); }
@@ -187,6 +191,8 @@
   .entryLabel,
   .entryArrow,
   .referenceLink { transition: none; }
-  .entry:hover { transform: none; }
-  .entry:hover .entryArrow { transform: none; }
+  .entry:hover,
+  .entry:focus-visible { transform: none; }
+  .entry:hover .entryArrow,
+  .entry:focus-visible .entryArrow { transform: none; }
 }

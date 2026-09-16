@@ -77,10 +77,6 @@
   box-shadow: var(--shadow-1);
 }
 
-.choiceButton:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-offset);
-}
 
 .choiceMark {
   grid-area: mark;
@@ -97,7 +93,8 @@
 
 .choiceButton[data-emphasis='primary'] .choiceMark { color: var(--gold); }
 
-.choiceButton:hover .choiceMark {
+.choiceButton:hover .choiceMark,
+.choiceButton:focus-visible .choiceMark {
   color: var(--gold);
   border-color: var(--gold-line-strong);
 }
@@ -114,7 +111,8 @@
   transition: color var(--dur-fast) var(--ease-out);
 }
 
-.choiceButton:hover .choiceLabel { color: var(--gold-hi); }
+.choiceButton:hover .choiceLabel,
+.choiceButton:focus-visible .choiceLabel { color: var(--gold-hi); }
 
 .choiceSummary {
   grid-area: summary;
@@ -135,7 +133,8 @@
     transform var(--dur-base) var(--ease-out);
 }
 
-.choiceButton:hover .choiceArrow {
+.choiceButton:hover .choiceArrow,
+.choiceButton:focus-visible .choiceArrow {
   color: var(--gold);
   transform: translateX(0.25em);
 }
@@ -152,7 +151,8 @@
   .choiceArrow { transition: none; }
   .choiceButton:hover,
   .choiceButton:focus-visible { transform: none; }
-  .choiceButton:hover .choiceArrow { transform: none; }
+  .choiceButton:hover .choiceArrow,
+  .choiceButton:focus-visible .choiceArrow { transform: none; }
 }
 
 /* An open flow. It replaces the chooser in place, so it opens with its own
@@ -184,9 +184,6 @@
 
 /* The heading is a focus target when its panel opens; the global ring draws
    itself, and nothing else about the heading changes. */
-.flowTitle:focus-visible {
-  outline-offset: var(--focus-offset);
-}
 
 .flowBack {
   flex: none;

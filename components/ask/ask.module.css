@@ -220,7 +220,7 @@
   border-inline-start: var(--line-w-thick) solid var(--line-strong);
   font-family: var(--face-display);
   font-size: var(--t-small);
-  line-height: 1.55;
+  line-height: var(--t-small-lh);
   color: var(--ink);
   overflow-wrap: anywhere;
   font-optical-sizing: auto;
@@ -632,7 +632,8 @@
   color: var(--ground);
 }
 
-.deskPrompt:has(textarea:not(:placeholder-shown)) .deskSubmit:hover:not(:disabled) {
+.deskPrompt:has(textarea:not(:placeholder-shown)) .deskSubmit:hover:not(:disabled),
+.deskPrompt:has(textarea:not(:placeholder-shown)) .deskSubmit:focus-visible:not(:disabled) {
   background: var(--gold-hi);
   border-color: var(--gold-hi);
 }
@@ -686,7 +687,8 @@
     background-color var(--dur-fast) var(--ease-out);
 }
 
-.launcher:hover {
+.launcher:hover,
+.launcher:focus-visible {
   color: var(--ink-hi);
   border-color: var(--line-strong);
   background: var(--tint-hover);
@@ -777,15 +779,17 @@
  * screen-reader-only and the glyph carries the control, the same contract
  * `SearchLauncher`'s icon variant and the phone's Menu trigger use. */
 .dockTrigger {
+  --link-pad: var(--sp-2);
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--sp-2);
   min-inline-size: var(--control-h);
   min-block-size: var(--control-h);
-  padding: 0 var(--sp-2);
+  padding: 0 var(--link-pad);
   border: 0;
-  border-radius: var(--radius-2);
+  border-radius: var(--radius-1);
   background: transparent;
   color: var(--ink-hi);
   font: var(--t-caption-weight) var(--t-caption)/1 var(--face-navigation);
@@ -795,6 +799,9 @@
   transition: color var(--dur-fast) var(--ease-out);
 }
 
+/* The eye-in-crosshair mark, in gold, with no ring around it (2026-09-15):
+   the bar's one ringed control is Support, and "here" is the hairline the
+   whole bar shares, drawn by `.dockTrigger::after` below. */
 .dockGlyph {
   display: flex;
   align-items: center;
@@ -803,7 +810,7 @@
   inline-size: 1.75rem;
   block-size: 1.75rem;
   padding: 0.25rem;
-  border: var(--line-w) solid var(--gold-dim);
+  border: 0;
   border-radius: var(--radius-pill);
   color: var(--gold);
   transition:
@@ -823,11 +830,13 @@
 }
 
 .dockTrigger:hover,
+.dockTrigger:focus-visible,
 .dockTrigger[aria-expanded="true"] {
   color: var(--gold-hi);
 }
 
 .dockTrigger:hover .dockGlyph,
+.dockTrigger:focus-visible .dockGlyph,
 .dockTrigger[aria-expanded="true"] .dockGlyph {
   border-color: var(--gold);
 }
@@ -842,10 +851,6 @@
   background: var(--gold-wash);
 }
 
-.dockTrigger:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: 2px;
-}
 
 .dockTrigger:active .dockGlyph {
   background: var(--gold);
@@ -1086,7 +1091,8 @@
   border-color: var(--control-line);
 }
 
-.primerExamples button:hover:not(:disabled) {
+.primerExamples button:hover:not(:disabled),
+.primerExamples button:focus-visible {
   background: var(--surface-2);
   border-color: var(--control-line);
   color: var(--ink-hi);
@@ -1397,4 +1403,26 @@
   .dockPanel [data-slot="body"] {
     padding-inline: var(--sp-4);
   }
+}
+
+/* The bar's one current mark, on the Ask control as on every other bar-level
+   control: a hairline under it, `--line-strong` on hover or while the desk
+   is open, gold on /ask. See `components/site/site-header.module.css`. */
+.dockTrigger::after {
+  content: "";
+  position: absolute;
+  left: var(--link-pad);
+  right: var(--link-pad);
+  bottom: var(--sp-2);
+  height: var(--line-w);
+  background: transparent;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.dockTrigger:hover::after,
+.dockTrigger[aria-expanded="true"]::after { background: var(--line-strong); }
+.dockTrigger[aria-current="page"]::after { background: var(--gold); }
+
+@media (forced-colors: active) {
+  .dockTrigger[aria-current="page"]::after { background: Highlight; }
 }

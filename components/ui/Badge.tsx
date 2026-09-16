@@ -3,9 +3,25 @@ import styles from "./badge.module.css";
 
 /**
  * Shared status grammar for evidence, verification, and system chrome.
- * Colour is a ramp; the mark shape and the label are the cues. Content-layer
- * `VerificationBadge` / `EvidenceGrade` still own their copy — they should
- * consume `BADGE_GRAMMAR` when SYS-011 migrates them.
+ *
+ * One renderer, one grammar (SYS-011). `VerificationBadge`, `EvidenceGrade`
+ * and the roster's identity chip in `components/content` own the copy the
+ * reader sees and render through this component; the fact-check desk's
+ * verdict marks do the same. Colour is a ramp and never the only cue: the
+ * text is required, and the mark is a function of the verdict's *polarity*
+ * rather than of its colour, so "Verified" and "False" still differ when the
+ * page is printed in greyscale or read under forced colours.
+ *
+ *   affirming   filled square    verified · documented · high · success · ok
+ *   negating    filled diamond   false · misleading · manipulated · refuted ·
+ *                                error · danger
+ *   uncertain   hollow circle    contested · out of context · disputed ·
+ *                                unsupported · unverified · unresolved ·
+ *                                limited · low · warn · inferred
+ *   other       dashed circle    satire · disabled · idle · empty · neutral
+ *   in progress filled circle    loading · processing · emphasis, and the
+ *                                middling grades (medium · observed ·
+ *                                probable) that are neither a yes nor a no
  */
 
 export type BadgeRamp = "neutral" | "gold" | "ember" | "ok" | "warn" | "danger";
@@ -42,7 +58,9 @@ export type BadgeStatus =
   | "high"
   | "medium"
   | "limited"
-  | "low";
+  | "low"
+  | "confirmed"
+  | "probable";
 
 export type BadgeTone = BadgeRamp;
 /** @deprecated Use `BadgeStatus` / `BadgeTone`. */
@@ -56,39 +74,45 @@ export type BadgeGrammar = {
 };
 
 export const BADGE_GRAMMAR: Record<BadgeStatus, BadgeGrammar> = {
-  neutral: { ramp: "neutral", label: "Note", mark: "hollow", domain: "system" },
+  neutral: { ramp: "neutral", label: "Note", mark: "dashed", domain: "system" },
   gold: { ramp: "gold", label: "Emphasis", mark: "circle", domain: "system" },
-  ember: { ramp: "ember", label: "Contested", mark: "square", domain: "verification" },
+  ember: { ramp: "ember", label: "Contested", mark: "hollow", domain: "verification" },
   ok: { ramp: "ok", label: "OK", mark: "square", domain: "system" },
-  warn: { ramp: "warn", label: "Warning", mark: "diamond", domain: "system" },
-  danger: { ramp: "danger", label: "Alert", mark: "square", domain: "system" },
+  warn: { ramp: "warn", label: "Warning", mark: "hollow", domain: "system" },
+  danger: { ramp: "danger", label: "Alert", mark: "diamond", domain: "system" },
   verified: { ramp: "ok", label: "Verified", mark: "square", domain: "verification" },
-  warning: { ramp: "warn", label: "Warning", mark: "diamond", domain: "system" },
-  idle: { ramp: "neutral", label: "Idle", mark: "hollow", domain: "system" },
+  warning: { ramp: "warn", label: "Warning", mark: "hollow", domain: "system" },
+  idle: { ramp: "neutral", label: "Idle", mark: "dashed", domain: "system" },
   loading: { ramp: "gold", label: "Loading", mark: "circle", domain: "system" },
   processing: { ramp: "gold", label: "Processing", mark: "circle", domain: "system" },
   success: { ramp: "ok", label: "Success", mark: "square", domain: "system" },
-  error: { ramp: "danger", label: "Error", mark: "square", domain: "system" },
-  empty: { ramp: "neutral", label: "Empty", mark: "hollow", domain: "system" },
+  error: { ramp: "danger", label: "Error", mark: "diamond", domain: "system" },
+  empty: { ramp: "neutral", label: "Empty", mark: "dashed", domain: "system" },
   disabled: { ramp: "neutral", label: "Disabled", mark: "dashed", domain: "system" },
-  false: { ramp: "danger", label: "False", mark: "square", domain: "verification" },
-  misleading: { ramp: "danger", label: "Misleading", mark: "square", domain: "verification" },
-  manipulated: { ramp: "danger", label: "Manipulated", mark: "square", domain: "verification" },
-  out_of_context: { ramp: "ember", label: "Out of context", mark: "diamond", domain: "verification" },
-  contested: { ramp: "ember", label: "Contested", mark: "diamond", domain: "verification" },
+  false: { ramp: "danger", label: "False", mark: "diamond", domain: "verification" },
+  misleading: { ramp: "danger", label: "Misleading", mark: "diamond", domain: "verification" },
+  manipulated: { ramp: "danger", label: "Manipulated", mark: "diamond", domain: "verification" },
+  out_of_context: { ramp: "ember", label: "Out of context", mark: "hollow", domain: "verification" },
+  contested: { ramp: "ember", label: "Contested", mark: "hollow", domain: "verification" },
   unsupported: { ramp: "warn", label: "Unsupported", mark: "hollow", domain: "verification" },
   unverified: { ramp: "neutral", label: "Unverified", mark: "hollow", domain: "verification" },
   satire: { ramp: "neutral", label: "Satire", mark: "dashed", domain: "verification" },
-  refuted: { ramp: "danger", label: "Refuted", mark: "square", domain: "verification" },
-  disputed: { ramp: "warn", label: "Disputed", mark: "diamond", domain: "verification" },
+  refuted: { ramp: "danger", label: "Refuted", mark: "diamond", domain: "verification" },
+  disputed: { ramp: "warn", label: "Disputed", mark: "hollow", domain: "verification" },
   unresolved: { ramp: "neutral", label: "Unresolved", mark: "hollow", domain: "verification" },
   documented: { ramp: "ok", label: "Documented", mark: "square", domain: "evidence" },
   observed: { ramp: "gold", label: "Observed", mark: "circle", domain: "evidence" },
-  inferred: { ramp: "warn", label: "Inferred", mark: "diamond", domain: "evidence" },
+  inferred: { ramp: "warn", label: "Inferred", mark: "hollow", domain: "evidence" },
   high: { ramp: "ok", label: "High confidence", mark: "square", domain: "evidence" },
   medium: { ramp: "gold", label: "Medium confidence", mark: "circle", domain: "evidence" },
-  limited: { ramp: "warn", label: "Limited confidence", mark: "diamond", domain: "evidence" },
-  low: { ramp: "warn", label: "Low confidence", mark: "diamond", domain: "evidence" },
+  limited: { ramp: "warn", label: "Limited confidence", mark: "hollow", domain: "evidence" },
+  low: { ramp: "warn", label: "Low confidence", mark: "hollow", domain: "evidence" },
+  /* The roster's identity resolution (`CaseEntity.identityStatus`): a grade of
+     how well the research knows who is behind an account, which is why it is
+     filed under evidence and not verification. `unresolved` is shared with the
+     narrative states above and reads the same either way. */
+  confirmed: { ramp: "ok", label: "Confirmed", mark: "square", domain: "evidence" },
+  probable: { ramp: "gold", label: "Probable", mark: "circle", domain: "evidence" },
 };
 
 interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
@@ -130,6 +154,7 @@ export function Badge({
       data-status={key}
       data-domain={domain ?? grammar.domain}
       data-ramp={ramp}
+      data-mark={mark}
       {...props}
     >
       <span className={styles.mark} data-dot={dot || undefined} aria-hidden="true" />

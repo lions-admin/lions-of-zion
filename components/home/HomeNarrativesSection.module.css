@@ -16,14 +16,21 @@
 }
 
 .researchQuestion {
-  margin-top: 14px;
+  margin-top: var(--sp-4);
 }
 
+/* The label naming the question: the kicker role, held by hand because this
+   is a child selector. */
 .researchQuestion > span {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: var(--sp-2);
   color: var(--ink-lo);
-  font: 500 12px/1.6 var(--face-text);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
+  text-transform: uppercase;
 }
 
 .researchQuestion > p {

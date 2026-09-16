@@ -1,16 +1,19 @@
 import type { EvidenceClass, ResearchConfidence } from '@/lib/content/fake-resistance-cases';
-import { BADGE_GRAMMAR } from '@/components/ui/Badge';
+import { Badge, BADGE_GRAMMAR, type BadgeStatus } from '@/components/ui/Badge';
 import styles from './content.module.css';
 
 /**
  * The research's own grades, rendered as labels.
  *
- * These are deliberately *not* `VerificationBadge`. A verdict says what the
- * record shows about a claim; a confidence grade says how well the research
- * knows its own finding, and an evidence class says what kind of proof stands
- * behind an edge. Rendering either through the verdict badge would let "we are
- * fairly sure" read as "this is verified", which is the single most likely way
- * for this section to overstate itself.
+ * These are deliberately *not* `VerificationBadge`, even though both render
+ * through the one `Badge` grammar (SYS-011). A verdict says what the record
+ * shows about a claim; a confidence grade says how well the research knows
+ * its own finding, and an evidence class says what kind of proof stands
+ * behind an edge. They share a shape vocabulary — a filled square is still
+ * "yes", a hollow circle still "not settled" — but they keep their own words,
+ * their own explanations and the `evidence` domain, so "we are fairly sure"
+ * never reads as "this is verified", which is the single most likely way for
+ * this section to overstate itself.
  */
 const CONFIDENCE_LABEL: Record<ResearchConfidence, string> = {
   high: BADGE_GRAMMAR.high.label,
@@ -22,6 +25,12 @@ const CONFIDENCE_EXPLANATION: Record<ResearchConfidence, string> = {
   high: 'High confidence: multiple independent methods or sources agree.',
   medium: 'Medium confidence: supported, with material gaps acknowledged.',
   low: 'Low confidence: a single source or an unresolved alternative explanation.',
+};
+
+const EVIDENCE_STATUS: Record<EvidenceClass, BadgeStatus> = {
+  documented_relationship: 'documented',
+  observed_interaction: 'observed',
+  inferred_coordination: 'inferred',
 };
 
 const EVIDENCE_LABEL: Record<EvidenceClass, string> = {
@@ -43,13 +52,10 @@ export function ConfidenceChip({ value }: { value: ResearchConfidence }) {
   const label = CONFIDENCE_LABEL[value];
   if (!label) return null;
   return (
-    <span
-      className={styles.gradeChip}
-      data-confidence={value}
-      title={CONFIDENCE_EXPLANATION[value]}
-    >
+    <Badge status={value} domain="evidence" title={CONFIDENCE_EXPLANATION[value]}>
       {label}
-    </span>
+      <span className={styles.badgeNote}> — {CONFIDENCE_EXPLANATION[value]}</span>
+    </Badge>
   );
 }
 
@@ -57,8 +63,9 @@ export function EvidenceClassChip({ value }: { value: EvidenceClass }) {
   const label = EVIDENCE_LABEL[value];
   if (!label) return null;
   return (
-    <span className={styles.gradeChip} data-evidence={value} title={EVIDENCE_EXPLANATION[value]}>
+    <Badge status={EVIDENCE_STATUS[value]} domain="evidence" title={EVIDENCE_EXPLANATION[value]}>
       {label}
-    </span>
+      <span className={styles.badgeNote}> — {EVIDENCE_EXPLANATION[value]}</span>
+    </Badge>
   );
 }

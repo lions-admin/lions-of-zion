@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
+import { politeLive } from '@/components/ui/live-region';
 import { useInvestigation } from './InvestigationProvider';
 import styles from './investigation.module.css';
 
@@ -34,7 +35,7 @@ export function EvidencePath() {
       : '';
 
   return (
-    <div className={styles.path} role="status" aria-live="polite" data-active={active || rangeText ? 'yes' : 'no'}>
+    <div className={styles.path} {...politeLive} data-active={active || rangeText ? 'yes' : 'no'}>
       {active ? (
         <>
           <span className={styles.pathLabel}>Following</span>

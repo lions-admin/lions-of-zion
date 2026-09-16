@@ -114,12 +114,17 @@
   transition: transform var(--dur-base) var(--ease-out);
 }
 
-.read:hover { box-shadow: inset 0 calc(-1 * var(--line-w)) 0 currentColor; }
+.read:hover,
+.read:focus-visible { box-shadow: inset 0 calc(-1 * var(--line-w)) 0 currentColor; }
 .read:hover > span,
-.sectionLink:hover > span { transform: translateX(0.25em); }
+.read:focus-visible > span,
+.sectionLink:hover > span,
+.sectionLink:focus-visible > span { transform: translateX(0.25em); }
 
-.hub a:hover { color: var(--gold-hi); }
-.hub a:focus-visible { outline: var(--focus-outline); outline-offset: var(--focus-offset); }
+/* The global `:focus-visible` ring draws itself; the hover colour is the
+   keyboard twin's too. */
+.hub a:hover,
+.hub a:focus-visible { color: var(--gold-hi); }
 .hub a:active { color: var(--gold); }
 
 .hub h2 a,
@@ -298,7 +303,8 @@
   transition: border-color var(--dur-fast) var(--ease-out);
 }
 
-.record:hover { border-bottom-color: var(--line-strong); }
+.record:hover,
+.record:focus-within { border-bottom-color: var(--line-strong); }
 
 /* The row is one column until a picture arrives; a list that reserves space
    for an image it has not got reads as a broken layout rather than a plain
@@ -489,5 +495,7 @@
   .hub h3 a,
   .record { transition: none; }
   .read:hover > span,
-  .sectionLink:hover > span { transform: none; }
+  .read:focus-visible > span,
+  .sectionLink:hover > span,
+  .sectionLink:focus-visible > span { transform: none; }
 }

@@ -176,7 +176,8 @@
   text-transform: none;
 }
 
-.xButton:hover:not(:disabled) {
+.xButton:hover:not(:disabled),
+.xButton:focus-visible:not(:disabled) {
   /* Dimming the ground, not tinting it: the mark stays exactly black. */
   --x-brand-ground: #ddd;
 }
@@ -186,8 +187,5 @@
 }
 
 /* The focus ring stays the site's, not the brand's: a reader tabbing through
-   the page should not have to learn a second ring on one control. */
-.xButton:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-offset);
-}
+   the page should not have to learn a second ring on one control. Nothing
+   here touches `outline`, so the global `:focus-visible` ring draws itself. */

@@ -217,6 +217,7 @@
 }
 
 .node:hover:not(:disabled),
+.node:focus-visible:not(:disabled),
 .node:active:not(:disabled) {
   --btn-bg: transparent;
   --btn-fg: var(--ink);
@@ -363,7 +364,9 @@
   stroke-width: var(--line-w-thick);
   stroke-linecap: round;
   stroke-dasharray: 12 88;
-  animation: beam-travel 2.4s linear infinite;
+  /* A processing sweep, not an ambient loop (`tests/motion-runtime`): one and
+     a half shimmer periods, which is the 2.4s it always ran at. */
+  animation: beam-travel calc(var(--dur-shimmer) * 1.5) linear infinite;
   pointer-events: none;
 }
 
@@ -620,7 +623,8 @@
   color: var(--data-ember-peak);
 }
 
-.listSummary:hover {
+.listSummary:hover,
+.listSummary:focus-visible {
   background: var(--tint-hover);
 }
 

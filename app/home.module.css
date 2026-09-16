@@ -23,7 +23,7 @@
    `min-height` keeps the band deterministic before a single font has swapped.
    Was `clamp(310px, 44svh, 520px)` of margin with no bound at all on a phone,
    which put the cover at 101svh and the first record out of sight (VA-10). */
-.hero { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: clamp(500px, 71svh, 740px); padding-top: var(--header-h); padding-bottom: 22px; isolation: isolate; }
+.hero { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: clamp(500px, 71svh, 740px); padding-top: var(--header-h); padding-bottom: var(--sp-5); isolation: isolate; }
 .fieldLayer { position: absolute; inset: var(--header-h) 0 0; z-index: -1; overflow: clip; pointer-events: none; }
 /* The portrait crop was framed for a 101svh cover, where the lion's head had a
    third of a screen to itself above the masthead. In the bounded cover it has
@@ -50,77 +50,81 @@
    one control that exists for a keyboard user lands them on a headline they
    cannot read. Stated against `--header-h` rather than a pixel: the token is
    4.8rem on a desktop and 3.5rem on a phone, plus the safe-area inset, and a
-   literal would be wrong on two of the three. */
-.wordmark { margin: 0; max-width: 100%; scroll-margin-top: calc(var(--header-h) + var(--sp-4)); color: var(--ink-hi); font: 400 clamp(54px, 13.5vw, 100px)/.86 var(--face-home-emphasis); letter-spacing: -.05em; }
+   literal would be wrong on two of the three.
+
+   The wordmark's size, weight and tracking are the `--t-home-wordmark*`
+   tokens (2026-09-15): the phone value here, the desktop value under the
+   48rem seam below. Nothing about the mark is declared in this file. */
+.wordmark { margin: 0; max-width: 100%; scroll-margin-top: calc(var(--header-h) + var(--sp-4)); color: var(--ink-hi); font-family: var(--face-home-emphasis); font-size: var(--t-home-wordmark-mobile); font-weight: var(--t-home-wordmark-weight); line-height: .86; letter-spacing: var(--t-home-wordmark-tracking); }
 .wordmarkLine { display: flex; align-items: baseline; gap: .12em; white-space: nowrap; }
 .wordmarkLine + .wordmarkLine { margin-top: .1em; }
 .wordmarkOf { font-size: .29em; letter-spacing: .015em; }
-.standfirst { max-width: 38ch; margin: 15px 0 0; color: var(--ink); font: 400 16px/1.55 var(--face-home-cover); text-wrap: pretty; }
+.standfirst { max-width: 38ch; margin: var(--sp-4) 0 0; color: var(--ink); font-family: var(--face-home-cover); font-size: var(--t-lede); font-weight: var(--t-lede-weight); line-height: var(--t-lede-lh); letter-spacing: var(--t-lede-tracking); text-wrap: pretty; }
 /* The cover's one action. `JourneyLink`'s `primary` role already gives it the
    border and the surface that make it the only pressable-looking thing on the
-   cover (`homepage-journey.module.css` `.linkPrimary`); what is added here is
-   a focus ring that is not a colour change. `.linkPrimary:focus-visible`
-   states itself by swapping border and background hue, and a hue swap is the
-   one thing a reader with low vision or a colour deficiency may not see —
-   WCAG 2.2 wants an indicator with its own geometry, so there is an outline
-   with an offset, outside the border that is already there. */
-.actions { display: flex; margin-top: 12px; }
+   cover (`homepage-journey.module.css` `.linkPrimary`). Its focus ring is the
+   global `:focus-visible` outline — an indicator with its own geometry,
+   outside the border that is already there — rather than the hue swap the
+   role's `:focus-visible` state adds on top, which a reader with low vision
+   or a colour deficiency may not see (WCAG 2.2). There is no local ring here:
+   the one in `app/globals.css` is the only one. */
+.actions { display: flex; margin-top: var(--sp-3); }
 .actions a { color: var(--ink-hi); min-width: 200px; min-height: 48px; }
-.actions a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 /* The edition rail — the bottom band of the cover (VA-10). A gold hairline
    opens it, the metadata line dates the edition and names the lead's status,
    and one block link carries the headline and the way in, so the whole record
    is a single 44px-plus target rather than a headline with a small link beside
-   it. Metadata is 13px and the headline is display type: nothing here is
-   shrunk below the phone floors to buy vertical space.
+   it. Metadata is the data role (a dateline is a machine value) and the
+   headline is display type: nothing here is shrunk below the phone floors to
+   buy vertical space.
 
    The headline reserves exactly two lines whatever the record's title length
-   (`min-height` in `em` against its own clamp, with the clamp cutting a longer
-   one), so the rail's height is settled at first paint and every band below
-   the cover never moves. It is the cover's last block since UX-13 moved the
-   support chips to the close of the first band (`homepage-journey.module.css`
-   `.supportStrip`). */
-.editionRail { max-width: 34ch; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--gold-line-strong); }
-.editionRailMeta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin: 0 0 7px; color: var(--ink-lo); font: 400 13px/1.5 var(--face-data); letter-spacing: .05em; text-transform: uppercase; }
+   (`min-height` derived from the role's own line-height, with the clamp
+   cutting a longer one), so the rail's height is settled at first paint and
+   every band below the cover never moves. It is the cover's last block since
+   UX-13 moved the support chips to the close of the first band
+   (`homepage-journey.module.css` `.supportStrip`). */
+.editionRail { max-width: 34ch; margin-top: var(--sp-4); padding-top: var(--sp-3); border-top: var(--line-w) solid var(--gold-line-strong); }
+.editionRailMeta { composes: dataLabel from global; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px var(--sp-3); margin: 0 0 var(--sp-2); color: var(--ink-lo); }
 /* Decorative separator with an empty alternative text, so a screen reader
    reads "Sun 6 Sept, Daily Brief" rather than announcing a middle dot. */
-.editionRailMeta > * + *::before { content: "·" / ""; margin-inline-end: 10px; color: var(--ink-lo); }
+.editionRailMeta > * + *::before { content: "·" / ""; margin-inline-end: var(--sp-3); color: var(--ink-lo); }
 .editionRailStatus { color: var(--gold); }
 .editionRailFlag { color: var(--ink-lo); }
-.editionRailLead { display: block; min-height: 44px; color: var(--ink-hi); text-decoration: none; }
-.editionRailHeadline { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; min-height: 2.44em; color: var(--ink-hi); font: 400 clamp(20px, 5.3vw, 25px)/1.22 var(--face-home-emphasis); letter-spacing: -.02em; text-wrap: pretty; }
-.editionRailCta { display: inline-flex; align-items: center; gap: 9px; margin-top: 6px; color: var(--gold); font: 500 13px/1.45 var(--face-navigation); letter-spacing: 0; text-transform: none; }
+.editionRailLead { display: block; min-height: var(--control-h); color: var(--ink-hi); text-decoration: none; }
+/* `--t-h3` on a phone, `--t-figure` from the 48rem seam: the cover's lead is
+   the highest-ranked record on the page and takes the figure role where
+   there is room for it. */
+.editionRailHeadline { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; min-height: calc(2 * var(--t-h3-lh) * 1em); color: var(--ink-hi); font-family: var(--face-home-emphasis); font-size: var(--t-h3); font-weight: var(--t-h3-weight); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tracking); text-wrap: pretty; }
+.editionRailCta { display: inline-flex; align-items: center; gap: var(--sp-2); margin-top: var(--sp-2); color: var(--gold); font-family: var(--face-navigation); font-size: var(--t-caption); font-weight: var(--t-caption-weight); line-height: var(--t-caption-lh); letter-spacing: 0; text-transform: none; }
 .editionRailCta svg { flex: none; width: 19px; height: 19px; stroke: currentColor; stroke-width: 1.35; transition: transform var(--dur-fast) var(--ease-out); }
 .editionRailLead:hover .editionRailHeadline { color: var(--gold-hi); }
 .editionRailLead:hover .editionRailCta svg { transform: translateX(4px); }
-.editionRailLead:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
-.noscriptNav { margin: 0 var(--home-gutter); padding: 16px; border-block: 1px solid var(--line); background: var(--ground); }
-.noscriptNav ol { display: flex; flex-wrap: wrap; gap: 12px 24px; list-style: none; padding: 0; }
-.noscriptNav a { color: var(--ink); font-size: 14px; }
+.noscriptNav { margin: 0 var(--home-gutter); padding: var(--sp-4); border-block: var(--line-w) solid var(--line); background: var(--ground); }
+.noscriptNav ol { display: flex; flex-wrap: wrap; gap: var(--sp-3) var(--sp-5); list-style: none; padding: 0; }
+.noscriptNav a { display: inline-flex; align-items: center; min-height: var(--control-h); color: var(--ink); font-size: var(--t-small); line-height: var(--t-small-lh); }
 .noscriptNav a:hover, .noscriptNav a:focus-visible { color: var(--gold); }
-.motionControl { position: absolute; z-index: 2; top: calc(var(--header-h) + 16px); right: var(--home-gutter); min-height: 44px; padding: 8px 12px; border: 1px solid var(--line); background: var(--ground); color: var(--ink); cursor: pointer; }
-.skipLink { position: fixed; top: 12px; left: 20px; z-index: 1000; transform: translateY(-200%); padding: 14px 20px; background: var(--ground); color: var(--ink-hi); border: 1px solid var(--gold); }
-.skipLink:focus { transform: translateY(0); }
+.motionControl { position: absolute; z-index: 2; top: calc(var(--header-h) + var(--sp-4)); right: var(--home-gutter); min-height: var(--control-h); padding: var(--sp-2) var(--sp-3); border: var(--line-w) solid var(--control-line); background: var(--ground); color: var(--ink); cursor: pointer; }
 
 /* The same shape query selects both the poster and the moving shot. */
-@media (min-width: 760px) and (min-aspect-ratio: 6/5) {
+@media (min-width: 48rem) and (min-aspect-ratio: 6/5) {
   .hero { min-height: clamp(520px, 74svh, 860px); padding-bottom: 28px; }
   .posterField { background-image: var(--hero-poster-wide); background-position: 64% 50%; }
   .heroVideo { object-position: 64% 50%; }
   .heroScrim { background: linear-gradient(90deg, color-mix(in srgb, var(--ground) 78%, transparent), color-mix(in srgb, var(--ground) 38%, transparent) 37%, transparent 68%), linear-gradient(0deg, var(--ground), transparent 33%); }
   .masthead { width: min(46vw, 660px); margin: 44px clamp(24px, 5vw, 80px) 0; }
-  .wordmark { font-size: clamp(76px, 8.5vw, 144px); }
-  .standfirst { font-size: 18px; margin-top: 20px; }
-  .actions { margin-top: 16px; }
-  .editionRail { max-width: 40ch; margin-top: 16px; padding-top: 13px; }
-  .editionRailHeadline { font-size: clamp(23px, 2.1vw, 31px); }
+  .wordmark { font-size: var(--t-home-wordmark); }
+  .standfirst { margin-top: 20px; }
+  .actions { margin-top: var(--sp-4); }
+  .editionRail { max-width: 40ch; margin-top: var(--sp-4); padding-top: var(--sp-3); }
+  .editionRailHeadline { min-height: calc(2 * var(--t-figure-lh) * 1em); font-size: var(--t-figure); font-weight: var(--t-figure-weight); line-height: var(--t-figure-lh); }
 }
-@media (min-width: 760px) and (aspect-ratio < 6/5) {
+@media (min-width: 48rem) and (aspect-ratio < 6/5) {
   .masthead { margin-top: clamp(120px, 18svh, 260px); }
-  .wordmark { font-size: clamp(80px, 12vw, 112px); }
+  .wordmark { font-size: var(--t-home-wordmark); }
   .editionRail { max-width: 44ch; }
 }
-@media (max-width: 759px) {
+@media (max-width: 47.99rem) {
   /* Owner ruling, 2026-09-14: full video, with the text layer over it. The
      ruling was given in Hebrew and is not quoted here — `english-chrome`
      keeps Hebrew inside the admin console and out of the public source.
@@ -189,12 +193,12 @@
      `align-self` as well as `width`, because `.masthead` is a column with
      `align-items: flex-start`: without it the row is only as wide as the
      label and `width: 100%` inside it is 100% of 178px. */
-  .actions { align-self: stretch; margin-top: 18px; }
+  .actions { align-self: stretch; margin-top: var(--sp-4); }
   .actions a { min-width: 0; width: 100%; max-width: 100%; }
   /* The cover's own rhythm on a phone: each block gets room to be read as a
      block rather than as one continuous column of type (#50). */
-  .standfirst { margin-top: 18px; }
-  .editionRail { margin-top: 22px; padding-top: 14px; }
+  .standfirst { margin-top: var(--sp-4); }
+  .editionRail { margin-top: var(--sp-5); padding-top: var(--sp-4); }
   /* Three lines allowed, two reserved. Two allowed was a real cut: measured
      on a 390px screen, "Hostage families march on the Knesset as the cabinet
      weighs a phased agreement with Hamas" has a 76px natural height inside a
@@ -211,7 +215,7 @@
      it. The desktop rail keeps `2` for both: its band is not a screen tall
      and the same growth would be a shift. */
   .editionRailHeadline { -webkit-line-clamp: 3; line-clamp: 3; }
-  .hero + .readingSurface { padding-top: 22px; }
+  .hero + .readingSurface { padding-top: var(--sp-5); }
 }
 @media (prefers-reduced-motion: reduce) {
   .heroVideo { display: none; transition: none; }

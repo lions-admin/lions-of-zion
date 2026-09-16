@@ -52,6 +52,7 @@ import { InvestigationExplorer } from "@/components/evidence/InvestigationExplor
 import { Card, CardDescription, CardEyebrow, CardTitle } from "@/components/ui/Card";
 import { measurePublicationCard, measureSection } from "@/components/measurement/attrs";
 import styles from "./article.module.css";
+import { Icon } from "@/components/ui/Icon";
 
 type Props = { params: Promise<{ publicId: string }> };
 
@@ -579,7 +580,7 @@ export default async function ArticlePage({ params }: Props) {
               44px: it was a bare 22px line at the foot of every article. */}
           <p className={styles.relatedSubhead}>
             <Link className={styles.deskLink} href={desk.href} data-measure-id="article-desk-link">
-              All of {desk.label} <span aria-hidden="true">→</span>
+              All of {desk.label} <Icon name="arrow-right" inline className="arrow" />
             </Link>
           </p>
         </section>

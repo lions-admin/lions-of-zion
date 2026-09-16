@@ -9,8 +9,14 @@
  *
  * Two restraints hold everywhere below. Colour is spent only on the verdict
  * and on the uncited mark — the two places a reader must not misread — and the
- * three state tokens are the only hues used. And nothing animates: a page whose
- * subject is manipulation does not get to move things to hold attention.
+ * three state tokens are the only hues used. The verdict itself is drawn by
+ * `components/ui/Badge` (SYS-011), whose mark follows the verdict's polarity,
+ * so this file styles no verdict chip of its own. And nothing animates: a page
+ * whose subject is manipulation does not get to move things to hold attention.
+ *
+ * Two type registers (UX-31): a rung's name, a `<dt>` and a position heading
+ * are labels a person wrote and take the kicker register; the rung numbers,
+ * the stamps and the counts are machine values and stay in the data face.
  *
  * CSS Modules only, no Tailwind utilities: this subtree mounts inside
  * `DocPage`'s `:where(.body)` element rules, which are unlayered and would beat
@@ -49,42 +55,6 @@
   align-items: center;
   gap: var(--sp-2) var(--sp-3);
   margin: 0;
-}
-
-.entryVerdict {
-  padding: 0.2rem var(--sp-2);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-1);
-  color: var(--ink-lo);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-}
-
-.entryVerdict[data-tone="ok"] {
-  border-color: var(--state-ok-line);
-  background: var(--state-ok-wash);
-  color: var(--state-ok);
-}
-
-.entryVerdict[data-tone="warn"] {
-  border-color: var(--state-warn-line);
-  background: var(--state-warn-wash);
-  color: var(--state-warn);
-}
-
-.entryVerdict[data-tone="danger"] {
-  border-color: var(--state-danger-line);
-  background: var(--state-danger-wash);
-  color: var(--state-danger);
-}
-
-.entryBasis {
-  padding: 0.2rem var(--sp-2);
-  border: var(--line-w) solid var(--line-strong);
-  border-radius: var(--radius-1);
-  color: var(--ink-hi);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
 }
 
 .entryStamp {
@@ -254,8 +224,11 @@
   gap: var(--sp-3);
 }
 
+/* "The claim", "Sources", "Assessment": the rung's name is a label a person
+   wrote, so the kicker register; the rung number beside it is a machine value
+   and stays mono, in the dim gold that owes 4.5:1 for exactly this text. */
 .rungLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   display: flex;
   align-items: baseline;
   gap: var(--sp-2);
@@ -265,6 +238,10 @@
 
 .rungLabel span {
   color: var(--gold-dim);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  letter-spacing: var(--t-data-tracking);
   font-variant-numeric: tabular-nums;
 }
 
@@ -297,11 +274,11 @@
 
 .claimFacts dt {
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  letter-spacing: var(--t-kicker-tracking);
+  line-height: var(--t-kicker-lh);
   text-transform: uppercase;
 }
 
@@ -351,7 +328,7 @@
 }
 
 .rungMeta {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -382,8 +359,13 @@
   color: var(--ink-lo);
 }
 
+/* "Claim record": the label; the title after it stays in the row's face. */
 .rungClaim > span:first-child {
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  letter-spacing: var(--t-kicker-tracking);
+  line-height: var(--t-kicker-lh);
   text-transform: uppercase;
 }
 
@@ -486,36 +468,6 @@
   margin: 0;
 }
 
-.verdictMark {
-  padding: var(--sp-1) var(--sp-3);
-  border: var(--line-w) solid var(--line-strong);
-  border-radius: var(--radius-2);
-  color: var(--ink-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-}
-
-.verdictMark[data-tone="ok"] {
-  border-color: var(--state-ok-line);
-  background: var(--state-ok-wash);
-  color: var(--state-ok);
-}
-
-.verdictMark[data-tone="warn"] {
-  border-color: var(--state-warn-line);
-  background: var(--state-warn-wash);
-  color: var(--state-warn);
-}
-
-.verdictMark[data-tone="danger"] {
-  border-color: var(--state-danger-line);
-  background: var(--state-danger-wash);
-  color: var(--state-danger);
-}
-
 .verdictMeaning {
   color: var(--ink);
   font-size: var(--t-small);
@@ -541,11 +493,11 @@
 .position h4 {
   margin: 0 0 var(--sp-1);
   color: var(--ink-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  line-height: var(--t-data-lh);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  letter-spacing: var(--t-kicker-tracking);
+  line-height: var(--t-kicker-lh);
   text-transform: uppercase;
 }
 

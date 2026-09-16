@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Reveal } from "@/components/motion";
+import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { VERIFICATION_STATES } from "@/components/live/publication-labels";
 import { stamp } from "@/components/live/feed-time";
@@ -79,10 +80,11 @@ export function ClaimEntry({
           <summary className={styles.summary}>
             <span className={styles.summaryBody}>
               <span className={styles.entryHead}>
-                <span className={styles.entryVerdict} data-tone={verdict.tone}>
-                  {verdict.label}
-                </span>
-                {analysis ? <span className={styles.entryBasis}>Own analysis</span> : null}
+                {/* The one verdict grammar (SYS-011): the ramp and the mark come
+                    from `verificationState` itself, so this row and the ladder's
+                    assessment rung below cannot disagree about a state. */}
+                <Badge status={details.verificationState}>{verdict.label}</Badge>
+                {analysis ? <Badge variant="neutral">Own analysis</Badge> : null}
                 {showCounts ? (
                   <span className={styles.entryStrength}>
                     {supporting} supporting · {contradicting} contradicting

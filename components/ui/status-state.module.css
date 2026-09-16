@@ -1,6 +1,8 @@
 /* StatusState — SYS-010
  *
- * Async anatomy. Colour uses --async-*; the kind label is always in text.
+ * Async anatomy. Colour uses --async-*; the kind label is always in text,
+ * once, as the `.kind` stamp. The eyebrow above the title is the caller's
+ * phrase for the surface and composes the kicker role, not the data one.
  * Animation is decorative. Error is role=alert; every other kind is polite.
  */
 
@@ -79,17 +81,24 @@
   animation: spin 0.8s linear infinite;
 }
 
+/* The mark follows the Badge grammar's polarity (2026-09-16), so a state
+   survives greyscale: affirming = filled square, negating = filled diamond,
+   uncertain = hollow circle, other = dashed circle. `--status-fg` is the
+   ramp; the shape is the cue. */
 .success .indicator {
   border-radius: var(--radius-1);
   background: var(--status-fg);
 }
 
 .warning .indicator {
-  transform: rotate(45deg);
+  border-radius: 50%;
+  background: transparent;
 }
 
 .error .indicator {
+  border-radius: 0;
   background: var(--status-fg);
+  transform: rotate(45deg) scale(0.85);
 }
 
 .empty .indicator,
@@ -97,9 +106,6 @@
 .disabled .indicator {
   background: transparent;
   border-radius: 50%;
-}
-
-.disabled .indicator {
   border-style: dashed;
 }
 
@@ -110,7 +116,7 @@
 }
 
 .eyebrow {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--ink);
   margin-bottom: var(--sp-3);
 }

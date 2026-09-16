@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { Button, ButtonLink } from '@/components/ui/Button';
+import { politeLive } from '@/components/ui/live-region';
 import { buildMediaShareText, xIntentUrl } from '@/lib/content/share-text';
 import { chooseMediaSharePayload } from '@/lib/content/media-share';
 import styles from './archive.module.css';
@@ -211,8 +212,7 @@ export function XMediaPostButton({
       )}
       <span
         className={styles.shareStatus}
-        role="status"
-        aria-live="polite"
+        {...politeLive}
         data-state={state === 'failed' ? 'failed' : state === 'ready' ? 'copied' : undefined}
       >
         {status}

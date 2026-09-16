@@ -1,7 +1,9 @@
 /* Skeleton — SYS-014
  *
  * A skeleton exists to stop the page moving when the content lands. Shapes
- * use the same tokens as the real type and cards. The sweep lives in
+ * use the same tokens as the real type and cards; the card stand-in composes
+ * the real card's rules cross-file rather than transcribing them, so the box
+ * it holds is the box `Card variant="dossier"` will draw. The sweep lives in
  * `::after` so reduced-motion can drop it and leave a static tint.
  */
 
@@ -26,12 +28,20 @@
     transparent 100%
   );
   transform: translateX(-100%);
-  animation: sweep var(--dur-ambient) var(--ease-in-out) infinite;
+  /* A loading shimmer is a processing indicator, not an ambient loop: it
+     marks a read that is genuinely in flight, so it runs at `--dur-shimmer`
+     rather than the nine-second ambient floor. The keyframes are one
+     continuous pass — the previous curve held the band off-screen for 60% of
+     a seven-second cycle, so the skeleton idled four seconds in every seven
+     and read as stalled rather than loading. Linear, because the band is
+     out of the box at both ends of the pass and an eased curve would only
+     read as a pulse. */
+  animation: sweep var(--dur-shimmer) linear infinite;
 }
 
 @keyframes sweep {
-  0%, 60% { transform: translateX(-100%); }
-  85%, 100% { transform: translateX(100%); }
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
 }
 
 .text {
@@ -69,18 +79,12 @@
   width: 62%;
 }
 
+/* The dossier card's own plate, rule, radius and padding — composed, not
+   copied, so a re-grade of `card.module.css` reaches the placeholder too.
+   Only the gap between the held shapes is this file's. */
 .card {
-  display: flex;
-  flex-direction: column;
+  composes: card dossier from "./card.module.css";
   gap: var(--sp-2);
-  height: 100%;
-  padding: var(--sp-6) var(--sp-5) var(--sp-5);
-  background-color: var(--surface-1);
-  background-image: var(--surface-grade);
-  border: var(--line-w) solid var(--line);
-  border-top: var(--line-w-thick) solid var(--line);
-  border-radius: var(--radius-3);
-  box-shadow: var(--shadow-1);
 }
 
 .cardCta {

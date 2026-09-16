@@ -1,5 +1,6 @@
 import type { CaseStats, SynchronyPair } from '@/lib/content/fake-resistance-cases';
 import styles from './research.module.css';
+import { Icon } from '@/components/ui/Icon';
 
 /**
  * How long an account waits before amplifying another — and whether that wait
@@ -99,7 +100,7 @@ export function LagFigure({ stats }: { stats: CaseStats }) {
             {rows.map((pair) => (
               <tr key={`${pair.a}|${pair.b}`}>
                 <th scope="row">
-                  {pair.a} → {pair.b}
+                  {pair.a} <Icon name="arrow-right" inline /> {pair.b}
                 </th>
                 <td>{formatDuration(pair.medianSeconds ?? 0)}</td>
                 <td>{formatPercent(pair.frac60)}</td>
@@ -131,7 +132,7 @@ function LagRow({
   return (
     <li className={significant ? styles.lagRow : `${styles.lagRow} ${styles.lagRowWeak}`}>
       <span className={styles.lagPair}>
-        {pair.a} <span aria-hidden="true">→</span> {pair.b}
+        {pair.a} <Icon name="arrow-right" inline /> {pair.b}
       </span>
       <span className={styles.lagTrack}>
         <span

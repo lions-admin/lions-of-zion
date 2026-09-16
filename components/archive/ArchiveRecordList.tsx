@@ -12,6 +12,7 @@ import type {
 import { displayTitle, displayWitness } from '@/lib/content/archive-display';
 import { MediaBlock } from '@/components/content/MediaBlock';
 import styles from './archive.module.css';
+import { Icon } from '@/components/ui/Icon';
 
 /**
  * What a row paints.
@@ -178,9 +179,7 @@ function DocumentationRow({
           {displayTitle(entry.title ?? entry.id)}
         </span>
       </span>
-      <span className={styles.exhibitArrow} aria-hidden="true">
-        →
-      </span>
+      <Icon name="arrow-right" inline className={`${styles.exhibitArrow} arrow`} />
     </>
   );
 }

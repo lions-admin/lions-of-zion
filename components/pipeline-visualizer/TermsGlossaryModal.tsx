@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
+import { Field } from "@/components/ui/Field";
 import { PIPELINE_GLOSSARY, type GlossaryTerm } from "./data/glossary";
 import { CHROME, GLOSSARY_CATEGORY_LABELS, glossaryTermCopy } from "./copy";
 import styles from "./visualizer.module.css";
@@ -60,10 +61,9 @@ function GlossaryBody({ initialSearch }: { initialSearch: string }) {
   return (
     <>
       <div className={styles.glossarySearchRow}>
-        <input
+        <Field
           type="search"
-          className={styles.glossarySearchInput}
-          aria-label={CHROME.glossarySearchLabel}
+          label={CHROME.glossarySearchLabel}
           placeholder={CHROME.glossarySearch}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}

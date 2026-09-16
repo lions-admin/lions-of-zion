@@ -116,7 +116,8 @@
     color var(--dur-fast) var(--ease-out);
 }
 
-.filter:hover {
+.filter:hover,
+.filter:focus-visible {
   border-color: var(--line-strong);
   background: var(--tint-hover);
   color: var(--ink-hi);
@@ -213,8 +214,8 @@
   position: absolute;
   top: 0.5rem;
   left: calc(var(--sp-5) * -1);
-  width: 5px;
-  height: 5px;
+  width: var(--mark);
+  height: var(--mark);
   border-radius: 50%;
   background: var(--ink-lo);
 }
@@ -236,16 +237,12 @@
   letter-spacing: var(--t-data-tracking-tight);
 }
 
-/* A section name a person wrote, inside the mono dateline: the kicker role,
-   spelled out because a class shared with the dateline cannot compose. */
+/* A section name a person wrote, inside the mono dateline: the kicker role.
+   Its own single class, so it composes; the dateline's `dataValue` stays on
+   the parent. */
 .section {
+  composes: kickerLabel from global;
   color: var(--ink-lo);
-  font-family: var(--face-kicker);
-  font-size: var(--t-kicker);
-  font-weight: var(--t-kicker-weight);
-  line-height: var(--t-kicker-lh);
-  letter-spacing: var(--t-kicker-tracking);
-  text-transform: uppercase;
 }
 
 /* ── The publication route: the page's signature ────────────────────────── */
@@ -258,8 +255,8 @@
 }
 
 .route i {
-  width: 6px;
-  height: 6px;
+  width: var(--mark);
+  height: var(--mark);
   border: var(--line-w) solid var(--ink-lo);
   border-radius: var(--radius-1);
 }
@@ -303,7 +300,8 @@
   transition: border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
 
-.title a:hover {
+.title a:hover,
+.title a:focus-visible {
   border-bottom-color: var(--gold-line-strong);
   color: var(--gold-hi);
 }
@@ -414,7 +412,8 @@
   transition: color var(--dur-fast) var(--ease-out);
 }
 
-.pagerLink:hover {
+.pagerLink:hover,
+.pagerLink:focus-visible {
   color: var(--gold-hi);
 }
 

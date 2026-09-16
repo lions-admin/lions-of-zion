@@ -202,10 +202,6 @@
   content: "\2212";
 }
 
-.ledger > summary:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-offset);
-}
 
 .ledgerTitle {
   composes: kickerLabel from global;

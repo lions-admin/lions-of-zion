@@ -8,6 +8,7 @@ import { FeedStatus } from "./FeedStatus";
 import { SECTION_LABELS } from "./publication-labels";
 import { UpdateEntry } from "./UpdateEntry";
 import styles from "./live-feed.module.css";
+import { Icon } from "@/components/ui/Icon";
 
 export const UPDATES_PATH = "/updates";
 
@@ -156,12 +157,12 @@ export function UpdateFeed({
         <nav className={styles.pager} aria-label="Feed pages">
           {paged ? (
             <Link href={href(section)} className={styles.pagerLink} rel="first">
-              <span aria-hidden="true">&uarr;</span> Newest entries
+              <Icon name="arrow-up" inline /> Newest entries
             </Link>
           ) : null}
           {nextCursor ? (
             <Link href={href(section, nextCursor)} className={styles.pagerLink} rel="next">
-              Older entries <span aria-hidden="true">&darr;</span>
+              Older entries <Icon name="arrow-down" inline />
             </Link>
           ) : (
             <p className={styles.pagerEnd}>You have reached the start of the record.</p>

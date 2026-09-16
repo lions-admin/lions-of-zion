@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useId, useRef } from "react";
 import { Button } from "./Button";
+import { Icon } from "./Icon";
 import styles from "./dialog.module.css";
 
 /**
@@ -154,7 +155,7 @@ export function Dialog({
             aria-label={closeLabel}
             onClick={onClose}
           >
-            <span aria-hidden="true">✕</span>
+            <Icon name="close" size={18} />
           </Button>
         </div>
 

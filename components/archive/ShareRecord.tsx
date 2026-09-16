@@ -11,7 +11,7 @@
  * through the operating-system share sheet (owner instruction, 2026-09-13).
  */
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { Button, ButtonLink } from '@/components/ui';
+import { Button, ButtonLink, politeLive } from '@/components/ui';
 import { XMediaPostButton } from './XMediaPostButton';
 import styles from './archive.module.css';
 
@@ -128,8 +128,7 @@ export function ShareRecord({ url, title, xHref, facebookHref, caption, xMedia }
 
         <span
           className={styles.shareStatus}
-          role="status"
-          aria-live="polite"
+          {...politeLive}
           data-state={copyState === 'idle' ? undefined : copyState}
         >
           {copyState === 'copied' ? 'Copied.' : null}

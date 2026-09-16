@@ -6,6 +6,7 @@ import { RecentActivity } from "./information-war/LivePanels";
 import { DailyCycle, OutputsFork } from "./information-war/StorySections";
 import { HomeEvidencePipeline } from "@/components/home/HomeEvidencePipeline";
 import styles from "./information-war-system.module.css";
+import { Icon } from "@/components/ui/Icon";
 
 const REPORT_NODES = ["A", "B", "C", "D", "E"].map((letter, index) => ({ letter, x: 46 + index * 92 }));
 
@@ -18,7 +19,7 @@ export function InformationWarSystem() {
           <div>
             <h1 id="war-heading"><span>{"This is an "}</span><em>{"information "}</em><span>war.</span></h1>
             <p className={styles.heroStatement}>AI-scale research.<br />Evidence-led publication.<br />Human-governed rules.</p>
-            <a className={styles.heroJump} href="#system">Follow the evidence <span aria-hidden="true">↓</span></a>
+            <a className={styles.heroJump} href="#system">Follow the evidence <Icon name="arrow-down" inline /></a>
           </div>
           <div className={styles.problem} id="problem">
             <p className={styles.eyebrow}>The problem / Repetition ≠ corroboration</p>
@@ -44,9 +45,9 @@ export function InformationWarSystem() {
           </div>
         </div>
         <nav className={styles.chapterNav} aria-label="On this page">
-          <a href="#system"><span>01</span> How the system works <span aria-hidden="true">↓</span></a>
-          <a href="#cycle"><span>02</span> What keeps it accountable <span aria-hidden="true">↓</span></a>
-          <a href="#record"><span>03</span> What the public can use <span aria-hidden="true">↓</span></a>
+          <a href="#system"><span>01</span> How the system works <Icon name="arrow-down" inline /></a>
+          <a href="#cycle"><span>02</span> What keeps it accountable <Icon name="arrow-down" inline /></a>
+          <a href="#record"><span>03</span> What the public can use <Icon name="arrow-down" inline /></a>
         </nav>
       </section>
 

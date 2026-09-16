@@ -47,9 +47,8 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExtern
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
-import { FieldShell } from "@/components/ui/Field";
+import { FieldControl, FieldShell } from "@/components/ui/Field";
 import { StatusState } from "@/components/ui/StatusState";
-import fieldStyles from "@/components/ui/field.module.css";
 import { politeLive } from "@/components/ui/live-region";
 import { SearchFilters } from "./SearchFilters";
 import { SearchPager } from "./SearchPager";
@@ -325,10 +324,10 @@ export function SearchPanel({
       <div className={styles.queryRow}>
         <FieldShell fieldId={inputId} label="Search the site" className={styles.queryField}>
           <div className={styles.queryControl}>
-            <input
+            <FieldControl
               ref={inputRef}
               id={inputId}
-              className={`${fieldStyles.control} ${styles.queryInput}`}
+              className={styles.queryInput}
               type="search"
               value={query}
               placeholder="A claim, a name, a place"

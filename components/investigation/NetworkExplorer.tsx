@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { ConfidenceChip, EvidenceClassChip } from '@/components/content';
 import { Button } from '@/components/ui/Button';
+import { SelectField } from '@/components/ui/SelectField';
+import { politeLive } from '@/components/ui/live-region';
 import type {
   CaseEdge,
   CaseEntity,
@@ -187,7 +189,7 @@ export function NetworkExplorer({ roster, edges, communities, topNodes, cases }:
             <Button
               key={relation}
               type="button"
-              variant="secondary"
+              variant="ghost"
               size="sm"
               className={styles.layerChip}
               isActive={!mutedRelations.includes(relation)}
@@ -205,7 +207,7 @@ export function NetworkExplorer({ roster, edges, communities, topNodes, cases }:
             <Button
               key={value}
               type="button"
-              variant="secondary"
+              variant="ghost"
               size="sm"
               className={styles.layerChip}
               data-kind={flowKindOf('', value)}
@@ -220,22 +222,21 @@ export function NetworkExplorer({ roster, edges, communities, topNodes, cases }:
           ))}
         </div>
         <div className={styles.layerSwitch}>
-          <label className={styles.rangeField}>
-            <span>Community</span>
-            <select
-              value={community}
-              tabIndex={interactive ? 0 : -1}
-              onChange={(event) => setCommunity(event.target.value)}
-            >
-              <option value="all">Every community</option>
-              {communities.map((c) => (
-                <option key={c.id} value={String(c.id)}>
-                  {c.id} · {c.label} ({c.size})
-                </option>
-              ))}
-              <option value="unplaced">Not placed by the computed partition</option>
-            </select>
-          </label>
+          <SelectField
+            className={styles.rangeField}
+            label="Community"
+            value={community}
+            tabIndex={interactive ? 0 : -1}
+            onChange={(event) => setCommunity(event.target.value)}
+          >
+            <option value="all">Every community</option>
+            {communities.map((c) => (
+              <option key={c.id} value={String(c.id)}>
+                {c.id} · {c.label} ({c.size})
+              </option>
+            ))}
+            <option value="unplaced">Not placed by the computed partition</option>
+          </SelectField>
           {filtersActive ? (
             <Button
               type="button"
@@ -294,7 +295,7 @@ export function NetworkExplorer({ roster, edges, communities, topNodes, cases }:
           })}
         </ol>
 
-        <div className={styles.networkInspector} aria-live="polite">
+        <div className={styles.networkInspector} {...politeLive}>
           {selectedEntity ? (
             <>
               <div className={styles.inspectorHead}>
@@ -407,7 +408,7 @@ export function NetworkExplorer({ roster, edges, communities, topNodes, cases }:
 
       {ranked.length > DEFAULT_ROWS ? (
         <p className={styles.subnote}>
-          <Button type="button" variant="secondary" size="sm" onClick={() => setShowAll((v) => !v)}>
+          <Button type="button" variant="text" size="sm" onClick={() => setShowAll((v) => !v)}>
             {showAll ? `Show the ${DEFAULT_ROWS} most connected` : `Show all ${ranked.length} accounts`}
           </Button>
         </p>

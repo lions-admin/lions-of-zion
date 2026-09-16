@@ -149,7 +149,7 @@ export function NarrativeLanes() {
             <div className={styles.laneActions}>
               <Button
                 type="button"
-                variant="secondary"
+                variant="ghost"
                 size="sm"
                 isActive={selected}
                 tabIndex={interactive ? 0 : -1}

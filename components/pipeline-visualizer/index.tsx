@@ -72,7 +72,7 @@ export function PipelineVisualizer() {
         <div className={styles.headerControls}>
           <Button
             type="button"
-            variant="secondary"
+            variant="ghost"
             size="sm"
             onClick={() => handleOpenGlossary()}
             title={CHROME.glossaryButtonTitle}

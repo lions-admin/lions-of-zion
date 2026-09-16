@@ -7,6 +7,7 @@ import { CorrectionHistory, KnownUnknownPanel } from "@/components/content";
    the stylesheet on its own. */
 import { TREND_LABELS, VERIFICATION_STATES } from "@/components/live/publication-labels";
 import { stamp } from "@/components/live/feed-time";
+import { Badge } from "@/components/ui/Badge";
 import { ANALYSIS_AUTHOR, isAnalysisBasis } from "@/server/contracts/publication";
 import type { PublicPublicationDetail } from "@/server/contracts/publication";
 import { EvidenceChain } from "./EvidenceChain";
@@ -135,9 +136,7 @@ export function ClaimLadder({ record }: { record: PublicPublicationDetail }) {
           <span>05</span> Assessment
         </h3>
         <p className={styles.verdictLine}>
-          <span className={styles.verdictMark} data-tone={verdict.tone}>
-            {verdict.label}
-          </span>
+          <Badge status={details.verificationState}>{verdict.label}</Badge>
           <span className={styles.verdictMeaning}>{verdict.meaning}</span>
         </p>
         <p className={styles.basisLine} data-basis={analysis ? "analysis" : "sourced"}>

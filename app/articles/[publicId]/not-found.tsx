@@ -40,7 +40,7 @@ export default function ArticleNotFound() {
           </p>
         </header>
         <nav className={styles.recoveryNav} aria-label="Find a published record">
-          <ButtonLink href={publicationHubCrumb("news").href} variant="secondary" size="md">
+          <ButtonLink href={publicationHubCrumb("news").href} variant="primary" size="md">
             {publicationHubCrumb("news").label}
           </ButtonLink>
           <ButtonLink href="/search" variant="ghost" size="md">

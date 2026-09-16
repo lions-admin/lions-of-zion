@@ -21,6 +21,7 @@ import { SITE_URL } from '@/lib/site-config';
 import styles from './page.module.css';
 import { publicationHubCrumb } from '@/lib/publication-routing';
 import { pageMetadata } from '@/lib/page-metadata';
+import { Icon } from '@/components/ui/Icon';
 
 const TAGLINE =
   'What the case files add up to when the network is computed rather than drawn by hand — and which of the earlier readings that killed.';
@@ -334,7 +335,7 @@ export default async function Page() {
               <li key={edge.id}>
                 <div className={styles.edgeHead}>
                   <span className={styles.edgePair}>
-                    {edge.from} <span aria-hidden="true">→</span> {edge.to}
+                    {edge.from} <Icon name="arrow-right" inline /> {edge.to}
                   </span>
                   <EvidenceClassChip value={edge.evidenceClass} />
                 </div>

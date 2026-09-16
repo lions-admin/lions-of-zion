@@ -8,9 +8,12 @@
  * a real header.
  *
  * Two type roles, kept apart on purpose (UX-31): a *kicker* — a section label
- * or a flag such as "Latest story" — is sans caps at `--t-kicker`; a *data
- * value* — a date, a count, a facet — is the mono face at `--t-data`. A rule
- * that sets one must not borrow the other. */
+ * or a flag such as "Latest story" — is the kicker role from app/globals.css
+ * (`composes: kickerLabel from global` where the rule is a single class, the
+ * `--t-kicker*` tokens written out where a descendant selector cannot
+ * compose); a *data value* — a date, a count, a facet — is the mono face at
+ * `--t-data`. A rule that sets one must not borrow the other. Until
+ * 2026-09-16 eight rules here assembled the kicker by hand at 0.06em / 1.3. */
 
 .page {
   --brief-gutter: clamp(var(--sp-4), 4vw, var(--sp-8));
@@ -77,11 +80,11 @@
 }
 
 .sectionHeading h2 {
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   display: inline-flex;
   align-items: center;
@@ -138,11 +141,11 @@
 }
 
 .liveEyebrow > span {
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
 }
 
@@ -163,8 +166,8 @@
 
 .leadFlag::before {
   content: "";
-  inline-size: 0.45rem;
-  block-size: 0.45rem;
+  inline-size: var(--mark);
+  block-size: var(--mark);
   border-radius: 50%;
   background: var(--gold);
   box-shadow: 0 0 0 3px var(--gold-wash);
@@ -189,13 +192,11 @@
   overflow-wrap: anywhere;
 }
 
+.metaLabel {
+  composes: kickerLabel from global;
+}
+
 .storyMeta > .metaLabel {
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--gold-hi);
 }
 
@@ -219,12 +220,7 @@
 }
 
 .storyUpdatedFlag {
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  composes: kickerLabel from global;
   color: var(--gold-hi);
 }
 
@@ -239,11 +235,11 @@
 }
 
 .updateLog h4 {
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   margin: 0 0 var(--sp-2);
   color: var(--ink-lo);
@@ -285,7 +281,8 @@
   overflow-wrap: anywhere;
 }
 
-@media (min-width: 30rem) {
+/* The phone seam (45rem). This turned at a private 30rem until 2026-09-16. */
+@media (min-width: 45rem) {
   .updateLog li {
     grid-template-columns: max-content minmax(0, 1fr);
     align-items: baseline;
@@ -318,12 +315,14 @@
   transition: transform var(--dur-base) var(--ease-out);
 }
 
-.readLink:hover {
+.readLink:hover,
+.readLink:focus-visible {
   color: var(--gold-hi);
   box-shadow: inset 0 calc(-1 * var(--line-w)) 0 currentColor;
 }
 
-.readLink:hover > span { transform: translateX(0.3em); }
+.readLink:hover > span,
+.readLink:focus-visible > span { transform: translateX(0.3em); }
 .readLink:active { color: var(--gold); }
 
 .newsSummary {
@@ -360,19 +359,21 @@
   border-inline-end: var(--line-w) solid var(--line);
 }
 
-/* The ceiling came down from 4.25rem (2026-09-11): a long lead title at 68px
-   in a two-thirds column was a five-line wall before the summary. The measure
-   widens as the size drops, so the lines get fewer rather than just smaller.
-   The phone rule below keeps its own 2rem floor. */
+/* The lead headline, at the site's h2 role — the same step the Fake
+   Resistance hub gives its lead investigation. This rule carried a private
+   `clamp(2.25rem, 1.2rem + 2.4vw, 3.25rem)` at weight 400 (a ceiling brought
+   down from 4.25rem on 2026-09-11 so a long title was not a five-line wall);
+   the site's one heading scale lives in app/globals.css (SYS-004), and the
+   rank on this front is masthead → lead → rail, which is display → h2 → h3. */
 .newsLead h3 {
   max-width: 26ch;
   margin: 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: clamp(2.25rem, 1.2rem + 2.4vw, 3.25rem);
-  font-weight: 400;
-  line-height: 1.06;
-  letter-spacing: -0.028em;
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
   text-wrap: balance;
 }
 
@@ -386,7 +387,10 @@
 
 .newsLead h3 a:hover,
 .newsTimeline h3 a:hover,
-.briefingContent h2 a:hover {
+.briefingContent h2 a:hover,
+.newsLead h3 a:focus-visible,
+.newsTimeline h3 a:focus-visible,
+.briefingContent h2 a:focus-visible {
   color: var(--gold-hi);
 }
 
@@ -442,12 +446,7 @@
 /* The disclosure is the first line under the picture and reads as a label,
    never as part of the description beside it. */
 .mediaDisclosure {
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  composes: kickerLabel from global;
   flex-basis: 100%;
   color: var(--gold-hi);
 }
@@ -502,11 +501,11 @@
 }
 
 .newsSidebar > h2 {
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   margin: 0 0 var(--sp-3);
   color: var(--ink);
@@ -533,7 +532,8 @@
 
 /* A rail entry answers as one record: its closing rule firms up, the way a
    `Card` row does. The rail keeps no gold — that is the lead's. */
-.newsTimeline li:hover { border-bottom-color: var(--line-strong); }
+.newsTimeline li:hover,
+.newsTimeline li:focus-within { border-bottom-color: var(--line-strong); }
 
 .newsTimeline time {
   font-family: var(--face-data);
@@ -545,15 +545,16 @@
   color: var(--ink);
 }
 
+/* A rail entry's headline, at the h3 role: one rank under the lead. */
 .newsTimeline h3 {
   max-width: none;
   margin: var(--sp-2) 0 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: clamp(1.25rem, 1rem + 0.8vw, 1.5rem);
-  font-weight: 400;
-  line-height: 1.22;
-  letter-spacing: -0.012em;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
   text-wrap: pretty;
 }
 
@@ -574,7 +575,7 @@
   content: "";
   position: absolute;
   inset-block: var(--sp-5);
-  inset-inline-start: -1px;
+  inset-inline-start: calc(-1 * var(--line-w));
   inline-size: var(--line-w-thick);
   background: var(--gold);
   border-radius: var(--radius-pill);
@@ -586,15 +587,16 @@
   max-width: 78ch;
 }
 
+/* The briefing's headline, at the h2 role like the lead beside it. */
 .briefingContent h2 {
   max-width: none;
   margin: 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: clamp(1.6rem, 1.1rem + 1.6vw, 2.375rem);
-  font-weight: 400;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
   text-wrap: balance;
 }
 
@@ -664,11 +666,12 @@
 
 .newsArchive summary::-webkit-details-marker { display: none; }
 
-.newsArchive summary:hover .archiveTitle > span:first-child { color: var(--gold-hi); }
+.newsArchive summary:hover .archiveTitle > span:first-child,
+.newsArchive summary:focus-visible .archiveTitle > span:first-child { color: var(--gold-hi); }
 
+/* The ring is the global `:focus-visible` rule; only its corner is the
+   summary's own. */
 .newsArchive summary:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-offset);
   border-radius: var(--radius-1);
 }
 
@@ -875,7 +878,8 @@
   transition: border-color var(--dur-fast) var(--ease-out);
 }
 
-.liveList .liveRow:hover { border-bottom-color: var(--line-strong); }
+.liveList .liveRow:hover,
+.liveList .liveRow:focus-within { border-bottom-color: var(--line-strong); }
 
 .liveList time {
   color: var(--ink-lo);
@@ -924,12 +928,13 @@
   border-block-start: var(--line-w) solid var(--line-soft);
 }
 
+/* The terms sit on the same baseline grid as the small-role values beside
+   them, so the leading is the value's, not the kicker's. */
 .claimRecord dt {
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   color: var(--ink-lo);
   line-height: var(--t-small-lh);
@@ -952,12 +957,14 @@
 
 /* ── Seams ─────────────────────────────────────────────────────────────── */
 
-@media (max-width: 68.75rem) {
+/* The rails seam (76.25rem) and the token file's phone block (48rem). These
+   turned at private 68.75rem and 59.99rem widths until 2026-09-16. */
+@media (max-width: 76.24rem) {
   .newsFront[data-sidebar] { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: var(--sp-6); }
   .newsFront[data-sidebar] .newsLead { padding-inline-end: var(--sp-6); }
 }
 
-@media (max-width: 59.99rem) {
+@media (max-width: 48rem) {
   .liveSection {
     grid-template-columns: 1fr;
     gap: var(--sp-4);
@@ -981,7 +988,6 @@
     border-inline-end: 0;
     border-bottom: var(--line-w) solid var(--line);
   }
-  .newsLead h3 { font-size: clamp(2rem, 9vw, 2.75rem); }
   .timelineThumb { inline-size: 3.5rem; block-size: 3.5rem; }
   .rowThumb { inline-size: 5rem; }
   .watchBridge {
@@ -1020,7 +1026,8 @@
   .archiveTitle > span:first-child,
   .newsTimeline li,
   .liveList .liveRow { transition: none; }
-  .readLink:hover > span { transform: none; }
+  .readLink:hover > span,
+  .readLink:focus-visible > span { transform: none; }
 }
 
 /* Timeline sources from shared record markup, when a record carries them. */

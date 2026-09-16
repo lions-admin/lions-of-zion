@@ -40,7 +40,7 @@
 .propagators span { display: block; }
 .context { max-width: 65ch; border-inline-start: var(--line-w) solid var(--line-strong); padding-inline-start: var(--sp-4); }
 .context p { margin: 0; font-family: var(--face-text); font-size: var(--t-small); line-height: var(--t-small-lh); }
-.read { display: inline-flex; align-items: center; gap: var(--sp-3); min-height: var(--control-h); margin-top: var(--sp-3); font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-hi); text-underline-offset: 5px; }
+.read { display: inline-flex; align-items: center; gap: var(--sp-3); min-height: var(--control-h); margin-top: var(--sp-3); font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-hi); text-underline-offset: var(--sp-1); }
 /* No local focus ring: the global `:focus-visible` rule in app/globals.css
    draws the one ring the site has. */
 
@@ -52,7 +52,7 @@
 .compact .meaning { margin-block: var(--sp-2) 0; }
 .compact .read { margin-top: var(--sp-1); }
 .status { font-weight: 600; color: var(--ink-hi); }
-.compact h3 a { text-decoration: underline; text-decoration-color: var(--line-strong); text-decoration-thickness: var(--line-w); text-underline-offset: 4px; }
+.compact h3 a { text-decoration: underline; text-decoration-color: var(--line-strong); text-decoration-thickness: var(--line-w); text-underline-offset: var(--sp-1); }
 .compact .label { margin-block: var(--sp-2) var(--sp-1); }
 
 /* Enrichment, not evidence: constrained so it never out-weighs the headline

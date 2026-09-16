@@ -10,6 +10,7 @@ import type {
 } from '@/lib/content/fake-resistance-cases';
 import { Button } from '@/components/ui/Button';
 import { StatusState } from '@/components/ui/StatusState';
+import { politeLive } from '@/components/ui/live-region';
 import { buildGraphLayout } from './layout';
 import styles from './influence-graph.module.css';
 
@@ -308,7 +309,7 @@ export function InfluenceGraph({ roster, edges, communities, status }: Influence
                 <Button
                   key={value}
                   type="button"
-                  variant="secondary"
+                  variant="ghost"
                   size="md"
                   className={styles.chip}
                   data-evidence={value}
@@ -338,7 +339,7 @@ export function InfluenceGraph({ roster, edges, communities, status }: Influence
                 <Button
                   key={value}
                   type="button"
-                  variant="secondary"
+                  variant="ghost"
                   size="md"
                   className={styles.chip}
                   data-confidence={value}
@@ -573,7 +574,7 @@ export function InfluenceGraph({ roster, edges, communities, status }: Influence
         ))}
       </p>
 
-      <div className={styles.panel} aria-live="polite">
+      <div className={styles.panel} {...politeLive}>
         {shownCount === 0 ? (
           /* The empty-filter state (NET-004): every edge is muted. Words plus
              the way back, never a silently blank drawing. */

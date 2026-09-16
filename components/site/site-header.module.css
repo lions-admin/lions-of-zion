@@ -590,8 +590,10 @@
  * these are literals.
  */
 
-@media (min-width: 76.25rem) {
-  /* "Search ⌘K", where there is room to say it. */
+@media (min-width: 84rem) {
+  /* "Search ⌘K", where there is room to say it. Measured: at 1280 the word
+     and the hint pushed the fourth destination into the Ask control, so the
+     seam is a step above the rails. */
   .header .deskSearch [data-slot="label"],
   .header .deskSearch [data-slot="hint"] { display: inline-flex; }
 }

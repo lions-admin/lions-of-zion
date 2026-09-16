@@ -4,6 +4,7 @@ import styles from "./antisemitism-record.module.css";
 import { publicationCta } from "@/lib/publication-routing";
 import { measurePublicationCard } from "@/components/measurement/attrs";
 import { formatDay } from "@/lib/format-date";
+import { Icon } from "@/components/ui/Icon";
 
 /** A documented record, kept visually and semantically distinct from a circulating claim. */
 export function AntisemitismRecord({ item, compact = false, surface = compact ? "fr-antisemitism" : "antisemitism" }: {
@@ -25,7 +26,7 @@ export function AntisemitismRecord({ item, compact = false, surface = compact ? 
         {item.arena ? <div><dt>Location or platform</dt><dd>{item.arena}</dd></div> : null}
         {item.editorialTopic ? <div><dt>Record type</dt><dd>{item.editorialTopic}</dd></div> : null}
       </dl>
-      {!compact ? <Link className={styles.read} href={`/articles/${item.publicId}`}>{publicationCta(item.section)} <span aria-hidden="true">→</span></Link> : null}
+      {!compact ? <Link className={styles.read} href={`/articles/${item.publicId}`}>{publicationCta(item.section)} <Icon name="arrow-right" inline className="arrow" /></Link> : null}
     </article>
   );
 }

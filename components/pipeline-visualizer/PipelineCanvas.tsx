@@ -644,7 +644,7 @@ export function PipelineCanvas({
                     {node.terms.length > 0 && (
                       <Button
                         type="button"
-                        variant="secondary"
+                        variant="ghost"
                         size="xs"
                         onPointerDown={(e) => e.stopPropagation()}
                         onClick={(e) => {

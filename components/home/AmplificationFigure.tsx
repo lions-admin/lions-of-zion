@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { politeLive } from "@/components/ui/live-region";
 import styles from "./homepage-journey.module.css";
 
 export function AmplificationFigure() {
@@ -41,7 +42,7 @@ export function AmplificationFigure() {
         {/* UX-14. A display numeral ("3", then "1") used to sit above this
             heading and say the count the heading already says in words. The
             01/02/03 steps in the sequence stay: that one is a sequence. */}
-        <div className={styles.echoResult} aria-live="polite" aria-atomic="true">
+        <div className={styles.echoResult} {...politeLive}>
           <h4>{traced ? <>One source.<br />Not three witnesses.</> : <>Three versions.<br />How many sources?</>}</h4>
           <p>{traced
             ? "All three lead back to the same unverified post. The wording became more certain. The evidence did not."

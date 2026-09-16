@@ -77,11 +77,20 @@ describe("homepage system band — one proof, one interaction, two links", () =>
   it("keeps every phone type size on or above the contract's floors", () => {
     const css = read("components/home/homepage-journey.module.css");
     /* The 12px caption and the 11px principle the band used to set below the
-       13px floor are gone; nothing under 759px reintroduces them. */
-    const phone = css.slice(css.indexOf("@media (max-width: 759px)"));
+       13px floor are gone; nothing under the phone seam reintroduces them.
+       The seam is the site's 48rem (2026-09-16; it was a private 759px), and
+       the block must exist for the slice below to mean anything. */
+    const seam = css.indexOf("@media (max-width: 48rem)");
+    expect(seam).toBeGreaterThan(-1);
+    const phone = css.slice(seam);
     expect(phone).not.toMatch(/\.echoAnnotation \{[^}]*font-size: 12px/);
     expect(phone).not.toMatch(/\.echoPrinciple \{[^}]*font-size: 11px/);
-    expect(css).toMatch(/\.echoPrinciple \{[^}]*13px/);
-    expect(css).toMatch(/\.amplification figcaption \{[^}]*font-size: 13px/);
+    /* Pinned by token name since 2026-09-16, not by the literal: both lines
+       read the caption role, and `--t-caption` is 0.8125rem (13px) in
+       `app/globals.css` — the contract's floor, held in one place. */
+    expect(phone).not.toMatch(/\.(echoAnnotation|echoPrinciple|amplification figcaption) \{[^}]*font-size: 1[0-2]px/);
+    expect(css).toMatch(/\.echoPrinciple \{[^}]*var\(--t-caption\)/);
+    expect(css).toMatch(/\.amplification figcaption \{[^}]*font-size: var\(--t-caption\)/);
+    expect(read("app/globals.css")).toMatch(/--t-caption: 0\.8125rem;/);
   });
 });

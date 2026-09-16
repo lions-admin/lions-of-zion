@@ -62,10 +62,12 @@
   width: min(calc(100% - var(--sp-5)), var(--drawer-w, var(--measure-narrow)));
 }
 
+/* One scrim, shared with search and the investigation overlays: a solid
+   tint of the ground and no blur. A backdrop-filter re-composites the whole
+   page behind the panel on every frame of the entrance, and the glass it
+   drew was retired with the rest (glass-retirement, 2026-09-15). */
 .dialog::backdrop {
-  background: color-mix(in oklab, var(--ground) 78%, transparent);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+  background: var(--scrim);
 }
 
 .dialog,

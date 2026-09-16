@@ -262,9 +262,8 @@
   }
 }
 
-.article a:focus-visible {
-  outline-offset: var(--focus-offset);
-}
+/* Links take the global `:focus-visible` ring and offset from app/globals.css;
+   the copy of the offset that sat here said nothing the global rule does not. */
 
 /* ── Apparatus ────────────────────────────────────────────────────────── */
 

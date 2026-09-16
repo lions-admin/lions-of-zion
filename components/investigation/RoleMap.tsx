@@ -134,7 +134,7 @@ function RoleRow({
           <div className={styles.profileActions}>
             <Button
               type="button"
-              variant="secondary"
+              variant="ghost"
               size="sm"
               isActive={selected}
               tabIndex={interactive ? 0 : -1}

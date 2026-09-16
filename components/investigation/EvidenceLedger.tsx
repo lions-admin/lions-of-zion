@@ -75,7 +75,7 @@ export function EvidenceLedger() {
           <Button
             key={type}
             type="button"
-            variant="secondary"
+            variant="ghost"
             size="sm"
             className={styles.layerChip}
             isActive={!mutedTypes.includes(type)}
@@ -261,7 +261,7 @@ function LedgerRow({
       <div className={styles.ledgerActions}>
         <Button
           type="button"
-          variant="secondary"
+          variant="ghost"
           size="sm"
           aria-expanded={open}
           aria-controls={evidenceId}

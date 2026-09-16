@@ -53,7 +53,12 @@
  * it. `--control-line` and not `--line`: WCAG 1.4.11 applies to the boundary
  * that identifies a control, and that token is the one tuned to clear 3:1 — it
  * measures 3.35 against the new card surface, so the re-grade did not cost it
- * anything. */
+ * anything.
+ *
+ * This is also the bare control `FieldControl` renders on its own, and the
+ * rule a route stylesheet composes (`composes: control from
+ * "../ui/field.module.css"`) when it wants to add layout to the box rather
+ * than draw a second one. It stays a single top-level class for that reason. */
 .control {
   width: 100%;
   min-height: var(--control-h-sm);

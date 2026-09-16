@@ -1,12 +1,26 @@
 /* Badge — SYS-011
  *
- * One grammar for system, evidence, and verification status.
- * Text is required; the mark shape differs by ramp so colour is never the
- * only cue. Radius --radius-1. Not a pill.
+ * One grammar for system, evidence, and verification status. Text is
+ * required. The mark shape is a function of the verdict's polarity, not of
+ * its ramp, so a verdict survives greyscale and forced colours:
+ *
+ *   affirming    filled square    (verified, documented, high, success, ok)
+ *   negating     filled diamond   (false, misleading, manipulated, refuted,
+ *                                  error, danger)
+ *   uncertain    hollow circle    (contested, out of context, disputed,
+ *                                  unsupported, unverified, unresolved,
+ *                                  limited, low, warn, inferred)
+ *   other        dashed circle    (satire, disabled, idle, empty, neutral)
+ *   in progress  filled circle    (loading, processing, emphasis, and the
+ *                                  middling grades: medium, observed, probable)
+ *
+ * Colour is a ramp and is never the only cue. Radius --radius-1. Not a pill.
+ * The label is set in the kicker register — a verdict is a word a person
+ * wrote, and a label a person wrote never takes mono (2026-09-15).
  */
 
 .badge {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
@@ -21,40 +35,59 @@
   overflow-wrap: anywhere;
 }
 
+/* `--mark` is the site's one status-mark size (0.42rem, born in globals.css).
+   The border is drawn on every shape so the outline survives when a forced
+   palette drops the background — that is what keeps a filled square from
+   turning into a hollow one under `forced-colors`. */
 .mark {
   flex: 0 0 auto;
-  width: calc(var(--t-data) / 2);
-  height: calc(var(--t-data) / 2);
+  width: var(--mark);
+  height: var(--mark);
   background: currentColor;
   border: var(--line-w) solid currentColor;
+  border-radius: 0;
 }
 
 .label {
   min-width: 0;
 }
 
+/* Affirming: a filled square. A 4px radius on a 6.7px box read as a circle,
+   which is why this is 0 and not `--radius-1`. */
 .square .mark {
-  border-radius: var(--radius-1);
+  border-radius: 0;
 }
 
+/* Negating: a filled diamond. Scaled so its diagonal matches the square's
+   side rather than overshooting it by 41%. */
 .diamond .mark {
   border-radius: 0;
-  transform: rotate(45deg);
+  transform: rotate(45deg) scale(0.86);
 }
 
+/* In progress and the middling grades: a filled circle. */
 .circle .mark {
   border-radius: 50%;
 }
 
+/* Uncertain: a hollow circle. */
 .hollow .mark {
   border-radius: 50%;
   background: transparent;
 }
 
+/* Other — satire, disabled, idle, empty, neutral: a dashed circle. */
 .dashed .mark {
   border-radius: 50%;
   background: transparent;
   border-style: dashed;
+}
+
+@media (forced-colors: active) {
+  .mark {
+    forced-color-adjust: none;
+    color: CanvasText;
+  }
 }
 
 .neutral {

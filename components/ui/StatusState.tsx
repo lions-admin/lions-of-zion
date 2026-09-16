@@ -75,13 +75,23 @@ export function absenceStatus(cause: AbsenceCause): StatusKind {
 
 export interface StatusStateProps {
   status?: StatusKind;
+  /**
+   * The phrase a person wrote to name the surface this state stands in for —
+   * "Ledger unavailable", "Network figure", "SEARCH". It is a kicker, so it
+   * composes `kickerLabel`, and it is the caller's alone: there is no
+   * default. Until 2026-09-16 an omitted eyebrow fell back to the state word
+   * (so "Error" printed twice, once as the kind and once here) or, with no
+   * `status` at all, to a hard-coded "ARCHIVE STATUS" that had nothing to do
+   * with most of the surfaces rendering it.
+   */
   eyebrow?: string;
   /**
-   * The word for the state itself — "Warning", "Error". It defaults to the
-   * English `STATUS_LABEL`, which is right on the public site and wrong in
-   * the operations console: that surface is `lang="he" dir="rtl"` and every
-   * other word in it comes from `app/admin/lexicon.ts`. A shared primitive
-   * cannot know which surface it is on, so the caller says.
+   * The word for the state itself — "Warning", "Error" — printed once, as the
+   * `.kind` stamp. It defaults to the English `STATUS_LABEL`, which is right
+   * on the public site and wrong in the operations console: that surface is
+   * `lang="he" dir="rtl"` and every other word in it comes from
+   * `app/admin/lexicon.ts`. A shared primitive cannot know which surface it
+   * is on, so the caller says.
    */
   kindLabel?: string;
   title: string;
@@ -116,7 +126,6 @@ export function StatusState({
 }: StatusStateProps) {
   const kind = status ?? "empty";
   const blocking = kind === "error";
-  const shownEyebrow = eyebrow ?? (status ? STATUS_LABEL[status] : "ARCHIVE STATUS");
   const busy = kind === "loading" || kind === "processing";
   const Heading = `h${headingLevel}` as "h2" | "h3" | "h4";
 
@@ -132,7 +141,7 @@ export function StatusState({
           {icon ?? <span className={styles.indicator} />}
         </div>
         {status ? <span className={styles.kind}>{kindLabel ?? STATUS_LABEL[status]}</span> : null}
-        {shownEyebrow ? <span className={styles.eyebrow}>{shownEyebrow}</span> : null}
+        {eyebrow ? <span className={styles.eyebrow}>{eyebrow}</span> : null}
         <Heading className={styles.title}>{title}</Heading>
         {description ? <p className={styles.description}>{description}</p> : null}
         {actionText ? (

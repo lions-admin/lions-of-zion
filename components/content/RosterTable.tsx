@@ -1,4 +1,5 @@
 import type { CaseEntity } from '@/lib/content/fake-resistance-cases';
+import { Badge } from '@/components/ui/Badge';
 import styles from './content.module.css';
 
 export type RosterTableProps = {
@@ -72,14 +73,17 @@ export function RosterTable({ entities, noteLabel = 'Note' }: RosterTableProps) 
                 ) : null}
               </th>
               <td className={styles.rosterType}>{TYPE_LABEL[entity.type] ?? entity.type}</td>
-              <td>
-                <span
-                  className={styles.identityChip}
-                  data-identity={entity.identityStatus}
+              <td className={styles.rosterIdentity}>
+                <Badge
+                  status={entity.identityStatus}
+                  domain="evidence"
                   title={IDENTITY_EXPLANATION[entity.identityStatus]}
                 >
                   {IDENTITY_LABEL[entity.identityStatus] ?? entity.identityStatus}
-                </span>
+                  <span className={styles.badgeNote}>
+                    {' '}— {IDENTITY_EXPLANATION[entity.identityStatus]}
+                  </span>
+                </Badge>
               </td>
               {hasFollowers ? (
                 <td className={styles.rosterNumeric}>

@@ -31,6 +31,7 @@
 import { Button } from "@/components/ui/Button";
 import { pageWindow } from "@/components/ui/Pagination";
 import styles from "./search.module.css";
+import { Icon } from "@/components/ui/Icon";
 
 interface SearchPagerProps {
   /** 0-based, as `useSearch` holds it. Rendered 1-based. */
@@ -72,8 +73,8 @@ export function SearchPager({ page, pageCount, onSelect, label, busy }: SearchPa
             disabled={atStart}
             aria-label="Previous page of results"
             onClick={() => onSelect(current - 2)}
+            leftIcon={<Icon name="arrow-left" size={16} />}
           >
-            <span aria-hidden="true">←</span>
             <span className={styles.pagerStepLabel}>Previous</span>
           </Button>
         </li>
@@ -114,9 +115,9 @@ export function SearchPager({ page, pageCount, onSelect, label, busy }: SearchPa
             disabled={atEnd}
             aria-label="Next page of results"
             onClick={() => onSelect(current)}
+            rightIcon={<Icon name="arrow-right" size={16} className="arrow" />}
           >
             <span className={styles.pagerStepLabel}>Next</span>
-            <span aria-hidden="true">→</span>
           </Button>
         </li>
       </ol>

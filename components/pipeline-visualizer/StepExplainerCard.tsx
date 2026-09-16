@@ -57,7 +57,7 @@ export function StepExplainerCard({
         <div className={styles.explainerHeaderActions}>
           <Button
             type="button"
-            variant="secondary"
+            variant="ghost"
             size="sm"
             onClick={() => onOpenGlossary()}
             title={CHROME.glossaryButtonTitle}
@@ -93,7 +93,7 @@ export function StepExplainerCard({
                 <span>{CHROME.activeComponent}:</span>
                 <Button
                   type="button"
-                  variant="secondary"
+                  variant="text"
                   size="sm"
                   onClick={() => onSelectNode(node.id)}
                 >

@@ -7,6 +7,7 @@ import { ShareSheet } from "@/components/content/ShareSheet";
 import { measureCard } from "@/components/measurement/attrs";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { politeLive } from "@/components/ui/live-region";
 import styles from "./page.module.css";
 
 export type ArchiveShareSample = {
@@ -102,7 +103,7 @@ export function ArchiveShareShowcase({
               homepage's own key shape. */}
           <div id={slideId} className={styles.sample}
             {...measureCard({ id: `o7-${kind}-${sample.id}`, section: "october-7", content: `${kind}:${sample.id}`, type: kind, placement: `october-7:${kind}` })}>
-            <div className={styles.sampleReading} aria-live="polite" aria-atomic="true">
+            <div className={styles.sampleReading} {...politeLive}>
               <div className={styles.sampleType}>
                 <Icon name={isStory ? "actor" : sample.medium === "video" ? "film" : sample.medium === "image" ? "photo" : "document"} size={22} />
                 <span>{isStory ? sample.witness ?? "First-person testimony" : sample.medium === "video" ? "Video record" : sample.medium === "image" ? "Photographic record" : "Archive record"}</span>

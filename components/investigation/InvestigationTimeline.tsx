@@ -3,6 +3,7 @@
 import { useId, type ReactNode } from 'react';
 import { ConfidenceChip, ResearchText } from '@/components/content';
 import { Button } from '@/components/ui/Button';
+import { Field } from '@/components/ui/Field';
 import { pathState, useInvestigation } from './InvestigationProvider';
 import { dateLabel } from './labels';
 import styles from './investigation.module.css';
@@ -52,7 +53,7 @@ export function InvestigationTimeline({ band }: { band?: ReactNode }) {
               <Button
                 key={preset.label}
                 type="button"
-                variant="secondary"
+                variant="ghost"
                 size="sm"
                 isActive={on}
                 tabIndex={interactive ? 0 : -1}
@@ -64,30 +65,28 @@ export function InvestigationTimeline({ band }: { band?: ReactNode }) {
           })}
         </div>
         <div className={styles.rangeInputs}>
-          <label className={styles.rangeField}>
-            <span>From</span>
-            <input
-              id={`${id}-from`}
-              type="date"
-              value={selection.from ?? ''}
-              min={first}
-              max={selection.to ?? last}
-              tabIndex={interactive ? 0 : -1}
-              onChange={(event) => setRange(event.target.value || undefined, selection.to)}
-            />
-          </label>
-          <label className={styles.rangeField}>
-            <span>To</span>
-            <input
-              id={`${id}-to`}
-              type="date"
-              value={selection.to ?? ''}
-              min={selection.from ?? first}
-              max={last}
-              tabIndex={interactive ? 0 : -1}
-              onChange={(event) => setRange(selection.from, event.target.value || undefined)}
-            />
-          </label>
+          <Field
+            className={styles.rangeField}
+            label="From"
+            id={`${id}-from`}
+            type="date"
+            value={selection.from ?? ''}
+            min={first}
+            max={selection.to ?? last}
+            tabIndex={interactive ? 0 : -1}
+            onChange={(event) => setRange(event.target.value || undefined, selection.to)}
+          />
+          <Field
+            className={styles.rangeField}
+            label="To"
+            id={`${id}-to`}
+            type="date"
+            value={selection.to ?? ''}
+            min={selection.from ?? first}
+            max={last}
+            tabIndex={interactive ? 0 : -1}
+            onChange={(event) => setRange(selection.from, event.target.value || undefined)}
+          />
           {rangeSet ? (
             <Button type="button" variant="text" size="sm" onClick={() => setRange(undefined, undefined)}>
               Clear range

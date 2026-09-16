@@ -443,7 +443,7 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
               <UpdatedMarker item={lead} />
               <Metadata item={lead} />
               <Link className={styles.readLink} href={`/articles/${lead.publicId}`}>
-                {publicationCta(lead.section)} <span aria-hidden="true">→</span>
+                {publicationCta(lead.section)} <Icon name="arrow-right" inline className="arrow" />
               </Link>
             </article>
             {sidebarUpdates.length ? (
@@ -496,7 +496,7 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
           <h2>Looking for what is being claimed?</h2>
           <p>Circulating claims, their assessment status and disinformation research live on the dedicated narrative desk, kept separate from the news.</p>
         </div>
-        <ButtonLink href="/fake-resistance" variant="secondary" size="md" rightIcon={<span aria-hidden="true">↗︎</span>}
+        <ButtonLink href="/fake-resistance" variant="text" size="md" rightIcon={<Icon name="arrow-right" className="arrow" />}
           data-measure-id="brief-to-fake-resistance">
           Fake Resistance
         </ButtonLink>
@@ -621,7 +621,7 @@ function Briefing({ item, headingId }: { item: Publication; headingId?: string }
     <h2 id={headingId}><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h2>
     {item.summary ? <p className={styles.newsSummary}>{item.summary}</p> : null}
     <UpdatedMarker item={item} />
-    <Link className={styles.readLink} href={`/articles/${item.publicId}`}>Read the briefing <span aria-hidden="true">→</span></Link>
+    <Link className={styles.readLink} href={`/articles/${item.publicId}`}>Read the briefing <Icon name="arrow-right" inline className="arrow" /></Link>
   </div>;
 }
 

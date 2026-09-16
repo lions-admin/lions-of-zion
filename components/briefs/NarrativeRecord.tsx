@@ -9,6 +9,7 @@ import styles from "./narrative-record.module.css";
 import { publicationCta } from "@/lib/publication-routing";
 import { measurePublicationCard } from "@/components/measurement/attrs";
 import { formatDateTime } from "@/lib/format-date";
+import { Icon } from "@/components/ui/Icon";
 
 /**
  * What the picture is, said before it is read as anything else.
@@ -70,7 +71,7 @@ export function NarrativeRecord({ item, compact = false, surface = compact ? "fr
       ) : null}
       {!compact && item.summary ? <div className={styles.context}><span className={styles.label}>Published context</span><p>{item.summary}</p></div> : null}
       {details && isAnalysisBasis(details) ? <p className={styles.basis}>Organisation analysis — no source cited.</p> : null}
-      {!compact ? <Link className={styles.read} href={`/articles/${item.publicId}`}>{publicationCta(item.section)} <span aria-hidden="true">→</span></Link> : null}
+      {!compact ? <Link className={styles.read} href={`/articles/${item.publicId}`}>{publicationCta(item.section)} <Icon name="arrow-right" inline className="arrow" /></Link> : null}
     </article>
   );
 }

@@ -4,9 +4,12 @@
    and seam here reads the tokens in app/globals.css; the file declares no
    scale of its own. The display step one weight lighter than the site's 600
    belongs on the page's `<h1>`, which `SectionPage` renders outside this
-   module — it arrives with `main[data-memorial]` (see the signal-rule note in
-   app/globals.css), not here. Nothing in this file adds an accent fill or a
-   gold rule that was not already drawn. */
+   module — it is set in `components/sections/sections.module.css` on the
+   shell's `.title`, keyed to this route, not here. Nothing in this file adds
+   an accent fill or a gold rule that was not already drawn. The pixel
+   margins and minimum heights that remain are more than one space step from
+   any `--sp-*` value and are left as measured (the sweep rule of 2026-09-16:
+   within 2px re-points, otherwise the number stands). */
 
 /* "Archive collections", "From the testimony archive": labels a person wrote,
    so the kicker role — not the mono data face they borrowed until 2026-09-15. */
@@ -87,10 +90,12 @@
   transform: translateY(1px);
   background: var(--surface-2);
 }
-/* The ring itself is the global `:focus-visible` rule; only the stack order
-   and the inset bar are the entry's own. */
+/* The ring itself is the global `:focus-visible` rule; only the stack order,
+   the plate and the inset bar — the same pair the hover draws — are the
+   entry's own. */
 .archiveEntry:focus-visible {
   z-index: 1;
+  background: var(--surface-1);
   box-shadow: inset 3px 0 0 var(--gold);
 }
 .archiveEntry:visited .entryKind {

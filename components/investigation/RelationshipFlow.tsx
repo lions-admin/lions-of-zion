@@ -7,6 +7,7 @@ import type { FlowKind, InvestigationEdge } from '@/lib/content/investigation-mo
 import { pathState, useInvestigation } from './InvestigationProvider';
 import { KIND_LABEL, KIND_MEANING, KindLabel, dateLabel, durationLabel, pValueLabel } from './labels';
 import styles from './investigation.module.css';
+import { Icon } from '@/components/ui/Icon';
 
 const LAYERS: FlowKind[] = ['flow', 'reuse', 'relationship', 'inferred', 'other'];
 
@@ -75,7 +76,7 @@ export function RelationshipFlow() {
             <Button
               key={kind}
               type="button"
-              variant="secondary"
+              variant="ghost"
               size="sm"
               className={styles.layerChip}
               data-kind={kind}
@@ -181,7 +182,7 @@ export function RelationshipFlow() {
                 <div className={styles.flowActions}>
                   <Button
                     type="button"
-                    variant="secondary"
+                    variant="ghost"
                     size="sm"
                     isActive={selected}
                     tabIndex={interactive ? 0 : -1}
@@ -243,7 +244,7 @@ function EdgeEvidence({
         <div>
           <dt>Accounts</dt>
           <dd>
-            {fromHandle ? `@${fromHandle}` : edge.from} {edge.directed ? '→' : '↔'}{' '}
+            {fromHandle ? `@${fromHandle}` : edge.from} <Icon name={edge.directed ? 'arrow-right' : 'arrow-both'} inline />{' '}
             {toHandle ? `@${toHandle}` : edge.to}
           </dd>
         </div>

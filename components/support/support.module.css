@@ -67,7 +67,7 @@
    step and pulls the ring in by a pixel so it hugs the control. */
 .field input:focus-visible,
 .field textarea:focus-visible {
-  outline-offset: 2px;
+  outline-offset: calc(var(--focus-offset) - 1px);
   border-color: var(--line-strong);
   background: var(--surface-3);
 }
@@ -137,7 +137,7 @@
   max-width: 30rem;
   padding: var(--sp-4) var(--sp-5);
   border: var(--line-w) solid var(--state-ok-line);
-  border-left: 3px solid var(--state-ok);
+  border-left: var(--line-w-thick) solid var(--state-ok);
   border-radius: var(--radius-2);
   background: color-mix(in srgb, var(--state-ok-wash) 60%, var(--surface-1));
 }

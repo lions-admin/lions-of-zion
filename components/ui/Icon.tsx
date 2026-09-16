@@ -9,7 +9,13 @@ import styles from "./icon.module.css";
  * `arrow-right` is *the* arrow (workstream J, 2026-09-15): every "→" a page
  * used to type is this glyph, `inline` when it sits in running text or a
  * link label, with `className="arrow"` for the global travel-on-hover. The
- * `arrow-left` mirror is the pager's and a playback control's "previous".
+ * `arrow-left` mirror is the pager's and a playback control's "previous";
+ * `arrow-up` and `arrow-down` are the in-page jumps ("Newest entries", a
+ * chapter link), and they do not carry `.arrow`, whose travel is sideways.
+ * `arrow-both` is the undirected relation marker between two account names
+ * ("A ↔ B") — a marker, never an affordance, so it carries no `.arrow`
+ * either. The one glyph that is *not* in this family is "↗", which means
+ * "leaves this site" and stays a typed character on external links.
  */
 export type IconName =
   | "search"
@@ -18,6 +24,9 @@ export type IconName =
   | "close"
   | "arrow-right"
   | "arrow-left"
+  | "arrow-up"
+  | "arrow-down"
+  | "arrow-both"
   | "chevron-down"
   | "external-link"
   | "filter"
@@ -75,6 +84,9 @@ const ICONS: Record<IconName, React.ReactNode> = {
   close: <><path d="m5 5 14 14" /><path d="m19 5-14 14" /></>,
   "arrow-right": <><path d="M4 12h15" /><path d="m13 6 6 6-6 6" /></>,
   "arrow-left": <><path d="M20 12H5" /><path d="m11 6-6 6 6 6" /></>,
+  "arrow-up": <><path d="M12 20V5" /><path d="m6 11 6-6 6 6" /></>,
+  "arrow-down": <><path d="M12 4v15" /><path d="m6 13 6 6 6-6" /></>,
+  "arrow-both": <><path d="M4 12h16" /><path d="m9 7-5 5 5 5" /><path d="m15 7 5 5-5 5" /></>,
   "chevron-down": <path d="m4 8 8 8 8-8" />,
   "external-link": <><path d="M14 4h6v6" /><path d="m20 4-9 9" /><path d="M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5" /></>,
   filter: <><path d="M4 6h16" /><path d="M7 12h10" /><path d="M10 18h4" /></>,

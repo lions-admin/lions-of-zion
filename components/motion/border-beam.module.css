@@ -21,17 +21,19 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  border: var(--beam-width, 1px) solid transparent;
+  border: var(--beam-width, var(--line-w)) solid transparent;
   pointer-events: none;
 
+  /* The second layer only has to be opaque; the ground token is the site's
+     one solid that is never a text colour. */
   mask:
     linear-gradient(transparent, transparent),
-    linear-gradient(#000, #000);
+    linear-gradient(var(--ground), var(--ground));
   mask-clip: padding-box, border-box;
   mask-composite: intersect;
   -webkit-mask:
     linear-gradient(transparent, transparent),
-    linear-gradient(#000, #000);
+    linear-gradient(var(--ground), var(--ground));
   -webkit-mask-clip: padding-box, border-box;
   -webkit-mask-composite: source-in;
 }

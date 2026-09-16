@@ -56,7 +56,8 @@
   font-variant-numeric: tabular-nums;
 }
 
-.contentsRow:hover {
+.contentsRow:hover,
+.contentsRow:focus-visible {
   background: var(--tint-hover);
 }
 

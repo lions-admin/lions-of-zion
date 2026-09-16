@@ -130,7 +130,7 @@ export function PayPalDonateStep() {
           Payment is handled by PayPal, on PayPal’s own site.
         </p>
         <ButtonLink
-          variant="secondary"
+          variant="primary"
           size="md"
           href={PAYPAL_DIRECT_URL}
           target="_blank"

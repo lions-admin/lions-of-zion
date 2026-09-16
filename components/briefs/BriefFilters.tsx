@@ -158,7 +158,7 @@ export function BriefFilters({ filters, actors, topics, arenas }: BriefFiltersPr
         <Button
           ref={triggerRef}
           type="button"
-          variant="secondary"
+          variant="ghost"
           size="md"
           className={styles.filterTrigger}
           aria-expanded={open}

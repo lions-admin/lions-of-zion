@@ -10,7 +10,7 @@ import {
   useSyncExternalStore,
   type MouseEvent,
 } from 'react';
-import { Button, Pagination, StatusState, absenceStatus } from '@/components/ui';
+import { Button, FieldControl, Pagination, StatusState, absenceStatus, politeLive } from '@/components/ui';
 import { displayTitle, displayWitness } from '@/lib/content/archive-display';
 import {
   type ArchiveListEntry,
@@ -323,7 +323,7 @@ export function ArchiveIndex({
           <label className={styles.searchLabel} htmlFor={inputId}>
             Find
           </label>
-          <input
+          <FieldControl
             id={inputId}
             type="search"
             className={styles.searchInput}
@@ -410,7 +410,7 @@ export function ArchiveIndex({
           keystroke, and it is a sentence rather than a bare ratio, because
           "24 of 99" does not say which 99 or why. */}
       <div className={styles.summary}>
-        <p id={`${inputId}-summary`} className={styles.summaryLine} role="status" aria-live="polite">
+        <p id={`${inputId}-summary`} className={styles.summaryLine} {...politeLive}>
           {shown === 0
             ? `No record matches. The archive holds ${groupDigits(total)}.`
             : `Showing ${groupDigits(start + 1)}–${groupDigits(start + visible.length)} of ${groupDigits(shown)}${

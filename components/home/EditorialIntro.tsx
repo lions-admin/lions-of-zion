@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { politeLive } from "@/components/ui/live-region";
 import styles from "./editorial-intro.module.css";
+import { Icon } from "@/components/ui/Icon";
 
 export const INTRO_BEATS = [
   {
@@ -208,7 +209,8 @@ export function EditorialIntro({ compact = false, autoOpen = true }: { compact?:
                   <span data-shown={!(beat === INTRO_BEATS.length - 1 && settled)}>Continue</span>
                   <span data-shown={beat === INTRO_BEATS.length - 1 && settled}>Enter the site</span>
                 </span>
-                <span aria-hidden="true"> →</span>
+                {" "}
+                <Icon name="arrow-right" inline className="arrow" />
               </button>
             </div>
           </footer>

@@ -91,6 +91,15 @@
   overflow-wrap: anywhere;
 }
 
+/* The memorial route (2026-09-15 identity): October 7 alone sets its display
+   one weight lighter than the site's 600. The hook is the route id the shell
+   already stamps on `.panel` for measurement (`data-measure-section`); the
+   identity plan names a `main[data-memorial]` attribute for this, which no
+   shell sets yet — when it does, key this rule to it and drop the id. */
+.panel[data-measure-section="october-7"] .title {
+  font-weight: 500;
+}
+
 
 .titleLong {
   composes: title;
@@ -223,7 +232,8 @@
     text-decoration-color var(--dur-fast) var(--ease-out);
 }
 
-:where(.body) a:hover {
+:where(.body) a:hover,
+:where(.body) a:focus-visible {
   color: var(--gold-hi);
   text-decoration-color: currentColor;
 }
@@ -265,12 +275,14 @@
   color: var(--ink-lo);
 }
 
+/* The rail's headings and terms are words a person wrote — the kicker role,
+   written out because neither selector can `composes` (UX-31). */
 .sideRailInner :is(h2, h3, h4) {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   color: var(--gold);
   padding-top: var(--sp-3);
@@ -287,11 +299,11 @@
 }
 
 .sideRailInner dt {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   color: var(--ink-lo);
   margin-top: var(--sp-3);
@@ -314,7 +326,8 @@
   text-underline-offset: 0.2em;
 }
 
-.sideRailInner a:hover {
+.sideRailInner a:hover,
+.sideRailInner a:focus-visible {
   color: var(--gold-hi);
 }
 
@@ -389,7 +402,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.125rem;
+  gap: var(--sp-1);
   min-width: 0;
   overflow: hidden;
   text-align: start;
@@ -467,9 +480,11 @@
   color: var(--accent);
 }
 
+/* The ring is the global one, drawn inside the row rather than outside it,
+   so it is not clipped by the sheet's scroll box: the same offset, negated. */
 .tocSheetLink:focus-visible,
 .tocSheetLinkActive:focus-visible {
-  outline-offset: -3px;
+  outline-offset: calc(-1 * var(--focus-offset));
 }
 
 
@@ -502,7 +517,8 @@
     border-left-color var(--dur-fast) var(--ease-out);
 }
 
-.tocLink:hover {
+.tocLink:hover,
+.tocLink:focus-visible {
   color: var(--ink);
 }
 
@@ -548,7 +564,8 @@
   transition: transform calc(var(--dur-fast) / 2) linear;
 }
 
-@media (min-width: 1220px) {
+/* The rails seam, `--bp-rails` (76.25rem = 1220px). */
+@media (min-width: 76.25rem) {
 
   .tocRail {
     display: block;
@@ -587,7 +604,10 @@
 
 
 
-@media (max-width: 900px) {
+/* The token file's phone block (48rem). This read a private 900px until
+   2026-09-16; between 768 and 900 the reading column now keeps its measure
+   and centres in the three-track shell instead of running edge to edge. */
+@media (max-width: 48rem) {
   .shell {
 
     grid-template-columns: minmax(0, 1fr);

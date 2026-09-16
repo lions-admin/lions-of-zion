@@ -16,6 +16,7 @@ import { SITE_URL } from '@/lib/site-config';
 import styles from './page.module.css';
 import { publicationHubCrumb } from '@/lib/publication-routing';
 import { pageMetadata } from '@/lib/page-metadata';
+import { Icon } from '@/components/ui/Icon';
 
 const TAGLINE =
   'Investigations into accounts, narratives and propagation patterns on X: who is involved, what moves between them, what was actually observed, and how strong each conclusion is.';
@@ -238,7 +239,7 @@ export default async function Page() {
                     ) : null}
                   </dl>
                   <Link href={`/fake-resistance/cases/${record.slug}`} className={styles.caseOpen}>
-                    Follow the thread <span aria-hidden="true">→</span>
+                    Follow the thread <Icon name="arrow-right" inline className="arrow" />
                   </Link>
                 </div>
               </li>
@@ -262,7 +263,7 @@ export default async function Page() {
                 {group.edges.map((edge) => (
                   <li key={edge.id} className={styles.thread}>
                     <span className={styles.threadPair}>
-                      {edge.from} <span aria-hidden="true">{edge.direction === 'undirected' ? '↔' : '→'}</span>{' '}
+                      {edge.from} <Icon name={edge.direction === 'undirected' ? 'arrow-both' : 'arrow-right'} inline />{' '}
                       {edge.to}
                     </span>
                     <span className={styles.threadGrades}>
@@ -292,7 +293,7 @@ export default async function Page() {
               {coordination.map((edge) => (
                 <li key={`${edge.a}|${edge.b}`} className={styles.thread} data-kind="inferred">
                   <span className={styles.threadPair}>
-                    @{edge.a} <span aria-hidden="true">↔</span> @{edge.b}
+                    @{edge.a} <Icon name="arrow-both" inline /> @{edge.b}
                   </span>
                   <span className={styles.threadGrades}>
                     <EvidenceClassChip value="inferred_coordination" />

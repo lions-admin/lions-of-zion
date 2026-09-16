@@ -8,8 +8,13 @@ import {
   displayTitle,
   displayWitness,
 } from '@/lib/content/archive';
+import {
+  formatArchiveDate,
+  groupDigits,
+  languageName,
+} from '@/lib/content/archive-display';
 import { firstArchiveSourceMedia } from '@/lib/content/archive-share';
-import { buildXShareText, facebookShareUrl, xIntentUrl } from '@/lib/content/share-text';
+import { buildXShareText, xIntentUrl } from '@/lib/content/share-text';
 import { ArchiveBlocks, type ArchiveSensitivity } from './ArchiveBlocks';
 import { ArchiveAdvisory } from './ArchiveIntro';
 import { ShareRecord } from './ShareRecord';
@@ -37,18 +42,15 @@ export type ArchiveRecordProps = {
   categoryName?: string | null;
   /** What this record holds behind a stated choice. */
   sensitivity: ArchiveSensitivity;
+  /**
+   * The archive this record sits in, named and counted for the closing line.
+   *
+   * The total is the index's own length, read where the neighbours are read,
+   * so "One of 179 accounts held here" cannot drift from what the index shows.
+   */
+  archive: { href: string; total: number; noun: string };
   previous?: ArchiveNeighbour | null;
   next?: ArchiveNeighbour | null;
-};
-
-const LANGUAGE_NAMES: Readonly<globalThis.Record<string, string>> = {
-  en: 'English',
-  es: 'Español',
-  de: 'Deutsch',
-  fr: 'Français',
-  it: 'Italiano',
-  ja: '日本語',
-  pt: 'Português',
 };
 
 export type ArchiveDatelineProps = {
@@ -87,7 +89,7 @@ export function ArchiveDateline({
   categoryName,
 }: ArchiveDatelineProps) {
   const others = record.available_languages.filter((l) => l !== version.locale);
-  const published = formatDate(record.publication_date);
+  const published = formatArchiveDate(record.publication_date);
   const witness = record.witness_name ? displayWitness(record.witness_name) : null;
 
   const pairs: { label: string; value: ReactNode }[] = [];
@@ -143,7 +145,7 @@ export function ArchiveDateline({
             lang={version.locale}
             aria-current="true"
           >
-            {LANGUAGE_NAMES[version.locale] ?? version.locale}
+            {languageName(version.locale)}
           </span>
           <span className={styles.languagesAlso}>also in</span>
           {others.map((locale) => (
@@ -156,7 +158,7 @@ export function ArchiveDateline({
               hrefLang={locale}
               lang={locale}
             >
-              {LANGUAGE_NAMES[locale] ?? locale}
+              {languageName(locale)}
             </Link>
           ))}
         </nav>
@@ -164,7 +166,7 @@ export function ArchiveDateline({
         <p className={styles.languageOnly}>
           Held in{' '}
           <span lang={version.locale}>
-            {LANGUAGE_NAMES[version.locale] ?? version.locale}
+            {languageName(version.locale)}
           </span>{' '}
           only.
         </p>
@@ -204,6 +206,7 @@ export function ArchiveRecord({
   shareUrl,
   categoryName,
   sensitivity,
+  archive,
   previous,
   next,
 }: ArchiveRecordProps) {
@@ -290,7 +293,7 @@ export function ArchiveRecord({
             <div className={styles.provenancePair}>
               <dt>Languages</dt>
               <dd>
-                {record.available_languages.map((l) => LANGUAGE_NAMES[l] ?? l).join(', ')}
+                {record.available_languages.map(languageName).join(', ')}
               </dd>
             </div>
           </dl>
@@ -316,8 +319,8 @@ export function ArchiveRecord({
           url={shareUrl}
           title={title}
           xHref={xIntentUrl(xText, shareUrl)}
-          facebookHref={facebookShareUrl(shareUrl)}
           caption={`${xText}\n${shareUrl}`}
+          archive={archive}
           xMedia={sourceMedia ? {
             ...sourceMedia,
             recordId: record.canonical_story_id,
@@ -415,22 +418,6 @@ function describeHolding(
   if (held.videos > 0) parts.push(plural(held.videos, 'film', 'films'));
   if (held.images > 0) parts.push(plural(held.images, 'photograph', 'photographs'));
   return parts.length ? parts.join(', ') : 'The record’s own text';
-}
-
-function groupDigits(value: number): string {
-  return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-}
-
-function formatDate(value: string | null): string | null {
-  if (!value) return null;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  return date.toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'UTC',
-  });
 }
 
 /** The site address alone — "october7.org", not the record's whole slug. */

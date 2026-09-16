@@ -505,6 +505,13 @@
   --measure-caption: 44ch;
   --measure-title: 34ch;
   --measure-data: 24ch;
+  /* Wider than the reading measure, and only for the two October 7 indexes:
+     they are lists of a whole archive rather than one record of it, and at
+     68ch the testimony index's seven language chips wrapped to three rows.
+     `sections.module.css` switches to it on `:has([data-archive-index])`, so
+     the width follows a fact about the content rather than a route id
+     (2026-09-16). */
+  --measure-index: 92ch;
 
   --chrome-w: 92rem;
   --line-w: 1px;

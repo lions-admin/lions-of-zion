@@ -7,17 +7,16 @@ import {
   type ArchiveFacet,
 } from '@/components/archive';
 import { DocPage } from '@/components/sections/DocPage';
-import { getRecordDigests, withCoverThumbs } from '@/lib/content/archive';
+import { getRecordDigests } from '@/lib/content/archive';
+import { groupDigits } from '@/lib/content/archive-display';
 import {
   DOCUMENTATION_PACKAGE,
   UNCATEGORISED,
   getDocumentationGroups,
 } from '@/lib/content/documentation';
-import { SITE_URL } from '@/lib/site-config';
 import { pageMetadata } from '@/lib/page-metadata';
 
 const TAGLINE = 'The documentation record of October 7, filed as it was published.';
-const PAGE_URL = `${SITE_URL}/october-7/documentation`;
 const BASE_PATH = '/october-7/documentation';
 
 export const metadata: Metadata = pageMetadata({
@@ -36,8 +35,14 @@ export default async function Page() {
      the whole archive in the order the source filed it — the number is the
      exhibit's identity, and it must not change when a category is chosen. */
   const flat = groups.flatMap((group) => group.records);
-  const withThumbs = await withCoverThumbs(DOCUMENTATION_PACKAGE, flat);
-  const records = withThumbs.map((entry) => ({
+  /* No `withCoverThumbs` here, and that is the advisory below made true
+     (owner decision, 2026-09-16). Resolving covers for this index meant 24
+     frames of the attack painted under a sentence promising that nothing is
+     shown until it is asked for; not resolving them means the URLs never
+     reach the client either, so there is nothing for a devtools panel or a
+     copied payload to open. The rows carry the exhibit number, the filing
+     line and the source's own caption. */
+  const records = flat.map((entry) => ({
     ...entry,
     digest: digests.get(entry.id),
   }));
@@ -99,7 +104,8 @@ export default async function Page() {
         facets={facets}
         facetLegend="Category"
         searchLabel="Documentation"
-        searchHint="Description, place or category"
+        searchHint="Caption or category"
+        searchScope="The filter reads each record’s caption and the category it was filed under."
       />
 
       <ArchiveFullIndex
@@ -111,8 +117,4 @@ export default async function Page() {
       />
     </DocPage>
   );
-}
-
-function groupDigits(value: number): string {
-  return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }

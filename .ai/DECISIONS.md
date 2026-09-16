@@ -10,6 +10,47 @@ record of a bad idea is what stops it being had twice.
 
 ---
 
+## 2026-09-16 — Round three, carried out: what the identity cost and what it paid for
+
+The 2026-09-15 rulings (new identity, dark only, cinematic motion, public
+scope) are implemented. This entry records the four things a later reader
+would otherwise re-litigate.
+
+**One styling system, not two.** `components/shadcn/**`, `components/ai-elements/**`,
+Tailwind, `cn()` and six dependencies are gone: about 3,960 lines that existed
+so one feature — the Ask desk — could be assembled from a vendored registry.
+The desk is on `components/ui` now. The ESLint boundary that quarantined the
+registry **stays**, pointing at paths that no longer exist, so the next
+`npx shadcn add` fails loudly instead of quietly restoring the seam. Removing
+it is a decision to allow a second styling system back, not a tidy-up.
+
+**The budgets were the argument, and they moved the right way.** Two were over
+before the round began and both are inside now: the worst reading route's JS
+went 285.7 → 225.7 kB gz and total CSS 95.5 → 82.2. The homepage went 271.2 →
+207.5 with a heavier cover, because 43 MB of video and one component left.
+Preloaded fonts went 525.7 → 117.3 kB on four families instead of seven. A
+round that replaces an identity is allowed to cost nothing; this one paid.
+
+**Three still states are the design, not a degradation.** The cover's scroll
+timeline, the entrances and the page transitions each have a complete answer
+for an engine without the feature, for `prefers-reduced-motion`, and for the
+reader's own pause — and the third is a real button, persisted, because the
+OS preference is not the only way to ask. Two of those answers were wrong when
+first written and were found by looking at the rendered page rather than by a
+test: the reduced-motion cover was a blank navy screen, because the global
+kill switch runs a scroll animation to its *end* state in 0.01ms and the
+reset selector lost on specificity. Any new scroll-linked effect ships its own
+reset at the timeline rule's own specificity.
+
+**Colour carries nothing alone.** Every verdict, grade and state is a shape as
+well as a ramp (`Badge`'s mark), which is why the greyscale gate passes: with
+every accent swapped for `--ink-lo`, a hub still reads as this product. Two
+control boundaries that failed WCAG 1.4.11 — the outline button at 2.01:1 and
+the danger button at 2.21 against a floor of 3 — were found by `npm run
+audit:ui`, not by review, and are on `--control-line` now. The palette
+reserves that token for exactly this: a decorative hairline may be quiet, the
+only thing telling a reader where a control begins may not.
+
 ## 2026-09-14 — A grant is not a policy: measurement lost every public visit
 
 The מדידה screens looked broken. They were not: they were reading an almost

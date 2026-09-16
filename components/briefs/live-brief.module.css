@@ -52,21 +52,17 @@
   margin-block: var(--sp-6) var(--sp-5);
 }
 
-.sectionHeading h2 {
-  font-family: var(--face-kicker);
-  font-size: var(--t-kicker);
-  font-weight: var(--t-kicker-weight);
-  line-height: var(--t-kicker-lh);
-  letter-spacing: var(--t-kicker-tracking);
-  text-transform: uppercase;
+/* The band's name is an `h2` in the kicker register with the one gold dash in
+   front of it — `SectionKicker as="h2"`, whose type role this rule copied out
+   in full until 2026-09-16. */
+.sectionHeadingLabel {
+  --kicker-color: var(--gold);
   display: inline-flex;
   align-items: center;
   gap: var(--sp-3);
-  margin: 0;
-  color: var(--gold);
 }
 
-.sectionHeading h2::before {
+.sectionHeadingLabel::before {
   content: "";
   inline-size: var(--sp-4);
   block-size: var(--line-w);
@@ -322,23 +318,11 @@
   border-inline-end: var(--line-w) solid var(--line);
 }
 
-/* The lead headline, at the site's h2 role — the same step the Fake
-   Resistance hub gives its lead investigation. This rule carried a private
-   `clamp(2.25rem, 1.2rem + 2.4vw, 3.25rem)` at weight 400 (a ceiling brought
-   down from 4.25rem on 2026-09-11 so a long title was not a five-line wall);
-   the site's one heading scale lives in app/globals.css (SYS-004), and the
-   rank on this front is masthead → lead → rail, which is display → h2 → h3. */
-.newsLead h3 {
-  max-width: 26ch;
-  margin: 0;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h2);
-  font-weight: var(--t-h2-weight);
-  line-height: var(--t-h2-lh);
-  letter-spacing: var(--t-h2-tracking);
-  text-wrap: balance;
-}
+/* The lead headline is `CardTitle` inside `Card variant="lead"`, so the rank
+   on this front — masthead → lead → rail, which is display → h2 → h3 — is the
+   card composition's, not this file's. This rule restated all nine of
+   `card.module.css`'s `.lead .title` declarations (and lost to it on
+   specificity) until 2026-09-16. */
 
 .newsLead h3 a,
 .newsTimeline h3 a,
@@ -481,15 +465,10 @@
   align-self: start;
 }
 
-.newsSidebar > h2 {
-  font-family: var(--face-kicker);
-  font-size: var(--t-kicker);
-  font-weight: var(--t-kicker-weight);
-  line-height: var(--t-kicker-lh);
-  letter-spacing: var(--t-kicker-tracking);
-  text-transform: uppercase;
-  margin: 0 0 var(--sp-3);
-  color: var(--ink);
+/* The rail's name, one step brighter than a kicker's default ink. */
+.sidebarHeading {
+  --kicker-color: var(--ink);
+  margin-bottom: var(--sp-3);
 }
 
 .newsTimeline {
@@ -526,16 +505,11 @@
   color: var(--ink);
 }
 
-/* A rail entry's headline, at the h3 role: one rank under the lead. */
+/* A rail entry's headline is `CardTitle` at its own h3 step; only the full
+   measure, the offset under the timestamp, and the wrap are the rail's. */
 .newsTimeline h3 {
   max-width: none;
   margin: var(--sp-2) 0 0;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
   text-wrap: pretty;
 }
 
@@ -568,17 +542,11 @@
   max-width: 78ch;
 }
 
-/* The briefing's headline, at the h2 role like the lead beside it. */
+/* The briefing's headline is an `h2` at the h2 step, which is what
+   `@layer base` in `app/globals.css` sets; only the measure is this block's,
+   because the briefing runs the full width of its column. */
 .briefingContent h2 {
   max-width: none;
-  margin: 0;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h2);
-  font-weight: var(--t-h2-weight);
-  line-height: var(--t-h2-lh);
-  letter-spacing: var(--t-h2-tracking);
-  text-wrap: balance;
 }
 
 .newsSidebar .briefingContent { max-width: none; }
@@ -590,29 +558,18 @@
    glyph until 2026-09-16 — a box around something that is not pressable, and
    a second gold element on a screen that already has one. A rule and space
    say "a different desk begins here" without either. */
+/* The rule, the space above it and the rhythm are `Section rule="strong"
+   flow="tight"`; the kicker is `SectionKicker`; the headline is an `h2` at the
+   h3 step, which is `Heading level={2} size="h3"` — the one case this file
+   used to write out by hand, and the reason `Heading` takes the two
+   separately. Only the space the bridge leaves under itself is its own. */
 .watchBridge {
-  display: grid;
-  gap: var(--sp-2);
-  margin-block: var(--sp-7) var(--sp-6);
-  padding-block-start: var(--sp-5);
-  border-block-start: var(--line-w) solid var(--line-strong);
+  margin-block-end: var(--sp-6);
 }
 
-.bridgeKicker {
-  composes: kickerLabel from global;
-  margin: 0;
-  color: var(--ink-lo);
-}
-
-.watchBridge h2 {
+.bridgeHeading {
   max-width: none;
-  margin: 0 0 var(--sp-1);
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
+  margin-bottom: var(--sp-1);
 }
 
 .watchBridge p {
@@ -649,8 +606,8 @@
 
 .newsArchive summary::-webkit-details-marker { display: none; }
 
-.newsArchive summary:hover .archiveTitle > span:first-child,
-.newsArchive summary:focus-visible .archiveTitle > span:first-child { color: var(--gold-hi); }
+.newsArchive summary:hover .archiveHeadline,
+.newsArchive summary:focus-visible .archiveHeadline { color: var(--gold-hi); }
 
 /* The ring is the global `:focus-visible` rule; only its corner is the
    summary's own. */
@@ -664,13 +621,11 @@
   min-width: 0;
 }
 
-.archiveTitle > span:first-child {
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h2);
-  font-weight: var(--t-h2-weight);
-  line-height: var(--t-h2-lh);
-  letter-spacing: var(--t-h2-tracking);
+/* The archive's name reads at the h2 step but is not a heading: it sits
+   inside a `<summary>`, where a heading element would put a rank in the
+   outline that the document does not have. `Heading level="none"` is exactly
+   that case, and the colour change on hover is all that is left here. */
+.archiveHeadline {
   transition: color var(--dur-fast) var(--ease-out);
 }
 
@@ -827,24 +782,15 @@
   border-block-start: var(--line-w) solid var(--line);
 }
 
+/* `SectionHead` is the grid, the gap and the alignment; the band's head
+   staying with the reader as the rows scroll past it is this hub's own. */
 .liveSectionHead {
-  display: grid;
-  gap: var(--sp-2);
-  align-content: start;
   position: sticky;
   top: calc(var(--header-h) + var(--sp-4));
 }
 
-.liveSection h2 {
-  margin: 0;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  letter-spacing: var(--t-h3-tracking);
-  line-height: var(--t-h3-lh);
-  overflow-wrap: anywhere;
-}
+/* The band's heading is `Heading level={2} size="h3"`: an `h2` in the outline
+   at the step under the front's. */
 
 .liveSectionHead p {
   font-family: var(--face-data);

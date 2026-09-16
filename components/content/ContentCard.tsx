@@ -29,7 +29,11 @@ export function ContentCard({
   href,
 }: ContentCardProps) {
   return (
-    <Card variant="feature" accent={accent} href={href}>
+    /* `tile` is the pressable plate this card has always drawn;
+       `feature` was the name for it until 2026-09-16 and resolves to the
+       same composition. Named directly here so the legacy alias has one
+       caller left rather than two. */
+    <Card variant="tile" accent={accent} href={href}>
       {eyebrow ? (
         <CardHeader>
           <CardEyebrow>{eyebrow}</CardEyebrow>

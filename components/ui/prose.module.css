@@ -1,0 +1,102 @@
+/* Prose — running text, at a reading measure, with the rules a passage needs.
+ *
+ * The site sets the same four properties on every block of running text
+ * (`--face-text`, one of three steps, its line height, `--ink`) and then
+ * spaces the paragraphs by hand. This is that block, once.
+ *
+ * The flow is a custom property rather than a fixed value: `--flow` is the
+ * site's paragraph rhythm and the default, and a passage that ran tighter
+ * before this file existed keeps its rhythm by setting `--prose-flow` on the
+ * composing rule instead of restating the whole role.
+ *
+ * The register rule holds here as everywhere: this is the text face. A
+ * machine value inside a passage is still `.dataValue`, and a human being
+ * quoted is still the quote face — which is what the `blockquote` rule below
+ * is, and why it is the only place in this file that changes family.
+ */
+
+.prose {
+  --prose-flow: var(--flow);
+
+  min-width: 0;
+  color: var(--ink);
+  font-family: var(--face-text);
+}
+
+.prose > p + p {
+  margin-top: var(--prose-flow);
+}
+
+/* ── steps ────────────────────────────────────────────────────────────── */
+
+.lede {
+  font-size: var(--t-lede);
+  font-weight: var(--t-lede-weight);
+  line-height: var(--t-lede-lh);
+  letter-spacing: var(--t-lede-tracking);
+}
+
+.body {
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+}
+
+.small {
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+/* ── measures ─────────────────────────────────────────────────────────── */
+
+.reading {
+  max-width: var(--measure-reading);
+}
+
+.narrow {
+  max-width: var(--measure-narrow);
+}
+
+.wide {
+  max-width: var(--measure-wide);
+}
+
+/* ── what a passage may contain ───────────────────────────────────────── */
+
+/* A human being quoted. The serif is the one signal that these are somebody
+   else's words, and the gold stub beside it is the record's, not a border
+   around a box. */
+.prose blockquote {
+  margin-block: var(--sp-5);
+  padding-inline-start: var(--sp-4);
+  border-inline-start: var(--line-w-thick) solid var(--gold-dim);
+  font-family: var(--face-quote);
+  font-size: var(--t-quote);
+  font-weight: var(--t-quote-weight);
+  line-height: var(--t-quote-lh);
+  font-optical-sizing: auto;
+  color: var(--ink-hi);
+}
+
+.prose :is(ul, ol) {
+  margin-block: var(--prose-flow);
+  padding-inline-start: var(--sp-5);
+}
+
+.prose li + li {
+  margin-top: var(--sp-2);
+}
+
+.prose li::marker {
+  color: var(--ink-lo);
+}
+
+.prose figure {
+  margin-block: var(--sp-5);
+}
+
+.prose figcaption {
+  margin-top: var(--sp-2);
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}

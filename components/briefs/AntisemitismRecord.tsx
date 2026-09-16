@@ -6,6 +6,7 @@ import { measurePublicationCard } from "@/components/measurement/attrs";
 import { formatDay } from "@/lib/format-date";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
+import { SectionKicker } from "@/components/ui/Section";
 
 /**
  * A documented record, kept visually and semantically distinct from a
@@ -31,8 +32,8 @@ export function AntisemitismRecord({ item, compact = false, surface = compact ? 
       <h3><Link href={`/articles/${item.publicId}`}>{item.title}</Link></h3>
       {item.summary ? <p>{item.summary}</p> : null}
       <dl className={styles.context}>
-        {item.arena ? <div><dt>Location or platform</dt><dd>{item.arena}</dd></div> : null}
-        {item.editorialTopic ? <div><dt>Record type</dt><dd>{item.editorialTopic}</dd></div> : null}
+        {item.arena ? <div><SectionKicker as="dt">Location or platform</SectionKicker><dd>{item.arena}</dd></div> : null}
+        {item.editorialTopic ? <div><SectionKicker as="dt">Record type</SectionKicker><dd>{item.editorialTopic}</dd></div> : null}
       </dl>
       {!compact ? <Link className={styles.read} href={`/articles/${item.publicId}`}>{publicationCta(item.section)} <Icon name="arrow-right" inline className="arrow" /></Link> : null}
     </article>

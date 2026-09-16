@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type MouseEvent } from 'react';
+import { useRef, useState, type MouseEvent } from 'react';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { politeLive } from '@/components/ui/live-region';
 import { buildMediaShareText, xIntentUrl } from '@/lib/content/share-text';
@@ -18,7 +18,6 @@ type Props = {
   shareTitle: string;
   /** The record's canonical URL. Written into the caption, not passed beside it. */
   shareUrl: string;
-  returnTo: string;
   /**
    * The X Web Intent for this record. When present the control *is* "Post on
    * X": a real link to the composer that, on a device able to hand files to
@@ -62,10 +61,21 @@ type ShareAttempt = 'shared' | 'dismissed' | 'activation-expired' | 'unsupported
  *    reader. A blocked popup is offered as an ordinary link instead.
  *
  * Web Share needs transient user activation, and a large video fetched *after*
- * the tap outlives it on iOS. So the file is fetched ahead of the tap, once the
- * control scrolls into view on a device that can share files, and kept in a
- * ref; if it is still not ready when the reader taps, the tap that finishes
- * the fetch asks for one more.
+ * the tap outlives it on iOS. So the file is fetched ahead of the tap and kept
+ * in a ref; if it is still not ready when the reader taps, the tap that
+ * finishes the fetch asks for one more.
+ *
+ * **What "ahead of the tap" may not mean (2026-09-16).** It used to mean an
+ * `IntersectionObserver`: scrolling the control into view fetched the full
+ * original — a 4K film of the 7 October attack, tens of megabytes, on a phone,
+ * *while the record's gate was still closed*. A page that promises nothing is
+ * shown until it is asked for cannot be downloading the thing it is covering.
+ * The head start now comes from an intention the reader expressed —
+ * `pointerdown` or keyboard focus on this control, both of which precede the
+ * activation — and it is withheld on three conditions: the browser cannot hand
+ * files to an app at all, `saveData` is on, or a covered gate is still standing
+ * on this page. Pressing the control always works; only the speculative fetch
+ * is rationed.
  */
 export function XMediaPostButton({
   mediaId,
@@ -103,21 +113,13 @@ export function XMediaPostButton({
     return prefetch.current;
   };
 
-  /* Fetch ahead of the tap, but only where the file could go somewhere: a
-     browser with no file sharing would download a video for nothing. The
-     wrapper is `display: contents`, so the control itself is what is observed. */
-  useEffect(() => {
-    const control = root.current?.firstElementChild;
-    if (!control || !canShareFiles()) return;
-    const observer = new IntersectionObserver((entries) => {
-      if (!entries.some((entry) => entry.isIntersecting)) return;
-      observer.disconnect();
-      void prepare();
-    });
-    observer.observe(control);
-    return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- the asset is fixed for the control's life
-  }, [assetUrl]);
+  /* Fetch ahead of the tap, but only where the file could go somewhere and
+     only when the reader has reached for the control. */
+  const prefetchAhead = () => {
+    if (prefetch.current) return;
+    if (!canShareFiles() || saveDataOn() || gateStillCovered(root.current)) return;
+    void prepare();
+  };
 
   /* The file could not be handed over. Save it, then put the reader in front of
      the X composer with the caption already written, so the only step left is
@@ -194,6 +196,8 @@ export function XMediaPostButton({
           target="_blank"
           rel="noopener noreferrer"
           isLoading={state === 'preparing'}
+          onPointerDown={prefetchAhead}
+          onFocus={prefetchAhead}
           onClick={interceptIntent}
         >
           {label}
@@ -203,8 +207,9 @@ export function XMediaPostButton({
           type="button"
           variant={compact ? 'text' : 'secondary'}
           size="md"
-          className={compact ? styles.mediaAction : undefined}
           isLoading={state === 'preparing'}
+          onPointerDown={prefetchAhead}
+          onFocus={prefetchAhead}
           onClick={() => void share()}
         >
           {label}
@@ -218,17 +223,47 @@ export function XMediaPostButton({
         {status}
       </span>
       {composerHref ? (
-        <a
-          className={styles.mediaAction}
+        <ButtonLink
           href={composerHref}
+          variant="text"
+          size="sm"
           target="_blank"
           rel="noopener noreferrer"
         >
           Open X and attach the {medium}
-        </a>
+        </ButtonLink>
       ) : null}
     </span>
   );
+}
+
+/**
+ * Whether a metered or explicitly saving connection is in force.
+ *
+ * `saveData` is the reader saying "do not spend my bytes on things I did not
+ * ask for", and a speculative copy of the original is exactly that. Pressing
+ * the control still fetches it — that one they asked for.
+ */
+function saveDataOn(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  const connection = (navigator as Navigator & { connection?: { saveData?: boolean } })
+    .connection;
+  return connection?.saveData === true;
+}
+
+/**
+ * Whether material on this page is still behind a closed gate.
+ *
+ * `SensitiveContent` writes ``data-sensitive`` and its state onto the wrapper it
+ * owns; the action row sits in the figcaption *outside* that wrapper, so the
+ * nearest figure is asked first and the document second — the record's closing
+ * share control is not inside any figure but shares the record's one gate.
+ * While anything is covered, nothing is fetched ahead.
+ */
+function gateStillCovered(node: HTMLElement | null): boolean {
+  if (typeof document === 'undefined') return false;
+  const scope = node?.closest('figure') ?? document;
+  return scope.querySelector('[data-sensitive][data-state="covered"]') !== null;
 }
 
 /** Whether this browser can hand a file to an installed app at all. */

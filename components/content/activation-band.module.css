@@ -5,30 +5,12 @@
    ground — the edition is one ground from cover to footer — so the band is
    marked by its rule and its heading, never by a panel colour. */
 
-.band {
-  margin-top: var(--sp-7);
-  padding-top: var(--sp-5);
-  border-top: var(--line-w-thick) solid var(--gold-dim);
-}
-
-.heading {
-  margin: 0;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h2);
-  font-weight: var(--t-h2-weight);
-  line-height: var(--t-h2-lh);
-  letter-spacing: var(--t-h2-tracking);
-  text-wrap: balance;
-}
-
+/* The band itself is `Section rule="gold"` and its heading is a bare `h2`:
+   both were written out here until 2026-09-16, and both were exactly what the
+   library and the base layer already say. What is left is the one offset the
+   band owns — its sentence sitting under its heading — and the action row. */
 .lead {
-  max-width: var(--measure-narrow);
-  margin: var(--sp-3) 0 0;
-  color: var(--ink);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
-  text-wrap: pretty;
+  margin-top: var(--sp-3);
 }
 
 /* Wraps rather than scrolls: three controls at `--control-h` do not fit 390px

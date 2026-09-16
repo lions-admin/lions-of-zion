@@ -12,27 +12,16 @@ import {
   manifestLanguages,
   withCoverThumbs,
 } from '@/lib/content/archive';
+import { languageName } from '@/lib/content/archive-display';
 import {
   TESTIMONIES_PACKAGE,
   getTestimoniesManifest,
   getTestimonyIndex,
 } from '@/lib/content/testimonies';
-import { SITE_URL } from '@/lib/site-config';
 import { pageMetadata } from '@/lib/page-metadata';
 
 const TAGLINE = 'First-hand accounts of October 7, held here in full.';
-const PAGE_URL = `${SITE_URL}/october-7/testimonies`;
 const BASE_PATH = '/october-7/testimonies';
-
-const LANGUAGE_NAMES: Readonly<Record<string, string>> = {
-  en: 'English',
-  es: 'Español',
-  de: 'Deutsch',
-  fr: 'Français',
-  it: 'Italiano',
-  ja: '日本語',
-  pt: 'Português',
-};
 
 export const metadata: Metadata = pageMetadata({
   title: 'Testimonies',
@@ -70,7 +59,7 @@ export default async function Page() {
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .map(([value, count]) => ({
       value,
-      label: LANGUAGE_NAMES[value] ?? value.toUpperCase(),
+      label: languageName(value),
       count,
     }));
 
@@ -124,7 +113,8 @@ export default async function Page() {
         facets={facets}
         facetLegend="Language"
         searchLabel="Testimonies"
-        searchHint="Witness, place or words in the account"
+        searchHint="Witness name, headline or opening words"
+        searchScope="The filter reads each account’s witness, its headline and its opening words — not the whole transcript."
       />
 
       <ArchiveFullIndex

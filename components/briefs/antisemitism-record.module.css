@@ -28,16 +28,9 @@
   font-variant-numeric: tabular-nums;
 }
 
-.record h3 {
-  margin: 0;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
-}
-
+/* The headline itself takes no rule: an `h3` at the h3 step is what the
+   base layer in `app/globals.css` already sets. Only the link inside it —
+   its colour, and the underline that is its hover state — is this row's. */
 .record h3 a { color: inherit; text-decoration: none; }
 .record h3 a:hover,
 .record h3 a:focus-visible { text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 0.16em; }
@@ -46,16 +39,9 @@
 .context { display: flex; flex-wrap: wrap; gap: var(--sp-4); margin: 0; }
 .context div { display: grid; gap: var(--sp-1); }
 /* "Location or platform", "Record type": terms a person wrote, so the kicker
-   role — written out because a descendant selector cannot `composes`. */
-.context dt {
-  color: var(--ink-lo);
-  font-family: var(--face-kicker);
-  font-size: var(--t-kicker);
-  font-weight: var(--t-kicker-weight);
-  line-height: var(--t-kicker-lh);
-  letter-spacing: var(--t-kicker-tracking);
-  text-transform: uppercase;
-}
+   role — which is `SectionKicker as="dt"`, the library's name for exactly
+   that. It was written out here until 2026-09-16 because a descendant
+   selector cannot `composes`; a component can. */
 .context dd { margin: 0; font-size: var(--t-small); }
 
 .read { color: var(--ink-hi); font-weight: 600; text-decoration-color: var(--gold-line-strong); text-underline-offset: 0.2em; }

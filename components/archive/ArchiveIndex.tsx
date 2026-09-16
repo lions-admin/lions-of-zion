@@ -11,7 +11,11 @@ import {
   type MouseEvent,
 } from 'react';
 import { Button, FieldControl, Pagination, StatusState, absenceStatus, politeLive } from '@/components/ui';
-import { displayTitle, displayWitness } from '@/lib/content/archive-display';
+import {
+  displayTitle,
+  displayWitness,
+  groupDigits,
+} from '@/lib/content/archive-display';
 import {
   type ArchiveListEntry,
   type ArchiveRowVariant,
@@ -44,7 +48,24 @@ export type ArchiveIndexProps = {
   facetLegend: string;
   /** Names the filter and its results for a screen reader. */
   searchLabel: string;
+  /** The field's placeholder. It must name the fields the filter really reads. */
   searchHint: string;
+  /**
+   * One sentence saying what the filter searches, shown when nothing matched.
+   *
+   * **Honest search (2026-09-16).** The testimony hint used to promise "words
+   * in the account" while the filter read the title, the witness and the
+   * 200-character excerpt — so a reader who searched for a phrase they knew
+   * was in a transcript was told, falsely, that the archive held nothing like
+   * it. Indexing the full text was the other option and was measured against
+   * this one: the 179 testimonies run to roughly 1.4 MB of prose, which is a
+   * folded blob of that order travelling in the payload of a prerendered page
+   * for a filter, on the route whose whole point is that a phone can reach
+   * 179 rows. Saying what the field actually does costs nothing and lies
+   * about nothing; the full-text index is recorded as an owner call, not
+   * smuggled in. This sentence is where that honesty is spent.
+   */
+  searchScope: string;
 };
 
 /** How many rows are on screen at once. See the note on PERF-004 below. */
@@ -137,6 +158,7 @@ export function ArchiveIndex({
   facetLegend,
   searchLabel,
   searchHint,
+  searchScope,
 }: ArchiveIndexProps) {
   const inputId = useId();
   const resultsRef = useRef<HTMLDivElement | null>(null);
@@ -232,7 +254,15 @@ export function ArchiveIndex({
     [facets],
   );
 
-  const needle = fold(draft.trim());
+  /* The settled query, not the draft. Filtering on every keystroke meant the
+     summary below — which is this field's description *and* the page's polite
+     live region — re-announced on every letter, so a screen-reader user typing
+     "kibbutz" heard seven result counts, six of which were about a word they
+     had not finished. The URL is already debounced at 300 ms (`onQuery`), well
+     inside Doherty's 400 ms, so reading the filter from it costs a reader
+     nothing and makes the announcement, the list and the shareable URL agree
+     by construction rather than by luck. */
+  const needle = fold(urlQuery.trim());
 
   const matches = useMemo(
     () =>
@@ -306,7 +336,11 @@ export function ArchiveIndex({
   };
 
   return (
-    <div className={styles.index}>
+    /* `data-archive-index` is what the shell reads to widen the column: an
+       index is a ledger, not prose, and the reading measure that serves a
+       witness account leaves seven facet chips wrapping onto three rows. See
+       the rule in `components/sections/sections.module.css`. */
+    <div className={styles.index} data-archive-index="">
       {/* `data-needs-js` marks the two regions that are inert without a
           client: the filter controls, and a pager whose `?page=N` targets are
           served by the same prerendered HTML as page 1. `ArchiveFullIndex`
@@ -417,7 +451,7 @@ export function ArchiveIndex({
                 filtered ? ` matching, from ${groupDigits(total)} held` : ' records'
               }.`}
           {facetLabel ? ` Filed under ${facetLabel}.` : ''}
-          {needle ? ` Text “${draft.trim()}”.` : ''}
+          {needle ? ` Text “${urlQuery.trim()}”.` : ''}
         </p>
         {filtered ? (
           <Button type="button" variant="text" size="sm" onClick={onReset}>
@@ -426,10 +460,14 @@ export function ArchiveIndex({
         ) : null}
       </div>
 
+      {/* A named region, so it is a landmark a screen-reader user can jump to
+          and the place the pager moves focus to is announced as somewhere
+          rather than as a nameless div. */}
       <div
         className={styles.results}
         ref={resultsRef}
         tabIndex={-1}
+        role="region"
         aria-label={`${searchLabel} results`}
       >
         {shown === 0 ? (
@@ -450,7 +488,7 @@ export function ArchiveIndex({
               status={absenceStatus("no-matches")}
               eyebrow="No match"
               title="Nothing in the archive matches this."
-              description={`The archive holds ${groupDigits(total)} records. Try a name, a place, or a different category.`}
+              description={`${searchScope} The archive holds ${groupDigits(total)} records — clear the filters to see them all.`}
               actionText="Clear filters"
               onAction={onReset}
             />
@@ -461,8 +499,12 @@ export function ArchiveIndex({
             label={`${searchLabel} results`}
             records={visible.map((r) => r.entry)}
             numbers={variant === 'documentation' ? visible.map((r) => r.number) : undefined}
+            /* The category is restated per row only while none is chosen.
+               With a facet active every row on screen is filed under it, and
+               printing the same four words 24 times is the filter telling the
+               reader what they just told it. */
             categories={
-              variant === 'documentation'
+              variant === 'documentation' && !facet
                 ? visible.map((r) => facetLabels.get(r.entry.category ?? uncategorised))
                 : undefined
             }
@@ -487,8 +529,4 @@ export function ArchiveIndex({
       ) : null}
     </div>
   );
-}
-
-function groupDigits(value: number): string {
-  return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }

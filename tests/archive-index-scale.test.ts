@@ -76,7 +76,8 @@ describe("the archive index does not render the whole archive (PERF-004)", () =>
         ],
         facetLegend: "Category",
         searchLabel: "Documentation",
-        searchHint: "Filter by description, place or category",
+        searchHint: "Caption or category",
+        searchScope: "The filter reads each record’s caption and its category.",
       }),
     );
 
@@ -100,7 +101,8 @@ describe("the archive index does not render the whole archive (PERF-004)", () =>
         ],
         facetLegend: "Category",
         searchLabel: "Documentation",
-        searchHint: "Filter",
+        searchHint: "Caption or category",
+        searchScope: "The filter reads each record’s caption and its category.",
       }),
     );
 
@@ -120,7 +122,8 @@ describe("the archive index does not render the whole archive (PERF-004)", () =>
         facets: [],
         facetLegend: "Category",
         searchLabel: "Documentation",
-        searchHint: "Filter",
+        searchHint: "Caption or category",
+        searchScope: "The filter reads each record’s caption and its category.",
       }),
     );
     expect(markup).toContain('href="/october-7/documentation?page=2"');

@@ -45,3 +45,77 @@ export function displayTitle(title: string): string {
 export function displayWitness(witness: string): string {
   return witness.replace(/\s*['’.]?s['’]?\s+story\s*$/i, '').trim() || witness.trim();
 }
+
+/* ---------------------------------------------------------------------------
+ * The values every archive surface prints, with one implementation each.
+ *
+ * Consolidated 2026-09-16. `groupDigits` had four byte-identical copies
+ * (`ArchiveIndex`, `ArchiveRecordList`, `ArchiveRecord`, the documentation
+ * index route), the month table and the language table two each, and a
+ * duplicated formatter is how two surfaces end up disagreeing about the same
+ * record. Pure and dependency-free, like the two helpers above, so the client
+ * components that filter and list can import them without pulling the
+ * filesystem seam into the browser bundle.
+ * ------------------------------------------------------------------------ */
+
+/** Thousands separators, so 7,525 words reads as a quantity and not an id. */
+export function groupDigits(value: number): string {
+  return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+/**
+ * Both date formatters are deterministic on purpose.
+ *
+ * The index rows render on the server for the first window and again on the
+ * client after hydration, and `toLocaleString` resolves against two different
+ * ICU environments — which is a hydration mismatch on a date nobody edited.
+ */
+const MONTHS_SHORT = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+];
+
+const MONTHS_LONG = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+
+function parseUtc(value: string | null | undefined): Date | null {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+/** `7 Oct 2023` — the index row, where the date is one fact among five. */
+export function formatArchiveDay(value: string | null | undefined): string {
+  const date = parseUtc(value);
+  if (!date) return '';
+  return `${date.getUTCDate()} ${MONTHS_SHORT[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
+}
+
+/** `7 October 2023` — the record's own dateline, where it is the fact. */
+export function formatArchiveDate(value: string | null | undefined): string | null {
+  const date = parseUtc(value);
+  if (!date) return null;
+  return `${date.getUTCDate()} ${MONTHS_LONG[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
+}
+
+/**
+ * The seven languages the two packages actually carry, each written in the
+ * language it names — which is why every call site also binds `lang`: the
+ * attribute describes the text a screen reader is about to pronounce.
+ */
+const LANGUAGE_NAMES: Readonly<Record<string, string>> = {
+  en: 'English',
+  es: 'Español',
+  de: 'Deutsch',
+  fr: 'Français',
+  it: 'Italiano',
+  ja: '日本語',
+  pt: 'Português',
+};
+
+/** A locale's own name, or the bare code upper-cased when it is not one of ours. */
+export function languageName(locale: string): string {
+  return LANGUAGE_NAMES[locale] ?? locale.toUpperCase();
+}

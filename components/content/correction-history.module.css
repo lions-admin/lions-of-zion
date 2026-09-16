@@ -18,7 +18,7 @@
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
-  letter-spacing: var(--content-data-tracking, var(--t-data-tracking));
+  letter-spacing: var(--t-data-tracking);
   font-variant-numeric: tabular-nums;
 }
 
@@ -53,7 +53,7 @@
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
-  letter-spacing: var(--content-data-tracking, var(--t-data-tracking));
+  letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
   cursor: pointer;
 }

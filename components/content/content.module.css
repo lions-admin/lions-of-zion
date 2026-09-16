@@ -25,11 +25,6 @@
   color: var(--gold);
 }
 
-.dateStamp {
-  composes: dataMeta from global;
-  color: var(--ink-lo);
-  font-variant-numeric: tabular-nums;
-}
 
 /* Inside a `Badge`: the optional confidence suffix on a verdict, and the
    explanation a screen reader hears after the label (the pointer gets it as
@@ -172,17 +167,9 @@
 /* "Published", "Reviewed by", "Sources": the terms a person wrote, so the
    kicker register — and in ink, not gold. Six gold terms stood in this row on
    every record, which is six accents on one screen; the accent belongs to the
-   one thing a reader should do next, not to the names of the bookkeeping. */
-.publicationMeta dt {
-  color: var(--ink-lo);
-  font-family: var(--face-kicker);
-  font-size: var(--t-kicker);
-  font-weight: var(--t-kicker-weight);
-  line-height: var(--t-kicker-lh);
-  letter-spacing: var(--t-kicker-tracking);
-  text-transform: uppercase;
-}
-
+   one thing a reader should do next, not to the names of the bookkeeping.
+   `SectionKicker as="dt"` is that register, and it replaced the hand-rolled
+   copy of it here on 2026-09-16. */
 
 .publicationMeta dd {
   margin: var(--sp-2) 0 0;
@@ -222,17 +209,6 @@
 .unknownGrid > div + div {
   padding-left: var(--sp-6);
   border-left: var(--line-w) solid var(--line);
-}
-
-.unknownGrid h3 {
-  margin: 0;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
 }
 
 .unknownGrid ul {
@@ -510,37 +486,16 @@
 }
 
 
+/* Only what the base `h3` in `app/globals.css` does not already give: this
+   heading reads at the narrow measure rather than the title one, and it sits
+   under the entry's meta row. */
 .timelineEntry h3 {
-
   max-width: var(--measure-narrow);
   margin: var(--sp-2) 0 0;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
-  text-wrap: balance;
 }
 
 .timelineBody {
-
-  max-width: var(--measure-reading);
   margin-top: var(--sp-3);
-  color: var(--ink);
-  font-family: var(--face-text);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
-}
-
-.timelineBody p {
-  margin: 0;
-}
-
-
-.timelineBody p + p {
-  margin-top: var(--flow);
 }
 
 .timelineSources {
@@ -626,130 +581,6 @@
 
 
 
-.card {
-  --card-accent: var(--gold);
-  --card-line: var(--gold-line-strong);
-  position: relative;
-
-  container-type: inline-size;
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  padding: var(--sp-5);
-  border: var(--line-w) solid var(--line);
-  border-left: var(--line-w-thick) solid var(--card-accent);
-  border-radius: var(--radius-3);
-  background: var(--surface-1);
-  box-shadow: var(--shadow-1);
-  transition: border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
-}
-
-.card[data-accent='ember'] {
-  --card-accent: var(--ember);
-  --card-line: color-mix(in oklab, var(--ember) 34%, transparent);
-}
-
-
-.cardEyebrow {
-  composes: kickerLabel from global;
-  margin: 0 0 var(--sp-3);
-  color: var(--gold);
-}
-
-.card[data-accent='ember'] .cardEyebrow {
-  color: var(--ember-peak);
-}
-
-.card h3 {
-  margin: 0;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
-  text-wrap: balance;
-}
-
-.card h3 a {
-  color: inherit;
-  text-decoration: none;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-
-.card h3 a::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-}
-
-.card:has(h3 a:hover) {
-  border-color: var(--card-line);
-  background: var(--surface-2);
-}
-
-.card h3 a:hover,
-.card h3 a:focus-visible {
-  color: var(--gold-hi);
-}
-
-
-.card h3 a:focus-visible {
-  outline-offset: 4px;
-}
-
-.cardMeta {
-  margin-top: var(--sp-2);
-  color: var(--ink-lo);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  line-height: var(--t-caption-lh);
-  font-variant-numeric: tabular-nums;
-}
-
-.cardBody {
-  margin-top: var(--sp-3);
-  color: var(--ink);
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-}
-
-.cardBody p {
-  margin: 0;
-}
-
-.cardBody p + p {
-  margin-top: var(--sp-3);
-}
-
-
-@container (min-width: 32rem) {
-  .cardBody {
-    font-size: var(--t-body);
-    line-height: var(--t-body-lh);
-  }
-
-  .cardBody p + p {
-    margin-top: var(--flow);
-  }
-}
-
-.cardFooter {
-  margin-top: var(--sp-4);
-  padding-top: var(--sp-3);
-  border-top: var(--line-w) solid var(--line);
-  color: var(--ink-lo);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-}
-
 
 
 .claimRecord {
@@ -797,28 +628,11 @@
   color: var(--gold-hi);
 }
 
-.claimRecordBody {
-  color: var(--ink);
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-}
-
-
-.claimPanel .claimRecordBody {
-  color: var(--ink);
-}
-
+/* The record's side reads a step brighter than the claim's: what is
+   established is the thing to come away with. Everything else about both
+   panels is `Prose size="small"`. */
 .recordPanel .claimRecordBody {
   color: var(--ink-hi);
-}
-
-.claimRecordBody p {
-  margin: 0;
-}
-
-.claimRecordBody p + p {
-  margin-top: var(--flow);
 }
 
 
@@ -1126,75 +940,6 @@
 
 
 
-.networkFigure {
-  margin: var(--sp-6) 0;
-}
-
-
-.networkScroll {
-  overflow-x: auto;
-}
-
-.networkSvg {
-  display: block;
-  width: 100%;
-  min-width: 20rem;
-  max-width: 32rem;
-  height: auto;
-  margin: 0 auto;
-}
-
-.networkRing {
-  stroke: var(--line);
-  stroke-width: 1;
-}
-
-.networkDisc {
-  fill: var(--ember-wash);
-  stroke: color-mix(in oklab, var(--ember) 34%, transparent);
-  stroke-width: 1;
-}
-
-.networkCount {
-  fill: var(--ink-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-caption);
-  font-weight: var(--t-data-weight);
-  font-variant-numeric: tabular-nums;
-}
-
-.networkLabel {
-  fill: var(--ink);
-  font-family: var(--face-text);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-}
-
-.networkCenter {
-  fill: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking-tight);
-}
-
-
-.networkCenterSub {
-  fill: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking-tight);
-}
-
-.networkCaption {
-  margin: var(--sp-4) 0 0;
-  color: var(--ink-lo);
-  font-family: var(--face-text);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-}
-
 
 
 .handle {
@@ -1208,8 +953,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .sourceBody a,
-  .card,
-  .card h3 a,
   .techniqueChip {
     transition: none;
   }
@@ -1275,7 +1018,6 @@
     border-top: var(--line-w) solid var(--line);
   }
 
-  .card,
   .claimPanel,
   .recordPanel,
   .sensitiveGate,

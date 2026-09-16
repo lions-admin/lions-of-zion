@@ -19,6 +19,12 @@
  * stack; there is no tooltip on the site now, which is the right number —
  * nothing that carries meaning may live in one.)
  */
+/* The editorial primitives (2026-09-16, J8). `Section`, `Prose` and
+   `Heading` exist so a route stylesheet stops being the system: a band, a
+   passage and a heading step are decisions the library makes once. */
+export * from "./Section";
+export * from "./Prose";
+export * from "./Heading";
 export * from "./Button";
 export * from "./Card";
 export * from "./Badge";

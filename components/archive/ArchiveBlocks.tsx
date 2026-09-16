@@ -6,6 +6,7 @@ import {
   assetSrcSet,
   assetUrl,
 } from '@/lib/content/archive';
+import { ButtonLink } from '@/components/ui/Button';
 import { MediaBlock } from '@/components/content/MediaBlock';
 import { SensitiveContent } from '@/components/content/SensitiveContent';
 import { ArchiveImage } from './ArchiveImage';
@@ -512,9 +513,15 @@ function VideoBlock({
      `autoplay` anywhere in this archive — behind a gate the element does not
      exist at all until the reader asks for it.
 
-     The poster is dropped when the clip is gated: a poster frame *is* the
-     film's first frame, so painting one behind a "Show this material" button
-     would hand over exactly what the button is asking about.
+     The poster is kept even where the clip is gated, and that is safe for one
+     structural reason rather than a hopeful one: `SensitiveContent` does not
+     mount its children while the gate is closed, so this element — attribute
+     and all — does not exist in the document, no request is made for the
+     poster, and there is nothing for a console or a screenshot to find. Once
+     the reader has asked, the film should open on its own first frame rather
+     than on a black box (owner decision, 2026-09-16); it used to be dropped
+     outright, which cost the revealed player its poster for a leak the gate
+     already made impossible.
 
      Dimensions fall back to the poster's: every october7 video item carries
      null width/height, so without this the element lays out at the 300x150
@@ -529,9 +536,7 @@ function VideoBlock({
       className={styles.video}
       controls
       preload="metadata"
-      poster={
-        !gate && poster?.package_path ? assetUrl(pkg, poster.package_path) : undefined
-      }
+      poster={poster?.package_path ? assetUrl(pkg, poster.package_path) : undefined}
       width={width}
       height={height}
     >
@@ -651,14 +656,20 @@ function MediaActions({
     .replace(/^-+|-+$/g, '')
     .slice(0, 60);
   const filename = `${titleSlug || 'record'}-${item.media_id}.${extension}`;
-  const parsedShareUrl = new URL(shareUrl);
-  const returnTo = `${parsedShareUrl.pathname}${parsedShareUrl.search}`;
 
   return (
     <span className={styles.mediaActions}>
-      <a className={styles.mediaAction} href={`${href}?download=1`} download={filename}>
+      {/* The site's own text control rather than a hand-rolled anchor wearing
+          a copy of the ghost button's rules: one hit area, one focus ring,
+          one hover, all owned by the primitive (2026-09-16). */}
+      <ButtonLink
+        href={`${href}?download=1`}
+        variant="text"
+        size="md"
+        download={filename}
+      >
         Download
-      </a>
+      </ButtonLink>
       <XMediaPostButton
         pkg={pkg}
         recordId={recordId}
@@ -668,7 +679,6 @@ function MediaActions({
         medium={item.type}
         shareTitle={shareTitle}
         shareUrl={shareUrl}
-        returnTo={returnTo}
         compact
       />
     </span>

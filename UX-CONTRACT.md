@@ -63,6 +63,28 @@ animation library.
   Entrances are opacity only, testimony is set in the quote role, and the
   route's rule is unbroken and unlit.
 
+## The system's one vocabulary — September 16, 2026
+
+- **One styling system.** `components/ui` over the tokens in
+  `app/globals.css`, and nothing else. The vendored registry, Tailwind and
+  `cn()` were deleted; the import boundary that quarantined them stays, so a
+  second system cannot return quietly.
+- **One verdict renderer.** Every verdict, grade and identity state is a
+  `Badge`, which draws a ramp **and** a shape, so a state survives greyscale
+  and a colour deficiency. No surface may draw its own.
+- **One accent per viewport.** Gold is the current mark, or the primary
+  action, or the verdict emphasis — never two at once, never a wash or a
+  gradient. Ember is reserved for the adversarial side: a contested claim, a
+  false verdict, a danger. A finding is not contested and never takes it.
+- **Meaning is never in a tooltip.** `title` carries no information a reader
+  needs; an explanation is visible text or a disclosure they can open.
+- **A control boundary owes 3:1** (WCAG 1.4.11) and reads `--control-line`.
+  A decorative hairline may be quieter; the line that says where a button
+  begins may not.
+- **Three faces, three jobs.** The text and display face for words a person
+  wrote, the mono face only for machine values — dates, counts, ids, citation
+  numbers, keyboard hints — and the quote face only for a human being quoted.
+
 ## Verification boundary
 
 Use rendered desktop and mobile viewports, not build success alone. Browser

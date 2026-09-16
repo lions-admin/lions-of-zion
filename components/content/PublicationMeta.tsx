@@ -1,3 +1,4 @@
+import { SectionKicker } from '@/components/ui/Section';
 import styles from './content.module.css';
 
 export type PublicationMetaProps = {
@@ -51,7 +52,7 @@ export function PublicationMeta({
     <dl className={styles.publicationMeta}>
       {entries.map((entry) => (
         <div key={entry.term}>
-          <dt>{entry.term}</dt>
+          <SectionKicker as="dt">{entry.term}</SectionKicker>
           <dd data-register={entry.machine ? 'data' : 'text'}>{entry.detail}</dd>
         </div>
       ))}

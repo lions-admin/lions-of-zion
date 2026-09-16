@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { AssessmentValue } from '@/server/contracts/enums';
+import { Prose } from '@/components/ui/Prose';
 import { SourceList, type Source } from './SourceList';
 import { VerificationBadge } from './VerificationBadge';
 import styles from './content.module.css';
@@ -44,7 +45,9 @@ export function Timeline({ entries, variant = 'feed' }: TimelineProps) {
               {entry.assessment ? <VerificationBadge assessment={entry.assessment} /> : null}
             </div>
             <h3>{entry.title}</h3>
-            <div className={styles.timelineBody}>{entry.body}</div>
+            <Prose size="body" measure="reading" className={styles.timelineBody}>
+              {entry.body}
+            </Prose>
           </div>
           {entry.sources?.length ? (
             <div className={styles.timelineSources}>

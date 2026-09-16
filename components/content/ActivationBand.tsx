@@ -20,6 +20,8 @@
 import { useId, useState } from 'react';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
+import { Prose } from '@/components/ui/Prose';
+import { Section } from '@/components/ui/Section';
 import type { ShareTarget } from '@/components/support/ShareControls';
 import { facebookShareUrl, xIntentUrl } from '@/lib/content/share-text';
 import { ShareSheet } from './ShareSheet';
@@ -68,14 +70,23 @@ export function ActivationBand({
     : []);
 
   return (
-    <aside
-      className={[styles.band, className].filter(Boolean).join(' ')}
+    <Section
+      as="aside"
+      /* The one gold rule on the page: `Section rule="gold"` is the band's
+         whole frame — the rule, the space above it and the space under it.
+         `activation-band.module.css` drew that trio itself until 2026-09-16.
+         The heading takes no class at all: an `h2` at the h2 step is what
+         `@layer base` in `app/globals.css` already sets. */
+      rule="gold"
+      className={className}
       aria-labelledby={headingId}
       /* Its exposure is "the reader reached the end of the record". */
       data-measure-id="activation-band"
     >
-      <h2 id={headingId} className={styles.heading}>{heading}</h2>
-      <p className={styles.lead}>{ACTIVATION_LEAD}</p>
+      <h2 id={headingId}>{heading}</h2>
+      <Prose as="p" size="body" measure="narrow" className={styles.lead}>
+        {ACTIVATION_LEAD}
+      </Prose>
       <div className={styles.actions}>
         {sourcesHref ? (
           <ButtonLink
@@ -133,6 +144,6 @@ export function ActivationBand({
           copyLabel="Copy the sourced record"
         />
       ) : null}
-    </aside>
+    </Section>
   );
 }

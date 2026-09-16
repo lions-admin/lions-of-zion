@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Prose } from '@/components/ui/Prose';
 import styles from './content.module.css';
 
 export type ClaimRecordPairProps = {
@@ -18,11 +19,15 @@ export function ClaimRecordPair({
     <div className={styles.claimRecord}>
       <section className={styles.claimPanel}>
         <h3>{claimLabel}</h3>
-        <div className={styles.claimRecordBody}>{claim}</div>
+        <Prose size="small" className={styles.claimRecordBody}>
+          {claim}
+        </Prose>
       </section>
       <section className={styles.recordPanel}>
         <h3>{recordLabel}</h3>
-        <div className={styles.claimRecordBody}>{record}</div>
+        <Prose size="small" className={styles.claimRecordBody}>
+          {record}
+        </Prose>
       </section>
     </div>
   );

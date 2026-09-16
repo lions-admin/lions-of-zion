@@ -111,8 +111,14 @@ function sensitivityFor(
 async function neighboursFor(
   pkg: ArchivePackageName,
   slug: string,
-): Promise<{ previous: ArchiveNeighbour | null; next: ArchiveNeighbour | null }> {
+): Promise<{
+  previous: ArchiveNeighbour | null;
+  next: ArchiveNeighbour | null;
+  /** How much the archive holds — the closing line's count (Peak-End). */
+  total: number;
+}> {
   const index = await getIndex(pkg);
+  const total = index.length;
 
   let ordered: ArchiveIndexEntry[];
   if (pkg === 'october7') {
@@ -129,13 +135,13 @@ async function neighboursFor(
     // Documentation neighbours stay inside the record's own category: that is
     // the list the index shows and the one the reader was walking.
     const here = index.find((entry) => entry.id === slug);
-    if (!here) return { previous: null, next: null };
+    if (!here) return { previous: null, next: null, total };
     const category = here.category ?? UNCATEGORISED;
     ordered = index.filter((entry) => (entry.category ?? UNCATEGORISED) === category);
   }
 
   const at = ordered.findIndex((entry) => entry.id === slug);
-  if (at === -1) return { previous: null, next: null };
+  if (at === -1) return { previous: null, next: null, total };
 
   const href = (entry: ArchiveIndexEntry) =>
     pkg === 'october7'
@@ -151,7 +157,7 @@ async function neighboursFor(
         }
       : null;
 
-  return { previous: shape(ordered[at - 1]), next: shape(ordered[at + 1]) };
+  return { previous: shape(ordered[at - 1]), next: shape(ordered[at + 1]), total };
 }
 
 /** The source's own name for the category a record was filed under. */
@@ -265,6 +271,14 @@ export async function ArchiveRecordPage({
         shareUrl={shareUrl}
         categoryName={categoryName}
         sensitivity={sensitivityFor(pkg, categoryName)}
+        /* "One of 179 accounts held here", linked back to the index the
+           reader came from. The count is the index's own length rather than
+           a number written into a component, so it follows a re-import. */
+        archive={{
+          href: archiveTrail(pkg)[1].href,
+          total: neighbours.total,
+          noun: pkg === 'october7' ? 'accounts' : 'records',
+        }}
         previous={neighbours.previous}
         next={neighbours.next}
       />

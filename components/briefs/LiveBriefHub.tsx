@@ -22,6 +22,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
+import { Heading } from "@/components/ui/Heading";
+import { Section, SectionHead, SectionKicker } from "@/components/ui/Section";
 import { politeLive } from "@/components/ui/live-region";
 import { StatusState, absenceStatus } from "@/components/ui/StatusState";
 import { BriefFilters, type BriefFilterValues } from "./BriefFilters";
@@ -390,14 +392,22 @@ export function LiveBriefHub({ filters = {} }: { filters?: Filters }) {
           heading="Check the story before you repeat it."
           share={{ url: `${SITE_URL}/geopolitical-brief`, text: "News & Analysis — what happened, with the sources behind every line." }}
         />
-        <aside className={styles.watchBridge} aria-label="Separate narrative coverage">
-          <p className={styles.bridgeKicker}>Next in the record</p>
-          <h2>Looking for what is being claimed?</h2>
+        <Section
+          as="aside"
+          rule="strong"
+          flow="tight"
+          className={styles.watchBridge}
+          aria-label="Separate narrative coverage"
+        >
+          <SectionKicker as="p">Next in the record</SectionKicker>
+          <Heading level={2} size="h3" className={styles.bridgeHeading}>
+            Looking for what is being claimed?
+          </Heading>
           <p>Circulating claims, their assessment status and disinformation research live on the dedicated narrative desk, kept separate from the news.</p>
           <Link className={styles.bridgeLink} href="/fake-resistance" data-measure-id="brief-to-fake-resistance">
             All of Fake Resistance <Icon name="arrow-right" inline className="arrow" />
           </Link>
-        </aside>
+        </Section>
       </div>
     </EditorialShell>
   );
@@ -472,7 +482,9 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
     <>
       <section id="latest-news" className={styles.newsOpening} aria-labelledby="latest-news-heading">
         <div className={styles.sectionHeading}>
-          <h2 id="latest-news-heading">Latest news</h2>
+          <SectionKicker as="h2" id="latest-news-heading" className={styles.sectionHeadingLabel}>
+            Latest news
+          </SectionKicker>
           {!currentUnavailable && storyCount ? (
             <p><span data-numeric="">{storyCount}</span> {storyNoun(storyCount)}, newest first</p>
           ) : null}
@@ -509,7 +521,7 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
             </Card>
             {sidebarUpdates.length ? (
               <aside className={styles.newsSidebar} aria-label="More updates">
-                <h2>More updates</h2>
+                <SectionKicker as="h2" className={styles.sidebarHeading}>More updates</SectionKicker>
                 <ol className={styles.newsTimeline}>
                   {sidebarUpdates.map((item, index) => {
                     const media = hubMedia(item);
@@ -554,7 +566,9 @@ export async function LiveBriefEdition({ filters }: { filters: Filters }) {
       <details className={styles.newsArchive} id="news-archive" open={filtering} data-measure-id="brief-archive" data-measure-section="news">
         <summary>
           <span className={styles.archiveTitle}>
-            <span>News archive</span>
+            <Heading level="none" size="h2" className={styles.archiveHeadline}>
+              News archive
+            </Heading>
             <span className={styles.archiveHint}>{filtering ? "Filters active" : "Browse earlier reporting by date, actor, topic or arena"}</span>
           </span>
           <span className={styles.archiveMeta}>
@@ -750,10 +764,10 @@ function PublicationSection({ title, surface, stories, byDay = false }: {
 
   return (
     <section className={styles.liveSection}>
-      <div className={styles.liveSectionHead}>
-        <h2>{title}</h2>
+      <SectionHead className={styles.liveSectionHead}>
+        <Heading level={2} size="h3">{title}</Heading>
         <p data-numeric="">{stories.length} {stories.length === 1 ? "story" : "stories"}</p>
-      </div>
+      </SectionHead>
       {days ? (
         <div className={styles.liveDays}>
           {days.map((day, dayIndex) => {

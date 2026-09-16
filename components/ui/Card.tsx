@@ -19,18 +19,14 @@ import styles from "./card.module.css";
  *          plate with a hairline that answers as one control. A tile needs
  *          an `href` (or `interactive`, when the caller owns the semantics).
  *
- * `feature` and `dossier` were the names until 2026-09-16 and still resolve
- * — both onto `tile`, the pressable plate they drew — for the two callers
- * outside this workstream (`components/content/ContentCard.tsx`,
- * `app/fake-resistance/official-narrative/page.tsx`). They go with those
- * callers; nothing new may use them. `PointerHighlight` left the card at the
- * same time: a pointer-following gold wash is a glow, and the identity spends
- * gold as a hairline and one filled control.
+ * `feature` and `dossier` were the names until 2026-09-16. Both drew the
+ * pressable plate and both resolved onto `tile` while their last two callers
+ * were migrated; the callers are gone and so are the aliases — three
+ * compositions, named once. `PointerHighlight` left the card at the same
+ * time: a pointer-following gold wash is a glow, and the identity spends gold
+ * as a hairline and one filled control.
  */
 export type CardVariant = "lead" | "row" | "tile";
-
-/** @deprecated Resolve to `tile`; kept only for the two callers named above. */
-export type LegacyCardVariant = "feature" | "dossier";
 
 export type CardAccent = "none" | "gold" | "ember";
 
@@ -40,17 +36,8 @@ const VARIANT_CLASS: Record<CardVariant, string> = {
   tile: styles.tile,
 };
 
-const LEGACY_VARIANT: Record<LegacyCardVariant, CardVariant> = {
-  feature: "tile",
-  dossier: "tile",
-};
-
-export function resolveCardVariant(variant: CardVariant | LegacyCardVariant): CardVariant {
-  return variant in LEGACY_VARIANT ? LEGACY_VARIANT[variant as LegacyCardVariant] : (variant as CardVariant);
-}
-
 type CardOwnProps = {
-  variant?: CardVariant | LegacyCardVariant;
+  variant?: CardVariant;
   /** Colour of the stub under the headline, and of a tile's top rule. */
   accent?: CardAccent;
   /** Renders the whole card as a link and arms the interactive treatment. */
@@ -76,12 +63,11 @@ export function Card({
   children,
   ...props
 }: CardProps) {
-  const composition = resolveCardVariant(variant);
   const isInteractive = interactive ?? href !== undefined;
 
   const classes = [
     styles.card,
-    VARIANT_CLASS[composition],
+    VARIANT_CLASS[variant],
     accent === "none" ? "" : styles[accent],
     isInteractive ? styles.interactive : "",
     className,
@@ -91,7 +77,7 @@ export function Card({
 
   if (href !== undefined) {
     return (
-      <Link href={href} className={classes} data-composition={composition} {...props}>
+      <Link href={href} className={classes} data-composition={variant} {...props}>
         {children}
       </Link>
     );
@@ -99,7 +85,7 @@ export function Card({
 
   return React.createElement(
     Component,
-    { className: classes, "data-composition": composition, ...props },
+    { className: classes, "data-composition": variant, ...props },
     children,
   );
 }

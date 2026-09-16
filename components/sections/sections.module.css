@@ -92,6 +92,29 @@
   gap: var(--family-gap) 0;
 }
 
+/*
+ * An index is a ledger, not prose, so it takes a wider measure than the
+ * reading routes that share this shell.
+ *
+ * `--measure-reading` (68ch) is the right column for a witness's account and
+ * the wrong one for the apparatus above it: at that width the testimony
+ * index's seven language chips wrapped to three rows, the counts and the
+ * standing note could not stand side by side until well past the seam, and a
+ * 296-character exhibit caption had nowhere to go. The two October 7 indexes
+ * are the only surfaces on this shell that are lists of the whole archive
+ * rather than one record of it, and `ArchiveIndex` marks itself as one with
+ * `data-archive-index` — so the switch is a fact about the content rather
+ * than a route id this file would otherwise have to know.
+ *
+ * `--measure-index` is born in `app/globals.css` beside the other six
+ * measures. The value is in `ch` like its siblings, so it tracks the text
+ * face rather than a screen size, and `:has()` keeps every record page —
+ * which must stay at the reading measure — untouched.
+ */
+.shell:has([data-archive-index]) {
+  --family-measure: var(--measure-index);
+}
+
 
 /* Placement only. The trail itself is the shared `Breadcrumb` primitive
    (`components/site/Breadcrumb.tsx`, styled by the `.trail` rules in

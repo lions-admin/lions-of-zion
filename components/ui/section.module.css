@@ -1,0 +1,128 @@
+/* Section — the editorial band, and the heading roles it heads with.
+ *
+ * A band is a rule, a head and a rhythm, and until 2026-09-16 every route
+ * stylesheet drew its own: the same `margin-block-start` / `padding-block-
+ * start` / `border-block-start` trio, the same two-line head grid, and the
+ * same four-property restatement of a heading role that `app/globals.css`
+ * already sets on `h1`–`h3` in `@layer base`. This file is where those live
+ * once.
+ *
+ * The heading roles are here rather than in a file of their own because a
+ * heading is the band's head: `Heading.tsx` imports this stylesheet.
+ *
+ * `Heading` takes `level` and `size` separately on purpose. The rank a
+ * screen reader hears and the step a reader sees are two decisions, and
+ * welding them together is what produced every hand-rolled
+ * "h2-that-looks-like-h3" rule in the route CSS. There are exactly three
+ * steps because `app/globals.css` defines exactly three (`--t-display`,
+ * `--t-h2`, `--t-h3`); a fourth belongs in the token contract first.
+ *
+ * Nothing here sets `max-width`. The base layer gives `h2`–`h6` the title
+ * measure and `h1` none, so a `Heading` measures exactly as the bare element
+ * it renders — the composing rule decides when that is wrong.
+ */
+
+.section {
+  min-width: 0;
+}
+
+/* The rule above a band. `--section-rule` and `--section-rule-w` are the two
+   knobs; the variants below set them, and a composing rule may too. */
+.ruled {
+  margin-block-start: var(--sp-7);
+  padding-block-start: var(--sp-5);
+  border-block-start: var(--section-rule-w, var(--line-w)) solid
+    var(--section-rule, var(--line));
+}
+
+.hairline {
+  --section-rule: var(--line);
+}
+
+.strong {
+  --section-rule: var(--line-strong);
+}
+
+/* The one gold rule a band may take: the activation ending. Gold is rationed
+   to one element per viewport, so a page carries at most one of these. */
+.gold {
+  --section-rule: var(--gold-dim);
+  --section-rule-w: var(--line-w-thick);
+}
+
+/* The rhythm. `flow="none"` is the default and changes no layout at all, so a
+   band whose children carry their own margins keeps them. */
+.flowTight {
+  display: grid;
+  gap: var(--sp-2);
+}
+
+.flowBase {
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.flowLoose {
+  display: grid;
+  gap: var(--sp-5);
+}
+
+.reading {
+  max-width: var(--measure-reading);
+}
+
+.narrow {
+  max-width: var(--measure-narrow);
+}
+
+.wide {
+  max-width: var(--measure-wide);
+}
+
+/* The head: a kicker, a heading, and sometimes a line of standfirst. */
+.head {
+  display: grid;
+  gap: var(--sp-2);
+  align-content: start;
+}
+
+/* A phrase a person wrote to name the band — the kicker register, never the
+   mono one (UX-31). */
+/* `--kicker-color` rather than a bare value: a composing rule in another
+   stylesheet that wanted a different ink would otherwise be deciding it by
+   stylesheet order, which is not a decision anyone makes on purpose. */
+.kicker {
+  composes: kickerLabel from global;
+  color: var(--kicker-color, var(--ink-lo));
+}
+
+/* ── the heading roles ─────────────────────────────────────────────────── */
+
+.heading {
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  color: var(--heading-color, var(--ink-hi));
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.display {
+  font-size: var(--t-display);
+  font-weight: var(--t-display-weight);
+  line-height: var(--t-display-lh);
+  letter-spacing: var(--t-display-tracking);
+}
+
+.h2 {
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
+}
+
+.h3 {
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+}

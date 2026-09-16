@@ -220,7 +220,7 @@ export default async function Page() {
         {edition.cases.map((c, i) => (
           <Card
             key={c.id}
-            variant="dossier"
+            variant="tile"
             accent="ember"
             as="article"
             id={c.id}

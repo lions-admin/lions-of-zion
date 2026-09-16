@@ -4,12 +4,18 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type {
   ArchiveIndexDisplayEntry,
+  ArchiveIndexEntry,
   ArchiveRecordDigest,
 } from '@/lib/content/archive';
 /* From the pure module, not the seam: this list renders inside `ArchiveIndex`,
    a client component, and the seam reads the filesystem. (The entry types
    arrive as types only — those cross the boundary.) */
-import { displayTitle, displayWitness } from '@/lib/content/archive-display';
+import {
+  displayTitle,
+  displayWitness,
+  formatArchiveDay,
+  groupDigits,
+} from '@/lib/content/archive-display';
 import { MediaBlock } from '@/components/content/MediaBlock';
 import styles from './archive.module.css';
 import { Icon } from '@/components/ui/Icon';
@@ -19,13 +25,17 @@ import { Icon } from '@/components/ui/Icon';
  *
  * `thumb` and its dimensions are the entry's cover already resolved
  * server-side — resolution needs the media registry, and the registry must
- * never reach the client. `digest` is the five numbers `getRecordDigests`
- * derives from the record itself: which medium the source published, how much
- * text the record holds, how far it is sectioned.
+ * never reach the client. They are optional because only one of the two
+ * archives has a plate: the documentation index resolves no covers at all
+ * since 2026-09-16, so 335 derivative URLs no longer travel in a payload for
+ * a row that must not show them. `digest` is what `getRecordDigests` derives
+ * from the record itself: which medium the source published, how much text
+ * the record holds, how far it is sectioned.
  */
-export type ArchiveListEntry = ArchiveIndexDisplayEntry & {
-  digest?: ArchiveRecordDigest;
-};
+export type ArchiveListEntry = ArchiveIndexEntry &
+  Partial<ArchiveIndexDisplayEntry> & {
+    digest?: ArchiveRecordDigest;
+  };
 
 /** Which archive a row belongs to — and therefore what shape it takes. */
 export type ArchiveRowVariant = 'testimony' | 'documentation';
@@ -62,10 +72,14 @@ export type ArchiveRecordListProps = {
  *    languages it exists in. No file number — a witness is not an exhibit —
  *    and the portrait plate sits at the end of the row, after the words.
  *
- *  - **Documentation** is an exhibit. The row keeps the numbered-file
- *    treatment, the square plate leads, and the line above the caption says
- *    what the source actually published — film or photograph — and which of
- *    its six categories filed it.
+ *  - **Documentation** is an exhibit, and it is shown **without a plate**. The
+ *    index's own advisory says "no film or photograph on this site is shown
+ *    until you ask for it", and a window of 24 cover frames painted directly
+ *    under that sentence made it untrue — 24 requests for stills of the attack,
+ *    lifted from the films themselves, none of them asked for (owner decision,
+ *    2026-09-16). The exhibit number, the filing line and the caption carry the
+ *    row; the record's own page shows the material behind the gate that the
+ *    advisory promises, and a revealed film gets its poster there.
  *
  * Documentation rows deliberately do not print the excerpt. The importer takes
  * it from the record's own text, and on this archive the record's text *is*
@@ -118,7 +132,7 @@ function TestimonyRow({ entry }: { entry: ArchiveListEntry }) {
         ) : null}
         <span className={styles.witnessFacts}>
           {entry.date ? (
-            <span className={styles.witnessFact}>{formatDay(entry.date)}</span>
+            <span className={styles.witnessFact}>{formatArchiveDay(entry.date)}</span>
           ) : null}
           {/* Transcript availability, stated as the amount actually held
               rather than as a yes/no badge: "412 words" and "7,525 words" are
@@ -162,14 +176,16 @@ function DocumentationRow({
   const medium = entry.digest ? MEDIUM_LABEL[entry.digest.medium] : null;
   return (
     <>
+      {/* The exhibit number is the record's identity in this archive, and it
+          was hidden from assistive technology as decoration — so a reader
+          using a screen reader heard 24 captions with nothing to cite. The
+          word is only in the accessible name; the digits carry it on screen. */}
       {number === undefined ? null : (
-        <span className={styles.exhibitNum} aria-hidden="true">
+        <span className={styles.exhibitNum}>
+          <span className={styles.srOnly}>Exhibit </span>
           {String(number).padStart(3, '0')}
         </span>
       )}
-      <MediaBlock layout="thumb" aspectRatio="1 / 1" className={styles.exhibitPlate}>
-        <RecordThumb entry={entry} />
-      </MediaBlock>
       <span className={styles.exhibitBody}>
         <span className={styles.exhibitFiling}>
           {medium ? <span className={styles.exhibitMedium}>{medium}</span> : null}
@@ -233,20 +249,3 @@ function RecordThumb({ entry }: { entry: ArchiveListEntry }) {
   );
 }
 
-/* Both formatters are deterministic on purpose. This renders on the server for
-   the first window and again on the client after hydration, and `toLocaleString`
-   would resolve against two different ICU environments and mismatch. */
-const MONTHS = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-];
-
-function formatDay(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-  return `${date.getUTCDate()} ${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
-}
-
-function groupDigits(value: number): string {
-  return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-}

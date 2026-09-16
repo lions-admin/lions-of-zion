@@ -3,12 +3,10 @@ import Link from "next/link";
 import { AntisemitismRecord } from "@/components/briefs/AntisemitismRecord";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
 import { getAntisemitismFeed } from "@/lib/content/fake-resistance-watch";
-import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
 import { publicationHubCrumb } from '@/lib/publication-routing';
 import { pageMetadata } from '@/lib/page-metadata';
 
-const PAGE_URL = `${SITE_URL}/fake-resistance/antisemitism`;
 const description = "Documented antisemitism incidents and trends, with sourced records, context, and limits.";
 
 export const metadata: Metadata = pageMetadata({

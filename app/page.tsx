@@ -115,52 +115,52 @@ export default async function Page() {
             <div className={styles.actions}>
               <JourneyLink href="/geopolitical-brief">Read the latest</JourneyLink>
             </div>
-            {/* The edition rail: the bottom band of the cover, and the reason
-                a reader no longer has to scroll to learn what happened today.
-                Date, the lead's status, its headline and the way in — the
-                lion is now a threshold into an edition rather than the whole
-                first screen. It is the last thing on the cover: the support
-                chips that sat under it until UX-13 now close the first band
-                (`HeroSupportStrip`, placed by `HomepageJourney`), so the
-                reporting is read before the ask. Every field is prerendered
-                and the headline reserves two lines whatever its length, so
-                the band owns its height at first paint and shifts nothing. */}
-            <div className={styles.editionRail}>
-              <p className={styles.editionRailMeta}>
-                <span>{editionDateLabel(edition.editionDate)}</span>
-                {lead && (
-                  <span className={styles.editionRailStatus}>{lead.category}</span>
-                )}
-                {edition.state === "previous-edition" && (
-                  <span className={styles.editionRailFlag}>Previous edition</span>
-                )}
-              </p>
-              {lead ? (
-                <Link className={styles.editionRailLead} href={lead.href}>
-                  <span className={styles.editionRailHeadline}>{lead.title}</span>
-                  <span className={styles.editionRailCta}>
-                    Read the story
-                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
-                      <path d="M4 12h15M13 5l7 7-7 7" />
-                    </svg>
-                  </span>
-                </Link>
-              ) : (
-                <Link className={styles.editionRailLead} href="/geopolitical-brief">
-                  <span className={styles.editionRailHeadline}>
-                    Today&rsquo;s lead is not available right now.
-                  </span>
-                  <span className={styles.editionRailCta}>
-                    Read the latest reporting
-                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
-                      <path d="M4 12h15M13 5l7 7-7 7" />
-                    </svg>
-                  </span>
-                </Link>
-              )}
-            </div>
           </div>
 
+          {/* The edition rail: the bottom band of the cover, and the reason
+              a reader no longer has to scroll to learn what happened today.
+              Date, the lead's status, its headline and the way in — the
+              lion is now a threshold into an edition rather than the whole
+              first screen. It is the last thing on the cover: the support
+              chips that sat under it until UX-13 now close the first band
+              (`HeroSupportStrip`, placed by `HomepageJourney`), so the
+              reporting is read before the ask. Every field is prerendered
+              and the headline reserves two lines whatever its length, so
+              the band owns its height at first paint and shifts nothing. */}
+          <div className={styles.editionRail}>
+            <p className={styles.editionRailMeta}>
+              <span>{editionDateLabel(edition.editionDate)}</span>
+              {lead && (
+                <span className={styles.editionRailStatus}>{lead.category}</span>
+              )}
+              {edition.state === "previous-edition" && (
+                <span className={styles.editionRailFlag}>Previous edition</span>
+              )}
+            </p>
+            {lead ? (
+              <Link className={styles.editionRailLead} href={lead.href}>
+                <span className={styles.editionRailHeadline}>{lead.title}</span>
+                <span className={styles.editionRailCta}>
+                  Read the story
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 12h15M13 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </Link>
+            ) : (
+              <Link className={styles.editionRailLead} href="/geopolitical-brief">
+                <span className={styles.editionRailHeadline}>
+                  Today&rsquo;s lead is not available right now.
+                </span>
+                <span className={styles.editionRailCta}>
+                  Read the latest reporting
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 12h15M13 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </Link>
+            )}
+          </div>
         </section>
         <div className={styles.readingSurface}>
         <noscript><nav className={styles.noscriptNav} aria-label="All sections"><ol>

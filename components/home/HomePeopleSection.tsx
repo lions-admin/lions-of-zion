@@ -32,6 +32,7 @@ type RosterRow = {
   meta: string;
   measureId: string;
   placement: string;
+  voice: 'report' | 'courage' | 'fallen' | 'chapter';
   contested?: boolean;
 };
 
@@ -70,6 +71,7 @@ export function HomePeopleSection({ people, heroes, history }: {
       meta: item.category,
       measureId: `home-people-${item.key}`,
       placement: 'people:companion',
+      voice: 'report' as const,
     })),
     /* `heroes.items[0]` is always the Courage & service pick and
        `heroes.items[1]` always the Fallen one — `server/modules/featured-slots`
@@ -84,6 +86,7 @@ export function HomePeopleSection({ people, heroes, history }: {
       meta: index === 0 ? 'Courage & service' : 'Fallen',
       measureId: `home-heroes-${item.key}`,
       placement: `heroes:${index === 0 ? 'courage' : 'fallen'}`,
+      voice: index === 0 ? ('courage' as const) : ('fallen' as const),
     })),
     ...history.items.map((item) => ({
       key: item.key,
@@ -92,6 +95,7 @@ export function HomePeopleSection({ people, heroes, history }: {
       meta: item.era,
       measureId: `home-israels-story-${item.key}`,
       placement: 'history:chapter',
+      voice: 'chapter' as const,
       contested: item.contested,
     })),
   ];
@@ -109,7 +113,7 @@ export function HomePeopleSection({ people, heroes, history }: {
           do: courage, science, invention and the context that makes each
           record legible" — restated the kicker above it in longer words and
           cost most of the screen the first record should have had. */}
-      <SectionHeading id="home-people-title" kicker="People, work, context" title="The People of Israel" />
+      <SectionHeading band="people" id="home-people-title" kicker="People, work, context" title="The People of Israel" />
       <div className={styles.peopleStack} data-lead={lead ? 'true' : 'false'}>
         {lead ? (
           <article
@@ -152,6 +156,7 @@ export function HomePeopleSection({ people, heroes, history }: {
                   data-measure-type="publication"
                   data-measure-placement={row.placement}
                   data-measure-card
+                  data-voice={row.voice}
                 >
                   <JourneyLink href={row.href} variant="quiet">{row.title}</JourneyLink>
                   <p className={styles.rosterMeta}>

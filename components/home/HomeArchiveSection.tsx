@@ -34,6 +34,7 @@ export function HomeArchiveSection({
       data-home-section="october7"
     >
       <SectionHeading
+        band="october7"
         id="home-archive-title"
         kicker="October 7, 2023"
         title="The record remains."
@@ -75,6 +76,9 @@ export function HomeArchiveSection({
               )}
             </div>
             <HomeMedia media={item.media} />
+            {/* What is read, as one block: the stylesheet sets it beside what
+                names the record on a wide page and under it on a narrow one. */}
+            <div className={styles.archiveBody}>
             {!sameText(item.summary, item.title) && (
               <p className={styles.summary}>
                 <PreviewText
@@ -99,6 +103,7 @@ export function HomeArchiveSection({
                 ? "Read the testimony"
                 : "Open with a content warning"}
             </JourneyLink>
+            </div>
           </article>
         ))}
       </div>

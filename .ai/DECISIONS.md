@@ -2896,3 +2896,35 @@ as a result — the flagged behavior was already the shipped behavior, so this
 entry exists only so a future session does not re-diagnose the same
 observation as an unfixed bug and reopen it. The record page's own
 `SensitiveContent` gate is unaffected and still applies exactly as before.
+
+## 2026-09-17 — The homepage is art-directed as one numbered edition; nothing editorial moved
+
+The owner asked for a visual-only upgrade of the whole homepage. The palette,
+the three type roles, the radius scale, the one-ground rule and every
+contract in `UX-CONTRACT.md` were kept; what changed is composition.
+
+**Two ideas, used everywhere.** *The edition ledger*: every band opens on a
+rule carrying its folio and kicker, the hub link sits on that same line, and
+the contents index under the cover is one ruled, numbered strip rather than
+six chips. The numbers are read from `HOMEPAGE_BANDS` (`bandFolio()` in
+`HomeJourneyPrimitives.tsx`), so the index and the bands cannot disagree, and
+they are justified because `docs/editorial-dna.md` §2 defines the scroll as an
+ordered journey. *Front-page composition*: a band's lead runs the full measure
+and its companion sits beneath it on a rule, which removed the half-empty
+rows in Fake Resistance, October 7 and The People of Israel.
+
+**The heading ladder was re-spread, not extended**: 68 / 46 / 30 / 24 at the
+ceiling instead of 62 / 38 / 34 / 24. Still the four `--journey-*` tokens.
+
+**The cover.** The edition rail moved out of `.masthead` to be its sibling so
+it can run the full width as the cover's bottom line; the desktop scrim became
+three single-purpose layers. **The header was deliberately left alone**: a
+transparent bar over the cover was considered and dropped, because the bar's
+94% ground is a measured legibility decision (`site-header.module.css`), not a
+style.
+
+**One wrapper was added** — `.archiveBody` in `HomeArchiveSection.tsx` — so
+the archive's reading block can be placed beside what names the record. No
+copy, selection, href, verb, `data-measure-*` attribute, `lib/` or `server/`
+file changed.
+

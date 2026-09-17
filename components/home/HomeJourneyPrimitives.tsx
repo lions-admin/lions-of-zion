@@ -8,6 +8,7 @@ import type {
 } from "@/server/contracts/homepage";
 import { previewSentences } from "@/lib/preview-sentences";
 import { ISRAEL_TIME_SUFFIX, formatDateTime, formatDay } from "@/lib/format-date";
+import { HOMEPAGE_BANDS, type HomepageBandId } from "@/lib/homepage-bands";
 import styles from "./homepage-journey.module.css";
 
 /**
@@ -100,6 +101,21 @@ export function JourneyLink({
 }
 
 /**
+ * A band's place in the edition, as the ledger prints it: "01" to "06". It is
+ * read off `HOMEPAGE_BANDS`, so the contents index under the cover and the
+ * rule that opens each band can never number the journey differently.
+ */
+export function bandFolio(id: HomepageBandId): string {
+  const index = HOMEPAGE_BANDS.findIndex((band) => band.id === id);
+  return String(index + 1).padStart(2, "0");
+}
+
+/** The folio is a position mark for the eye; the kicker beside it is the label. */
+export function Folio({ band }: { band: HomepageBandId }) {
+  return <span className={styles.folio} aria-hidden="true">{bandFolio(band)}</span>;
+}
+
+/**
  * Kicker and title, nothing else. The section's one destination action is
  * `SectionAction`, a sibling the section grid places beside the title on a
  * wide viewport and after the records on a phone — the way out of a section
@@ -109,14 +125,16 @@ export function SectionHeading({
   id,
   kicker,
   title,
+  band,
 }: {
   id: string;
   kicker: string;
   title: string;
+  band?: HomepageBandId;
 }) {
   return (
     <header className={styles.sectionHead}>
-      <p className={styles.kicker}>{kicker}</p>
+      <p className={styles.kicker}>{band && <Folio band={band} />}{kicker}</p>
       <h2 id={id}>{title}</h2>
     </header>
   );

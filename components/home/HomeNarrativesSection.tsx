@@ -40,6 +40,7 @@ export function HomeNarrativesSection({
       data-home-section="fakeResistance"
     >
       <SectionHeading
+        band="fakeResistance"
         id="home-narratives-title"
         kicker="Narratives & fact checks"
         title="Fake Resistance"

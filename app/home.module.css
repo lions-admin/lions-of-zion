@@ -80,11 +80,17 @@
    the cover never moves. It is the cover's last block since UX-13 moved the
    support chips to the close of the first band (`homepage-journey.module.css`
    `.supportStrip`). */
-.editionRail { max-width: 34ch; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--gold-line-strong); }
-.editionRailMeta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin: 0 0 7px; color: var(--ink-lo); font: 400 13px/1.5 var(--face-data); letter-spacing: .05em; text-transform: uppercase; }
+/* Since the 2026-09-17 recomposition the rail is the masthead's sibling, not
+   its last child: on a wide cover it runs the full measure as the cover's
+   bottom line, so it has to own its gutter rather than inherit a column's. */
+.editionRail { max-width: 34ch; margin: 16px var(--home-gutter) 0; padding-top: 12px; border-top: 1px solid var(--gold-line-strong); }
+.editionRailMeta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 0; margin: 0 0 7px; color: var(--ink-lo); font: 400 13px/1.5 var(--face-data); letter-spacing: .05em; text-transform: uppercase; }
 /* Decorative separator with an empty alternative text, so a screen reader
    reads "Sun 6 Sept, Daily Brief" rather than announcing a middle dot. */
-.editionRailMeta > * + *::before { content: "·" / ""; margin-inline-end: 10px; color: var(--ink-lo); }
+/* The separator trails the item it follows, so a wrapped line never opens on
+   a stray dot — it used to lead the next item, and "· PREVIOUS EDITION" began
+   the second line on every phone. */
+.editionRailMeta > *:not(:last-child)::after { content: "·" / ""; margin-inline: 10px; color: var(--ink-lo); }
 .editionRailStatus { color: var(--gold); }
 .editionRailFlag { color: var(--ink-lo); }
 .editionRailLead { display: block; min-height: 44px; color: var(--ink-hi); text-decoration: none; }
@@ -107,18 +113,35 @@
   .hero { min-height: clamp(520px, 74svh, 860px); padding-bottom: 28px; }
   .posterField { background-image: var(--hero-poster-wide); background-position: 64% 50%; }
   .heroVideo { object-position: 64% 50%; }
-  .heroScrim { background: linear-gradient(90deg, color-mix(in srgb, var(--ground) 78%, transparent), color-mix(in srgb, var(--ground) 38%, transparent) 37%, transparent 68%), linear-gradient(0deg, var(--ground), transparent 33%); }
+  /* Three layers, each with one job. The first is the type's ground: solid
+     at the gutter, gone before the lion's shoulder, so the left column reads
+     as page and the animal as photograph with no grey veil between them. The
+     second is the floor the cover line stands on — it reaches the page colour
+     at the bottom edge, so the seam into the edition is a fade and the line
+     is legible across the lion's legs. The third closes the top-right corner
+     a little, which is what keeps the eye on the face instead of the sky. */
+  .heroScrim { background:
+    linear-gradient(90deg, var(--ground) 0, color-mix(in srgb, var(--ground) 88%, transparent) 24%, color-mix(in srgb, var(--ground) 44%, transparent) 44%, transparent 64%),
+    linear-gradient(0deg, var(--ground) 0, color-mix(in srgb, var(--ground) 86%, transparent) 14%, color-mix(in srgb, var(--ground) 40%, transparent) 30%, transparent 46%),
+    radial-gradient(120% 90% at 72% 42%, transparent 52%, color-mix(in srgb, var(--ground) 46%, transparent) 100%); }
   .masthead { width: min(46vw, 660px); margin: 44px clamp(24px, 5vw, 80px) 0; }
-  .wordmark { font-size: clamp(76px, 8.5vw, 144px); }
-  .standfirst { font-size: 18px; margin-top: 20px; }
-  .actions { margin-top: 16px; }
-  .editionRail { max-width: 40ch; margin-top: 16px; padding-top: 13px; }
-  .editionRailHeadline { font-size: clamp(23px, 2.1vw, 31px); }
+  .wordmark { font-size: clamp(76px, 8.2vw, 136px); }
+  .standfirst { font-size: 19px; margin-top: 22px; }
+  .actions { margin-top: 20px; }
+  /* The cover line. Dateline at the start, the lead's headline through the
+     middle, the way in at the end — one row on the gold hairline, the full
+     measure of the page, so the cover closes the way a front page does and
+     the edition below opens on the same left edge. */
+  .editionRail { max-width: none; margin: clamp(30px, 6svh, 64px) clamp(24px, 5vw, 80px) 0; padding-top: 14px; }
+  .editionRailMeta { margin: 0 0 8px; }
+  .editionRailLead { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: clamp(24px, 4vw, 64px); align-items: baseline; }
+  .editionRailHeadline { min-height: 0; max-width: 52ch; font-size: clamp(24px, 2.1vw, 32px); }
+  .editionRailCta { margin-top: 0; white-space: nowrap; }
 }
 @media (min-width: 760px) and (aspect-ratio < 6/5) {
   .masthead { margin-top: clamp(120px, 18svh, 260px); }
   .wordmark { font-size: clamp(80px, 12vw, 112px); }
-  .editionRail { max-width: 44ch; }
+  .editionRail { max-width: 44ch; margin-inline: var(--home-gutter); }
 }
 @media (max-width: 759px) {
   /* Owner ruling, 2026-09-14: full video, with the text layer over it. The

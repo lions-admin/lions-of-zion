@@ -67,6 +67,23 @@ cover links, warnings or media credits on mobile or enlarged text.
   `aria-expanded`, safe-area offsets and focus restoration. It is never
   hidden from the tab order, and the page reserves no column for it.
 
+### Composition — September 17, 2026
+
+- The edition is numbered. Each band opens on a rule that carries its folio
+  (`01`–`06`, read from `HOMEPAGE_BANDS`) beside its kicker, and the contents
+  index under the cover carries the same numbers. The folio is `aria-hidden`;
+  the kicker and the heading remain the band's name.
+- The cover's edition rail is the masthead's sibling and, on a wide cover,
+  runs the full measure as the cover's bottom line. It still reads the
+  edition's own lead and is still one 44px-plus link.
+- Rank is carried by position and scale: a band's lead runs the full measure,
+  its companion sits beneath it on a rule. A claim under refutation keeps the
+  `--journey-aside` cap and is marked as quoted material (ember hairline,
+  italic); the verdict is a tone bar and a word, never colour alone.
+- October 7 records answer no pointer. The roster in The People of Israel
+  tells its kinds apart by typographic voice (`data-voice`), with the label
+  in a margin column.
+
 ## Voice — September 8, 2026
 
 The identity lines, decided in `docs/audits/2026-09-08-copy-table.md` and

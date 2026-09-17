@@ -1,6 +1,6 @@
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { DONATION_CHANNELS, type DonationChannelId } from "@/lib/donation-channels";
-import { JourneyLink } from "./HomeJourneyPrimitives";
+import { Folio, JourneyLink } from "./HomeJourneyPrimitives";
 import styles from "./homepage-journey.module.css";
 
 const CHANNEL_ICON: Record<DonationChannelId, IconName> = {
@@ -34,7 +34,7 @@ export function HomeSupportSection() {
     >
       <div className={styles.supportHead}>
         <div>
-          <p className={styles.kicker}>Sustain the work</p>
+          <p className={styles.kicker}><Folio band="support" />Sustain the work</p>
           <h2 id="home-support-title">Keep the desk running.</h2>
         </div>
         <p>

@@ -112,7 +112,15 @@ export function bandFolio(id: HomepageBandId): string {
 
 /** The folio is a position mark for the eye; the kicker beside it is the label. */
 export function Folio({ band }: { band: HomepageBandId }) {
-  return <span className={styles.folio} aria-hidden="true">{bandFolio(band)}</span>;
+  return (
+    <>
+      <span className={styles.folio} aria-hidden="true">{bandFolio(band)}</span>
+      {/* The same numeral again, set huge and faint behind the band's title:
+          the room's number on its wall. Decorative, so hidden from the
+          accessibility tree like the small one. */}
+      <span className={styles.folioGhost} aria-hidden="true">{bandFolio(band)}</span>
+    </>
+  );
 }
 
 /**
@@ -177,10 +185,15 @@ export function HomeMedia({
   media,
   portrait = false,
   lead = false,
+  overlay,
 }: {
   media: EditorialMedia | null;
   portrait?: boolean;
   lead?: boolean;
+  /** A band's lead may set its headline over the picture's lower scrim. It
+      comes first in the frame, so the reading order stays headline → picture,
+      and the caption — disclosure first — stays under the plate, uncovered. */
+  overlay?: React.ReactNode;
 }) {
   /* A record without a picture keeps its place on the page; the card is
      text-led rather than empty-framed. */
@@ -190,13 +203,14 @@ export function HomeMedia({
     : media.disclosure ?? ROLE_DISCLOSURE[media.role];
   const licence = media.rights.reference.startsWith("https://creativecommons.org");
   return (
-    <figure className={`${styles.figure} ${portrait ? styles.portrait : ""}`} data-media-role={media.role}>
+    <figure className={`${styles.figure} ${portrait ? styles.portrait : ""}`} data-media-role={media.role} data-overlay={overlay ? "true" : undefined}>
       {/* UX-12. The frame is what shows while a lazy tile is still on its
           way: a tonal ground and the disclosure, under the picture. The media
           contract carries no LQIP, so there is no `blurDataURL` to hand
           `placeholder="blur"`; the label is honest in a way a blur is not,
           and it costs no bytes. The image covers it when it lands. */}
-      <span className={styles.frame}>
+      <div className={styles.frame}>
+        {overlay && <div className={styles.frameOverlay}>{overlay}</div>}
         {disclosure && (
           <span className={styles.framePlaceholder} aria-hidden="true">{disclosure}</span>
         )}
@@ -209,7 +223,9 @@ export function HomeMedia({
           fetchPriority={lead ? "high" : "auto"}
           loading={lead ? "eager" : "lazy"}
           sizes={
-            portrait
+overlay
+              ? "(max-width:759px) 100vw, (max-width:1700px) 92vw, 1460px"
+              : portrait
               ? "(max-width:819px) 38vw, 24vw"
               : "(max-width:759px) 100vw, (max-width:1099px) 50vw, 55vw"
           }
@@ -217,7 +233,7 @@ export function HomeMedia({
             objectPosition: `${media.focalPoint.x}% ${media.focalPoint.y}%`,
           }}
         />
-      </span>
+      </div>
       <figcaption>
         {disclosure && <span className={styles.disclosure}>{disclosure}</span>}
         {media.role === "safe-cover" && <span className={styles.captionText}>Illustrated cover. Original material stays in the archive record.</span>}

@@ -127,11 +127,26 @@ export function HomePeopleSection({ people, heroes, history }: {
             data-measure-placement="people:lead"
             data-measure-card
           >
-            <h3><a href={lead.href}>{lead.title}</a></h3>
-            <div className={styles.byline}><span>{lead.category}</span></div>
+            {lead.media && !lead.portrait ? null : (
+              <>
+                <h3><a href={lead.href}>{lead.title}</a></h3>
+                <div className={styles.byline}><span>{lead.category}</span></div>
+              </>
+            )}
             {/* The frame is decided at the source (`homepage-adapters.ts`)
                 from the record's section, not by comparing label strings. */}
-            <HomeMedia media={lead.media} portrait={lead.portrait} />
+            {/* A landscape picture carries the headline on its lower scrim; a
+                portrait is a face, and nothing is set across a face. */}
+            <HomeMedia
+              media={lead.media}
+              portrait={lead.portrait}
+              overlay={lead.media && !lead.portrait ? (
+                <>
+                  <h3><a href={lead.href}>{lead.title}</a></h3>
+                  <div className={styles.byline}><span>{lead.category}</span></div>
+                </>
+              ) : undefined}
+            />
             <p className={styles.summary}>
               <PreviewText text={lead.summary} budget={PREVIEW_BUDGET.lead} />
             </p>

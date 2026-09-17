@@ -35,6 +35,11 @@
 .posterField { position: absolute; inset: 0; background: var(--hero-poster-tall) 50% 85% / cover no-repeat var(--ground); }
 .heroVideo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 85%; opacity: 0; transition: opacity var(--dur-slow) var(--ease-out); }
 .heroVideo[data-visible] { opacity: 1; }
+/* Grain over the photograph, under the scrim's type ground: it is what makes
+   the frame read as film rather than as a background image. A pseudo-element
+   of the layer, so the poster → video → scrim source order the layering test
+   pins is untouched. */
+.fieldLayer::after { content: ""; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: overlay; opacity: .9; }
 /* Legibility, not decoration — and it had to be re-weighted when the cover
    came down from 101svh to ~73svh (VA-10). The masthead used to start below
    the lion's face at 43% of a very tall frame, where a 12% wash was enough;
@@ -83,7 +88,8 @@
 /* Since the 2026-09-17 recomposition the rail is the masthead's sibling, not
    its last child: on a wide cover it runs the full measure as the cover's
    bottom line, so it has to own its gutter rather than inherit a column's. */
-.editionRail { max-width: 34ch; margin: 16px var(--home-gutter) 0; padding-top: 12px; border-top: 1px solid var(--gold-line-strong); }
+.editionRail { max-width: 34ch; margin: 16px var(--home-gutter) 0; padding-top: 12px; position: relative; }
+.editionRail::before { content: ""; position: absolute; inset: 0 0 auto; border-top: 1px solid var(--gold-line-strong); transform-origin: left; }
 .editionRailMeta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 0; margin: 0 0 7px; color: var(--ink-lo); font: 400 13px/1.5 var(--face-data); letter-spacing: .05em; text-transform: uppercase; }
 /* Decorative separator with an empty alternative text, so a screen reader
    reads "Sun 6 Sept, Daily Brief" rather than announcing a middle dot. */
@@ -110,24 +116,30 @@
 
 /* The same shape query selects both the poster and the moving shot. */
 @media (min-width: 760px) and (min-aspect-ratio: 6/5) {
-  .hero { min-height: clamp(520px, 74svh, 860px); padding-bottom: 28px; }
-  .posterField { background-image: var(--hero-poster-wide); background-position: 64% 50%; }
-  .heroVideo { object-position: 64% 50%; }
-  /* Three layers, each with one job. The first is the type's ground: solid
-     at the gutter, gone before the lion's shoulder, so the left column reads
-     as page and the animal as photograph with no grey veil between them. The
-     second is the floor the cover line stands on — it reaches the page colour
-     at the bottom edge, so the seam into the edition is a fade and the line
-     is legible across the lion's legs. The third closes the top-right corner
-     a little, which is what keeps the eye on the face instead of the sky. */
+  /* Owner ruling, 2026-09-17: the first screen is a first screen. VA-10 had
+     brought the cover down to 74svh so the edition began above the fold; the
+     owner's reading of the result was that the cover no longer looked like
+     anything. It is the whole screen again, and what VA-10 was protecting —
+     knowing what happened today without scrolling — is kept by the cover
+     line, which is on that screen. */
+  .hero { min-height: min(100svh, 1100px); padding-bottom: 34px; }
+  .posterField { background-image: var(--hero-poster-wide); background-position: 68% 42%; }
+  .heroVideo { object-position: 68% 42%; }
+  /* Four layers, one job each: the type's ground on the left; the floor the
+     cover line stands on; a lit core held open over the face; and the corners
+     closed down, which is what gives the frame a lens. */
   .heroScrim { background:
-    linear-gradient(90deg, var(--ground) 0, color-mix(in srgb, var(--ground) 88%, transparent) 24%, color-mix(in srgb, var(--ground) 44%, transparent) 44%, transparent 64%),
-    linear-gradient(0deg, var(--ground) 0, color-mix(in srgb, var(--ground) 86%, transparent) 14%, color-mix(in srgb, var(--ground) 40%, transparent) 30%, transparent 46%),
-    radial-gradient(120% 90% at 72% 42%, transparent 52%, color-mix(in srgb, var(--ground) 46%, transparent) 100%); }
-  .masthead { width: min(46vw, 660px); margin: 44px clamp(24px, 5vw, 80px) 0; }
-  .wordmark { font-size: clamp(76px, 8.2vw, 136px); }
-  .standfirst { font-size: 19px; margin-top: 22px; }
-  .actions { margin-top: 20px; }
+    linear-gradient(90deg, var(--ground) 0, color-mix(in srgb, var(--ground) 82%, transparent) 20%, color-mix(in srgb, var(--ground) 30%, transparent) 46%, transparent 62%),
+    linear-gradient(0deg, var(--ground) 0, color-mix(in srgb, var(--ground) 88%, transparent) 12%, color-mix(in srgb, var(--ground) 38%, transparent) 28%, transparent 44%),
+    radial-gradient(70% 80% at 70% 40%, transparent 40%, color-mix(in srgb, #000 58%, transparent) 100%); }
+  .masthead { width: min(64vw, 980px); margin: 44px clamp(24px, 5vw, 80px) 0; }
+  /* Sized against both axes, so a short laptop screen still fits the mark, the
+     line, the action and the cover line. At this scale the second line runs
+     out of the type's ground and onto the lion's shoulder — the mark and the
+     animal are one image now, not a column beside a picture. */
+  .wordmark { font-size: clamp(88px, min(13.4vw, 25svh), 236px); line-height: .84; letter-spacing: -.055em; text-shadow: 0 2px 40px color-mix(in srgb, var(--ground) 70%, transparent); }
+  .standfirst { font-size: clamp(19px, 1.5vw, 23px); margin-top: clamp(20px, 3svh, 34px); max-width: 40ch; }
+  .actions { margin-top: clamp(18px, 2.6svh, 28px); }
   /* The cover line. Dateline at the start, the lead's headline through the
      middle, the way in at the end — one row on the gold hairline, the full
      measure of the page, so the cover closes the way a front page does and
@@ -175,6 +187,7 @@
   .hero { min-height: 100svh; padding-bottom: clamp(20px, 3.4svh, 34px); }
   .fieldLayer { inset: var(--header-h) 0 auto; height: calc(100svh - var(--header-h)); }
   .masthead { margin-top: 0; }
+  .wordmark { font-size: clamp(64px, 19vw, 96px); line-height: .84; }
   /* The type now occupies the bottom 45% of the frame instead of its last
      sliver, so the frame is read a little higher and the head lands in the
      clear band above the wordmark rather than behind it. */
@@ -235,6 +248,22 @@
      and the same growth would be a shift. */
   .editionRailHeadline { -webkit-line-clamp: 3; line-clamp: 3; }
   .hero + .readingSurface { padding-top: 22px; }
+}
+/* The cover's one entrance, played once: the mark rises line by line, the
+   line and the action follow, the gold rule draws across and the day's lead
+   settles on it. About a second end to end, transform and opacity only, and
+   every element owns its box from first paint so nothing shifts. It is gated
+   on `no-preference`, so reduced motion never sees a keyframe. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes coverRise { from { opacity: 0; transform: translateY(.28em); } to { opacity: 1; transform: none; } }
+  @keyframes coverFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @keyframes coverRule { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .wordmarkLine { animation: coverRise 900ms var(--ease-out) both; }
+  .wordmarkLine + .wordmarkLine { animation-delay: 120ms; }
+  .standfirst { animation: coverFade 700ms var(--ease-out) 380ms both; }
+  .actions { animation: coverFade 700ms var(--ease-out) 480ms both; }
+  .editionRail::before { animation: coverRule 1000ms var(--ease-in-out) 520ms both; }
+  .editionRailMeta, .editionRailLead { animation: coverFade 700ms var(--ease-out) 820ms both; }
 }
 @media (prefers-reduced-motion: reduce) {
   .heroVideo { display: none; transition: none; }

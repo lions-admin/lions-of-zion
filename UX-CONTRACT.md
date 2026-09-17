@@ -52,8 +52,11 @@ cover links, warnings or media credits on mobile or enlarged text.
 - A preview shows whole sentences within a budget and clamps only as a
   backstop; it never ends on a cut word, and it does not remove fields from
   the document. Status precedes the claim and is stated once.
-- The edition is one ground from cover to footer; no section changes the
-  page's colour mid-page (owner ruling, 2026-09-06).
+- ~~The edition is one ground from cover to footer~~ — superseded on
+  2026-09-17 by owner ruling: each homepage band is a room on its own
+  full-bleed surface (`--room-*` in `app/globals.css`), all steps of the one
+  charcoal family and never a new hue. Text tokens are measured against the
+  lightest room. Every other page keeps the single ground.
 - On a phone a record is an open column, not a box inside the page; a
   dossier's identity is its status line, its kicker and its finding rule.
 - On a phone, body and summaries are never below 16px, metadata and
@@ -83,6 +86,18 @@ cover links, warnings or media credits on mobile or enlarged text.
 - October 7 records answer no pointer. The roster in The People of Israel
   tells its kinds apart by typographic voice (`data-voice`), with the label
   in a margin column.
+
+### Rooms and motion — September 17, 2026 (second ruling the same day)
+
+- The desktop cover is a full screen again; the cover line keeps the day's
+  lead on it. One load sequence plays once, transform and opacity only.
+- A band's lead with a landscape picture sets its headline over the picture's
+  lower scrim (`HomeMedia` `overlay`); the headline still precedes the image
+  in the DOM and the caption, disclosure first, is never covered. A portrait
+  or a record with no picture keeps the plain order.
+- Entrances are CSS scroll-driven (`animation-timeline: view()`), behind
+  `@supports` and `prefers-reduced-motion: no-preference`; without either the
+  page is simply finished. October 7 only fades and answers no pointer.
 
 ## Voice — September 8, 2026
 

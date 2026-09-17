@@ -178,6 +178,25 @@
   /* One shade under the canvas, for a bar that has to read as behind it. */
   --abyss: #141414;
 
+  /* --- Rooms (2026-09-17, owner ruling: the homepage bands are rooms) ---
+     The "one ground from cover to footer" rule of 2026-09-06 is superseded on
+     the homepage only. Each band sits on its own full-bleed surface; every one
+     of them is a step of this same charcoal, warmed or cooled by a few points
+     and never a new hue. Text tokens were re-measured against the LIGHTEST
+     room (`--room-desk`, #1f2020, and `--room-people`, #231f1a, within 0.02 of
+     each other): `--ink-lo` 7.65:1, `--gold-dim` 6.75:1, `--ember-soft`
+     6.84:1, `--ember` 4.76:1 — computed, and every darker room only raises
+     them. A plate inside a room is `--surface-0..1`, already covered above. */
+  --room-dossier: #121212;
+  --room-archive: #0d0d0d;
+  --room-people: #231f1a;
+  --room-desk: #1f2020;
+  --room-close: #221e16;
+  /* Film grain: one inline turbulence tile, no asset and no request. It is a
+     background layer on a surface, never a fixed overlay, so it costs nothing
+     per frame. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.09'/%3E%3C/svg%3E");
+
   --surface-0: #202020;
   --surface-1: #252525;
   --surface-2: #2a2a2a;

@@ -2928,3 +2928,28 @@ the archive's reading block can be placed beside what names the record. No
 copy, selection, href, verb, `data-measure-*` attribute, `lib/` or `server/`
 file changed.
 
+## 2026-09-17 — The homepage bands are rooms: the one-ground rule is lifted there, and the page moves
+
+The owner reviewed the first recomposition and ruled it not enough on four
+counts: the first screen, the feeling of stacked modules, no depth or
+material, no motion. Each was a direct result of a constraint that pass had
+kept, so this one lifts them — on the homepage only.
+
+- **Surfaces.** Five `--room-*` tokens and `--grain` are born in
+  `app/globals.css`. Every room is a step of the same charcoal; contrast was
+  computed against the lightest (`--ink-lo` 7.65, `--gold-dim` 6.75,
+  `--ember-soft` 6.84, `--ember` 4.76). The surface is a `::before` run to the
+  viewport's edges from inside the centred column.
+- **The cover is a full screen again** (VA-10 had cut it to 74svh). What VA-10
+  protected — the day's lead without scrolling — is the cover line, which is
+  on that screen. The wordmark is sized against both axes and runs onto the
+  lion's shoulder.
+- **Headline over picture** through a new `overlay` slot on `HomeMedia`; DOM
+  order is still headline → image, and the disclosure caption is uncovered.
+- **Motion is CSS scroll-driven with no new JavaScript**, gated on `@supports`
+  and `no-preference`. Hover uses the independent `scale`/`translate`
+  properties so it composes with the entrance's `transform`.
+- **October 7 got quieter, not richer**: darkest room, no plates, no grain, a
+  fade and nothing else.
+- The header bar was again left alone, for the reason in the entry above.
+

@@ -3,7 +3,7 @@
   --journey-inset: clamp(20px, 5vw, 80px);
   --journey-gap: clamp(24px, 4vw, 64px);
   --journey-rule: color-mix(in srgb, var(--ink-hi) 14%, transparent);
-  --journey-title: clamp(36px, 4.4vw, 68px);
+  --journey-title: clamp(40px, 5.6vw, 92px);
   /* Record headlines, tightened 2026-09-11: the ceiling came down from 39px
      so a long investigation title is a headline rather than a wall. The
      floor is unchanged and the phone value below is untouched. */
@@ -185,7 +185,8 @@
 .newsSpread > article[data-rank="companion"] { transition: border-color var(--dur-fast) var(--ease-out); }
 .newsSpread > article[data-rank="companion"]:hover { border-color: var(--line-strong); }
 @media (prefers-reduced-motion: no-preference) {
-  :is(.newsSpread, .narrativeSpread, .peopleStack) article:is(:hover, :has(a:focus-visible)) .frame img { transform: scale(1.02); }
+  :is(.newsSpread, .narrativeSpread, .peopleStack) article .frame img { transition: scale var(--dur-slow) var(--ease-out); }
+  :is(.newsSpread, .narrativeSpread, .peopleStack) article:is(:hover, :has(a:focus-visible)) .frame img { scale: 1.04; }
 }
 .framePlaceholder { position: absolute; inset: auto 12px 10px; z-index: 0; color: var(--ink-lo); font: 500 13px/1.4 var(--face-text); }
 .figure img { display: block; width: 100%; height: auto; aspect-ratio: 16/10; object-fit: cover; }
@@ -491,6 +492,101 @@
    chapter-row rule the roster replaced). */
 .supportMore { grid-area: more; margin: 14px 0 0; }
 
+
+/* ══ Rooms, material and motion (owner ruling, 2026-09-17) ══════════════════
+   The first recomposition kept the page on one ground with no surfaces and
+   almost no motion, and the owner's reading of it was that the bands were
+   still modules on a sheet. From here each band is a room: a full-bleed
+   surface of its own (tokens in `app/globals.css`, all one charcoal family),
+   its number on the wall behind its title, its records as lit plates, and an
+   entrance tied to the scroll. October 7 is the exception in every respect
+   except the surface — it gets darker and quieter, not richer. */
+.journey { isolation: isolate; }
+.section { position: relative; isolation: isolate; border-top-color: var(--gold-line); }
+/* The room. `calc(50% - 50vw)` runs the surface to both edges of the viewport
+   from inside the centred column; the page already clips its x-overflow. The
+   first layer is the shadow the room above casts into this one, which is
+   what makes a change of surface read as depth rather than as a stripe. */
+.section::before { content: ""; position: absolute; inset: 0 calc(50% - 50vw); z-index: -2; background: linear-gradient(180deg, rgba(0, 0, 0, .34), transparent 160px), var(--grain), var(--ground); }
+.section[data-home-section="fakeResistance"]::before { background: linear-gradient(180deg, rgba(0, 0, 0, .5), transparent 160px), var(--scan-ground), var(--grain), var(--room-dossier); }
+.section[data-home-section="october7"]::before { background: linear-gradient(180deg, rgba(0, 0, 0, .6), transparent 200px), var(--room-archive); }
+.section[data-home-section="people"]::before { background: linear-gradient(180deg, rgba(0, 0, 0, .5), transparent 160px), radial-gradient(90% 70% at 20% 0%, color-mix(in srgb, var(--gold) 7%, transparent), transparent 70%), var(--grain), var(--room-people); }
+.section[data-home-section="system"]::before { background: linear-gradient(180deg, rgba(0, 0, 0, .4), transparent 160px), repeating-linear-gradient(0deg, var(--line-soft) 0 1px, transparent 1px 40px), repeating-linear-gradient(90deg, var(--line-soft) 0 1px, transparent 1px 40px), var(--room-desk); }
+.section[data-home-section="support"]::before { background: linear-gradient(180deg, rgba(0, 0, 0, .4), transparent 160px), radial-gradient(80% 90% at 80% 100%, color-mix(in srgb, var(--gold) 11%, transparent), transparent 70%), var(--grain), var(--room-close); }
+.folioGhost { position: absolute; top: clamp(8px, 1vw, 20px); right: -.04em; z-index: -1; color: color-mix(in srgb, var(--ink-hi) 5%, transparent); font: 400 clamp(170px, 27vw, 440px)/.78 var(--face-display); letter-spacing: -.07em; pointer-events: none; user-select: none; }
+.section[data-home-section="october7"] .folioGhost { color: color-mix(in srgb, var(--ink-hi) 3%, transparent); }
+
+/* Headline over picture. The overlay comes first inside the frame, so the
+   reading order is still headline → picture; the scrim is heavy because the
+   desk's illustrations are often pale, and a headline has to clear 4.5:1 over
+   the lightest of them. The caption, disclosure first, is under the plate
+   and never covered. */
+.frameOverlay { position: absolute; inset: auto 0 0; z-index: 3; display: grid; align-content: end; padding: clamp(18px, 3vw, 48px); padding-top: clamp(90px, 16vw, 240px); background: linear-gradient(to top, color-mix(in srgb, var(--ground) 96%, transparent) 0, color-mix(in srgb, var(--ground) 88%, transparent) 42%, color-mix(in srgb, var(--ground) 52%, transparent) 72%, transparent); }
+.frameOverlay h3 { margin: 0; max-width: 20ch; font-size: var(--journey-title); line-height: 1; letter-spacing: -.035em; text-shadow: 0 1px 24px color-mix(in srgb, var(--ground) 80%, transparent); }
+.frameOverlay h3 a { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; }
+.frameOverlay .byline { margin-top: 14px; }
+.figure[data-overlay] img { aspect-ratio: 2/1; }
+.figure[data-overlay] .frame { border-color: var(--gold-line); box-shadow: var(--shadow-3); }
+.frame::before { content: ""; position: absolute; inset: 0; z-index: 2; box-shadow: inset 0 0 90px rgba(0, 0, 0, .38); pointer-events: none; }
+
+.newsSpread > article[data-rank="lead"]:has(> .figure[data-overlay]) { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-template-areas: "media" "body"; }
+.newsSpread > article[data-rank="lead"]:has(> .figure[data-overlay]) > .newsBody { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: var(--journey-gap); align-items: start; margin-top: clamp(22px, 2.4vw, 34px); }
+.newsSpread > article[data-rank="lead"]:has(> .figure[data-overlay]) > .newsBody > * { grid-column: 1; }
+.newsSpread > article[data-rank="lead"]:has(> .figure[data-overlay]) > .newsBody > .summary { margin-top: 0; font-size: clamp(18px, 1.5vw, 22px); line-height: 1.55; color: var(--ink-hi); }
+.newsSpread > article[data-rank="lead"]:has(> .figure[data-overlay]) > .newsBody > .sources { grid-column: 2; grid-row: 1; margin-top: -14px; }
+.newsSpread > article[data-rank="lead"]:has(> .figure[data-overlay]) > .newsBody > .link { grid-column: 2; grid-row: 2; justify-self: start; align-self: start; }
+/* The companion is a plate lifted off the room's floor, and it answers. */
+.newsSpread > article[data-rank="companion"] { padding: clamp(20px, 2.2vw, 32px); border: 1px solid var(--line); background: var(--surface-0); box-shadow: var(--shadow-2); transition: border-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), translate var(--dur-base) var(--ease-out); }
+.newsSpread > article[data-rank="companion"]:is(:hover, :has(a:focus-visible)) { border-color: var(--gold-line); box-shadow: var(--shadow-3); translate: 0 -3px; }
+
+/* Dossier sheets: lit plates in the darkest room, each with a spine in its
+   verdict's tone — the word is still printed beside it, so the colour is a
+   second cue and never the only one. */
+.investigation { padding: clamp(22px, 2.6vw, 40px); border: 1px solid var(--line); border-left: 3px solid var(--ink-lo); background: linear-gradient(180deg, var(--surface-1), var(--surface-0)); box-shadow: var(--shadow-2); transition: box-shadow var(--dur-base) var(--ease-out), translate var(--dur-base) var(--ease-out); }
+.investigation + .investigation { padding-top: clamp(22px, 2.6vw, 40px); border-top: 1px solid var(--line); }
+.investigation:has(.verdict[data-tone="danger"]) { border-left-color: var(--state-danger); }
+.investigation:has(.verdict[data-tone="warn"]) { border-left-color: var(--gold); }
+.investigation:has(.verdict[data-tone="ok"]) { border-left-color: var(--state-ok); }
+.investigation[data-kind="case"] { border-left-color: var(--gold-dim); }
+.investigation:is(:hover, :has(a:focus-visible)) { box-shadow: var(--shadow-3); translate: 0 -3px; }
+.narrativeSpread { gap: clamp(20px, 2.2vw, 32px); }
+
+/* The archive: no plates, no grain, no answer to a pointer. The words are the
+   picture, so they are set at the scale a picture would have had. */
+.archiveSpread > article[data-kind="testimony"] .summary { max-width: 30ch; font-size: clamp(22px, 2.2vw, 34px); line-height: 1.32; letter-spacing: -.02em; -webkit-line-clamp: 6; line-clamp: 6; }
+
+.peopleLead:has(> .figure[data-overlay]) { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); grid-template-rows: none; grid-template-areas: "media media" "summary sources" "summary action"; row-gap: 0; }
+.peopleLead:has(> .figure[data-overlay]) > .figure { margin-bottom: clamp(22px, 2.4vw, 34px); }
+.peopleLead:has(> .figure[data-overlay]) > .summary { margin-top: 0; font-size: clamp(18px, 1.5vw, 22px); line-height: 1.55; color: var(--ink-hi); }
+.peopleLead:has(> .figure[data-overlay]) > .sources { margin-top: -14px; }
+.roster { padding: clamp(20px, 2.4vw, 36px); border: 1px solid var(--line); background: color-mix(in srgb, var(--surface-1) 70%, transparent); box-shadow: var(--shadow-2); }
+
+.echoReading { background: var(--surface-2); border-color: var(--line-strong); box-shadow: var(--shadow-3); }
+.echoSequence blockquote { font-size: clamp(26px, 2.9vw, 44px); }
+.echoSequence .echoHeadline blockquote { font-size: clamp(34px, 4.2vw, 64px); }
+.supportChannel { box-shadow: var(--shadow-2); }
+.supportChannel:hover, .supportChannel:focus-visible { box-shadow: var(--shadow-3); translate: 0 -2px; }
+
+/* Entrances tied to the scroll, with no JavaScript: `animation-timeline:
+   view()` where the browser has it, the finished page where it does not.
+   One movement — a short rise out of transparency — for a band's title and
+   its records; the lead pictures settle from a slightly larger frame as they
+   cross the screen; the number on the wall drifts against the scroll. The
+   archive only fades. All of it sits inside `no-preference`, and the
+   reduced-motion block at the foot of this file removes it again by name. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes roomRise { from { opacity: 0; transform: translateY(34px); } to { opacity: 1; transform: none; } }
+    @keyframes roomFade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes plateSettle { from { transform: scale(1.1); } to { transform: none; } }
+    @keyframes ghostDrift { from { transform: translateY(22%); } to { transform: translateY(-22%); } }
+    .sectionHead h2, .systemHead h2, .supportHead h2, .sectionIntro, .newsSpread > article, .investigation, .peopleLead, .roster, .amplification, .supportChannels > li { animation: roomRise linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
+    .archive .sectionHead h2, .archiveSpread > article { animation-name: roomFade; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: view(); animation-range: entry 0% entry 70%; }
+    .figure[data-overlay] img, .dossierCover img { animation: plateSettle linear both; animation-timeline: view(); animation-range: entry 0% cover 50%; }
+    .folioGhost { animation: ghostDrift linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
+  }
+}
+
 /* Intermediate widths recompose around a readable text measure. */
 @media (max-width: 1099px) {
   .newsSpread { row-gap: 26px; }
@@ -535,6 +631,10 @@
      practice; a stacked card needs no count. */
   .peopleStack { grid-template-columns: 1fr; }
   .roster ol { grid-template-columns: minmax(0, 1fr); }
+  .newsSpread > article[data-rank="lead"]:has(> .figure[data-overlay]) > .newsBody, .peopleLead:has(> .figure[data-overlay]) { grid-template-columns: minmax(0, 1fr); }
+  .newsSpread > article[data-rank="lead"]:has(> .figure[data-overlay]) > .newsBody > :is(.sources, .link) { grid-column: 1; grid-row: auto; margin-top: 0; }
+  .peopleLead:has(> .figure[data-overlay]) { grid-template-areas: "media" "summary" "sources" "action"; }
+  .peopleLead:has(> .figure[data-overlay]) > .sources { margin-top: 0; }
   .systemHead { grid-template-columns: 1fr; gap: 20px; }
   .systemHead > p { max-width: 60ch; }
   .supportHead { grid-template-columns: 1fr; gap: 20px; }
@@ -548,7 +648,7 @@
      both. The ladder is 34 / 28 / 23 / 18 now — the same four tokens, spread
      far enough apart to be read as ranks. Nothing below 16px: these are
      headings, and the 16px body and 13px metadata floors are untouched. */
-  .journey { --journey-inset: clamp(20px, 5vw, 32px); --journey-title: clamp(34px, 8.5vw, 45px); --journey-lead: clamp(28px, 7.2vw, 35px); --journey-story: clamp(23px, 5.9vw, 30px); --journey-aside: clamp(17px, 4.6vw, 21px); }
+  .journey { --journey-inset: clamp(20px, 5vw, 32px); --journey-title: clamp(38px, 10.5vw, 52px); --journey-lead: clamp(28px, 7.2vw, 35px); --journey-story: clamp(23px, 5.9vw, 30px); --journey-aside: clamp(17px, 4.6vw, 21px); }
   .edition { grid-template-columns: 1fr; gap: 6px; margin-top: 0; padding-top: 20px; }
   .editionDate { text-align: start; }
   /* Two columns of three: a numbered cell needs the width a bare word did
@@ -627,6 +727,18 @@
      before a word of the story. Capped, it is a profile plate — and the
      People band keeps its own shape rather than looking like the news. */
   .peopleLead:has(> .figure), .peopleLead:has(> .figure.portrait) { display: block; }
+  .peopleLead:has(> .figure[data-overlay]) { display: grid; }
+  /* A phone's lead plate stands up: 4:5 gives the headline a wall to sit on
+     instead of a letterbox to squeeze into. */
+  .figure[data-overlay] img, .peopleLead .figure[data-overlay] img { aspect-ratio: 4/5; }
+  .frameOverlay { padding: 18px; padding-top: 120px; }
+  .frameOverlay h3 { font-size: var(--journey-lead); line-height: 1.04; }
+  .newsSpread > article[data-rank="lead"]:has(> .figure[data-overlay]) > .figure, .peopleLead:has(> .figure[data-overlay]) > .figure { margin: 0 calc(var(--journey-inset) * -1) 18px; }
+  .figure[data-overlay] figcaption { padding-inline: var(--journey-inset); }
+  .investigation, .investigation + .investigation { padding: 18px 16px; }
+  .newsSpread > article[data-rank="companion"] { padding: 16px; }
+  .roster { padding: 16px; }
+  .archiveSpread > article[data-kind="testimony"] .summary { font-size: 22px; -webkit-line-clamp: 6; line-clamp: 6; }
   .peopleLead:has(> .figure) > .figure { margin: 10px 0 12px; }
   .peopleLead .portrait { max-width: 240px; }
   .peopleLead .figure img { aspect-ratio: 16/9; }
@@ -636,7 +748,7 @@
   .investigation + .investigation { padding-top: 18px; }
   .archiveSpread { gap: 22px; }
   .archiveSpread > article + article { padding-top: 22px; }
-  .archiveSpread > article[data-kind="testimony"] .summary { font-size: 19px; margin-top: 14px; }
+  .archiveSpread > article[data-kind="testimony"] .summary { margin-top: 14px; }
   /* The index keeps its margin column down to a narrow phone: the label is
      what tells a name from a chapter, and it costs one short word of width. */
   .roster li { grid-template-columns: minmax(0, 6.5rem) minmax(0, 1fr); column-gap: 12px; }

@@ -35,7 +35,7 @@ export function HomeNarrativesSection({
   return (
     <section
       id="home-narratives"
-      className={`${styles.section} ${styles.editorial} ${styles.investigations}`}
+      className={`${styles.section} ${styles.editorial}`}
       aria-labelledby="home-narratives-title"
       data-home-section="fakeResistance"
     >

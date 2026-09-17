@@ -32,7 +32,7 @@ const EditorialIntro = dynamic(
  */
 export function HomeSystemSection() {
   return (
-    <section id="home-system" className={`${styles.section} ${styles.system}`}
+    <section id="home-system" className={`${styles.section}`}
       aria-labelledby="home-system-title" data-home-section="system">
       <header className={styles.systemHead}>
         <div>

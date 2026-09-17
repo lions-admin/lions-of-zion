@@ -946,6 +946,16 @@
   .skipLink { transition-duration: 0ms; }
 }
 
+/* Below 21.25rem five 44px controls leave a 40px column for the lockup —
+   enough to clip the wordmark's first word. The role line is the thing a bar
+   this narrow cannot carry (it was already hidden in the retracted mode for
+   the same reason), and the gutter yields one step; the wordmark keeps its
+   two balanced lines and the bar keeps every 44px target. */
+@media (max-width: 21.25rem) {
+  .bar { --bar-gutter: var(--sp-2); }
+  .brandRole { display: none; }
+}
+
 /* ── Panel visibility, and the no-JavaScript tier ──────────────────────────
  *
  * `filesPanel` always ships in the server HTML and carries its state in

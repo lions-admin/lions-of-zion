@@ -188,6 +188,6 @@
 /* The focus ring stays the site's, not the brand's: a reader tabbing through
    the page should not have to learn a second ring on one control. */
 .xButton:focus-visible {
-  outline: var(--focus-ring-w, 2px) solid var(--focus-ring, var(--gold));
-  outline-offset: 2px;
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
 }

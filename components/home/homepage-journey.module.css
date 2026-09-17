@@ -264,6 +264,8 @@
   color: var(--ink-hi);
 }
 .archiveSpread { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: var(--journey-gap); align-items: start; }
+/* A link is a target: the headline's 34px line gets the 44px floor. */
+.archiveSpread h3 a { display: inline-block; padding-block: 0.4375rem; }
 .archiveSpread h3 { margin: 0; font-size: var(--journey-lead); line-height: 1.15; }
 .archiveSpread > article[data-kind="testimony"] h3 { max-width: 28ch; }
 .archiveSpread > article[data-kind="documentation"] h3 { font-size: var(--journey-story); }

@@ -39,6 +39,14 @@
 .context dt { color: var(--ink-lo); font-family: var(--face-data); font-size: var(--t-data); letter-spacing: var(--t-data-tracking); text-transform: uppercase; }
 .context dd { margin: 0; font-size: var(--t-small); }
 
-.read { color: var(--ink-hi); font-weight: 600; text-decoration-color: var(--gold-line-strong); text-underline-offset: 0.2em; }
+.read {
+  display: inline-block;
+  /* A link is a target: the 44px floor with the underline kept inside it. */
+  padding-block: 0.5rem;
+  color: var(--ink-hi);
+  font-weight: 600;
+  text-decoration-color: var(--gold-line-strong);
+  text-underline-offset: 0.2em;
+}
 .compact { padding: var(--sp-4) 0; }
 .compact .context { display: none; }

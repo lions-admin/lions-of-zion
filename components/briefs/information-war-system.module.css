@@ -55,7 +55,7 @@
 
 .hero { padding-top: var(--sp-6); }
 .heroTopline { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-6); padding-bottom: var(--sp-5); border-bottom: 1px solid var(--war-rule); }
-.heroTopline a { color: var(--ink); font-size: var(--t-caption); padding-block: var(--sp-2); }
+.heroTopline a { color: var(--ink); font-size: var(--t-caption); min-height: var(--control-h); display: inline-flex; align-items: center; }
 .heroTopline a span { margin-left: var(--sp-4); color: var(--gold); }
 .heroGrid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 7%; align-items: center; padding-block: var(--sp-8) var(--sp-9); }
 .hero h1 {

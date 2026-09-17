@@ -103,3 +103,41 @@ its verb from here rather than coining one.
 | Person profile | Read their story |
 | Hub "everything" link | All of *Section* → |
 | Daily briefing | Read the briefing |
+
+## The Midnight Signal identity — September 17, 2026
+
+Owner rulings of 2026-09-15 (recorded in `.ai/DECISIONS.md`): a new visual
+identity, dark only, cinematic motion, public site + Ask/Search scope. What a
+future change must respect:
+
+- **The quote role.** Literata (`--face-quote` / `--t-quote` / `.quoteText`)
+  is the one serif, with one job: a human being quoted — survivor testimony
+  (italic, attribution in roman), the exact claim on a Fake Resistance row
+  (roman, in quotation marks, under "Claim in circulation"), a pull quote from
+  a source. Never the standfirst, a headline or a kicker.
+- **The signal rule.** One 1px gold line whose head is a five-bar stub
+  (`components/brand/SignalMark.tsx`), rendered by a zero-JS server component
+  and rationed to at most three appearances per page: the cover's rail, a
+  masthead rule, the colophon's closing rule. Everywhere else the rule is a
+  plain 1px hairline doing structural work. On October 7 the rule is unbroken
+  and unlit (`--ink-lo`).
+- **October 7's motion profile.** Same ground, no cover layers, no texture, no
+  ambient motion, no parallax, no stagger, no accent fill, no auto-rotation:
+  display weight one step lighter (`main[data-memorial]`), testimony in the
+  quote role, markers unbroken ("held"), entrances fade-only (`.enterQuiet`),
+  page transition crossfade-only (`data-quiet`). Dignity is carried by
+  measure, leading and silence.
+- **The cover.** A sticky midnight field inside a scroll runway; the uncrowned
+  particle lion keyed into core/haze layers (`public/brand/cover/`,
+  ≤ 4 MB hard budget) condensing into the signal rule as the reader scrolls;
+  arrival is once, ≤ 1.2s; all scroll motion is pure CSS
+  (`animation-timeline: scroll(root)` behind `@supports`); reduced motion,
+  `@supports not` and `html[data-motion="paused"]`
+  (`components/home/MotionControl.tsx`, the WCAG 2.2.2 pause control) each
+  state the complete static design explicitly. The lion appears once per
+  visit, on the cover.
+- **Page transitions.** Shared elements from list to record only —
+  `record-<publicId>-{headline,kicker,plate}` from every list surface; the
+  chrome holds still (`view-transition-name: chrome`, set via
+  `data-vt-chrome`); everything else rides the root crossfade; no
+  cross-document `@view-transition` rule; no `template.tsx`/`loading.tsx`.

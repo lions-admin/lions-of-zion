@@ -860,7 +860,12 @@ await browser.close();
  * form) drifts from the system the day after it is written and no runtime
  * audit can tell which. Comments are stripped first; a prose mention is not
  * a declaration. Rules that only *offset* the global ring
- * (`outline-offset: …`) are correct and not checked here.
+ * (`outline-offset: …`) are correct and not checked here. Two deliberate
+ * declarations are exempt: `outline: none` (a suppression of the ring — on a
+ * non-interactive landmark, or on `:focus:not(:focus-visible)` — and a
+ * suppression cannot drift from the token), and the forced-colors `Highlight`
+ * keyword (the forced-colors contract names the system's own focus colour;
+ * it is not a restatement of the ring).
  */
 {
   const { readdirSync, readFileSync } = await import("node:fs");
@@ -882,8 +887,14 @@ await browser.close();
     const src = strip(readFileSync(file, "utf8"));
     for (const m of src.matchAll(/:focus-visible[^{]*\{[^}]*\}/g)) {
       const outline = m[0].match(/(^|[^-])outline\s*:\s*([^;]+);/);
-      if (outline && !outline[2].includes("var(--focus-outline)")) {
-        offenders.push(`${file}: outline: ${outline[2].trim()}`);
+      const value = outline && outline[2].trim();
+      if (
+        outline
+        && !value.includes("var(--focus-outline)")
+        && !/^none$/.test(value)
+        && !value.includes("Highlight")
+      ) {
+        offenders.push(`${file}: outline: ${value}`);
       }
     }
   }

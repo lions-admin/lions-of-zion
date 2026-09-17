@@ -541,22 +541,27 @@ export function SiteHeader({ activeSection, home = false }: SiteHeaderProps) {
           <div className={styles.filesInner}>{renderNavigation()}</div>
         </div>
 
-        {menuOpen ? (
-          <Dialog
-            id={menuPanelId}
-            open={menuOpen}
-            onClose={() => {
-              setMenuOpen(false);
-              menuTriggerRef.current?.focus();
-            }}
-            title="Menu"
-            description="Reporting, evidence and the people behind the work."
-            variant="drawer"
-            className={styles.mobilePanel}
-          >
-            {renderNavigation()}
-          </Dialog>
-        ) : null}
+        {/* Mounted for the drawer's whole life, not only while open: an open
+            modal `<dialog>` that is *removed* from the document never runs the
+            platform's focus-restoration steps, so Escape left the reader on
+            `body` — and with the trigger unmounted, its own `aria-controls`
+            pointed at a missing id besides. Persistent mounting gives the id
+            a target in every state and lets the platform's own close steps
+            return focus. The filesPanel stays the no-JS index (VA-42). */}
+        <Dialog
+          id={menuPanelId}
+          open={menuOpen}
+          onClose={() => {
+            setMenuOpen(false);
+            menuTriggerRef.current?.focus();
+          }}
+          title="Menu"
+          description="Reporting, evidence and the people behind the work."
+          variant="drawer"
+          className={styles.mobilePanel}
+        >
+          {renderNavigation()}
+        </Dialog>
       </header>
     </>
   );

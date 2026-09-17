@@ -27,7 +27,7 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  min-height: calc(var(--control-h) - var(--sp-1));
+  min-height: var(--control-h);
   color: var(--ink);
   font-family: var(--face-navigation);
   font-size: var(--t-caption);

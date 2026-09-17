@@ -137,7 +137,7 @@
 .secondary {
   --btn-bg: transparent;
   --btn-fg: var(--ink-hi);
-  --btn-line: var(--line-strong);
+  --btn-line: var(--control-line);
 }
 
 .secondary:hover:not(:disabled) {

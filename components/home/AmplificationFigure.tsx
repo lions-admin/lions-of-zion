@@ -42,7 +42,7 @@ export function AmplificationFigure() {
             heading and say the count the heading already says in words. The
             01/02/03 steps in the sequence stay: that one is a sequence. */}
         <div className={styles.echoResult} aria-live="polite" aria-atomic="true">
-          <h4>{traced ? <>One source.<br />Not three witnesses.</> : <>Three versions.<br />How many sources?</>}</h4>
+          <h3>{traced ? <>One source.<br />Not three witnesses.</> : <>Three versions.<br />How many sources?</>}</h3>
           <p>{traced
             ? "All three lead back to the same unverified post. The wording became more certain. The evidence did not."
             : "A post, a repost and a headline can look like corroboration. Follow what each one actually cites."}</p>

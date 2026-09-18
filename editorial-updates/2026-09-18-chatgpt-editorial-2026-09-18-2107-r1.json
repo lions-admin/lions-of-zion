@@ -1,0 +1,371 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-editorial-2026-09-18-2107-r1",
+  "composer": "ChatGPT whole-site editorial update",
+  "createdAt": "2026-09-18T18:07:00Z",
+  "creates": [
+    {
+      "key": "daily-brief-2026-09-18",
+      "publication": {
+        "kind": "brief",
+        "section": "daily_brief",
+        "canonicalStoryId": "daily-brief-2026-09-18",
+        "title": "September 18 briefing: Hormuz tanker strike, Houthi eastward pressure, and Lebanon’s stalled security framework",
+        "summary": "Iran says it struck the Togo-flagged tanker Trend in the Strait of Hormuz; the Houthi advance is pressing toward Marib after taking the Red Sea coast; and Paris talks focused on sustaining Lebanon’s army after UNIFIL. Israel’s innovation authority also selected two new deep-tech incubators.",
+        "body": "## Situation\n\nThe September 18 picture is dominated by connected pressure on the region’s maritime routes and security frameworks. Iran says it struck the Togo-flagged tanker Trend while it attempted to transit the Strait of Hormuz. The Associated Press had not independently confirmed the strike at publication time. In Yemen, the Houthis are consolidating their recent Red Sea gains and increasing pressure toward oil-rich Marib, while shipping through Bab al-Mandeb continues at reduced and uneven levels rather than being fully closed.\n\n## Lebanon\n\nOn September 17, Lebanese President Joseph Aoun met French President Emmanuel Macron and Jordan’s King Abdullah II in Paris. The talks focused on southern Lebanon, support for the Lebanese army and what follows the expiration of UNIFIL’s mandate. The June framework for Israeli withdrawal, Lebanese army deployment and Hezbollah disarmament remains stalled. The diplomatic question is now less whether a framework exists than whether Lebanon has the resources and political capacity to implement it without an internal confrontation.\n\n## Iran and Hormuz\n\nIran’s Revolutionary Guard says it struck the tanker Trend over what it called an unauthorized transit. That is a claimed Iranian attack and should remain attributed until maritime authorities, the ship operator or other independent evidence confirm the incident and damage. The claim nevertheless shows that the strait remains contested and that Tehran continues to assert a right to control passage.\n\nIran also staged its largest government-organized rally since the war began, with officials claiming hundreds of thousands of participants and large numbers registered for basic military training. Those attendance and registration figures are state claims, not independently audited counts.\n\n## Yemen and Bab al-Mandeb\n\nThe Houthis’ capture of Mokha, Dhubab and Mayun/Perim has shifted the western Yemen front. By September 18, AP reported that Houthi forces were looking east toward Marib after taking the Red Sea coast. The strategic consequence is greater exposure around Bab al-Mandeb and Saudi export routes. Territorial control is not the same as a complete maritime blockade, and the site continues to distinguish those claims.\n\n## Gaza\n\nA building previously damaged by Israeli strikes collapsed in Gaza City on September 16, killing 21 people according to Gaza health authorities. AP reported that the structure was already known to be unstable and that families were living there because of a severe shelter shortage. The event is a humanitarian and reconstruction issue rather than a new military strike. Israel says reconstruction remains conditioned on Hamas disarmament and that shelter materials are facilitated subject to security restrictions; aid groups say essential materials remain insufficient.\n\n## Israeli innovation\n\nOn September 16, the Israel Innovation Authority selected Augmenta Health Incubator and Intelligent Machine Labs – Foundry for new venture-studio incubators in Human-Machine Interface and Physical AI. The authority says it will invest NIS 80 million over five years, alongside additional private and public investment. This is a funding and company-building program, not evidence yet of commercial or scientific outcomes.\n\n## Watch next\n\nWatch for independent confirmation of the Trend incident, measured vessel traffic through Hormuz and Bab al-Mandeb, movement on the Lebanese army donor track and post-UNIFIL arrangements, any Houthi push toward Marib, and implementation milestones for the new Israeli deep-tech incubators.",
+        "language": "en",
+        "editorialTopic": "September 18 regional and Israel briefing",
+        "topicTags": [
+          "iran",
+          "hormuz",
+          "yemen",
+          "lebanon",
+          "gaza",
+          "israeli-innovation"
+        ],
+        "arena": "Israel and Middle East"
+      },
+      "media": {
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/c79f0238b6a05b90f95b9991241556dc9c1623f896b3953424776bada53e3007.jpg",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Strait_of_Hormuz_(MODIS_2020-12-04).jpg",
+        "alt": "Satellite image of the Strait of Hormuz between Iran and the Musandam peninsula, used as geographic context for the September 18 regional briefing.",
+        "caption": "The Strait of Hormuz from NASA satellite imagery. Geographic context for the edition, not documentation of the reported September 18 tanker incident.",
+        "credit": "MODIS Land Rapid Response Team, NASA GSFC, public domain",
+        "disclosure": "Geographic context — not incident documentation",
+        "role": "archival-context",
+        "focalPoint": {
+          "x": 58,
+          "y": 42
+        },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "cleared",
+          "basis": "Public domain (NASA)",
+          "reference": "https://commons.wikimedia.org/wiki/File:Strait_of_Hormuz_(MODIS_2020-12-04).jpg",
+          "clearedAt": "2026-09-13",
+          "surfaces": [
+            "article",
+            "homepage"
+          ]
+        },
+        "generated": false
+      },
+      "sources": [
+        {
+          "url": "https://apnews.com/article/024350a0820dfc5dd433b4e13445fab5",
+          "title": "Iran claims it struck an oil tanker in the Strait of Hormuz, and other Mideast developments",
+          "publisher": "Associated Press"
+        },
+        {
+          "url": "https://apnews.com/article/22e64e72775886625da676aee92edca2",
+          "title": "A week after Houthis seized a Red Sea city, the Iranian-backed rebels eye the oil-rich east",
+          "publisher": "Associated Press"
+        },
+        {
+          "url": "https://apnews.com/article/14908f2701e7c1caf932c3b885c3a4da",
+          "title": "France hosts Lebanon security talks to discuss post-UN mission plans",
+          "publisher": "Associated Press"
+        },
+        {
+          "url": "https://apnews.com/article/b97d6f3c43bfdd8f25242eaa62f15ae7",
+          "title": "Fatal building collapse highlights dangers plaguing Gaza nearly a year after ceasefire",
+          "publisher": "Associated Press"
+        },
+        {
+          "url": "https://innovationisrael.org.il/en/press_release/tech-incubators-winners/",
+          "title": "Two New Tech Incubators Selected to Establish Companies in Physical AI and Human-Machine Interface",
+          "publisher": "Israel Innovation Authority",
+          "official": true
+        }
+      ]
+    },
+    {
+      "key": "physical-ai-incubators",
+      "publication": {
+        "kind": "news_update",
+        "section": "technology_ai",
+        "canonicalStoryId": "israel-physical-ai-hmi-incubators-2026",
+        "title": "Israel selects two new incubators for Physical AI and human-machine interfaces",
+        "summary": "The Israel Innovation Authority selected Augmenta Health Incubator and Intelligent Machine Labs – Foundry for a five-year venture-studio program. The authority says it will invest NIS 80 million, with additional investment expected from the participating groups and investors.",
+        "body": "Israel’s Innovation Authority announced on September 16 that it selected two new technology incubators designed to create deep-tech companies rather than simply host existing startups. The two groups are Augmenta Health Incubator, focused on human-machine interfaces, and Intelligent Machine Labs – Foundry, focused on Physical AI.\n\nThe authority says the two incubators will receive a combined NIS 80 million over five years. It also says hundreds of millions of shekels in additional investment could come from the incubators and other investors as companies are formed. The NIS 80 million is a committed program allocation; the larger follow-on figure is an expectation tied to future company formation and financing, not money already invested in operating companies.\n\nParticipants named by the authority include Elbit Systems, Ichilov Hospital, Bar-Ilan University, aMoon Ventures, Tene Capital, Schestowitz and other investment groups. The Physical AI track is being coordinated with initiatives of the National AI Directorate in the Prime Minister’s Office.\n\nThe distinction between the two areas matters. Human-machine interface work can include technologies that connect biological signals, medical systems or users with machines. Physical AI concerns software and models acting through real-world machines such as robots, autonomous systems and industrial hardware. Both areas require validation beyond software benchmarks because failures can produce physical consequences.\n\nThe authority says the groups are expected to begin operating within roughly six months. That makes the next useful evidence operational rather than promotional: incorporated companies, disclosed investment rounds, research licenses, prototypes, regulatory milestones, customers and independently measured performance.\n\nThis announcement is therefore best read as an infrastructure and company-building decision. It strengthens the pipeline for Israeli deep-tech development, but it does not yet establish that the incubators have produced successful products or commercial companies.",
+        "language": "en",
+        "editorialTopic": "Israeli Physical AI and human-machine interface ecosystem",
+        "topicTags": [
+          "israeli-innovation",
+          "physical-ai",
+          "human-machine-interface",
+          "deeptech",
+          "venture-studio"
+        ],
+        "primaryActor": "Israel Innovation Authority",
+        "arena": "Israel"
+      },
+      "sources": [
+        {
+          "url": "https://innovationisrael.org.il/en/press_release/tech-incubators-winners/",
+          "title": "Machines That Think and Technology That Connects to the Human Body: Two New Tech Incubators Selected",
+          "publisher": "Israel Innovation Authority",
+          "official": true
+        },
+        {
+          "url": "https://govextra.gov.il/livedai/en/home/physical-ai/",
+          "title": "Physical AI community and program",
+          "publisher": "National Artificial Intelligence Directorate",
+          "official": true
+        }
+      ]
+    }
+  ],
+  "updates": [
+    {
+      "key": "hormuz-sept18",
+      "target": {
+        "canonicalStoryId": "iran-us-hormuz-maritime-escalation-2026"
+      },
+      "publication": {
+        "title": "Hormuz: Iran claims a strike on tanker Trend as passage remains contested",
+        "summary": "Iran says it struck the Togo-flagged oil tanker Trend on September 17–18 over an allegedly unauthorized transit. AP had not independently confirmed the strike. The claim extends a pattern of coercive control and attacks around Hormuz, where traffic remains restricted rather than normally reopened.",
+        "body": "The Strait of Hormuz remained a contested waterway on September 18, 2026. Iran’s Revolutionary Guard said it struck the Togo-flagged oil tanker Trend after what it called an unauthorized attempt to transit the strait. Iran’s state broadcaster carried the claim; the Associated Press said it could not immediately confirm the attack independently.\n\nThat evidentiary distinction matters. A Guard statement establishes that Iran is claiming responsibility and asserting control over passage. It does not by itself establish the vessel’s damage, exact position, casualties or the circumstances of transit. Those facts require ship-operator reporting, maritime alerts, imagery or other independent evidence.\n\nThe new claim follows a September 12–13 incident in which an Iranian cargo ship was struck near Qeshm and one crew member was reported killed, with the attacker not established in the public record. It also follows weeks of U.S. blockade operations against Iranian ports and Iranian efforts to condition passage through Hormuz.\n\nThe operational picture remains narrower than either a full reopening or a total closure. Earlier September reporting described U.S.-managed transit windows for tankers, while Iran sought to impose conditions and fees on passage. Shipping has continued under risk, restrictions and military pressure.\n\nOn September 18, Iran also staged its largest government-organized rally since the war began. Iranian officials said more than 600,000 people had registered for basic military training and state media estimated more than 300,000 people attended the Tehran march. Those figures are government claims and have not been independently audited. The rally is relevant as a measure of state mobilization messaging, not as proof of national public opinion.\n\nWhat changed since the September 13 update: Iran now openly claims another tanker attack in the strait, this time against the Trend, and is pairing maritime coercion with a domestic mobilization campaign. What has not changed is the evidentiary rule: claimed attacks, vessel damage and traffic conditions must be verified separately.\n\nWatch next: UKMTO or other maritime advisories on the Trend, operator confirmation, imagery or casualty reporting, changes in vessel traffic, and any formal agreement governing transit through Hormuz.",
+        "changeSummary": "Add Iran's September 18 claim that it struck the tanker Trend and the accompanying domestic mobilization campaign; preserve the distinction between Iranian claims and independently verified vessel damage."
+      },
+      "sources": [
+        {
+          "url": "https://apnews.com/article/024350a0820dfc5dd433b4e13445fab5",
+          "title": "Iran claims it struck an oil tanker in the Strait of Hormuz, and other Mideast developments",
+          "publisher": "Associated Press"
+        },
+        {
+          "url": "https://apnews.com/article/03488b5cc4c13ecac1a27096b1641972",
+          "title": "Hundreds of thousands attend Iran's biggest government-organized rally since the war began",
+          "publisher": "Associated Press"
+        }
+      ]
+    },
+    {
+      "key": "yemen-sept18",
+      "target": {
+        "canonicalStoryId": "yemen-bab-al-mandeb-fighting-2026"
+      },
+      "publication": {
+        "title": "Houthis consolidate the Red Sea coast and press toward Marib as displacement rises",
+        "summary": "After taking Mokha, Dhubab and Mayun/Perim, Houthi forces are increasing pressure toward oil-rich Marib. AP reports roughly 125,000 people displaced in the latest phase. Bab al-Mandeb shipping remains exposed, but current evidence still does not establish a complete closure.",
+        "body": "The Houthi advance in Yemen has moved beyond the capture of the Red Sea coast. By September 18, 2026, the movement held Mokha, Dhubab and Mayun/Perim around Bab al-Mandeb and was increasing pressure eastward toward Marib, the oil-rich province that has repeatedly been a strategic objective in Yemen’s war.\n\nAssociated Press reporting on September 18 described the next phase as a contest over Marib after the rapid collapse of government-aligned positions on the western coast. The new direction matters because it combines control near a global shipping chokepoint with pressure on a major energy-producing area inside Yemen.\n\nThe humanitarian cost is also higher than in the September 13 record. AP reported around 125,000 people displaced by the recent fighting. That figure should be read as a current reported estimate rather than combined mechanically with earlier displacement counts from different dates and reporting windows.\n\nShipping risk remains serious but should not be overstated. Houthi control of Mayun/Perim and the adjacent coast improves the movement’s ability to threaten vessels around the strait. It does not prove that commercial passage has stopped. AP reported that traffic has fluctuated and at times rebounded despite the fighting.\n\nThe regional context is widening. Saudi Arabia has faced attacks on energy infrastructure while the Red Sea route is more exposed, and China has an economic interest in preventing simultaneous disruption around Hormuz and Bab al-Mandeb. These pressures may create diplomatic incentives, but they do not establish Iranian command of Houthi battlefield decisions.\n\nWhat changed since September 13: the territorial gains are now being consolidated; the military focus is shifting toward Marib; and the reported displacement burden has risen substantially. The core caveat is unchanged: territorial control, threat capability and a verified maritime blockade are different claims.\n\nWatch next: movement toward Marib, counteroffensives by government-aligned forces, IOM displacement updates, authenticated maritime incident notices, and measured vessel traffic through Bab al-Mandeb.",
+        "changeSummary": "Update the Yemen canonical with September 18 reporting on Houthi pressure toward Marib, the higher displacement estimate and the continuing distinction between territorial control and a verified shipping closure."
+      },
+      "sources": [
+        {
+          "url": "https://apnews.com/article/22e64e72775886625da676aee92edca2",
+          "title": "A week after Houthis seized a Red Sea city, the Iranian-backed rebels eye the oil-rich east",
+          "publisher": "Associated Press"
+        },
+        {
+          "url": "https://apnews.com/article/024350a0820dfc5dd433b4e13445fab5",
+          "title": "Iran claims it struck an oil tanker in the Strait of Hormuz, and other Mideast developments",
+          "publisher": "Associated Press"
+        }
+      ]
+    },
+    {
+      "key": "lebanon-sept18",
+      "target": {
+        "canonicalStoryId": "lebanon-ali-al-taher-ridge-2026-09"
+      },
+      "publication": {
+        "title": "Lebanon after Ali al-Taher: Paris talks turn to army capacity and the post-UNIFIL security gap",
+        "summary": "Aoun, Macron and Jordan's King Abdullah met in Paris on September 17 to discuss southern Lebanon, support for the Lebanese army and arrangements after UNIFIL's mandate expires. The June Israel-Lebanon framework remains stalled and Hezbollah still rejects disarmament.",
+        "body": "The political phase after the Ali al-Taher operation is now centered on whether Lebanon’s army can assume enough authority in the south to make the June security framework workable. On September 17, Lebanese President Joseph Aoun met French President Emmanuel Macron and Jordan’s King Abdullah II in Paris to discuss southern Lebanon, international support for the Lebanese army and plans for an international presence after UNIFIL’s mandate expires at the end of the year.\n\nThe June framework envisioned gradual Israeli withdrawal, expanded Lebanese army control and the disarmament of Hezbollah. Implementation remains stalled. Hezbollah has rejected demands to surrender its weapons, while Lebanese officials have warned that forcing the issue militarily could create internal conflict.\n\nThe army’s capacity is therefore not a secondary issue. AP reported that the Lebanese military remains underfunded and has lost personnel during the country’s financial crisis. A donor conference originally planned earlier in the year was postponed after the Iran war and renewed Israel-Hezbollah fighting, and no new date was announced after the Paris meeting.\n\nThis changes the center of gravity of the Ali al-Taher story. The September 11 demolition of underground infrastructure remains an Israeli military claim supported by the IDF’s own documentation and reporting on the blast. The question now is what security structure follows the operation: Lebanese army deployment, Israeli withdrawal decisions, Hezbollah’s posture and any replacement or successor arrangement after UNIFIL.\n\nWhat changed since September 13: the issue moved from a paused negotiation calendar to a high-level effort to fund and structure the Lebanese state’s security role. The June framework still exists, but its implementation remains unproven.\n\nWatch next: a new army donor-conference date, concrete deployment changes in the south, an agreed post-UNIFIL mechanism, the October negotiation round, and any shift in Hezbollah’s position on disarmament.",
+        "changeSummary": "Add the September 17 Paris summit and the emerging post-UNIFIL/army-capacity question to the Lebanon canonical while keeping the underlying Ali al-Taher military claims separately attributed."
+      },
+      "sources": [
+        {
+          "url": "https://apnews.com/article/14908f2701e7c1caf932c3b885c3a4da",
+          "title": "France hosts Lebanon security talks to discuss post-UN mission plans",
+          "publisher": "Associated Press"
+        }
+      ]
+    }
+  ],
+  "homepage": {
+    "news": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "operationKey": "hormuz-sept18"
+        }
+      },
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "operationKey": "yemen-sept18"
+        }
+      }
+    }
+  },
+  "featured": {
+    "october7.testimony": {
+      "action": "release",
+      "reason": "The current testimony exceeded the four-day maximum dwell window; return the slot to normal rotation."
+    },
+    "october7.documentation": {
+      "action": "release",
+      "reason": "The current documentation record exceeded the four-day maximum dwell window; return the slot to normal rotation."
+    },
+    "heroes.courage": {
+      "action": "release",
+      "reason": "The current courage profile exceeded the four-day maximum dwell window; return the slot to normal rotation."
+    },
+    "heroes.fallen": {
+      "action": "release",
+      "reason": "The current fallen profile exceeded the four-day maximum dwell window; return the slot to normal rotation."
+    },
+    "history.primary": {
+      "action": "release",
+      "reason": "The current primary history chapter exceeded the four-day maximum dwell window; return the slot to normal rotation."
+    },
+    "history.secondary": {
+      "action": "release",
+      "reason": "The current secondary history chapter exceeded the four-day maximum dwell window; return the slot to normal rotation."
+    }
+  },
+  "siteRecommendations": [
+    "Archive clear duplicate live records instead of adding hero images to duplicate versions; prioritize canonical records for future media work.",
+    "Review the 20 remaining live records without hero media after deduplication, starting with current Israel Update and Narrative Watch records rather than historical daily briefs.",
+    "Monitor the Trend tanker claim, Marib front, Lebanon army donor track and Gaza shelter-material policy as next-run triggers."
+  ],
+  "research": [
+    {
+      "topic": "Iran and Strait of Hormuz",
+      "focus": "September 18 tanker claim and mobilization",
+      "sourcesReviewed": [
+        "https://apnews.com/article/024350a0820dfc5dd433b4e13445fab5",
+        "https://apnews.com/article/03488b5cc4c13ecac1a27096b1641972"
+      ],
+      "conclusion": "Iran's claimed strike on the Trend materially advances the existing Hormuz canonical; the rally is contextual mobilization evidence, not a separate article.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "Yemen and Bab al-Mandeb",
+      "focus": "Post-Mokha advance toward Marib and displacement",
+      "sourcesReviewed": [
+        "https://apnews.com/article/22e64e72775886625da676aee92edca2"
+      ],
+      "conclusion": "The focus has shifted from the initial coast seizure to consolidation and pressure toward Marib, with a larger reported displacement burden.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "Lebanon and Hezbollah",
+      "focus": "Paris talks and post-UNIFIL security planning",
+      "sourcesReviewed": [
+        "https://apnews.com/article/14908f2701e7c1caf932c3b885c3a4da"
+      ],
+      "conclusion": "The existing Ali al-Taher canonical should now emphasize Lebanese army capacity and the security architecture after UNIFIL.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "Gaza",
+      "focus": "September 16 building collapse and reconstruction constraints",
+      "sourcesReviewed": [
+        "https://apnews.com/article/b97d6f3c43bfdd8f25242eaa62f15ae7"
+      ],
+      "conclusion": "The collapse is significant humanitarian context but does not fit the existing Yellow Line military canonical cleanly; include it in the daily brief and hold a separate reconstruction dossier until broader primary-source evidence is assembled.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Israeli technology and AI",
+      "focus": "Physical AI and HMI incubators",
+      "sourcesReviewed": [
+        "https://innovationisrael.org.il/en/press_release/tech-incubators-winners/",
+        "https://govextra.gov.il/livedai/en/home/physical-ai/"
+      ],
+      "conclusion": "A new official NIS 80 million five-year deep-tech company-building program is distinct and well sourced enough for a Technology & AI record.",
+      "outcome": "published"
+    },
+    {
+      "topic": "Fake Resistance",
+      "focus": "New viral or synthetic-media claims since September 13",
+      "conclusion": "No new candidate found in the reviewed interval clearly displaced the current NAZA lead or met the threshold for a new fact-check record.",
+      "outcome": "no_action"
+    },
+    {
+      "topic": "Antisemitism",
+      "focus": "New attacks and institutional security developments",
+      "conclusion": "No newly reviewed incident with sufficiently strong primary-source documentation justified replacing the current antisemitism homepage item in this run.",
+      "outcome": "no_action"
+    },
+    {
+      "topic": "October 7 archive",
+      "focus": "Archive freshness and homepage rotation",
+      "conclusion": "The content contract does not create archive material, but both October 7 homepage slots exceeded their dwell window and should return to automatic rotation.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "Government and legislation",
+      "focus": "Current Knesset activity",
+      "sourcesReviewed": [
+        "https://main.knesset.gov.il/Activity/Legislation/Laws/pages/lawsuggestionssearch.aspx?ki=-1&pn=609&sb=latestsessiondate&so=d&st=allsuggestions&t=lawsuggestionssearch"
+      ],
+      "conclusion": "The Knesset is in election recess; no legislative development reviewed in this pass warranted a new editorial record.",
+      "outcome": "no_action"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "gaza-collapse-standalone-hold",
+      "candidate": "Standalone Gaza reconstruction article led by the September 16 building collapse",
+      "reason": "The incident is significant, but a durable reconstruction dossier should combine the collapse with primary material from COGAT, UN/World Bank damage assessments and shelter organizations rather than rely on one current dispatch.",
+      "section": "news",
+      "sources": [
+        "https://apnews.com/article/b97d6f3c43bfdd8f25242eaa62f15ae7"
+      ],
+      "replacement": "Included the verified development in the September 18 daily brief and left the military Yellow Line canonical unchanged."
+    }
+  ],
+  "homepageReview": {
+    "manualVersion": "2026-09-14.1",
+    "sectionsReviewed": [
+      "cover",
+      "news",
+      "fakeResistance",
+      "october7",
+      "people",
+      "system",
+      "support"
+    ],
+    "sectionsChanged": [
+      "cover",
+      "news",
+      "october7",
+      "people"
+    ],
+    "decisions": [
+      {
+        "area": "news",
+        "position": "lead",
+        "action": "replace",
+        "publication": {
+          "operationKey": "hormuz-sept18"
+        },
+        "reason": "The claimed September 18 tanker strike is the freshest high-impact regional security development and the canonical already has strong geographic media."
+      },
+      {
+        "area": "news",
+        "position": "secondary",
+        "action": "replace",
+        "publication": {
+          "operationKey": "yemen-sept18"
+        },
+        "reason": "The Houthi front has materially advanced from coast seizure toward Marib and remains directly relevant to Red Sea shipping."
+      },
+      {
+        "area": "fakeResistance",
+        "action": "retain",
+        "reason": "No newly reviewed narrative or fact-check candidate is stronger than the current NAZA investigation and antisemitism companion."
+      },
+      {
+        "area": "people",
+        "action": "retain",
+        "reason": "The current sports and Technion cards remain visually strong; the new Physical AI incubator record is useful but should not displace them merely because it is newer."
+      }
+    ]
+  }
+}

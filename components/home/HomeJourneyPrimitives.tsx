@@ -112,15 +112,7 @@ export function bandFolio(id: HomepageBandId): string {
 
 /** The folio is a position mark for the eye; the kicker beside it is the label. */
 export function Folio({ band }: { band: HomepageBandId }) {
-  return (
-    <>
-      <span className={styles.folio} aria-hidden="true">{bandFolio(band)}</span>
-      {/* The same numeral again, set huge and faint behind the band's title:
-          the room's number on its wall. Decorative, so hidden from the
-          accessibility tree like the small one. */}
-      <span className={styles.folioGhost} aria-hidden="true">{bandFolio(band)}</span>
-    </>
-  );
+  return <span className={styles.folio} aria-hidden="true">{bandFolio(band)}</span>;
 }
 
 /**
@@ -143,7 +135,9 @@ export function SectionHeading({
   return (
     <header className={styles.sectionHead}>
       <p className={styles.kicker}>{band && <Folio band={band} />}{kicker}</p>
-      <h2 id={id}>{title}</h2>
+      {/* `--chars` lets the stylesheet size the title to fit one line when it is
+          not sliding (no scroll-timeline support, or reduced motion). */}
+      <h2 id={id} style={{ "--chars": title.length } as React.CSSProperties}>{title}</h2>
     </header>
   );
 }

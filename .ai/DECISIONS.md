@@ -2953,3 +2953,31 @@ kept, so this one lifts them — on the homepage only.
   fade and nothing else.
 - The header bar was again left alone, for the reason in the entry above.
 
+## 2026-09-17 — Signal over noise: the homepage is a new concept, on exact black, with a typographic field
+
+The owner rejected both earlier passes ("re-compose" and "rooms") and asked
+for a new concept from scratch. The concept is the site's own sentence: *truth
+has a signal*. Noise is type you cannot quite read; signal is type you can.
+
+- **Exact black.** `--home-ground: #000000`, scoped to `.homeTheme`, which
+  re-points `--ground` for the homepage only — one line rather than nineteen
+  overrides, and the reason the rest of the site is untouched. The owner's own
+  standing brief rules out `#0b0b0b` and its neighbours by name.
+- **The field** (`SignalField.tsx`, `lib/home/signal-corpus.ts`) is a canvas of
+  the desk's vocabulary in three depth layers, pre-rendered to strips and
+  blitted — `fillText` per frame over a cover-sized field is not affordable.
+  Three findings worth keeping: measuring darkness on the **poster alone** put
+  type across the lit mane and none in the dark left column, so the mask reads
+  luminance **through a model of `.heroScrim`**; the field must be cleared off
+  the cover's own words, and the boxes are read from the DOM
+  (`[data-field-clear]`) rather than guessed, because the masthead moves with
+  the viewport; and at 14px/0.34 alpha it read as rows of labels — the one
+  thing the brief forbids — so the perception order is bought with fine size,
+  close pitch and low ink.
+- **Everything else got quieter.** Rooms, grain, plates, wall numerals and the
+  per-band fade-ups are gone. What is left is black, type, pictures and one
+  hairline weight, plus the giant band names.
+- **October 7 is the silence** in a page whose subject is noise.
+- Unexercised in this edition: the claim-as-noise treatment needs a
+  `narrative_watch` record, and today's Fake Resistance pair are both cases.
+

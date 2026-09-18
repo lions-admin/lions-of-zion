@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { SITE_NAVIGATION } from "@/lib/site-navigation";
 import { JourneyLink } from "@/components/home/HomeJourneyPrimitives";
 import { HeroVideo } from "@/components/sections/HeroVideo";
+import { SignalField } from "@/components/home/SignalField";
 import { HomepageJourney } from "@/components/home/HomepageJourney";
 import { getHomepageEdition } from "@/lib/homepage";
 import { formatEditionDate } from "@/lib/format-date";
@@ -79,6 +80,15 @@ export default async function Page() {
                 left so the type sits on darkness while the animal stays lit.
                 See `.heroScrim`. */}
             <div className={styles.heroScrim} />
+            {/* The signal field, last in the layer and so over the scrim: the
+                scrim is the darkness the words live in. It is `aria-hidden`,
+                takes no pointer, and is absent without JavaScript. */}
+            <SignalField
+              className={styles.signalField}
+              posterWide="/video/lion-hero-poster-desktop.jpg"
+              posterTall="/video/lion-hero-poster-portrait.jpg"
+              clearSelector="[data-field-clear]"
+            />
           </div>
 
           <div className={styles.masthead}>
@@ -98,7 +108,7 @@ export default async function Page() {
                 Signal" since VA-62 while the cover said something else. The
                 two spans keep the break the composer chose — claim, then the
                 three verbs — where the measure is too narrow for one line. */}
-            <p className={styles.standfirst}>
+            <p className={styles.standfirst} data-field-clear>
               <span>Truth has a signal.</span>{" "}
               <span>Find it, check it, share it.</span>
             </p>
@@ -112,7 +122,7 @@ export default async function Page() {
                 path; it is noise beside the first one, so the cover keeps the
                 action and `/information-war` keeps its one entrance in the
                 system band. */}
-            <div className={styles.actions}>
+            <div className={styles.actions} data-field-clear>
               <JourneyLink href="/geopolitical-brief">Read the latest</JourneyLink>
             </div>
           </div>
@@ -127,7 +137,7 @@ export default async function Page() {
               reporting is read before the ask. Every field is prerendered
               and the headline reserves two lines whatever its length, so
               the band owns its height at first paint and shifts nothing. */}
-          <div className={styles.editionRail}>
+          <div className={styles.editionRail} data-field-clear>
             <p className={styles.editionRailMeta}>
               <span>{editionDateLabel(edition.editionDate)}</span>
               {lead && (

@@ -87,17 +87,30 @@ cover links, warnings or media credits on mobile or enlarged text.
   tells its kinds apart by typographic voice (`data-voice`), with the label
   in a margin column.
 
-### Rooms and motion — September 17, 2026 (second ruling the same day)
+### Signal over noise — September 17, 2026 (third ruling, governing)
 
-- The desktop cover is a full screen again; the cover line keeps the day's
-  lead on it. One load sequence plays once, transform and opacity only.
-- A band's lead with a landscape picture sets its headline over the picture's
-  lower scrim (`HomeMedia` `overlay`); the headline still precedes the image
-  in the DOM and the caption, disclosure first, is never covered. A portrait
-  or a record with no picture keeps the plain order.
-- Entrances are CSS scroll-driven (`animation-timeline: view()`), behind
-  `@supports` and `prefers-reduced-motion: no-preference`; without either the
-  page is simply finished. October 7 only fades and answers no pointer.
+The rooms, plates, grain and per-band entrances of the ruling above are
+withdrawn; what replaced them is the concept below.
+
+- **The homepage stands on exact black** (`--home-ground: #000000`), set once
+  on `.homeTheme`. Every other page keeps `--ground`.
+- **The cover carries a signal field** (`SignalField.tsx`): the desk's own
+  vocabulary drawn as typographic texture in the darkness, cleared off the
+  lion by a luminance mask that reads the poster *through* the scrim, and
+  cleared off the cover's reading text by `[data-field-clear]`. It is
+  `aria-hidden`, takes no pointer, is one static frame under reduced motion,
+  and is absent entirely without JavaScript.
+- **Noise and signal are the page's grammar.** A claim in circulation is set
+  as noise — ember, italic, scan-lined, and never above `--journey-aside`;
+  the desk's finding under it is set as signal, upright and ivory. Status
+  still precedes the claim.
+- **A band's name is the page's largest type**, on one line, drawn across the
+  screen by the reader's scroll where the browser supports a scroll timeline
+  and sized to the measure where it does not.
+- **October 7 is silent**: no word stream, no travelling title, no hover, no
+  entrance.
+- Word streams (`WordStream.tsx`) are decorative vocabulary only, `aria-hidden`,
+  and never carry October 7 material.
 
 ## Voice — September 8, 2026
 

@@ -67,6 +67,14 @@ describe("MOTION-002 — the animation-loop inventory", () => {
    */
   const KNOWN_FRAME_LOOPS = [
     "components/pipeline-visualizer/hooks/usePipelineSimulation.ts",
+    /* The homepage cover's signal field, registered 2026-09-17 with the four
+       properties this list exists to ask for: it cancels its frame on unmount
+       and on every pause; it never starts under `prefers-reduced-motion:
+       reduce`, where it draws exactly one frame instead; an
+       IntersectionObserver stops it once the cover leaves the viewport; and a
+       `visibilitychange` listener stops it with the tab. It also caps itself
+       at 30 fps and at DPR 2. */
+    "components/home/SignalField.tsx",
   ];
 
   /**

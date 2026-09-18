@@ -14,6 +14,7 @@ import {
   rankOf,
 } from "./HomeJourneyPrimitives";
 import styles from "./homepage-journey.module.css";
+import { WordStream } from "./WordStream";
 import narrativeStyles from "./HomeNarrativesSection.module.css";
 import { FAKE_RESISTANCE_GRAMMAR, FAKE_RESISTANCE_INTRO } from "@/lib/fake-resistance-grammar";
 import { homepageBand } from "@/lib/homepage-bands";
@@ -48,6 +49,10 @@ export function HomeNarrativesSection({
       <p className={styles.sectionIntro}>
         {FAKE_RESISTANCE_INTRO}
       </p>
+      {/* The one band where the noise comes back, and it comes back in the
+          adversarial colour: these are the words the desk is working against,
+          not words it is asserting. */}
+      <WordStream groups={["disinformation", "information"]} tone="ember" seed={2} />
       <div className={styles.narrativeSpread}>
         {section.items.map((item, index) => {
           const status =

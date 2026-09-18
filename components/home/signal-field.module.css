@@ -1,0 +1,27 @@
+/* The field is atmosphere: it never takes a pointer, and without scripting it
+   is not there at all — the cover is then the photograph and the type, which
+   is what it was before this existed. */
+.root {
+  pointer-events: none;
+  font-family: var(--face-text);
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 900ms var(--ease-out);
+}
+
+.canvas[data-ready] {
+  opacity: 1;
+}
+
+@media (scripting: none) {
+  .root { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .canvas { transition: none; }
+}

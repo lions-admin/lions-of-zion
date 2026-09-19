@@ -1,0 +1,363 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "claude-daily-2026-09-19-0001",
+  "composer": "Claude",
+  "createdAt": "2026-09-19T12:00:00Z",
+  "creates": [
+    {
+      "key": "daily-brief-2026-09-19",
+      "publication": {
+        "kind": "brief",
+        "section": "daily_brief",
+        "canonicalStoryId": "daily-brief-2026-09-19",
+        "title": "September 19 briefing: a Lebanon border strike, Saudi Arabia's first Riyadh aerial-threat alert, and Gaza's stalled governance track",
+        "summary": "The IDF struck Hezbollah positions in south Lebanon after an explosive device wounded two soldiers; Saudi Arabia issued nationwide, including a first-ever Riyadh, alerts over a hostile aerial threat amid escalating Houthi attacks; and Gaza's postwar governance plan remains stalled ahead of Israel's late-October election. Separately, the Venice-feted documentary NAZA drew a sharper IDF rebuttal, and Weizmann Institute researchers published a new finding on stress and metabolism genetics.",
+        "body": "## Lebanon border\n\nThe IDF said it struck Hezbollah positions in southern Lebanon on September 19 after an explosive device planted by the group lightly wounded two Israeli soldiers. The incident was reported as the day's lead security story by the Times of Israel, Haaretz and The Jerusalem Post, all describing a strike on Hezbollah-linked infrastructure in response. No Lebanese government or Hezbollah statement on the incident was available at the time of writing, and exact strike locations and munitions have not been independently confirmed beyond wire and live-blog reporting. See the developing story for the fuller pattern of border friction since the September 11 Ali al-Taher operation.\n\n## Saudi Arabia's first Riyadh alert\n\nSaudi Arabia issued alerts across the country, including what multiple outlets described as a first-ever such alert in the capital Riyadh, over a \"hostile aerial threat,\" as Houthi attacks out of Yemen have escalated in recent days. Reports described flames and smoke reported near Riyadh's airport area. The alerts underscore that Iran-aligned actors remain active on more than one front this week, alongside the Lebanon incident and the ongoing Houthi push toward Marib on Yemen's Red Sea coast.\n\n## Gaza governance stalled before Israel's election\n\nGaza's postwar governance track — including the U.S.-led \"Board of Peace\" plan for an international stabilization force — remains effectively on hold pending Israel's legislative election, scheduled for late October. A Board of Peace official was reported as saying there is limited leverage to press Israel's government before the vote. Separately, tracking by FDD's Long War Journal logged 14 Gaza ceasefire-related violations between September 4 and 15, a reminder that the truce remains fragile even without a change in the political track.\n\n## Fake Resistance: NAZA documentary controversy sharpens\n\nThe Venice-feted documentary \"NAZA,\" which alleges IDF-authorized mass-casualty strikes in Gaza based on anonymous testimony, has drawn an escalating Israeli response: reports that the IDF chief has floated legal action against the filmmakers and ordered a probe into how classified material reached the production, and that Israel's culture minister has threatened to seek revocation of the directors' citizenship. A fact-check review found the film's most quantified claim — a single strike said to have accepted up to 500 civilian deaths — is not, on current public record, tied to any identifiable target, date, location, commanding officer or casualty count. Full coverage and the evidentiary rundown is on the Fake Resistance desk.\n\n## People of Israel: a gene that never clocks out\n\nWeizmann Institute of Science researchers, publishing in the peer-reviewed journal Endocrinology, report that the gene Orthopedia (Otp) — long understood only to wire the brain's hypothalamus before birth — remains active in the adult brain and continues to govern stress response, thyroid function and metabolic balance for life. The finding, from the labs of Prof. Gil Levkowitz and Prof. Alon Chen, is a mouse study but reframes where researchers look for the roots of stress and metabolic disorders. Full story on The People of Israel.\n\n## Watch next\n\nAny Lebanese or Hezbollah statement on today's border incident; confirmation and scale of the Saudi Arabia aerial-threat alerts; movement on a Lebanese-army donor conference and post-UNIFIL arrangements; the IDF's promised review of the NAZA claims; and further reporting on the Otp gene findings' relevance to human stress and metabolic disorders.",
+        "language": "en",
+        "editorialTopic": "September 19 regional and Israel briefing",
+        "topicTags": [
+          "lebanon",
+          "saudi-arabia",
+          "houthis",
+          "gaza",
+          "naza-documentary",
+          "israeli-science"
+        ],
+        "arena": "Israel and Middle East"
+      },
+      "sources": [
+        {
+          "url": "https://www.timesofisrael.com/liveblog-september-19-2026/",
+          "title": "IDF says it struck Hezbollah sites after terror group's explosive lightly wounded two troops",
+          "publisher": "Times of Israel",
+          "publishedAt": "2026-09-19T00:00:00+03:00"
+        },
+        {
+          "url": "https://www.haaretz.com/israel-news/israel-security/2026-09-19/ty-article-live/saudi-arabia-sounds-alarm-in-capital-city-riyadh/000001a0-b76c-d160-a3ae-b7ef6d210000",
+          "title": "Live Updates: IDF Says It Struck Hezbollah in Southern Lebanon After Forces Hurt by Explosion",
+          "publisher": "Haaretz",
+          "publishedAt": "2026-09-19T00:00:00+03:00"
+        },
+        {
+          "url": "https://www.jpost.com/israel-news/defense-news/article-907843",
+          "title": "IDF strikes Lebanon after two Israeli soldiers injured by Hezbollah terrorist",
+          "publisher": "Jerusalem Post"
+        },
+        {
+          "url": "https://www.usnews.com/news/world/articles/2026-09-19/saudi-arabia-issues-alerts-across-the-country-for-aerial-threat-and-other-mideast-developments",
+          "title": "Saudi Arabia Issues Alerts Across the Country for Aerial Threat, and Other Mideast Developments",
+          "publisher": "Associated Press (via US News)",
+          "publishedAt": "2026-09-19T00:00:00Z"
+        },
+        {
+          "url": "https://www.longwarjournal.org/archives/2026/09/israeli-elections-stall-board-of-peace-plans-idf-reports-14-gaza-ceasefire-violations-sept-4-15.php",
+          "title": "Israeli elections stall Board of Peace plans, IDF reports 14 Gaza ceasefire violations Sept. 4-15",
+          "publisher": "FDD's Long War Journal",
+          "publishedAt": "2026-09-15T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "key": "saudi-arabia-houthi-alert-2026-09-19",
+      "publication": {
+        "kind": "news_update",
+        "section": "news",
+        "canonicalStoryId": "saudi-arabia-houthi-aerial-threat-alerts-2026",
+        "title": "Saudi Arabia issues nationwide alerts, including a first for Riyadh, as Houthi attacks escalate",
+        "summary": "Saudi Arabia issued alerts across the country over a hostile aerial threat, including what multiple outlets described as an unprecedented alert in the capital Riyadh, as Houthi attacks out of Yemen have intensified in recent days.",
+        "body": "Saudi Arabia issued a wave of alerts across the country on September 19 warning of a hostile aerial threat, including what was reported as the first such alert ever issued for the capital, Riyadh. The Associated Press, in a wire report carried by outlets including US News, and the Times of Israel's live coverage both described the alerts and reports of flames and smoke near Riyadh's airport area, though the exact nature, origin and outcome of the threat were not independently confirmed in the sources reviewed.\n\nThe alerts come amid an intensifying campaign of Houthi attacks out of Yemen. In recent days the Iran-aligned group has been reported consolidating territorial gains along Yemen's Red Sea coast — including the port city of Mokha — and pressing toward the oil-rich Marib region further east, according to prior Associated Press reporting. Shipping through the Bab al-Mandeb strait has continued at reduced and uneven levels under the threat of Houthi attacks rather than being fully closed.\n\nA nationwide alert reaching Riyadh itself, far from the Yemeni border and the Red Sea coast, would mark a geographic escalation if confirmed as a genuine long-range threat rather than a precautionary measure. Saudi Arabia has for years faced intermittent Houthi missile and drone attacks aimed at its territory, including strikes on oil infrastructure in past years, but an alert specifically inside the capital is unusual by that history.\n\nNo official Saudi government statement giving a full account of the incident, its cause, or any resulting damage or casualties was available in the sources reviewed for this report. This article will be updated as the Saudi government, the Houthi movement, or independent reporting provide further confirmed detail.\n\nThe episode is relevant to Israeli and regional security coverage because it illustrates that Iran-aligned pressure remains active on more than one front simultaneously — Yemen's Houthis toward Saudi Arabia and the Red Sea, and Hezbollah on Israel's northern border, where the IDF also reported a strike response on September 19 after an explosive device wounded two soldiers.",
+        "language": "en",
+        "editorialTopic": "Gulf and Red Sea security",
+        "topicTags": [
+          "saudi-arabia",
+          "houthis",
+          "yemen",
+          "regional-security"
+        ],
+        "primaryActor": "Houthi movement",
+        "arena": "Gulf / Red Sea"
+      },
+      "sources": [
+        {
+          "url": "https://www.usnews.com/news/world/articles/2026-09-19/saudi-arabia-issues-alerts-across-the-country-for-aerial-threat-and-other-mideast-developments",
+          "title": "Saudi Arabia Issues Alerts Across the Country for Aerial Threat, and Other Mideast Developments",
+          "publisher": "Associated Press (via US News)",
+          "publishedAt": "2026-09-19T00:00:00Z"
+        },
+        {
+          "url": "https://www.timesofisrael.com/liveblog_entry/saudi-arabia-issues-alert-for-potential-danger-in-capital-riyadh-amid-houthi-attacks/",
+          "title": "Saudi Arabia issues alert for potential danger in capital Riyadh amid Houthi attacks",
+          "publisher": "Times of Israel",
+          "publishedAt": "2026-09-19T00:00:00+03:00"
+        }
+      ]
+    },
+    {
+      "key": "weizmann-otp-gene-study-2026-09",
+      "publication": {
+        "kind": "news_update",
+        "section": "science_medicine",
+        "canonicalStoryId": "weizmann-otp-gene-adult-brain-2026",
+        "title": "The gene that never clocks out: Weizmann scientists show a brain-building program from before birth keeps governing stress and metabolism for life",
+        "summary": "Weizmann Institute of Science researchers have found that Orthopedia (Otp), a gene known for decades only for wiring the brain's hypothalamus before birth, remains switched on in adulthood and keeps steering the body's stress response, thyroid function and energy balance.",
+        "body": "Some genes finish their job before a person is even born. Orthopedia, or Otp, was long filed under that category: a \"developmental\" gene, active for a narrow window in the embryo, helping lay down the wiring of the hypothalamus, the brain region that links the nervous system to hormones. Once the brain was built, the assumption went, Otp's work was done.\n\nA new study from the Weizmann Institute of Science, from the lab of Prof. Gil Levkowitz in collaboration with Prof. Alon Chen's laboratory, challenges that assumption. Publishing in the peer-reviewed journal Endocrinology, the team showed that Otp does not switch off after birth. It stays active in the adult forebrain, continuing to run the hormonal circuitry that determines how an organism copes with stress, regulates its thyroid, and manages its metabolic balance.\n\nThe researchers reached this conclusion by disrupting the Otp gene specifically in the forebrains of adult male mice, animals whose brains had already finished developing normally. If Otp were purely a construction gene, silencing it in a fully formed adult brain should have changed nothing. Instead, the mice's ability to cope with stress was impaired, their thyroid function was thrown off, and their metabolic balance was disrupted.\n\n\"We found that the same genetic program that shapes the brain's wiring during embryonic development continues to play a central role in regulating the organism's stress response and energy balance throughout its lifetime,\" Levkowitz said, describing the core result, according to the Weizmann Institute's own science communications and reporting that followed.\n\nThe finding reframes where scientists might look for the roots of stress and metabolic disorders: rather than treating brain development and adult physiology as separate stories, the work suggests they run on a shared genetic program that keeps making real-time adjustments to the same hormonal systems it first assembled before birth. Levkowitz framed the medical promise carefully, in terms of precision rather than a cure: understanding the mechanism in more detail, he said, may one day allow more precise treatment of stress and metabolic dysfunction by nudging the system back into balance rather than shutting it down.\n\nIt is worth being precise about what has and has not been shown. This is a study in adult male mice, and the path from a hypothalamic gene circuit in rodents to a treatment for human anxiety or metabolic illness is neither short nor guaranteed. What the paper does establish, in a peer-reviewed venue, is a previously unrecognized adult function for a gene neuroscience had filed away as finished — the kind of careful, unglamorous biology from which real medical advances eventually grow. It is also a distinctly Israeli contribution to the global literature on stress biology and metabolic regulation, made in a Rehovot laboratory and now available for researchers anywhere to build on.",
+        "language": "en",
+        "editorialTopic": "Israeli basic-science research",
+        "topicTags": [
+          "weizmann-institute",
+          "neuroscience",
+          "genetics",
+          "israeli-science"
+        ],
+        "primaryActor": "Weizmann Institute of Science",
+        "arena": "Israel"
+      },
+      "sources": [
+        {
+          "url": "https://academic.oup.com/endo/article-abstract/167/4/bqag029/8525632",
+          "title": "Disruption of the developmental factor Otp in the adult male forebrain reveals its diverse physiological functions",
+          "publisher": "Endocrinology (Oxford University Press)",
+          "official": true
+        },
+        {
+          "url": "https://pubmed.ncbi.nlm.nih.gov/41840852/",
+          "title": "PubMed record: Disruption of the developmental factor Otp in the adult male forebrain",
+          "publisher": "National Library of Medicine (PubMed)",
+          "official": true
+        },
+        {
+          "url": "https://wis-wander.weizmann.ac.il/life-sciences/brain-wiring-stress-and-metabolism-one-gene-has-finger-switch",
+          "title": "Brain wiring, stress and metabolism: one gene has its finger on the switch",
+          "publisher": "Weizmann Institute of Science",
+          "official": true
+        },
+        {
+          "url": "https://www.timesofisrael.com/israeli-scientists-find-multitasking-gene-controls-mood-and-metabolism-in-mice/",
+          "title": "Israeli scientists find multitasking gene controls mood and metabolism in mice",
+          "publisher": "Times of Israel"
+        }
+      ]
+    }
+  ],
+  "updates": [
+    {
+      "key": "lebanon-sept19",
+      "target": {
+        "canonicalStoryId": "lebanon-ali-al-taher-ridge-2026-09"
+      },
+      "publication": {
+        "title": "Lebanon border: IDF strikes Hezbollah sites after explosive device wounds two soldiers",
+        "summary": "The IDF said it struck Hezbollah positions in southern Lebanon on September 19 after an explosive device planted by the group lightly wounded two Israeli soldiers, the latest flare-up since the September 11 Ali al-Taher operation and the stalled post-UNIFIL security track.",
+        "body": "A new flare-up on the Lebanon border on September 19 underlines how unresolved the security track described in this story's earlier updates remains. The IDF said an explosive device attributed to Hezbollah detonated near Israeli troops, lightly wounding two soldiers; in response, the military said it struck Hezbollah positions and related infrastructure in southern Lebanon. The incident was reported as the day's lead security item by the Times of Israel, Haaretz and The Jerusalem Post.\n\nNo Lebanese government or Hezbollah statement on the incident, and no independently confirmed casualty count, strike location or munitions detail beyond the wire and live-blog level, was available in the sources reviewed for this update. That evidentiary gap is consistent with the pattern this story has already tracked: Israel and Hezbollah continue to give differing, separately attributed accounts of individual incidents even as the broader political track — Lebanese army capacity, international donor support and a post-UNIFIL security arrangement, discussed by President Aoun, President Macron and King Abdullah II in Paris on September 17 — remains stalled.\n\nWhat changed since September 18: a new attributed IDF-Hezbollah exchange on the ground, alongside the still-unresolved political question of whether Lebanon's army can assume enough authority in the south to make the June framework workable.\n\nWatch next: any Lebanese or Hezbollah statement on today's incident, independent confirmation of strike locations and casualties, a new Lebanese-army donor conference date, and concrete deployment or disarmament movement.",
+        "changeSummary": "Add the September 19 IED attack on Israeli soldiers and the IDF's strikes on Hezbollah positions in response, while noting that neither side's account beyond wire/live-blog level has been independently confirmed."
+      },
+      "sources": [
+        {
+          "url": "https://www.timesofisrael.com/liveblog-september-19-2026/",
+          "title": "IDF says it struck Hezbollah sites after terror group's explosive lightly wounded two troops",
+          "publisher": "Times of Israel",
+          "publishedAt": "2026-09-19T00:00:00+03:00"
+        },
+        {
+          "url": "https://www.haaretz.com/israel-news/israel-security/2026-09-19/ty-article-live/saudi-arabia-sounds-alarm-in-capital-city-riyadh/000001a0-b76c-d160-a3ae-b7ef6d210000",
+          "title": "Live Updates: IDF Says It Struck Hezbollah in Southern Lebanon After Forces Hurt by Explosion",
+          "publisher": "Haaretz",
+          "publishedAt": "2026-09-19T00:00:00+03:00"
+        },
+        {
+          "url": "https://www.jpost.com/israel-news/defense-news/article-907843",
+          "title": "IDF strikes Lebanon after two Israeli soldiers injured by Hezbollah terrorist",
+          "publisher": "Jerusalem Post"
+        }
+      ]
+    },
+    {
+      "key": "naza-sept19",
+      "target": {
+        "canonicalStoryId": "naza-documentary-ai-gaza-claims"
+      },
+      "publication": {
+        "title": "NAZA fallout sharpens: IDF chief floats legal action, fact-check finds the film's key casualty claim unsupported by public record",
+        "summary": "The Israeli response to the Venice-feted documentary NAZA has escalated: reports that the IDF chief is weighing legal action against the filmmakers and ordered a probe into leaked material, and that Israel's culture minister has threatened to seek revocation of the directors' citizenship. A fact-check review found the film's central quantified claim, a single strike said to have accepted up to 500 civilian deaths, is not tied to any identifiable target, date or record in the public domain.",
+        "body": "The dispute over \"NAZA,\" the documentary that won the Special Jury Prize at the Venice Film Festival on September 10, has escalated in the days since its premiere. According to the Times of Israel, the IDF chief has floated legal action against the directors, Yuval Abraham and Rachel Szor, and ordered an internal probe into how classified material reportedly reached the production. Israel's culture minister, Miki Zohar, was reported by the Jewish Telegraphic Agency to have called the film \"vile\" and said he would pursue revoking the directors' Israeli citizenship. The IDF has separately asked the filmmakers to screen the complete film for military officials so it can respond in detail, according to the Times of Israel.\n\nThe backlash has also come from outside government. Freed hostage Rom Braslavski posted on social media that the filmmakers were \"traitors,\" a comment reported by the Jerusalem Post as part of a wider wave of domestic criticism, distinct from the IDF's own institutional response covered in this story's first report.\n\nOn the evidentiary question this story exists to track, a review published by Israel News Pulse examined the film's most quantified and widely repeated allegation, that a single strike on a Hamas target was authorized with an anticipated toll of up to 500 civilian deaths, and found no publicly identifiable target, strike date, location, commanding officer, authorization record or casualty count attached to that testimony. That does not establish the claim is false; the film's anonymous sources may hold information not in the public record, and soldiers alleging wrongdoing by their own military have an evident reason to avoid identification, particularly given the threats now directed at the filmmakers themselves. It does mean the claim remains, on current public evidence, an allegation under active dispute rather than an established fact.\n\nWhat is separately established, and predates this film by roughly two years, is that the IDF uses AI-assisted targeting-support tools; that reporting is not in serious dispute. What NAZA adds and what remains contested is whether commanders knowingly accepted mass civilian casualties using those tools, a question the IDF flatly denies and the film's sources assert from testimony that cannot currently be independently checked.\n\nThis site has not viewed the film and continues to be unable to independently confirm either the specific claims made in it or the IDF's characterization of them.\n\nWhat changed since September 13: the Israeli institutional and public response has hardened considerably, moving from denial to threatened legal action against the filmmakers and a classified-material probe, while a published fact-check has specifically examined, and been unable to corroborate, the film's central casualty claim.\n\nWatch next: whether the IDF's promised review or legal proceedings produce public findings; whether any of the film's 24 anonymous sources go on record; and any independent, non-Israeli and non-activist forensic verification of the 500-casualty claim.",
+        "narrativeWatchDetails": {
+          "exactClaim": "A documentary titled 'NAZA', made by Israeli filmmakers and premiered at the Venice International Film Festival, alleges based on anonymous testimony from 24 individuals described as former IDF and intelligence personnel that the IDF's use of AI-assisted targeting systems in Gaza amounted to knowingly accepting mass civilian casualties, including one testimony describing a strike authorized with an anticipated toll of up to 500 civilian deaths.",
+          "propagators": [
+            "The NAZA documentary's filmmakers",
+            "Al Jazeera",
+            "The New Arab",
+            "Democracy Now",
+            "World Socialist Web Site",
+            "Juan Cole / Informed Comment"
+          ],
+          "arenas": [
+            "Venice Film Festival press coverage",
+            "X / Twitter",
+            "Al Jazeera and allied outlets",
+            "Israeli press covering the film and the backlash"
+          ],
+          "trendDirection": "rising",
+          "israeliPosition": "The IDF Spokesperson's Unit categorically rejects the allegations, saying strike decisions are made by human personnel only under international law with efforts to minimize civilian harm, and that the anonymous testimonies cannot be independently verified. The IDF chief has floated legal action against the filmmakers and ordered a probe into leaked classified material; Israel's culture minister has threatened to seek revocation of the directors' citizenship.",
+          "securityContext": "The IDF's use of AI-assisted targeting-support tools (reported under names including Lavender and 'The Gospel'/Habsora) was first reported independently of this film, roughly two years earlier, and is not itself seriously disputed. What NAZA adds, and what remains contested, is the claim that commanders knowingly accepted very high anticipated civilian casualties using those tools.",
+          "supportingEvidenceIds": [],
+          "contradictingEvidenceIds": [],
+          "verificationState": "disputed",
+          "knownUnknowns": [
+            "Whether any specific strike, date or location corresponds to the testimony describing an anticipated toll of up to 500 civilian deaths.",
+            "Whether the IDF's internal review or any legal proceeding will produce public findings.",
+            "Whether any of the film's 24 anonymous sources will go on record.",
+            "Whether independent, non-Israeli and non-activist forensic verification of the casualty claim will emerge."
+          ]
+        },
+        "changeSummary": "Add the escalating Israeli institutional response (floated legal action, a classified-material probe, a citizenship-revocation threat) and a published fact-check finding the film's central casualty claim unsupported by any identifiable public record; keep the verification state at disputed."
+      },
+      "sources": [
+        {
+          "url": "https://www.timesofisrael.com/idf-chief-floats-legal-action-naza-documentary/",
+          "title": "IDF chief floats legal action against 'NAZA' film, orders probe of leaked material",
+          "publisher": "Times of Israel"
+        },
+        {
+          "url": "https://www.jta.org/2026/09/15/israeli-army-weighs-legal-action-against-naza-filmmakers-amid-calls-to-revoke-their-citizenship",
+          "title": "Israeli army weighs legal action against NAZA filmmakers amid calls to revoke their citizenship",
+          "publisher": "Jewish Telegraphic Agency",
+          "publishedAt": "2026-09-15T00:00:00Z"
+        },
+        {
+          "url": "https://www.jpost.com/israel-news/article-908592",
+          "title": "Former hostages blast 'NAZA', accuse filmmakers of erasing their suffering",
+          "publisher": "Jerusalem Post"
+        },
+        {
+          "url": "https://www.israelnewspulse.com/naza-fact-checked",
+          "title": "NAZA Fact Checked: The Explosive Claims the Documentary Cannot Prove",
+          "publisher": "Israel News Pulse"
+        }
+      ]
+    }
+  ],
+  "homepage": {
+    "news": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "operationKey": "lebanon-sept19"
+        }
+      },
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "operationKey": "saudi-arabia-houthi-alert-2026-09-19"
+        }
+      }
+    }
+  },
+  "siteRecommendations": [
+    "This composer's network sandbox could not reach lionsofzion.io, apnews.com, timesofisrael.com or most other news domains via direct fetch this run (egress proxy blocked every domain tried, including a neutral test domain) — only the WebSearch tool's own retrieval worked. As a result this run could not read GET /api/internal/chatgpt/editorial-context before composing, so no swap was proposed for the Fake Resistance or People of Israel homepage slots even though new content was published to both sections this run. Recommend either restoring domain egress for this composer's environment or having a human/next run confirm and place the updated NAZA record and the new Weizmann Otp gene story if warranted.",
+    "No image could be sourced, fetched or generated this run: this composer does not have the upload_generated_editorial_image tool available, and no exact-source or official image could be confirmed with clean, checkable rights within the reachable tooling. All three new/updated records publish text-led; recommend a follow-up run or human editor attach imagery where a clean, attributable source can be confirmed.",
+    "A possible antisemitism-desk item (fireworks reportedly launched at a London synagogue on Rosh Hashanah, and reports of separate mezuzah vandalism and a foiled synagogue-poisoning plot in Pennsylvania) was found only through a secondary aggregator roundup; it was not published this run for insufficient primary-source confirmation (see the logged veto) and should be checked directly by a following run or a human editor."
+  ],
+  "research": [
+    {
+      "topic": "Israel/Lebanon/regional security, last 24-48 hours",
+      "focus": "Confirming and sourcing the day's most consequential, distinct developments for the News & Analysis lead and companion slots",
+      "sourcesReviewed": [
+        "https://www.timesofisrael.com/liveblog-september-19-2026/",
+        "https://www.haaretz.com/israel-news/israel-security/2026-09-19/ty-article-live/saudi-arabia-sounds-alarm-in-capital-city-riyadh/000001a0-b76c-d160-a3ae-b7ef6d210000",
+        "https://www.jpost.com/israel-news/defense-news/article-907843",
+        "https://www.usnews.com/news/world/articles/2026-09-19/saudi-arabia-issues-alerts-across-the-country-for-aerial-threat-and-other-mideast-developments",
+        "https://www.longwarjournal.org/archives/2026/09/israeli-elections-stall-board-of-peace-plans-idf-reports-14-gaza-ceasefire-violations-sept-4-15.php"
+      ],
+      "conclusion": "The Lebanon border IED/strike exchange and Saudi Arabia's nationwide (including first-ever Riyadh) aerial-threat alerts are the two most consequential, independently corroborated developments in the window; both were folded into today's daily brief, the Lebanon incident was added to its existing developing-story canonical, and the Saudi Arabia alert was published as a standalone record since no matching canonical existed. No fresh, independently confirmable detail was found today on the Hormuz tanker claim or the Yemen Marib advance, so neither of those canonicals was touched.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "NAZA documentary: escalation of the Israeli institutional response and a published fact-check",
+      "sourcesReviewed": [
+        "https://www.timesofisrael.com/idf-chief-floats-legal-action-naza-documentary/",
+        "https://www.jta.org/2026/09/15/israeli-army-weighs-legal-action-against-naza-filmmakers-amid-calls-to-revoke-their-citizenship",
+        "https://www.jpost.com/israel-news/article-908592",
+        "https://www.israelnewspulse.com/naza-fact-checked"
+      ],
+      "conclusion": "Genuine developing-story material since the September 13 creation: an escalated IDF/government response (floated legal action, a classified-material probe, a citizenship-revocation threat) and a published fact-check that could not corroborate the film's central casualty claim. Updated the existing narrative_watch canonical rather than creating a duplicate; kept the verification state at disputed, consistent with the evidence found.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "The People of Israel: a substantive recent Israeli science, medicine, technology or achievement story",
+      "sourcesReviewed": [
+        "https://academic.oup.com/endo/article-abstract/167/4/bqag029/8525632",
+        "https://pubmed.ncbi.nlm.nih.gov/41840852/",
+        "https://wis-wander.weizmann.ac.il/life-sciences/brain-wiring-stress-and-metabolism-one-gene-has-finger-switch",
+        "https://www.timesofisrael.com/israeli-scientists-find-multitasking-gene-controls-mood-and-metabolism-in-mice/"
+      ],
+      "conclusion": "A peer-reviewed Weizmann Institute finding (Otp gene's continued adult role in stress, thyroid and metabolic regulation) was substantive, verifiable and clearly attributable, and was published under science_medicine. It was not proposed for a homepage placement swap this run because the current People of Israel homepage state could not be read (see site recommendations).",
+      "outcome": "published"
+    },
+    {
+      "topic": "Antisemitism monitoring, last several days",
+      "sourcesReviewed": [
+        "https://combatantisemitism.org/cam-news/hooded-gang-launches-fireworks-at-london-synagogue-on-rosh-hashanah"
+      ],
+      "conclusion": "A reported incident (fireworks launched at a London synagogue on Rosh Hashanah) and other referenced items (mezuzah vandalism, a foiled synagogue-poisoning plot) were found only through a secondary aggregator; no primary police, community or major-outlet confirmation could be reached in this environment. Held rather than published; see the logged veto.",
+      "outcome": "vetoed"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "antisemitism-london-synagogue-sept2026",
+      "candidate": "Fireworks launched at Lauderdale Road Synagogue (Spanish & Portuguese Sephardi Community), Maida Vale, London, on the second day of Rosh Hashanah; also referenced reports of mezuzah vandalism and a foiled synagogue-poisoning plot in Pennsylvania around the same period.",
+      "reason": "Only a secondary aggregator roundup (Combat Antisemitism Movement) was reachable for the lead incident, and the other two referenced items came from general tracking sources without a primary police, community or major-outlet statement this composer could fetch and read directly. That falls short of the sourcing bar for an antisemitism-desk report, so nothing was published rather than running an unverified account of an incident affecting a specific community's safety.",
+      "section": "antisemitism",
+      "sources": [
+        "https://combatantisemitism.org/cam-news/hooded-gang-launches-fireworks-at-london-synagogue-on-rosh-hashanah"
+      ],
+      "ownerDecisionRequested": true
+    }
+  ],
+  "homepageReview": {
+    "manualVersion": "2026-09-14.1",
+    "sectionsReviewed": [
+      "cover",
+      "news",
+      "fakeResistance",
+      "october7",
+      "people",
+      "system",
+      "support"
+    ],
+    "sectionsChanged": [
+      "cover",
+      "news"
+    ],
+    "decisions": [
+      {
+        "area": "news",
+        "position": "lead",
+        "action": "replace",
+        "publication": {
+          "operationKey": "lebanon-sept19"
+        },
+        "reason": "A new, independently corroborated IDF-Hezbollah exchange on the border directly involving Israeli soldiers is more consequential and Israel-central than the prior day's Hormuz tanker claim, and continues an existing developing story."
+      },
+      {
+        "area": "news",
+        "position": "secondary",
+        "action": "replace",
+        "publication": {
+          "operationKey": "saudi-arabia-houthi-alert-2026-09-19"
+        },
+        "reason": "Saudi Arabia's first-ever reported Riyadh aerial-threat alert is a distinct, fresh regional-security development connected to the same Iran-aligned pressure driving the Lebanon and Yemen fronts."
+      },
+      {
+        "area": "fakeResistance",
+        "action": "retain",
+        "reason": "The NAZA investigation was updated in place with today's escalation (floated legal action, a classified-material probe, a citizenship-revocation threat, and a published fact-check on the central casualty claim); the live record's content is refreshed without changing which record occupies the slot."
+      },
+      {
+        "area": "people",
+        "action": "retain",
+        "reason": "This run could not read the current People of Israel homepage placements (production API and site unreachable from this composer's network sandbox this run), so no swap is proposed without visibility into what is currently live. A new, substantive science_medicine record (the Weizmann Otp gene study) was published to the section and is available for a following run or a human editor to place with that visibility; flagged in siteRecommendations."
+      }
+    ]
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "claude-daily-2026-09-20-0001",
+  "composer": "Claude",
+  "createdAt": "2026-09-20T16:30:00Z",
+  "creates": [
+    {
+      "key": "daily-brief-2026-09-20",
+      "publication": {
+        "kind": "brief",
+        "section": "daily_brief",
+        "canonicalStoryId": "daily-brief-2026-09-20",
+        "title": "September 20 briefing: a Yom Kippur eve terror attack in the West Bank, Gaza strikes on October 7 operatives, and a sharper Iran-US standoff",
+        "summary": "A gunman killed Netanel Shukrun, 36, at a West Bank spring on the eve of Yom Kippur; the IDF's Duvdevan unit arrested the assailant hours later, and Prime Minister Netanyahu ordered reinforcements and vowed to \"hold them all accountable\" in Gaza, Lebanon and Judea and Samaria. The IDF said three Hamas operatives, including two identified as October 7 participants, were killed in weekend Gaza strikes. Separately, Iran's military said it had been informed of a US plan to resume strikes and threatened to respond by targeting American allies, and Israel's institutional response to the NAZA documentary escalated further.",
+        "body": "## A Yom Kippur eve attack in the West Bank\n\nNetanel Shukrun, 36, a father of six from Alei Zahav, was shot and killed on September 20 at the Ein Raya spring in the central West Bank while visiting the site with his son, according to the Jerusalem Post and Haaretz. Israeli reporting described the gunman firing from a vehicle with Palestinian Authority plates before fleeing on foot; the IDF said Duvdevan counterterrorism soldiers, acting on Shin Bet and Israel Police intelligence, arrested the suspect roughly three hours later at a nearby hospital. Prime Minister Benjamin Netanyahu said \"no terrorist is immune, nor are those who assisted them,\" and that Israel \"will hold them all accountable — in Gaza, in Lebanon, and in Judea and Samaria,\" ordering security-force reinforcements to the West Bank along with closures and arrests. Full details are on the dedicated report below.\n\n## Gaza: October 7 operatives among those killed in weekend strikes\n\nThe IDF said three Hamas operatives were killed in strikes over the weekend, including two identified as having taken part in the October 7, 2023 attack. Separately, wire reporting described two Palestinians wounded by Israeli gunfire near Khan Yunis in southern Gaza. Exact circumstances of the Khan Yunis incident were not independently confirmed beyond initial wire coverage at the time of writing.\n\n## Iran-US tensions resurface\n\nIran's military command said on September 20 that it had been informed of US plans to resume strikes on Iran, and stated it would respond by targeting American allies in the region, according to the Times of Israel's live coverage. No further operational detail was available in the sources reviewed, and the claim of an informed US plan has not been independently corroborated by US officials in what this desk reviewed. This is a fast-moving claim; treat the specifics as unconfirmed pending an on-record US or Iranian government statement.\n\n## Fake Resistance: Israel's response to the NAZA documentary escalates further\n\nThe institutional response to the Venice-feted documentary \"NAZA\" — which alleges an AI-assisted IDF targeting process in Gaza that knowingly accepted a high projected civilian toll — has sharpened again. IDF Chief of Staff Eyal Zamir has ordered a formal legal review of the film's claims, reportedly describing them internally as \"blood libels\"; Netanyahu has said he will advance legislation to revoke the citizenship of \"anyone who slanders IDF soldiers\"; Culture Minister Miki Zohar has accused the filmmakers of treason; and the government has called for a Shin Bet investigation into both the directors and the serving or former soldiers who gave testimony in the film. The film's central quantified claim — a strike said to have been authorized with an anticipated toll of up to 500 civilian deaths — remains, on the public record reviewed, untied to any identifiable target, date, location, commanding officer or confirmed casualty count. Full evidentiary rundown is on the Fake Resistance desk.\n\n## Watch next\n\nWhether Israeli, Palestinian Authority or Hamas officials issue further statements on today's West Bank attack and its investigation; confirmation or denial from US officials of the reported Iranian claim about renewed strikes; the scope and findings of the IDF's formal legal review of the NAZA allegations; and any Shin Bet action regarding the film's soldier-witnesses.",
+        "language": "en",
+        "editorialTopic": "September 20 regional and Israel briefing",
+        "topicTags": ["west-bank", "gaza", "iran", "naza-documentary", "yom-kippur"],
+        "arena": "Israel and Middle East"
+      },
+      "sources": [
+        { "url": "https://www.jpost.com/israel-news/defense-news/article-909173", "title": "Israeli, identified as Netanel Shukrun, killed in West Bank terrorist attack", "publisher": "Jerusalem Post", "publishedAt": "2026-09-20T00:00:00+03:00" },
+        { "url": "https://www.haaretz.com/west-bank/2026-09-20/ty-article/israeli-critically-wounded-in-west-bank-shooting-attack-idf-hunting-assailant/000001a0-bdfc-d1d5-a1f5-bffcab270000", "title": "One Israeli Killed in West Bank Shooting on Yom Kippur Eve, Police Say; Suspect Arrested", "publisher": "Haaretz", "publishedAt": "2026-09-20T00:00:00+03:00" },
+        { "url": "https://www.timesofisrael.com/liveblog-september-20-2026/", "title": "Liveblog September 20, 2026: Iran's military command says it has been informed US plans to resume strikes", "publisher": "Times of Israel", "publishedAt": "2026-09-20T00:00:00+03:00" },
+        { "url": "https://www.haaretz.com/israel-news/israel-security/2026-09-20/ty-article-live/u-s-embassy-warns-americans-of-travel-disruptions-amid-houthi-attacks/000001a0-bcaa-d310-a9bf-bfeacbde0000", "title": "Live Updates: Iran: U.S. Plans to Renew Strikes, Tehran Will Respond With Attacks on Allies", "publisher": "Haaretz", "publishedAt": "2026-09-20T00:00:00+03:00" },
+        { "url": "https://forward.com/fast-forward/850229/israeli-army-weighs-legal-action-against-naza-film-makers-amid-calls-to-revoke-their-citizenship/", "title": "Israeli army weighs legal action against NAZA film makers amid calls to revoke their citizenship", "publisher": "The Forward" },
+        { "url": "https://variety.com/2026/film/news/benjamin-netanyahu-naza-1236864975/", "title": "Benjamin Netanyahu Calls to 'Revoke the Citizenship' of 'Anyone Who Slanders IDF Soldiers' Following 'NAZA' Documentary Premiere", "publisher": "Variety" }
+      ]
+    },
+    {
+      "key": "west-bank-ein-raya-attack-2026-09-20",
+      "publication": {
+        "kind": "news_update",
+        "section": "israel_update",
+        "canonicalStoryId": "west-bank-ein-raya-spring-attack-2026-09-20",
+        "title": "Father of six killed in West Bank shooting attack on Yom Kippur eve; Netanyahu vows to \"hold them all accountable\"",
+        "summary": "Netanel Shukrun, 36, was shot dead at the Ein Raya spring in the central West Bank while visiting with his son. The IDF's Duvdevan unit arrested the gunman hours later, and Prime Minister Netanyahu ordered security reinforcements to the West Bank while vowing accountability \"in Gaza, in Lebanon, and in Judea and Samaria.\"",
+        "body": "A gunman opened fire on Israelis bathing at the Ein Raya spring in the central West Bank on September 20, the eve of Yom Kippur, killing Netanel Shukrun, 36, a father of six from the settlement of Alei Zahav, according to the Jerusalem Post and Haaretz. Shukrun was reported to have been visiting the spring with his son at the time of the attack.\n\nInitial reports described the assailant firing from a red Mitsubishi SUV bearing Palestinian Authority license plates before exiting the vehicle, continuing the attack on foot, and fleeing the scene. The IDF said soldiers from its Duvdevan undercover counterterrorism unit, acting on intelligence from the Shin Bet security service and Israel Police, located and arrested the suspect approximately three hours later at a nearby hospital. The military did not, in the sources reviewed, disclose the suspect's identity, motive statement, or any organizational affiliation at the time of writing.\n\nPrime Minister Benjamin Netanyahu responded by saying \"no terrorist is immune, nor are those who assisted them,\" and that Israel \"will hold them all accountable — in Gaza, in Lebanon, and in Judea and Samaria.\" He instructed Israeli security forces to send reinforcements into the West Bank and to impose closures and carry out arrests. Separately, and in what wire reporting described as part of the broader West Bank security posture rather than a direct response to this specific attack, the IDF detained 35 Palestinians in the West Bank village of al-Mughayyir and seized 15 vehicles.\n\nThe attack came as the IDF also reported killing three Hamas operatives, including two identified as October 7, 2023 participants, in strikes in Gaza over the weekend — the backdrop against which Netanyahu's multi-front \"accountable\" statement was made. No Palestinian Authority or Hamas statement responding specifically to the Ein Raya spring attack was available in the sources reviewed. This article will be updated as investigators release further detail on the suspect and any legal proceedings.",
+        "language": "en",
+        "editorialTopic": "West Bank security",
+        "topicTags": ["west-bank", "terror-attack", "yom-kippur", "idf"],
+        "primaryActor": "Israel Defense Forces",
+        "arena": "West Bank"
+      },
+      "sources": [
+        { "url": "https://www.jpost.com/israel-news/defense-news/article-909173", "title": "Israeli, identified as Netanel Shukrun, killed in West Bank terrorist attack", "publisher": "Jerusalem Post", "publishedAt": "2026-09-20T00:00:00+03:00" },
+        { "url": "https://www.haaretz.com/west-bank/2026-09-20/ty-article/israeli-critically-wounded-in-west-bank-shooting-attack-idf-hunting-assailant/000001a0-bdfc-d1d5-a1f5-bffcab270000", "title": "One Israeli Killed in West Bank Shooting on Yom Kippur Eve, Police Say; Suspect Arrested", "publisher": "Haaretz", "publishedAt": "2026-09-20T00:00:00+03:00" },
+        { "url": "https://www.wsls.com/news/world/2026/09/20/israeli-man-critically-wounded-in-west-bank-shooting-and-other-mideast-developments/", "title": "An Israeli is shot dead in the occupied West Bank, and other Mideast developments", "publisher": "Associated Press (via WSLS)", "publishedAt": "2026-09-20T00:00:00Z" }
+      ]
+    }
+  ],
+  "updates": [
+    {
+      "key": "naza-sept20",
+      "target": { "canonicalStoryId": "naza-documentary-ai-gaza-claims" },
+      "publication": {
+        "changeSummary": "Adds the IDF chief's formal legal review of the film's claims (described internally as \"blood libels\"), the Prime Minister's plan to legislate citizenship revocation, the treason accusation from the Culture Minister, and the call for a Shin Bet investigation of both the filmmakers and the soldier-witnesses.",
+        "title": "Reported claim: NAZA documentary alleges IDF used AI-assisted targeting that knowingly accepted mass civilian casualties in Gaza",
+        "summary": "The Venice-awarded documentary NAZA, built on interviews with 24 current and former Israeli military intelligence personnel, alleges the IDF used an AI-assisted targeting process in Gaza that knowingly accepted high projected civilian death tolls. Israel's institutional response has escalated: a formal IDF legal review, a proposed citizenship-revocation law, a treason accusation against the directors, and a call for a Shin Bet investigation of the filmmakers and their soldier sources.",
+        "body": "NAZA, a documentary by Israeli filmmakers Yuval Abraham and Rachel Szor built on interviews with 24 current and former Israeli military intelligence personnel, alleges that the IDF used an AI-assisted targeting system in Gaza that identified strike targets while knowingly and systematically accepting high projected civilian casualty tolls. Its most quantified claim, as reported by outlets including ABC News, NBC News and France 24, describes a strike the filmmakers say was authorized with an anticipated toll of up to 500 civilian deaths. The film won the Special Jury Prize at the Venice International Film Festival and was reported to have received a lengthy standing ovation at its premiere.\n\nThe IDF has denied the film's central allegations, calling them a distortion of how targeting decisions are made and specifically rejecting the 500-casualty claim as \"completely false.\" That denial has since been followed by a marked escalation in Israel's institutional response. IDF Chief of Staff Eyal Zamir has ordered a formal legal review of the film's claims, describing them internally, according to reporting reviewed for this update, as \"blood libels.\" Prime Minister Benjamin Netanyahu has said he will advance legislation to revoke the citizenship of \"anyone who slanders IDF soldiers.\" Culture Minister Miki Zohar has accused the directors of treason and called for their citizenship to be revoked. And the government has called for a Shin Bet investigation into both the filmmakers and the serving or former soldiers who gave testimony in the film.\n\nWhat remains true of the underlying claim has not changed since this record was first published: the film's central quantified allegation — a strike said to have been authorized with an anticipated toll of up to 500 civilian deaths — has not, on the public record reviewed for this update, been tied by the filmmakers or by reporting on the film to an identifiable target, date, location, commanding officer or confirmed casualty count. The soldiers quoted in the film are reported to have spoken anonymously, which supports the credibility of firsthand testimony while limiting independent verification of specifics.\n\nWhat is new is that Israel's response now extends well beyond disputing the claim on the merits. A citizenship-revocation law aimed at critics of the military, a treason accusation against journalists, and a state security investigation reaching the soldiers who provided the film's underlying testimony are significant developments in their own right, independent of whether the film's central allegation is ultimately verified or refuted. Readers should weigh both halves of this story: an allegation against the IDF that remains short on independently verifiable specifics, and a state response to that allegation that itself raises questions about legal process and press freedom that deserve separate scrutiny.",
+        "section": "narrative_watch",
+        "narrativeWatchDetails": {
+          "exactClaim": "The documentary NAZA, based on interviews with 24 current and former Israeli military intelligence personnel, alleges the IDF used an AI-assisted targeting system in Gaza that identified targets while systematically and knowingly accepting high projected civilian death tolls, including a strike the filmmakers say was authorized with an anticipated toll of up to 500 civilians.",
+          "propagators": [
+            "NAZA documentary directors Yuval Abraham and Rachel Szor",
+            "International film-festival and broadcast press covering the Venice premiere and its reception",
+            "Social-media accounts amplifying festival coverage and clips"
+          ],
+          "arenas": ["Venice International Film Festival", "International wire and broadcast press", "Israeli domestic press and politics", "Social media"],
+          "trendDirection": "rising",
+          "israeliPosition": "The IDF has denied the film's central claims, calling them a distortion of how targeting decisions are made and specifically rejecting the assertion that any strike was authorized with an anticipated toll of 500 civilian deaths as \"completely false.\" IDF Chief of Staff Eyal Zamir has ordered a formal legal review of the film's allegations, describing them internally as \"blood libels,\" and the government has called for a Shin Bet investigation into both the filmmakers and the soldier-witnesses. Prime Minister Netanyahu has said he will advance legislation to revoke the citizenship of \"anyone who slanders IDF soldiers,\" and Culture Minister Miki Zohar has accused the directors of treason.",
+          "securityContext": "The film's central quantified claim — a strike allegedly authorized with an anticipated toll of up to 500 civilian deaths — has not, on the public record reviewed, been tied to an identifiable target, date, location, commanding officer or confirmed casualty count. The soldiers quoted are reported to have spoken anonymously, which supports the credibility of firsthand testimony but limits independent verification. Israel's response — including citizenship-revocation legislation and a treason accusation directed at journalists and interview subjects, rather than solely a rebuttal of the underlying claim — is itself a development worth weighing alongside the film's allegations.",
+          "supportingEvidenceIds": [],
+          "contradictingEvidenceIds": [],
+          "verificationState": "disputed",
+          "knownUnknowns": [
+            "Whether the specific 500-casualty strike described in the film corresponds to a real, identifiable IDF operation",
+            "The full documentary evidence and methodology the filmmakers reviewed versus what was described to them by sources",
+            "Whether the IDF's formal legal review will independently confirm or refute the film's central claim, and when its findings will be public",
+            "The scope and outcome of any Shin Bet investigation into the soldier-witnesses, and what legal protections apply to them"
+          ]
+        }
+      },
+      "sources": [
+        { "url": "https://www.abc.net.au/news/2026-09-19/naza-documentary-idf-tactics-gaza-treason-backlash-in-israel/107171268", "title": "NAZA documentary about IDF tactics in Gaza prompts 'treason' accusations in Israel", "publisher": "ABC News (Australia)", "publishedAt": "2026-09-19T00:00:00Z" },
+        { "url": "https://www.nbcnews.com/world/israel/israeli-gaza-documentary-naza-sparks-backlash-criminal-charge-threats-rcna597870", "title": "Israeli Gaza documentary 'NAZA' sparks backlash and criminal charge threats from the IDF", "publisher": "NBC News" },
+        { "url": "https://forward.com/fast-forward/850229/israeli-army-weighs-legal-action-against-naza-film-makers-amid-calls-to-revoke-their-citizenship/", "title": "Israeli army weighs legal action against NAZA film makers amid calls to revoke their citizenship", "publisher": "The Forward" },
+        { "url": "https://variety.com/2026/film/news/benjamin-netanyahu-naza-1236864975/", "title": "Benjamin Netanyahu Calls to 'Revoke the Citizenship' of 'Anyone Who Slanders IDF Soldiers' Following 'NAZA' Documentary Premiere", "publisher": "Variety" },
+        { "url": "https://www.cbsnews.com/news/israel-gaza-naza-documentary-citizenship-palestinians/", "title": "Israeli official calls for directors of \"NAZA\" documentary alleging use of AI in Gaza to have nationality revoked", "publisher": "CBS News" },
+        { "url": "https://www.france24.com/en/middle-east/20260917-gaza-documentary-naza-sparks-political-storm-in-israel", "title": "Gaza documentary 'NAZA' sparks political storm, threats against directors in Israel", "publisher": "France 24", "publishedAt": "2026-09-17T00:00:00Z" }
+      ]
+    }
+  ],
+  "homepage": {},
+  "featured": {},
+  "siteRecommendations": [
+    "This run had no access to an image-generation/upload tool or to the `/api/internal/chatgpt/*` read interface (both require secrets not available in this session), so all records here publish text-led and no homepage or featured-slot placement was attempted. A run with those credentials should confirm whether today's West Bank attack or NAZA update warrant a News or Fake Resistance lead, and should source or generate hero imagery for both new records.",
+    "Consider tasking a future edition with sourcing an attributable image for the standing NAZA narrative-watch record (e.g. an official festival still credited to Venice/the production, or a labeled editorial illustration) — it has now been updated three times without a hero."
+  ],
+  "research": [
+    {
+      "topic": "NAZA documentary — Israel's institutional response",
+      "focus": "Mandatory daily Narrative Watch investigation: an anti-IDF allegation with active, escalating official Israeli response",
+      "sourcesReviewed": [
+        "https://www.abc.net.au/news/2026-09-19/naza-documentary-idf-tactics-gaza-treason-backlash-in-israel/107171268",
+        "https://www.nbcnews.com/world/israel/israeli-gaza-documentary-naza-sparks-backlash-criminal-charge-threats-rcna597870",
+        "https://forward.com/fast-forward/850229/israeli-army-weighs-legal-action-against-naza-film-makers-amid-calls-to-revoke-their-citizenship/",
+        "https://variety.com/2026/film/news/benjamin-netanyahu-naza-1236864975/",
+        "https://www.cbsnews.com/news/israel-gaza-naza-documentary-citizenship-palestinians/",
+        "https://www.france24.com/en/middle-east/20260917-gaza-documentary-naza-sparks-political-storm-in-israel",
+        "https://en.wikipedia.org/wiki/NAZA_(film)"
+      ],
+      "conclusion": "The film's central quantified claim remains unverifiable against public specifics, while Israel's response has escalated into citizenship-revocation legislation, a treason accusation and a Shin Bet probe of the soldier-witnesses — a significant, separately reportable development. Updated the existing record rather than treating it as resolved in either direction; classified disputed.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "Today's West Bank terror attack and Netanyahu's multi-front statement",
+      "sourcesReviewed": [
+        "https://www.jpost.com/israel-news/defense-news/article-909173",
+        "https://www.haaretz.com/west-bank/2026-09-20/ty-article/israeli-critically-wounded-in-west-bank-shooting-attack-idf-hunting-assailant/000001a0-bdfc-d1d5-a1f5-bffcab270000",
+        "https://www.wsls.com/news/world/2026/09/20/israeli-man-critically-wounded-in-west-bank-shooting-and-other-mideast-developments/"
+      ],
+      "conclusion": "Sourced and confirmed across two independent Israeli outlets plus a wire report; published as both the day's brief lead and a dedicated Israel Update record.",
+      "outcome": "published"
+    },
+    {
+      "topic": "Antisemitism monitoring for today's edition",
+      "focus": "US incidents: a Ventura, CA vandalism/IHRA-adoption story, a Temple Har Shalom vandalism, and a defamation suit by Larry Klayman",
+      "sourcesReviewed": ["https://www.sdjewishworld.com/2026/09/16/the-fight-against-terrorism-and-antisemitism-september-16-2026/"],
+      "conclusion": "The Ventura story appears to already be covered by an earlier edition of this desk (a matching media asset already exists on the delivery branch); the Temple Har Shalom and Klayman items are US domestic stories without a distinct Israel-connected angle this desk could independently verify beyond secondary summaries in the time available. Held rather than publishing a thin rewrite; a future edition should verify each against a primary local report before publishing.",
+      "outcome": "no_action"
+    },
+    {
+      "topic": "People of Israel feature for today's edition",
+      "focus": "Recent Israeli innovation/science stories: INBI biotech center, Technion diabetes implant, planned spinal-cord implant surgery",
+      "conclusion": "The strongest candidates found either predate the 24-hour window (INBI launched September 8) or overlap with a story this desk already published (the Technion nanoparticle work ran in the September 13 edition). No new, freshly-dated People of Israel story cleared this desk's bar today; quality over quota.",
+      "outcome": "no_action"
+    }
+  ]
+}

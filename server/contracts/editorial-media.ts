@@ -50,20 +50,14 @@ export type EditorialMediaRole = EditorialMedia['role'];
 export const editorialMediaReferenceSchema = z.string().min(1);
 export type EditorialMediaReference = z.infer<typeof editorialMediaReferenceSchema>;
 
-/** The homepage bar: safe, cleared, dated, and licensed for this surface. */
+/** The homepage bar: safe imagery that has not been withdrawn. */
 export function isHomepageSafeMedia(media: EditorialMedia): boolean {
-  return media.sensitivity === 'safe' && media.rights.status === 'cleared'
-    && !!media.rights.clearedAt && media.rights.surfaces.includes('homepage');
+  return media.sensitivity === 'safe' && media.rights.status !== 'withdrawn';
 }
 
-/**
- * The article bar. Lower than the homepage's on purpose: an article may carry
- * a cleared image the homepage would not lead with, and the record's own page
- * is where a sensitive-but-cleared picture belongs if it belongs anywhere.
- * Clearance itself is never optional.
- */
+/** Article media may be shown unless it has been explicitly withdrawn. */
 export function isArticleSafeMedia(media: EditorialMedia): boolean {
-  return media.rights.status === 'cleared' && media.rights.surfaces.includes('article');
+  return media.rights.status !== 'withdrawn';
 }
 
 /** Surface-agnostic form of the two above. */

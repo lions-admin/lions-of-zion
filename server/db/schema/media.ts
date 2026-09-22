@@ -61,7 +61,7 @@ export const editorialMedia = pgTable(
     rightsBasis: text("rights_basis").notNull(),
     rightsReference: text("rights_reference").notNull(),
     rightsClearedAt: date("rights_cleared_at"),
-    /** Subset of `homepage`, `article`. Empty means "nowhere public yet". */
+    /** Legacy clearance metadata. Display policy no longer depends on this list. */
     rightsSurfaces: text("rights_surfaces").array().notNull().default(sql`'{}'::text[]`),
 
     /** sha256 of the stored bytes. The dedup key, and the retry key. */

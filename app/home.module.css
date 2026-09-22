@@ -8,13 +8,10 @@
    the homepage. Those values won and moved into `app/globals.css`; what is
    left here is only the paint, not a re-grade. Do not reintroduce a token
    override in this file: a page-local palette is how the seam came back. */
-/* One override, and it is the whole of the exception: the homepage stands on
-   exact black (`--home-ground`, owner ruling 2026-09-17). Every rule below and
-   in the journey stylesheet already reads `--ground`, so the cover, the
-   scrims, the reading surface, the bar and the footer all follow from this
-   one line instead of nineteen. */
+/* The homepage stood alone on exact black from 2026-09-17; since 2026-09-22
+   the whole site does, so this class re-grades nothing. It carries the paint
+   only. */
 .homeTheme {
-  --ground: var(--home-ground);
   color-scheme: dark;
   background: var(--ground);
   color: var(--ink-hi);

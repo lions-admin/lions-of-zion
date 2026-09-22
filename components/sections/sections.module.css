@@ -80,14 +80,13 @@
 }
 
 .title {
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: var(--t-display);
-  font-weight: var(--t-display-weight);
-  line-height: var(--t-display-lh);
-  letter-spacing: var(--t-display-tracking);
+  /* The masthead tier and the site's one motion (Signal over noise,
+     2026-09-22): a page's own name is the largest type on it and settles into
+     focus once on arrival. Both roles live in `app/globals.css`. */
+  composes: displayXl resolve from global;
+  max-width: 16ch;
+  margin: 0;
   color: var(--ink-hi);
-  text-wrap: balance;
   overflow-wrap: anywhere;
 }
 

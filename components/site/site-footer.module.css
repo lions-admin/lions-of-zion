@@ -18,9 +18,8 @@
   --footer-width: 100rem;
   position: relative;
   z-index: var(--z-raised);
-  border-top: var(--line-w) solid var(--line-strong);
+  border-top: var(--line-w) solid var(--line);
   background-color: var(--ground);
-  background-image: linear-gradient(180deg, rgba(246, 243, 235, 0.025), transparent 28%);
   color: var(--ink);
   font-family: var(--face-navigation);
   text-transform: none;
@@ -48,7 +47,7 @@
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
   gap: var(--sp-5) var(--sp-7);
   align-items: start;
-  padding-block: var(--sp-7) var(--sp-6);
+  padding-block: var(--sp-9) var(--sp-7);
 }
 
 /* ── Identity ──────────────────────────────────────────────────────────── */
@@ -70,10 +69,11 @@
 .brandName {
   font-family: var(--face-display);
   font-optical-sizing: auto;
-  font-size: clamp(2.375rem, 5.8vw, 5.125rem);
+  /* The nameplate closes every page at the masthead tier (2026-09-22). */
+  font-size: var(--t-display-xl);
   font-weight: 400;
-  line-height: 1.02;
-  letter-spacing: -0.045em;
+  line-height: var(--t-display-xl-lh);
+  letter-spacing: var(--t-display-xl-tracking);
   text-wrap: balance;
 }
 

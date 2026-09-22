@@ -58,15 +58,14 @@
    below the fold; the hub name is the page's h1 and the display role is what
    an h1 is. The phone rule below keeps its own size. */
 .title {
-  max-width: none;
+  /* The masthead tier and the site's one motion (Signal over noise,
+     2026-09-22): a page's own name is the largest type on it and settles into
+     focus once on arrival. Both roles live in `app/globals.css`. */
+  composes: displayXl resolve from global;
+  max-width: 16ch;
   margin: 0;
   color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-display);
-  font-weight: var(--t-display-weight);
-  line-height: 1.02;
-  letter-spacing: -0.03em;
-  text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 
 .standfirst {

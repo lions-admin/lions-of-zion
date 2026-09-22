@@ -114,7 +114,6 @@
   width: 100%;
   min-height: 100dvh;
   padding-top: var(--header-h);
-  background-image: var(--family-scan);
 }
 
 .familyChrome {

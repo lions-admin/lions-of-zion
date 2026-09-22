@@ -87,7 +87,7 @@ cover links, warnings or media credits on mobile or enlarged text.
   tells its kinds apart by typographic voice (`data-voice`), with the label
   in a margin column.
 
-### Signal over noise — September 17, 2026 (third ruling, governing)
+### Signal over noise — September 17, 2026 (third ruling; extended site-wide by the fourth below)
 
 The rooms, plates, grain and per-band entrances of the ruling above are
 withdrawn; what replaced them is the concept below.
@@ -111,6 +111,38 @@ withdrawn; what replaced them is the concept below.
   entrance.
 - Word streams (`WordStream.tsx`) are decorative vocabulary only, `aria-hidden`,
   and never carry October 7 material.
+
+### Signal over noise, site-wide — September 22, 2026 (fourth ruling, governing)
+
+The owner extended the homepage concept above to every public page. Where this
+section and the third ruling disagree, this one governs.
+
+- **Every page stands on exact black.** `--ground` is `#000000` at `:root`;
+  `--home-ground` and the `.homeTheme` re-point are retired. The scan texture
+  and the veiled lion photograph behind reading routes are gone — the lion
+  appears where it is the subject (the home cover, the editorial intro).
+- **Structure is a hairline, not a plate.** Surfaces are re-cut to
+  `#0b0b0b / #111 / #171717 / #1e1e1e` and reserved for controls and overlays;
+  lists, hubs, cards (`feature`, `dossier`) and panels are ruled entries.
+  Shadows are a lit edge only.
+- **One type scale, with two new tiers.** `--t-display-xl` is a page's own
+  title (hub, article, record, the footer nameplate); `--t-band` is a homepage
+  band name and nothing else; `--t-prose` is long-form running text. The
+  homepage's private `--journey-*` scale is folded into this one.
+- **Noise and signal are the site's grammar**, as shared roles in
+  `app/globals.css` (`noise`, `signal`): a claim in circulation is ember
+  italic, capped at the h3 size; the finding under it is upright ivory on the
+  amber rule; the status word precedes the claim everywhere — articles, the
+  watch and fact-check pages, updates and the homepage.
+- **One motion idea**: `resolve` — a page title settles out of a slight blur
+  into focus once on arrival. Off under reduced motion and inside
+  `[data-still]`; `EditorialShell` sets `data-still` for October 7, and the
+  October 7 archive keeps no hover or transition at all.
+- **Gold is one focal moment per viewport**: bylines, labels and counts are
+  ink; gold stays on the page's one primary action and the current-page rule.
+- **Numbering must mean a sequence.** The homepage band folios, the evidence
+  explorer's and search's ordinals are gone; a document's table of contents
+  and the echo chain keep theirs.
 
 ## Voice — September 8, 2026
 

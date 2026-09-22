@@ -2981,3 +2981,26 @@ has a signal*. Noise is type you cannot quite read; signal is type you can.
 - Unexercised in this edition: the claim-as-noise treatment needs a
   `narrative_watch` record, and today's Fake Resistance pair are both cases.
 
+## 2026-09-22 — Signal over noise, site-wide: every public page on exact black
+
+The owner asked for the whole public site redesigned "to the most premium"
+level, chose to extend the homepage's Signal over noise concept rather than
+start a new one, allowed structural (not only visual) change, and kept the
+work on `ai/claude` for review rather than publishing.
+
+- **Why extend rather than invent:** it was the owner's latest ruling, and the
+  homepage standing alone on `#000` while every other page sat on `#1b1b1b`
+  was the same seam 7ddb9544 had removed once already.
+- **The ground carries nothing.** Scan texture and the ghosted lion behind
+  reading routes are removed, not re-tuned: on black they were the "noise"
+  the concept is against. Every ink ratio in `globals.css` was measured on
+  lighter grounds and surfaces, so each is a floor on the new ladder.
+- **Hairlines over plates** is what makes black read as premium rather than
+  as a dark theme: a grid of `#111` boxes on `#000` is a dashboard.
+- **Shared roles instead of per-page copies** (`displayXl`, `noise`,
+  `signal`, `resolve`), so a claim/finding pair reads the same on the home, an
+  article, the watch and fact-check pages.
+- Executed as a foundation commit followed by four parallel workstreams with
+  disjoint file ownership (home, reading, hubs, utility); see
+  `UX-CONTRACT.md`, fourth ruling.
+

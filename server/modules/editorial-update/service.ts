@@ -69,7 +69,7 @@ export async function prepareEditorialMedia(
     return {
       media: null,
       mediaWarning: {
-        message: `Supplied media was not cleared for article display (status ${media.rights.status}; surfaces ${media.rights.surfaces.join(', ') || 'none'}).`,
+        message: `Supplied media is withdrawn and cannot be displayed (status ${media.rights.status}).`,
       },
     };
   }

@@ -20,8 +20,7 @@ export function homepageMedia(key:string, canonicalId?:string){
 export function editorialMediaForSurface(key:string,surface:EditorialMedia['rights']['surfaces'][number],canonicalId?:string){
   const id=canonicalId??registry.mappings[key];
   const asset=registry.assets.find(a=>a.id===id);
-  return asset&&asset.sensitivity==='safe'&&asset.rights.status==='cleared'
-    &&!!asset.rights.clearedAt&&asset.rights.surfaces.includes(surface)?asset:null;
+  return asset&&asset.sensitivity==='safe'&&asset.rights.status!=='withdrawn'?asset:null;
 }
 export function homepageExcerpt(key:string,role:'summary'|'finding'|'whyItMatters',version:string){
   return notes.find(n=>n.key===key&&n.role===role&&n.version===version)?.text;

@@ -374,14 +374,9 @@ Two rules that ride on the section value and must not be broken:
   `sourceUrl` for attribution and `originUrl` for a reproducible fetch.
 - **Rights are never invented.** `rights.status` is `cleared`, `unknown` or
   `withdrawn`. `cleared` additionally requires `clearedAt` and a non-empty
-  `surfaces` list; the schema refuses the package otherwise. `unknown` stores
-  the asset with its provenance and keeps it off every public surface. That is
-  the honest outcome, not a failure.
+  `surfaces` list; the schema refuses the package otherwise. `unknown` records that clearance was not established; it may still be displayed with its provenance. Only `withdrawn` is excluded from public surfaces.
 - **Two display bars, neither a publication bar.** `isArticleSafeMedia()`
-  requires `cleared` plus `article` in `surfaces`.
-  `isHomepageSafeMedia()` additionally requires `sensitivity === "safe"` and
-  a `clearedAt` date. A picture that does not clear the relevant bar is not
-  shown there; the publication itself remains eligible and renders text-led.
+  allows any media that is not `withdrawn`. `isHomepageSafeMedia()` additionally requires `sensitivity === "safe"`. `clearedAt` and `surfaces` remain provenance metadata, not display gates.
 - **Media enrichment cannot cost the record.** No media publishes text-led. A
   supplied image that cannot be fetched, measured, stored, or cleared for the
   article becomes a `mediaWarning`, and publication continues with no new

@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -59,9 +59,13 @@ const listSources = (dir: string): string[] =>
 describe("the root error boundary is drawn in the open editorial system (VA-30)", () => {
   const boundary = read("app/error.tsx");
 
-  it("draws its card as a token ground and a token hairline, with no gradient", () => {
-    expect(boundary).toContain("background-color: var(--surface-1);");
-    expect(boundary).toContain("border: var(--line-w) solid var(--line);");
+  it("sits on the token ground with a token hairline, no plate and no gradient", () => {
+    /* Signal over noise (2026-09-22): the card is gone. The boundary is a
+       masthead on the black ground, like the 404, and its one structural
+       line is the token hairline above the recovery actions. */
+    expect(boundary).toContain("background-color: var(--ground);");
+    expect(boundary).toContain("border-top: var(--line-w) solid var(--line);");
+    expect(boundary).toMatch(/\.loz-error-inner \{(?![^}]*background)(?![^}]*border)[^}]*\}/);
     /* The three retired decorations, by the property that carries each. A
        comment may still name them; a declaration may not. */
     const declarations = boundary

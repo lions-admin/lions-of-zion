@@ -1,6 +1,7 @@
 'use client';
 /**
- * Route error boundary — the signal dropped, calmly.
+ * Route error boundary — the signal dropped, calmly. Composed like the 404
+ * (`app/not-found.tsx`): a masthead on the black ground, no plate.
  *
  * Styles are inline/co-located so a broken shared stylesheet can never take
  * the error screen down with it. That rationale is why the block below is
@@ -60,34 +61,27 @@ export default function ErrorBoundary({
              containers on 2026-08-27; see the lock in app/globals.css. */
           min-height: 100dvh;
           display: grid;
-          place-items: center;
-          padding: var(--sp-5);
-          /* The real ground, not a flat panel over it. */
+          align-content: center;
+          padding: calc(var(--header-h) + var(--sp-7)) clamp(var(--sp-4), 5vw, var(--sp-8)) var(--sp-8);
           background-color: var(--ground);
           color: var(--ink);
           font-family: var(--face-text);
-          text-align: center;
         }
-        /* A plate, drawn the way every other plate on the site is drawn:
-           one token ground, one token hairline, the shared radius. It was a
-           glass card — a three-stop gradient over --glass-top/middle/bottom,
-           an inset --glass-inner highlight, --shadow-3 and a 16px backdrop
-           blur — until VA-30 (2026-09-07). globals.css says of those tokens
-           "do not add new glass", and this was the one screen where a reader
-           still met the retired HUD language, on the worst possible occasion
-           for the site to look like a different site. Nothing replaces the
-           gradient: the flat --surface-1 against --ground is the elevation. */
+        /* No plate (Signal over noise, 2026-09-22). This was a card — a
+           --surface-1 fill inside a --line border, centred — and before
+           VA-30 a glass one. On exact black the page is already the ground
+           the words need; a box around three lines only says "dialog". The
+           composition is the 404's: a stamped status, the masthead tier, one
+           sentence, the two ways out, on the page's own measure with a
+           hairline above the actions. */
         .loz-error-inner {
           display: grid;
-          justify-items: center;
+          justify-items: start;
           gap: var(--sp-4);
-          max-width: 34rem;
-          padding: clamp(var(--sp-5), 5vw, var(--sp-7));
-          border: var(--line-w) solid var(--line);
-          border-radius: var(--radius-3);
-          background-color: var(--surface-1);
+          width: 100%;
+          max-width: 64rem;
+          margin: 0 auto;
         }
-        /* Two words, so uppercase is allowed: the one gold on the page. */
         .loz-error-code {
           font-family: var(--face-data);
           font-size: var(--t-data);
@@ -95,36 +89,43 @@ export default function ErrorBoundary({
           line-height: var(--t-data-lh);
           letter-spacing: var(--t-data-tracking);
           text-transform: uppercase;
-          color: var(--gold);
+          color: var(--ink-lo);
         }
+        /* The masthead tier, read from its tokens rather than composed:
+           \`displayXl\` is a global class, and this page does not assume the
+           stylesheet that holds it survived whatever brought a reader here. */
         .loz-error-title {
           font-family: var(--face-display);
           font-optical-sizing: auto;
-          font-size: var(--t-display);
-          font-weight: var(--t-display-weight);
-          line-height: var(--t-display-lh);
-          letter-spacing: var(--t-display-tracking);
+          font-size: var(--t-display-xl);
+          font-weight: 400;
+          line-height: var(--t-display-xl-lh);
+          letter-spacing: var(--t-display-xl-tracking);
           color: var(--ink-hi);
           text-wrap: balance;
+          max-width: 14ch;
         }
         .loz-error-lede {
-          font-size: var(--t-body);
-          line-height: var(--t-body-lh);
+          max-width: var(--measure-narrow);
+          font-size: var(--t-lede);
+          line-height: var(--t-lede-lh);
           text-wrap: pretty;
         }
         .loz-error-actions {
           display: flex;
           flex-wrap: wrap;
-          justify-content: center;
           align-items: center;
-          gap: var(--sp-3);
-          margin-top: var(--sp-2);
+          gap: var(--sp-3) var(--sp-5);
+          margin-top: var(--sp-3);
+          padding-top: var(--sp-5);
+          border-top: var(--line-w) solid var(--line);
+          width: 100%;
         }
         /* The retry is a control, so it is the secondary button: Plex 600 on
            a raised token surface, 44px tall. It read "on glass" and drew one
            until VA-30; the values below are components/ui/button.module.css
            .secondary transcribed, minus its --surface-grade-strong and
-           --shadow-1, because this card carries no gradient or inset either.
+           --shadow-1, because this page carries no gradient or inset either.
            Transcribed rather than imported on purpose — see the file header:
            a CSS Module is another chunk that can fail to load, on the one
            route reached because something already failed. */
@@ -163,7 +164,7 @@ export default function ErrorBoundary({
           display: inline-flex;
           align-items: center;
           min-height: 2.75rem;
-          padding: var(--sp-2) var(--sp-2);
+          padding: var(--sp-2) 0;
           font-family: var(--face-text);
           font-size: var(--t-small);
           font-weight: 500;

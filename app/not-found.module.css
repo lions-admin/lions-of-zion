@@ -1,8 +1,10 @@
 /* 404 · a route the record does not hold.
  *
- * The notice sits at the reading measure on the site ground; the index of
- * real destinations follows as a two-column grid of raised entries. No glass,
- * no numbering: the same surfaces, rules and type as every other route. */
+ * Signal over noise (2026-09-22): the notice is a masthead like every other
+ * page's — the display-xl tier, settling into focus once — and the index of
+ * real destinations below it is a ruled list, not a grid of raised cards: a
+ * name in the serif, the sentence that says what is there, a hairline under
+ * each. Gold is spent once, on "Back to the front". */
 
 .page {
   min-height: 70dvh;
@@ -26,6 +28,9 @@
   max-width: var(--measure-reading);
 }
 
+/* The status, as a stamped machine value: the code in the data face and the
+   phrase beside it. Muted, because the headline below says the same thing to
+   a person. */
 .code {
   composes: dataLabel from global;
   display: flex;
@@ -35,24 +40,26 @@
 }
 
 .code > span:first-child {
-  color: var(--gold);
+  color: var(--ink);
 }
 
+.code {
+  margin-bottom: var(--sp-2);
+}
+
+/* The masthead tier and the site's one motion, from `app/globals.css`. This
+   title carried a private `clamp()` of its own until the ruling, which the
+   one-heading-scale rule forbids. */
 .title {
-  max-width: none;
+  composes: displayXl resolve from global;
+  max-width: 14ch;
   margin: 0;
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: clamp(2.75rem, 1.4rem + 4.8vw, 5rem);
-  font-weight: var(--t-display-weight);
-  line-height: 1.02;
-  letter-spacing: -0.03em;
   color: var(--ink-hi);
 }
 
 .lede {
-  max-width: 48ch;
-  margin: 0;
+  max-width: var(--measure-narrow);
+  margin: var(--sp-2) 0 0;
   font-size: var(--t-lede);
   line-height: var(--t-lede-lh);
   letter-spacing: var(--t-lede-tracking);
@@ -63,67 +70,65 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--sp-3);
-  margin-top: var(--sp-2);
+  margin-top: var(--sp-4);
 }
 
 /* ── The index ─────────────────────────────────────────────────────────── */
 
 .index {
-  margin-top: clamp(var(--sp-7), 7vh, var(--sp-8));
-  padding-top: var(--sp-5);
-  border-top: var(--line-w) solid var(--line-strong);
+  margin-top: clamp(var(--sp-8), 10vh, var(--sp-9));
 }
 
 .indexHeading {
-  composes: dataLabel from global;
-  margin-bottom: var(--sp-4);
+  composes: kickerLabel from global;
+  margin: 0;
+  padding-bottom: var(--sp-3);
+  border-bottom: var(--line-w) solid var(--line);
   color: var(--ink-lo);
 }
 
 .list {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--sp-3);
+  grid-template-columns: minmax(0, 1fr);
   list-style: none;
 }
 
+/* One destination per row: the name at the left, what is there beside it,
+   the arrow at the far edge. A row is a link, so the whole of it is the
+   target; the hairline under it is structure, not a control boundary — the
+   underlined name on hover and the moving arrow are what answer the pointer. */
 .entry {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    'label arrow'
-    'description arrow';
-  column-gap: var(--sp-4);
-  row-gap: var(--sp-1);
-  align-items: start;
-  height: 100%;
-  padding: var(--sp-4) var(--sp-5);
-  background-color: var(--surface-1);
-  background-image: var(--surface-grade);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-  box-shadow: var(--shadow-1);
+  grid-template-columns: minmax(0, 18rem) minmax(0, 1fr) auto;
+  column-gap: var(--sp-6);
+  align-items: baseline;
+  min-height: var(--control-h);
+  padding: var(--sp-4) 0;
+  border-bottom: var(--line-w) solid var(--line-soft);
   text-decoration: none;
   color: inherit;
-  transition:
-    border-color var(--dur-base) var(--ease-out),
-    background-color var(--dur-base) var(--ease-out),
-    box-shadow var(--dur-base) var(--ease-out),
-    transform var(--dur-base) var(--ease-out);
+  transition: border-color var(--dur-base) var(--ease-out);
 }
 
-.entry:hover {
-  border-color: var(--line-strong);
-  background-color: var(--surface-2);
-  box-shadow: var(--shadow-2);
-  transform: translateY(-2px);
+.entry:hover,
+.entry:focus-visible {
+  border-bottom-color: var(--line-strong);
 }
 
-.entry:hover .entryLabel { color: var(--gold-hi); }
-.entry:hover .entryArrow { color: var(--gold); transform: translate(2px, -2px); }
+.entry:hover .entryLabel,
+.entry:focus-visible .entryLabel {
+  text-decoration: underline;
+  text-decoration-thickness: var(--line-w);
+  text-underline-offset: 0.2em;
+}
+
+.entry:hover .entryArrow,
+.entry:focus-visible .entryArrow {
+  color: var(--ink-hi);
+  transform: translate(2px, -2px);
+}
 
 .entryLabel {
-  grid-area: label;
   font-family: var(--face-display);
   font-optical-sizing: auto;
   font-size: var(--t-h3);
@@ -131,19 +136,17 @@
   line-height: var(--t-h3-lh);
   letter-spacing: var(--t-h3-tracking);
   color: var(--ink-hi);
-  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .entryDescription {
-  grid-area: description;
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
+  max-width: var(--measure-caption);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
   color: var(--ink-lo);
   text-wrap: pretty;
 }
 
 .entryArrow {
-  grid-area: arrow;
   color: var(--ink-lo);
   font-size: var(--t-body);
   transition:
@@ -173,7 +176,20 @@
 .referenceLink:hover { color: var(--ink-hi); }
 
 @media (max-width: 40rem) {
-  .list { grid-template-columns: minmax(0, 1fr); }
+  .entry {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: var(--sp-1);
+  }
+
+  .entryDescription {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .entryArrow {
+    grid-column: 2;
+    grid-row: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -181,6 +197,6 @@
   .entryLabel,
   .entryArrow,
   .referenceLink { transition: none; }
-  .entry:hover { transform: none; }
-  .entry:hover .entryArrow { transform: none; }
+  .entry:hover .entryArrow,
+  .entry:focus-visible .entryArrow { transform: none; }
 }

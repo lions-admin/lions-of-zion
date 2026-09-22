@@ -4,16 +4,23 @@
    shared `Button`, so this file never draws one. */
 
 .switcher {
-  margin-top: var(--sp-5);
+  margin-top: var(--sp-6);
 }
 
-/* Four raised cards, two by two. Each is one control: the mark, the name,
-   what it does, and an arrow that travels on hover. The primary choice —
-   reporting a claim — carries the gold rule. */
+/* Four ruled entries, two by two — not four cards. Each is one control: a
+   rule across its top, the name in the serif at the heading size, what it
+   does beneath, and an arrow that travels on hover. Nothing is filled. The
+   primary choice, reporting a claim, is the only rule drawn in gold: that is
+   the page's one focal moment until a flow is open (Signal over noise,
+   2026-09-22).
+
+   The rule is `--control-line` on the other three, not the editorial
+   hairline: it is the edge that marks each entry as a thing to press, so it
+   owes WCAG 1.4.11's 3:1 (VA-60 measured `--line` at 1.36:1 here). */
 .chooser {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--sp-4);
+  gap: 0 var(--sp-6);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -21,60 +28,60 @@
 
 .chooser[hidden] { display: none; }
 
-.choice { min-width: 0; }
+/* Each entry spans three rows of the chooser and hands them down as a
+   subgrid, so in the two-up layout the names, the summaries and the arrows of
+   neighbouring entries sit on shared lines even when one name wraps. */
+.choice {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  min-width: 0;
+}
 
 .choiceButton {
-  /* The thick top rule is what marks this as a choice, so it is a control
-     boundary and owes 3:1 like the other three sides. It defaulted to `--line`
-     at 1.36:1, and only the `primary` variant below overrode it — so two of the
-     three cards failed and the one that passed did so by being gold. */
+  grid-row: span 3;
+  grid-template-rows: subgrid;
   --choice-rule: var(--control-line);
   position: relative;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
-    'mark label arrow'
-    'mark summary arrow';
+    'mark mark'
+    'label label'
+    'summary arrow';
   column-gap: var(--sp-4);
-  row-gap: var(--sp-1);
+  row-gap: var(--sp-2);
   align-items: start;
   width: 100%;
-  height: 100%;
-  padding: var(--sp-5);
+  padding: var(--sp-5) 0 var(--sp-6);
   text-align: start;
   color: inherit;
   cursor: pointer;
-  background-color: var(--surface-1);
-  background-image: var(--surface-grade);
-  /* VA-60. `--line` composites to 1.36:1 over `--ground`, and WCAG 1.4.11
-     holds a control's own boundary to 3:1. `--control-line` already existed
-     for exactly this and was only being used on hover — so the button was
-     legible once you found it, and not before. */
-  border: var(--line-w) solid var(--control-line);
-  border-top: var(--line-w-thick) solid var(--choice-rule);
-  border-radius: var(--radius-3);
-  box-shadow: var(--shadow-1);
+  background: transparent;
+  border: 0;
+  border-top: var(--line-w) solid var(--choice-rule);
+  border-radius: 0;
+  /* The rule thickens on approach without moving anything: the second pixel
+     is an inset shadow, not a border. */
   transition:
     border-color var(--dur-base) var(--ease-out),
-    background-color var(--dur-base) var(--ease-out),
-    box-shadow var(--dur-base) var(--ease-out),
-    transform var(--dur-base) var(--ease-out);
+    box-shadow var(--dur-base) var(--ease-out);
 }
 
-.choiceButton[data-emphasis='primary'] { --choice-rule: var(--gold); }
+.choiceButton[data-emphasis='primary'] {
+  --choice-rule: var(--gold);
+  box-shadow: inset 0 var(--line-w) 0 0 var(--gold);
+}
 
 .choiceButton:hover,
 .choiceButton:focus-visible {
-  background-color: var(--surface-2);
-  border-color: var(--line-strong);
-  border-top-color: var(--choice-rule);
-  box-shadow: var(--shadow-2);
-  transform: translateY(-2px);
+  --choice-rule: var(--ink-hi);
+  box-shadow: inset 0 var(--line-w) 0 0 var(--choice-rule);
 }
 
-.choiceButton:active {
-  transform: translateY(0);
-  box-shadow: var(--shadow-1);
+.choiceButton[data-emphasis='primary']:hover,
+.choiceButton[data-emphasis='primary']:focus-visible {
+  --choice-rule: var(--gold-hi);
 }
 
 .choiceButton:focus-visible {
@@ -82,43 +89,37 @@
   outline-offset: var(--focus-offset);
 }
 
+/* The mark is the entry's small signpost, not a medallion: the glyph alone,
+   in the muted ink, above the name. */
 .choiceMark {
   grid-area: mark;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  inline-size: var(--control-h);
-  block-size: var(--control-h);
-  border-radius: 50%;
-  border: var(--line-w) solid var(--line-strong);
-  color: var(--ink);
-  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+  margin-block-end: var(--sp-2);
+  color: var(--ink-lo);
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 .choiceButton[data-emphasis='primary'] .choiceMark { color: var(--gold); }
 
-.choiceButton:hover .choiceMark {
-  color: var(--gold);
-  border-color: var(--gold-line-strong);
-}
+.choiceButton:hover .choiceMark { color: var(--ink-hi); }
 
 .choiceLabel {
   grid-area: label;
   color: var(--ink-hi);
   font-family: var(--face-display);
   font-optical-sizing: auto;
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
-  transition: color var(--dur-fast) var(--ease-out);
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
+  text-wrap: balance;
 }
-
-.choiceButton:hover .choiceLabel { color: var(--gold-hi); }
 
 .choiceSummary {
   grid-area: summary;
   margin: 0;
+  max-width: var(--measure-caption);
   color: var(--ink-lo);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
@@ -127,32 +128,47 @@
 
 .choiceArrow {
   grid-area: arrow;
-  align-self: center;
+  align-self: end;
   color: var(--ink-lo);
   font-size: var(--t-h3);
+  line-height: 1;
   transition:
     color var(--dur-fast) var(--ease-out),
     transform var(--dur-base) var(--ease-out);
 }
 
-.choiceButton:hover .choiceArrow {
-  color: var(--gold);
+.choiceButton[data-emphasis='primary'] .choiceArrow { color: var(--gold); }
+
+.choiceButton:hover .choiceArrow,
+.choiceButton:focus-visible .choiceArrow {
+  color: var(--ink-hi);
   transform: translateX(0.25em);
+}
+
+.choiceButton[data-emphasis='primary']:hover .choiceArrow,
+.choiceButton[data-emphasis='primary']:focus-visible .choiceArrow {
+  color: var(--gold-hi);
 }
 
 @media (width < 40rem) {
   .chooser { grid-template-columns: minmax(0, 1fr); }
-  .choiceButton { padding: var(--sp-4); }
+  .choiceButton { padding: var(--sp-4) 0 var(--sp-5); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .choiceButton,
   .choiceMark,
-  .choiceLabel,
   .choiceArrow { transition: none; }
-  .choiceButton:hover,
-  .choiceButton:focus-visible { transform: none; }
-  .choiceButton:hover .choiceArrow { transform: none; }
+  .choiceButton:hover .choiceArrow,
+  .choiceButton:focus-visible .choiceArrow { transform: none; }
+}
+
+@media (forced-colors: active) {
+  .choiceButton,
+  .choiceButton[data-emphasis='primary'] {
+    border-top-color: CanvasText;
+    box-shadow: none;
+  }
 }
 
 /* An open flow. It replaces the chooser in place, so it opens with its own
@@ -176,10 +192,11 @@
   margin: 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
-  line-height: var(--t-h3-lh);
-  letter-spacing: var(--t-h3-tracking);
+  font-optical-sizing: auto;
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
 }
 
 /* The heading is a focus target when its panel opens; the global ring draws
@@ -197,20 +214,52 @@
   margin: 0 0 var(--sp-5);
   max-width: var(--measure-narrow);
   color: var(--ink);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
+  font-size: var(--t-prose);
+  line-height: var(--t-prose-lh);
 }
 
 .flowLede + .flowLede {
   margin-top: calc(-1 * var(--sp-3));
 }
 
-/* The volunteer flow's skill list: three named areas, read before the form. */
+/* The volunteer flow's skill list: three named areas, read before the form.
+   A definition list of ruled entries — the area in the serif, what it means
+   beside it — rather than three cards whose eyebrow repeated their title. */
 .skillGrid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--sp-3);
-  margin: 0 0 var(--sp-5);
+  margin: 0 0 var(--sp-6);
+  border-top: var(--line-w) solid var(--line);
+}
+
+.skill {
+  display: grid;
+  grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
+  gap: var(--sp-2) var(--sp-5);
+  padding: var(--sp-4) 0;
+  border-bottom: var(--line-w) solid var(--line-soft);
+}
+
+.skillName {
+  margin: 0;
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+}
+
+.skillDetail {
+  margin: 0;
+  max-width: var(--measure-caption);
+  color: var(--ink-lo);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+@media (width < 40rem) {
+  .skill { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* With scripting off all four panels are revealed at once and need the

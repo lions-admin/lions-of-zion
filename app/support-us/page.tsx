@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import { ContentCard } from "@/components/content";
 import { ReportClaimForm } from "@/components/support/ReportClaimForm";
 import { VolunteerInterestForm } from "@/components/support/VolunteerInterestForm";
 import { ShareControls } from "@/components/support/ShareControls";
@@ -56,6 +55,26 @@ const SHARE_TITLE = "Lions of Zion — News & Analysis";
  * is in the HTML whether or not the switch ever hydrates, and this file stays
  * a server component.
  */
+/* The three areas a volunteer can work in. They were three `ContentCard`s,
+   each with an eyebrow ("Investigate") that restated its own title; the
+   eyebrow words are dropped and the names and sentences are kept verbatim. */
+const SKILLS = [
+  {
+    name: "Open-source investigation",
+    detail:
+      "Geolocation, chronolocation, archive work, and network analysis of coordinated campaigns.",
+  },
+  {
+    name: "Languages",
+    detail:
+      "Reading and translating primary material across the languages of the region and of the networks that target it.",
+  },
+  {
+    name: "Design and development",
+    detail: "The tools that make verified material fast to check and easy to carry.",
+  },
+] as const;
+
 const FLOWS: SupportFlow[] = [
   {
     id: "report",
@@ -89,20 +108,14 @@ const FLOWS: SupportFlow[] = [
           inside the same method: evidence first. Human investigations and
           assessments retain their own review path.
         </p>
-        <div className={flowStyles.skillGrid}>
-          <ContentCard eyebrow="Investigate" title="Open-source investigation">
-            Geolocation, chronolocation, archive work, and network analysis of
-            coordinated campaigns.
-          </ContentCard>
-          <ContentCard eyebrow="Translate" title="Languages">
-            Reading and translating primary material across the languages of the
-            region and of the networks that target it.
-          </ContentCard>
-          <ContentCard eyebrow="Build" title="Design and development">
-            The tools that make verified material fast to check and easy to
-            carry.
-          </ContentCard>
-        </div>
+        <dl className={flowStyles.skillGrid}>
+          {SKILLS.map((skill) => (
+            <div key={skill.name} className={flowStyles.skill}>
+              <dt className={flowStyles.skillName}>{skill.name}</dt>
+              <dd className={flowStyles.skillDetail}>{skill.detail}</dd>
+            </div>
+          ))}
+        </dl>
         <VolunteerInterestForm />
       </>
     ),

@@ -163,8 +163,8 @@
 
 :where(.body) p {
   margin: 0 0 var(--flow);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
+  font-size: var(--t-prose);
+  line-height: var(--t-prose-lh);
   color: var(--ink);
 }
 
@@ -193,8 +193,8 @@
 
 :where(.body) li {
   margin-bottom: var(--sp-2);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
+  font-size: var(--t-prose);
+  line-height: var(--t-prose-lh);
   color: var(--ink);
 }
 

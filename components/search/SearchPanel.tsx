@@ -419,7 +419,6 @@ export function SearchPanel({
             onDismiss?.();
           }}
           stale={showingStale}
-          offset={answeredOffset}
         />
       ) : (
         /* The listbox must exist for `aria-controls` to resolve even when it

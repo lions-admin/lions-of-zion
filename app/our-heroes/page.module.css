@@ -217,8 +217,9 @@
 .story {
   margin: 0;
   max-width: var(--measure-reading);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
+  /* A life, told: long-form reading, so the prose role (2026-09-22). */
+  font-size: var(--t-prose);
+  line-height: var(--t-prose-lh);
   color: var(--ink);
 }
 

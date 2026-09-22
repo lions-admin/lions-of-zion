@@ -1,4 +1,9 @@
-/* ---- The method: a real pipeline, not a numbered list pretending to be
+/* ---- We Are · Signal over noise (2026-09-22): the stage numbers, the card
+   roster and the mono principle names went; the pipeline's order is the
+   `<ol>`'s own, the roster and the principles are ruled entries with their
+   names in the serif, the same glossary grammar as Methodology's terms. ----
+
+   The method: a real pipeline, not a numbered list pretending to be
    one. A continuous track runs through every stage; the human-review stage
    breaks its shape (square → diamond) and takes a panel of its own because
    it is structurally different from the rest — the one gate nothing
@@ -67,23 +72,6 @@
   color: var(--ink);
 }
 
-/* The human gate keeps its diamond without rotating or clipping the icon. */
-.pipelineStage[data-gate] .pipelineNode {
-  margin-top: var(--sp-4);
-  border: 0;
-  background: transparent;
-  color: var(--gold-hi);
-}
-
-.pipelineStage[data-gate] .pipelineNode::before {
-  content: '';
-  position: absolute;
-  inset: var(--sp-1);
-  border: var(--line-w) solid var(--gold-line-strong);
-  background: var(--ground);
-  transform: rotate(45deg);
-}
-
 .pipelineNode svg {
   position: relative;
   flex: none;
@@ -93,29 +81,12 @@
   min-width: 0;
 }
 
-/* The gate stage is a panel, not a paragraph: the structural difference
-   shows in the layout before a reader gets to the label. */
-.pipelineStage[data-gate] .pipelineContent {
-  padding: var(--sp-4) var(--sp-5);
-  border: var(--line-w) solid var(--gold-line);
-  border-radius: var(--radius-2);
-  background: var(--surface-1);
-}
-
 .pipelineHead {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: var(--sp-2) var(--sp-3);
   margin-bottom: var(--sp-2);
-}
-
-.pipelineNumber {
-  color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: var(--t-data-lh);
-  font-variant-numeric: tabular-nums;
 }
 
 /* A stage name is a heading, not a label: sentence case in the display face
@@ -130,15 +101,6 @@
   color: var(--ink-hi);
 }
 
-/* "Gate — human only": short, and genuinely a status stamp on the one stage
-   nothing automated can pass, so it keeps the uppercase data voice. */
-.gateLabel {
-  composes: dataLabel from global;
-  display: block;
-  margin: 0 0 var(--sp-3);
-  color: var(--gold);
-}
-
 .pipelineContent p {
   margin: 0;
   font-size: var(--t-body);
@@ -146,21 +108,61 @@
   color: var(--ink);
 }
 
-/* Editorial roster, not a marketing grid. Card.row owns the hairline
-   between records; this list only stacks them. */
+/* Editorial roster, not a marketing grid: four ruled entries. The kind of
+   work is the kicker; the use is the name, in the serif; the sentence is
+   what it means. Two up from the seam, because four short entries compare
+   better side by side than stacked down a column. */
 .roleRoster {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0 var(--sp-6);
   margin: var(--sp-5) 0;
   padding: 0;
   list-style: none;
 }
 
-.roleRoster > li {
+.role {
+  display: grid;
+  align-content: start;
+  gap: var(--sp-2);
   min-width: 0;
+  padding: var(--sp-4) 0 var(--sp-5);
+  border-top: var(--line-w) solid var(--line);
   overflow-wrap: anywhere;
 }
 
+.roleKicker {
+  composes: kickerLabel from global;
+  margin: 0;
+  color: var(--ink-lo);
+}
+
+.roleTitle {
+  margin: 0;
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  color: var(--ink-hi);
+}
+
+.roleBody {
+  margin: 0;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink);
+}
+
+@media (min-width: 45rem) {
+  .roleRoster {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* Principles, one per row rather than four in a paragraph. The name is the
-   scan target and sits in the data voice; the commitment beside it is read
+   scan target and sits in the serif; the commitment beside it is read
    at body. A hairline between rows, no card — a promise is not a product
    feature. From the seam up the name takes its own column so four
    commitments line up and can be compared. */
@@ -183,12 +185,12 @@
 
 .principles dt {
   min-width: 0;
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
   color: var(--ink-hi);
 }
 

@@ -1,5 +1,11 @@
 /* The desk as a page (`/ask`), and the two controls that differ from the drawer.
  *
+ * Signal over noise (2026-09-22): on the page the question is a line, not a
+ * box — the same instrument as `/search`. The reader writes in the serif onto
+ * one control rule; the rule goes gold while they are in it, and Send takes
+ * the gold only once there is something to send. Suggested questions are the
+ * questions themselves, underlined, rather than a row of bordered chips.
+ *
  * `ask.module.css` styles the desk for the drawer, where the order is header,
  * conversation, composer — the composer at the foot in every state. On the
  * page that order put the box below the fold at 390px, under a lede, a serif
@@ -23,16 +29,90 @@
      under the text. The bleed is what keeps the plate's edge off the text's
      edge without moving the text. */
   background-color: var(--ground);
-  padding: var(--sp-3) var(--sp-4);
+  padding: var(--sp-5) var(--sp-4) var(--sp-3);
   margin-inline: calc(var(--sp-4) * -1);
 }
 
-/* ── Suggested questions, as chips ───────────────────────────────────── */
+/* ── The question line ───────────────────────────────────────────────── */
 
+/* One element deeper than `ask.module.css`'s `.deskPrompt [data-slot=…]`, so
+   the page wins without depending on which module's rules load first. The
+   well (fill, four sides, radius) becomes a single rule under the text. The
+   rule is `--control-line` because it is what identifies the field
+   (WCAG 1.4.11, 3.40:1 on black). */
+.page form [data-slot="input-group"] {
+  background: transparent;
+  border: 0;
+  border-bottom: var(--line-w) solid var(--control-line);
+  border-radius: 0;
+  box-shadow: none;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.page form:hover [data-slot="input-group"] {
+  border-bottom-color: var(--ink-lo);
+}
+
+/* The focus indicator: the rule turns gold and thickens by a pixel along the
+   whole field. The textarea's own ring is already withdrawn by
+   `ask.module.css`; forced colours get a system outline below instead. */
+.page form:focus-within [data-slot="input-group"] {
+  background: transparent;
+  border-bottom-color: var(--gold);
+  box-shadow: 0 var(--line-w) 0 0 var(--gold);
+}
+
+.page form textarea {
+  padding-inline: 0;
+  padding-block: var(--sp-3);
+  padding-inline-end: calc(var(--control-h) + var(--sp-3));
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  min-block-size: calc(2 * var(--t-h3-lh) * var(--t-h3) + (2 * var(--sp-3)));
+  max-block-size: calc(8 * var(--t-h3-lh) * var(--t-h3) + (2 * var(--sp-3)));
+}
+
+.page form textarea::placeholder {
+  font-style: italic;
+}
+
+.page form [data-align="block-end"] {
+  inset-inline-end: 0;
+}
+
+@media (forced-colors: active) {
+  .page form:focus-within [data-slot="input-group"] {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+}
+
+/* ── Suggested questions ─────────────────────────────────────────────── */
+
+.suggested {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.chipsLabel {
+  composes: kickerLabel from global;
+  margin: 0;
+  color: var(--ink-lo);
+}
+
+/* A short list of whole questions, one per line: each is a sentence, and a
+   sentence reads down a column rather than across a wrapped row. */
 .chips {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-2);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -51,11 +131,31 @@
   max-width: 100%;
   height: auto;
   min-block-size: var(--control-h);
-  padding-block: var(--sp-2);
+  padding: var(--sp-2) 0;
   white-space: normal;
   text-align: start;
   overflow-wrap: anywhere;
-  border-color: var(--control-line);
+  border: 0;
+  background: transparent;
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-lede);
+  font-weight: 400;
+  line-height: var(--t-lede-lh);
+  color: var(--ink-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--control-line);
+  text-decoration-thickness: var(--line-w);
+  text-underline-offset: 0.28em;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.chips button:hover:not(:disabled) {
+  background: transparent;
+  color: var(--gold-hi);
+  text-decoration-color: var(--gold);
 }
 
 /* ── Send ────────────────────────────────────────────────────────────── */
@@ -66,6 +166,10 @@
    phone keyboard's width and the glyph alone is the convention; above it a
    glyph-only send button next to a multi-line field is a guess. */
 .submit {
+  /* The registry's `size-8` fixes the width too, which clipped "Send ↵"
+     inside a 44px square; the width follows the content instead. */
+  inline-size: auto;
+  block-size: auto;
   min-inline-size: 2.75rem;
   min-block-size: 2.75rem;
   gap: var(--sp-2);
@@ -83,6 +187,11 @@
 @media (min-width: 48rem) {
   .submit {
     padding-inline: var(--sp-3);
+  }
+
+  /* Room for the word as well as the glyph, which is what appears here. */
+  .page form textarea {
+    padding-inline-end: calc(var(--control-h) + var(--sp-8));
   }
 
   .submitLabel {

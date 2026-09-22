@@ -1,17 +1,17 @@
-/* Search · design V3
+/* Search · Signal over noise (2026-09-22)
  *
- * The instrument reads as an index, not a spotlight. Every result sits against
- * a numbered gutter with a hairline running down it, group heads carry a
- * two-digit count, and the ordinals are set in the data face — the same
- * `01—08` vocabulary the site header's file index already speaks. That gutter
- * is the one bold element here; everything else is deliberately quiet, because
- * the list is the content and the panel is furniture.
+ * The instrument reads as an index, not a spotlight. The query is a line, not
+ * a box: the reader types in Newsreader at a heading size onto one control
+ * rule, and that rule is the one place the page spends its gold — on focus,
+ * when the line is where the reader is. Results are ruled entries under a
+ * kicker per kind: a hairline between records, the record's own title in the
+ * serif, its standfirst in the text face, and nothing filled. The two-digit
+ * gutter that used to run beside the list is gone; the list is grouped by
+ * kind, so a count across the groups ordered nothing.
  *
- * Type roles: the query is set in the display serif (a person is composing
- * into an editorial corpus, and it wants that weight), result titles in the
- * same serif one step down, and everything that is metadata — kind, path,
- * ordinal, count, key hints — in the data face. Nothing is invented: every
- * value below reads a token from `app/globals.css`.
+ * Type roles: the query and the result titles in the display serif, labels in
+ * the kicker role, counts and key hints in the data face. Nothing is
+ * invented: every value below reads a token from `app/globals.css`.
  *
  * No `z-index` fight: the overlay is a native `<dialog>` in the browser's top
  * layer. `--z-modal` is set anyway, so that a `showModal()` that never ran
@@ -88,6 +88,9 @@
   background-color: var(--ground);
   padding-inline: var(--sp-4);
   margin-inline: calc(var(--sp-4) * -1);
+  /* Clear of the masthead's lede rule, which `DocPage` draws directly above
+     the body: without this the field's label sat on that rule. */
+  padding-block-start: var(--sp-5);
 }
 
 /* ── The query row ────────────────────────────────────────────────────── */
@@ -98,26 +101,105 @@
   border-bottom: var(--line-w) solid var(--line-soft);
 }
 
+/* On the page the field's own rule is the row's edge, so the row draws none
+   and the running pulse below lands exactly on that rule. */
 .panel[data-variant="page"] .queryRow {
-  padding-inline: 0;
-  border-bottom-color: var(--line);
+  padding: 0;
+  border-bottom: 0;
 }
 
 .queryField {
   min-width: 0;
 }
 
+/* The field's label names the control and nothing more: the kicker role, so
+   it reads as the label over a line rather than as a sentence. `FieldShell`
+   owns the element; this only sets its type. */
+.queryField label {
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+
+/* The control row carries the rule, not the input, so the clear and close
+   buttons sit on the same line as the text rather than floating beside a
+   box. The rule is `--control-line`: it is the boundary that identifies the
+   field, so it owes WCAG 1.4.11's 3:1 (3.40:1 on black). */
 .queryControl {
   display: flex;
   align-items: center;
   gap: var(--sp-3);
   min-width: 0;
+  border-bottom: var(--line-w) solid var(--control-line);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
 }
 
-.queryInput {
+.queryControl:hover {
+  border-bottom-color: var(--ink-lo);
+}
+
+/* Focus is the rule turning gold and thickening by a pixel — a 2px indicator
+   along the whole field, drawn by the row so it spans the buttons too. The
+   input's own ring is withdrawn only because this one replaces it; forced
+   colours restore a system ring below, where a box-shadow is not painted. */
+.queryControl:has(.queryInput:focus-visible) {
+  border-bottom-color: var(--gold);
+  box-shadow: 0 var(--line-w) 0 0 var(--gold);
+}
+
+/* Beats `field.module.css` `.control` (one class) with two, so the shared
+   well — ground fill, four-sided border, radius — becomes a line here without
+   touching the primitive everyone else uses. */
+.queryControl .queryInput {
   flex: 1 1 0;
   width: auto;
   min-inline-size: 0;
+  min-block-size: var(--control-h);
+  padding: var(--sp-2) 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  color: var(--ink-hi);
+}
+
+.panel[data-variant="page"] .queryControl .queryInput {
+  padding-block: var(--sp-3);
+  font-size: var(--t-h2);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
+}
+
+.queryControl .queryInput::placeholder {
+  color: var(--ink-lo);
+  font-style: italic;
+}
+
+.queryControl .queryInput:hover:not(:disabled),
+.queryControl .queryInput:focus-visible {
+  background: transparent;
+  border: 0;
+}
+
+.queryControl .queryInput:focus-visible {
+  outline: none;
+}
+
+@media (forced-colors: active) {
+  .queryControl .queryInput:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
 }
 
 /* Safari draws its own decorations on `type="search"`; they are a second,
@@ -182,30 +264,32 @@
  * metadata at 13px. */
 .resultStatus {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--sp-1) var(--sp-3);
+  flex-direction: column;
+  gap: var(--sp-1);
   padding: var(--sp-3) var(--sp-5) 0;
-  font-family: var(--face-data);
+  font-family: var(--face-text);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
-  letter-spacing: var(--t-data-tracking-tight);
   color: var(--ink-lo);
   text-wrap: pretty;
 }
 
 .panel[data-variant="page"] .resultStatus {
-  padding-inline: 0;
+  padding: var(--sp-4) 0 0;
 }
 
+/* The count is a machine value — a range and a total — so it takes the data
+   face; the matcher sentence beside it is prose and stays in the text face. */
 .resultCount {
+  font-family: var(--face-data);
+  letter-spacing: var(--t-data-tracking-tight);
   font-variant-numeric: tabular-nums;
   color: var(--ink);
   overflow-wrap: anywhere;
 }
 
 .resultFact {
-  max-inline-size: var(--measure-caption);
+  max-inline-size: var(--measure-narrow);
 }
 
 /* ── The kind filter ──────────────────────────────────────────────────── */
@@ -231,7 +315,7 @@
 }
 
 .filtersLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--ink-lo);
   padding-inline-end: var(--sp-1);
 }
@@ -269,7 +353,7 @@
 .results {
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding-block: var(--sp-2);
+  padding-block: var(--sp-2) 0;
   transition: opacity var(--dur-fast) var(--ease-out);
 }
 
@@ -288,26 +372,31 @@
 }
 
 .group + .group {
-  margin-block-start: var(--sp-4);
+  margin-block-start: var(--sp-6);
 }
 
+/* The kind, once, as the rule that opens its group: the kicker role over a
+   full-strength hairline, and the count beside it in the data face. */
 .groupHead {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--sp-3);
-  padding: var(--sp-2) var(--sp-5) var(--sp-2) calc(var(--sp-5) + 3.25rem);
-  color: var(--ink-lo);
+  padding: var(--sp-3) var(--sp-5) var(--sp-2);
+  border-bottom: var(--line-w) solid var(--line);
+  color: var(--ink);
   overflow-wrap: anywhere;
 }
 
 .panel[data-variant="page"] .groupHead {
-  padding-inline: 0 0;
-  padding-inline-start: 3.25rem;
+  padding-inline: 0;
 }
 
 .groupCount {
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  letter-spacing: var(--t-data-tracking-tight);
   font-variant-numeric: tabular-nums;
   color: var(--ink-lo);
 }
@@ -319,67 +408,67 @@
   overflow-wrap: anywhere;
 }
 
-/* Beats Card `.row` (single class) so the ordinal gutter survives the
-   shared composition. `overflow-wrap: anywhere` is the 320px wrap contract. */
+/* Beats Card `.row` (single class) so the entry's own grid survives the
+   shared composition. `overflow-wrap: anywhere` is the 320px wrap contract.
+   A ruled entry: a hairline under each record and nothing filled. */
 .results .hit {
+  position: relative;
   display: grid;
-  grid-template-columns: 3.25rem minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
-  gap: var(--sp-3);
+  gap: var(--sp-4);
   min-width: 0;
   overflow-wrap: anywhere;
-  padding: var(--sp-3) var(--sp-5);
+  padding: var(--sp-4) var(--sp-5);
+  border: 0;
+  border-bottom: var(--line-w) solid var(--line-soft);
+  border-radius: 0;
+  background: transparent;
   text-decoration: none;
   color: inherit;
   scroll-margin-block: var(--sp-5);
+  transition: background-color var(--dur-fast) var(--ease-out);
 }
 
 .panel[data-variant="page"] .results .hit {
   padding-inline: 0;
 }
 
-/* The gutter, and the site's file-index voice: a two-digit ordinal against a
-   hairline that runs the length of the list. */
-.hitOrdinal {
-  position: relative;
-  padding-inline-end: var(--sp-3);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  line-height: 1.9;
-  font-weight: var(--t-data-weight);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: var(--t-data-tracking);
-  color: var(--ink-lo);
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.hitOrdinal::after {
-  content: "";
-  position: absolute;
-  inset-block: -0.35rem;
-  inset-inline-end: 0;
-  inline-size: var(--line-w);
-  background: var(--line-soft);
-  transition: background-color var(--dur-fast) var(--ease-out);
-}
-
 .hitBody {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
   min-inline-size: 0;
   overflow-wrap: anywhere;
 }
 
+/* The group head already says what kind this is. The eyebrow stays in the
+   accessibility tree, because an option is announced without its group.
+   Written out rather than composed: `composes` is illegal on a descendant
+   selector (see `.srOnly` in `app/globals.css`). */
 .results .hitHeader {
-  margin-bottom: var(--sp-1);
-  gap: var(--sp-2);
-  flex-wrap: wrap;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 .results .hitTitle {
-  margin-bottom: var(--sp-1);
+  margin: 0;
+  max-width: var(--measure-narrow);
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h3);
+  line-height: var(--t-h3-lh);
+  letter-spacing: var(--t-h3-tracking);
+  color: var(--ink-hi);
   overflow-wrap: anywhere;
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
 /* The record's own standfirst, where it has one — prose, and set as prose.
@@ -389,12 +478,16 @@
    lines instead of letting one long result push the next three off the screen,
    and words break only where words break. */
 .results .hitSummary {
-  max-width: none;
+  max-width: var(--measure-narrow);
+  margin: 0;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
   line-clamp: 3;
   overflow: hidden;
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  color: var(--ink-lo);
   overflow-wrap: break-word;
   text-wrap: pretty;
 }
@@ -412,41 +505,45 @@
 }
 
 /* Active — the keyboard's selection and the pointer's hover are one state.
-   No filled bar: the gutter rule goes gold, the ordinal with it, and the
-   surface lifts a single level. */
-.hit[data-active] {
-  background: var(--surface-2);
+   No plate: the entry's own rule turns gold and thickens, the title lifts to
+   full ink, and "Open" appears — the rule is the colour cue, and the word is
+   the one that does not need colour. The rule is drawn as an inset shadow so
+   the thicker line costs no layout: nothing below the entry moves. The first
+   result is active on arrival (it is what Return opens), so this is the gold
+   the list spends, and the title does not spend a second one. */
+.results .hit[data-active] {
+  border-bottom-color: var(--gold);
+  box-shadow: inset 0 calc(var(--line-w) * -1) 0 0 var(--gold);
 }
 
-.hit[data-active] .hitTitle {
+.results .hit[data-active] .hitTitle {
   color: var(--ink-hi);
 }
 
-.hit[data-active] .hitOrdinal {
-  color: var(--gold);
+.results .hit:not([data-active]) .hitTitle {
+  color: var(--ink);
 }
 
-.hit[data-active] .hitOrdinal::after {
-  background: var(--gold);
-}
-
-.hit[data-active] .hitCta {
+.results .hit[data-active] .hitCta {
   opacity: 1;
 }
 
 /* An unreachable row still shows where the keyboard is, but never in the
    colour that means "this opens". */
-.hitInert[data-active] .hitOrdinal {
-  color: var(--ink);
-}
-
-.hitInert[data-active] .hitOrdinal::after {
-  background: var(--line-strong);
+.results .hitInert[data-active] {
+  border-bottom-color: var(--line-strong);
+  box-shadow: inset 0 calc(var(--line-w) * -1) 0 0 var(--line-strong);
 }
 
 .hit:focus-visible {
   outline: var(--focus-outline);
   outline-offset: calc(var(--focus-offset) * -1);
+}
+
+@media (forced-colors: active) {
+  .results .hit[data-active] {
+    border-bottom: var(--line-w-thick) solid Highlight;
+  }
 }
 
 /* ── The pager ────────────────────────────────────────────────────────── */
@@ -534,6 +631,8 @@
 .panel[data-variant="page"] .notice,
 .panel[data-variant="page"] .primer {
   padding-inline: 0;
+  padding-block: var(--sp-5) var(--sp-6);
+  gap: var(--sp-5);
 }
 
 .suggestions {
@@ -543,7 +642,7 @@
 }
 
 .suggestionsLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--ink-lo);
 }
 
@@ -570,6 +669,39 @@
   /* A control boundary, so `--control-line` rather than the editorial
      hairline (A11Y-004; this measured 1.28:1 against a floor of 3). */
   border-color: var(--control-line);
+}
+
+/* On the page the primer queries are words to take, not a row of boxes: the
+   serif at body size, underlined in the control line so each still reads as
+   something to press, on the 44px floor. The overlay keeps its chips — a
+   dialog is a tool surface, and its controls look like controls. */
+.panel[data-variant="page"] .chips {
+  gap: 0 var(--sp-5);
+}
+
+.panel[data-variant="page"] .chips button {
+  min-block-size: var(--control-h);
+  padding-inline: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-lede);
+  font-weight: 400;
+  color: var(--ink-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--control-line);
+  text-decoration-thickness: var(--line-w);
+  text-underline-offset: 0.28em;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.panel[data-variant="page"] .chips button:hover {
+  background: transparent;
+  color: var(--gold-hi);
+  text-decoration-color: var(--gold);
 }
 
 .status {
@@ -607,7 +739,7 @@
 
 .panel[data-variant="page"] .foot {
   padding-inline: 0;
-  border-top-color: var(--line);
+  border-top: 0;
 }
 
 .footKeys {
@@ -748,7 +880,7 @@
     flex: 1 1 auto;
   }
 
-  .results .hit,
+  .panel[data-variant="overlay"] .results .hit,
   .groupHead,
   .notice,
   .primer,
@@ -777,7 +909,6 @@
   }
 
   .results .hit {
-    grid-template-columns: 2.5rem minmax(0, 1fr) auto;
     min-block-size: var(--control-h);
   }
 

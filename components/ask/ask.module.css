@@ -50,8 +50,10 @@
   border-block-start: var(--line-w) solid var(--line-soft);
 }
 
+/* "Answer" / "Not answered" name the block that follows — a label a person
+   wrote, so the kicker role rather than the mono data stamp (UX-31). */
 .recordLabel {
-  composes: dataLabel from global;
+  composes: kickerLabel from global;
   color: var(--ink-lo);
 }
 
@@ -251,18 +253,18 @@
 
 
 
+/* The wait, on the ground: no plate. A static ink rule at the leading edge
+   marks the block as the answer still to come — ink, not gold, because gold
+   is the one primary control on the screen and this is a state. */
 .waiting {
   position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--sp-3);
   margin-block-start: var(--sp-5);
-  padding: var(--sp-5);
-  background: var(--surface-1);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
+  padding: var(--sp-1) 0 var(--sp-1) var(--sp-5);
+  border-inline-start: var(--line-w-thick) solid var(--ink-lo);
   max-inline-size: var(--measure-reading);
-  overflow: hidden;
 }
 
 .waitingLead {
@@ -476,7 +478,10 @@
   font-family: var(--face-display);
   font-size: var(--t-lede);
   line-height: var(--t-lede-lh);
-  color: var(--state-warn);
+  /* Ink, not the warn ramp: on black `--state-warn` reads as a second gold,
+     and the label above already says "Not answered" in the warn tone, in
+     words. The sentence is the reader's to read, not an alarm. */
+  color: var(--ink-hi);
   text-wrap: balance;
   font-optical-sizing: auto;
 }
@@ -748,12 +753,6 @@
     scroll-behavior: auto;
   }
 
-  /* BorderBeam hides itself; the waiting answer keeps a static emphasized
-     border so the state is still visible without a travelling beam. */
-  .waiting {
-    border-width: var(--line-w-thick);
-    border-color: var(--ink-hi);
-  }
 }
 
 /* ---- The launcher, in the masthead ----
@@ -1000,6 +999,13 @@
 .transcriptFrame {
   flex: 1 1 auto;
   min-block-size: 0;
+}
+
+/* On `/ask` the transcript shares the page's column: the registry's `p-4`
+   inset the answers 16px off the composer's edge above them. The drawer keeps
+   it, because there the panel's own edge is 16px away. */
+.desk[data-ask-layout="page"] .transcript {
+  padding-inline: 0;
 }
 
 /* The transcript's empty state, which is where the primer and the evidence

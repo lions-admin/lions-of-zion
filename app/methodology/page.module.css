@@ -1,240 +1,31 @@
-/* Methodology as an institutional standard.
+/* Methodology · Signal over noise (2026-09-22).
    ------------------------------------------------------------------
-   METHOD-001 asks that a reader can answer "how was this assessed?"
-   without scrolling, and reach the detail from there. That is what
-   `.summary` and `.glance` are: the standard in one paragraph, then a
-   contents of the standard itself — every entry a link to the section
-   that holds the rule in full.
+   The page is `DocPage` and its prose is the shell's. What is this file's
+   own is the vocabulary: the five terms the standard turns on (source,
+   claim, evidence, assessment, uncertainty) and the two provenance paths are
+   definition lists, and they are set as ruled entries — the term in the
+   serif at the heading size, its definition beside it, a hairline under each
+   — so the words the rest of the site depends on read as a glossary rather
+   than as bold text in a paragraph.
 
-   METHOD-002 asks for a static relationship diagram with every step
-   and gate still textual. `.process` is that diagram: an ordered list
-   with a drawn track, a numeral, a stage name, and, on the one stage
-   nothing automated can pass, a written gate label and a panel of its
-   own. There is no Signal Beam here and no animation of any kind — the
-   pipeline is a standard, not an event, so nothing about it arrives.
-   It reads identically with scripting off and under reduced motion
-   because it is the same static markup in both.
+   The summary, the contents-of-the-standard list and the METHOD-002 process
+   diagram that used to be styled here had no markup left on the page; their
+   rules were deleted with this pass rather than carried as dead weight. */
 
-   Design V3 (`app/globals.css`). Institution family: rules, spacing and
-   type carry the hierarchy. Gold is spent twice on this page — the
-   summary's rule and the gate — and nowhere else. */
-
-/* ---- the standard, in one paragraph ---- */
-
-.summary {
-  margin: 0 0 var(--sp-6);
-  padding-left: var(--sp-5);
-  border-left: var(--line-w-thick) solid var(--gold-line-strong);
-  max-width: var(--measure-reading);
-}
-
-/* Beats `:where(.body) p`, which is zero-specificity by construction. */
-.summaryText {
-  margin: 0;
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: var(--t-lede);
-  font-weight: var(--t-lede-weight);
-  line-height: var(--t-lede-lh);
-  color: var(--ink-hi);
-}
-
-/* ---- a contents of the standard ---- */
-
-.glanceKicker {
-  composes: kicker from '../../components/content/content.module.css';
-  margin-bottom: var(--sp-3);
-}
-
-.glance {
-  margin: 0;
-  padding: 0;
+.terms {
+  margin: var(--sp-5) 0 var(--flow);
   border-top: var(--line-w) solid var(--line);
 }
 
-/* One row per rule: the rule's name is the link, the sentence beside it
-   is what a reader gets if they never follow it. Rows are a grid from
-   the seam up and stack below it — no card, no tile, no second column
-   of navigation. */
-.glanceRow {
+.term {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--sp-1);
-  padding: var(--sp-3) 0;
+  grid-template-columns: minmax(0, 12rem) minmax(0, 1fr);
+  gap: var(--sp-2) var(--sp-6);
+  padding: var(--sp-4) 0;
   border-bottom: var(--line-w) solid var(--line-soft);
 }
 
-.glanceRow:last-child {
-  border-bottom: var(--line-w) solid var(--line);
-}
-
-.glanceTerm {
-  margin: 0;
-  min-width: 0;
-}
-
-/* A navigation target, so it answers to the control floor rather than to
-   the line box. `--control-h-sm` becomes 44px on a coarse pointer in
-   `app/globals.css`; on a fine pointer it stays a text link. */
-.glanceTerm a {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--control-h-sm);
-  color: var(--ink-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  text-decoration: none;
-  border-bottom: var(--line-w) solid var(--line-strong);
-  transition: color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out);
-}
-
-/* The height was already handled above; a one-word term ("Scope") still
-   measured 41px wide, three short of the floor. Width only under a coarse
-   pointer, so a mouse keeps the term hugging its own text. */
-@media (pointer: coarse) {
-  .glanceTerm a {
-    min-inline-size: var(--control-h);
-    justify-content: flex-start;
-  }
-}
-
-.glanceTerm a:hover,
-.glanceTerm a:focus-visible {
-  color: var(--gold-hi);
-  border-bottom-color: var(--gold-line-strong);
-}
-
-.glanceDef {
-  margin: 0;
-  min-width: 0;
-  max-width: var(--measure-reading);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  color: var(--ink);
-}
-
-/* There is deliberately no wide two-column variant here.
-   A `min-width: 45rem` *viewport* query looked obvious and was wrong:
-   `.panel` is column two of a shell capped at `--family-measure`, so
-   this list never gets more than a reading measure no matter how wide
-   the window is. Giving a 14rem term column out of it left these
-   sentences around 45 characters a line — and they are sentences, not
-   labels. Stacked, each definition gets the whole measure, and the
-   tracked term above it is a stronger scan anchor than an aligned
-   column would have been. */
-
-/* ---- the process, as a relationship diagram (METHOD-002) ---- */
-
-.process {
-  --process-marker: var(--sp-6);
-  margin: var(--sp-5) 0 var(--flow);
-  padding: 0;
-  list-style: none;
-}
-
-.stage {
-  position: relative;
-  display: grid;
-  grid-template-columns: var(--process-marker) minmax(0, 1fr);
-  align-items: start;
-  gap: var(--sp-4);
-  min-width: 0;
-  padding-bottom: var(--sp-6);
-}
-
-.stage:last-child {
-  padding-bottom: 0;
-}
-
-/* The track is drawn per stage, from this row's node to the next row's,
-   so it begins at the first marker and ends at the last instead of
-   overrunning the list. */
-.stage::before {
-  content: '';
-  position: absolute;
-  top: calc(var(--process-marker) / 2);
-  bottom: calc(-1 * var(--process-marker) / 2);
-  left: calc((var(--process-marker) - var(--line-w)) / 2);
-  width: var(--line-w);
-  background: var(--line);
-}
-
-.stage:last-child::before {
-  display: none;
-}
-
-.stageNode {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--process-marker);
-  height: var(--process-marker);
-  border: var(--line-w) solid var(--control-line);
-  border-radius: var(--radius-2);
-  background: var(--ground);
-  color: var(--ink);
-}
-
-/* The human gate uses the same diamond and fixed icon geometry as We Are. */
-.stage[data-gate] .stageNode {
-  margin-top: var(--sp-4);
-  border: 0;
-  background: transparent;
-  color: var(--gold-hi);
-}
-
-.stage[data-gate] .stageNode::before {
-  content: '';
-  position: absolute;
-  inset: var(--sp-1);
-  border: var(--line-w) solid var(--gold-line-strong);
-  background: var(--ground);
-  transform: rotate(45deg);
-}
-
-.stageNode svg {
-  position: relative;
-  flex: none;
-}
-
-.stageBody {
-  min-width: 0;
-}
-
-/* The gate stage takes a panel, so the structural difference is in the
-   layout and not only in the words. */
-.stage[data-gate] .stageBody {
-  padding: var(--sp-4) var(--sp-5);
-  border: var(--line-w) solid var(--gold-line);
-  border-radius: var(--radius-2);
-  background: var(--surface-1);
-}
-
-.stageHead {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--sp-3);
-  margin-bottom: var(--sp-2);
-}
-
-.stageNumber {
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-lo);
-}
-
-.stageName {
+.term dt {
   margin: 0;
   font-family: var(--face-display);
   font-optical-sizing: auto;
@@ -245,25 +36,18 @@
   color: var(--ink-hi);
 }
 
-/* "Gate — human only": a status stamp on the one stage nothing automated
-   can pass, so it keeps the tracked data voice. Written out, never a
-   colour alone. */
-.stageGate {
-  composes: dataLabel from global;
-  color: var(--gold);
-}
-
-.stageNote {
+.term dd {
   margin: 0;
-  max-width: var(--measure-reading);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
+  max-width: var(--measure-narrow);
+  font-size: var(--t-prose);
+  line-height: var(--t-prose-lh);
   color: var(--ink);
+  text-wrap: pretty;
 }
 
 @media (max-width: 45rem) {
-  .stage[data-gate] .stageBody {
-    padding: var(--sp-4);
+  .term {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

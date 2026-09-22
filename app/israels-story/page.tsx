@@ -246,10 +246,10 @@ export default async function Page() {
             className={styles.chapter}
             data-rhythm={rhythm}
           >
+            {/* The outlined numeral that stood beside this head repeated the
+                "Chapter II of VII" line directly under it, and spent the
+                chapter's gold on the repeat. The line says it once. */}
             <header className={styles.chapterHead}>
-              <span className={styles.chapterNumeral} aria-hidden="true">
-                {toRoman(index + 1)}
-              </span>
               <div>
                 <p className={styles.chapterProgress}>
                   Chapter {toRoman(index + 1)} of {toRoman(total)}

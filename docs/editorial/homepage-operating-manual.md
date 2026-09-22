@@ -209,13 +209,8 @@ DNA §6 is the rule set; this is the operating order.
    government / institutional imagery → another safely attributable relevant
    image → an original editorial illustration made for the story → text-led
    with a media warning. Stop at the first rung that works.
-2. **Rights unknown = off every public surface.** Send
-   `rights.status: "unknown"` honestly; the asset is stored with its
-   provenance and not shown. Never upgrade a status to make a card prettier.
-3. **Two bars.** The article bar needs `cleared` + `article` in `surfaces`;
-   the homepage bar additionally needs `sensitivity: "safe"` and a
-   `clearedAt`. A hero that clears the article bar only leaves the homepage
-   card text-led, and that is fine.
+2. **Rights unknown may display.** Record `rights.status: "unknown"` honestly when clearance is not established; keep the source and credit when available. Only `withdrawn` is a display blocker. Never upgrade a status to make a card prettier.
+3. **Two bars.** The article bar accepts every asset except `withdrawn`; the homepage bar additionally requires `sensitivity: "safe"`. Clearance dates and surface declarations are provenance metadata, not display permissions.
 4. **An editorial illustration is labelled as one.** `generated: true`
    requires `role: "editorial-illustration"` and a non-empty `disclosure`;
    the CHECK constraint refuses anything else. It must contain no fabricated

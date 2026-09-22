@@ -1,0 +1,149 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-home-media-2026-09-22-01",
+  "composer": "ChatGPT homepage media backfill",
+  "createdAt": "2026-09-22T09:12:09.644Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "belleville-media",
+      "target": {
+        "publicId": "gunman-exchanges-fire-with-police-outside-ontari-udted"
+      },
+      "publication": {
+        "changeSummary": "Added a clearly labelled, original editorial illustration for article and homepage display. Reporting unchanged."
+      },
+      "media": {
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/9c68e7466d14ee52eb48ab3fc9c377147272c2f56bf6a34b7b8845840fa8cab8.png",
+        "sourceUrl": null,
+        "alt": "Symbolic editorial illustration of a silver Star of David pendant with defocused red and blue light.",
+        "caption": "Conceptual illustration of Jewish community security. Not a photograph of the Belleville shooting or its evidence.",
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "role": "editorial-illustration",
+        "focalPoint": {
+          "x": 0.7,
+          "y": 0.55
+        },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "cleared",
+          "basis": "Generated in-house",
+          "reference": "ChatGPT generated file file_00000000ae3c81f4b8206d2093015d13; run chatgpt-home-media-2026-09-22-01; operation belleville-media; stored 2026-09-22T09:08:52.638Z; sha256 9c68e7466d14ee52eb48ab3fc9c377147272c2f56bf6a34b7b8845840fa8cab8",
+          "clearedAt": "2026-09-22",
+          "surfaces": [
+            "article",
+            "homepage"
+          ]
+        },
+        "generated": true
+      }
+    },
+    {
+      "key": "spring-media",
+      "target": {
+        "publicId": "father-of-six-killed-in-west-bank-shooting-attac-ywyx0"
+      },
+      "publication": {
+        "changeSummary": "Added a clearly labelled, original editorial illustration for article and homepage display. Reporting unchanged."
+      },
+      "media": {
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/a78173b571aa9a8b573c4b1fe503a19c42a72431721be5655b943a3001e7a4b6.png",
+        "sourceUrl": null,
+        "alt": "Symbolic illustration of a memorial candle and a smooth stone beside water and olive branches.",
+        "caption": "Conceptual memorial illustration. The setting is invented and does not depict Ein Raya, the victim, or the attack.",
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "role": "editorial-illustration",
+        "focalPoint": {
+          "x": 0.35,
+          "y": 0.5
+        },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "cleared",
+          "basis": "Generated in-house",
+          "reference": "ChatGPT generated file file_0000000038608246af69701799880c29; run chatgpt-home-media-2026-09-22-01; operation spring-media; stored 2026-09-22T09:10:24.405Z; sha256 a78173b571aa9a8b573c4b1fe503a19c42a72431721be5655b943a3001e7a4b6",
+          "clearedAt": "2026-09-22",
+          "surfaces": [
+            "article",
+            "homepage"
+          ]
+        },
+        "generated": true
+      }
+    },
+    {
+      "key": "saudi-media",
+      "target": {
+        "publicId": "saudi-arabia-issues-nationwide-alerts-including--gbfhr"
+      },
+      "publication": {
+        "changeSummary": "Added a clearly labelled, original editorial illustration for article and homepage display. Reporting unchanged."
+      },
+      "media": {
+        "inputUrl": "https://sbxqiwt47c7ticlt.public.blob.vercel-storage.com/publications/media/ca90c04975fb25782704f8670c2b8715686ef6b29478d1a63c338cacdc5c5516.png",
+        "sourceUrl": null,
+        "alt": "Conceptual Saudi city skyline beneath stylized amber radar arcs.",
+        "caption": "Editorial illustration of aerial-threat monitoring, not a photograph of an attack or a map of actual radar coverage.",
+        "credit": "Lions of Zion",
+        "disclosure": "Editorial illustration — not documentary evidence",
+        "role": "editorial-illustration",
+        "focalPoint": {
+          "x": 0.65,
+          "y": 0.55
+        },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "cleared",
+          "basis": "Generated in-house",
+          "reference": "ChatGPT generated file file_000000004c4881f586dabe37a96b5532; run chatgpt-home-media-2026-09-22-01; operation saudi-media; stored 2026-09-22T09:11:46.642Z; sha256 ca90c04975fb25782704f8670c2b8715686ef6b29478d1a63c338cacdc5c5516",
+          "clearedAt": "2026-09-22",
+          "surfaces": [
+            "article",
+            "homepage"
+          ]
+        },
+        "generated": true
+      }
+    }
+  ],
+  "homepage": {},
+  "siteRecommendations": [
+    "Public homepage retrieval showed an older September 20 snapshot despite MCP reporting September 22. Verify public refresh after this media run.",
+    "Archive cards and People companion/profile/history links are text-led in the retrieved homepage; adding imagery to those static rendering surfaces requires a separate code change, not fabricated archive evidence."
+  ],
+  "homepageReview": {
+    "manualVersion": "2026-09-14.1",
+    "sectionsReviewed": [
+      "cover",
+      "news",
+      "fakeResistance",
+      "october7",
+      "people",
+      "system",
+      "support"
+    ],
+    "sectionsChanged": [
+      "news",
+      "fakeResistance"
+    ],
+    "decisions": [
+      {
+        "area": "news",
+        "action": "retain",
+        "reason": "Retain editorial selections; this run only attaches missing media. Existing imagery is preserved."
+      },
+      {
+        "area": "fakeResistance",
+        "action": "retain",
+        "reason": "Retain editorial selections; this run only attaches missing media. Existing imagery is preserved."
+      },
+      {
+        "area": "people",
+        "action": "retain",
+        "reason": "Retain editorial selections; this run only attaches missing media. Existing imagery is preserved."
+      }
+    ]
+  }
+}

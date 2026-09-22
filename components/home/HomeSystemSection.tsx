@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 import { AmplificationFigure } from "./AmplificationFigure";
-import { Folio, JourneyLink } from "./HomeJourneyPrimitives";
+import { JourneyLink } from "./HomeJourneyPrimitives";
 import styles from "./homepage-journey.module.css";
 import { WordStream } from "./WordStream";
 
@@ -37,7 +37,7 @@ export function HomeSystemSection() {
       aria-labelledby="home-system-title" data-home-section="system">
       <header className={styles.systemHead}>
         <div>
-          <p className={styles.kicker}><Folio band="system" />Behind the desk</p>
+          <p className={styles.kicker}>Behind the desk</p>
           <h2 id="home-system-title">More copies.<br />Not more evidence.</h2>
         </div>
         <p>A claim travels through posts, headlines and reposts. If every version

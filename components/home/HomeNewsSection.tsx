@@ -46,7 +46,6 @@ export function HomeNewsSection({
       data-home-section="news"
     >
       <SectionHeading
-        band="news"
         id="home-news-title"
         kicker="The present"
         title="News & Analysis"

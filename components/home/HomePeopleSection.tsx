@@ -105,7 +105,7 @@ export function HomePeopleSection({ people, heroes, history }: {
   return (
     <section
       id="home-people"
-      className={`${styles.section} ${styles.editorial} ${styles.peopleChapter}`}
+      className={`${styles.section} ${styles.editorial}`}
       aria-labelledby="home-people-title"
       data-home-section="people"
     >
@@ -113,7 +113,7 @@ export function HomePeopleSection({ people, heroes, history }: {
           do: courage, science, invention and the context that makes each
           record legible" — restated the kicker above it in longer words and
           cost most of the screen the first record should have had. */}
-      <SectionHeading band="people" id="home-people-title" kicker="People, work, context" title="The People of Israel" />
+      <SectionHeading id="home-people-title" kicker="People, work, context" title="The People of Israel" />
       <div className={styles.peopleStack} data-lead={lead ? 'true' : 'false'}>
         {lead ? (
           <article

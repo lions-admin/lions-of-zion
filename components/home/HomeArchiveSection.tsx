@@ -32,9 +32,9 @@ export function HomeArchiveSection({
       className={`${styles.section} ${styles.editorial} ${styles.archive}`}
       aria-labelledby="home-archive-title"
       data-home-section="october7"
+      data-still
     >
       <SectionHeading
-        band="october7"
         id="home-archive-title"
         kicker="October 7, 2023"
         title="The record remains."

@@ -1,7 +1,6 @@
 import type { HomepageEdition } from "@/server/contracts/homepage";
 import { formatEditionDate } from "@/lib/format-date";
 import { HOMEPAGE_BANDS } from "@/lib/homepage-bands";
-import { bandFolio } from "./HomeJourneyPrimitives";
 import { HomeNewsSection } from "./HomeNewsSection";
 import { HeroSupportStrip } from "./HeroSupportStrip";
 import { HomeNarrativesSection } from "./HomeNarrativesSection";
@@ -42,10 +41,7 @@ export function HomepageJourney({ edition }: { edition: HomepageEdition }) {
         </span>
         <nav className={styles.contents} aria-label="In this edition">
           {HOMEPAGE_BANDS.map((band) => (
-            <a key={band.id} href={band.anchor}>
-              <span className={styles.contentsFolio} aria-hidden="true">{bandFolio(band.id)}</span>
-              <span>{band.label}</span>
-            </a>
+            <a key={band.id} href={band.anchor}>{band.label}</a>
           ))}
         </nav>
       </header>

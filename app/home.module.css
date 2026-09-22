@@ -64,16 +64,16 @@
 .wordmarkLine + .wordmarkLine { margin-top: .1em; }
 .wordmarkOf { font-size: .29em; letter-spacing: .015em; }
 .standfirst { max-width: 38ch; margin: 15px 0 0; color: var(--ink); font: 400 16px/1.55 var(--face-home-cover); text-wrap: pretty; }
-/* The cover's one action. `JourneyLink`'s `primary` role already gives it the
-   border and the surface that make it the only pressable-looking thing on the
-   cover (`homepage-journey.module.css` `.linkPrimary`); what is added here is
-   a focus ring that is not a colour change. `.linkPrimary:focus-visible`
-   states itself by swapping border and background hue, and a hue swap is the
-   one thing a reader with low vision or a colour deficiency may not see —
-   WCAG 2.2 wants an indicator with its own geometry, so there is an outline
-   with an offset, outside the border that is already there. */
+/* The cover's one action, and the cover's one gold: `JourneyLink`'s `primary`
+   role draws a neutral control boundary everywhere else on the page
+   (`homepage-journey.module.css`), and here alone the boundary is gold,
+   because this is the first screen's focal moment (Signal over noise: one
+   gold per viewport). The focus ring is not a colour change: the role's own
+   focus state swaps hues, which a reader with low vision or a colour
+   deficiency may not see, so there is an outline with an offset outside the
+   border as well (WCAG 2.2). */
 .actions { display: flex; margin-top: 12px; }
-.actions a { color: var(--ink-hi); min-width: 200px; min-height: 48px; }
+.actions a { color: var(--ink-hi); min-width: 200px; min-height: 48px; border-color: var(--gold-line-strong); }
 .actions a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 /* The edition rail — the bottom band of the cover (VA-10). A gold hairline
    opens it, the metadata line dates the edition and names the lead's status,
@@ -92,7 +92,8 @@
    its last child: on a wide cover it runs the full measure as the cover's
    bottom line, so it has to own its gutter rather than inherit a column's. */
 .editionRail { max-width: 34ch; margin: 16px var(--home-gutter) 0; padding-top: 12px; position: relative; }
-.editionRail::before { content: ""; position: absolute; inset: 0 0 auto; border-top: 1px solid var(--gold-line-strong); transform-origin: left; }
+/* The rule is ivory, not gold: the gold on this screen is the action's. */
+.editionRail::before { content: ""; position: absolute; inset: 0 0 auto; border-top: 1px solid var(--line-strong); transform-origin: left; }
 .editionRailMeta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 0; margin: 0 0 7px; color: var(--ink-lo); font: 400 13px/1.5 var(--face-data); letter-spacing: .05em; text-transform: uppercase; }
 /* Decorative separator with an empty alternative text, so a screen reader
    reads "Sun 6 Sept, Daily Brief" rather than announcing a middle dot. */
@@ -100,18 +101,18 @@
    a stray dot — it used to lead the next item, and "· PREVIOUS EDITION" began
    the second line on every phone. */
 .editionRailMeta > *:not(:last-child)::after { content: "·" / ""; margin-inline: 10px; color: var(--ink-lo); }
-.editionRailStatus { color: var(--gold); }
+.editionRailStatus { color: var(--ink); }
 .editionRailFlag { color: var(--ink-lo); }
 .editionRailLead { display: block; min-height: 44px; color: var(--ink-hi); text-decoration: none; }
 .editionRailHeadline { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; min-height: 2.44em; color: var(--ink-hi); font: 400 clamp(20px, 5.3vw, 25px)/1.22 var(--face-home-emphasis); letter-spacing: -.02em; text-wrap: pretty; }
-.editionRailCta { display: inline-flex; align-items: center; gap: 9px; margin-top: 6px; color: var(--gold); font: 500 13px/1.45 var(--face-navigation); letter-spacing: 0; text-transform: none; }
+.editionRailCta { display: inline-flex; align-items: center; gap: 9px; margin-top: 6px; color: var(--ink-hi); font: 500 13px/1.45 var(--face-navigation); letter-spacing: 0; text-transform: none; }
 .editionRailCta svg { flex: none; width: 19px; height: 19px; stroke: currentColor; stroke-width: 1.35; transition: transform var(--dur-fast) var(--ease-out); }
-.editionRailLead:hover .editionRailHeadline { color: var(--gold-hi); }
+.editionRailLead:hover .editionRailHeadline, .editionRailLead:hover .editionRailCta { color: var(--gold-hi); }
 .editionRailLead:hover .editionRailCta svg { transform: translateX(4px); }
 .editionRailLead:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 .noscriptNav { margin: 0 var(--home-gutter); padding: 16px; border-block: 1px solid var(--line); background: var(--ground); }
 .noscriptNav ol { display: flex; flex-wrap: wrap; gap: 12px 24px; list-style: none; padding: 0; }
-.noscriptNav a { color: var(--ink); font-size: 14px; }
+.noscriptNav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); font-size: 14px; }
 .noscriptNav a:hover, .noscriptNav a:focus-visible { color: var(--gold); }
 .motionControl { position: absolute; z-index: 2; top: calc(var(--header-h) + 16px); right: var(--home-gutter); min-height: 44px; padding: 8px 12px; border: 1px solid var(--line); background: var(--ground); color: var(--ink); cursor: pointer; }
 .skipLink { position: fixed; top: 12px; left: 20px; z-index: 1000; transform: translateY(-200%); padding: 14px 20px; background: var(--ground); color: var(--ink-hi); border: 1px solid var(--gold); }
@@ -135,7 +136,10 @@
     linear-gradient(90deg, var(--ground) 0, color-mix(in srgb, var(--ground) 82%, transparent) 20%, color-mix(in srgb, var(--ground) 30%, transparent) 46%, transparent 62%),
     linear-gradient(0deg, var(--ground) 0, color-mix(in srgb, var(--ground) 88%, transparent) 12%, color-mix(in srgb, var(--ground) 38%, transparent) 28%, transparent 44%),
     radial-gradient(70% 80% at 70% 40%, transparent 40%, color-mix(in srgb, #000 58%, transparent) 100%); }
-  .masthead { width: min(64vw, 980px); margin: 44px clamp(24px, 5vw, 80px) 0; }
+  /* The cover's left edge is the edition's: the same gutter, and the same
+     1600px measure centred on a very wide screen, so the wordmark, the cover
+     line and every band below start on one vertical. */
+  .masthead { width: min(64vw, 980px); margin: 44px 0 0 max(var(--home-gutter), calc((100% - 1600px) / 2 + var(--home-gutter))); }
   /* Sized against both axes, so a short laptop screen still fits the mark, the
      line, the action and the cover line. At this scale the second line runs
      out of the type's ground and onto the lion's shoulder — the mark and the
@@ -147,7 +151,7 @@
      middle, the way in at the end — one row on the gold hairline, the full
      measure of the page, so the cover closes the way a front page does and
      the edition below opens on the same left edge. */
-  .editionRail { max-width: none; margin: clamp(30px, 6svh, 64px) clamp(24px, 5vw, 80px) 0; padding-top: 14px; }
+  .editionRail { max-width: none; margin: clamp(30px, 6svh, 64px) max(var(--home-gutter), calc((100% - 1600px) / 2 + var(--home-gutter))) 0; padding-top: 14px; }
   .editionRailMeta { margin: 0 0 8px; }
   .editionRailLead { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: clamp(24px, 4vw, 64px); align-items: baseline; }
   .editionRailHeadline { min-height: 0; max-width: 52ch; font-size: clamp(24px, 2.1vw, 32px); }

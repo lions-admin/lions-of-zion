@@ -41,7 +41,6 @@ export function HomeNarrativesSection({
       data-home-section="fakeResistance"
     >
       <SectionHeading
-        band="fakeResistance"
         id="home-narratives-title"
         kicker="Narratives & fact checks"
         title="Fake Resistance"
@@ -125,16 +124,17 @@ export function HomeNarrativesSection({
                   <span className={styles.verdictMeaning}>{statusMeaning}</span>
                 </p>
               </header>
-              {/* A claim is set at `--journey-aside`, the size of a heading
-                  *inside* a record, and never at `--journey-lead` or
-                  `--journey-story`. A sentence this desk is refuting must not
+              {/* A claim is set as noise (`.claim` composes the global
+                  `noise` role): ember, italic, and capped at `--t-h3`, the
+                  size of a heading *inside* a record, never at a headline
+                  size. A sentence this desk is refuting must not
                   out-typeset the reporting it sits beside: at 390px the claim
                   was the second-largest text on the whole page, beaten only
                   by the band's own `h2`. The cap is in the stylesheet, on
                   `[data-kind="watch"]`, so it holds for every claim rather
                   than for the ones an author remembered. */}
               <h3>
-                <a href={item.href}>{heading}</a>
+                <a href={item.href} className={item.kind === "watch" ? styles.claim : undefined}>{heading}</a>
               </h3>
               {item.media && (
                 <div className={styles.dossierCover}>

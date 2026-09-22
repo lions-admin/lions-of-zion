@@ -1,0 +1,203 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-media-recovery-2026-09-22-r2",
+  "composer": "ChatGPT media recovery",
+  "createdAt": "2026-09-22T09:15:00Z",
+  "creates": [],
+  "updates": [
+    {
+      "key": "media-belleville-synagogue",
+      "target": {
+        "canonicalStoryId": "belleville-synagogue-shooting-yom-kippur-2026"
+      },
+      "publication": {
+        "changeSummary": "Attach on-scene Quinte News photography from the September 20 Belleville synagogue shooting response."
+      },
+      "media": {
+        "inputUrl": "https://media-cdn.socastsrm.com/wordpress/wp-content/blogs.dir/1977/files/2026/09/pxl-20260921-004642130mp-scaled.jpg",
+        "sourceUrl": "https://www.quintenews.com/2026/09/20/shooting-incident-at-or-near-synagogue-in-belleville/",
+        "alt": "Belleville police vehicles and a traffic safety unit outside the area of the Sons of Jacob Synagogue after the September 20, 2026 shooting.",
+        "caption": "Police vehicles near the Sons of Jacob Synagogue in Belleville after the September 20 shooting during Yom Kippur. Photo: Zach McGibbon/Quinte News.",
+        "credit": "Zach McGibbon / Quinte News",
+        "disclosure": "On-scene news photograph from the police response.",
+        "role": "documentation",
+        "focalPoint": {
+          "x": 55,
+          "y": 48
+        },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "unknown",
+          "basis": "Publisher-originated news photograph; reuse permission not independently verified in this recovery run.",
+          "reference": "https://www.quintenews.com/2026/09/20/shooting-incident-at-or-near-synagogue-in-belleville/",
+          "clearedAt": null,
+          "surfaces": []
+        },
+        "generated": false
+      },
+      "sources": []
+    },
+    {
+      "key": "media-daily-brief-2026-09-22",
+      "target": {
+        "canonicalStoryId": "daily-brief-2026-09-22"
+      },
+      "publication": {
+        "changeSummary": "Attach the Belleville on-scene photograph as the visual lead for the September 22 edition, whose top Jewish-community security development is the Yom Kippur synagogue shooting."
+      },
+      "media": {
+        "inputUrl": "https://media-cdn.socastsrm.com/wordpress/wp-content/blogs.dir/1977/files/2026/09/pxl-20260921-004642130mp-scaled.jpg",
+        "sourceUrl": "https://www.quintenews.com/2026/09/20/shooting-incident-at-or-near-synagogue-in-belleville/",
+        "alt": "Police response near the Sons of Jacob Synagogue in Belleville, Ontario, after gunfire during Yom Kippur services.",
+        "caption": "Police response near the Sons of Jacob Synagogue in Belleville after the September 20 shooting, one of the principal developments in the September 22 edition. Photo: Zach McGibbon/Quinte News.",
+        "credit": "Zach McGibbon / Quinte News",
+        "disclosure": "Documentation of one lead event in this multi-story daily edition.",
+        "role": "documentation",
+        "focalPoint": {
+          "x": 55,
+          "y": 48
+        },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "unknown",
+          "basis": "Publisher-originated news photograph; reuse permission not independently verified in this recovery run.",
+          "reference": "https://www.quintenews.com/2026/09/20/shooting-incident-at-or-near-synagogue-in-belleville/",
+          "clearedAt": null,
+          "surfaces": []
+        },
+        "generated": false
+      },
+      "sources": []
+    },
+    {
+      "key": "media-west-bank-ein-raya",
+      "target": {
+        "canonicalStoryId": "west-bank-ein-raya-spring-attack-2026-09-20"
+      },
+      "publication": {
+        "changeSummary": "Attach Magen David Adom documentation from the Ein Raya / Neve Tzuf attack scene."
+      },
+      "media": {
+        "inputUrl": "https://www.israelhayom.com/wp-content/uploads/2026/09/cropped_1200x800_2-3-960x640-1200px.jpg",
+        "sourceUrl": "https://www.israelhayom.com/2026/09/20/suspected-shooting-attack-neveh-tzuf-binyamin/",
+        "alt": "Emergency and security response at the scene of the September 20, 2026 shooting attack near Neve Tzuf in the West Bank.",
+        "caption": "The scene of the shooting attack near Neve Tzuf on September 20, 2026. Image credited by Israel Hayom to Magen David Adom emergency services.",
+        "credit": "Magen David Adom, via Israel Hayom",
+        "disclosure": "On-scene documentation of the attack response.",
+        "role": "documentation",
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "unknown",
+          "basis": "Publisher-hosted image credited to Magen David Adom; reuse permission not independently verified in this recovery run.",
+          "reference": "https://www.israelhayom.com/2026/09/20/suspected-shooting-attack-neveh-tzuf-binyamin/",
+          "clearedAt": null,
+          "surfaces": []
+        },
+        "generated": false
+      },
+      "sources": []
+    },
+    {
+      "key": "media-weizmann-otp",
+      "target": {
+        "canonicalStoryId": "weizmann-otp-gene-adult-brain-2026"
+      },
+      "publication": {
+        "changeSummary": "Attach the Weizmann Institute's study image showing Otp expression in adult mouse hypothalamus neurons."
+      },
+      "media": {
+        "inputUrl": "https://wis-wander.weizmann.ac.il/sites/default/files/GL_inside1_0.jpg",
+        "sourceUrl": "https://wis-wander.weizmann.ac.il/life-sciences/brain-wiring-stress-and-metabolism-one-gene-has-finger-switch",
+        "alt": "Microscopy image from the Weizmann Otp study showing Otp protein expression in adult mouse hypothalamus neurons involved in hunger regulation.",
+        "caption": "A portion of the mouse hypothalamus from the Weizmann study: Otp protein is shown in neurons involved in hunger regulation. Source: Weizmann Institute of Science.",
+        "credit": "Weizmann Institute of Science",
+        "disclosure": "Study image supplied with the institutional research explainer.",
+        "role": "documentation",
+        "focalPoint": {
+          "x": 50,
+          "y": 50
+        },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "unknown",
+          "basis": "Institutional research image from the Weizmann Institute article; reuse permission not independently verified in this recovery run.",
+          "reference": "https://wis-wander.weizmann.ac.il/life-sciences/brain-wiring-stress-and-metabolism-one-gene-has-finger-switch",
+          "clearedAt": null,
+          "surfaces": []
+        },
+        "generated": false
+      },
+      "sources": []
+    },
+    {
+      "key": "media-saudi-riyadh-airport",
+      "target": {
+        "canonicalStoryId": "saudi-arabia-houthi-aerial-threat-alerts-2026"
+      },
+      "publication": {
+        "changeSummary": "Attach archival geographic context showing King Khalid International Airport in Riyadh."
+      },
+      "media": {
+        "inputUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/King_Khalid_International_Airport.JPG",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:King_Khalid_International_Airport.JPG",
+        "alt": "Aerial view of King Khalid International Airport in Riyadh, Saudi Arabia.",
+        "caption": "King Khalid International Airport in Riyadh. Archival geographic context; not documentation of the September 19, 2026 aerial incident.",
+        "credit": "Vanquish0 / Wikimedia Commons",
+        "disclosure": "Archival context — not incident documentation.",
+        "role": "archival-context",
+        "focalPoint": {
+          "x": 52,
+          "y": 50
+        },
+        "sensitivity": "safe",
+        "rights": {
+          "status": "unknown",
+          "basis": "Wikimedia Commons file-page attribution; exact reuse terms not re-verified in this recovery run.",
+          "reference": "https://commons.wikimedia.org/wiki/File:King_Khalid_International_Airport.JPG",
+          "clearedAt": null,
+          "surfaces": []
+        },
+        "generated": false
+      },
+      "sources": []
+    }
+  ],
+  "homepage": {},
+  "featured": {},
+  "siteRecommendations": [
+    "Continue media recovery on the remaining live text-led records after this batch, prioritizing current canonicals over old daily briefs and duplicates."
+  ],
+  "research": [],
+  "vetoes": [],
+  "homepageReview": {
+    "manualVersion": "2026-09-14.1",
+    "sectionsReviewed": [
+      "cover",
+      "news",
+      "fakeResistance",
+      "people"
+    ],
+    "sectionsChanged": [],
+    "decisions": [
+      {
+        "area": "news",
+        "action": "retain",
+        "reason": "Media recovery only; homepage story selection remains unchanged."
+      },
+      {
+        "area": "fakeResistance",
+        "action": "retain",
+        "reason": "Media recovery only; homepage story selection remains unchanged."
+      },
+      {
+        "area": "people",
+        "action": "retain",
+        "reason": "Media recovery only; homepage story selection remains unchanged."
+      }
+    ]
+  }
+}

@@ -52,12 +52,11 @@ section:first-child > .heading {
   margin-top: 0;
 }
 
+/* The record's own words in the site's one prose voice — the same step,
+   leading and paragraph gap as an article or a research report
+   (`.prose` in content.module.css). */
 .paragraph {
-  font-family: var(--face-text);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
-  color: var(--ink);
-  margin: 0 0 var(--flow);
+  composes: prose from '../content/content.module.css';
 }
 
 /* The witness's own words, set apart from the surrounding prose.
@@ -69,19 +68,10 @@ section:first-child > .heading {
    not as highlight. `hanging-punctuation` lets an opening quotation mark
    hang into the margin so the first letters of the lines align. */
 .quote {
-  margin: var(--sp-6) 0;
-  padding-left: var(--sp-5);
-  border-left: var(--line-w) solid var(--line-strong);
-  hanging-punctuation: first;
+  composes: proseQuote from '../content/content.module.css';
 }
 
 .quote p {
-  font-family: var(--face-display);
-  font-style: italic;
-  font-size: var(--t-lede);
-  line-height: var(--t-lede-lh);
-  font-weight: var(--t-lede-weight);
-  color: var(--ink-hi);
   margin: 0;
 }
 
@@ -108,14 +98,15 @@ section:first-child > .heading {
  * the ramp is reserved for. A hairline and a mark, not a fill — a panel that
  * shouts is a panel readers learn to skip, and this one has to be read.
  */
+/* Ruled, not boxed (2026-09-22): hairlines above and below, and the ember
+   rule at its start is the only colour it spends. No fill — on black a
+   filled panel reads as a pop-up, and this is a statement. */
 .advisory {
   margin: var(--sp-5) 0 var(--sp-6);
-  padding: var(--sp-4) var(--sp-5);
-  border: var(--line-w) solid var(--line);
+  padding: var(--sp-4) 0 var(--sp-4) var(--sp-4);
+  border-block: var(--line-w) solid var(--line-soft);
   border-left: var(--line-w-thick) solid
-    color-mix(in oklab, var(--data-ember) 34%, transparent);
-  border-radius: var(--radius-2);
-  background: var(--surface-1);
+    color-mix(in oklab, var(--data-ember) 55%, transparent);
 }
 
 .advisoryLabel {
@@ -152,11 +143,9 @@ section:first-child > .heading {
    the ramp's one reserved meaning is not spent on it. */
 .note {
   margin: var(--sp-5) 0 var(--sp-6);
-  padding: var(--sp-4) var(--sp-5);
-  border: var(--line-w) solid var(--line);
+  padding: var(--sp-4) 0 var(--sp-4) var(--sp-4);
+  border-block: var(--line-w) solid var(--line-soft);
   border-left: var(--line-w-thick) solid var(--line-strong);
-  border-radius: var(--radius-2);
-  background: var(--surface-1);
 }
 
 .noteLabel {
@@ -505,16 +494,6 @@ section:first-child > .heading {
   color: var(--ink);
   background: color-mix(in srgb, var(--ink-hi) 4%, transparent);
   text-decoration: none;
-  transition:
-    background-color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
-}
-
-.languageLink:hover {
-  color: var(--ink-hi);
-  background: color-mix(in srgb, var(--ink-hi) 8%, transparent);
-  border-color: var(--line-strong);
 }
 
 .languageLink:active {
@@ -591,17 +570,10 @@ section:first-child > .heading {
   font-family: var(--face-text);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
 }
 
 .searchInput::placeholder {
   color: var(--ink-lo);
-}
-
-.searchInput:hover {
-  border-color: var(--line-strong);
 }
 
 .searchInput:focus-visible {
@@ -779,8 +751,6 @@ section:first-child > .heading {
   letter-spacing: var(--t-data-tracking-tight);
   font-variant-numeric: tabular-nums;
   color: var(--ink-lo);
-  transition: background-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
 }
 
 /* Pressed is already carried by the button's own background, border and
@@ -854,12 +824,8 @@ section:first-child > .heading {
   color: var(--ink);
   text-decoration: none;
   border-left: var(--line-w-thick) solid transparent;
-  transition:
-    background-color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out);
 }
 
-.recordLink:hover,
 .recordLink:focus-visible {
   background: color-mix(in srgb, var(--ink-hi) 4%, transparent);
   border-left-color: var(--gold);
@@ -905,10 +871,8 @@ section:first-child > .heading {
 .witnessName {
   composes: dataLabel from global;
   color: var(--ink-lo);
-  transition: color var(--dur-fast) var(--ease-out);
 }
 
-.recordLink:hover .witnessName,
 .recordLink:focus-visible .witnessName {
   color: var(--gold);
 }
@@ -939,10 +903,8 @@ section:first-child > .heading {
   text-decoration-color: var(--line-strong);
   text-decoration-thickness: from-font;
   text-underline-offset: 0.18em;
-  transition: text-decoration-color var(--dur-fast) var(--ease-out);
 }
 
-.recordLink:hover .witnessTitle,
 .recordLink:focus-visible .witnessTitle {
   text-decoration-color: var(--gold);
 }
@@ -1032,10 +994,8 @@ section:first-child > .heading {
   letter-spacing: var(--t-data-tracking);
   color: var(--ink-lo);
   font-variant-numeric: tabular-nums;
-  transition: color var(--dur-fast) var(--ease-out);
 }
 
-.recordLink:hover .exhibitNum,
 .recordLink:focus-visible .exhibitNum {
   color: var(--ink);
 }
@@ -1108,10 +1068,8 @@ section:first-child > .heading {
   text-decoration-color: var(--line-strong);
   text-decoration-thickness: from-font;
   text-underline-offset: 0.18em;
-  transition: text-decoration-color var(--dur-fast) var(--ease-out);
 }
 
-.recordLink:hover .exhibitTitle,
 .recordLink:focus-visible .exhibitTitle {
   text-decoration-color: var(--gold);
 }
@@ -1122,15 +1080,10 @@ section:first-child > .heading {
   font-size: var(--t-body);
   line-height: 1;
   color: var(--ink-lo);
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    transform var(--dur-fast) var(--ease-out);
 }
 
-.recordLink:hover .exhibitArrow,
 .recordLink:focus-visible .exhibitArrow {
   color: var(--ink-hi);
-  transform: translateX(var(--sp-1));
 }
 
 /* ---------- row plates ---------- */
@@ -1191,13 +1144,6 @@ section:first-child > .heading {
   .recordList[data-variant='testimony'] .recordLink {
     --thumb-w: clamp(3.5rem, 18vw, 4.5rem);
     gap: var(--sp-3);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .recordLink:hover .exhibitArrow,
-  .recordLink:focus-visible .exhibitArrow {
-    transform: none;
   }
 }
 
@@ -1321,14 +1267,6 @@ section:first-child > .heading {
      tracks the type step instead of drifting against it at 3px. */
   text-underline-offset: 0.2em;
   overflow-wrap: anywhere;
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    text-decoration-color var(--dur-fast) var(--ease-out);
-}
-
-.sourceCredit a:hover {
-  color: var(--ink-hi);
-  text-decoration-color: currentColor;
 }
 
 /* ---------- neighbours ----------
@@ -1338,31 +1276,26 @@ section:first-child > .heading {
 .neighbours {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--sp-3);
+  gap: var(--sp-6);
   margin-top: var(--sp-7);
-  padding-top: var(--sp-5);
-  border-top: var(--line-w) solid var(--line-soft);
+  border-top: var(--line-w) solid var(--line);
 }
 
+/* Two ruled entries, not two tiles: the hairline above the pair is their
+   structure. Still — no hover, no tint (October 7 is silent); the title's
+   underline is the affordance and focus draws the global ring. */
 .neighbour {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
   min-height: var(--control-h);
-  padding: var(--sp-4);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-2);
-  background: var(--surface-1);
+  padding: var(--sp-5) 0 var(--sp-2);
   text-decoration: none;
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
 }
 
-.neighbour:hover,
 .neighbour:focus-visible {
-  border-color: var(--line-strong);
-  background: var(--surface-2);
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
 }
 
 .neighbourNext {
@@ -1382,6 +1315,10 @@ section:first-child > .heading {
   letter-spacing: var(--t-h3-tracking);
   color: var(--ink-hi);
   overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-decoration-thickness: from-font;
+  text-underline-offset: 0.18em;
   /* Three lines of a 296-character caption is enough to know where the link
      goes; past that the pair stops being a pair. */
   display: -webkit-box;
@@ -1401,7 +1338,7 @@ section:first-child > .heading {
 .neighbourEnd {
   display: flex;
   align-items: center;
-  padding: var(--sp-4);
+  padding: var(--sp-5) 0 var(--sp-2);
   font-family: var(--face-text);
   font-size: var(--t-caption);
   line-height: var(--t-caption-lh);
@@ -1413,8 +1350,13 @@ section:first-child > .heading {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .neighbours {
+    gap: 0;
+  }
+
   .neighbourNext {
     text-align: left;
+    border-top: var(--line-w) solid var(--line-soft);
   }
 }
 
@@ -1452,14 +1394,6 @@ section:first-child > .heading {
   text-decoration: none;
   text-transform: none;
   letter-spacing: 0;
-  transition:
-    background-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
-}
-
-.mediaAction:hover {
-  color: var(--ink-hi);
-  background: color-mix(in srgb, var(--ink-hi) 6%, transparent);
 }
 
 .mediaAction:active {

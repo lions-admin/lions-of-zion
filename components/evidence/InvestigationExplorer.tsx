@@ -64,13 +64,13 @@ export function InvestigationExplorer({ record }: { record: PublicPublicationDet
       <div className={styles.stages} role="tablist" aria-label="Investigation stages">
         {stages.map((stage, index) => <button key={stage.id} role="tab" aria-selected={selected === index} aria-controls={`evidence-panel-${stage.id}`} id={`evidence-tab-${stage.id}`} onClick={() => setSelected(index)}
           data-measure-event={STAGE_EVENT[stage.id] ?? 'open'} data-measure-placement={`stage:${stage.id}`}>
-          <span>{String(index + 1).padStart(2, '0')}</span>{stage.label}
+          {stage.label}
         </button>)}
       </div>
       <StagePanel stage={active} id={`evidence-panel-${active.id}`} labelledBy={`evidence-tab-${active.id}`} />
     </div>
     <ol className={styles.mobile} aria-label="Evidence journey in reading order">
-      {stages.map((stage, index) => <li key={stage.id}><details open={index === 0} data-measure-event={STAGE_EVENT[stage.id] ?? 'open'} data-measure-placement={`stage:${stage.id}`}><summary><span>{String(index + 1).padStart(2, '0')}</span>{stage.label}</summary><StageContents stage={stage} /></details></li>)}
+      {stages.map((stage, index) => <li key={stage.id}><details open={index === 0} data-measure-event={STAGE_EVENT[stage.id] ?? 'open'} data-measure-placement={`stage:${stage.id}`}><summary>{stage.label}</summary><StageContents stage={stage} /></details></li>)}
     </ol>
   </section>;
 }

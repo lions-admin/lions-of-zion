@@ -30,10 +30,10 @@ export default function ArticleNotFound() {
           trail={[publicationHubCrumb("news")]}
           current="Record not found"
         />
-        <header className={styles.head}>
+        <header className={styles.masthead}>
           <p className={styles.kicker}>Missing record</p>
-          <h1>No published article at this address</h1>
-          <p className={styles.summary}>
+          <h1 className={styles.headline} data-length="medium">No published article at this address</h1>
+          <p className={styles.dek}>
             Nothing in the public file matches this identifier. The record may
             have been withdrawn, not yet published, or the address is wrong.
             This is not a database failure.

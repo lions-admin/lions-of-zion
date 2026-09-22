@@ -1,91 +1,44 @@
-/* A published article as a Dossier record: breadcrumb, title/standfirst,
-   publication facts, narrative assessment, passages with a citation rail
-   that hangs into the margin above 1220px, then sources, unknowns, the
-   activation band, corrections, and what to read next (UX-20: proof, then
-   what to do with it, then what changed, then where to go). Values answer
-   to the V3 tokens in app/globals.css. The rail is CSS placement of the same
-   nodes — never a second copy. */
+/* A published article, set as a magazine record (Signal over noise,
+   site-wide — 2026-09-22).
+
+   The masthead — trail, kicker, the page's one headline at the masthead tier,
+   standfirst and byline — runs the width of the reading column and its right
+   margin, and the lead picture runs under it at the same width. Below it the
+   page is three tracks above 1220px: a contents list in the left margin, the
+   reading column at ~68ch, and the citation margin on the right, where each
+   passage's sources hang beside it (`.marginNote` in content.module.css — the
+   same nodes placed by CSS, never a second copy). Below 1220px it is one
+   column and the margins fold into the flow.
+
+   Order is UX-20's: the proof, then what to do with it, then what changed,
+   then where to go. Structure is hairlines; the ground is black; gold is
+   spent on the kicker and the finding's rule and nowhere else. */
 
 .page {
-  --rail-w: clamp(9rem, 14vw, 13rem);
-  --rail-gap: clamp(1.5rem, 3vw, 2.5rem);
-  --reading-w: min(var(--family-measure, var(--measure-reading)), 100%);
+  --rail-w: clamp(9.5rem, 13vw, 12.5rem);
+  --rail-gap: clamp(2rem, 3.4vw, 3.5rem);
+  --reading-w: min(var(--measure-reading), 100%);
   min-height: 100dvh;
   color: var(--ink);
 }
 
 /* The reading-progress rule, hung under the fixed header rather than behind
-   it. `ReadingProgress` has drawn a bar on every shell route since SYS-015,
-   but at `top: 0` and `--z-sticky` it sat under the masthead, where no reader
-   ever saw it. This is the same one-line delta `/information-war` passes;
-   the primitive still owns the 2px, the gold, the empty no-JavaScript state
-   and the reduced-motion result. */
+   it. The primitive still owns the 2px, the gold, the empty no-JavaScript
+   state and the reduced-motion result. */
 .progressTrack { --progress-top: var(--header-h); }
 
 .article {
   position: relative;
   width: min(var(--reading-w), calc(100% - 2 * var(--family-pad-inline, var(--sp-5))));
   margin: 0 auto;
-  padding: clamp(var(--sp-7), 7vw, var(--sp-8)) 0 var(--sp-9);
+  padding: clamp(var(--sp-6), 6vw, var(--sp-8)) 0 var(--sp-9);
   overflow: visible;
 }
 
-@media (min-width: 1220px) {
-  .article {
-    width: min(
-      calc(var(--reading-w) + var(--rail-w) + var(--rail-gap)),
-      calc(100% - 2 * var(--family-pad-inline, var(--sp-5)))
-    );
-  }
-}
-
-/* ── Breadcrumb ─────────────────────────────────────────── */
-
-/* Width only. The trail is the shared `Breadcrumb` primitive
-   (`components/site/Breadcrumb.tsx`, styled by the `.trail` rules in
-   `editorial-shell.module.css`), which owns its type, its link contract, its
-   coarse target floor and its truncation — CLEAN-002. */
-.breadcrumb {
-  max-width: var(--reading-w);
-}
-
-/* ── Head ─────────────────────────────────────────────────────────────── */
-
-.head,
-.heroMedia,
-.facts,
-.narrativeDetails,
-.unknowns,
-.sources,
-.activation,
-.related,
-.corrections {
-  max-width: var(--reading-w);
-}
-
-.kickerRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-2) var(--sp-3);
-  margin-bottom: var(--sp-3);
-}
-
-/* UX-21. The story's dateline — arena and actor — beside the section badge,
-   at the data step. Full ink since 2026-09-11: in the low ink it all but
-   disappeared on the live page. The badge's gold still makes it the loudest
-   thing in the row. */
-.kickerFacets {
-  composes: dataValue from global;
-  color: var(--ink);
-  text-transform: capitalize;
-  overflow-wrap: anywhere;
-}
-
-.kicker {
-  composes: dataLabel from global;
-  margin-top: var(--sp-5);
-  color: var(--gold);
+/* Every anchor the contents list and the activation band point at lands
+   below the fixed header rather than under it. */
+.article [id] {
+  scroll-margin-top: calc(var(--header-h) + var(--sp-5));
 }
 
 .article h1,
@@ -93,25 +46,17 @@
 .article h3 {
   color: var(--ink-hi);
   font-family: var(--face-display);
-  overflow-wrap: anywhere;
-}
-
-/* 3.5rem at 4.5vw set a long headline as a four- and five-line wall above
-   the lede (2026-09-11). The ceiling is now 3rem and the growth slower; the
-   32px floor is unchanged. */
-.article h1 {
-  margin: var(--sp-2) 0 var(--sp-4);
-  font-size: clamp(2rem, 1.25rem + 2.6vw, 3rem);
-  font-weight: var(--t-display-weight);
-  line-height: var(--t-display-lh);
-  letter-spacing: var(--t-display-tracking);
+  font-optical-sizing: auto;
+  overflow-wrap: break-word;
 }
 
 .article h2 {
+  margin: 0;
   font-size: var(--t-h2);
   font-weight: var(--t-h2-weight);
   line-height: var(--t-h2-lh);
   letter-spacing: var(--t-h2-tracking);
+  text-wrap: balance;
 }
 
 .article h3 {
@@ -121,108 +66,368 @@
   letter-spacing: var(--t-h3-tracking);
 }
 
-.summary {
+.article a:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 4px;
+}
+
+/* ── Masthead ─────────────────────────────────────────────────────────── */
+
+/* Width only. The trail is the shared `Breadcrumb` primitive, which owns its
+   type, link contract, coarse target floor and truncation — CLEAN-002. */
+.breadcrumb {
+  max-width: var(--reading-w);
+}
+
+.masthead,
+.head {
+  min-width: 0;
+}
+
+.kicker {
+  composes: kickerLabel from global;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-3);
+  margin: var(--sp-6) 0 0;
+  color: var(--gold);
+}
+
+/* The section is the kicker's one gold word. */
+.kickerSection {
+  color: var(--gold);
+}
+
+/* UX-21. The story's dateline — arena and actor — beside the section, in
+   the data voice and the page's quiet ink. A middot joins it to the section
+   and ends the section's line if the row wraps. */
+.kickerFacets {
+  composes: dataMeta from global;
+  color: var(--ink-lo);
+  letter-spacing: var(--t-data-tracking-tight);
+  text-transform: capitalize;
+  overflow-wrap: anywhere;
+}
+
+.kickerSection:has(+ .kickerFacets)::after {
+  content: "·";
+  margin-inline-start: var(--sp-3);
+  color: var(--ink-lo);
+}
+
+.kickerNotes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-3);
+  margin: var(--sp-3) 0 0;
+}
+
+/* The page's own title at the masthead tier, settling into focus once. The
+   tier is sized for a title of a few words, so a wire headline steps down
+   with its length (`headlineLength` in page.tsx) and stays the largest type
+   on the page without becoming a seven-line wall above the standfirst. */
+.headline {
+  composes: displayXl resolve from global;
+  max-width: 18ch;
+  margin: var(--sp-4) 0 0;
   color: var(--ink-hi);
+}
+
+.headline[data-length="medium"] {
+  max-width: 21ch;
+  font-size: clamp(2.5rem, 1.2rem + 4.1vw, 5.25rem);
+  line-height: 1;
+}
+
+.headline[data-length="long"] {
+  max-width: 26ch;
+  font-size: clamp(2.125rem, 1.15rem + 2.9vw, 3.875rem);
+  line-height: 1.04;
+  letter-spacing: var(--t-display-tracking);
+}
+
+.dek,
+.summary {
+  max-width: 40rem;
+  margin: var(--sp-5) 0 0;
+  color: var(--ink);
   font-family: var(--face-text);
   font-size: var(--t-lede);
   font-weight: var(--t-lede-weight);
   line-height: var(--t-lede-lh);
+  letter-spacing: var(--t-lede-tracking);
   text-wrap: pretty;
 }
 
-.heroMedia {
-  margin: var(--sp-6) 0 0;
-}
-
-.heroMedia img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 8 / 5;
-  object-fit: cover;
-}
-
-.heroMedia figcaption {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--sp-4);
-  margin-top: var(--sp-2);
-  color: var(--ink-lo);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-}
-
-.heroMedia figcaption span:last-child {
-  flex: 0 0 auto;
-  text-align: end;
-}
-
-@media (max-width: 44.99rem) {
-  .heroMedia figcaption {
-    display: block;
-  }
-
-  .heroMedia figcaption span {
-    display: block;
-  }
-
-  .heroMedia figcaption span:last-child {
-    margin-top: var(--sp-1);
-    text-align: start;
-  }
-}
-
-/* ── Publication facts ────────────────────────────────────────────────── */
-
-.facts {
+/* The byline row: who wrote this, when, and how many sources — one line in
+   the data voice between two hairlines. The shared `PublicationMeta` keeps
+   its terms; this only re-flows its cells into a row that wraps. The
+   authorship cell is a sentence and takes its own line. The selectors
+   outweigh the module's own `.publicationMeta` by one class. */
+.byline {
   margin-top: var(--sp-6);
+  border-block: var(--line-w) solid var(--line);
 }
 
-/* UX-21. One metadata line rather than a 3×3 grid of mono labels above the
-   fold: the shared `PublicationMeta` keeps its terms and its rule, and this
-   only re-flows its cells into a row that wraps. Authorship — the honest
-   machine-authorship disclosure — is the widest cell and takes the whole
-   first line on a phone; the dates and the source count share the next. The
-   selector outweighs the module's own `.publicationMeta` by one class. */
-.facts > dl {
+.byline > dl {
   display: flex;
   flex-wrap: wrap;
   gap: var(--sp-2) var(--sp-6);
-  padding-top: var(--sp-4);
+  padding: var(--sp-3) 0;
+  border-top: 0;
 }
 
-.facts > dl > div {
+.byline > dl > div {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: var(--sp-1) var(--sp-2);
 }
 
-.facts > dl > div > dd {
+.byline > dl > div > dd {
   margin: 0;
 }
 
-/* The authorship cell is a sentence; it gets its own line and the rest
-   share the next. */
-.facts > dl > div:first-child {
+.byline > dl > div:first-child {
   flex-basis: 100%;
 }
 
-/* ── Body / citation rail ─────────────────────────────────────────────── */
+/* ── Lead picture ─────────────────────────────────────────────────────── */
 
-.body {
+/* The lead runs the masthead's width. `--reading-w` is what the media
+   block's reading layout caps itself at, so lifting it here is the whole
+   change — the block still owns its frame, caption order and disclosure. */
+.leadFigure {
+  --reading-w: 100%;
+}
+
+.figure {
+  margin-block: var(--sp-7) 0;
+}
+
+/* ── Reading column and its margins ───────────────────────────────────── */
+
+.reading {
+  position: relative;
+}
+
+.column {
+  min-width: 0;
+}
+
+/* The contents list is a margin device: below the three-track width it
+   would only push the report down, so it is not drawn there at all. */
+.contents {
+  display: none;
+}
+
+@media (min-width: 1220px) {
+  .article {
+    width: min(
+      calc(var(--reading-w) + 2 * (var(--rail-w) + var(--rail-gap))),
+      calc(100% - 2 * var(--family-pad-inline, var(--sp-5)))
+    );
+  }
+
+  /* Masthead and lead start where the reading column starts and run to the
+     page's right edge: one hard left edge from the kicker to the last
+     endnote, with the contents list alone in the margin beside it. */
+  .masthead,
+  .head,
+  .leadFigure {
+    margin-inline-start: calc(var(--rail-w) + var(--rail-gap));
+  }
+
+  .reading {
+    display: grid;
+    grid-template-columns: var(--rail-w) minmax(0, var(--reading-w)) var(--rail-w);
+    column-gap: var(--rail-gap);
+    align-items: start;
+  }
+
+  .column {
+    grid-column: 2;
+  }
+
+  .contents {
+    position: sticky;
+    top: calc(var(--header-h) + var(--sp-6));
+    grid-column: 1;
+    grid-row: 1;
+    display: block;
+    margin-top: var(--sp-7);
+    padding-top: var(--sp-3);
+    border-top: var(--line-w) solid var(--line);
+  }
+
+  .contents ul {
+    margin: var(--sp-2) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .contents a {
+    display: flex;
+    align-items: center;
+    min-block-size: var(--control-h);
+    color: var(--ink-lo);
+    font-family: var(--face-text);
+    font-size: var(--t-caption);
+    line-height: var(--t-caption-lh);
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  .contents a:hover {
+    color: var(--ink-hi);
+  }
+}
+
+.contentsLabel {
+  composes: kickerLabel from global;
+  margin: 0;
+  color: var(--ink-lo);
+}
+
+/* ── Claim record (Narrative Watch) ───────────────────────────────────── */
+
+.claimRecord {
   margin-top: var(--sp-7);
+  padding-top: var(--sp-5);
+  border-top: var(--line-w) solid var(--line-strong);
+}
+
+.sectionKicker {
+  composes: kickerLabel from global;
+  margin: 0 0 var(--sp-2);
+  color: var(--ink-lo);
+}
+
+/* The unsourced-analysis disclosure. Marked by a rule and the full body
+   step rather than by a warning colour — this is a statement of what the
+   record is, not an alert about it. */
+.analysisNote {
+  max-width: 62ch;
+  margin: var(--sp-5) 0 0;
+  padding-inline-start: var(--sp-4);
+  border-inline-start: var(--line-w-thick) solid var(--line-strong);
+  color: var(--ink);
   font-size: var(--t-body);
   line-height: var(--t-body-lh);
 }
 
-.body p {
-  margin: 0 0 var(--flow);
+.claimPair {
+  display: grid;
+  gap: var(--sp-6);
+  margin-top: var(--sp-6);
+}
+
+/* The claim's own size is set here so the global `noise` role — capped at
+   `min(1em, --t-h3)` — resolves to the h3 step and never above it. */
+.claim {
+  min-width: 0;
+  font-size: var(--t-h3);
+}
+
+.claimStatus {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+  margin: 0;
+  font-size: 1rem;
+}
+
+.claimLabel {
+  composes: kickerLabel from global;
+  margin: 0;
+  color: var(--ink-lo);
+}
+
+/* Somebody else's sentence: ember, italic, in quotation marks. The status
+   word above it is what says how it stands — never the colour. */
+.claimText {
+  composes: noise from global;
+  margin: var(--sp-3) 0 0;
+  line-height: var(--t-h3-lh);
+  overflow-wrap: break-word;
+  text-wrap: pretty;
+  hanging-punctuation: first;
+}
+
+.claimText p {
+  margin: 0;
+}
+
+.claimText p::before { content: open-quote; }
+.claimText p::after { content: close-quote; }
+
+/* The desk's finding under it: upright, ivory, on the one amber rule. */
+.finding {
+  composes: signal from global;
+  min-width: 0;
+}
+
+.findingText {
+  margin: var(--sp-2) 0 0;
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-lede);
+  line-height: var(--t-lede-lh);
+  text-wrap: pretty;
+}
+
+.recordFacts {
+  display: grid;
+  gap: var(--sp-4) var(--sp-6);
+  margin: var(--sp-6) 0 0;
+  padding-top: var(--sp-5);
+  border-top: var(--line-w) solid var(--line-soft);
+}
+
+@media (min-width: 40rem) {
+  .recordFacts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .recordFacts > [data-wide] {
+    grid-column: 1 / -1;
+  }
+}
+
+.recordFacts dt {
+  color: var(--ink-lo);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
+  text-transform: uppercase;
+}
+
+.recordFacts dd {
+  margin: var(--sp-1) 0 0;
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  overflow-wrap: break-word;
+}
+
+/* ── The report ───────────────────────────────────────────────────────── */
+
+.body {
+  margin-top: var(--sp-7);
+}
+
+/* One voice for long-form text across articles, research and archive
+   records: `.prose` in content.module.css. */
+.paragraph {
+  composes: prose from "../../../components/content/content.module.css";
 }
 
 .passage {
-  margin-bottom: var(--sp-6);
+  margin: 0;
 }
 
 .passageMain {
@@ -230,17 +435,19 @@
 }
 
 .claimRef {
-  composes: dataValue from global;
+  composes: dataMeta from global;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--sp-2);
+  margin: calc(-1 * var(--sp-2)) 0 var(--sp-5);
   color: var(--ink-lo);
 }
 
 .passageSources {
-  composes: marginNote from '../../../components/content/content.module.css';
+  composes: marginNote from "../../../components/content/content.module.css";
   min-width: 0;
+  margin-bottom: var(--sp-5);
 }
 
 @media (min-width: 1220px) {
@@ -252,79 +459,126 @@
   .passageMain {
     grid-column: 1;
     grid-row: 1;
-    min-width: 0;
+  }
+
+  .passageSources {
+    margin-bottom: 0;
   }
 }
 
-.article a:focus-visible {
-  outline-offset: 4px;
-}
+/* ── Endnotes: sources, unknowns ──────────────────────────────────────── */
 
-/* ── Apparatus ────────────────────────────────────────────────────────── */
-
-.sources,
-.unknowns,
-.related {
+.endnotes {
   margin-top: var(--sp-7);
-  padding-top: var(--sp-5);
-  border-top: 1px solid var(--line);
+  padding-top: var(--sp-4);
+  border-top: var(--line-w) solid var(--line);
 }
 
-/* After the band, which carries its own gold rule, the corrections sit one
-   step closer and without a second rule: the history is the record's
-   apparatus, and it is no longer the page's ending. */
-.corrections {
-  margin-top: var(--sp-6);
+/* An endnote heading is a label, not a second headline: the text face in
+   capitals at the kicker step, so the apparatus reads as apparatus. */
+.article .endnotes > h2 {
+  color: var(--ink);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: 600;
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
+  text-transform: uppercase;
+}
+
+.endnotes > p {
+  max-width: 62ch;
+  margin: var(--sp-4) 0 0;
+  color: var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
 .sourceStack {
   margin: var(--sp-4) 0 0;
   padding: 0;
   list-style: none;
+  counter-reset: endnote;
 }
 
-.sourceStack > li > a,
-.sourceStack > li a[href] {
-  /* UX-11: the source link is the proof; a 44px target without a 44px row. */
-  display: inline-flex;
-  align-items: center;
-  min-block-size: var(--control-h);
-  margin-block: calc((var(--control-h) - 1.5em) / -2);
-  width: fit-content;
-  max-width: 100%;
-}
-
+/* A numbered endnote: the count answers the byline's "4 sources". */
 .sourceStack > li {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--sp-1);
-  margin-bottom: var(--sp-3);
   min-width: 0;
+  padding: var(--sp-3) 0 var(--sp-3) var(--sp-6);
+  border-top: var(--line-w) solid var(--line-soft);
+  counter-increment: endnote;
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
 }
 
-.sourceStack a,
-.related a {
-  color: var(--gold-hi);
+.sourceStack > li::before {
+  position: absolute;
+  top: calc(var(--sp-3) + 0.2em);
+  left: 0;
+  content: counter(endnote);
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+.sourceStack > li > a {
+  /* UX-11: the source link is the proof; a 44px target without a 44px row. */
+  /* Padding and a negative margin of the same size: the target grows to
+     44px on a one-line title and the layout does not move at any length. */
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  padding-block: calc((var(--control-h) - 1.5em) / 2);
+  margin-block: calc((var(--control-h) - 1.5em) / -2);
+  color: var(--ink-hi);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-line-strong);
+  text-decoration-thickness: var(--line-w);
+  text-underline-offset: 0.22em;
   overflow-wrap: anywhere;
 }
 
-.sourceStack a:hover,
-.sourceStack a:focus-visible,
-.related a:hover,
-.related a:focus-visible {
-  color: var(--gold);
+.sourceStack > li > a:hover,
+.sourceStack > li > a:focus-visible {
+  color: var(--gold-hi);
+  text-decoration-color: currentColor;
+}
+
+.sourceTitle {
+  color: var(--ink-hi);
 }
 
 .sourceMeta {
-  composes: dataValue from global;
+  composes: dataMeta from global;
   color: var(--ink-lo);
   overflow-wrap: anywhere;
 }
 
-.relatedList,
-.narrativeList {
+/* ── Ending ───────────────────────────────────────────────────────────── */
+
+.activation {
+  max-width: var(--reading-w);
+}
+
+/* After the band, the history sits one step closer and without a second
+   rule: it is the record's apparatus, not the page's ending. */
+.corrections {
+  margin-top: var(--sp-6);
+}
+
+.related {
+  margin-top: var(--sp-8);
+  padding-top: var(--sp-5);
+  border-top: var(--line-w) solid var(--line-strong);
+}
+
+.relatedList {
   display: grid;
   gap: var(--sp-3);
   margin: var(--sp-4) 0 0;
@@ -336,14 +590,14 @@
   margin: var(--sp-5) 0 0;
 }
 
-/* UX-11. The hub link is a standalone control, so it clears the coarse
-   target floor on its own — an inline-flex box with the height, not a
-   padded line the eye reads as a paragraph. */
+/* UX-11. The hub link is a standalone control and clears the coarse target
+   floor on its own. */
 .deskLink {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
   min-block-size: var(--control-h);
+  color: var(--gold-hi);
   font-family: var(--face-text);
   font-size: var(--t-small);
   font-weight: 600;
@@ -358,68 +612,19 @@
   text-decoration-color: currentColor;
 }
 
-.narrativeList li {
-  margin-bottom: var(--sp-3);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
+@media (prefers-reduced-motion: reduce) {
+  .contents a {
+    transition: none;
+  }
 }
 
-.narrativeDetails {
-  margin-top: var(--sp-7);
-  padding: var(--sp-5) 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-}
-
-.narrativeDetails dl {
-  display: grid;
-  gap: var(--sp-4);
-  margin: var(--sp-5) 0 0;
-}
-
-.narrativeDetails dt {
-  color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-}
-
-.narrativeDetails dd {
-  margin: var(--sp-1) 0 0;
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-  overflow-wrap: anywhere;
-}
-
-.verdictLine {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-3);
-  margin: var(--sp-5) 0 0;
-}
-
-.verdictMeaning {
-  min-width: 0;
-  color: var(--ink);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
-}
-
-/* The unsourced-analysis disclosure. Marked by a rule and the full body
-   step rather than by a warning colour — this is a statement of what the
-   record is, not an alert about it. */
-.analysisNote {
-  max-width: 62ch;
-  margin: var(--sp-5) 0 0;
-  padding-left: var(--sp-4);
-  border-left: 2px solid var(--gold-line);
-  color: var(--ink);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
+@media (forced-colors: active) {
+  .byline,
+  .claimRecord,
+  .endnotes,
+  .related {
+    border-color: CanvasText;
+  }
 }
 
 /* ── Missing-record / database-failure recovery ───────────────────────── */
@@ -440,13 +645,9 @@
 }
 
 .recoveryRef {
+  composes: dataMeta from global;
   margin-top: var(--sp-4);
   color: var(--ink-lo);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
   font-variant-numeric: tabular-nums;
   text-align: center;
 }

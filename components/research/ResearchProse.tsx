@@ -23,7 +23,7 @@ export function ResearchProse({ blocks }: { blocks: ProseBlock[] }) {
     <>
       {blocks.map((block, i) =>
         block.kind === 'para' ? (
-          <p key={`p-${i}-${block.text.slice(0, 24)}`}>
+          <p key={`p-${i}-${block.text.slice(0, 24)}`} className={styles.prose}>
             <ResearchText>{block.text}</ResearchText>
           </p>
         ) : (

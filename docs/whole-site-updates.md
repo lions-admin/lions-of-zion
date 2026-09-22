@@ -207,8 +207,7 @@ media-only failure does not fail the operation or make the run partial.
 ### Media rights are enforced without making media a publication gate
 
 The orchestrator displays an image only when it is article-safe:
-`rights.status === "cleared"`, a valid `clearedAt`, and `"article"` in
-`rights.surfaces`. An unsafe image is ignored, a `mediaWarning` is recorded,
+`rights.status !== "withdrawn"`. `clearedAt` and `rights.surfaces` are recorded metadata rather than display gates. A withdrawn image is ignored, a `mediaWarning` is recorded,
 and the article publishes without a new picture. An update keeps its existing
 hero. The strict validation inside `applyEditorial()` and the database remain
 in place as defence in depth. Rights are never inferred or upgraded.

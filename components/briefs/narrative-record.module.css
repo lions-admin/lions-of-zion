@@ -1,57 +1,180 @@
-.record { padding-block: var(--sp-5); border-top: 1px solid var(--line); min-width: 0; overflow-wrap: anywhere; }
-.meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--sp-2); color: var(--ink-lo); font: 13px/1.6 var(--face-data); }
-.status { border-inline-start: 2px solid currentColor; padding-inline-start: var(--sp-2); color: var(--ink); }
-.status[data-tone="danger"] { color: var(--data-ember-peak); }
-.status[data-tone="warn"] { color: var(--gold-hi); }
-.status[data-tone="ok"] { color: var(--ink-hi); }
-.label { display: block; font: 13px/1.6 var(--face-data); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-lo); margin: var(--sp-4) 0 var(--sp-2); }
+/* A narrative-watch record (Signal over noise, 2026-09-22).
+ *
+ * One ruled entry, read top to bottom in the order a reader needs it: the
+ * verdict word and what it is a verdict on, the claim as it circulates
+ * (`noise`, ember italic), the finding on it (`signal`, ivory on the amber
+ * rule), and only then the picture and the context. No box: the hairline
+ * above is the whole frame. */
+
+.record {
+  display: grid;
+  gap: var(--sp-3);
+  min-width: 0;
+  padding-block: var(--sp-5);
+  border-top: var(--line-w) solid var(--line);
+  overflow-wrap: anywhere;
+}
+
+/* Verdict · kind ······ date. The verdict is a word, never a colour alone:
+   the tone only tints the short rule in front of it. */
+.meta {
+  composes: dataMeta from global;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-3);
+  margin: 0;
+  color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
+}
+
+.meta > time { margin-inline-start: auto; }
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.status::before {
+  content: "";
+  inline-size: var(--sp-3);
+  block-size: var(--line-w-thick);
+  background: var(--line-strong);
+}
+
+.status[data-tone="danger"]::before,
+.status[data-tone="warn"]::before { background: var(--ember); }
+.status[data-tone="ok"]::before { background: var(--ink-hi); }
+
+.label {
+  composes: kickerLabel from global;
+  color: var(--ink-lo);
+}
+
 /* THE CLAIM CAP — by kind, not by call site.
    A claim under examination is a heading *inside* a record, and it must never
-   out-typeset the verdict on it or the heading of the section carrying it. It
-   used to be `clamp(1.4rem, 2.5vw, 2rem)`, which at 390px computes to 22.4px
-   against a section heading of 22px: measured on /fake-resistance/watch, the
-   sentence this desk exists to refute was the largest text in its own section.
-   Same failure the homepage had, same answer — the cap lives here, on the
-   component that renders every claim, so it holds for all of them rather than
-   for the ones an author remembered. `--t-h3` is fixed at 1.375rem and is by
-   definition never larger than `--t-h2`, at any width.
+   out-typeset the verdict on it or the heading of the section carrying it.
+   The cap lives here, on the component that renders every claim, so it holds
+   for all of them rather than for the ones an author remembered: `--t-h3` is
+   by definition never larger than `--t-h2`, at any width.
    Do not reintroduce a page-private clamp here (app/globals.css, SYS-004). */
-.record h3 {
+.claim {
+  composes: noise from global;
+  max-width: 34ch;
   margin: 0;
-  max-width: 35ch;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
   font-weight: var(--t-h3-weight);
   line-height: var(--t-h3-lh);
   letter-spacing: var(--t-h3-tracking);
+  text-wrap: balance;
 }
-.record h3 a { text-decoration: none; }
-.record h3 a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .15em; }
-.meaning { margin: var(--sp-3) 0; color: var(--ink-hi); font-size: 15px; }
-.propagators, .basis { color: var(--ink-lo); font-size: 13px; }
-.propagators span { display: block; }
-.context { max-width: 65ch; border-inline-start: 1px solid var(--line-strong); padding-inline-start: var(--sp-4); }
-.context p { margin: 0; font: 15px/1.7 var(--face-text); }
-.read { display: inline-flex; align-items: center; gap: var(--sp-3); min-height: 44px; margin-top: var(--sp-3); font-size: 13px; color: var(--ink-hi); text-underline-offset: 5px; }
-.record a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 
-.compact { padding-block: 16px; }
-/* The compact excerpt carries no size of its own: one kind, one cap. It was
-   21px here, a second scale a reader could not read rank from. */
-.compact .label { margin-top: 10px; }
-.compact .meaning { font-size: 14px; margin-block: 10px 0; }
-.compact .read { margin-top: 4px; }
-.status { font-weight: 600; color: var(--ink-hi); }
-.compact h3 a { text-decoration: underline; text-decoration-color: var(--line-strong); text-decoration-thickness: 1px; text-underline-offset: 4px; }
-.compact .label { margin-block: 8px 4px; }
+/* `noise` caps at min(1em, --t-h3), and 1em here is the article's body size;
+   the claim is a heading and takes the heading's size, still under the cap. */
+.record .claim { font-size: var(--t-h3); }
 
-/* Enrichment, not evidence: constrained so it never out-weighs the headline
+.claim a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: var(--line-w);
+  text-underline-offset: 0.18em;
+  transition: text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.claim a:hover { text-decoration-color: currentColor; }
+
+.finding {
+  composes: signal from global;
+  max-width: 60ch;
+  margin: 0;
+  /* The finding is the sentence the record exists for: body size, never the
+     caption step, even in the hub's excerpt. */
+  font-size: 1rem;
+  line-height: var(--t-small-lh);
+}
+
+.propagators, .basis {
+  margin: 0;
+  max-width: 70ch;
+  color: var(--ink-lo);
+  font-size: var(--t-caption);
+  line-height: var(--t-caption-lh);
+}
+
+.propagators span {
+  display: block;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.context {
+  display: grid;
+  gap: var(--sp-2);
+  max-width: 65ch;
+  padding-top: var(--sp-3);
+  border-top: var(--line-w) solid var(--line-soft);
+}
+
+.contextLabel {
+  composes: kickerLabel from global;
+  color: var(--ink-lo);
+}
+
+.context p {
+  margin: 0;
+  color: var(--ink);
+  font: var(--t-small)/1.7 var(--face-text);
+}
+
+.read {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: fit-content;
+  min-height: var(--control-h);
+  color: var(--ink-hi);
+  font-size: var(--t-small);
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: inset 0 calc(-1 * var(--line-w)) 0 var(--line-strong);
+  transition: box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.read:hover { box-shadow: inset 0 calc(-1 * var(--line-w)) 0 currentColor; }
+.record a:focus-visible { outline: var(--focus-outline); outline-offset: var(--focus-offset); }
+
+/* The hub's excerpt: the same record at a tighter step. It carries no type
+   size of its own — one kind, one cap. */
+.compact { gap: var(--sp-2); padding-block: var(--sp-4); }
+.compact .finding { margin-top: var(--sp-1); }
+
+/* Enrichment, not evidence: constrained so it never out-weighs the claim
    above it, and rendered only when the record actually carries a picture —
    there is no placeholder for the many that do not. */
-.media { margin: var(--sp-4) 0 0; display: grid; gap: var(--sp-2); max-inline-size: 30rem; min-width: 0; }
-.media img { display: block; inline-size: 100%; block-size: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: var(--radius-1); border: 1px solid var(--line); }
-.media figcaption { display: grid; gap: 2px; color: var(--ink-lo); font: 12px/1.6 var(--face-data); overflow-wrap: anywhere; }
-.mediaNote { letter-spacing: .08em; text-transform: uppercase; color: var(--gold-hi); }
+.media { margin: var(--sp-2) 0 0; display: grid; gap: var(--sp-2); max-inline-size: 30rem; min-width: 0; }
+.media img { display: block; inline-size: 100%; block-size: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: var(--radius-1); border: var(--line-w) solid var(--line); }
+.media figcaption { display: grid; font-family: var(--face-data); font-size: var(--t-data); line-height: var(--t-data-lh); letter-spacing: var(--t-data-tracking-tight); gap: 2px; color: var(--ink-lo); overflow-wrap: anywhere; }
+.mediaNote { color: var(--ink); text-transform: uppercase; letter-spacing: var(--t-data-tracking); }
 .mediaCredit { color: var(--ink-lo); }
-.compact .media { max-inline-size: 11rem; margin-top: 10px; }
+.compact .media { max-inline-size: 11rem; margin-top: var(--sp-1); }
+
+/* On a phone the date takes its own line under the verdict rather than
+   hanging off the right edge of a wrapped row. */
+@media (max-width: 30rem) {
+  .meta > time { flex-basis: 100%; margin-inline-start: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .claim a, .read { transition: none; }
+}
+
+@media (forced-colors: active) {
+  .status::before { background: CanvasText; }
+  .claim a:hover { text-decoration-color: LinkText; }
+}

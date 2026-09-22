@@ -4,8 +4,9 @@
 
    Each entry reads as processed evidence rather than a blog post: an
    exhibit letter (there are three separate items in evidence here, not
-   three steps of a sequence — letters, not numbers), a corner stamp
-   carrying the verdict as ink rather than only a colored chip, and the
+   three steps of a sequence — letters, not numbers), the verdict as a
+   word beside it (the rotated corner stamp that repeated it was retired on
+   2026-09-22 as decoration), and the
    origin/amplification pair as a two-entry custody log — that pairing IS
    a real sequence (what happened first, what happened next), so a
    connecting rail earns its place there in a way a numbered badge would
@@ -155,7 +156,7 @@
 }
 
 /* The dossier box is `Card variant="dossier"`. This class only keeps layout
-   the primitive does not own: stacking gap, stamp positioning context, and
+   the primitive does not own: stacking gap, positioning context, and
    the two-track source rail. Doubled selector beats Card's `display:flex`
    and `height:100%` at equal class specificity. */
 .caseFile.caseFile {
@@ -193,48 +194,12 @@
   }
 
   .caseFileSources {
-    /* Clear the corner stamp, which sits at the case's top right. Expressed
-       as padding, not margin: `.marginNote` sets `margin-top` at the same
-       specificity from another module, and chunk order would decide the
-       winner — the trap `:where(.body)` exists for. */
-    padding-top: var(--sp-7);
+    /* Level with the exhibit's head. Expressed as padding, not margin:
+       `.marginNote` sets `margin-top` at the same specificity from another
+       module, and chunk order would decide the winner — the trap
+       `:where(.body)` exists for. */
+    padding-top: var(--sp-2);
   }
-}
-
-/* The corner stamp — the one bold flourish on this page. Decorative only:
-   VerificationBadge below carries the real accessible label, so this stays
-   aria-hidden and never disagrees with it (STAMP_LABEL mirrors the badge's
-   own wording). Tracking is at the cap; the border, rotation and weight
-   already make it read as a stamp without pulling the letters apart. */
-.stamp {
-  position: absolute;
-  top: var(--sp-1);
-  right: 0;
-  padding: var(--sp-1) var(--sp-3);
-  border: var(--line-w-thick) solid var(--stamp-color, var(--data-ember));
-  border-radius: var(--radius-2);
-  transform: rotate(-6deg);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: 700;
-  line-height: var(--t-data-lh);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-  color: var(--stamp-color, var(--data-ember));
-  opacity: 0.82;
-  pointer-events: none;
-}
-
-.stamp[data-tone='ember'] {
-  --stamp-color: var(--data-ember);
-}
-
-.stamp[data-tone='gold'] {
-  --stamp-color: var(--gold);
-}
-
-.stamp[data-tone='muted'] {
-  --stamp-color: var(--ink-lo);
 }
 
 .caseFileHeader {
@@ -344,14 +309,6 @@
 }
 
 @media (max-width: 540px) {
-  /* No room for a floating corner stamp beside wrapped header text — drop it
-     into normal flow above the header instead of overlapping it. */
-  .stamp {
-    position: static;
-    display: inline-block;
-    margin: 0 0 var(--sp-4);
-  }
-
   .caseFileHeader {
     max-width: 100%;
   }

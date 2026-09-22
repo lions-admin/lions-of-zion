@@ -1,7 +1,13 @@
-/* October 7 is a hub before it is an explainer: archive entry comes first. */
+/* October 7 is a hub before it is an explainer: archive entry comes first.
+ *
+ * Stillness (Signal over noise, 2026-09-22). This is the one route that does
+ * not move: the shell sets `data-still`, and nothing here animates, lifts,
+ * tints or slides on hover. A link answers with the focus ring and nothing
+ * else. Amber is not spent on the archive's labels or its figures — a death
+ * toll is not an accent — and structure is hairlines, as everywhere else. */
 .eyebrow {
   margin: 0;
-  color: var(--gold);
+  color: var(--ink-lo);
   font: 400 13px/1.6 var(--face-data);
   letter-spacing: .09em;
   text-transform: uppercase;
@@ -39,52 +45,24 @@
   min-height: 282px;
   padding: 24px 24px 22px;
   border-bottom: 1px solid var(--line-strong);
-  box-shadow: inset 3px 0 0 transparent;
   color: var(--ink-hi);
   background: transparent;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 160ms ease, box-shadow 160ms ease, color 160ms ease, transform 100ms ease;
 }
 .archiveEntry + .archiveEntry {
   border-left: 1px solid var(--line-strong);
 }
-.archiveEntry::after {
-  content: "";
-  position: absolute;
-  left: 24px;
-  right: 24px;
-  bottom: -1px;
-  height: 2px;
-  background: var(--gold);
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 180ms ease;
-  pointer-events: none;
-}
-.archiveEntry:hover {
-  background: var(--surface-1);
-  box-shadow: inset 3px 0 0 var(--gold);
-}
-.archiveEntry:hover::after,
-.archiveEntry:focus-visible::after {
-  transform: scaleX(1);
-}
-.archiveEntry:active {
-  transform: translateY(1px);
-  background: var(--surface-2);
-}
 .archiveEntry:focus-visible {
   z-index: 1;
-  outline: 2px solid var(--gold);
+  outline: var(--focus-outline);
   outline-offset: 4px;
-  box-shadow: inset 3px 0 0 var(--gold);
 }
 .archiveEntry:visited .entryKind {
   color: var(--ink-lo);
 }
 .entryKind {
-  color: var(--gold);
+  color: var(--ink-lo);
   font: 400 13px/1.5 var(--face-data);
   letter-spacing: .1em;
   text-transform: uppercase;
@@ -116,7 +94,7 @@
   gap: 8px;
 }
 .entryCountNumber {
-  color: var(--gold-hi);
+  color: var(--ink-hi);
   font-family: var(--face-display);
   font-size: var(--t-figure);
   line-height: 1;
@@ -125,7 +103,7 @@
 }
 .entryCountUnit {
   color: var(--ink-lo);
-  font: 400 12px/1.4 var(--face-data);
+  font: 400 13px/1.4 var(--face-data);
   letter-spacing: .08em;
   text-transform: uppercase;
 }
@@ -142,15 +120,7 @@
 }
 .entryAction svg {
   flex-shrink: 0;
-  color: var(--gold);
-  transition: transform 160ms ease;
-}
-.archiveEntry:hover .entryAction {
-  color: var(--gold);
-}
-.archiveEntry:hover .entryAction svg,
-.archiveEntry:focus-visible .entryAction svg {
-  transform: translateX(4px);
+  color: var(--ink-lo);
 }
 
 .archiveShowcase {
@@ -161,7 +131,7 @@
 }
 .archiveFeature {
   min-width: 0;
-  border-top: 2px solid var(--gold-dim);
+  border-top: 1px solid var(--line-strong);
   padding-top: 22px;
   scroll-margin-top: 96px;
 }
@@ -198,13 +168,8 @@
 .browseLink svg,
 .readLink svg {
   flex-shrink: 0;
-  color: var(--gold);
-  transition: transform 160ms ease;
+  color: var(--ink-lo);
 }
-.browseLink:hover svg,
-.readLink:hover svg,
-.browseLink:focus-visible svg,
-.readLink:focus-visible svg { transform: translateX(4px); }
 
 /* Secondary / navigation tier: quiet, text-weight, muted by default so it
    never competes with the primary action below it. */
@@ -215,8 +180,6 @@
   color: var(--ink-lo);
   font: 500 13px/1.4 var(--face-text);
 }
-.browseLink:hover,
-.browseLink:focus-visible { color: var(--gold); }
 
 /* Primary tier: the strongest weight this panel spends outside its one solid
    Share button. A bordered control, not a line of text — the whole point of
@@ -231,13 +194,6 @@
   border-radius: var(--radius-2);
   color: var(--ink-hi);
   font: 600 15px/1.3 var(--face-text);
-  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
-}
-.readLink:hover,
-.readLink:focus-visible {
-  color: var(--gold-hi);
-  border-color: var(--gold);
-  background: var(--surface-1);
 }
 .archiveDetail {
   display: block;
@@ -257,7 +213,7 @@
   display: grid;
   gap: 2px;
   color: var(--ink-lo);
-  font: 400 11px/1.4 var(--face-data);
+  font: 400 12px/1.4 var(--face-data);
 }
 .sampleCount {
   font-size: 13px;
@@ -291,14 +247,9 @@
   width: auto;
   gap: 8px;
   padding-inline: 12px 6px;
-  font: 500 12px/1.4 var(--face-text);
+  font: 500 13px/1.4 var(--face-text);
 }
 
-.rotationControls button:hover:not(:disabled) {
-  color: var(--gold);
-  background: var(--surface-1);
-}
-.rotationControls button:active:not(:disabled) { background: var(--surface-2); }
 .rotationControls button:disabled {
   color: var(--ink-lo);
   cursor: default;
@@ -320,7 +271,7 @@
 }
 .sampleType svg {
   flex-shrink: 0;
-  color: var(--gold);
+  color: var(--ink-lo);
 }
 .sampleReading h3 {
   margin: 0;
@@ -341,7 +292,6 @@
   overflow: hidden;
   overflow-wrap: anywhere;
 }
-.sampleReading h3 a:hover { color: var(--gold); }
 .sampleExcerpt {
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -360,7 +310,7 @@
   gap: 5px;
   margin: 0;
   color: var(--ink-lo);
-  font: 400 12px/1.6 var(--face-text);
+  font: 400 13px/1.6 var(--face-text);
 }
 .sampleProvenance > span:first-child:not(:last-child) { color: var(--ink); }
 .mediaWarning {
@@ -390,7 +340,7 @@
 }
 .archiveFeature :is(a, button):focus-visible,
 .categoryBrowser :is(a, summary):focus-visible {
-  outline: 2px solid var(--gold);
+  outline: var(--focus-outline);
   outline-offset: 4px;
 }
 
@@ -424,10 +374,9 @@
 .categoryBrowser summary > span {
   margin-left: 12px;
   color: var(--ink-lo);
-  font: 400 11px/1.6 var(--face-data);
+  font: 400 13px/1.6 var(--face-data);
   white-space: nowrap;
 }
-.categoryBrowser summary:hover { color: var(--gold); }
 .categoryBrowser ul {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -451,15 +400,15 @@
   cursor: pointer;
 }
 .categoryBrowser a span:last-child {
-  font: 400 12px/1.6 var(--face-data);
+  font: 400 13px/1.6 var(--face-data);
   color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
 }
-.categoryBrowser a:hover { color: var(--gold); }
 
 .section {
   margin-top: clamp(44px, 6vw, 72px);
-  padding-top: 28px;
-  border-top: 1px solid var(--line);
+  padding-top: 20px;
+  border-top: 1px solid var(--line-strong);
   scroll-margin-top: 96px;
 }
 .sectionHeading {
@@ -496,7 +445,7 @@
   letter-spacing: var(--t-h2-tracking);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  color: var(--gold-hi);
+  color: var(--ink-hi);
 }
 .inscription > dl > div > dd {
   max-width: none;
@@ -519,10 +468,6 @@
   }
   .archiveEntry + .archiveEntry {
     border-left: 0;
-  }
-  .archiveEntry::after {
-    left: 18px;
-    right: 18px;
   }
   .entryDescription {
     max-width: 40ch;
@@ -573,16 +518,14 @@
   }
 }
 
+/* Nothing on this page transitions; the guard stays for anything a shared
+   primitive inside the showcase might bring with it. */
 @media (prefers-reduced-motion: reduce) {
-  .archiveEntry,
-  .archiveEntry::after,
-  .archiveEntry .entryAction svg,
   .archiveFeature *,
   .categoryBrowser * {
     transition: none;
     animation: none;
   }
-  .archiveEntry:active { transform: none; }
 }
 
 /* With scripting off the arrows and the share control do nothing; the

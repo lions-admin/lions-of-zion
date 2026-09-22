@@ -1,9 +1,13 @@
-/* Fake Resistance · the investigation front.
+/* Fake Resistance · the investigation front (Signal over noise, 2026-09-22).
  *
- * Shares its masthead with the news front (`HubMasthead`). Below it: the
- * latest investigation as the lead, the watch as a rail, further
- * investigations as a three-up, then two raised doors into the network map
- * and the playbook.
+ * Shares its masthead with the news front (`HubMasthead`). Below it: one
+ * lead — the latest investigation — beside the watch rail, then quiet ruled
+ * sections: antisemitism records, influence operations, further
+ * investigations, and two doors into the network map and the playbook.
+ *
+ * Structure is hairlines, never filled boxes. Every section opens on the same
+ * head: an h2 at `--t-h2`, its count in the data face, and the door to
+ * everything pushed to the far edge, all sitting on one rule.
  *
  * Two type roles, kept apart (UX-31): a kicker or section label is sans caps
  * at `--t-kicker`; a date or a count is the mono face at `--t-data`. */
@@ -23,78 +27,68 @@
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   gap: var(--sp-7);
-  padding-block: var(--sp-6) var(--sp-7);
+  padding-block: var(--sp-7);
 }
 
 .investigation {
+  display: grid;
+  align-content: start;
   min-width: 0;
   padding-inline-end: var(--sp-7);
   border-inline-end: var(--line-w) solid var(--line);
 }
 
 .eyebrow {
-  composes: dataValue from global;
+  composes: dataMeta from global;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  align-items: baseline;
   gap: var(--sp-3);
-  color: var(--ink);
+  color: var(--ink-lo);
   font-variant-numeric: tabular-nums;
 }
 
 .eyebrow > span {
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
+  color: var(--ink);
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
-  color: var(--gold-hi);
 }
 
-.eyebrow > span::before {
-  content: "";
-  inline-size: 0.45rem;
-  block-size: 0.45rem;
-  border-radius: 50%;
-  background: var(--gold);
-  box-shadow: 0 0 0 3px var(--gold-wash);
-}
-
-/* The lead investigation's headline, at the site's h2 role.
-
-   It used to declare its own `clamp(2.125rem, 1.2rem + 2.3vw, 3.25rem)`, which
-   `app/globals.css` now rules out: one heading scale, and a page that wants a
-   bigger headline changes the role it uses rather than inventing a size. The
-   practical consequence here is a rank a reader can read — this headline at
-   `--t-h2`, the section heads below it at `--t-h3` — and a claim under
-   examination that cannot out-typeset either.
-
-   The 24ch measure stays: it is a measure, not a type scale. */
+/* The lead headline: the one display-sized line below the masthead, so the
+   page has a single place the eye lands first. The section heads below sit a
+   full step lower at `--t-h2`. */
 .investigation h2 {
-  max-width: 24ch;
-  margin: var(--sp-5) 0 var(--sp-5);
+  max-width: 22ch;
+  margin: var(--sp-4) 0 var(--sp-5);
   color: var(--ink-hi);
   font-family: var(--face-display);
-  font-size: var(--t-h2);
-  font-weight: var(--t-h2-weight);
-  line-height: var(--t-h2-lh);
-  letter-spacing: var(--t-h2-tracking);
+  font-optical-sizing: auto;
+  font-size: var(--t-display);
+  font-weight: var(--t-display-weight);
+  line-height: var(--t-display-lh);
+  letter-spacing: var(--t-display-tracking);
   text-wrap: balance;
 }
 
 .hub h2 a,
 .hub h3 a {
   color: inherit;
-  text-decoration: none;
-  transition: color var(--dur-fast) var(--ease-out);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: var(--line-w);
+  text-underline-offset: 0.14em;
+  transition: text-decoration-color var(--dur-fast) var(--ease-out);
 }
 
+.hub h2 a:hover,
+.hub h3 a:hover { text-decoration-color: currentColor; }
+
 .question {
-  max-width: 65ch;
+  max-width: 62ch;
   margin: 0;
   color: var(--ink);
   font-size: var(--t-lede);
@@ -103,12 +97,13 @@
   text-wrap: pretty;
 }
 
+/* Two real counts from the case file, not decoration. */
 .evidence {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--sp-6);
-  margin: var(--sp-6) 0 var(--sp-5);
-  padding-top: var(--sp-5);
+  gap: var(--sp-7);
+  margin: var(--sp-6) 0 var(--sp-4);
+  padding-top: var(--sp-4);
   border-top: var(--line-w) solid var(--line);
 }
 
@@ -119,11 +114,11 @@
 }
 
 .evidence dt {
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   color: var(--ink-lo);
 }
@@ -135,9 +130,10 @@
   font-size: var(--t-figure);
   font-weight: 400;
   line-height: 1;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
+/* The one amber moment below the masthead: the lead's own verb. */
 .action {
   display: inline-flex;
   width: fit-content;
@@ -150,11 +146,13 @@
   font-weight: 600;
   line-height: 1;
   text-decoration: none;
-  box-shadow: inset 0 calc(-1 * var(--line-w)) 0 var(--gold-line-strong);
+  box-shadow: inset 0 calc(-1 * var(--line-w)) 0 var(--line-strong);
   transition:
     color var(--dur-fast) var(--ease-out),
     box-shadow var(--dur-fast) var(--ease-out);
 }
+
+.investigation .action { box-shadow: inset 0 calc(-1 * var(--line-w)) 0 var(--gold-line-strong); }
 
 .action > span {
   display: inline-block;
@@ -164,125 +162,133 @@
 .action:hover { box-shadow: inset 0 calc(-1 * var(--line-w)) 0 currentColor; }
 .action:hover > span { transform: translateX(0.3em); }
 
-/* ── Watch rail ────────────────────────────────────────────────────────── */
+/* ── Section heads ─────────────────────────────────────────────────────── */
 
 .monitoring { min-width: 0; }
 
+.section {
+  margin-top: var(--sp-8);
+}
+
 /* Heading, then the count that describes it, then the door to everything —
-   pushed to the far edge so the first two read as one phrase. */
+   pushed to the far edge so the first two read as one phrase. The whole row
+   stands on a strong rule: the seam between one section and the next. */
 .sectionHead {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: var(--sp-2) var(--sp-4);
+  gap: var(--sp-1) var(--sp-4);
+  padding-top: var(--sp-4);
+  border-top: var(--line-w) solid var(--line-strong);
 }
 
 .sectionHead > a { margin-inline-start: auto; }
-
-.sectionCount {
-  margin: 0;
-  color: var(--ink-lo);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
-}
-
-.sectionCount > [data-numeric] {
-  color: var(--ink);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  font-variant-numeric: tabular-nums;
-}
 
 .sectionHead h2 {
   max-width: none;
   margin: 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-h2);
+  font-weight: var(--t-h2-weight);
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
+}
+
+/* In the rail the head is a step down: two h2s side by side at one size
+   would put the watch level with the lead it sits beside. */
+.monitoring .sectionHead h2 {
   font-size: var(--t-h3);
-  font-weight: var(--t-h3-weight);
   line-height: var(--t-h3-lh);
   letter-spacing: var(--t-h3-tracking);
+}
+
+.sectionCount {
+  margin: 0;
+  color: var(--ink-lo);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking-tight);
+}
+
+.sectionCount > [data-numeric] {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 
 .sectionHead a {
   display: inline-flex;
   align-items: center;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
   min-height: var(--control-h);
-  color: var(--ink-lo);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
+  color: var(--ink);
+  font-size: var(--t-small);
+  font-weight: 500;
   text-decoration: none;
 }
 
 /* A sentence, not a machine value: it reads in the text face. */
 .disclosure {
   max-width: 62ch;
-  margin: 0 0 var(--sp-3);
+  margin: var(--sp-1) 0 var(--sp-4);
   color: var(--ink-lo);
   font-family: var(--face-text);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
 }
 
-/* ── Further investigations ────────────────────────────────────────────── */
+/* ── Ruled entries ─────────────────────────────────────────────────────── */
 
-.more {
-  padding-top: var(--sp-6);
-  border-top: var(--line-w) solid var(--line-strong);
+/* Two records side by side, divided by a hairline rather than boxed. */
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.antisemitism {
-  margin-top: var(--sp-7);
-  padding: var(--sp-6);
-  border: var(--line-w) solid var(--line);
-  border-inline-start: 0.25rem solid var(--data-ember-peak);
-  background: var(--surface-1);
+.pair > :first-child { padding-inline-end: var(--sp-6); }
+
+.pair > * + * {
+  padding-inline-start: var(--sp-6);
+  border-inline-start: var(--line-w) solid var(--line-soft);
 }
 
-.researchGrid {
+/* A quiet index: three entries on a hairline grid. Each is a column with a
+   rule above it and a hairline between it and the next; nothing fills,
+   lifts or glows. */
+.entries {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--sp-6);
-  margin-top: var(--sp-5);
+  border-top: var(--line-w) solid var(--line);
 }
 
-.researchGrid article {
+.entries article {
   display: grid;
+  grid-template-rows: auto auto 1fr auto;
   gap: var(--sp-3);
   align-content: start;
   min-width: 0;
-  padding: var(--sp-5);
-  background-color: var(--surface-1);
-  background-image: var(--surface-grade);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-  box-shadow: var(--shadow-1);
-  transition:
-    border-color var(--dur-base) var(--ease-out),
-    box-shadow var(--dur-base) var(--ease-out),
-    transform var(--dur-base) var(--ease-out);
+  padding: var(--sp-5) var(--sp-6) var(--sp-4);
 }
 
-.researchGrid article:hover {
-  border-color: var(--line-strong);
-  box-shadow: var(--shadow-2);
-  transform: translateY(-2px);
-}
+.entries article:first-child { padding-inline-start: 0; }
+.entries article:last-child { padding-inline-end: 0; }
+.entries article + article { border-inline-start: var(--line-w) solid var(--line-soft); }
 
-.researchGrid time {
+.entries time {
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
   line-height: var(--t-data-lh);
   letter-spacing: var(--t-data-tracking-tight);
   color: var(--ink-lo);
+  font-variant-numeric: tabular-nums;
 }
 
-.researchGrid h3 {
-  max-width: none;
+.entries h3 {
+  max-width: 30ch;
   margin: 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
@@ -293,54 +299,54 @@
   text-wrap: balance;
 }
 
-.researchGrid p {
-  max-width: 65ch;
+.entries p {
+  max-width: 60ch;
   margin: 0;
   color: var(--ink-lo);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  align-self: start;
 }
 
-.researchGrid .action { margin-top: auto; }
+.entries .action { margin-top: var(--sp-2); }
 
 /* ── Doors ─────────────────────────────────────────────────────────────── */
 
+/* Two ruled rows, not two raised tiles: a label, a name, an arrow. */
 .depth {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--sp-5);
-  margin-top: var(--sp-7);
+  margin-top: var(--sp-8);
+  border-block: var(--line-w) solid var(--line-strong);
 }
 
 .depth a {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: var(--sp-2) var(--sp-4);
-  align-items: center;
-  padding: var(--sp-5) var(--sp-6);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-  background: var(--surface-0);
+  align-items: end;
+  min-height: 7rem;
+  padding: var(--sp-5) var(--sp-6) var(--sp-5) 0;
   color: var(--ink-hi);
   text-decoration: none;
-  transition:
-    border-color var(--dur-base) var(--ease-out),
-    background-color var(--dur-base) var(--ease-out),
-    box-shadow var(--dur-base) var(--ease-out);
 }
 
-.depth a:hover {
-  border-color: var(--gold-line-strong);
-  background-color: var(--surface-1);
-  box-shadow: var(--shadow-2);
+.depth a + a {
+  padding-inline-start: var(--sp-6);
+  border-inline-start: var(--line-w) solid var(--line);
 }
 
 .depth a > span:first-child {
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
+  font-family: var(--face-kicker);
+  font-size: var(--t-kicker);
+  font-weight: var(--t-kicker-weight);
+  line-height: var(--t-kicker-lh);
+  letter-spacing: var(--t-kicker-tracking);
   text-transform: uppercase;
   grid-column: 1 / -1;
   color: var(--ink-lo);
@@ -350,26 +356,31 @@
    name for display-sized text that is not a heading. */
 .depth strong {
   font-family: var(--face-display);
-  font-size: var(--t-figure);
+  font-size: var(--t-h2);
   font-weight: 400;
-  line-height: 1.18;
-  letter-spacing: -0.015em;
+  line-height: var(--t-h2-lh);
+  letter-spacing: var(--t-h2-tracking);
 }
 
 .depth a > span:last-child {
-  color: var(--gold);
+  color: var(--ink-lo);
   font-size: var(--t-h3);
-  transition: transform var(--dur-base) var(--ease-out);
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
 
-.depth a:hover > span:last-child { transform: translate(3px, -3px); }
+.depth a:hover > span:last-child {
+  color: var(--ink-hi);
+  transform: translate(3px, -3px);
+}
 
 .bottomLinks {
   display: flex;
   justify-content: space-between;
-  gap: var(--sp-4);
+  gap: var(--sp-2) var(--sp-5);
   flex-wrap: wrap;
-  padding-top: var(--sp-5);
+  padding-top: var(--sp-4);
 }
 
 .bottomLinks a {
@@ -379,36 +390,64 @@
   color: var(--ink-lo);
   font-size: var(--t-caption);
   font-weight: var(--t-caption-weight);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.3em;
 }
 
-.hub a:hover { color: var(--gold-hi); }
+.hub a:hover { color: var(--ink-hi); }
 .hub a:focus-visible { outline: var(--focus-outline); outline-offset: var(--focus-offset); }
 .hub a:active { color: var(--gold); }
 
 /* ── Seams ─────────────────────────────────────────────────────────────── */
 
 @media (max-width: 68.75rem) {
-  .front { grid-template-columns: 1fr; gap: var(--sp-6); }
+  .front { grid-template-columns: 1fr; gap: var(--sp-7); }
   .investigation { border-inline-end: 0; padding-inline-end: 0; }
-  .researchGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .entries { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .entries article:nth-child(3) {
+    grid-column: 1 / -1;
+    padding-inline: 0;
+    border-inline-start: 0;
+    border-top: var(--line-w) solid var(--line-soft);
+  }
 }
 
 @media (max-width: 48rem) {
   .hub { padding-inline: var(--sp-4); }
-  .front { gap: var(--sp-6); padding-top: var(--sp-5); }
-  .investigation h2 { margin-top: var(--sp-4); }
-  .researchGrid,
+  .front { padding-block: var(--sp-5) var(--sp-7); }
+  .investigation h2 {
+    margin-top: var(--sp-3);
+    font-size: var(--t-h2);
+    line-height: var(--t-h2-lh);
+    letter-spacing: var(--t-h2-tracking);
+  }
+  .section { margin-top: var(--sp-7); }
+  .pair,
+  .entries,
   .depth { grid-template-columns: 1fr; }
-  .evidence { gap: var(--sp-5); }
+  .pair > :first-child { padding-inline-end: 0; }
+  .pair > * + * { padding-inline-start: 0; border-inline-start: 0; }
+  .entries article,
+  .entries article:nth-child(3) { padding-inline: 0; grid-column: auto; }
+  .entries article + article { border-inline-start: 0; border-top: var(--line-w) solid var(--line-soft); }
+  .depth a { min-height: 0; padding-inline: 0; }
+  .depth a + a { padding-inline-start: 0; border-inline-start: 0; border-top: var(--line-w) solid var(--line); }
+  .depth strong { font-size: var(--t-h3); line-height: var(--t-h3-lh); }
+  .evidence { gap: var(--sp-6); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .researchGrid article,
-  .depth a,
+  .hub h2 a,
+  .hub h3 a,
   .action,
   .action > span,
   .depth a > span:last-child { transition: none; }
-  .researchGrid article:hover { transform: none; }
   .action:hover > span,
   .depth a:hover > span:last-child { transform: none; }
+}
+
+@media (forced-colors: active) {
+  .action,
+  .investigation .action { box-shadow: none; text-decoration: underline; }
 }

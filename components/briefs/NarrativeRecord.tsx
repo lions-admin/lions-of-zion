@@ -39,13 +39,17 @@ export function NarrativeRecord({ item, compact = false, surface = compact ? "fr
   const media = item.media && isArticleSafeMedia(item.media) ? item.media : null;
   return (
     <article className={[styles.record, compact ? styles.compact : ""].join(" ")} {...measurePublicationCard(surface, item)}>
-      <div className={styles.meta}>
+      {/* The verdict word, then what it is a verdict on, then when — one
+          line, read before the claim, so the claim is never met unlabelled. */}
+      <p className={styles.meta}>
         <span className={styles.status} data-tone={status?.tone ?? "neutral"}>{status?.label ?? "Assessment unavailable"}</span>
+        <span className={styles.label}>Claim in circulation</span>
         <time dateTime={item.publishedAt}>{formatDateTime(item.publishedAt)}</time>
-      </div>
-      <p className={styles.label}>Claim in circulation</p>
-      <h3><Link href={`/articles/${item.publicId}`}>{title}</Link></h3>
-      {status ? <p className={styles.meaning}>{status.meaning}</p> : null}
+      </p>
+      {/* Noise, then signal: the claim in the ember italic it circulates in,
+          the finding on it in ivory on the amber rule (app/globals.css). */}
+      <h3 className={styles.claim}><Link href={`/articles/${item.publicId}`}>{title}</Link></h3>
+      {status ? <p className={styles.finding}>{status.meaning}</p> : null}
       {!compact && details?.propagators.length ? <p className={styles.propagators}><span>Named in the record</span> {details.propagators.join(" · ")}</p> : null}
       {/* Below the status, the claim and the finding, and never above them:
           the picture illustrates the record, it does not establish it. */}
@@ -68,7 +72,7 @@ export function NarrativeRecord({ item, compact = false, surface = compact ? "fr
           ) : null}
         </figure>
       ) : null}
-      {!compact && item.summary ? <div className={styles.context}><span className={styles.label}>Published context</span><p>{item.summary}</p></div> : null}
+      {!compact && item.summary ? <div className={styles.context}><span className={styles.contextLabel}>Published context</span><p>{item.summary}</p></div> : null}
       {details && isAnalysisBasis(details) ? <p className={styles.basis}>Organisation analysis — no source cited.</p> : null}
       {!compact ? <Link className={styles.read} href={`/articles/${item.publicId}`}>{publicationCta(item.section)} <span aria-hidden="true">→</span></Link> : null}
     </article>

@@ -74,7 +74,7 @@
 
 .caseIndex {
   padding-top: 0.35em;
-  color: var(--gold);
+  color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
@@ -173,30 +173,24 @@
 }
 
 .caseUpdated {
-  color: var(--gold);
+  color: var(--ink);
 }
 
 .caseOpen {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
-  min-height: 44px;
+  min-height: var(--control-h);
   margin-top: var(--sp-3);
-  color: var(--gold);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  color: var(--ink-hi);
+  font-size: var(--t-small);
+  font-weight: 600;
   text-decoration: none;
+  box-shadow: inset 0 calc(-1 * var(--line-w)) 0 var(--line-strong);
 }
 
-.caseOpen:hover,
-.caseOpen:focus-visible {
-  color: var(--gold-hi);
-  text-decoration: underline;
-  text-underline-offset: 0.25em;
-}
+.caseOpen:hover { box-shadow: inset 0 calc(-1 * var(--line-w)) 0 currentColor; }
+.caseOpen:focus-visible { outline: var(--focus-outline); outline-offset: var(--focus-offset); }
 
 /* ── Threads ───────────────────────────────────────────────────────────── */
 

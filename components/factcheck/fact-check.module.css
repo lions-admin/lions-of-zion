@@ -51,37 +51,36 @@
   margin: 0;
 }
 
+/* The verdict is a word, set before the claim; the tone only tints the
+   short rule in front of it, so it never rests on colour alone. */
 .entryVerdict {
-  padding: 0.2rem var(--sp-2);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-1);
-  color: var(--ink-lo);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
-.entryVerdict[data-tone="ok"] {
-  border-color: var(--state-ok-line);
-  background: var(--state-ok-wash);
-  color: var(--state-ok);
+.entryVerdict::before,
+.verdictMark::before {
+  content: "";
+  inline-size: var(--sp-3);
+  block-size: var(--line-w-thick);
+  background: var(--line-strong);
 }
 
-.entryVerdict[data-tone="warn"] {
-  border-color: var(--state-warn-line);
-  background: var(--state-warn-wash);
-  color: var(--state-warn);
-}
+.entryVerdict[data-tone="danger"]::before,
+.entryVerdict[data-tone="warn"]::before,
+.verdictMark[data-tone="danger"]::before,
+.verdictMark[data-tone="warn"]::before { background: var(--ember); }
 
-.entryVerdict[data-tone="danger"] {
-  border-color: var(--state-danger-line);
-  background: var(--state-danger-wash);
-  color: var(--state-danger);
-}
+.entryVerdict[data-tone="ok"]::before,
+.verdictMark[data-tone="ok"]::before { background: var(--ink-hi); }
 
 .entryBasis {
-  padding: 0.2rem var(--sp-2);
-  border: var(--line-w) solid var(--line-strong);
-  border-radius: var(--radius-1);
   color: var(--ink-hi);
   letter-spacing: var(--t-data-tracking);
   text-transform: uppercase;
@@ -99,10 +98,13 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* The finding on the claim: `signal`, ivory on the amber rule. */
 .entryRationale {
-  color: var(--ink);
+  composes: signal from global;
+  display: block;
+  max-width: var(--measure-reading);
   font-family: var(--face-text);
-  font-size: var(--t-small);
+  font-size: 1rem;
   letter-spacing: 0;
   line-height: var(--t-small-lh);
   text-transform: none;
@@ -145,22 +147,23 @@
   border-radius: var(--radius-2);
 }
 
-/* The claim itself, verbatim, in the display face — it is the thing the reader
-   came looking for and is set as a headline, not as metadata. */
+/* The claim itself, verbatim — the thing the reader came looking for, set as
+   a headline in the claim's own voice: `noise`, the ember italic of material
+   in circulation, capped at the h3 role. */
 .claimText {
+  composes: noise from global;
   flex: 1;
   min-width: 0;
   /* It is an `<h2>` now (see ClaimEntry); drop the UA heading margins. */
   margin: 0;
-  color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-h3);
   font-weight: var(--t-h3-weight);
   letter-spacing: var(--t-h3-tracking);
   line-height: var(--t-h3-lh);
   text-wrap: pretty;
   overflow-wrap: anywhere;
 }
+
+.summary .claimText { font-size: var(--t-h3); }
 
 .summaryHint {
   flex: none;
@@ -176,11 +179,13 @@
 }
 
 .summary:hover .claimText {
-  color: var(--gold-hi);
+  text-decoration: underline;
+  text-decoration-thickness: var(--line-w);
+  text-underline-offset: 0.16em;
 }
 
 .summary:hover .summaryHint {
-  border-color: var(--gold);
+  border-color: var(--ink-hi);
 }
 
 /* The chevron's open state is a transform, not an animation, so it survives
@@ -264,22 +269,22 @@
 }
 
 .rungLabel span {
-  color: var(--gold-dim);
+  color: var(--ink-lo);
   font-variant-numeric: tabular-nums;
 }
 
-/* The claim, quoted. The gold rule on the left is the one place the accent is
-   spent inside a ladder, and it marks the only verbatim text on the page that
-   is not this desk's own words. */
+/* The claim, quoted: the only verbatim text on the page that is not this
+   desk's own words, so it is set in the claim's voice — the ember italic of
+   `noise` — on a neutral rule. Amber is kept for the finding. */
 .claimQuote {
   margin: 0;
   padding-left: var(--sp-4);
-  border-left: var(--line-w-thick) solid var(--gold-line-strong);
+  border-left: var(--line-w) solid var(--line-strong);
 }
 
 .claimQuote p {
   margin: 0;
-  color: var(--ink-hi);
+  color: var(--ember-soft);
   font-family: var(--face-display);
   font-size: var(--t-lede);
   font-style: italic;
@@ -487,37 +492,17 @@
 }
 
 .verdictMark {
-  padding: var(--sp-1) var(--sp-3);
-  border: var(--line-w) solid var(--line-strong);
-  border-radius: var(--radius-2);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
   color: var(--ink-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
-}
-
-.verdictMark[data-tone="ok"] {
-  border-color: var(--state-ok-line);
-  background: var(--state-ok-wash);
-  color: var(--state-ok);
-}
-
-.verdictMark[data-tone="warn"] {
-  border-color: var(--state-warn-line);
-  background: var(--state-warn-wash);
-  color: var(--state-warn);
-}
-
-.verdictMark[data-tone="danger"] {
-  border-color: var(--state-danger-line);
-  background: var(--state-danger-wash);
-  color: var(--state-danger);
+  font-family: var(--face-text);
+  font-size: var(--t-small);
+  font-weight: 600;
 }
 
 .verdictMeaning {
-  color: var(--ink);
+  color: var(--ink-hi);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
 }
@@ -602,11 +587,10 @@
 
 /* ── What is not shown ──────────────────────────────────────────────────── */
 
+/* Ruled, not boxed: a strong rule and its own head set the disclosure apart. */
 .limits {
-  padding: var(--sp-5);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-  background: var(--surface-1);
+  padding-top: var(--sp-4);
+  border-top: var(--line-w) solid var(--line-strong);
 }
 
 .limitsHeading {
@@ -660,19 +644,19 @@
 }
 
 .limitsNote a:hover {
-  color: var(--gold-hi);
-  text-decoration-color: var(--gold-line-strong);
+  text-decoration-color: currentColor;
 }
 
 /* ── Narrow ─────────────────────────────────────────────────────────────── */
 
 @media (max-width: 45rem) {
-  .limits {
-    padding: var(--sp-4);
-  }
-
   .entryStamp {
     margin-left: 0;
     flex-basis: 100%;
   }
+}
+
+@media (forced-colors: active) {
+  .entryVerdict::before,
+  .verdictMark::before { background: CanvasText; }
 }

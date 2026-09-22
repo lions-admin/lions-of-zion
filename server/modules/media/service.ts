@@ -34,10 +34,8 @@ import "server-only";
  *
  * Nothing below upgrades a rights status, invents a clearance date, or adds a
  * surface. A composer that could not establish a licence sends
- * `status: "unknown"`. Legacy ingest may store that asset with its provenance;
- * the whole-site orchestrator rejects it before fetch and records a media
- * warning instead. In either path the picture stays off every public surface.
- * Storing a picture is not the same as showing it.
+ * `status: "unknown"`. Unknown rights remain visible with their recorded
+ * provenance; only `withdrawn` media is excluded from public display.
  */
 
 import { storeEditorialImage } from "@/server/core/blob";
@@ -116,11 +114,9 @@ export type GeneratedEditorialImageResult = {
   };
 };
 
-/** Package-level preflight. Unsafe rights cost the picture, never the story. */
+/** Package-level preflight. Only explicitly withdrawn media is refused. */
 export function isExternalMediaArticleSafe(media: ExternalMedia): boolean {
-  return media.rights.status === "cleared"
-    && Boolean(media.rights.clearedAt)
-    && media.rights.surfaces.includes("article");
+  return media.rights.status !== "withdrawn";
 }
 
 /**

@@ -192,7 +192,7 @@ export function publicationService(db: unknown) {
           const asset = await store.insertMedia(media);
           const projected = toEditorialMedia(asset);
           if (!projected || !isArticleSafeMedia(projected)) {
-            throw new ApiError('VALIDATION_ERROR', 'The publication requires a cleared article image.');
+            throw new ApiError('VALIDATION_ERROR', 'The publication cannot attach withdrawn media.');
           }
           assetId = asset.id;
         }

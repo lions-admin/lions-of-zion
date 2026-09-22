@@ -1,0 +1,272 @@
+{
+  "contractVersion": "whole-site-update-v2",
+  "runId": "chatgpt-editorial-2026-09-22-1135-r1",
+  "composer": "ChatGPT whole-site editorial update",
+  "createdAt": "2026-09-22T08:35:00Z",
+  "creates": [
+    {
+      "key": "daily-brief-2026-09-22",
+      "publication": {
+        "kind": "brief",
+        "section": "daily_brief",
+        "canonicalStoryId": "daily-brief-2026-09-22",
+        "title": "September 22 briefing: Yom Kippur synagogue shooting in Ontario, Iran escalation warnings, and a stale homepage reset",
+        "summary": "Ontario investigators are examining a shooting outside the Sons of Jacob Synagogue in Belleville during Yom Kippur services that seriously wounded a police officer; the motive remains under investigation. Iran's Revolutionary Guard has meanwhile threatened new targets and tactics if the United States escalates, as maritime pressure around Hormuz continues. Lions of Zion's homepage had not advanced beyond the September 20 edition and is being refreshed with the strongest verified developments.",
+        "body": "## Ontario synagogue shooting\n\nOntario's Special Investigations Unit says a Belleville Police Service officer was stationed near the Sons of Jacob Synagogue at about 7 p.m. on September 20 when a 29-year-old man armed with a shotgun exchanged gunfire with police. The officer was left in critical but stable condition and the gunman suffered life-threatening injuries. Roughly two dozen worshippers were inside for Yom Kippur services and none were injured.\n\nThe SIU is investigating the police use of force, while the broader criminal investigation is examining the shooter's actions and motive. Police have not publicly established that the Jewish congregation was the intended target, so this edition does not present an antisemitic motive as confirmed. The synagogue's president has said he believes the circumstances amount to a hate crime; that is his assessment, not yet a police finding.\n\n## Iran and Hormuz\n\nIran's Revolutionary Guard warned on September 21 that it would change military tactics and targets if the United States escalated the conflict. The warning comes as maritime incidents continue around the Strait of Hormuz, including a newly reported projectile strike on a tanker that injured two crew members. Public reporting reviewed for this edition had not established the attacker in that tanker incident.\n\nThe useful distinction remains the same as in the existing Hormuz canonical: Iranian statements, independently documented ship damage, and attribution are separate evidentiary questions. A threat to expand target sets is a meaningful escalation signal, but it does not establish what Iran will actually attack or when.\n\n## West Bank terror attack\n\nThe September 20 shooting at the Ein Raya spring remains the strongest current Israel-centered security story already in the site. Netanel Shukrun, 36, a father of six, was killed; his son survived. The IDF said the suspected gunman was arrested hours later. This edition retains the existing canonical rather than creating a duplicate.\n\n## Antisemitism desk\n\nThe Belleville synagogue incident meets the threshold for a dedicated monitored record because it occurred at an active synagogue during Yom Kippur and generated a formal SIU investigation. The record is deliberately written with motive unresolved. Separately, Kol HaNeshama, a Reform synagogue in Jerusalem, reported vandalism during Yom Kippur and police opened an investigation; the event is logged for follow-up but is not merged into the Canadian case.\n\n## Fake Resistance and narrative monitoring\n\nNo newly verified narrative displaced the existing NAZA dossier in this pass. The system currently shows no rising tracked narrative in its seven-day comparison. The main editorial priority is therefore freshness and canonical discipline rather than manufacturing a new narrative item.\n\n## Operations\n\nThe live editorial context reports 86 live records and 65 developing stories, but the homepage edition was still dated September 20. There are no stuck jobs or failed durable runs. One critical alert from September 8 remains open even though later editions were published; it is an operational cleanup item rather than evidence of a current publishing failure.\n\n## Watch next\n\nWatch for an Ontario police or SIU motive finding, the condition of the wounded officer, any formal hate-crime classification, a clearer attribution for the latest Hormuz tanker strike, concrete Iranian military actions following the Revolutionary Guard warning, and any new Israel-Lebanon or Gaza development that materially changes the current canonicals.",
+        "language": "en",
+        "editorialTopic": "September 22 Israel, regional security and antisemitism briefing",
+        "topicTags": ["canada", "antisemitism", "iran", "hormuz", "west-bank", "editorial-operations"],
+        "arena": "Israel, Middle East and Jewish communities worldwide"
+      },
+      "sources": [
+        {
+          "url": "https://www.siu.on.ca/en/news_template.php?nrid=11481",
+          "title": "SIU Investigating Exchange of Gunfire at Belleville Synagogue",
+          "publisher": "Ontario Special Investigations Unit",
+          "official": true
+        },
+        {
+          "url": "https://apnews.com/article/4f442030855d3be69a3e72821e58cf37",
+          "title": "Up to 30 shots fired after man opened fire on officer outside Ontario synagogue",
+          "publisher": "Associated Press"
+        },
+        {
+          "url": "https://apnews.com/article/82714681bde58c6525c2d7a1bc587b25",
+          "title": "Iran's Revolutionary Guard warns US over escalation, and other Mideast developments",
+          "publisher": "Associated Press"
+        },
+        {
+          "url": "https://www.timesofisrael.com/jerusalem-reform-synagogue-vandalized-on-yom-kippur-in-third-attack-in-a-month/",
+          "title": "Jerusalem Reform synagogue vandalized on Yom Kippur, in third attack in a month",
+          "publisher": "The Times of Israel"
+        }
+      ]
+    },
+    {
+      "key": "belleville-synagogue-shooting-2026-09",
+      "publication": {
+        "kind": "news_update",
+        "section": "antisemitism",
+        "canonicalStoryId": "belleville-synagogue-shooting-yom-kippur-2026",
+        "title": "Gunman exchanges fire with police outside Ontario synagogue during Yom Kippur; motive under investigation",
+        "summary": "A 29-year-old man armed with a shotgun exchanged gunfire with police outside the Sons of Jacob Synagogue in Belleville, Ontario, while roughly two dozen worshippers were inside for Yom Kippur. A police officer was seriously wounded and the gunman suffered life-threatening injuries. Authorities have not yet established whether the synagogue or Jewish community was specifically targeted.",
+        "body": "A shooting outside the Sons of Jacob Synagogue in Belleville, Ontario, during Yom Kippur services left a police officer seriously wounded and a 29-year-old gunman with life-threatening injuries. The congregation itself was not physically harmed, but the incident occurred while roughly two dozen people were inside observing Judaism's holiest day.\n\nOntario's Special Investigations Unit said preliminary information indicates that at about 7 p.m. on September 20, a Belleville Police Service officer was near the synagogue at Victoria and Bleecker avenues when there was an exchange of gunfire involving a man armed with a shotgun. Both the man and one officer suffered gunshot wounds and were taken to hospital. The officer was described as critical but stable.\n\nAssociated Press reporting identified the officer as Constable Jeff Smith and said the gunman was Sean Ward, 29. AP reported that as many as 30 shots were fired. Worshippers sheltered inside the synagogue and the remaining Yom Kippur services were cancelled.\n\nThe central unresolved question is motive. Authorities had not publicly confirmed that the synagogue, its worshippers or Jews as a group were the intended target in the material reviewed for this record. The president of the congregation, Norman Weddum, told Canadian media that he regards an armed man's approach to a synagogue where Jews were praying as a hate crime. That is an attributed assessment by the congregation's president, not yet a formal police determination.\n\nThe SIU's role is to investigate the police-involved shooting because both the suspect and officer were shot. The underlying criminal investigation into the gunman's actions and motive is separate. Police increased security around places of worship and said there was no continuing public threat.\n\nThe evidentiary state should therefore remain precise: an armed man exchanged fire with police immediately outside an active synagogue during Yom Kippur; a police officer was seriously wounded; worshippers were inside; the motive and target selection remain under investigation.\n\nWatch next: a police statement on motive or hate-crime classification, charges if the suspect survives, recovered digital or physical evidence, the officer's condition, and any official finding about whether the synagogue was deliberately selected.",
+        "language": "en",
+        "editorialTopic": "Antisemitism and Jewish community security in Canada",
+        "topicTags": ["antisemitism", "canada", "synagogue", "yom-kippur", "jewish-security"],
+        "primaryActor": "Sean Ward, according to police reporting",
+        "arena": "Belleville, Ontario, Canada"
+      },
+      "sources": [
+        {
+          "url": "https://www.siu.on.ca/en/news_template.php?nrid=11481",
+          "title": "SIU Investigating Exchange of Gunfire at Belleville Synagogue",
+          "publisher": "Ontario Special Investigations Unit",
+          "official": true
+        },
+        {
+          "url": "https://apnews.com/article/4f442030855d3be69a3e72821e58cf37",
+          "title": "Up to 30 shots fired after man opened fire on officer outside Ontario synagogue",
+          "publisher": "Associated Press"
+        },
+        {
+          "url": "https://www.jta.org/2026/09/21/default/canadian-leaders-condemn-shooting-outside-ontario-synagogue-at-the-start-of-yom-kippur",
+          "title": "Canadian leaders condemn shooting outside Ontario synagogue at the start of Yom Kippur",
+          "publisher": "Jewish Telegraphic Agency"
+        },
+        {
+          "url": "https://toronto.citynews.ca/2026/09/20/exchange-of-gunfire-near-belleville-synagogue-injures-2-people-including-officer/",
+          "title": "President of Belleville synagogue believes gunfire outside temple on Yom Kippur was 'hate crime'",
+          "publisher": "CityNews"
+        }
+      ]
+    }
+  ],
+  "updates": [
+    {
+      "key": "iran-hormuz-sept22",
+      "target": {
+        "canonicalStoryId": "iran-us-hormuz-maritime-escalation-2026"
+      },
+      "publication": {
+        "title": "Hormuz escalation: IRGC threatens new tactics and targets as another tanker is struck",
+        "summary": "Iran's Revolutionary Guard warned on September 21 that it would change military tactics and targets if the United States escalates. Separately, an unidentified projectile struck a tanker in the Strait of Hormuz and injured two crew members. The warning is confirmed as an Iranian statement; attribution for the tanker strike remained unresolved in the reporting reviewed.",
+        "body": "The Iran-U.S. confrontation around the Strait of Hormuz entered a new phase on September 21, with Iran's Revolutionary Guard warning that further U.S. escalation would lead it to change military tactics and expand the range of targets. The statement is a direct escalation signal from the IRGC, but it should not be read as evidence of a specific planned attack until operational actions follow.\n\nThe warning came alongside another maritime incident. Associated Press reported that an unidentified projectile struck a tanker in the Strait of Hormuz, injuring two crew members. The public reporting reviewed for this update had not established who launched the projectile. That makes attribution a known unknown rather than a gap to be filled from the broader pattern of U.S.-Iran attacks.\n\nThis distinction is especially important because the canonical already contains multiple different types of events: Iranian claims of attacks, U.S. military statements, independently reported vessel damage, UKMTO notices and traffic data. A single headline that collapses all of those into one side's narrative would overstate the evidence.\n\nThe strategic context remains severe. Hormuz traffic has been disrupted for weeks, Iran has asserted control over passage, and the United States has carried out attacks on Iranian maritime assets. At the same time, Yemen's renewed war and Houthi attacks have placed additional pressure on Saudi Arabia and Red Sea routes. The regional energy system therefore faces simultaneous risk at more than one chokepoint.\n\nWhat changed since September 18: the IRGC is now publicly threatening to alter tactics and targets in response to additional U.S. action, and a new tanker strike has produced confirmed crew injuries without confirmed attribution.\n\nWatch next: any IRGC announcement identifying a new restricted zone or target category, CENTCOM or UKMTO reporting on the tanker incident, ship-operator confirmation, measured Hormuz traffic, and whether diplomatic mediation produces rules for commercial passage.",
+        "changeSummary": "Add the September 21 IRGC warning of changed tactics and targets and the separately reported tanker strike with two crew injured; keep strike attribution unresolved pending authoritative evidence."
+      },
+      "sources": [
+        {
+          "url": "https://apnews.com/article/82714681bde58c6525c2d7a1bc587b25",
+          "title": "Iran's Revolutionary Guard warns US over escalation, and other Mideast developments",
+          "publisher": "Associated Press"
+        }
+      ]
+    }
+  ],
+  "homepage": {
+    "news": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "operationKey": "iran-hormuz-sept22"
+        }
+      },
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "canonicalStoryId": "west-bank-ein-raya-spring-attack-2026-09-20"
+        }
+      }
+    },
+    "fakeResistance": {
+      "lead": {
+        "action": "set",
+        "publication": {
+          "operationKey": "belleville-synagogue-shooting-2026-09"
+        }
+      },
+      "secondary": {
+        "action": "set",
+        "publication": {
+          "canonicalStoryId": "naza-documentary-ai-targeting-claim-venice-2026"
+        }
+      }
+    }
+  },
+  "featured": {
+    "october7.testimony": {
+      "action": "release",
+      "reason": "Current testimony has exceeded the preferred dwell window; return it to automatic rotation."
+    },
+    "october7.documentation": {
+      "action": "release",
+      "reason": "Current documentation has exceeded the preferred dwell window; return it to automatic rotation."
+    },
+    "heroes.courage": {
+      "action": "release",
+      "reason": "Current courage profile has exceeded the preferred dwell window."
+    },
+    "heroes.fallen": {
+      "action": "release",
+      "reason": "Current fallen profile has exceeded the preferred dwell window."
+    },
+    "history.primary": {
+      "action": "release",
+      "reason": "Current primary history selection has exceeded the preferred dwell window."
+    },
+    "history.secondary": {
+      "action": "release",
+      "reason": "Current secondary history selection has exceeded the preferred dwell window."
+    }
+  },
+  "siteRecommendations": [
+    "The homepage was still on edition 2026-09-20 when the September 22 run began; treat homepage freshness as an operational signal and alert if no new edition is generated for more than one Israel-local day.",
+    "The source catalog reports 28 active and 248 disabled sources with no currently failing active source. Review disabled-source intent separately before bulk re-enabling; do not interpret the absence of active fetch failures as complete source coverage.",
+    "Media debt remains concentrated in text-led live records. The Hormuz canonical retains cleared NASA geographic media; the Belleville record is intentionally text-led in this run because no incident photograph with clearly verified reusable rights was established during research."
+  ],
+  "research": [
+    {
+      "topic": "Antisemitism / Canada",
+      "focus": "Belleville synagogue shooting during Yom Kippur",
+      "sourcesReviewed": [
+        "https://www.siu.on.ca/en/news_template.php?nrid=11481",
+        "https://apnews.com/article/4f442030855d3be69a3e72821e58cf37",
+        "https://www.jta.org/2026/09/21/default/canadian-leaders-condemn-shooting-outside-ontario-synagogue-at-the-start-of-yom-kippur",
+        "https://toronto.citynews.ca/2026/09/20/exchange-of-gunfire-near-belleville-synagogue-injures-2-people-including-officer/"
+      ],
+      "conclusion": "The event is sufficiently documented for a dedicated antisemitism-desk record, but police have not established motive. Publish the verified circumstances and explicitly keep hate-crime intent unresolved.",
+      "outcome": "published"
+    },
+    {
+      "topic": "Iran / Hormuz",
+      "focus": "IRGC escalation warning and new tanker strike",
+      "sourcesReviewed": [
+        "https://apnews.com/article/82714681bde58c6525c2d7a1bc587b25"
+      ],
+      "conclusion": "The IRGC warning materially advances the existing Hormuz canonical. The tanker strike is independently reported with crew injuries, but attribution is unresolved and must remain so.",
+      "outcome": "updated"
+    },
+    {
+      "topic": "Israel / West Bank",
+      "focus": "Follow-up to September 20 Ein Raya spring shooting",
+      "sourcesReviewed": [
+        "https://www.timesofisrael.com/liveblog_entry/funeral-for-neve-tzuf-terror-victim-netanel-shukrun-to-held-at-11-p-m-in-alei-zahav/"
+      ],
+      "conclusion": "The existing September 20 canonical remains current; funeral and family follow-up do not justify a duplicate story.",
+      "outcome": "no_action"
+    },
+    {
+      "topic": "Antisemitism / Jerusalem",
+      "focus": "Kol HaNeshama synagogue vandalism during Yom Kippur",
+      "sourcesReviewed": [
+        "https://www.timesofisrael.com/jerusalem-reform-synagogue-vandalized-on-yom-kippur-in-third-attack-in-a-month/"
+      ],
+      "conclusion": "Police have opened an investigation and the congregation reports a repeated pattern. Hold for additional primary-source detail before creating a separate canonical in the same run as the larger Belleville incident.",
+      "outcome": "vetoed"
+    },
+    {
+      "topic": "Israeli science and innovation",
+      "focus": "New high-value developments since the September 20 edition",
+      "conclusion": "No newly verified science or innovation development found in this interval clearly exceeded the value of existing People of Israel homepage selections. Retain rather than churn.",
+      "outcome": "no_action"
+    },
+    {
+      "topic": "Narratives / Fake Resistance",
+      "focus": "Rising narrative check",
+      "conclusion": "The live narrative monitor reports zero new and zero rising narratives in its seven-day comparison. No new fact-check was created solely to fill the desk.",
+      "outcome": "no_action"
+    }
+  ],
+  "vetoes": [
+    {
+      "key": "jerusalem-reform-synagogue-vandalism-hold",
+      "candidate": "Standalone antisemitism record on the Yom Kippur vandalism at Kol HaNeshama in Jerusalem",
+      "reason": "The incident is credible and police are investigating, but this run has one outlet-level report and limited primary detail. Log it in the daily brief and research ledger, then expand when police or the congregation provide fuller documentation.",
+      "section": "antisemitism",
+      "sources": [
+        "https://www.timesofisrael.com/jerusalem-reform-synagogue-vandalized-on-yom-kippur-in-third-attack-in-a-month/"
+      ],
+      "replacement": "Mentioned in the September 22 brief and retained for follow-up."
+    }
+  ],
+  "homepageReview": {
+    "manualVersion": "2026-09-14.1",
+    "sectionsReviewed": ["cover", "news", "fakeResistance", "october7", "people", "system", "support"],
+    "sectionsChanged": ["cover", "news", "fakeResistance", "october7"],
+    "decisions": [
+      {
+        "area": "news",
+        "position": "lead",
+        "action": "replace",
+        "publication": {"operationKey": "iran-hormuz-sept22"},
+        "reason": "The September 21 IRGC escalation warning plus another tanker strike materially advance a mature, source-rich, illustrated regional-security canonical."
+      },
+      {
+        "area": "news",
+        "position": "secondary",
+        "action": "replace",
+        "publication": {"canonicalStoryId": "west-bank-ein-raya-spring-attack-2026-09-20"},
+        "reason": "The September 20 shooting remains the strongest current Israel-centered security story and already has a dedicated canonical."
+      },
+      {
+        "area": "fakeResistance",
+        "position": "lead",
+        "action": "replace",
+        "publication": {"operationKey": "belleville-synagogue-shooting-2026-09"},
+        "reason": "A shooting immediately outside an active synagogue during Yom Kippur is a high-priority Jewish-community security event; motive is kept unresolved."
+      },
+      {
+        "area": "fakeResistance",
+        "position": "secondary",
+        "action": "replace",
+        "publication": {"canonicalStoryId": "naza-documentary-ai-targeting-claim-venice-2026"},
+        "reason": "Retain the established NAZA investigation as the secondary narrative file rather than creating a fresh low-confidence narrative."
+      },
+      {
+        "area": "people",
+        "action": "retain",
+        "reason": "No new science, achievement or innovation item in this interval clearly outranks the current illustrated iQFOiL and Technion selections."
+      }
+    ]
+  }
+}

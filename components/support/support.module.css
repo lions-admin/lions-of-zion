@@ -9,6 +9,12 @@
   max-width: 30rem;
 }
 
+/* The submit is the shared `Button`; this only clears it off the last field,
+   which it was touching. */
+.form > button[type='submit'] {
+  margin-top: var(--sp-5);
+}
+
 .field {
   display: flex;
   flex-direction: column;

@@ -21,15 +21,12 @@
 
 /* ── Shared: kicker, section head, links ───────────────────────────────── */
 
+/* Ink, not amber: a label names what follows, it is not the focal point.
+   The page's one amber moment is the featured profile's own verb. */
 .kicker {
+  composes: kickerLabel from global;
   margin: 0;
-  color: var(--gold-hi);
-  font-family: var(--face-navigation);
-  font-size: var(--t-kicker, 0.8125rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  color: var(--ink-lo);
 }
 
 /* Kicker over heading on the left, the count beside them, the door to
@@ -40,6 +37,14 @@
   align-items: baseline;
   gap: var(--sp-2) var(--sp-5);
   margin-bottom: var(--sp-5);
+  padding-top: var(--sp-4);
+  border-top: var(--line-w) solid var(--line-strong);
+}
+
+/* The masthead's own rule already closes the space above the first band. */
+.courage > .sectionHead {
+  padding-top: 0;
+  border-top: 0;
 }
 
 .sectionHead > div {
@@ -62,16 +67,15 @@
 .sectionCount {
   margin: 0;
   color: var(--ink-lo);
-  font-family: var(--face-text);
-  font-size: var(--t-caption);
-  line-height: var(--t-caption-lh);
+  font-family: var(--face-data);
+  font-size: var(--t-data);
+  font-weight: var(--t-data-weight);
+  line-height: var(--t-data-lh);
+  letter-spacing: var(--t-data-tracking-tight);
 }
 
 .sectionCount > [data-numeric] {
   color: var(--ink);
-  font-family: var(--face-data);
-  font-size: var(--t-data);
-  font-weight: var(--t-data-weight);
   font-variant-numeric: tabular-nums;
 }
 
@@ -104,13 +108,15 @@
   color: var(--ink-hi);
   font-size: var(--t-small);
   font-weight: 600;
-  box-shadow: inset 0 calc(-1 * var(--line-w)) 0 var(--gold-line-strong);
+  box-shadow: inset 0 calc(-1 * var(--line-w)) 0 var(--line-strong);
 }
 
+.profile[data-featured] .read { box-shadow: inset 0 calc(-1 * var(--line-w)) 0 var(--gold-line-strong); }
+
 .sectionLink {
-  color: var(--ink-lo);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
+  color: var(--ink);
+  font-size: var(--t-small);
+  font-weight: 500;
 }
 
 .read > span,
@@ -123,16 +129,22 @@
 .read:hover > span,
 .sectionLink:hover > span { transform: translateX(0.25em); }
 
-.hub a:hover { color: var(--gold-hi); }
+.hub a:hover { color: var(--ink-hi); }
 .hub a:focus-visible { outline: var(--focus-outline); outline-offset: var(--focus-offset); }
 .hub a:active { color: var(--gold); }
 
 .hub h2 a,
 .hub h3 a {
   color: inherit;
-  text-decoration: none;
-  transition: color var(--dur-fast) var(--ease-out);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: var(--line-w);
+  text-underline-offset: 0.14em;
+  transition: text-decoration-color var(--dur-fast) var(--ease-out);
 }
+
+.hub h2 a:hover,
+.hub h3 a:hover { text-decoration-color: currentColor; }
 
 /* ── The opening band: profiles ────────────────────────────────────────── */
 
@@ -210,7 +222,7 @@
 
 .disclosure {
   flex-basis: 100%;
-  color: var(--gold-hi);
+  color: var(--ink);
   font-family: var(--face-navigation);
   font-size: var(--t-kicker, 0.8125rem);
   font-weight: 600;
@@ -280,8 +292,6 @@
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   gap: var(--sp-8) clamp(var(--sp-7), 5vw, var(--sp-9));
-  padding-top: var(--sp-7);
-  border-top: var(--line-w) solid var(--line-strong);
 }
 
 .records,
@@ -291,6 +301,15 @@
   padding-inline-start: clamp(var(--sp-6), 4vw, var(--sp-8));
   border-inline-start: var(--line-w) solid var(--line);
 }
+
+/* The rail is an index, not a second feed: a record there is its section,
+   date and title — the summary and the picture belong to the list at left. */
+.history .recordSummary,
+.history .recordImage { display: none; }
+
+.history .recordWithMedia { grid-template-columns: minmax(0, 1fr); }
+.history .record { padding-block: var(--sp-4); }
+.history .record h3 { max-width: none; }
 
 .recordList {
   margin: 0;
@@ -305,10 +324,7 @@
   gap: var(--sp-5);
   padding-block: var(--sp-5);
   border-bottom: var(--line-w) solid var(--line);
-  transition: border-color var(--dur-fast) var(--ease-out);
 }
-
-.record:hover { border-bottom-color: var(--line-strong); }
 
 /* The row is one column until a picture arrives; a list that reserves space
    for an image it has not got reads as a broken layout rather than a plain
@@ -345,7 +361,7 @@
    of this hub from, off the shared scale rather than three private
    `clamp()`s that happened to overlap. */
 .record h3 {
-  max-width: 28ch;
+  max-width: 36ch;
   margin: 0;
   color: var(--ink-hi);
   font-family: var(--face-display);
@@ -359,6 +375,11 @@
 .recordSummary {
   max-width: 62ch;
   margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   color: var(--ink);
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
@@ -448,7 +469,7 @@
 }
 
 .chapters span {
-  color: var(--gold-hi);
+  color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
@@ -464,9 +485,7 @@
   .columns { grid-template-columns: minmax(0, 1fr); gap: var(--sp-8); }
   .history {
     padding-inline-start: 0;
-    padding-top: var(--sp-7);
     border-inline-start: 0;
-    border-top: var(--line-w) solid var(--line-strong);
   }
   .profiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .profile[data-featured] { grid-column: 1 / -1; }
@@ -496,8 +515,7 @@
   .read > span,
   .sectionLink > span,
   .hub h2 a,
-  .hub h3 a,
-  .record { transition: none; }
+  .hub h3 a { transition: none; }
   .read:hover > span,
   .sectionLink:hover > span { transform: none; }
 }

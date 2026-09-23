@@ -238,7 +238,7 @@ export default async function Page() {
                     ) : null}
                   </dl>
                   <Link href={`/fake-resistance/cases/${record.slug}`} className={styles.caseOpen}>
-                    Follow the thread <span aria-hidden="true">→</span>
+                    Open the investigation <span aria-hidden="true">→</span>
                   </Link>
                 </div>
               </li>

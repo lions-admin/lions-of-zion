@@ -240,6 +240,9 @@ describe("VA-13 — the disclosure is never collapsed", () => {
   });
 });
 
+/** Where the article's reading column opens: its margin contents list. */
+const READING_COLUMN = 'aria-label="On this page"';
+
 describe("VA-13 — status and headline precede a made picture on a claim page", () => {
   it("puts the verdict and the exact claim above an editorial illustration", async () => {
     const markup = await render(
@@ -281,9 +284,12 @@ describe("VA-13 — status and headline precede a made picture on a claim page",
   it("does not reorder an illustration on a news record, which is not a claim page", async () => {
     const markup = await render(publication({ section: "news", media: media() }));
     const image = markup.indexOf(ILLUSTRATION_ALT);
-    const facts = markup.indexOf("Publication facts");
+    /* The lead picture sits under the masthead, before the reading column
+       opens (its contents list is the column's first node, 2026-09-22). */
+    const column = markup.indexOf(READING_COLUMN);
     expect(image).toBeGreaterThan(-1);
-    expect(image).toBeLessThan(facts);
+    expect(column).toBeGreaterThan(-1);
+    expect(image).toBeLessThan(column);
     /* …and it still discloses itself, visibly, wherever it sits. */
     expect(markupOutsideDetails(markup)).toContain(ROLE_DISCLOSURE["editorial-illustration"]!);
   });
@@ -292,14 +298,16 @@ describe("VA-13 — status and headline precede a made picture on a claim page",
     for (const section of INVESTIGATION_EXPLORER_SECTIONS) {
       const markup = await render(publication({ section, media: media() }));
       const image = markup.indexOf(ILLUSTRATION_ALT);
-      const facts = markup.indexOf("Publication facts");
-      expect(image, `${section} should defer its illustration`).toBeGreaterThan(facts);
+      const column = markup.indexOf(READING_COLUMN);
+      expect(column, `${section} should render its reading column`).toBeGreaterThan(-1);
+      expect(image, `${section} should defer its illustration`).toBeGreaterThan(column);
     }
     for (const section of ["daily_brief", "israel_update", "news", "people", "innovation"] as const) {
       const markup = await render(publication({ section, media: media() }));
       const image = markup.indexOf(ILLUSTRATION_ALT);
-      const facts = markup.indexOf("Publication facts");
-      expect(image, `${section} should keep its illustration in place`).toBeLessThan(facts);
+      const column = markup.indexOf(READING_COLUMN);
+      expect(column, `${section} should render its reading column`).toBeGreaterThan(-1);
+      expect(image, `${section} should keep its illustration in place`).toBeLessThan(column);
     }
   });
 });

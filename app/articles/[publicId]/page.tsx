@@ -267,6 +267,9 @@ export default async function ArticlePage({ params }: Props) {
       layout="reading"
       aspectRatio="8 / 5"
       measureId="article-media"
+      /* The lead picture runs the masthead's width; a deferred illustration
+         sits in the reading column like any other figure. */
+      className={deferHeroMedia ? styles.figure : styles.leadFigure}
       /* The line that says what this image is not stays outside the control
          below it, at every width and with any credit string. */
       disclosure={mediaDisclosure(articleMedia)}
@@ -293,11 +296,23 @@ export default async function ArticlePage({ params }: Props) {
         height={articleMedia.height}
         alt={articleMedia.alt}
         priority={!deferHeroMedia}
-        sizes="(min-width: 1220px) 780px, calc(100vw - 40px)"
+        sizes={deferHeroMedia ? "(min-width: 1220px) 700px, calc(100vw - 40px)" : "(min-width: 1220px) 960px, calc(100vw - 40px)"}
         style={{ objectPosition: `${articleMedia.focalPoint.x}% ${articleMedia.focalPoint.y}%` }}
       />
     </MediaBlock>
   ) : null;
+
+  /* The margin contents: every section this record actually renders, in page
+     order. It is a list of places, not a sequence, so it carries no numbers. */
+  const contents: { href: string; label: string }[] = [
+    ...(details ? [{ href: "#claim-record", label: isAnalysis ? "Analysis record" : "Claim record" }] : []),
+    ...(showsInvestigationExplorer ? [{ href: "#evidence-explorer-title", label: "From claim to record" }] : []),
+    { href: "#article-body", label: "The report" },
+    { href: "#sources", label: sourceState === "analysis" ? "Why no source" : "Public sources" },
+    ...(details ? [{ href: "#unknowns", label: "Known unknowns" }] : []),
+    ...(article.corrections.length ? [{ href: "#corrections", label: substantiveCorrections ? "Corrections" : "Version history" }] : []),
+    { href: "#keep-reading", label: "Keep reading" },
+  ];
 
   return (
     <EditorialShell
@@ -317,276 +332,316 @@ export default async function ArticlePage({ params }: Props) {
         data-measure-type="publication"
         data-measure-section={measureSection(article.section)}
       >
-        <Breadcrumb
-          className={styles.breadcrumb}
-          trail={[parent]}
-          current={article.title}
-        />
-
-        <header className={styles.head}>
-          <div className={styles.kickerRow}>
-            <Badge variant="gold" dot>
-              {SECTION_LABELS[article.section]}
-            </Badge>
-            {isAnalysis ? (
-              <Badge variant="neutral">Organisation analysis · no documentary source</Badge>
-            ) : null}
-            {article.featuredIsraelStory ? (
-              <Badge variant="gold">Featured Israel story</Badge>
-            ) : null}
-            {/* UX-21. Arena and actor were two of seven mono labels in a grid
-                above the fold; here they read as the story's dateline — "West
+        {/* The masthead: trail, kicker, the page's one headline at the
+            masthead tier, the standfirst, and the byline row on its hairline.
+            It runs the width of the reading column and its margin. */}
+        <header className={styles.masthead}>
+          <Breadcrumb
+            className={styles.breadcrumb}
+            trail={[parent]}
+            current={article.title}
+          />
+          <p className={styles.kicker}>
+            <span className={styles.kickerSection}>{SECTION_LABELS[article.section]}</span>
+            {/* UX-21. Arena and actor read as the story's dateline — "West
                 Bank · Benjamin Netanyahu" — beside the section. The editorial
-                topic is a machine facet ("defense policy and programs") and is
-                dropped from the reader's view rather than relabelled. */}
+                topic is a machine facet and is dropped from the reader's view. */}
             {kickerFacets.length ? (
               <span className={styles.kickerFacets}>{kickerFacets.join(" · ")}</span>
             ) : null}
+          </p>
+          {isAnalysis || article.featuredIsraelStory ? (
+            <p className={styles.kickerNotes}>
+              {isAnalysis ? (
+                <Badge variant="neutral">Organisation analysis · no documentary source</Badge>
+              ) : null}
+              {article.featuredIsraelStory ? (
+                <Badge variant="gold">Featured Israel story</Badge>
+              ) : null}
+            </p>
+          ) : null}
+          <h1 className={styles.headline} data-length={headlineLength(article.title)}>
+            {article.title}
+          </h1>
+          {article.summary ? <p className={styles.dek}>{article.summary}</p> : null}
+          <div className={styles.byline}>
+            <PublicationMeta
+              publishedAt={formatDateTime(article.publishedAt)}
+              updatedAt={article.updatedAt !== article.publishedAt ? formatDateTime(article.updatedAt) : undefined}
+              authorship={PUBLICATION_PROVENANCE[publicationProvenance(article)].label}
+              sourceCount={sourceState === "listed" || sourceState === "unsourced" ? article.sources.length : undefined}
+            />
           </div>
-          <h1>{article.title}</h1>
-          {article.summary ? <p className={styles.summary}>{article.summary}</p> : null}
         </header>
 
         {deferHeroMedia ? null : heroMedia}
 
-        <section className={styles.facts} aria-label="Publication facts">
-          <PublicationMeta
-            publishedAt={formatDateTime(article.publishedAt)}
-            updatedAt={article.updatedAt !== article.publishedAt ? formatDateTime(article.updatedAt) : undefined}
-            authorship={PUBLICATION_PROVENANCE[publicationProvenance(article)].label}
-            sourceCount={sourceState === "listed" || sourceState === "unsourced" ? article.sources.length : undefined}
-          />
-        </section>
-
-        {details ? (
-          <section className={styles.narrativeDetails}>
-            <p className={styles.kicker}>Narrative Watch</p>
-            <h2>{isAnalysis ? "Analysis record" : "Claim record"}</h2>
-            {/* Deliberately a paragraph above the list rather than a tenth row
-                inside it. Nine metadata rows are skimmed; this one is the whole
-                promise the record rests on and has to be read. */}
-            {isAnalysis ? (
-              <p className={styles.analysisNote}>
-                This record answers a circulating narrative rather than reporting one. The assessment
-                is our own and cites no documentary source — read it as Lions of Zion&rsquo;s analysis,
-                not as documented fact. The claim it answers is stated in full below.
-              </p>
-            ) : null}
-            {/* Seen for a second at half height: the reader reached the verdict. */}
-            <p className={styles.verdictLine} data-measure-id="article-verdict" data-measure-exposure="verdict_reached">
-              <Badge status={details.verificationState}>
-                {VERIFICATION_STATES[details.verificationState].label}
-              </Badge>
-              <span className={styles.verdictMeaning}>
-                {VERIFICATION_STATES[details.verificationState].meaning}
-              </span>
-            </p>
-            <dl>
-              <div>
-                <dt>Evidence basis</dt>
-                <dd>{isAnalysis ? ANALYSIS_AUTHOR : "Cited public sources"}</dd>
-              </div>
-              <div data-measure-id="article-claim" data-measure-exposure="claim_exposure">
-                <dt>Exact claim</dt>
-                <dd>{details.exactClaim}</dd>
-              </div>
-              <div>
-                <dt>Trend</dt>
-                <dd>{TREND_LABELS[details.trendDirection]}</dd>
-              </div>
-              <div>
-                <dt>Observed propagators</dt>
-                <dd>{details.propagators.join(", ") || "No attributable propagator is recorded."}</dd>
-              </div>
-              <div>
-                <dt>Arenas</dt>
-                <dd>{details.arenas.map(words).join(", ")}</dd>
-              </div>
-              {details.israeliPosition ? (
-                <div>
-                  <dt>Israeli position</dt>
-                  <dd>{details.israeliPosition}</dd>
-                </div>
-              ) : null}
-              {details.securityContext ? (
-                <div>
-                  <dt>Security context</dt>
-                  <dd>{details.securityContext}</dd>
-                </div>
-              ) : null}
-            </dl>
-          </section>
-        ) : null}
-
-        {/* The made picture's place on a claim page: after the verdict and the
-            exact claim, not above them. */}
-        {deferHeroMedia ? heroMedia : null}
-
-        {showsInvestigationExplorer ? <InvestigationExplorer record={article} /> : null}
-
-        <div className={styles.body} data-measure-id="article-body">
-          {passages.map((passage) => (
-            <section className={styles.passage} key={passage.position}>
-              <div className={styles.passageMain}>
-                <p>{passage.text}</p>
-                {passage.claim ? (
-                  <p className={styles.claimRef}>
-                    <span>
-                      Claim record: {passage.claim.title}
-                    </span>
-                    {passage.claim.assessment ? (
-                      <Badge status={badgeStatus(passage.claim.assessment)}>
-                        {passage.claim.assessment.replaceAll("_", " ")}
-                      </Badge>
-                    ) : null}
-                  </p>
-                ) : null}
-              </div>
-              {passage.sources.length ? (
-                <div className={styles.passageSources}>
-                  <SourceList sources={asSourceList(passage.sources)} />
-                </div>
-              ) : null}
-            </section>
-          ))}
-        </div>
-
-        {/* An analysis record has nothing to list here, and a bare "no sources"
-            line reads as a malfunction. State the position instead: the absence
-            is the disclosure, not a gap in the page. If such a record ever does
-            carry sources, they are shown normally rather than denied. */}
-        {sourceState === "analysis" ? (
-          <section className={styles.sources} id="sources" data-measure-id="article-sources">
-            <h2>Why this record cites no source</h2>
-            <p>
-              This is Lions of Zion&rsquo;s own assessment, published deliberately without a
-              documentary source to cite. Nothing is being withheld: the claim it answers, and what
-              remains unknown about it, are set out in the analysis record above.
-            </p>
-          </section>
-        ) : (
-          <section className={styles.sources} id="sources" data-measure-id="article-sources">
-            <h2>Public sources</h2>
-            {sourceState === "listed" ? (
-              <ol className={styles.sourceStack}>
-                {article.sources.map((source, index) => (
-                  <li key={source.url ?? source.title + index}>
-                    {source.url ? (
-                      <a href={source.url} target="_blank" rel="noreferrer" data-measure-event="evidence_open">
-                        {source.title} <span aria-hidden="true">↗︎</span>
-                      </a>
-                    ) : (
-                      <span>{source.title}</span>
-                    )}
-                    <span className={styles.sourceMeta}>
-                      {source.publisher}
-                      {source.publishedAt ? ` · ${formatSourceDay(source.publishedAt)}` : ""}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            ) : sourceState === "pending" ? (
-              /* The text of this record cites material the source stack does
-                 not yet carry. Say that, rather than printing "0 sources"
-                 above a paragraph with a link in it — the reader can see the
-                 citation, and a denial next to it reads as a malfunction or a
-                 lie. Nothing is refused or hidden: the record stands, its
-                 citations stay in the body, and the stack is stated as
-                 incomplete until it is repaired. */
-              <p>
-                Sources for this record are pending verification. Its text cites published material
-                that has not yet been attached to this list; the citations remain visible in the
-                article above while that is completed.
-              </p>
-            ) : (
-              <p>No public sources are listed for this article.</p>
-            )}
-          </section>
-        )}
-
-        {details ? (
-          <section className={styles.unknowns} data-measure-id="article-unknowns">
-            <h2>Known unknowns</h2>
-            {details.knownUnknowns.length ? (
-              <KnownUnknownPanel unknowns={details.knownUnknowns} />
-            ) : (
-              <p>No further unknowns are recorded.</p>
-            )}
-          </section>
-        ) : null}
-
-        {/* UX-06 / UX-20. The ending, in order: the proof above, then what to
-            do with it, then what changed, then where to read next. The share
-            bar that sat between the dossier and the first paragraph until
-            2026-09-08 lives inside this band now, behind one control. An
-            analysis record has no source list to trace, so the band opens
-            with sharing instead. */}
-        <ActivationBand
-          className={styles.activation}
-          sourcesHref={sourceState === "listed" ? "#sources" : undefined}
-          share={{
-            url: articleUrl,
-            title: article.title,
-            text: shareText,
-            targets: [
-              { label: "Share on X", href: xIntentUrl(shareText, articleUrl) },
-              { label: "Facebook", href: facebookShareUrl(articleUrl) },
-            ],
-          }}
-        />
-
-        {article.corrections.length ? (
-          /* UX-04. A substantive correction gets the heading; a history that
-             is only attachments — the audited record's three versions all
-             attached an illustration or a source stack and said so — is one
-             quiet line each, with every note kept verbatim behind the
-             disclosure. The classification is `classifyCorrection`'s. */
-          <section
-            className={styles.corrections}
-            aria-label={substantiveCorrections ? undefined : "Version history"}
-          >
-            {substantiveCorrections ? <h2>Corrections and updates</h2> : null}
-            <CorrectionHistory
-              variant="record"
-              corrections={correctionEntries}
-            />
-          </section>
-        ) : null}
-
-        {/* VA-50. "Related coverage" was fed by `publication_related`, which
-            `linkRelated` writes for the siblings of a batch — the other records
-            of the same daily edition. That is a fact about how a record was
-            produced, not about what it is about. Every row here instead shares
-            an actual field with this record, and says which one; when nothing
-            does, the reader is sent to the desk rather than shown filler. */}
-        <section className={styles.related}>
-          <h2>Keep reading</h2>
-          {continuations.length ? (
-            <ul className={styles.relatedList}>
-              {continuations.map((next, index) => (
-                <li key={next.publicId}>
-                  <Card href={`/articles/${next.publicId}`} variant="row"
-                    {...measurePublicationCard("article-next", next, `next:${index + 1}`)}>
-                    <CardEyebrow>{continuationEyebrow(next.section, next.reason, desk.label)}</CardEyebrow>
-                    <CardTitle as="h3">{next.title}</CardTitle>
-                    {next.summary ? <CardDescription>{next.summary}</CardDescription> : null}
-                  </Card>
+        <div className={styles.reading}>
+          <nav className={styles.contents} aria-label="On this page">
+            <p className={styles.contentsLabel} aria-hidden="true">On this page</p>
+            <ul>
+              {contents.map((entry) => (
+                <li key={entry.href}>
+                  <a href={entry.href}>{entry.label}</a>
                 </li>
               ))}
             </ul>
-          ) : null}
-          {/* UX-05 / UX-11. The verb table's hub link, on a target that clears
-              44px: it was a bare 22px line at the foot of every article. */}
-          <p className={styles.relatedSubhead}>
-            <Link className={styles.deskLink} href={desk.href} data-measure-id="article-desk-link">
-              All of {desk.label} <span aria-hidden="true">→</span>
-            </Link>
-          </p>
-        </section>
+          </nav>
 
+          <div className={styles.column}>
+            {details ? (
+              <section className={styles.claimRecord} aria-labelledby="claim-record">
+                <p className={styles.sectionKicker}>Narrative Watch</p>
+                <h2 id="claim-record">{isAnalysis ? "Analysis record" : "Claim record"}</h2>
+                {/* Deliberately a paragraph above the record rather than a row
+                    inside it. Metadata rows are skimmed; this one is the whole
+                    promise the record rests on and has to be read. */}
+                {isAnalysis ? (
+                  <p className={styles.analysisNote}>
+                    This record answers a circulating narrative rather than reporting one. The assessment
+                    is our own and cites no documentary source — read it as Lions of Zion&rsquo;s analysis,
+                    not as documented fact. The claim it answers is stated in full below.
+                  </p>
+                ) : null}
+                {/* Status first, then the claim as noise — somebody else's
+                    sentence, in circulation — then the desk's finding as
+                    signal. The status word is never carried by colour alone. */}
+                <div className={styles.claimPair}>
+                  <div className={styles.claim} data-measure-id="article-claim" data-measure-exposure="claim_exposure">
+                    <p className={styles.claimStatus}>
+                      <Badge status={details.verificationState}>
+                        {VERIFICATION_STATES[details.verificationState].label}
+                      </Badge>
+                      <span className={styles.claimLabel}>The claim</span>
+                    </p>
+                    <blockquote className={styles.claimText}>
+                      <p>{details.exactClaim}</p>
+                    </blockquote>
+                  </div>
+                  {/* Seen for a second at half height: the reader reached the verdict. */}
+                  <div className={styles.finding} data-measure-id="article-verdict" data-measure-exposure="verdict_reached">
+                    <p className={styles.claimLabel}>The finding</p>
+                    <p className={styles.findingText}>
+                      {VERIFICATION_STATES[details.verificationState].meaning}
+                    </p>
+                  </div>
+                </div>
+                <dl className={styles.recordFacts}>
+                  <div>
+                    <dt>Evidence basis</dt>
+                    <dd>{isAnalysis ? ANALYSIS_AUTHOR : "Cited public sources"}</dd>
+                  </div>
+                  <div>
+                    <dt>Trend</dt>
+                    <dd>{TREND_LABELS[details.trendDirection]}</dd>
+                  </div>
+                  <div>
+                    <dt>Observed propagators</dt>
+                    <dd>{details.propagators.join(", ") || "No attributable propagator is recorded."}</dd>
+                  </div>
+                  <div>
+                    <dt>Arenas</dt>
+                    <dd>{details.arenas.map(words).join(", ")}</dd>
+                  </div>
+                  {details.israeliPosition ? (
+                    <div data-wide="">
+                      <dt>Israeli position</dt>
+                      <dd>{details.israeliPosition}</dd>
+                    </div>
+                  ) : null}
+                  {details.securityContext ? (
+                    <div data-wide="">
+                      <dt>Security context</dt>
+                      <dd>{details.securityContext}</dd>
+                    </div>
+                  ) : null}
+                </dl>
+              </section>
+            ) : null}
+
+            {/* The made picture's place on a claim page: after the verdict and the
+                exact claim, not above them. */}
+            {deferHeroMedia ? heroMedia : null}
+
+            {showsInvestigationExplorer ? <InvestigationExplorer record={article} /> : null}
+
+            <div className={styles.body} id="article-body" data-measure-id="article-body">
+              {passages.map((passage) => (
+                <section className={styles.passage} key={passage.position}>
+                  <div className={styles.passageMain}>
+                    <p className={styles.paragraph}>{passage.text}</p>
+                    {passage.claim ? (
+                      <p className={styles.claimRef}>
+                        <span>
+                          Claim record: {passage.claim.title}
+                        </span>
+                        {passage.claim.assessment ? (
+                          <Badge status={badgeStatus(passage.claim.assessment)}>
+                            {passage.claim.assessment.replaceAll("_", " ")}
+                          </Badge>
+                        ) : null}
+                      </p>
+                    ) : null}
+                  </div>
+                  {passage.sources.length ? (
+                    <div className={styles.passageSources}>
+                      <SourceList sources={asSourceList(passage.sources)} />
+                    </div>
+                  ) : null}
+                </section>
+              ))}
+            </div>
+
+            {/* The apparatus, set as endnotes: smaller, ruled, and after the
+                report rather than inside it.
+
+                An analysis record has nothing to list here, and a bare "no
+                sources" line reads as a malfunction. State the position
+                instead: the absence is the disclosure, not a gap in the page.
+                If such a record ever does carry sources, they are shown
+                normally rather than denied. */}
+            {sourceState === "analysis" ? (
+              <section className={styles.endnotes} id="sources" data-measure-id="article-sources">
+                <h2>Why this record cites no source</h2>
+                <p>
+                  This is Lions of Zion&rsquo;s own assessment, published deliberately without a
+                  documentary source to cite. Nothing is being withheld: the claim it answers, and what
+                  remains unknown about it, are set out in the analysis record above.
+                </p>
+              </section>
+            ) : (
+              <section className={styles.endnotes} id="sources" data-measure-id="article-sources">
+                <h2>Public sources</h2>
+                {sourceState === "listed" ? (
+                  <ol className={styles.sourceStack}>
+                    {article.sources.map((source, index) => (
+                      <li key={source.url ?? source.title + index}>
+                        {source.url ? (
+                          <a href={source.url} target="_blank" rel="noreferrer" data-measure-event="evidence_open">
+                            {source.title} <span aria-hidden="true">↗︎</span>
+                          </a>
+                        ) : (
+                          <span className={styles.sourceTitle}>{source.title}</span>
+                        )}
+                        <span className={styles.sourceMeta}>
+                          {source.publisher}
+                          {source.publishedAt ? ` · ${formatSourceDay(source.publishedAt)}` : ""}
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                ) : sourceState === "pending" ? (
+                  /* The text of this record cites material the source stack does
+                     not yet carry. Say that, rather than printing "0 sources"
+                     above a paragraph with a link in it — the reader can see the
+                     citation, and a denial next to it reads as a malfunction or a
+                     lie. Nothing is refused or hidden: the record stands, its
+                     citations stay in the body, and the stack is stated as
+                     incomplete until it is repaired. */
+                  <p>
+                    Sources for this record are pending verification. Its text cites published material
+                    that has not yet been attached to this list; the citations remain visible in the
+                    article above while that is completed.
+                  </p>
+                ) : (
+                  <p>No public sources are listed for this article.</p>
+                )}
+              </section>
+            )}
+
+            {details ? (
+              <section className={styles.endnotes} id="unknowns" data-measure-id="article-unknowns">
+                <h2>Known unknowns</h2>
+                {details.knownUnknowns.length ? (
+                  <KnownUnknownPanel unknowns={details.knownUnknowns} />
+                ) : (
+                  <p>No further unknowns are recorded.</p>
+                )}
+              </section>
+            ) : null}
+
+            {/* UX-06 / UX-20. The ending, in order: the proof above, then what to
+                do with it, then what changed, then where to read next. An
+                analysis record has no source list to trace, so the band opens
+                with sharing instead. */}
+            <ActivationBand
+              className={styles.activation}
+              sourcesHref={sourceState === "listed" ? "#sources" : undefined}
+              share={{
+                url: articleUrl,
+                title: article.title,
+                text: shareText,
+                targets: [
+                  { label: "Share on X", href: xIntentUrl(shareText, articleUrl) },
+                  { label: "Facebook", href: facebookShareUrl(articleUrl) },
+                ],
+              }}
+            />
+
+            {article.corrections.length ? (
+              /* UX-04. A substantive correction gets the heading; a history that
+                 is only attachments is one quiet line each, with every note
+                 kept verbatim behind the disclosure. The classification is
+                 `classifyCorrection`'s. */
+              <section
+                className={styles.corrections}
+                id="corrections"
+                aria-label={substantiveCorrections ? undefined : "Version history"}
+              >
+                {substantiveCorrections ? <h2>Corrections and updates</h2> : null}
+                <CorrectionHistory
+                  variant="record"
+                  corrections={correctionEntries}
+                />
+              </section>
+            ) : null}
+
+            {/* VA-50. Every row here shares an actual field with this record,
+                and says which one; when nothing does, the reader is sent to
+                the desk rather than shown filler. */}
+            <section className={styles.related} id="keep-reading" aria-labelledby="keep-reading-title">
+              <h2 id="keep-reading-title">Keep reading</h2>
+              {continuations.length ? (
+                <ul className={styles.relatedList}>
+                  {continuations.map((next, index) => (
+                    <li key={next.publicId}>
+                      <Card href={`/articles/${next.publicId}`} variant="row"
+                        {...measurePublicationCard("article-next", next, `next:${index + 1}`)}>
+                        <CardEyebrow>{continuationEyebrow(next.section, next.reason, desk.label)}</CardEyebrow>
+                        <CardTitle as="h3">{next.title}</CardTitle>
+                        {next.summary ? <CardDescription>{next.summary}</CardDescription> : null}
+                      </Card>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {/* UX-05 / UX-11. The verb table's hub link, on a target that
+                  clears 44px. */}
+              <p className={styles.relatedSubhead}>
+                <Link className={styles.deskLink} href={desk.href} data-measure-id="article-desk-link">
+                  All of {desk.label} <span aria-hidden="true">→</span>
+                </Link>
+              </p>
+            </section>
+          </div>
+        </div>
       </article>
     </EditorialShell>
   );
+}
+
+/**
+ * How long a headline is, for the masthead's size step.
+ *
+ * The masthead tier is sized for a title of a few words; a wire headline of a
+ * hundred characters set at that size is a wall of seven lines above the
+ * standfirst. The step comes down with the length rather than the headline
+ * being cut, so every title stays the largest type on its page.
+ */
+export function headlineLength(title: string): "short" | "medium" | "long" {
+  if (title.length > 90) return "long";
+  if (title.length > 52) return "medium";
+  return "short";
 }
 
 /**

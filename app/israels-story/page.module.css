@@ -1,12 +1,12 @@
 /* Book-chapter composition, local to Israel's Story: a compact era index,
    then chapters that alternate intro-measure / spine / record layouts.
 
-   Design V3 (`app/globals.css`). The numerals were Cinzel — a face with no
-   real lowercase and no optical sizing. They are Newsreader, whose `opsz`
-   axis renders display proportions at the chapter mark and text proportions
-   in the paragraph beneath it. Gold is spent once per chapter, on the drawn
-   numeral; the era index, the running position and the chapter title
-   are all ink.
+   Signal over noise (2026-09-22). The outlined gold numeral that opened each
+   chapter is gone: it restated "Chapter II of VII", the line printed beside
+   it, and it was a gold ornament seven times down one page. The chapter
+   title carries the head alone, one step up the scale at the display role.
+   The page's gold is the era map's brass bars — data, drawn once, at the
+   top — and nothing in the chapters.
 
    Chapters stay a linear stack of articles. The three `data-rhythm` values
    change composition inside a chapter; they do not become a card grid. */
@@ -29,8 +29,8 @@
   flex-direction: column;
   gap: var(--sp-3);
   margin: var(--sp-6) 0 0;
-  padding: 0 0 var(--sp-5);
-  border-bottom: var(--line-w) solid var(--line);
+  padding: 0;
+  /* No closing rule: the first chapter opens with its own, directly below. */
 }
 
 /* The arc's own line: what this edition covers, in one row. */
@@ -42,9 +42,10 @@
   margin: 0;
 }
 
-/* One word. */
+/* One word, in ink: the brass bars below are this map's gold. */
 .eraKicker {
-  composes: kicker from '../../components/content/content.module.css';
+  composes: kickerLabel from global;
+  color: var(--ink-lo);
 }
 
 .eraArc {
@@ -228,27 +229,7 @@
 }
 
 .chapterHead {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: baseline;
-  gap: var(--sp-5);
   margin-bottom: var(--sp-6);
-}
-
-/* A drawn mark, not text to read — an outlined numeral the chapter is
-   titled beside. On the display step so it answers to the scale; the
-   optical axis gives it real display proportions there. The one gold in
-   each chapter's viewport. */
-.chapterNumeral {
-  font-family: var(--face-display);
-  font-optical-sizing: auto;
-  font-size: var(--t-display);
-  font-weight: var(--t-display-weight);
-  line-height: 1;
-  letter-spacing: var(--t-data-tracking-tight);
-  color: transparent;
-  -webkit-text-stroke: var(--line-w) var(--gold-line-strong);
-  text-stroke: var(--line-w) var(--gold-line-strong);
 }
 
 /* "Chapter II of VII" — three words, so sentence case in the data voice. */
@@ -274,12 +255,13 @@
 
 .chapterTitle {
   margin: 0;
+  max-width: var(--measure-title);
   font-family: var(--face-display);
   font-optical-sizing: auto;
-  font-size: var(--t-h2);
-  font-weight: var(--t-h2-weight);
-  line-height: var(--t-h2-lh);
-  letter-spacing: var(--t-h2-tracking);
+  font-size: var(--t-display);
+  font-weight: var(--t-display-weight);
+  line-height: var(--t-display-lh);
+  letter-spacing: var(--t-display-tracking);
   color: var(--ink-hi);
 }
 
@@ -369,10 +351,8 @@
    against content this file doesn't own. The ember ramp means "contested"
    everywhere else on the site too. */
 .chapterIntroFlagged {
-  padding: var(--sp-4) var(--sp-5);
+  padding: var(--sp-1) 0 var(--sp-1) var(--sp-5);
   border-left: var(--line-w-thick) solid var(--data-ember);
-  border-radius: 0 var(--radius-2) var(--radius-2) 0;
-  background: color-mix(in srgb, var(--data-ember) 8%, transparent);
   color: var(--ink);
 }
 
@@ -391,10 +371,6 @@
 }
 
 /* spine: the dates carry the chapter; the intro is a kicker, not a lede. */
-.chapter[data-rhythm="spine"] .chapterNumeral {
-  font-size: var(--t-h2);
-}
-
 .chapter[data-rhythm="spine"] .chapterHead {
   margin-bottom: var(--sp-4);
 }
@@ -479,11 +455,6 @@
 }
 
 @media (max-width: 640px) {
-  .chapterHead {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--sp-3);
-  }
-
   .chapter[data-rhythm="record"] .chapterBody {
     display: flex;
     flex-direction: column;

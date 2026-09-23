@@ -2896,3 +2896,111 @@ as a result — the flagged behavior was already the shipped behavior, so this
 entry exists only so a future session does not re-diagnose the same
 observation as an unfixed bug and reopen it. The record page's own
 `SensitiveContent` gate is unaffected and still applies exactly as before.
+
+## 2026-09-17 — The homepage is art-directed as one numbered edition; nothing editorial moved
+
+The owner asked for a visual-only upgrade of the whole homepage. The palette,
+the three type roles, the radius scale, the one-ground rule and every
+contract in `UX-CONTRACT.md` were kept; what changed is composition.
+
+**Two ideas, used everywhere.** *The edition ledger*: every band opens on a
+rule carrying its folio and kicker, the hub link sits on that same line, and
+the contents index under the cover is one ruled, numbered strip rather than
+six chips. The numbers are read from `HOMEPAGE_BANDS` (`bandFolio()` in
+`HomeJourneyPrimitives.tsx`), so the index and the bands cannot disagree, and
+they are justified because `docs/editorial-dna.md` §2 defines the scroll as an
+ordered journey. *Front-page composition*: a band's lead runs the full measure
+and its companion sits beneath it on a rule, which removed the half-empty
+rows in Fake Resistance, October 7 and The People of Israel.
+
+**The heading ladder was re-spread, not extended**: 68 / 46 / 30 / 24 at the
+ceiling instead of 62 / 38 / 34 / 24. Still the four `--journey-*` tokens.
+
+**The cover.** The edition rail moved out of `.masthead` to be its sibling so
+it can run the full width as the cover's bottom line; the desktop scrim became
+three single-purpose layers. **The header was deliberately left alone**: a
+transparent bar over the cover was considered and dropped, because the bar's
+94% ground is a measured legibility decision (`site-header.module.css`), not a
+style.
+
+**One wrapper was added** — `.archiveBody` in `HomeArchiveSection.tsx` — so
+the archive's reading block can be placed beside what names the record. No
+copy, selection, href, verb, `data-measure-*` attribute, `lib/` or `server/`
+file changed.
+
+## 2026-09-17 — The homepage bands are rooms: the one-ground rule is lifted there, and the page moves
+
+The owner reviewed the first recomposition and ruled it not enough on four
+counts: the first screen, the feeling of stacked modules, no depth or
+material, no motion. Each was a direct result of a constraint that pass had
+kept, so this one lifts them — on the homepage only.
+
+- **Surfaces.** Five `--room-*` tokens and `--grain` are born in
+  `app/globals.css`. Every room is a step of the same charcoal; contrast was
+  computed against the lightest (`--ink-lo` 7.65, `--gold-dim` 6.75,
+  `--ember-soft` 6.84, `--ember` 4.76). The surface is a `::before` run to the
+  viewport's edges from inside the centred column.
+- **The cover is a full screen again** (VA-10 had cut it to 74svh). What VA-10
+  protected — the day's lead without scrolling — is the cover line, which is
+  on that screen. The wordmark is sized against both axes and runs onto the
+  lion's shoulder.
+- **Headline over picture** through a new `overlay` slot on `HomeMedia`; DOM
+  order is still headline → image, and the disclosure caption is uncovered.
+- **Motion is CSS scroll-driven with no new JavaScript**, gated on `@supports`
+  and `no-preference`. Hover uses the independent `scale`/`translate`
+  properties so it composes with the entrance's `transform`.
+- **October 7 got quieter, not richer**: darkest room, no plates, no grain, a
+  fade and nothing else.
+- The header bar was again left alone, for the reason in the entry above.
+
+## 2026-09-17 — Signal over noise: the homepage is a new concept, on exact black, with a typographic field
+
+The owner rejected both earlier passes ("re-compose" and "rooms") and asked
+for a new concept from scratch. The concept is the site's own sentence: *truth
+has a signal*. Noise is type you cannot quite read; signal is type you can.
+
+- **Exact black.** `--home-ground: #000000`, scoped to `.homeTheme`, which
+  re-points `--ground` for the homepage only — one line rather than nineteen
+  overrides, and the reason the rest of the site is untouched. The owner's own
+  standing brief rules out `#0b0b0b` and its neighbours by name.
+- **The field** (`SignalField.tsx`, `lib/home/signal-corpus.ts`) is a canvas of
+  the desk's vocabulary in three depth layers, pre-rendered to strips and
+  blitted — `fillText` per frame over a cover-sized field is not affordable.
+  Three findings worth keeping: measuring darkness on the **poster alone** put
+  type across the lit mane and none in the dark left column, so the mask reads
+  luminance **through a model of `.heroScrim`**; the field must be cleared off
+  the cover's own words, and the boxes are read from the DOM
+  (`[data-field-clear]`) rather than guessed, because the masthead moves with
+  the viewport; and at 14px/0.34 alpha it read as rows of labels — the one
+  thing the brief forbids — so the perception order is bought with fine size,
+  close pitch and low ink.
+- **Everything else got quieter.** Rooms, grain, plates, wall numerals and the
+  per-band fade-ups are gone. What is left is black, type, pictures and one
+  hairline weight, plus the giant band names.
+- **October 7 is the silence** in a page whose subject is noise.
+- Unexercised in this edition: the claim-as-noise treatment needs a
+  `narrative_watch` record, and today's Fake Resistance pair are both cases.
+
+## 2026-09-22 — Signal over noise, site-wide: every public page on exact black
+
+The owner asked for the whole public site redesigned "to the most premium"
+level, chose to extend the homepage's Signal over noise concept rather than
+start a new one, allowed structural (not only visual) change, and kept the
+work on `ai/claude` for review rather than publishing.
+
+- **Why extend rather than invent:** it was the owner's latest ruling, and the
+  homepage standing alone on `#000` while every other page sat on `#1b1b1b`
+  was the same seam 7ddb9544 had removed once already.
+- **The ground carries nothing.** Scan texture and the ghosted lion behind
+  reading routes are removed, not re-tuned: on black they were the "noise"
+  the concept is against. Every ink ratio in `globals.css` was measured on
+  lighter grounds and surfaces, so each is a floor on the new ladder.
+- **Hairlines over plates** is what makes black read as premium rather than
+  as a dark theme: a grid of `#111` boxes on `#000` is a dashboard.
+- **Shared roles instead of per-page copies** (`displayXl`, `noise`,
+  `signal`, `resolve`), so a claim/finding pair reads the same on the home, an
+  article, the watch and fact-check pages.
+- Executed as a foundation commit followed by four parallel workstreams with
+  disjoint file ownership (home, reading, hubs, utility); see
+  `UX-CONTRACT.md`, fourth ruling.
+

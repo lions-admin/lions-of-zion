@@ -62,32 +62,54 @@
      Body is 17px (above the 16px mobile floor). Caption 13px. Kicker 13px.
      Data 12px (desktop metadata floor; 13px on a phone, see the 48rem block
      below). Headlines wrap at 320 via overflow-wrap on headings. */
-  --t-display: clamp(2.75rem, 1.6rem + 4.1vw, 4.125rem);
-  --t-display-lh: 1.06;
-  --t-display-weight: 400;
-  --t-display-tracking: -0.025em;
+  /* The masthead tier (Signal over noise, site-wide — 2026-09-22). A page's
+     own title — a hub, an article, a record — is the largest type on it, set
+     in Newsreader at display optical size and tracked in hard. It is a role on
+     this one scale, not a second scale: a page opts into it by composing
+     `.mastheadTitle` below or reading these tokens, and nothing else invents a
+     headline size. */
+  --t-display-xl: clamp(3rem, 1.35rem + 6.4vw, 7.25rem);
+  --t-display-xl-lh: 0.96;
+  --t-display-xl-tracking: -0.038em;
 
-  --t-h2: clamp(1.6rem, 1.25rem + 1.15vw, 2.125rem);
-  --t-h2-lh: 1.13;
+  /* The band tier: a homepage band's name and nothing else. It is the one
+     place type is allowed to be larger than a masthead, because on the home a
+     band's name is the page's structure rather than a headline. */
+  --t-band: clamp(4.5rem, 1rem + 14vw, 14rem);
+  --t-band-lh: 0.9;
+  --t-band-tracking: -0.05em;
+
+  --t-display: clamp(2.5rem, 1.35rem + 4.2vw, 4.5rem);
+  --t-display-lh: 1.02;
+  --t-display-weight: 400;
+  --t-display-tracking: -0.03em;
+
+  --t-h2: clamp(1.75rem, 1.25rem + 1.6vw, 2.625rem);
+  --t-h2-lh: 1.08;
   --t-h2-weight: 400;
-  --t-h2-tracking: -0.015em;
+  --t-h2-tracking: -0.022em;
 
   --t-figure: clamp(1.6rem, 1.2rem + 1.5vw, 1.875rem);
   --t-figure-lh: 1.2;
   --t-figure-weight: 500;
 
-  --t-h3: 1.375rem;
-  --t-h3-lh: 1.25;
+  --t-h3: clamp(1.3125rem, 1.2rem + 0.35vw, 1.5rem);
+  --t-h3-lh: 1.22;
   --t-h3-weight: 400;
   --t-h3-tracking: -0.012em;
 
-  --t-lede: clamp(1.0625rem, 1rem + 0.35vw, 1.1875rem);
-  --t-lede-lh: 1.55;
+  --t-lede: clamp(1.1875rem, 1.05rem + 0.5vw, 1.4375rem);
+  --t-lede-lh: 1.5;
   --t-lede-weight: 400;
   --t-lede-tracking: -0.009em;
 
   --t-body: 1.0625rem;
   --t-body-lh: 1.65;
+
+  /* Long-form reading: an article's or a record's running text. A step above
+     interface body, with the leading a column of prose wants on black. */
+  --t-prose: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
+  --t-prose-lh: 1.72;
 
   --t-small: 0.9375rem;
   --t-small-lh: 1.5;
@@ -152,7 +174,11 @@
    * `--gold-line-strong` below reads the way it does — swapping a hue silently
    * moved an alpha that a comment had recorded as safe, and nothing but
    * `scripts/ui-audit.mjs` noticed. */
-  --ground: #1b1b1b;
+  /* Exact black, site-wide (owner ruling 2026-09-22, extending the homepage's
+     "Signal over noise" of 2026-09-17 to every public page). Not #0b0b0b, not
+     #111 — the owner names both as wrong. Every ink token below was measured
+     against lighter grounds, so each recorded ratio is a floor on this one. */
+  --ground: #000000;
   --ink-hi: #f2eee6;
   --ink: #d4d0c8;
   /* Muted body copy, and the token the surface re-grade kept catching out. It
@@ -175,17 +201,23 @@
      backgrounds and beam tails, where this step of lightness is not visible. */
   --gold-dim: #c2a26c;
 
-  /* One shade under the canvas, for a bar that has to read as behind it. */
-  --abyss: #141414;
+  /* There is nothing under black. The name survives for the bars that read it. */
+  --abyss: #000000;
 
-  --surface-0: #202020;
-  --surface-1: #252525;
-  --surface-2: #2a2a2a;
-  --surface-3: #303030;
+  /* The surface ladder, re-cut against black (2026-09-22). Structure on this
+     system is a hairline first and a filled plate second, so the steps are
+     close: enough to lift a dialog or a field off the ground, never enough to
+     turn a list into a stack of grey cards. Every ink pair recorded in this
+     file was measured on the old #202020-#303030 ladder; all four steps here
+     are darker, so each of those ratios holds with room. */
+  --surface-0: #0b0b0b;
+  --surface-1: #111111;
+  --surface-2: #171717;
+  --surface-3: #1e1e1e;
 
-  --line: rgba(242, 238, 230, 0.15);
-  --line-soft: rgba(242, 238, 230, 0.08);
-  --line-strong: rgba(242, 238, 230, 0.25);
+  --line: rgba(242, 238, 230, 0.14);
+  --line-soft: rgba(242, 238, 230, 0.07);
+  --line-strong: rgba(242, 238, 230, 0.24);
 
   /* The boundary of an interactive control, and nothing else.
    *
@@ -325,13 +357,13 @@
    * resting plate, raised or hovered plate, floating overlay (dialogs,
    * popovers). Every stylesheet reads these tokens, so a change here moves
    * all 28 declarations at once. */
-  --shadow-1:
-    inset 0 1px 0 var(--edge-hi),
-    0 1px 2px rgba(0, 0, 0, 0.35);
+  /* On exact black a drop cannot be seen, so the resting and raised steps are
+     the lit edge alone; only the floating overlay keeps a drop, for the page
+     content it sits over. */
+  --shadow-1: inset 0 1px 0 var(--edge-hi);
   --shadow-2:
-    inset 0 1px 0 var(--edge-hi),
-    0 6px 18px -6px rgba(0, 0, 0, 0.55),
-    0 2px 4px rgba(0, 0, 0, 0.3);
+    inset 0 1px 0 var(--edge-hi-strong),
+    0 0 0 1px var(--line-soft);
   --shadow-3:
     inset 0 1px 0 var(--edge-hi),
     0 24px 48px -16px rgba(0, 0, 0, 0.7),
@@ -341,8 +373,8 @@
   --edge-hi: rgba(246, 243, 235, 0.07);
   --edge-hi-strong: rgba(246, 243, 235, 0.12);
   /* A raised plate carries a faint vertical grade so it is not a flat swatch. */
-  --surface-grade: linear-gradient(180deg, rgba(246, 243, 235, 0.025), transparent 55%);
-  --surface-grade-strong: linear-gradient(180deg, rgba(246, 243, 235, 0.05), transparent 60%);
+  --surface-grade: linear-gradient(180deg, rgba(246, 243, 235, 0.018), transparent 55%);
+  --surface-grade-strong: linear-gradient(180deg, rgba(246, 243, 235, 0.035), transparent 60%);
 
 
   /* --- Motion (MOTION-001) ---
@@ -394,21 +426,15 @@
      padding would shrink the visible strip instead of moving it. */
   --header-h: calc(4.8rem + env(safe-area-inset-top, 0px));
 
-  --scan-ground:
-    radial-gradient(115% 82% at 50% 26%, rgba(246, 243, 235, 0.055), transparent 68%),
-    repeating-linear-gradient(0deg, rgba(228, 224, 215, 0.027) 0 1px, transparent 1px 9px);
-  --scan-ground-quiet:
-    radial-gradient(115% 82% at 50% 26%, rgba(246, 243, 235, 0.028), transparent 68%),
-    repeating-linear-gradient(0deg, rgba(228, 224, 215, 0.014) 0 1px, transparent 1px 9px);
 
   /* The stills, declared once here beside the other grounds rather than buried
      in the rules that use them. `HeroVideo` holds the same three paths in its
      `SOURCES` table — it needs them in JavaScript to set a `poster` after it has
      measured the viewport — and the two lists must not drift.
      `--site-ground-photo` is the landscape frame in both orientations on
-     purpose: it is the ambient ground of the reading routes, veiled to 92-96%,
-     where the shape of the crop is not perceptible and a second asset would be
-     a second download for nothing. */
+     purpose. It no longer sits behind the reading routes (2026-09-22: the
+     ground is black, and the lion appears where it is the subject — the home
+     cover and the editorial intro — rather than as a veil under every page). */
   --site-ground-photo: url("/video/lion-hero-poster-desktop.jpg");
   --hero-poster-wide: url("/video/lion-hero-poster-desktop.jpg");
   --hero-poster-tall: url("/video/lion-hero-poster-portrait.jpg");
@@ -443,7 +469,6 @@
   --family-pad-inline: var(--sp-5);
   --family-gap: var(--sp-6);
   --family-measure: var(--measure-reading);
-  --family-scan: var(--scan-ground);
 }
 
 @media (pointer: coarse) {
@@ -492,7 +517,6 @@
   --family-pad-inline: var(--sp-5);
   --family-gap: var(--sp-5);
   --family-measure: var(--measure-wide);
-  --family-scan: var(--scan-ground);
 }
 
 [data-family="dossier"] {
@@ -500,7 +524,6 @@
   --family-pad-inline: var(--sp-6);
   --family-gap: var(--sp-7);
   --family-measure: var(--measure-reading);
-  --family-scan: var(--scan-ground);
 }
 
 [data-family="institution"] {
@@ -508,7 +531,6 @@
   --family-pad-inline: var(--sp-6);
   --family-gap: var(--sp-6);
   --family-measure: var(--measure-reading);
-  --family-scan: var(--scan-ground-quiet);
 }
 
 /* --- The admin workspace surface (SYS-002, staff density) ---
@@ -591,55 +613,16 @@ html {
 /* Running prose keeps its authored case. Short metadata labels opt into caps. */
 body { text-transform: none; }
 
+/* The ground is black and nothing else: no scan lines, no radial lift and no
+   photograph behind the reading routes (Signal over noise, site-wide,
+   2026-09-22). Texture on this site belongs to the signal field on the home
+   cover; everywhere else, the type is the only thing in the dark. */
 html, body {
   width: 100%;
   min-height: 100%;
   background-color: var(--ground);
-  background-image: var(--scan-ground);
-  background-attachment: fixed;
   overflow-x: clip;
 }
-
-body:has([data-family="institution"]) {
-  background-image: var(--scan-ground-quiet);
-}
-
-/* ---- The site ground: one still frame under every route ----
- *
- * The same photograph the home hero moves — its own first frame — held far
- * enough back that it reads as a room the type is in rather than a picture
- * behind it. The home page does not use this: `.page` there is opaque and
- * carries the moving version instead. Everything else gets the still.
- *
- * A fixed pseudo-element rather than another `background-image` layer on
- * `body`, for one reason: `background-attachment: fixed` is what the rule above
- * uses, and iOS Safari does not honour it. On a repeating texture that is
- * invisible; on a `cover` photograph over a long article it stretches the image
- * down the whole scroll length. A `position: fixed` box is the viewport either
- * way. Negative z-index puts it above `body`'s own background and below every
- * child, which is exactly the slot wanted.
- *
- * The veil is doing the real work — at 6% the photograph is a texture, and
- * reading copy over it stays reading copy. Anything lighter and the mane starts
- * competing with paragraphs. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image:
-    linear-gradient(
-      to bottom,
-      color-mix(in oklab, var(--ground) 92%, transparent) 0%,
-      color-mix(in oklab, var(--ground) 96%, transparent) 100%
-    ),
-    var(--site-ground-photo);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center, 68% center;
-}
-
 
 html:has([data-home-scroll]) {
   overflow-x: clip;
@@ -648,12 +631,6 @@ html:has([data-home-scroll]) {
 
 html:has([data-home-scroll]) body {
   overflow: visible;
-}
-
-/* Long-form reading keeps the photographic ground, without ruled scanlines. */
-html:has([data-public-shell]),
-html:has([data-public-shell]) body {
-  background-image: none;
 }
 
 /* Thin, not hidden: the home scrolls and the affordance must be shown.
@@ -936,4 +913,72 @@ html:has([data-handoff-blocked]) body {
     transform: none !important;
     transition: none;
   }
+}
+
+/* ══ Signal over noise, site-wide (owner ruling, 2026-09-22) ══════════════════
+ *
+ * The homepage's grammar, lifted into the system so every page speaks it.
+ * Four roles, composed with `composes: X from global` under the same limits
+ * as the type roles above (a single-class top-level rule only).
+ *
+ *   displayXl  a page's own title — hub, article, record. The largest type on
+ *              any page but the home, which has its band names.
+ *   noise      somebody else's sentence: a claim in circulation. Ember,
+ *              italic, never above the h3 size, and always readable —
+ *              `--ember-soft` holds 9.0:1 on black. It is never the only cue;
+ *              a status word precedes it.
+ *   signal     the desk's finding about that claim: upright, ivory, on the
+ *              one amber rule.
+ *   resolve    the site's one motion idea: a title settles out of a slight
+ *              blur and loose tracking into focus, once, on arrival. Within
+ *              MOTION-001 (6px blur, no translate), gone under reduced motion
+ *              and inside anything marked `data-still` — October 7 is still. */
+.displayXl {
+  font-family: var(--face-display);
+  font-optical-sizing: auto;
+  font-size: var(--t-display-xl);
+  font-weight: 400;
+  line-height: var(--t-display-xl-lh);
+  letter-spacing: var(--t-display-xl-tracking);
+  text-wrap: balance;
+}
+
+.noise {
+  font-family: var(--face-display);
+  font-style: italic;
+  font-size: min(1em, var(--t-h3));
+  color: var(--ember-soft);
+}
+
+.signal {
+  font-style: normal;
+  color: var(--ink-hi);
+  border-inline-start: var(--line-w-thick) solid var(--gold);
+  padding-inline-start: var(--sp-4);
+}
+
+@keyframes resolve {
+  from {
+    opacity: 0.001;
+    filter: blur(var(--enter-blur));
+    letter-spacing: calc(var(--t-display-xl-tracking) + 0.06em);
+  }
+}
+
+.resolve {
+  animation: resolve calc(var(--dur-enter) * 2) var(--ease-out) both;
+}
+
+[data-still] .resolve,
+.resolve[data-still] {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resolve { animation: none; }
+}
+
+@media (forced-colors: active) {
+  .signal { border-inline-start-color: CanvasText; }
+  .noise { color: CanvasText; }
 }

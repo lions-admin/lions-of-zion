@@ -92,16 +92,16 @@ export default async function Page() {
             {monitoring.status === "rejected" ? <p role="alert">Monitoring is temporarily unavailable.</p> : items.length ? items.slice(0, 3).map(item => <NarrativeRecord key={item.publicId} item={item} compact />) : <p>No monitoring records have been published yet.</p>}
           </section>
         </div>
-        <section id="antisemitism" className={styles.antisemitism} aria-labelledby="antisemitism-heading">
+        <section id="antisemitism" className={styles.section} aria-labelledby="antisemitism-heading">
           <header className={styles.sectionHead}>
             <h2 id="antisemitism-heading">Antisemitism</h2>
             <SectionCount settled={antisemitism.status === "fulfilled"} count={antisemitismItems.length} noun="record" />
             <Link href="/fake-resistance/antisemitism">All of Antisemitism <span aria-hidden="true">→</span></Link>
           </header>
           <p className={styles.disclosure}>Documented incidents and trends. A report names what is known, its context, and what remains unconfirmed.</p>
-          {antisemitism.status === "rejected" ? <p role="alert">Antisemitism records are temporarily unavailable.</p> : antisemitismItems.length ? antisemitismItems.slice(0, 2).map(item => <AntisemitismRecord key={item.publicId} item={item} compact />) : <p>No antisemitism records have been published yet.</p>}
+          {antisemitism.status === "rejected" ? <p role="alert">Antisemitism records are temporarily unavailable.</p> : antisemitismItems.length ? <div className={styles.pair}>{antisemitismItems.slice(0, 2).map(item => <AntisemitismRecord key={item.publicId} item={item} compact />)}</div> : <p>No antisemitism records have been published yet.</p>}
         </section>
-        <section id="influence" className={styles.more} aria-labelledby="influence-heading">
+        <section id="influence" className={styles.section} aria-labelledby="influence-heading">
           <header className={styles.sectionHead}>
             <h2 id="influence-heading">Influence operations</h2>
             <SectionCount settled={influence.status === "fulfilled"} count={influenceItems.length} noun="investigation" />
@@ -109,7 +109,7 @@ export default async function Page() {
           </header>
           <p className={styles.disclosure}>Published investigations into coordinated influence — state-aligned, networked and anti-Western operations — kept apart from the claims they circulate.</p>
           {influence.status === "rejected" ? <p role="alert">Influence investigations are temporarily unavailable.</p>
-            : influenceItems.length ? <div className={styles.researchGrid}>{influenceItems.slice(0, 3).map(item => <article key={item.publicId} {...measurePublicationCard("fr-influence", item)}>
+            : influenceItems.length ? <div className={styles.entries}>{influenceItems.slice(0, 3).map(item => <article key={item.publicId} {...measurePublicationCard("fr-influence", item)}>
                 <time dateTime={item.publishedAt}>{formatDay(item.publishedAt)}</time>
                 <h3><Link href={publicationHref(item.publicId)}>{item.title}</Link></h3>
                 {item.summary ? <p>{item.summary}</p> : null}
@@ -117,13 +117,13 @@ export default async function Page() {
               </article>)}</div>
             : <p>No influence investigations have been published yet.</p>}
         </section>
-        {otherCases.length ? <section className={styles.more} aria-labelledby="research-heading">
+        {otherCases.length ? <section className={styles.section} aria-labelledby="research-heading">
           <header className={styles.sectionHead}>
             <h2 id="research-heading">Further investigations</h2>
             <SectionCount settled count={cases.length} noun="investigation" />
             <Link href="/fake-resistance/social-media">All investigations <span aria-hidden="true">→</span></Link>
           </header>
-          <div className={styles.researchGrid}>{otherCases.slice(0,3).map(item => <article key={item.slug}
+          <div className={styles.entries}>{otherCases.slice(0,3).map(item => <article key={item.slug}
             {...measureCard({ id: `fr-case-${item.slug}`, section: "fake-resistance", content: `case:${item.slug}`, type: "case" })}>
             <time dateTime={item.updatedAt}>{formatDay(item.updatedAt)}</time>
             <h3><Link href={`/fake-resistance/cases/${item.slug}`}>{item.title}</Link></h3>

@@ -20,7 +20,10 @@ export const metadata: Metadata = {
  * system has. It now wears `EditorialShell` like every other institution page,
  * so the chrome, the landmarks, the family density and the way out are the
  * same ones the rest of the site uses, and the page itself is one plain panel
- * on the black ground.
+ * on the black ground, opening on the same masthead tier as every other page
+ * title (Signal over noise, 2026-09-22). The gold "Lions of Zion" eyebrow and
+ * the gold stub above it went then: the wordmark is in the header directly
+ * above, and a sign-in page has no focal moment worth the accent.
  *
  * `showProgress={false}`: reading progress measures how far down a document a
  * reader is, and this is not a document. There is nothing to be a third of the
@@ -56,7 +59,6 @@ export default async function AccountPage({
       className={styles.page}
     >
       <section className={styles.panel} id="page-content" aria-labelledby="account-title">
-        <p className={styles.eyebrow}>Lions of Zion</p>
         <h1 id="account-title" className={styles.title}>
           Account
         </h1>

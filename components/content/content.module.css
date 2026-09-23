@@ -173,9 +173,8 @@
 .sourceBody a {
   /* UX-11: the source link is the record's proof; it gets a 44px target
      without a 44px row (negative block margin returns the line). */
-  display: inline-flex;
-  align-items: center;
-  min-block-size: var(--control-h);
+  display: block;
+  padding-block: calc((var(--control-h) - 1.5em) / 2);
   margin-block: calc((var(--control-h) - 1.5em) / -2);
   width: fit-content;
   max-width: 100%;
@@ -251,7 +250,9 @@
 
 
 .publicationMeta dt {
-  color: var(--gold);
+  /* Quiet ink, not gold (2026-09-22): the term is apparatus, and the page's
+     one gold moment belongs to its kicker or its finding. */
+  color: var(--ink-lo);
   font-family: var(--face-data);
   font-size: var(--t-data);
   font-weight: var(--t-data-weight);
@@ -697,18 +698,25 @@
   --card-line: var(--gold-line-strong);
   position: relative;
 
+  /* A ruled entry on the black ground, not a plate (Signal over noise,
+     2026-09-22): a hairline above, the accent as a short rule at its start,
+     and no fill, radius or shadow. */
   container-type: inline-size;
   display: flex;
   min-width: 0;
   flex-direction: column;
-  padding: var(--sp-5);
-  border: var(--line-w) solid var(--line);
-  border-left: var(--line-w-thick) solid var(--card-accent);
-  border-radius: var(--radius-3);
-  background: var(--surface-1);
-  box-shadow: var(--shadow-1);
-  transition: border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
+  padding: var(--sp-5) 0;
+  border-top: var(--line-w) solid var(--line);
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: calc(-1 * var(--line-w));
+  left: 0;
+  width: var(--sp-6);
+  border-top: var(--line-w-thick) solid var(--card-accent);
 }
 
 .card[data-accent='ember'] {
@@ -755,7 +763,6 @@
 
 .card:has(h3 a:hover) {
   border-color: var(--card-line);
-  background: var(--surface-2);
 }
 
 .card h3 a:hover,
@@ -822,26 +829,31 @@
   composes: tokens;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  overflow: hidden;
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-  background: var(--surface-1);
+  gap: var(--sp-6);
+  padding-top: var(--sp-5);
+  border-top: var(--line-w) solid var(--line);
 }
 
 .claimPanel,
 .recordPanel {
   min-width: 0;
-  padding: var(--sp-5);
 }
 
-.claimPanel {
-  border-left: var(--line-w-thick) solid var(--ember);
-  background: linear-gradient(90deg, var(--ember-wash), transparent 68%);
+/* Noise and signal, side by side (2026-09-22): the claim is somebody else's
+   sentence — ember italic — and the record is the desk's finding, upright on
+   the one amber rule. No panels and no washes; the labels above each say
+   which is which, so neither is carried by colour alone. */
+.claimPanel .claimRecordBody {
+  color: var(--ember-soft);
+  font-family: var(--face-display);
+  font-style: italic;
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
 }
 
 .recordPanel {
-  border-left: var(--line-w-thick) solid var(--gold);
-  background: linear-gradient(90deg, var(--gold-wash), transparent 68%);
+  padding-inline-start: var(--sp-4);
+  border-inline-start: var(--line-w-thick) solid var(--gold);
 }
 
 
@@ -869,10 +881,6 @@
   line-height: var(--t-small-lh);
 }
 
-
-.claimPanel .claimRecordBody {
-  color: var(--ink);
-}
 
 .recordPanel .claimRecordBody {
   color: var(--ink-hi);
@@ -909,10 +917,8 @@
 }
 
 .sensitive[data-layout='block'] {
-  border: var(--line-w) solid var(--line);
+  border-block: var(--line-w) solid var(--line);
   border-left: var(--line-w-thick) solid var(--sensitive-line);
-  border-radius: var(--radius-2);
-  background: var(--surface-raised);
 }
 
 /* Inside a media frame the gate *is* the frame's content: it fills the box the
@@ -944,12 +950,6 @@
   height: 100%;
   overflow-y: auto;
   text-align: center;
-  background:
-    repeating-linear-gradient(
-      -45deg,
-      color-mix(in oklab, var(--data-ember) 5%, transparent) 0 2px,
-      transparent 2px 11px
-    );
 }
 
 /* The category, named. Two words or fewer is the rule for tracked capitals and
@@ -1293,6 +1293,40 @@
 
 
 
+/* ---------- one prose voice (2026-09-22) ----------
+ *
+ * Long-form running text — an article's passages, a research report, an
+ * archive record's account — reads in one voice: the prose step and its
+ * leading, one paragraph gap and one quotation. Each is a single-class
+ * rule so a sibling module can `composes:` it; nothing here sets a width,
+ * which belongs to the column the text sits in. */
+.prose {
+  margin: 0 0 var(--flow);
+  color: var(--ink);
+  font-family: var(--face-text);
+  font-size: var(--t-prose);
+  line-height: var(--t-prose-lh);
+  text-wrap: pretty;
+  hanging-punctuation: first;
+  overflow-wrap: break-word;
+}
+
+/* A quotation inside prose: the display face in italic at the standfirst
+   step, on a neutral hairline — gravity, not highlight. */
+.proseQuote {
+  margin: var(--sp-6) 0;
+  padding-inline-start: var(--sp-5);
+  border-inline-start: var(--line-w) solid var(--line-strong);
+  color: var(--ink-hi);
+  font-family: var(--face-display);
+  font-style: italic;
+  font-size: var(--t-lede);
+  font-weight: var(--t-lede-weight);
+  line-height: var(--t-lede-lh);
+  hanging-punctuation: first;
+  text-wrap: pretty;
+}
+
 .handle {
   color: var(--ink-hi);
   font-family: var(--face-data);
@@ -1367,13 +1401,6 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .recordPanel {
-    border-top: var(--line-w) solid var(--line);
-  }
-
-  .card,
-  .claimPanel,
-  .recordPanel,
   .sensitiveGate,
   .sensitive[data-layout='block'] .sensitiveRegion {
     padding: var(--sp-5) var(--sp-4);

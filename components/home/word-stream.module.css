@@ -1,0 +1,54 @@
+/* Full-bleed out of the journey's centred column, so the drift reads as the
+   page's own weather rather than as a widget inside a band. */
+.stream {
+  width: 100vw;
+  margin-block: 0 var(--sp-6);
+  margin-inline: calc(50% - 50vw);
+  overflow: hidden;
+  user-select: none;
+  pointer-events: none;
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+.row {
+  height: 26px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  animation: drift 90s linear infinite;
+}
+
+.row[data-row="1"] .track {
+  animation-duration: 120s;
+  animation-direction: reverse;
+}
+
+.set {
+  display: flex;
+  gap: 2.2em;
+  padding-inline-end: 2.2em;
+}
+
+.word {
+  color: var(--stream-ink);
+  font: 500 12px/26px var(--face-text);
+  letter-spacing: 0.14em;
+}
+
+.stream[data-tone="ash"] { --stream-ink: color-mix(in srgb, var(--ink-lo) 38%, transparent); }
+.stream[data-tone="ember"] { --stream-ink: color-mix(in srgb, var(--ember) 55%, transparent); }
+.stream[data-tone="amber"] { --stream-ink: color-mix(in srgb, var(--gold) 45%, transparent); }
+
+@keyframes drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track { animation: none; }
+}

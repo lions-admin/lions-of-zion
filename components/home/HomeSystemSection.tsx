@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import { AmplificationFigure } from "./AmplificationFigure";
 import { JourneyLink } from "./HomeJourneyPrimitives";
 import styles from "./homepage-journey.module.css";
+import { WordStream } from "./WordStream";
 
 const EditorialIntro = dynamic(
   () => import("./EditorialIntro").then((mod) => mod.EditorialIntro),
@@ -32,7 +33,7 @@ const EditorialIntro = dynamic(
  */
 export function HomeSystemSection() {
   return (
-    <section id="home-system" className={`${styles.section} ${styles.system}`}
+    <section id="home-system" className={`${styles.section}`}
       aria-labelledby="home-system-title" data-home-section="system">
       <header className={styles.systemHead}>
         <div>
@@ -43,6 +44,7 @@ export function HomeSystemSection() {
           points back to one origin, repetition has added no independent
           confirmation. Trace one chain below—it is the test behind every record here.</p>
       </header>
+      <WordStream groups={["system", "process", "intelligence"]} tone="amber" seed={5} />
       <AmplificationFigure />
       <p className={styles.systemNote}>Human assessments, machine-authored editorial runs and historical records follow different provenance and review paths.</p>
       <div className={styles.systemActions}>

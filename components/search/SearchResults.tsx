@@ -54,9 +54,6 @@ interface SearchResultsProps {
   onNavigate: () => void;
   /** Dims the list while a newer query is in flight, rather than emptying it. */
   stale: boolean;
-  /** Where this page starts in the whole result set, so the gutter ordinals
-   *  count 11, 12, 13 on page two rather than starting again at 01. */
-  offset: number;
 }
 
 export function SearchResults({
@@ -68,7 +65,6 @@ export function SearchResults({
   onHover,
   onNavigate,
   stale,
-  offset,
 }: SearchResultsProps) {
   const groups = groupByEntity(hits);
   let flat = -1;
@@ -86,7 +82,7 @@ export function SearchResults({
         <div className={styles.group} key={group.type}>
           <p className={styles.groupHead}>
             <span>{group.items.length === 1 ? entityLabel(group.type) : entityLabelPlural(group.type)}</span>
-            <span className={styles.groupCount}>{String(group.items.length).padStart(2, "0")}</span>
+            <span className={styles.groupCount}>{group.items.length}</span>
           </p>
           {group.items.map((hit) => {
             const index = ++flat;
@@ -95,7 +91,6 @@ export function SearchResults({
                 key={hit.documentId}
                 hit={hit}
                 index={index}
-                ordinal={offset + index + 1}
                 active={index === activeIndex}
                 id={optionId(index)}
                 onHover={onHover}
@@ -112,7 +107,6 @@ export function SearchResults({
 function SearchHitOption({
   hit,
   index,
-  ordinal,
   active,
   id,
   onHover,
@@ -120,7 +114,6 @@ function SearchHitOption({
 }: {
   hit: SearchHit;
   index: number;
-  ordinal: number;
   active: boolean;
   id: string;
   onHover: (index: number) => void;
@@ -131,11 +124,14 @@ function SearchHitOption({
      standfirst of `""` or a line of whitespace must render as nothing, not as
      an empty description with the spacing of a real one. */
   const summary = hit.summary?.trim() || null;
+  /* The kind is said once, by the group head above the entry. Each option
+     still carries it in its accessible name — a listbox option is announced
+     on its own, without the group head — so the eyebrow stays in the tree and
+     leaves the page. The two-digit gutter ordinals that stood beside it went
+     with the ruled-entry redesign (2026-09-22): the list is grouped by kind,
+     so a count running across the groups ordered nothing a reader could use. */
   const inner = (
     <>
-      <span className={styles.hitOrdinal} aria-hidden="true">
-        {String(ordinal).padStart(2, "0")}
-      </span>
       <div className={styles.hitBody}>
         <CardHeader className={styles.hitHeader}>
           <CardEyebrow>{entityLabel(hit.entityType)}</CardEyebrow>

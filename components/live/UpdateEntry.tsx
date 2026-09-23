@@ -56,26 +56,27 @@ export function UpdateEntry({ entry }: { entry: PublicPublication }) {
         </span>
       </p>
 
-      <CardTitle className={styles.title}>
+      {/* A claim is never met unlabelled: the verdict word comes first, the
+          claim follows in the ember italic it circulates in (`noise`), and
+          the finding on it closes on the amber rule (`signal`). */}
+      {verdict ? (
+        <p className={styles.verdictLine}>
+          <span className={styles.verdict} data-tone={verdict.tone}>{verdict.label}</span>
+        </p>
+      ) : null}
+
+      <CardTitle className={verdict ? `${styles.title} ${styles.claim}` : styles.title}>
         <Link href={`/articles/${entry.publicId}`}>{entry.title}</Link>
       </CardTitle>
+
+      {verdict ? <p className={styles.finding}>{verdict.meaning}</p> : null}
 
       {entry.summary ? (
         <CardDescription className={styles.summary}>{entry.summary}</CardDescription>
       ) : null}
 
-      {verdict || analysis || revised || entry.arena || entry.primaryActor || entry.editorialTopic ? (
+      {analysis || revised || entry.arena || entry.primaryActor || entry.editorialTopic ? (
         <p className={styles.marks}>
-          {verdict ? (
-            <span
-              className={styles.verdict}
-              data-tone={verdict.tone}
-              title={verdict.meaning}
-              aria-label={`${verdict.label}: ${verdict.meaning}`}
-            >
-              {verdict.label}
-            </span>
-          ) : null}
           {analysis ? (
             <span className={styles.basis}>Our own analysis &mdash; cites no source</span>
           ) : null}

@@ -28,11 +28,12 @@
 
 /* ── The provenance strip ───────────────────────────────────────────────── */
 
+/* Ruled, not boxed (Signal over noise, 2026-09-22): the strip is set apart
+   by a strong rule above and a hairline below, like every other section. */
 .status {
-  padding: var(--sp-5);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-3);
-  background: var(--surface-1);
+  padding-block: var(--sp-4) var(--sp-5);
+  border-block: var(--line-w) solid var(--line);
+  border-block-start-color: var(--line-strong);
 }
 
 /* The heading is here for the document outline and the contents rail; the
@@ -70,10 +71,8 @@
   line-height: var(--t-caption-lh);
 }
 
-/* The count is the only figure on the strip, so it carries the accent — spent
-   once, here, and nowhere else on the page. */
 .statusFigure {
-  color: var(--gold);
+  color: var(--ink-hi);
 }
 
 .statusNote {
@@ -129,9 +128,13 @@
 /* The current filter is stated by `aria-current`, so the styling reads from
    the same attribute rather than from a second class that could disagree
    with it. */
+/* The page's one amber moment: which slice of the record you are reading.
+   Weight and a filled tint say it too, so it never rests on colour alone. */
 .filter[aria-current] {
   border-color: var(--gold-line-strong);
+  background: var(--tint-active);
   color: var(--gold-hi);
+  font-weight: 600;
 }
 
 /* ── The ledger ─────────────────────────────────────────────────────────── */
@@ -155,16 +158,19 @@
   scroll-margin-top: var(--anchor-offset);
 }
 
+/* The day is the feed's section head: the display face at `--t-h3` on a
+   strong rule, so a reader scanning the page finds the days first. */
 .dayHeading {
+  max-width: none;
   margin: 0;
-  padding-bottom: var(--sp-3);
-  border-bottom: var(--line-w) solid var(--line);
+  padding-top: var(--sp-3);
+  border-top: var(--line-w) solid var(--line-strong);
   color: var(--ink-hi);
-  font-family: var(--face-data);
-  font-size: var(--t-caption);
-  font-weight: var(--t-caption-weight);
-  letter-spacing: 0.04em;
-  line-height: var(--t-caption-lh);
+  font-family: var(--face-display);
+  font-size: var(--t-h3);
+  font-weight: var(--t-h3-weight);
+  letter-spacing: var(--t-h3-tracking);
+  line-height: var(--t-h3-lh);
   overflow-wrap: anywhere;
 }
 
@@ -298,8 +304,30 @@
 }
 
 .title a:hover {
-  border-bottom-color: var(--gold-line-strong);
-  color: var(--gold-hi);
+  border-bottom-color: currentColor;
+}
+
+/* A narrative-watch entry: the verdict word, the claim as noise, the finding
+   as signal — the same order and roles as `NarrativeRecord`. */
+.verdictLine {
+  margin: 0 0 var(--sp-2);
+}
+
+.claim {
+  composes: noise from global;
+}
+
+.entry .claim {
+  color: var(--ember-soft);
+  font-size: var(--t-h3);
+}
+
+.finding {
+  composes: signal from global;
+  max-width: var(--measure-narrow);
+  margin: var(--sp-3) 0 0;
+  font-size: 1rem;
+  line-height: var(--t-small-lh);
 }
 
 .summary {
@@ -313,68 +341,67 @@
   min-width: 0;
 }
 
+/* One line of metadata that wraps like a sentence, not a row of items. */
 .marks {
   composes: dataValue from global;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-2);
+  display: block;
   margin: var(--sp-3) 0 0;
   min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-/* 0.2rem is below `--sp-1` deliberately and is the one sub-step value in this
-   file: a data-size chip padded to a full quarter-rem reads as a button. The
-   same figure is used for the chips on `/fact-check`, so the two surfaces
-   agree at a glance. */
-.verdict,
-.basis,
-.facet {
-  display: inline-flex;
-  align-items: center;
-  max-width: 100%;
-  padding: 0.2rem var(--sp-2);
-  border: var(--line-w) solid var(--line);
-  border-radius: var(--radius-1);
   color: var(--ink-lo);
   overflow-wrap: anywhere;
 }
 
-.verdict {
-  letter-spacing: var(--t-data-tracking);
-  text-transform: uppercase;
+/* Facets are a line of metadata, not a row of chips: plain data text joined
+   by a middle dot. Chips read as controls and as decoration. */
+.basis,
+.facet {
+  display: inline;
+  max-width: 100%;
+  color: var(--ink-lo);
+  overflow-wrap: anywhere;
+}
+
+.marks > * + *::before {
+  content: "·";
+  margin-inline: var(--sp-2);
+  color: var(--ink-lo);
 }
 
 .facet { text-transform: capitalize; }
 
 .revised {
-  gap: 0.35em;
   text-transform: none;
 }
 
-.verdict[data-tone="ok"] {
-  border-color: var(--state-ok-line);
-  background: var(--state-ok-wash);
-  color: var(--state-ok);
+.revised > time { margin-inline-start: 0.35em; }
+
+/* The verdict is a word first; its tone only tints the short rule before it,
+   so it never rests on colour alone. */
+.verdict {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--ink-hi);
+  font-family: var(--face-text);
+  font-size: var(--t-caption);
+  font-weight: 600;
+  line-height: var(--t-caption-lh);
 }
 
-.verdict[data-tone="warn"] {
-  border-color: var(--state-warn-line);
-  background: var(--state-warn-wash);
-  color: var(--state-warn);
+.verdict::before {
+  content: "";
+  inline-size: var(--sp-3);
+  block-size: var(--line-w-thick);
+  background: var(--line-strong);
 }
 
-.verdict[data-tone="danger"] {
-  border-color: var(--state-danger-line);
-  background: var(--state-danger-wash);
-  color: var(--state-danger);
-}
+.verdict[data-tone="danger"]::before,
+.verdict[data-tone="warn"]::before { background: var(--ember); }
+.verdict[data-tone="ok"]::before { background: var(--ink-hi); }
 
-/* The record that cites nothing. It is a disclosure, so it is legible ink on
-   a hairline rather than a quiet grey chip among the facets. */
+/* The record that cites nothing. It is a disclosure, so it reads in full
+   ink rather than as one more quiet facet. */
 .basis {
-  border-color: var(--line-strong);
   color: var(--ink-hi);
 }
 
@@ -410,7 +437,9 @@
 }
 
 .pagerLink:hover {
-  color: var(--gold-hi);
+  color: var(--ink-hi);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
 }
 
 .pagerEnd {
@@ -422,10 +451,6 @@
 /* ── Narrow ─────────────────────────────────────────────────────────────── */
 
 @media (max-width: 45rem) {
-  .status {
-    padding: var(--sp-4);
-  }
-
   .statusGrid {
     grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
   }
@@ -447,4 +472,15 @@
   .pager > :last-child {
     margin-inline-start: 0;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filter,
+  .title a,
+  .pagerLink { transition: none; }
+}
+
+@media (forced-colors: active) {
+  .verdict::before { background: CanvasText; }
+  .filter[aria-current] { border-color: Highlight; }
 }

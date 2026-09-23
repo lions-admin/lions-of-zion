@@ -90,7 +90,15 @@ export function EditorialShell({
           reader nothing, and it read as a label belonging to the content
           under it. (It drove scan strength too until the ambient backdrop was
           retired on 2026-09-14.) */}
-      <main className={className} data-reading-scroll data-public-shell data-family={family}>
+      {/* `data-still` silences the site's one motion idea (`.resolve` in
+          `app/globals.css`) on October 7: that archive does not move. */}
+      <main
+        className={className}
+        data-reading-scroll
+        data-public-shell
+        data-family={family}
+        data-still={routeId === "october-7" ? "" : undefined}
+      >
         {showProgress ? (
           <ReadingProgress
             trackClassName={progressTrackClassName}

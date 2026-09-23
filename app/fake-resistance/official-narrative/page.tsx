@@ -16,38 +16,6 @@ import styles from "./page.module.css";
 import { publicationHubCrumb } from '@/lib/publication-routing';
 import { pageMetadata } from '@/lib/page-metadata';
 
-/** Same wording VerificationBadge uses, so the stamp and the accessible
- *  badge underneath it never disagree. */
-const STAMP_LABEL: Record<AssessmentValue, string> = {
-  verified: "Verified",
-  false: "False",
-  misleading: "Misleading",
-  manipulated: "Manipulated",
-  out_of_context: "Out of context",
-  contested: "Contested",
-  unsupported: "Unsupported",
-  unverified: "Unverified",
-  satire: "Satire",
-};
-
-/** The stamp's three tones follow `VerificationBadge`'s own colour families
- *  (`content.module.css`), so a case can never carry a grey stamp over an
- *  ember badge two lines below it — which is what Exhibit B did while the
- *  tone was computed from a three-value inline conditional. `satire` has no
- *  stamp tone of its own; muted is the honest place for it, since the point
- *  of the tone is whether the record refuted the claim. */
-const STAMP_TONE: Record<AssessmentValue, "gold" | "ember" | "muted"> = {
-  verified: "gold",
-  false: "ember",
-  misleading: "ember",
-  manipulated: "ember",
-  out_of_context: "ember",
-  contested: "ember",
-  unsupported: "muted",
-  unverified: "muted",
-  satire: "muted",
-};
-
 /** schema.org/ClaimReview's reviewRating is a 1–5 scale, not this site's own
  *  9-value vocabulary — this is the one honest translation between them,
  *  used only for the JSON-LD, never for on-page display. */
@@ -226,14 +194,6 @@ export default async function Page() {
             id={c.id}
             className={styles.caseFile}
           >
-            <span
-              className={styles.stamp}
-              data-tone={STAMP_TONE[c.verdict]}
-              aria-hidden="true"
-            >
-              {STAMP_LABEL[c.verdict]}
-            </span>
-
             {/* The exhibit and its sources are siblings so the case can become
                 a two-track grid above 1220px and file the citation in the
                 margin — `marginNote`, content.module.css. Nested links live

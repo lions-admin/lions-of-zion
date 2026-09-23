@@ -25,57 +25,37 @@
   font-family: var(--face-text);
 }
 
-/* Same shape as `components/sections/sections.module.css`: fixed at the
-   top-left corner, above the header, and off-screen until it is focused. */
+/* The column the reading pages use, so the title lands where a DocPage
+   title lands. No top rule and no gold mark: the masthead is the structure. */
 .panel {
   position: relative;
   z-index: var(--z-raised);
-  /* Centred, and never edge-to-edge on a phone. */
-  width: min(42rem, calc(100% - 2 * var(--family-pad-inline)));
+  width: min(var(--measure-reading), calc(100% - 2 * var(--family-pad-inline)));
   margin: var(--family-pad-block) auto var(--sp-9);
-  padding: clamp(var(--sp-5), 5vw, var(--sp-7));
-  border-block-start: var(--line-w) solid var(--line-strong);
   background: transparent;
 }
 
-/* The one gold mark on the panel. */
-.panel::before {
-  content: "";
-  display: block;
-  width: 2.5rem;
-  height: var(--line-w-thick);
-  margin-bottom: var(--sp-5);
-  background: var(--gold);
-}
-
-/* Three words, so sentence case: a mono masthead line, not a tracked label. */
-.eyebrow {
-  composes: dataMeta from global;
-  margin: 0;
-  color: var(--gold);
-}
-
+/* The masthead tier and the site's one motion (`app/globals.css`). */
 .title {
-  margin: var(--sp-3) 0 0;
+  composes: displayXl resolve from global;
+  margin: 0;
   color: var(--ink-hi);
-  font-family: var(--face-display);
-  font-size: var(--t-display);
-  font-weight: var(--t-h2-weight);
-  line-height: var(--t-h2-lh);
-  letter-spacing: var(--t-h2-tracking);
 }
 
 .lede {
-  max-width: var(--measure-caption);
-  margin: var(--sp-3) 0 0;
+  max-width: var(--measure-narrow);
+  margin: var(--sp-5) 0 0;
+  padding-bottom: var(--sp-6);
+  border-bottom: var(--line-w) solid var(--line);
   color: var(--ink);
-  font-size: var(--t-body);
-  line-height: var(--t-body-lh);
+  font-size: var(--t-lede);
+  line-height: var(--t-lede-lh);
+  letter-spacing: var(--t-lede-tracking);
 }
 
 @media (max-width: 480px) {
   .panel {
-    padding: var(--sp-5);
+    width: calc(100% - 2 * var(--sp-4));
     margin-block: var(--sp-6) var(--sp-8);
   }
 }

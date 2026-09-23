@@ -27,10 +27,12 @@
  *
  * So `asking` is thinking, not streaming. The wait says what is happening and
  * why, and shows the only honest measurement available — elapsed seconds,
- * which are never announced. `BorderBeam` is the one moving thing, and only
- * around the active waiting answer; it unmounts on success, error, or abort.
- * Under `prefers-reduced-motion` the beam is gone and the waiting panel keeps
- * a static emphasized border.
+ * which are never announced. That clock is the one moving thing. The
+ * `BorderBeam` that used to travel the waiting panel's edge went with the
+ * panel itself (Signal over noise, 2026-09-22): a light running round a box is
+ * a glow by another name, and the counter already says, honestly, that time is
+ * passing. The wait is a ruled block on the ground, marked by a static ink
+ * rule at its leading edge.
  *
  * ## Errors are records, not toasts
  *
@@ -41,10 +43,10 @@
  * number this component would have to keep in step with the server.
  */
 
+import { useId } from "react";
 import { Button } from "@/components/ui/Button";
 import { StatusState } from "@/components/ui/StatusState";
 import { assertiveLive, politeLive } from "@/components/ui/live-region";
-import { BorderBeam } from "@/components/motion";
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import {
   PromptInput,
@@ -298,14 +300,20 @@ function AskDeskBody({ layout }: { layout: AskDeskLayout }) {
   );
 }
 
-/* The page's suggested questions: plain chips, no label, no arrow glyph. The
+/* The page's suggested questions: the questions themselves, set as words to
+   take under a kicker, no arrow glyph. The
    drawer's `AskPrimer` below renders the same three as full-width rows with
    an intro line, which is right for a drawer whose middle would otherwise be
    empty and wrong under a composer that is already the first thing on the
    page (UX-24). */
 function AskChips({ onPick, disabled }: { onPick: (q: string) => void; disabled: boolean }) {
+  const labelId = useId();
   return (
-    <ul className={deskStyles.chips} aria-label="Suggested questions">
+    <div className={deskStyles.suggested}>
+      <p className={deskStyles.chipsLabel} id={labelId}>
+        Suggested questions
+      </p>
+      <ul className={deskStyles.chips} aria-labelledby={labelId}>
       {EXAMPLES.map((example) => (
         <li key={example}>
           <Button
@@ -319,7 +327,8 @@ function AskChips({ onPick, disabled }: { onPick: (q: string) => void; disabled:
           </Button>
         </li>
       ))}
-    </ul>
+      </ul>
+    </div>
   );
 }
 
@@ -344,9 +353,6 @@ function Waiting({
         <MessageContent>{question}</MessageContent>
       </Message>
       <div className={styles.waiting}>
-        {/* The default ink tone, not gold. Gold is reserved for the one
-            primary control on a screen; a border beam is a state marker. */}
-        <BorderBeam duration={9} size={120} />
         {/* Live region is the lead only. The elapsed clock ticks every second and
             must not sit inside a polite region or it would re-announce the wait. */}
         <p className={styles.waitingLead} {...politeLive}>

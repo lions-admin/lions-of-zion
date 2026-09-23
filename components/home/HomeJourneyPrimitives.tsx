@@ -53,9 +53,9 @@ export function PreviewText({
  * site and owned here:
  *
  *  - `primary` — the one action that opens this record. It is the only link
- *    role on the page that carries a full border and a surface, so a card's
- *    action is never mistaken for its citation. Modelled on `.supportChannel`,
- *    which was already the only control on the page that read as pressable.
+ *    role on the page that carries a control's boundary, so a card's action
+ *    is never mistaken for its citation. The boundary is neutral: gold is a
+ *    viewport's focal moment, not every record's.
  *  - `section` — the way out to a whole hub ("All of News & Analysis").
  *    Text and arrow, deliberately quieter than the record it sits beneath.
  *  - `quiet` — a list row that is its own title (history chapters, the
@@ -100,7 +100,9 @@ export function JourneyLink({
 }
 
 /**
- * Kicker and title, nothing else. The section's one destination action is
+ * Kicker and title, nothing else. There is no folio: the `01`-`06` that stood
+ * beside the kicker until 2026-09-22 numbered bands that are not a sequence a
+ * reader follows, so the band's name carries its place on its own. The section's one destination action is
  * `SectionAction`, a sibling the section grid places beside the title on a
  * wide viewport and after the records on a phone — the way out of a section
  * should not sit between the reader and its first story.
@@ -117,7 +119,9 @@ export function SectionHeading({
   return (
     <header className={styles.sectionHead}>
       <p className={styles.kicker}>{kicker}</p>
-      <h2 id={id}>{title}</h2>
+      {/* `--chars` lets the stylesheet size the title to fit one line when it is
+          not sliding (no scroll-timeline support, or reduced motion). */}
+      <h2 id={id} style={{ "--chars": title.length } as React.CSSProperties}>{title}</h2>
     </header>
   );
 }
@@ -159,10 +163,15 @@ export function HomeMedia({
   media,
   portrait = false,
   lead = false,
+  overlay,
 }: {
   media: EditorialMedia | null;
   portrait?: boolean;
   lead?: boolean;
+  /** A band's lead may set its headline over the picture's lower scrim. It
+      comes first in the frame, so the reading order stays headline → picture,
+      and the caption — disclosure first — stays under the plate, uncovered. */
+  overlay?: React.ReactNode;
 }) {
   /* A record without a picture keeps its place on the page; the card is
      text-led rather than empty-framed. */
@@ -172,13 +181,14 @@ export function HomeMedia({
     : media.disclosure ?? ROLE_DISCLOSURE[media.role];
   const licence = media.rights.reference.startsWith("https://creativecommons.org");
   return (
-    <figure className={`${styles.figure} ${portrait ? styles.portrait : ""}`} data-media-role={media.role}>
+    <figure className={`${styles.figure} ${portrait ? styles.portrait : ""}`} data-media-role={media.role} data-overlay={overlay ? "true" : undefined}>
       {/* UX-12. The frame is what shows while a lazy tile is still on its
           way: a tonal ground and the disclosure, under the picture. The media
           contract carries no LQIP, so there is no `blurDataURL` to hand
           `placeholder="blur"`; the label is honest in a way a blur is not,
           and it costs no bytes. The image covers it when it lands. */}
-      <span className={styles.frame}>
+      <div className={styles.frame}>
+        {overlay && <div className={styles.frameOverlay}>{overlay}</div>}
         {disclosure && (
           <span className={styles.framePlaceholder} aria-hidden="true">{disclosure}</span>
         )}
@@ -191,7 +201,9 @@ export function HomeMedia({
           fetchPriority={lead ? "high" : "auto"}
           loading={lead ? "eager" : "lazy"}
           sizes={
-            portrait
+overlay
+              ? "(max-width:759px) 100vw, (max-width:1700px) 92vw, 1460px"
+              : portrait
               ? "(max-width:819px) 38vw, 24vw"
               : "(max-width:759px) 100vw, (max-width:1099px) 50vw, 55vw"
           }
@@ -199,7 +211,7 @@ export function HomeMedia({
             objectPosition: `${media.focalPoint.x}% ${media.focalPoint.y}%`,
           }}
         />
-      </span>
+      </div>
       <figcaption>
         {disclosure && <span className={styles.disclosure}>{disclosure}</span>}
         {media.role === "safe-cover" && <span className={styles.captionText}>Illustrated cover. Original material stays in the archive record.</span>}

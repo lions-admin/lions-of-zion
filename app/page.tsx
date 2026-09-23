@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { SITE_NAVIGATION } from "@/lib/site-navigation";
 import { JourneyLink } from "@/components/home/HomeJourneyPrimitives";
 import { HeroVideo } from "@/components/sections/HeroVideo";
+import { SignalField } from "@/components/home/SignalField";
 import { HomepageJourney } from "@/components/home/HomepageJourney";
 import { getHomepageEdition } from "@/lib/homepage";
 import { formatEditionDate } from "@/lib/format-date";
@@ -79,6 +80,15 @@ export default async function Page() {
                 left so the type sits on darkness while the animal stays lit.
                 See `.heroScrim`. */}
             <div className={styles.heroScrim} />
+            {/* The signal field, last in the layer and so over the scrim: the
+                scrim is the darkness the words live in. It is `aria-hidden`,
+                takes no pointer, and is absent without JavaScript. */}
+            <SignalField
+              className={styles.signalField}
+              posterWide="/video/lion-hero-poster-desktop.jpg"
+              posterTall="/video/lion-hero-poster-portrait.jpg"
+              clearSelector="[data-field-clear]"
+            />
           </div>
 
           <div className={styles.masthead}>
@@ -98,7 +108,7 @@ export default async function Page() {
                 Signal" since VA-62 while the cover said something else. The
                 two spans keep the break the composer chose — claim, then the
                 three verbs — where the measure is too narrow for one line. */}
-            <p className={styles.standfirst}>
+            <p className={styles.standfirst} data-field-clear>
               <span>Truth has a signal.</span>{" "}
               <span>Find it, check it, share it.</span>
             </p>
@@ -112,55 +122,55 @@ export default async function Page() {
                 path; it is noise beside the first one, so the cover keeps the
                 action and `/information-war` keeps its one entrance in the
                 system band. */}
-            <div className={styles.actions}>
+            <div className={styles.actions} data-field-clear>
               <JourneyLink href="/geopolitical-brief">Read the latest</JourneyLink>
-            </div>
-            {/* The edition rail: the bottom band of the cover, and the reason
-                a reader no longer has to scroll to learn what happened today.
-                Date, the lead's status, its headline and the way in — the
-                lion is now a threshold into an edition rather than the whole
-                first screen. It is the last thing on the cover: the support
-                chips that sat under it until UX-13 now close the first band
-                (`HeroSupportStrip`, placed by `HomepageJourney`), so the
-                reporting is read before the ask. Every field is prerendered
-                and the headline reserves two lines whatever its length, so
-                the band owns its height at first paint and shifts nothing. */}
-            <div className={styles.editionRail}>
-              <p className={styles.editionRailMeta}>
-                <span>{editionDateLabel(edition.editionDate)}</span>
-                {lead && (
-                  <span className={styles.editionRailStatus}>{lead.category}</span>
-                )}
-                {edition.state === "previous-edition" && (
-                  <span className={styles.editionRailFlag}>Previous edition</span>
-                )}
-              </p>
-              {lead ? (
-                <Link className={styles.editionRailLead} href={lead.href}>
-                  <span className={styles.editionRailHeadline}>{lead.title}</span>
-                  <span className={styles.editionRailCta}>
-                    Read the story
-                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
-                      <path d="M4 12h15M13 5l7 7-7 7" />
-                    </svg>
-                  </span>
-                </Link>
-              ) : (
-                <Link className={styles.editionRailLead} href="/geopolitical-brief">
-                  <span className={styles.editionRailHeadline}>
-                    Today&rsquo;s lead is not available right now.
-                  </span>
-                  <span className={styles.editionRailCta}>
-                    Read the latest reporting
-                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
-                      <path d="M4 12h15M13 5l7 7-7 7" />
-                    </svg>
-                  </span>
-                </Link>
-              )}
             </div>
           </div>
 
+          {/* The edition rail: the bottom band of the cover, and the reason
+              a reader no longer has to scroll to learn what happened today.
+              Date, the lead's status, its headline and the way in — the
+              lion is now a threshold into an edition rather than the whole
+              first screen. It is the last thing on the cover: the support
+              chips that sat under it until UX-13 now close the first band
+              (`HeroSupportStrip`, placed by `HomepageJourney`), so the
+              reporting is read before the ask. Every field is prerendered
+              and the headline reserves two lines whatever its length, so
+              the band owns its height at first paint and shifts nothing. */}
+          <div className={styles.editionRail} data-field-clear>
+            <p className={styles.editionRailMeta}>
+              <span>{editionDateLabel(edition.editionDate)}</span>
+              {lead && (
+                <span className={styles.editionRailStatus}>{lead.category}</span>
+              )}
+              {edition.state === "previous-edition" && (
+                <span className={styles.editionRailFlag}>Previous edition</span>
+              )}
+            </p>
+            {lead ? (
+              <Link className={styles.editionRailLead} href={lead.href}>
+                <span className={styles.editionRailHeadline}>{lead.title}</span>
+                <span className={styles.editionRailCta}>
+                  Read the story
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 12h15M13 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </Link>
+            ) : (
+              <Link className={styles.editionRailLead} href="/geopolitical-brief">
+                <span className={styles.editionRailHeadline}>
+                  Today&rsquo;s lead is not available right now.
+                </span>
+                <span className={styles.editionRailCta}>
+                  Read the latest reporting
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 12h15M13 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </Link>
+            )}
+          </div>
         </section>
         <div className={styles.readingSurface}>
         <noscript><nav className={styles.noscriptNav} aria-label="All sections"><ol>

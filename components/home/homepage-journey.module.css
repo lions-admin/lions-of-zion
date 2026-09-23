@@ -1,569 +1,527 @@
-/* Editorial hierarchy shared across the homepage. */
+/* The edition below the cover — Signal over noise (owner ruling 2026-09-17,
+   third and governing; site-wide since 2026-09-22).
+
+   Rewritten 2026-09-22 as one pass rather than a ruling appended to the
+   rulings before it. The file had grown three generations of layout — rooms,
+   plates, the numbered ledger — each overridden by the next further down, so
+   a band's real geometry was the sum of three rules nobody read together.
+   What is here is the concept alone:
+
+   - Black, type, pictures and hairlines. Structure is a rule (`--line`), never
+     a filled box; a picture sits on black with a lit edge and nothing else.
+   - The shared type scale only (`app/globals.css`). A band's name is
+     `--t-band`, the page's largest type; the desk's and the close's heads are
+     sentences and take `--t-display-xl`; an edition lead takes `--t-display`,
+     a band's lead `--t-h2`, a companion `--t-h3`. The private `--journey-*`
+     ladder that shadowed the shared one is gone.
+   - Each band is one lead and a quiet companion list beneath it on
+     hairlines, then the band's one way out on the closing rule.
+   - No folios. The `01`-`06` numbering was a position mark with no meaning a
+     reader could use (`.claude/skills/frontend-design`, "Structure must mean
+     something"); the band names carry the structure.
+   - Gold is the focal moment of a viewport, not a label colour: bylines are
+     ivory, the record action is a neutral control. Ember is only the claim. */
+
 .journey {
-  --journey-inset: clamp(20px, 5vw, 80px);
-  --journey-gap: clamp(24px, 4vw, 64px);
-  --journey-rule: color-mix(in srgb, var(--ink-hi) 14%, transparent);
-  --journey-title: clamp(34px, 4.1vw, 62px);
-  /* Record headlines, tightened 2026-09-11: the ceiling came down from 39px
-     so a long investigation title is a headline rather than a wall. The
-     floor is unchanged and the phone value below is untouched. */
-  --journey-story: clamp(26px, 2.3vw, 34px);
-  /* Four heading sizes for the whole edition, and only four: the band
-     (`title`), its lead record (`lead`), an ordinary record (`story`), and a
-     heading inside a record (`aside`). Eleven ad-hoc `clamp()`s used to set
-     record headings from their own selectors, so two records of genuinely
-     different rank could differ by a pixel while two of the same rank
-     differed by ten — the reader had no size to read rank from. Rank is
-     declared once here, and the phone re-declares these four tokens instead
-     of re-stating a size on fifteen selectors. */
-  --journey-lead: clamp(28px, 2.5vw, 38px);
-  --journey-aside: clamp(19px, 1.7vw, 24px);
-  max-width: 1600px; margin-inline: auto; padding-inline: var(--journey-inset);
-  color: var(--ink-hi); font-family: var(--face-text);
+  max-width: 1600px;
+  margin-inline: auto;
+  padding-inline: var(--home-gutter);
+  color: var(--ink-hi);
+  font-family: var(--face-text);
 }
 .journey a { color: inherit; cursor: pointer; }
 .journey :is(a, button, summary):focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
-.journey :is(h2, h3) { font-family: var(--face-display); font-weight: 400; letter-spacing: -.03em; text-wrap: pretty; overflow-wrap: break-word; }
-.journey h3 a { text-decoration: none; }
-.journey h3 a:hover { color: var(--gold); }
+.journey :is(h2, h3) { margin: 0; font-family: var(--face-display); font-optical-sizing: auto; font-weight: 400; text-wrap: pretty; overflow-wrap: break-word; }
+.journey h3 a { text-decoration: none; transition: color var(--dur-fast) var(--ease-out); }
+.journey h3 a:hover { color: var(--gold-hi); }
 .journey :is(article, figure, header, nav, dl) { min-width: 0; }
 
-/* Contents connects the cover to the first record. */
-.edition { display: grid; grid-template-columns: 1fr auto; gap: 14px 32px; align-items: baseline; padding-block: 18px 0; }
-.editionLine { margin: 0; font: 400 var(--journey-lead)/1.15 var(--face-display); letter-spacing: -.025em; }
-/* 13px, not 12px: a date is metadata, and the contract floors metadata at
-   13px on a phone. No phone override shrinks it again (UX-10). */
-.editionDate { color: var(--ink-lo); font: 400 13px/1.6 var(--face-data); text-align: end; }
-/* The contents line is a row of chips, not six words in a line.
-   It was 13px plain text with no underline, no border and no glyph — six
-   destinations that a reader had no way to know were pressable at all, in the
-   one control whose whole job is to be pressed. A chip is the cheapest resting
-   affordance there is: an outline says "control" before a single word is read,
-   and it costs nothing in colour, so it survives greyscale. */
-.contents { grid-column: 1/-1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-block: 12px; border-bottom: 1px solid var(--journey-rule); }
-.contents a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding-inline: 14px; border: 1px solid var(--journey-rule); border-radius: var(--radius-home-chrome); background: var(--surface-0); font: 500 13px/1.3 var(--face-text); text-align: center; text-decoration: none; transition: border-color var(--dur-fast), color var(--dur-fast), background-color var(--dur-fast); }
-.contents a:hover, .contents a:focus-visible { border-color: var(--gold); background: var(--gold-wash); color: var(--gold-hi); }
+/* ── The edition masthead ─────────────────────────────────────────────────
+   The journey in one sentence, the day, and the index of the six bands in
+   the order they run. The index is a ruled strip — one strong rule above,
+   no cell boxes — and each entry is a 56px target that takes the gold rule
+   on hover and focus alike, so it reads as a control in greyscale. */
+.edition { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--sp-4) var(--sp-7); padding-top: clamp(var(--sp-7), 6vw, var(--sp-9)); }
+.editionLine { margin: 0; max-width: 24ch; font: 400 var(--t-h2)/var(--t-h2-lh) var(--face-display); letter-spacing: var(--t-h2-tracking); text-wrap: balance; }
+/* Metadata: the data role, 12px on a wide screen and 13px on a phone, where
+   the contract floors it (the role steps itself; nothing here shrinks it). */
+.editionDate { composes: dataMeta from global; color: var(--ink-lo); text-align: end; }
+.contents { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); column-gap: var(--sp-4); margin-top: var(--sp-5); border-top: 1px solid var(--line-strong); }
+.contents a { display: flex; align-items: center; min-height: 56px; padding-block: var(--sp-3); color: var(--ink); font: 500 14px/1.3 var(--face-text); text-decoration: none; box-shadow: inset 0 2px 0 transparent; transition: color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out); }
+.contents a:hover, .contents a:focus-visible { color: var(--ink-hi); box-shadow: inset 0 2px 0 var(--gold); }
 
-/* Shared hierarchy: rules separate records rather than paragraphs. */
-/* Vertical economy (VA-10): the band rhythm was 48-88px a side, which on a
-   phone spent most of a screen on rules and air between records. It is now
-   34-62px — still the widest gap on the page, so the bands still read as
-   separate chapters, and no record lost a field to get there. */
-.section { padding-block: clamp(34px, 4.2vw, 62px); scroll-margin-top: calc(var(--header-h) + 20px); }
-.editorial { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "head action" "intro intro" "spread spread" "state state"; column-gap: 24px; align-items: end; }
-.sectionHead { grid-area: head; margin-bottom: 24px; }
-.sectionHead h2 { font-size: var(--journey-title); line-height: 1.03; margin: 8px 0 0; }
-/* Section labels take the site's kicker size (`--t-kicker`, UX-31); the
-   fallback is the same 13px they were set at, so nothing depends on the token
-   landing first. */
-.kicker { margin: 0 0 8px; color: var(--ink-lo); font: 400 var(--t-kicker, 0.8125rem)/1.6 var(--face-text); letter-spacing: .015em; }
-.editorial > .sectionAction { grid-area: action; justify-self: end; margin: 0 0 24px; }
-.editorial > .sectionIntro { grid-area: intro; }
-.editorial > :is(.newsSpread, .narrativeSpread, .archiveSpread, .peopleStack) { grid-area: spread; }
-.editorial > .availability { grid-area: state; }
-.sectionIntro { margin: -10px 0 22px; max-width: 60ch; font-size: 16px; line-height: 1.6; color: var(--ink); }
-.sectionAction { margin: 0; }
-/* ── The three link roles ───────────────────────────────────────────────────
+/* ── The band ─────────────────────────────────────────────────────────────
+   A band opens on a hairline with real air above it — the widest space on
+   the page is between chapters — then its kicker, then its name. */
+.section { position: relative; margin-top: clamp(var(--sp-8), 8vw, 10rem); padding-top: var(--sp-5); border-top: 1px solid var(--line); scroll-margin-top: calc(var(--header-h) + var(--sp-4)); }
+.edition + .section { margin-top: clamp(var(--sp-7), 6vw, var(--sp-9)); }
+.editorial { display: flow-root; }
+.sectionHead { margin-bottom: clamp(var(--sp-6), 4vw, var(--sp-8)); }
+.kicker { composes: kickerLabel from global; margin: 0; color: var(--ink-lo); }
+/* A band's name is the page's largest type, on one line. Where the browser
+   has no scroll timeline, or motion is reduced, it is sized from its own
+   length (`--chars`, set by `SectionHeading`) to fit the measure and simply
+   stands; where it has one, the reader's scroll draws the whole name across
+   the screen while the band passes. Either way it is the real `h2`. */
+.sectionHead h2 { margin-top: clamp(var(--sp-3), 1.6vw, var(--sp-6)); white-space: nowrap; font-size: min(var(--t-band), calc(88vw / (var(--chars, 16) * .46))); line-height: var(--t-band-lh); letter-spacing: var(--t-band-tracking); }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes titleDraw { from { transform: translateX(14vw); } to { transform: translateX(calc(-100% + 78vw)); } }
+    .sectionHead h2 { width: max-content; font-size: var(--t-band); animation: titleDraw linear both; animation-timeline: view(); animation-range: entry 10% exit 60%; will-change: transform; }
+    /* October 7 is still: its name does not travel. */
+    .archive .sectionHead h2 { width: auto; font-size: min(var(--t-band), calc(88vw / (var(--chars, 16) * .46))); animation: none; will-change: auto; }
+  }
+}
+.sectionIntro { max-width: 52ch; margin: calc(var(--sp-4) * -1) 0 clamp(var(--sp-6), 3.4vw, var(--sp-8)); color: var(--ink); font-size: var(--t-lede); line-height: var(--t-lede-lh); letter-spacing: var(--t-lede-tracking); text-wrap: pretty; }
+/* The band's one way out closes it on its own rule. */
+.sectionAction { margin: clamp(var(--sp-6), 3.4vw, var(--sp-8)) 0 0; padding-top: var(--sp-2); border-top: 1px solid var(--line); }
+
+/* ── The three link roles ──────────────────────────────────────────────────
    `JourneyLink` declares its role at the call site (`variant`) and this is the
-   only place the three are drawn. Ancestor-based re-skinning of `.link` is
-   deliberately gone: it produced six silently different treatments of one
-   component, so the primary reading action and the hub link were separated by
-   a pixel of font size — the reader had no way to rank them.
+   only place the three are drawn. Rank is carried by enclosure, not colour:
+   `primary` is the only role with a boundary, which survives greyscale.
 
-   Ranking is carried by *enclosure*, not colour: `primary` is the only role
-   with a box around it. That survives greyscale and colour-blindness, which a
-   gold-versus-ink distinction does not. */
-.link { display: inline-flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 48px; max-width: 100%; font: 500 15px/1.4 var(--face-text); text-decoration: none; transition: color var(--dur-fast), border-color var(--dur-fast), background-color var(--dur-fast); }
+   The hover and focus states are paired here, once, so no state on this page
+   is reachable by pointer and not by keyboard
+   (`tests/intro-accessibility.test.ts` names this rule by pattern). */
+.link { display: inline-flex; align-items: center; justify-content: space-between; gap: var(--sp-4); min-height: 48px; max-width: 100%; font: 500 15px/1.4 var(--face-text); text-decoration: none; transition: color var(--dur-fast), border-color var(--dur-fast), background-color var(--dur-fast); }
 .link > span { min-width: 0; }
-.link svg { flex: 0 0 21px; width: 21px; height: 21px; stroke: currentColor; stroke-width: 1.35; transition: transform var(--dur-fast); }
+.link svg { flex: 0 0 20px; width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.35; transition: transform var(--dur-fast); }
 .link:hover svg, .link:focus-visible svg { transform: translateX(4px); }
-/* The pairing is structural, not repeated per role: **no state on this page is
-   reachable by pointer and not by keyboard.** `.link:hover` and
-   `.link:focus-visible` are declared together here, once, so a fourth role
-   cannot be added that styles one and forgets the other — which is what the
-   role split of 2026-09-11 accidentally allowed by moving the base rule out
-   and leaving three copies of it behind (`tests/intro-accessibility.test.ts`
-   names this rule by pattern, and had been red since). `linkPrimary` deepens
-   the colour on top of this; the other two take it as-is. */
 .link:hover, .link:focus-visible { color: var(--gold); }
 .link:active { color: var(--gold-hi); }
 
 /* Named `linkPrimary`/`linkSection`/`linkQuiet`, not `primary`/`section`/
-   `quiet`: `.section` is already this file's band wrapper (line 36), and a
-   bare `.section` here would have re-padded every band on the page. */
+   `quiet`: `.section` is already the band wrapper above. */
 
-/* linkPrimary — the one action that opens this record. The only boxed link on
-   the page, so "what do I press here" is answered before any text is read. */
-.linkPrimary { gap: 18px; padding: 11px 16px; border: 1px solid var(--gold-line-strong); background: var(--surface-0); color: var(--ink-hi); font-weight: 600; }
+/* linkPrimary — the one action that opens this record. A control's boundary
+   (`--control-line`, 3:1) and no fill: it reads as pressable before a word is
+   read, without spending the viewport's gold on every record. */
+.linkPrimary { gap: var(--sp-4); padding: 11px 16px; border: 1px solid var(--control-line); border-radius: var(--radius-1); color: var(--ink-hi); font-weight: 600; }
 .linkPrimary:hover, .linkPrimary:focus-visible { border-color: var(--gold); background: var(--gold-wash); color: var(--gold-hi); }
 
-/* linkSection — the way out to a hub. Quieter than the records above it by
-   design: leaving the section must never outrank reading it. */
-.linkSection { padding-block: 10px; border-bottom: 1px solid transparent; font-size: 14px; }
-.linkSection:hover, .linkSection:focus-visible { border-bottom-color: currentColor; }
+/* linkSection — the way out to a hub. Quieter than the records above it:
+   leaving the section must never outrank reading it. */
+.linkSection { padding-block: 10px; color: var(--ink-hi); }
 
 /* linkQuiet — a row that is its own title, or a closing aside. Sized by context. */
-.linkQuiet { padding-block: 10px; border-bottom: 1px solid var(--journey-rule, var(--line)); }
+.linkQuiet { padding-block: 10px; border-bottom: 1px solid var(--line); }
 .linkQuiet:hover, .linkQuiet:focus-visible { border-color: currentColor; }
-.meta { font: 400 13px/1.6 var(--face-data); color: var(--ink-lo); }
-/* The edition's one metadata row, and it always comes *after* the headline.
-   Section label, witness, timestamp — whatever a band's record has, in one
-   13px line under the name of the thing. It used to sit above the headline in
-   the news band and be scattered across three separate elements elsewhere. */
-.byline { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin: 10px 0 0; }
-.byline > span { font-size: 13px; font-weight: 500; color: var(--gold); }
-.summary { max-width: 60ch; margin: 12px 0 0; color: var(--ink); font-size: 16px; line-height: 1.65; }
+
+/* ── Record furniture ──────────────────────────────────────────────────── */
+.meta { composes: dataValue from global; color: var(--ink-lo); }
+/* The edition's one metadata row, after the headline: the record's kind in
+   the kicker voice, then its date in the data face. Ivory, not gold. */
+.byline { display: flex; flex-wrap: wrap; align-items: baseline; align-content: start; gap: 4px var(--sp-4); margin: var(--sp-3) 0 0; }
+.byline > span { color: var(--ink); font: 500 var(--t-kicker)/1.5 var(--face-text); letter-spacing: var(--t-kicker-tracking); text-transform: uppercase; }
+.summary { max-width: 60ch; margin: var(--sp-3) 0 0; color: var(--ink); font-size: 16px; line-height: 1.65; }
 .previewRest { display: none; }
 .summary, .finding p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; }
-.context { max-width: 64ch; margin: 16px 0 0; color: var(--ink); font-size: 14px; line-height: 1.65; }
-.context { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; }
+.context { max-width: 64ch; margin: var(--sp-4) 0 0; color: var(--ink); font-size: 14px; line-height: 1.65; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; }
 .contextLabel, .finding > span { display: block; margin-bottom: 6px; color: var(--ink-lo); font: 500 13px/1.6 var(--face-text); }
 /* UX-11. The source label is a standalone link in a 13px line, so its hit
-   area is padded to 44px — on the link, which an inline element takes without
-   changing its line box, and on the paragraph, which gives the padding back in
-   margin so the text does not move and the phone's clamp box (overflow:
-   hidden) still contains the padded target. */
+   area is padded to 44px on the link and given back in margin on the line. */
 .sources { margin: 0 0 -8px; padding-block: 14px; max-width: 72ch; color: var(--ink-lo); font-size: 13px; line-height: 1.55; overflow-wrap: anywhere; }
-.sources a { padding-block: 14px; text-decoration-color: var(--journey-rule); text-underline-offset: 3px; }
+.sources a { padding-block: 14px; text-decoration-color: var(--line-strong); text-underline-offset: 3px; }
 .sources a:hover { color: var(--ink-hi); }
-.availability { margin: 16px 0 0; max-width: 60ch; color: var(--ink-lo); font-size: 14px; line-height: 1.6; }
+.availability { margin: var(--sp-4) 0 0; max-width: 60ch; color: var(--ink-lo); font-size: 14px; line-height: 1.6; }
 
-/* The disclosure stays visible. Secondary provenance expands in place.
-   The top margin is new: the picture now follows the headline and its byline
-   instead of opening the card, so it needs air above it as well as below. */
-.figure { margin: 14px 0 16px; }
-/* UX-12. A lazy tile used to paint as a flat lighter rectangle until its
-   bytes arrived, which on this site reads as a broken image. The frame now
-   carries a tonal ground and, under the picture, the same disclosure the
-   caption prints — the image sits above both and simply covers them when it
-   lands (`next/image` keeps a pending `img` transparent, alt text included).
-   No JavaScript decides the swap and the geometry is the image's own
-   `aspect-ratio`, so nothing moves: CLS stays at 0. */
-/* The plate (`app/globals.css` `.mediaPlate`) is what keeps an illustration
-   drawn on black from reading as a hole in the page: a `--line-strong` edge,
-   a lift, a lit inner edge over the picture. Frames stay square here, as
-   they were. The gradient is this band's own loading ground and stays. */
-.frame { composes: mediaPlate from global; background: linear-gradient(160deg, var(--surface-2), var(--surface-0)); }
+/* ── Pictures ──────────────────────────────────────────────────────────────
+   A picture is a picture on black: no plate, no border, a lit inner edge laid
+   over the image so an illustration drawn on black still has an edge. The
+   frame's ground and the disclosure under the image are what shows while a
+   lazy tile is on its way (UX-12); the image covers both when it lands. */
+.figure { margin: var(--sp-4) 0 0; }
+.frame { position: relative; display: block; overflow: hidden; isolation: isolate; background: var(--surface-0); }
+.frame::after { content: ""; position: absolute; inset: 0; z-index: 2; box-shadow: inset 0 0 0 1px var(--edge-hi); pointer-events: none; }
 .frame img { position: relative; z-index: 1; }
-/* The edition's lead picture takes the one gold moment on the band: the
-   same plate, its edge in the decorative gold line. No other frame does. */
-.newsSpread > article[data-rank="lead"] .frame { border-color: var(--gold-line); }
-/* The record answers as one object: the picture scales by 2% inside its
-   plate (no layout moves), and the companion's rule firms up. Scoped to the
-   bands that are reporting — the October 7 archive's pictures do not move. */
-.newsSpread > article[data-rank="companion"] { transition: border-color var(--dur-fast) var(--ease-out); }
-.newsSpread > article[data-rank="companion"]:hover { border-color: var(--line-strong); }
-@media (prefers-reduced-motion: no-preference) {
-  :is(.newsSpread, .narrativeSpread, .peopleStack) article:is(:hover, :has(a:focus-visible)) .frame img { transform: scale(1.02); }
-}
 .framePlaceholder { position: absolute; inset: auto 12px 10px; z-index: 0; color: var(--ink-lo); font: 500 13px/1.4 var(--face-text); }
 .figure img { display: block; width: 100%; height: auto; aspect-ratio: 16/10; object-fit: cover; }
-/* 13px, not 12px: the caption and its disclosure are the contract's own
-   example of a phone floor (UX-10). */
-.figure figcaption { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 14px; margin-top: 6px; color: var(--ink-lo); font-size: 13px; line-height: 1.5; }
+/* The record answers as one object: its picture scales by 2% inside the
+   frame. Reporting bands only — October 7's pictures do not move. */
+@media (prefers-reduced-motion: no-preference) {
+  :is(.newsSpread, .narrativeSpread, .peopleStack) article .frame img { transition: scale var(--dur-slow) var(--ease-out); }
+  :is(.newsSpread, .narrativeSpread, .peopleStack) article:is(:hover, :has(a:focus-visible)) .frame img { scale: 1.02; }
+}
+/* 13px: the caption and its disclosure are the contract's own example of a
+   phone floor (UX-10). The disclosure is the first line, always visible. */
+.figure figcaption { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 14px; margin-top: var(--sp-2); color: var(--ink-lo); font-size: 13px; line-height: 1.5; }
 .disclosure { color: var(--ink); font: 500 13px/1.6 var(--face-text); }
 .captionText { display: block; max-width: 75ch; }
 .provenance { min-width: 0; }
-/* UX-11. The disclosure toggle and the credit links ("Image source", the
-   licence) are controls, so each takes a 44px hit area the same way `.sources`
-   does: padding on the control, the same amount given back in margin, so the
-   caption's rhythm is unchanged. */
-.provenance summary { width: fit-content; padding-block: 13px; margin-block: -9px; cursor: pointer; text-decoration: underline; text-decoration-color: var(--journey-rule); text-underline-offset: 3px; }
+.provenance summary { width: fit-content; padding-block: 13px; margin-block: -9px; cursor: pointer; text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 3px; }
 .provenance[open] { flex-basis: 100%; }
 .provenance[open] summary { margin-bottom: -3px; }
 .credit { display: block; padding-block: 14px; margin: -10px 0 -14px; }
-.credit a { padding-block: 14px; text-underline-offset: 3px; text-decoration-color: var(--journey-rule); }
+.credit a { padding-block: 14px; text-underline-offset: 3px; text-decoration-color: var(--line-strong); }
 .figure[data-media-role="safe-cover"] .captionText { flex-basis: 100%; }
+.portrait img { aspect-ratio: 4/5; }
 
-/* Reporting: an open lead and a quieter companion column.
-   Card order is headline → byline → picture → body, in the DOM, so every
-   side-by-side arrangement below places the picture explicitly rather than
-   relying on it coming first. */
-.newsSpread { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: var(--journey-gap); align-items: start; }
-.newsSpread h3 { margin: 0; max-width: 30ch; font-size: var(--journey-lead); line-height: 1.12; }
-.newsSpread h3 a { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
-.newsSpread > article[data-rank="companion"] { border-left: 1px solid var(--journey-rule); padding-left: var(--journey-gap); }
-.newsSpread > article[data-rank="companion"] h3 { font-size: var(--journey-story); line-height: 1.15; }
-.newsSpread > article[data-rank="companion"] .figure img { aspect-ratio: 3/2; }
+/* Headline over picture: the overlay comes first inside the frame, so the
+   reading order is still headline → picture, and the caption — disclosure
+   first — stays under the frame, uncovered. */
+.frameOverlay { position: absolute; inset: auto 0 0; z-index: 3; display: grid; align-content: end; padding: clamp(var(--sp-5), 3.4vw, var(--sp-8)); padding-top: clamp(90px, 16vw, 240px); background: linear-gradient(to top, color-mix(in srgb, var(--ground) 94%, transparent) 0, color-mix(in srgb, var(--ground) 82%, transparent) 40%, color-mix(in srgb, var(--ground) 40%, transparent) 72%, transparent); }
+.frameOverlay h3 { max-width: 18ch; font-size: var(--t-display); line-height: var(--t-display-lh); letter-spacing: var(--t-display-tracking); text-wrap: balance; }
+.frameOverlay h3 a { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; }
+.frameOverlay .byline { margin-top: var(--sp-4); }
+.figure[data-overlay] { margin: 0; }
+.figure[data-overlay] img { aspect-ratio: 2/1; }
+
+/* ── One grid for the whole edition ───────────────────────────────────────
+   Every lead and every companion row below is laid on the same three tracks
+   — 2 : 5 : 5 — so the reading column (the third track) starts on one
+   vertical from the first band to the last: a lead's source and way in, a
+   companion's words, a dossier's cover, the archive's testimony. A lead
+   spans the first two tracks with its name; a companion puts its thumbnail
+   in the first. */
+
+/* ── The companion list ───────────────────────────────────────────────────
+   Every band's second and later records are the same object: a row on a
+   hairline, on one three-track grid — a thumbnail in the narrow margin track,
+   the name of the record, then what is read and the way in. A row without a
+   picture lets its name take the margin track too, so the reading column
+   still starts on the same line in every row. Placed by area because the DOM
+   order is headline → byline → picture → body and stays that way. */
+:is(.newsSpread, .archiveSpread) > article[data-rank="companion"],
+.investigation[data-rank="companion"] { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 5fr) minmax(0, 5fr); grid-template-rows: auto 1fr; column-gap: var(--sp-7); align-content: start; margin-top: clamp(var(--sp-6), 3vw, var(--sp-7)); padding-top: clamp(var(--sp-5), 2.4vw, var(--sp-6)); border-top: 1px solid var(--line); }
+:is(.newsSpread, .archiveSpread) > article[data-rank="companion"] { grid-template-areas: "title title body" "byline byline body"; }
+:is(.newsSpread, .archiveSpread) > article[data-rank="companion"]:has(> .figure) { grid-template-areas: "media title body" "media byline body"; }
+:is(.newsSpread, .archiveSpread) > article[data-rank="companion"] > h3 { grid-area: title; }
+:is(.newsSpread, .archiveSpread) > article[data-rank="companion"] > .byline { grid-area: byline; }
+:is(.newsSpread, .archiveSpread) > article[data-rank="companion"] > .figure { grid-area: media; margin: 0; }
+:is(.newsSpread, .archiveSpread) > article[data-rank="companion"] :is(.summary, .warning:first-child) { margin-top: 0; }
+:is(.newsSpread, .archiveSpread, .narrativeSpread) article[data-rank="companion"] h3 { max-width: 26ch; font-size: var(--t-h3); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tracking); }
+:is(.newsSpread, .archiveSpread) > article[data-rank="companion"] .figure img,
+.investigation[data-rank="companion"] .figure img { aspect-ratio: 4/3; }
+
+/* ── News & Analysis ──────────────────────────────────────────────────────
+   The edition's lead sets its headline over its own picture at the display
+   size; the picture runs the full measure. Under it, the lede in the wide
+   column and its source and way in in the narrow one. */
+.newsSpread { display: grid; grid-template-columns: minmax(0, 1fr); }
+.newsSpread > article { min-width: 0; }
+.newsBody { grid-area: body; min-width: 0; }
+.newsSpread > article[data-rank="lead"] > h3 { max-width: 20ch; font-size: var(--t-display); line-height: var(--t-display-lh); letter-spacing: var(--t-display-tracking); }
+.newsSpread > article[data-rank="lead"] > h3 a { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; }
+.newsSpread > article[data-rank="lead"] > .newsBody { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 5fr) minmax(0, 5fr); column-gap: var(--sp-7); align-items: start; margin-top: clamp(var(--sp-5), 2.4vw, var(--sp-6)); }
+.newsSpread > article[data-rank="lead"] > .newsBody > * { grid-column: 1 / 3; }
+.newsSpread > article[data-rank="lead"] > .newsBody > .summary { margin: 0; max-width: 46ch; color: var(--ink-hi); font-size: var(--t-lede); line-height: var(--t-lede-lh); letter-spacing: var(--t-lede-tracking); }
+.newsSpread > article[data-rank="lead"] > .newsBody > .sources { grid-column: 3; grid-row: 1; margin-top: -14px; }
+.newsSpread > article[data-rank="lead"] > .newsBody > .link { grid-column: 3; grid-row: 2; justify-self: start; }
 .newsSpread > article[data-rank="companion"] .context { display: none; }
-.newsSpread[data-count="1"] { grid-template-columns: 1fr; }
-.newsSpread[data-count="1"] > article { display: grid; grid-template-columns: 1fr 1fr; gap: var(--journey-gap); grid-template-areas: "title media" "byline media" "body media"; align-content: start; }
-.newsSpread[data-count="1"] > article > h3 { grid-area: title; }
-.newsSpread[data-count="1"] > article > .byline { grid-area: byline; }
-.newsSpread[data-count="1"] > article > .figure { grid-area: media; margin-top: 0; }
-.newsSpread[data-count="1"] > article > .newsBody { grid-area: body; }
-.newsBody { min-width: 0; }
+.newsSpread > article[data-rank="companion"] .link { margin-top: var(--sp-3); }
 
 /* The support rail (UX-13, owner-amended): one line between the news band's
    close and the narratives' opening rule, so the ask comes after the first
-   value and before the second. The links stay direct and keep full touch
-   targets; there is no entrance motion, because a control that arrives
-   after the page is a control the reader saw appear.
-   Owner ruling 2026-09-11: the two channels are no longer a whisper. Each is
-   a gold-outlined chip in the cover chrome's corner — the same control the
-   header's Support Us now draws — with the label at 15px beside them in ink
-   rather than muted. Still after the news band, never over the lion. */
-.supportStrip { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 20px; min-height: 48px; padding-block: 14px; border-top: 1px solid var(--journey-rule); }
-.supportLabel { color: var(--ink); font: italic 16px/1.3 var(--face-navigation-display); }
-.supportList { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin: 0; padding: 0; list-style: none; }
-.supportChip { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding-inline: 18px; border: 1px solid var(--gold-line-strong); border-radius: var(--radius-home-chrome); color: var(--gold-hi); font: 500 15px/1 var(--face-navigation); text-decoration: none; white-space: nowrap; transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
+   value and before the second. The two channels are gold-outlined chips —
+   the ask is this seam's one focal moment. No entrance motion: a control
+   that arrives after the page is a control the reader saw appear. */
+.supportStrip { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--sp-3) var(--sp-5); min-height: 48px; margin-top: clamp(var(--sp-7), 5vw, var(--sp-8)); padding-block: var(--sp-4); border-block: 1px solid var(--line); }
+.supportLabel { color: var(--ink); font: italic 400 var(--t-h3)/1.3 var(--face-display); letter-spacing: var(--t-h3-tracking); }
+.supportList { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); margin: 0; padding: 0; list-style: none; }
+.supportChip { display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2); min-height: 44px; padding-inline: 18px; border: 1px solid var(--gold-line-strong); border-radius: var(--radius-1); color: var(--gold-hi); font: 500 15px/1 var(--face-navigation); text-decoration: none; white-space: nowrap; transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
 .supportChipArrow { font-size: 13px; color: var(--gold); }
-.supportChip:hover { border-color: var(--gold); background: var(--gold-wash); color: var(--gold-hi); }
+.supportChip:hover, .supportChip:focus-visible { border-color: var(--gold); background: var(--gold-wash); color: var(--gold-hi); }
 .supportChip:active { background: color-mix(in srgb, var(--gold) 16%, transparent); }
 
-/* Research: the kind of record, the verdict on it, then the claim itself —
-   and nothing at all between the verdict and the claim. The timestamp went
-   down into the body's byline, where the rest of the edition's chrome sits. */
-.investigations { border-top: 1px solid var(--journey-rule); }
-.narrativeSpread { display: grid; gap: 28px; }
-.investigation { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr); grid-template-areas: "status status" "claim claim" "cover body"; gap: 16px var(--journey-gap); align-content: start; }
-.investigation[data-has-media="false"] { grid-template-columns: minmax(0, 1fr); grid-template-areas: "status" "claim" "body"; }
-.investigation + .investigation { padding-top: 24px; border-top: 1px solid var(--journey-rule); }
-.dossierStatus { grid-area: status; display: grid; gap: 6px; }
-.dossierStatus > .kicker { margin: 0; }
+/* ── Fake Resistance ───────────────────────────────────────────────────────
+   The record, the verdict on it, then the claim — nothing between the verdict
+   and the claim — and what the desk found beneath. The claim is set as noise:
+   somebody else's sentence, ember and italic at the h3 cap (the `noise` role,
+   on the link so its `1em` is the heading's size), with a scan line drawn
+   through it; `--ember-soft` on black is 9.0:1 and the lines take a fifth of
+   that at most. The finding is set as signal: upright ivory on the one amber
+   rule. Status is a bar and a word, never colour alone. */
+.narrativeSpread { display: grid; grid-template-columns: minmax(0, 1fr); }
+.investigation { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 5fr) minmax(0, 5fr); grid-template-rows: auto auto 1fr; grid-template-areas: "status status cover" "claim claim cover" "body body cover"; gap: var(--sp-4) var(--sp-7); align-content: start; }
+/* A text-led lead sets its claim or headline beside what the desk found,
+   rather than leaving the wide screen's right half empty. */
+.investigation[data-has-media="false"] { grid-template-rows: auto 1fr; grid-template-areas: "status status body" "claim claim body"; }
+.investigation[data-rank="companion"] { row-gap: var(--sp-3); grid-template-rows: auto auto 1fr; grid-template-areas: "cover status body" "cover claim body" "cover . body"; }
+.investigation[data-rank="companion"][data-has-media="false"] { grid-template-areas: "status status body" "claim claim body" ". . body"; }
+.dossierStatus { grid-area: status; display: grid; gap: var(--sp-2); }
 .dossierCover { grid-area: cover; min-width: 0; }
-.dossier { grid-area: body; min-width: 0; }
 .dossierCover .figure { margin: 0; }
 .dossierCover .figure img { aspect-ratio: 8/5; }
-.investigation > h3 { grid-area: claim; margin: 0; max-width: 32ch; font-size: var(--journey-story); line-height: 1.13; }
-/* A claim this desk is refuting is set at `--journey-aside` — the size of a
-   heading *inside* a record — and never at a headline size. Measured at 390px
-   before this: the claim was the second-largest text on the whole page, above
-   every headline the desk had actually written, which is the one typographic
-   statement a counter-disinformation site must not make. The cap lives on the
-   kind, so it holds for every claim rather than for the ones an author
-   remembered; `case` and `article` headings are this desk's own work and keep
-   `--journey-story`. */
-.investigation[data-kind="watch"] > h3 { font-size: var(--journey-aside); max-width: 46ch; line-height: 1.25; }
-.investigation .byline { margin: 0 0 6px; }
-.verdict { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0; font-size: 14px; line-height: 1.5; }
-.verdict::before { content: ""; align-self: center; width: 6px; height: 6px; border-radius: 50%; background: var(--ink-lo); }
-.verdictLabel { font-weight: 600; }
+.dossier { grid-area: body; min-width: 0; }
+.investigation > h3 { grid-area: claim; max-width: 24ch; font-size: var(--t-h2); line-height: var(--t-h2-lh); letter-spacing: var(--t-h2-tracking); }
+.investigation[data-kind="watch"] > h3,
+.investigation[data-kind="watch"][data-rank="companion"] > h3 { position: relative; max-width: 46ch; padding-left: var(--sp-4); border-left: 1px solid var(--ember); font-size: var(--t-h3); line-height: 1.32; letter-spacing: -.012em; }
+.investigation[data-kind="watch"] > h3::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent 0 3px, color-mix(in srgb, var(--ground) 42%, transparent) 3px 4px); pointer-events: none; }
+.claim { composes: noise from global; }
+.investigation[data-kind="watch"] > h3 a:hover { color: var(--ember-peak); }
+.investigation .byline { margin: 0 0 var(--sp-2); }
+.verdict { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px var(--sp-3); margin: 0; padding: 2px 0 2px var(--sp-3); border-left: 3px solid var(--ink-lo); font-size: 15px; line-height: 1.5; }
+.verdictLabel { font-weight: 600; color: var(--ink-hi); }
 .verdictMeaning { flex: 1 1 22ch; color: var(--ink-lo); font-size: 13px; }
-.verdict[data-tone="danger"]::before { background: var(--state-danger); }
-.verdict[data-tone="warn"]::before { background: var(--gold); }
-.verdict[data-tone="ok"]::before { background: var(--state-ok); }
-.finding { margin-top: 14px; padding: 4px 0 4px 14px; border-left: 2px solid var(--gold); }
-.finding p { margin: 0; font-size: 15px; line-height: 1.6; color: var(--ink); }
+.verdict[data-tone="danger"] { border-left-color: var(--state-danger); }
+.verdict[data-tone="warn"] { border-left-color: var(--gold); }
+.verdict[data-tone="ok"] { border-left-color: var(--state-ok); }
+.finding { composes: signal from global; margin-top: var(--sp-4); padding-block: 4px; }
+.finding p { margin: 0; max-width: 58ch; color: var(--ink-hi); font-size: 17px; line-height: 1.6; }
 
-/* Archive records share the edition's palette; their structure distinguishes them. */
-.archive {
-  background: var(--ground);
-  color: var(--ink-hi);
-}
-.archiveSpread { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: var(--journey-gap); align-items: start; }
-.archiveSpread h3 { margin: 0; font-size: var(--journey-lead); line-height: 1.15; }
-.archiveSpread > article[data-kind="testimony"] h3 { max-width: 28ch; }
-.archiveSpread > article[data-kind="documentation"] h3 { font-size: var(--journey-story); }
-.archiveSpread > article[data-kind="documentation"] .figure img { aspect-ratio: 4/3; }
-/* The witness's name is an attribution, one step quieter than the headline it
-   now follows, not a second headline of its own. It shares the byline row with
-   the record's kind, so `> .witness` has to out-specify `.byline > span`. */
-.byline > .witness { color: var(--ink-lo); font: 500 13px/1.5 var(--face-text); letter-spacing: .02em; text-transform: uppercase; }
-/* A labeled callout, not another paragraph: the label reads first so the
-   note is unmistakably a warning before its text is, and the extra bottom
-   margin keeps the action below it from reading as part of the same block. */
-.warning { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 10px; margin: 14px 0 20px; padding-left: 14px; border-left: 2px solid var(--gold-dim); color: var(--ink); font-size: 14px; line-height: 1.6; }
+/* ── October 7 ─────────────────────────────────────────────────────────────
+   Where the page goes silent: no stream, no travelling name, no pointer
+   answer on a headline or a picture. What names a record — headline, byline,
+   picture — holds the left column; what is read — the words, the content
+   note, the source, the way in — runs down the right. */
+.archive { background: var(--ground); color: var(--ink-hi); }
+.archive h3 a:hover { color: inherit; }
+.archiveSpread { display: grid; grid-template-columns: minmax(0, 1fr); }
+.archiveSpread > article[data-rank="lead"] { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 5fr) minmax(0, 5fr); grid-template-rows: auto auto 1fr; grid-template-areas: "title title body" "byline byline body" "media media body"; column-gap: var(--sp-7); align-items: start; }
+.archiveSpread > article[data-rank="lead"] > h3 { grid-area: title; font-size: var(--t-h2); line-height: var(--t-h2-lh); letter-spacing: var(--t-h2-tracking); }
+.archiveSpread > article[data-rank="lead"] > .byline { grid-area: byline; }
+.archiveSpread > article[data-rank="lead"] > .figure { grid-area: media; margin-top: var(--sp-5); }
+.archiveBody { grid-area: body; display: grid; justify-items: start; align-content: start; min-width: 0; }
+.archiveBody > .summary { margin-top: 0; }
+.archiveBody > .warning:first-child { margin-top: 0; }
+.archiveSpread > article[data-kind="testimony"] h3 { max-width: 20ch; }
+/* A testimony is somebody's own words, so its preview is set in the reading
+   serif, as speech rather than as a card's blurb. */
+.archiveSpread > article[data-kind="testimony"] .summary { max-width: 34ch; margin-bottom: var(--sp-5); color: var(--ink-hi); font: 400 var(--t-h3)/1.4 var(--face-display); letter-spacing: var(--t-h3-tracking); -webkit-line-clamp: 6; line-clamp: 6; }
+.archiveSpread > article[data-kind="documentation"] .figure img { aspect-ratio: 3/2; }
+/* The witness's name is an attribution, one step quieter than the kind it
+   shares the byline with. */
+.byline > .witness { color: var(--ink-lo); }
+/* A labelled callout, not another paragraph: the label reads first so the
+   note is a warning before its text is. */
+.warning { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 10px; margin: var(--sp-4) 0 var(--sp-5); padding-left: 14px; border-left: 2px solid var(--gold-dim); color: var(--ink); font-size: 14px; line-height: 1.6; }
 .warningLabel { flex: 0 0 auto; color: var(--gold-hi); font: 600 13px/1.4 var(--face-text); text-transform: uppercase; letter-spacing: .04em; }
-/* Weight and enclosure now come from the `primary` role itself; this only
-   sets the card's own spacing above it. */
-.archiveSpread .link { margin-top: 8px; }
+.archiveSpread .link { margin-top: var(--sp-2); }
 
-.portrait img { aspect-ratio: 4/5; }
-
-/* `.history`, `.historySpread` and `.era` were the standalone Israel's Story
-   band's rules. That band stopped having a section of its own on 2026-09-06,
-   when The People of Israel absorbed it, and the chapters are roster rows now.
-   The rules are removed rather than left behind: dead CSS in a module is
-   invisible to TypeScript and to ESLint alike, and the next reader has no way
-   to tell it from a rule something still depends on. `/israels-story` keeps
-   its address and its own stylesheet (`LEGACY_SECTION_PAGES`). */
-
-/* The People chapter: one feature in full, and the rest as a roster.
-   On a wide viewport the roster is the second column — which is also what
-   fixes the half-empty row. `.featureSpread` put one text-led feature in a
-   1.35fr column and left the 0.85fr beside it blank, so the chapter with the
-   most to show was the one that looked emptiest. */
-.peopleChapter { row-gap: var(--sp-5); }
-.peopleStack { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: var(--journey-gap); align-items: start; }
-/* Nothing live this edition: the roster is the chapter, at full width. */
-.peopleStack[data-lead="false"] { grid-template-columns: 1fr; }
+/* ── The People of Israel ─────────────────────────────────────────────────
+   One feature in full — the one band that leads with a face or a place — and
+   the rest as a roster read down its left edge. */
+.peopleStack { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(var(--sp-6), 3.4vw, var(--sp-8)); align-items: start; }
 .peopleLead { display: grid; align-content: start; min-width: 0; }
-.peopleLead h3 { margin: 0; font-size: var(--journey-lead); line-height: 1.1; }
+.peopleLead:has(> .figure) { grid-template-columns: minmax(0, 2fr) minmax(0, 5fr) minmax(0, 5fr); grid-template-rows: auto auto auto auto 1fr; grid-template-areas: "media media title" "media media byline" "media media summary" "media media sources" "media media action"; column-gap: var(--sp-7); }
+.peopleLead:has(> .figure.portrait) { grid-template-areas: "media title title" "media byline byline" "media summary summary" "media sources sources" "media action action"; }
+.peopleLead:has(> .figure[data-overlay]) { grid-template-rows: none; grid-template-areas: "media media media" "summary summary sources" "summary summary action"; }
+.peopleLead:has(> .figure) > .figure { grid-area: media; margin: 0; }
+.peopleLead:has(> .figure) > h3 { grid-area: title; }
+.peopleLead:has(> .figure) > .byline { grid-area: byline; }
+.peopleLead:has(> .figure) > .summary { grid-area: summary; }
+.peopleLead:has(> .figure) > .sources { grid-area: sources; }
+.peopleLead:has(> .figure) > .link { grid-area: action; align-self: start; }
+.peopleLead > h3 { max-width: 22ch; font-size: var(--t-h2); line-height: var(--t-h2-lh); letter-spacing: var(--t-h2-tracking); }
+.peopleLead .summary { font-size: 17px; }
 .peopleLead .link { justify-self: start; margin-top: var(--sp-3); }
+.peopleLead:has(> .figure[data-overlay]) > .figure { margin-bottom: clamp(var(--sp-5), 2.4vw, var(--sp-6)); }
+.peopleLead:has(> .figure[data-overlay]) > .summary { margin-top: 0; max-width: 46ch; color: var(--ink-hi); font-size: var(--t-lede); line-height: var(--t-lede-lh); letter-spacing: var(--t-lede-tracking); }
+.peopleLead:has(> .figure[data-overlay]) > .sources { margin-top: -14px; }
 
-/* A roster row is its own title, so the `quiet` role is the whole control and
-   the row's context sits under it. No second size is declared here: the role
-   carries its own, the way the other two do since 2026-09-11. */
+/* The roster is an index: the kind of row hangs in a margin column, the name
+   runs beside it, and the kinds are told apart by voice — a person's name in
+   the display serif, the Fallen in its italic behind a short rule, a chapter
+   of history with its date in the data face, a report in the text face. */
 .roster { min-width: 0; }
-.roster > .kicker { margin-bottom: 4px; }
-.roster ol { display: grid; align-content: start; margin: 0; padding: 0; border-top: 1px solid var(--journey-rule); list-style: none; }
-/* The row draws no rule of its own: the `quiet` role already carries one,
-   and that hairline is the row's bottom edge. Two rules four pixels apart —
-   which is what `.contextShelf li` and `.linkQuiet` used to draw together —
-   is noise, and overriding the role's border here to remove one of them would
-   be exactly the ancestor re-skin the roles were introduced to end. The
-   row's context sits under the rule, nearer its own title than the next
-   one. */
-.roster li { display: grid; }
-.rosterMeta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 6px 0 14px; color: var(--ink-lo); font: 400 13px/1.4 var(--face-data); letter-spacing: .04em; }
+.roster > .kicker { margin-bottom: var(--sp-3); }
+.roster ol { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--sp-7); align-content: start; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.roster li { display: grid; grid-template-columns: minmax(0, 8.5rem) minmax(0, 1fr); grid-template-areas: "meta link"; column-gap: var(--sp-4); align-items: baseline; border-bottom: 1px solid var(--line); }
+.roster li > .link { grid-area: link; border-bottom: 0; }
+.roster li[data-voice="courage"] > .link, .roster li[data-voice="fallen"] > .link { font: 400 21px/1.25 var(--face-display); letter-spacing: -.015em; }
+.roster li[data-voice="fallen"] > .link { font-style: italic; }
+.roster li[data-voice="fallen"] .rosterMeta > span:first-child::before { content: ""; display: inline-block; width: 14px; margin-inline-end: var(--sp-2); border-top: 1px solid var(--gold-dim); vertical-align: middle; }
+.rosterMeta { grid-area: meta; display: flex; flex-wrap: wrap; align-items: center; gap: 4px var(--sp-3); margin: 0; padding-block: 14px; color: var(--ink-lo); font: 400 13px/1.4 var(--face-text); letter-spacing: .01em; }
+.roster li[data-voice="chapter"] .rosterMeta { font-family: var(--face-data); letter-spacing: .04em; }
 /* A word and a border, never a colour on its own (WCAG 1.4.1). */
-/* 13px, not 12px: this band's floor for a metadata label (UX-10). */
-.rosterFlag { padding: 1px 8px; border: 1px solid var(--gold-dim); border-radius: var(--radius-home-chrome); color: var(--gold-hi); font: 500 13px/1.5 var(--face-text); letter-spacing: .04em; text-transform: uppercase; }
-.rosterNote { margin: var(--sp-3) 0 0; max-width: 52ch; color: var(--ink-lo); font-size: 14px; line-height: 1.6; }
+.rosterFlag { padding: 1px var(--sp-2); border: 1px solid var(--gold-dim); border-radius: var(--radius-1); color: var(--gold-hi); font: 500 13px/1.5 var(--face-text); letter-spacing: .04em; text-transform: uppercase; }
+.rosterNote { margin: var(--sp-4) 0 0; max-width: 52ch; color: var(--ink-lo); font-size: 14px; line-height: 1.6; }
 .rosterNote strong { color: var(--ink); font-weight: 600; }
 
-/* One proof of method: the source-counting test, its one interaction, and the
-   two doors out. The five-stage walkthrough, the two branch explanations and
-   the archive chain that used to sit here are gone from the homepage — the
-   walkthrough to `/information-war`, the branches because that page already
-   said the same two sentences (VA-21). */
-.system { border-top: 1px solid var(--journey-rule); }
-.systemHead { display: grid; grid-template-columns: 1.15fr 1fr; align-items: end; gap: var(--journey-gap); margin-bottom: 24px; }
-.systemHead h2 { margin: 10px 0 0; max-width: 17ch; font-size: var(--journey-title); line-height: 1.03; }
-.systemHead > p { max-width: 48ch; margin: 0; color: var(--ink); font-size: 16px; line-height: 1.7; }
-.systemNote { max-width: 72ch; margin: 0 0 20px; color: var(--ink-lo); font-size: 13px; line-height: 1.6; }
-.amplification { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, .85fr); column-gap: var(--journey-gap); align-items: start; margin: 24px 0 22px; }
-/* 13px, not 12px: this figure is the band's only module now, and its
-   disclosure line is a caption — the contract's floor for one is 13px. */
-.amplification figcaption { grid-column: 1/-1; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; padding: 14px 0; color: var(--ink-lo); font-size: 13px; line-height: 1.5; }
-.amplification figcaption .kicker { margin: 0; }
-.echoSequence { position: relative; list-style: none; margin: 0; padding: 0; }
-.echoSequence::before { content: ""; position: absolute; top: 38px; bottom: 56px; left: 13px; width: 1px; background: var(--journey-rule); transition: background-color 300ms; }
+/* ── Behind the desk ───────────────────────────────────────────────────────
+   One proof of method: the source-counting test, its one interaction, and
+   the two doors out. Its head is a sentence rather than a name, so it cannot
+   run the measure on one line the way a band's name does; it takes the
+   masthead tier, one step under the band tier. */
+.systemHead { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 5fr) minmax(0, 5fr); align-items: end; gap: var(--sp-6) var(--sp-7); margin-bottom: clamp(var(--sp-6), 3.4vw, var(--sp-8)); }
+.systemHead h2, .supportHead h2 { margin-top: var(--sp-3); font-size: var(--t-display-xl); line-height: var(--t-display-xl-lh); letter-spacing: var(--t-display-xl-tracking); }
+.systemHead > div { grid-column: 1 / 3; }
+.systemHead h2 { max-width: 17ch; }
+.systemHead > p { grid-column: 3; max-width: 44ch; margin: 0; color: var(--ink); font-size: var(--t-lede); line-height: var(--t-lede-lh); text-wrap: pretty; }
+.systemNote { max-width: 72ch; margin: 0 0 var(--sp-5); color: var(--ink-lo); font-size: 13px; line-height: 1.6; }
+.amplification { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 5fr) minmax(0, 5fr); column-gap: var(--sp-7); align-items: start; margin: var(--sp-5) 0 var(--sp-6); border-top: 1px solid var(--line); }
+/* 13px: this figure's disclosure line is a caption, and the contract's floor
+   for one is 13px. */
+.amplification figcaption { grid-column: 1/-1; display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--sp-2) var(--sp-5); padding: 14px 0; color: var(--ink-lo); font-size: 13px; line-height: 1.5; }
+.echoSequence { grid-column: 1 / 3; position: relative; list-style: none; margin: 0; padding: 0; }
+.echoSequence::before { content: ""; position: absolute; top: 38px; bottom: 56px; left: 13px; width: 1px; background: var(--line); transition: background-color 300ms; }
 .echoSequence li { position: relative; padding: 20px 0 18px 48px; }
 .echoSequence header { display: flex; align-items: center; min-height: 24px; color: var(--ink-lo); font: 400 13px/1.5 var(--face-data); text-transform: uppercase; letter-spacing: .08em; }
-.echoStep { position: absolute; left: 0; top: 28px; display: grid; place-items: center; width: 27px; height: 24px; background: var(--ground); color: var(--ink-lo); letter-spacing: 0; transition: color 300ms; }
-.echoSequence blockquote { margin: 14px 0 12px; max-width: 26ch; color: var(--ink-hi); font: 400 clamp(24px, 2.4vw, 35px)/1.25 var(--face-text); letter-spacing: -.025em; }
+/* A node on the chain, not a label beside it. The 01-03 here are a real
+   sequence — the order the claim travelled in — so they stay. */
+.echoStep { position: absolute; left: 0; top: 26px; display: grid; place-items: center; width: 27px; height: 27px; border: 1px solid var(--line); border-radius: 50%; background: var(--ground); color: var(--ink-lo); font-size: 11px; letter-spacing: 0; transition: color 300ms, border-color 300ms; }
+.echoSequence blockquote { margin: 14px 0 12px; max-width: 26ch; color: var(--ink-hi); font: 400 var(--t-h2)/1.2 var(--face-text); letter-spacing: -.025em; }
 .echoSequence mark { background: transparent; color: inherit; text-decoration: underline; text-decoration-color: var(--gold-dim); text-decoration-thickness: 1px; text-underline-offset: 5px; transition: color 300ms; }
-.echoSequence .echoHeadline blockquote { font-family: var(--face-display); font-size: clamp(30px, 3.1vw, 45px); line-height: 1.1; }
+.echoSequence .echoHeadline blockquote { font-family: var(--face-display); font-size: var(--t-display); line-height: var(--t-display-lh); letter-spacing: var(--t-display-tracking); }
 .echoAnnotation { min-height: 3.2em; margin: 0; max-width: 48ch; color: var(--ink-lo); font-size: 13px; line-height: 1.6; }
-.echoReading { align-self: stretch; margin-top: 20px; padding-left: var(--journey-gap); border-left: 1px solid var(--journey-rule); }
-/* The reservation is what stops the trace toggle shifting the page. It is
-   measured against the taller of the two readings — 174px at 1440 in both
-   states, 150px at 390 in the traced one — now that UX-14 has removed the
-   display numeral that sat above them and said the count a second time. */
+/* The reading is not a plate: it is the one place in the band the reader is
+   asked to do something, and a rule above it says so. */
+.echoReading { grid-column: 3; align-self: start; position: sticky; top: calc(var(--header-h) + var(--sp-5)); margin-top: var(--sp-5); padding-top: var(--sp-5); border-top: 1px solid var(--line-strong); }
+/* The reservation is what stops the trace toggle shifting the page. */
 .echoResult { min-height: 184px; }
-.echoReading h4 { margin: 0 0 18px; font: 400 clamp(25px, 2.5vw, 36px)/1.1 var(--face-display); letter-spacing: -.025em; }
+.echoReading h4 { margin: 0 0 18px; font: 400 var(--t-h2)/var(--t-h2-lh) var(--face-display); letter-spacing: var(--t-h2-tracking); }
 .echoResult > p { max-width: 36ch; margin: 0; color: var(--ink); font-size: 15px; line-height: 1.7; }
-.echoTraceButton { display: inline-flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 48px; width: 100%; margin-top: 18px; padding: 12px 16px; border: 1px solid var(--gold-dim); background: transparent; color: var(--gold); font: 500 14px/1.4 var(--face-text); text-align: start; cursor: pointer; transition: background-color 180ms, border-color 180ms; }
+.echoTraceButton { display: inline-flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 48px; width: 100%; margin-top: 18px; padding: 12px 16px; border: 1px solid var(--gold-dim); border-radius: var(--radius-1); background: transparent; color: var(--gold); font: 500 14px/1.4 var(--face-text); text-align: start; cursor: pointer; transition: background-color 180ms, border-color 180ms; }
 .echoTraceButton svg { flex-shrink: 0; }
-.echoTraceButton:hover { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 7%, transparent); }
+.echoTraceButton:hover, .echoTraceButton:focus-visible { border-color: var(--gold); background: var(--gold-wash); }
 .echoTraceButton:active { background: color-mix(in srgb, var(--gold) 14%, transparent); }
-/* 13px, not the 12px it was, and no phone override under it: this is the
-   band's caption line now, and the contract's floor for a caption is 13px. */
+/* 13px: the band's caption line, and the contract's floor for a caption. */
 .echoPrinciple { margin: 20px 0 0; color: var(--ink-lo); font: 400 13px/1.7 var(--face-data); }
-.amplification[data-traced="true"] .echoStep { color: var(--gold); }
+.amplification[data-traced="true"] .echoStep { color: var(--gold); border-color: var(--gold-dim); }
+.amplification[data-traced="true"] .echoReading { border-top-color: var(--gold-line-strong); }
 .amplification[data-traced="true"] .echoSequence::before { background: var(--gold-dim); }
 .amplification[data-traced="true"] mark { color: var(--gold); }
 .amplification[data-traced="true"] .echoAnnotation { color: var(--ink); }
-.systemActions { display: flex; flex-wrap: wrap; gap: 12px 32px; align-items: center; }
+.systemActions { display: flex; flex-wrap: wrap; gap: var(--sp-3) var(--sp-7); align-items: center; padding-top: var(--sp-2); border-top: 1px solid var(--line); }
 .systemActions > button { min-height: 48px; font-size: 14px; }
 
-/* The close: the ask, after the reader has seen what it pays for. Two
-   channels in the outlined-gold control the trace button already speaks;
-   neither provider's brand is drawn. Last band, so it carries the safe-area
-   padding the system band used to. */
-.support { border-top: 1px solid var(--journey-rule); padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px)); }
-.supportHead { display: grid; grid-template-columns: 1.15fr 1fr; align-items: end; gap: var(--journey-gap); margin-bottom: 24px; }
-.supportHead h2 { margin: 10px 0 0; max-width: 14ch; font-size: var(--journey-title); line-height: 1.03; }
-.supportHead > p { max-width: 48ch; margin: 0; color: var(--ink); font-size: 16px; line-height: 1.7; }
-.supportChannels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px var(--journey-gap); margin: 0; padding: 0; list-style: none; }
-/* Owner ruling 2026-09-11: the channels carry weight at rest, not only on
-   hover — the resting plate lift, the label a step up at 18px, and the
-   arrow in full gold. Same two links, same place: the edition's close. */
-.supportChannel { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "mark label arrow" "mark note arrow"; column-gap: 16px; row-gap: 4px; align-items: center; min-height: 84px; padding: 18px 22px; border: 1px solid var(--gold-dim); background: var(--surface-0); box-shadow: var(--shadow-1); color: var(--gold); text-decoration: none; transition: background-color 180ms, border-color 180ms, box-shadow 180ms; }
+/* ── The close ─────────────────────────────────────────────────────────────
+   The ask, after the reader has seen what it pays for. The two channels are
+   rows on hairlines, named in the display serif, with the external mark in
+   gold — the close's one focal moment — and neither provider's brand drawn.
+   Last band, so it carries the safe-area padding. */
+.support { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 5fr) minmax(0, 5fr); grid-template-areas: "head head channels" "more more channels"; column-gap: var(--sp-7); align-items: start; padding-bottom: calc(clamp(var(--sp-8), 7vw, 10rem) + env(safe-area-inset-bottom, 0px)); }
+.supportHead { grid-area: head; display: grid; gap: clamp(var(--sp-5), 2vw, var(--sp-6)); }
+.supportHead h2 { max-width: 12ch; }
+.supportHead > p { max-width: 46ch; margin: 0; color: var(--ink); font-size: var(--t-lede); line-height: var(--t-lede-lh); text-wrap: pretty; }
+.supportChannels { grid-area: channels; display: grid; margin: calc(var(--sp-3) + var(--t-kicker) * 1.4) 0 0; padding: 0; list-style: none; border-top: 1px solid var(--line-strong); }
+.supportChannels > li { border-bottom: 1px solid var(--line); }
+.supportChannel { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "mark label arrow" "mark note arrow"; column-gap: var(--sp-4); row-gap: 4px; align-items: center; min-height: 96px; padding-block: var(--sp-5); color: var(--gold); text-decoration: none; transition: background-color 180ms, color 180ms; }
 .supportChannel > svg { grid-area: mark; flex: none; }
-.supportChannelLabel { grid-area: label; color: var(--ink-hi); font: 600 18px/1.3 var(--face-text); }
+.supportChannelLabel { grid-area: label; color: var(--ink-hi); font: 400 var(--t-h3)/var(--t-h3-lh) var(--face-display); letter-spacing: var(--t-h3-tracking); }
 .supportChannelNote { grid-area: note; color: var(--ink-lo); font-size: 13px; line-height: 1.5; text-wrap: pretty; }
-.supportChannelArrow { grid-area: arrow; font-size: 18px; transition: transform 180ms; }
-.supportChannel:hover, .supportChannel:focus-visible { border-color: var(--gold); background: var(--gold-wash); box-shadow: var(--shadow-2); }
-.supportChannel:hover .supportChannelLabel { color: var(--gold-hi); }
-.supportChannel:hover .supportChannelArrow { transform: translate(2px, -2px); }
+.supportChannelArrow { grid-area: arrow; font-size: 20px; transition: transform 180ms; }
+.supportChannel:hover, .supportChannel:focus-visible { background: var(--gold-wash); }
+.supportChannel:hover .supportChannelLabel, .supportChannel:focus-visible .supportChannelLabel { color: var(--gold-hi); }
+.supportChannel:hover .supportChannelArrow, .supportChannel:focus-visible .supportChannelArrow { transform: translate(2px, -2px); }
 .supportChannel:active { background: color-mix(in srgb, var(--gold) 14%, transparent); }
-/* No `.supportMore .linkQuiet { font-size: … }`. It was the last of the
-   ancestor-based re-skins of a link role: three survived 2026-09-11 and each
-   one gave the same declared role a different size depending on where it
-   happened to sit, which is the mechanism the role props were introduced to
-   end. All three are gone (see also `.sectionAction .linkSection` and the
-   chapter-row rule the roster replaced). */
-.supportMore { margin: 22px 0 0; }
+.supportMore { grid-area: more; margin: var(--sp-5) 0 0; }
 
-/* Intermediate widths recompose around a readable text measure. */
+/* ── Intermediate widths ───────────────────────────────────────────────── */
 @media (max-width: 1099px) {
-  .newsSpread { grid-template-columns: 1fr; gap: 26px; }
-  /* Picture beside the text, with the headline at the top of the text column:
-     placed by area, because the picture no longer comes first in the DOM. */
-  .newsSpread > article, .newsSpread[data-count="1"] > article { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); grid-template-areas: "media title" "media byline" "media body"; column-gap: 24px; align-content: start; }
-  .newsSpread > article > h3, .newsSpread[data-count="1"] > article > h3 { grid-area: title; }
-  .newsSpread > article > .byline, .newsSpread[data-count="1"] > article > .byline { grid-area: byline; }
-  .newsSpread > article > .figure, .newsSpread[data-count="1"] > article > .figure { grid-area: media; margin-top: 0; }
-  .newsSpread > article > .newsBody, .newsSpread[data-count="1"] > article > .newsBody { grid-area: body; }
-  .newsSpread > article[data-rank="companion"] { border-left: 0; border-top: 1px solid var(--journey-rule); padding: 22px 0 0; }
-  .newsSpread > article[data-rank="companion"] .figure { max-width: 360px; }
-  .archiveSpread { grid-template-columns: 1.15fr 1fr; gap: 24px; }
-  .peopleStack { gap: var(--sp-5); }
+  .contents { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .contents a:nth-child(n+4) { border-top: 1px solid var(--line); }
+  .echoReading { position: static; }
+  :is(.newsSpread, .archiveSpread) > article, .investigation, .newsSpread > article[data-rank="lead"] > .newsBody, .peopleLead { column-gap: var(--sp-5); }
 }
 @media (max-width: 819px) {
-  .editorial { grid-template-columns: 1fr; grid-template-areas: "head" "intro" "spread" "state" "action"; }
-  .editorial > .sectionAction { justify-self: start; margin: 18px 0 0; }
-  /* No `.sectionAction .linkSection { font-size: 15px }`. It made the same
-     declared role 15px in a band's footer and 14px in the system band — one
-     pixel of difference that a reader cannot read as anything, on the axis
-     that is supposed to carry rank. The role sets its own size. */
-  .archiveSpread { grid-template-columns: 1fr; gap: 26px; }
-  /* The documentation card is one column from here down. It used to put its
-     picture in a side column with `grid-row: span 7` — a count of the card's
-     children, which the reading-order change (headline, byline, picture,
-     body) invalidated. A span that has to be recounted whenever a card gains
-     a field is not a layout, and the archive's records carry no picture in
-     practice; a stacked card needs no count. */
-  .peopleStack { grid-template-columns: 1fr; }
-  .systemHead { grid-template-columns: 1fr; gap: 20px; }
+  .edition { grid-template-columns: 1fr; gap: var(--sp-2); }
+  .editionDate { text-align: start; }
+  .newsSpread > article[data-rank="lead"] > .newsBody { grid-template-columns: minmax(0, 1fr); }
+  .newsSpread > article[data-rank="lead"] > .newsBody > * { grid-column: 1; }
+  .newsSpread > article[data-rank="lead"] > .newsBody > :is(.sources, .link) { grid-column: 1; grid-row: auto; margin-top: 0; }
+  /* A companion keeps its thumbnail beside its name, and what is read runs
+     the full measure beneath them. */
+  :is(.newsSpread, .archiveSpread) > article[data-rank="companion"] { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-template-areas: "title" "byline" "body"; }
+  :is(.newsSpread, .archiveSpread) > article[data-rank="companion"]:has(> .figure) { grid-template-columns: 112px minmax(0, 1fr); grid-template-areas: "media title" "media byline" "body body"; column-gap: var(--sp-4); }
+  :is(.newsSpread, .archiveSpread) > article[data-rank="companion"] > .figure { margin-bottom: var(--sp-3); }
+  :is(.newsSpread, .archiveSpread) > article[data-rank="companion"] :is(.summary, .warning:first-child) { margin-top: var(--sp-3); }
+  .investigation, .investigation[data-has-media="false"], .investigation[data-rank="companion"], .investigation[data-rank="companion"][data-has-media="false"] { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-template-areas: "status" "claim" "cover" "body"; row-gap: var(--sp-3); }
+  .dossierCover { max-width: 520px; }
+  .archiveSpread > article[data-rank="lead"] { display: block; }
+  .archiveSpread > article[data-rank="lead"] > .figure { margin-top: var(--sp-4); }
+  .archiveSpread > article[data-rank="lead"] .archiveBody { margin-top: var(--sp-4); }
+  .peopleLead:has(> .figure), .peopleLead:has(> .figure.portrait), .peopleLead:has(> .figure[data-overlay]) { grid-template-columns: minmax(0, 1fr); grid-template-areas: "media" "title" "byline" "summary" "sources" "action"; }
+  .peopleLead:has(> .figure[data-overlay]) > .sources { margin-top: 0; }
+  .roster ol { grid-template-columns: minmax(0, 1fr); }
+  .systemHead { grid-template-columns: 1fr; gap: var(--sp-5); }
+  .systemHead > :is(div, p), .echoSequence, .echoReading { grid-column: 1; }
   .systemHead > p { max-width: 60ch; }
-  .supportHead { grid-template-columns: 1fr; gap: 20px; }
-  .supportHead > p { max-width: 60ch; }
+  .amplification { grid-template-columns: 1fr; }
+  .support { grid-template-columns: 1fr; grid-template-areas: "head" "channels" "more"; }
+  .supportChannels { margin-top: var(--sp-6); }
 }
 @media (max-width: 759px) {
-  /* Four heading sizes, and on a phone they have to be four *readable* steps.
-     They were 34 / 27 / 26 / 19.5 at 390px: the edition's lead record and an
-     ordinary one differed by one pixel, so the axis that is supposed to carry
-     rank carried none, and the band's own `h2` was only seven pixels above
-     both. The ladder is 34 / 28 / 23 / 18 now — the same four tokens, spread
-     far enough apart to be read as ranks. Nothing below 16px: these are
-     headings, and the 16px body and 13px metadata floors are untouched. */
-  .journey { --journey-inset: clamp(20px, 5vw, 32px); --journey-title: clamp(34px, 8.5vw, 45px); --journey-lead: clamp(28px, 7.2vw, 35px); --journey-story: clamp(23px, 5.9vw, 30px); --journey-aside: clamp(17px, 4.6vw, 21px); }
-  .edition { grid-template-columns: 1fr; gap: 5px; padding-top: 12px; }
-  .editionDate { text-align: start; }
-  .contents { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; padding-block: 10px; }
-  .contents a { padding-inline: 6px; font-size: 13px; }
-  /* The masthead line is the journey in one sentence, not a record headline:
-     it takes `--journey-story` on a phone so the edition's own lead keeps the
-     `--journey-lead` step to itself. */
-  .editionLine { font-size: var(--journey-story); }
-  /* The band rhythm, third pass. 48-88px a side became 34-62px (VA-10) and
-     then 30px on a phone; it is 20px here. The bands still read as separate
-     chapters because each one opens with a rule, a kicker and a 34px title —
-     the separation is drawn, not spent in empty space, and six bands of
-     padding were costing most of a screen. */
-  .section { padding-block: 18px; }
-  .sectionHead { margin-bottom: 14px; }
-  .sectionIntro { font-size: 15px; margin-bottom: 14px; }
-  /* Three lines, not four. The full text is one tap away in every case and
-     the sentence boundary still decides where the preview stops
-     (`previewSentences`); the clamp is only the backstop. A screen that shows
-     three previews of four lines each shows no third record. */
+  /* The band rhythm on a phone: the separation is drawn by the rule and the
+     name, so the air between chapters can be a screen's eighth rather than a
+     quarter, and still be the widest space in the column. */
+  .section { margin-top: var(--sp-8); padding-top: var(--sp-4); }
+  .edition + .section { margin-top: var(--sp-7); }
+  .edition { padding-top: var(--sp-6); }
+  /* Two columns of three: each entry a full-width row on its own rule. */
+  .contents { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: var(--sp-4); }
+  .contents a { min-height: 52px; border-top: 0; border-bottom: 1px solid var(--line); }
+  .contents a:nth-child(n+4) { border-top: 0; }
+  .sectionHead { margin-bottom: var(--sp-5); }
+  .sectionHead h2 { margin-top: var(--sp-2); }
+  .sectionIntro { margin: calc(var(--sp-2) * -1) 0 var(--sp-5); font-size: 17px; }
+  .sectionAction { margin-top: var(--sp-6); }
+  /* Three lines, not four: the sentence boundary still decides where the
+     preview stops (`previewSentences`); the clamp is only the backstop. */
   .summary { margin-top: 10px; font-size: 16px; line-height: 1.6; -webkit-line-clamp: 3; line-clamp: 3; }
-  .context { font-size: 14px; margin-top: 12px; -webkit-line-clamp: 3; line-clamp: 3; }
+  .context { margin-top: var(--sp-3); -webkit-line-clamp: 3; line-clamp: 3; }
   .finding p { -webkit-line-clamp: 3; line-clamp: 3; }
-  .sources { margin-top: -2px; }
-  .figure { margin: 10px 0 12px; }
-  .newsSpread > article, .newsSpread[data-count="1"] > article { display: block; }
-  .newsSpread h3 { line-height: 1.15; }
-  /* The companion is a thumbnail row: picture and headline side by side, the
-     preview and the action at the full measure underneath. Placed by area —
-     the picture is third in the DOM now, behind the headline and byline. */
-  .newsSpread > article[data-rank="companion"] { display: grid; grid-template-columns: 104px minmax(0, 1fr); grid-template-areas: "media title" "media byline" "body body"; column-gap: 16px; }
-  .newsSpread > article[data-rank="companion"] > h3 { grid-area: title; }
-  .newsSpread > article[data-rank="companion"] > .byline { grid-area: byline; }
-  .newsSpread > article[data-rank="companion"] > .figure { grid-area: media; margin: 4px 0 0; }
-  .newsSpread > article[data-rank="companion"] > .newsBody { grid-area: body; }
-  .newsSpread > article[data-rank="companion"] .figure img { aspect-ratio: 4/5; }
-  .newsSpread > article[data-rank="companion"] .summary { font-size: 15px; }
-  .sources { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
-  .investigation { grid-template-columns: 1fr; grid-template-areas: "status" "claim" "cover" "body"; gap: 10px; }
-  .dossierStatus { gap: 6px; }
-  /* Rank is carried by the picture as well as by the type: the band's lead
-     record gets a 2:1 plate, its companion a shallower one. It is the same
-     move the news band has made since the companion became a thumbnail row —
-     one record in full, one in brief — applied in every band so a phone reads
-     the same hierarchy everywhere instead of a different one per section. */
+  .sources { margin-top: -2px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
+  .figure { margin: var(--sp-3) 0 0; }
+  /* The edition's lead plate stands up and runs to the screen's edges: 4:5
+     gives the headline a wall to sit on instead of a letterbox. */
+  .figure[data-overlay] img { aspect-ratio: 4/5; }
+  .frameOverlay { padding: var(--sp-5) var(--home-gutter); padding-top: 120px; }
+  .newsSpread > article[data-rank="lead"] > .figure[data-overlay], .peopleLead:has(> .figure[data-overlay]) > .figure { margin-inline: calc(var(--home-gutter) * -1); }
+  .figure[data-overlay] figcaption { padding-inline: var(--home-gutter); }
+  .newsSpread > article[data-rank="lead"] > .newsBody > .summary, .peopleLead:has(> .figure[data-overlay]) > .summary { font-size: 18px; line-height: 1.55; }
+  .investigation[data-kind="watch"] > h3 a { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; line-clamp: 5; overflow: hidden; }
+  .dossierCover { max-width: none; }
   .dossierCover .figure img { aspect-ratio: 2/1; }
-  /* A companion previews in two lines rather than three. The sentence budget
-     still decides where the text stops (`previewSentences`); this is the
-     backstop, and the full text is one tap away in every case. */
+  /* A companion's picture shares its row with its caption, disclosure
+     first and never abbreviated. */
+  .investigation[data-rank="companion"] .figure { display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr); column-gap: var(--sp-4); align-items: start; }
+  .investigation[data-rank="companion"] .figure figcaption { margin-top: 0; }
   :is(.investigation, .archiveSpread > article)[data-rank="companion"] :is(.summary, .finding p) { -webkit-line-clamp: 2; line-clamp: 2; }
-  /* The companion's caption sits beside its picture instead of under it. The
-     disclosure is never abbreviated or hidden — it is the one line that must
-     be read before the image is — it simply shares the row, which is what
-     lets a companion's plate be a plate rather than a third of a screen. */
-  :is(.investigation, .archiveSpread > article)[data-rank="companion"] .figure { display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr); column-gap: 16px; align-items: start; }
-  :is(.investigation, .archiveSpread > article)[data-rank="companion"] .figure img { aspect-ratio: 4/3; }
-  :is(.investigation, .archiveSpread > article)[data-rank="companion"] .figure figcaption { margin-top: 0; }
-  .verdictMeaning { flex-basis: calc(100% - 18px); margin-left: 16px; }
-  .verdict { position: relative; }
-  .verdict::before { align-self: auto; margin-top: 7px; }
-  .investigation h3 a { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; }
-  .archiveSpread > article[data-kind="documentation"] { display: block; }
-  /* The lead's plate only. The companion's shallower ratio is declared above
-     and must not be overwritten by the kind — rank decides the picture's
-     depth, not whether the record is a testimony or a document. */
+  .verdictMeaning { flex-basis: 100%; }
   .archiveSpread > article[data-rank="lead"][data-kind="documentation"] .figure img { aspect-ratio: 16/10; }
-  .warning { font-size: 14px; margin: 10px 0 14px; }
-  /* A portrait at the full width of a phone is a 427px picture of one face
-     before a word of the story. Capped, it is a profile plate — and the
-     People band keeps its own shape rather than looking like the news. */
+  .archiveSpread > article[data-kind="testimony"] .summary { font-size: 21px; }
+  .warning { margin: var(--sp-3) 0 var(--sp-4); }
   .peopleLead .portrait { max-width: 240px; }
-  .peopleLead .figure img { aspect-ratio: 16/9; }
+  .peopleLead .figure:not([data-overlay]) img { aspect-ratio: 16/9; }
   .peopleLead .portrait img { aspect-ratio: 4/5; }
-  .rosterMeta { margin-bottom: 10px; }
-  .rosterNote { margin-top: var(--sp-2); font-size: 13px; }
-  .narrativeSpread { gap: 20px; }
-  .investigation + .investigation { padding-top: 18px; }
-  .archiveSpread { gap: 22px; }
-  .peopleStack { gap: var(--sp-4); }
-  .supportHead { margin-bottom: 16px; }
-  .systemNote { margin-bottom: 16px; }
-  /* The one proof module is the whole band on a phone now, so its own
-     rhythm is where the remaining vertical economy is (VA-21). Nothing here
-     changes a type size: the floors are 13px annotations, 13px note and 16px
-     reading copy, all unchanged. */
-  .amplification { grid-template-columns: 1fr; row-gap: 0; margin: 16px 0; }
+  .peopleStack { gap: var(--sp-6); }
+  .rosterNote { margin-top: var(--sp-3); font-size: 13px; }
+  .roster li { grid-template-columns: minmax(0, 6.5rem) minmax(0, 1fr); column-gap: var(--sp-3); }
+  .rosterMeta { padding-block: 13px; }
+  .systemNote { margin-bottom: var(--sp-4); }
+  .amplification { margin: var(--sp-4) 0; }
   .amplification figcaption { display: grid; gap: 4px; padding: 10px 0; }
   .echoSequence li { padding: 8px 0 8px 38px; }
   .echoSequence::before { top: 28px; bottom: 42px; }
-  .echoStep { top: 18px; }
+  .echoStep { top: 14px; }
   /* The echo chain quotes a claim travelling through posts and headlines, so
-     it answers to the same rule the Fake Resistance band does: a claim this
-     desk is refuting is not set at a headline size. These were two ad-hoc
-     `clamp()`s of their own — 23-31px and 30-39px, larger on a phone than the
-     reporting above them — and they are the edition's four tokens now, which
-     is both the rule commit 28b18115 set and the reason the band reads as
-     one chain rather than three competing headlines. */
-  .echoSequence blockquote { margin: 7px 0 7px; font-size: var(--journey-aside); }
-  .echoSequence .echoHeadline blockquote { font-size: var(--journey-story); }
+     on a phone it steps down to the record sizes rather than out-typesetting
+     the reporting above it. */
+  .echoSequence blockquote { margin: 7px 0; font-size: var(--t-h3); }
+  .echoSequence .echoHeadline blockquote { font-size: var(--t-h2); }
   /* The reservation stays — it is what stops the trace toggle shifting the
-     page under the reader — it is just measured against the phone's own
-     line length rather than the desktop's. */
+     page — measured against the phone's own line length. */
   .echoAnnotation { min-height: 3.4em; }
-  .echoReading { margin: 0; padding: 14px 0 0; border-left: 0; border-top: 1px solid var(--journey-rule); }
   .echoResult { min-height: 156px; }
-  /* One of the four tokens, not a twelfth ad-hoc size: this is a heading
-     inside the figure, which is what `--journey-lead` is for at this rank. */
-  .echoReading h4 { font-size: var(--journey-lead); margin-bottom: 10px; }
+  .echoReading h4 { margin-bottom: 10px; }
   .echoResult > p { max-width: 48ch; }
-  .echoTraceButton { margin-top: 12px; }
+  .echoTraceButton { margin-top: var(--sp-3); }
   .echoPrinciple { margin-top: 14px; }
-  .systemActions { display: grid; grid-template-columns: 1fr 1fr; justify-items: stretch; gap: 6px 18px; }
+  .systemActions { display: grid; grid-template-columns: 1fr 1fr; justify-items: stretch; gap: 6px var(--sp-4); }
   .systemActions > button { grid-column: 1/-1; justify-self: start; }
-  .support { padding-bottom: calc(34px + env(safe-area-inset-bottom, 0px)); }
-  .supportHead { gap: 14px; }
-  .supportChannels { grid-template-columns: 1fr; gap: 12px; }
+  .support { padding-bottom: calc(var(--sp-7) + env(safe-area-inset-bottom, 0px)); }
+  .supportChannel { min-height: 80px; padding-block: var(--sp-4); }
+  .supportMore { margin-top: var(--sp-4); }
+  .supportStrip { margin-top: var(--sp-7); }
   /* Two full-width halves under the label: the largest target the rail can
      offer on a phone without becoming a band of its own. */
   .supportList { flex: 1 1 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .supportChip { width: 100%; }
-  .supportChannel { min-height: 72px; padding: 13px 16px; }
-  .supportMore { margin-top: 18px; }
 }
 @media (max-width: 359px) {
-  .contents { grid-template-columns: 1fr 1fr; }
-  .newsSpread > article[data-rank="companion"] { grid-template-columns: 1fr; grid-template-areas: "title" "byline" "media" "body"; }
-  .newsSpread > article[data-rank="companion"] > .figure { max-width: none; margin: 12px 0 14px; }
-  .newsSpread > article[data-rank="companion"] .figure img { aspect-ratio: 16/9; }
+  :is(.newsSpread, .archiveSpread) > article[data-rank="companion"]:has(> .figure) { grid-template-columns: 1fr; grid-template-areas: "title" "byline" "media" "body"; }
+  :is(.newsSpread, .archiveSpread) > article[data-rank="companion"] > .figure { margin: var(--sp-3) 0; }
+  .roster li { grid-template-columns: 1fr; grid-template-areas: "link" "meta"; }
+  .rosterMeta { padding-block: 6px 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .journey *, .journey *::before, .journey *::after { animation: none !important; transition: none; scroll-behavior: auto; }
-  .supportChannel:hover .supportChannelArrow { transform: none; }
+  .supportChannel:hover .supportChannelArrow, .supportChannel:focus-visible .supportChannelArrow { transform: none; }
   .supportChip, .supportChipArrow { transition: none; }
-  .newsSpread > article[data-rank="companion"] { transition: none; }
+}
+@media (forced-colors: active) {
+  .investigation[data-kind="watch"] > h3::after { content: none; }
+  .contents a:hover, .contents a:focus-visible { outline: 2px solid CanvasText; }
 }

@@ -13,9 +13,9 @@
  * its absence. What is left behind a reader is two things, and both are
  * checked here:
  *
- *  1. **the page ground** — `--scan-ground` over `--site-ground-photo`, a
- *     still texture that composites nothing on top of itself, so the ink
- *     tokens are read straight against it;
+ *  1. **the page ground** — exact black since 2026-09-22 (Signal over
+ *     noise, site-wide): no scan texture and no photograph behind the
+ *     reading routes, so the ink tokens are read straight against `--ground`;
  *  2. **the home hero's video layer** — pointer-inert, out of the
  *     accessibility tree, and not downloaded at all under reduced motion.
  *
@@ -84,20 +84,16 @@ const INK_HI = token("--ink-hi");
 const INK = token("--ink");
 const INK_LO = token("--ink-lo");
 const GOLD = token("--gold");
-const BLACK = [0, 0, 0] as const;
 
 /**
- * The ground a page is read on, recomposed from `--scan-ground` in
- * `app/globals.css`: a 1px-in-9 rule at `rgba(228, 224, 215, 0.027)` under a
- * radial highlight at `rgba(246, 243, 235, 0.055)`.
- *
- * `GROUND_PEAK` is the brightest pixel anywhere — a rule line at the radial's
- * centre, 50%/26% of the viewport, which is `background-attachment: fixed`
- * and therefore the spot every line of an article scrolls through. It is the
- * worst case for every foreground token, so it is the only one worth pinning.
+ * The ground a page is read on. Until 2026-09-22 it was a scan texture over a
+ * veiled photograph and this recomposed its brightest pixel; the ground is
+ * now `--ground` itself, flat, and the lightest thing a reader's text can
+ * land on is the top surface step. Both are pinned: `GROUND` for text on the
+ * page, `GROUND_PEAK` (`--surface-3`) as the worst case for every token.
  */
-const GROUND_EDGE = composite([228, 224, 215], 0.027, BLACK);
-const GROUND_PEAK = composite([246, 243, 235], 0.055, GROUND_EDGE);
+const GROUND = token("--ground");
+const GROUND_PEAK = token("--surface-3");
 
 const AA_BODY = 4.5;
 const AA_UI = 3;
@@ -127,9 +123,10 @@ describe("the reading ground is read against directly, nothing composited over i
     expect(contrastRatio(border, GROUND_PEAK)).toBeGreaterThanOrEqual(AA_UI);
   });
 
-  it("still paints that ground, and the quiet variant under the institution family", () => {
-    expect(globals).toMatch(/background-image:\s*var\(--scan-ground\)/);
-    expect(globals).toMatch(/body:has\(\[data-family="institution"\]\) \{[^}]*--scan-ground-quiet/);
+  it("paints exact black and nothing over it, on every family", () => {
+    expect(GROUND).toEqual([0, 0, 0]);
+    expect(globals).not.toMatch(/--scan-ground/);
+    expect(globals).not.toMatch(/body::before \{[\s\S]{0,400}?var\(--site-ground-photo\)/);
   });
 });
 
@@ -266,9 +263,8 @@ describe("the no-JavaScript home still shows a readable band over the static gro
        script runs and stays when none ever does. */
     expect(home).toMatch(/\.posterField \{[^}]*background:\s*var\(--hero-poster-tall\)/);
     expect(globals).toMatch(/--hero-poster-tall:\s*url\(/);
-    /* And the rest of the site keeps the ground texture over its own still. */
-    expect(globals).toMatch(/background-image:\s*var\(--scan-ground\)/);
-    expect(globals).toMatch(/body::before \{[\s\S]{0,400}?var\(--site-ground-photo\)/);
+    /* And the rest of the site stands on the ground colour itself. */
+    expect(globals).toMatch(/html, body \{[^}]*background-color:\s*var\(--ground\)/);
   });
 
   it("renders the hero wordmark, fallback links and editorial journey as server HTML", () => {

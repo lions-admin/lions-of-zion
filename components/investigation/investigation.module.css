@@ -1289,18 +1289,19 @@
   text-wrap: pretty;
 }
 
+/* The desk's own finding: a label in ink, not ember — ember is kept for the
+   contested material a finding is about (Signal over noise, 2026-09-22). */
 .survivesLabel {
-  composes: dataLabel from global;
-  color: var(--data-ember-peak);
+  composes: kickerLabel from global;
+  color: var(--ink-lo);
 }
 
+/* How far the finding held: the page's `signal` — ivory on the amber rule —
+   rather than a tinted box. */
 .storyConfidence {
-  margin: var(--sp-4) 0 0;
-  padding: var(--sp-3) var(--sp-4);
-  border-left: var(--line-w-thick) solid var(--data-ember);
-  border-radius: 0 var(--radius-2) var(--radius-2) 0;
-  background: var(--data-ember-wash);
-  color: var(--ink-hi);
+  composes: signal from global;
+  max-width: var(--measure-reading);
+  margin: var(--sp-5) 0 0;
   font-size: var(--t-small);
   line-height: var(--t-small-lh);
 }
@@ -1378,9 +1379,9 @@
 
 .refutations > li::before {
   position: absolute;
-  top: 0;
+  top: 0.35em;
   left: 0;
-  color: var(--data-ember-peak);
+  color: var(--ink-lo);
   content: counter(refutation, decimal-leading-zero);
   font-family: var(--face-data);
   font-size: var(--t-data);

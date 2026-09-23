@@ -147,7 +147,10 @@
 .secondary {
   --btn-bg: transparent;
   --btn-fg: var(--ink-hi);
-  --btn-line: var(--line-strong);
+  /* A control boundary, so WCAG 1.4.11's 3:1 applies: `--control-line`, not
+     the decorative `--line-strong` (1.82:1 on black, caught by
+     `scripts/ui-audit.mjs` on 2026-09-22). */
+  --btn-line: var(--control-line);
 }
 
 .secondary:hover:not(:disabled) {

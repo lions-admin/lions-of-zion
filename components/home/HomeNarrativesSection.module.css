@@ -23,7 +23,7 @@
   display: block;
   margin-bottom: 6px;
   color: var(--ink-lo);
-  font: 500 12px/1.6 var(--face-text);
+  font: 500 13px/1.6 var(--face-text);
 }
 
 .researchQuestion > p {

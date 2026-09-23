@@ -78,14 +78,13 @@
     max(var(--bar-gutter), env(safe-area-inset-right, 0px));
   /* Over the home scene this is 77px of veil on a black field; over a reading
      page it is the same veil on the same ground. One treatment, both. */
-  border-bottom: var(--line-w) solid var(--line);
-  background: color-mix(in srgb, var(--ground) 95%, transparent);
-  /* The hairline that reads as the bar's top edge. It was
-     `--glass-inner`, a HUD token retired this round; `--line-strong` is the
-     palette's own line at the same job. */
-  box-shadow: inset 0 var(--line-w) 0 var(--line-strong);
-  -webkit-backdrop-filter: blur(16px) saturate(0.76);
-  backdrop-filter: blur(16px) saturate(0.76);
+  /* Signal over noise (2026-09-22): the bar is black with one hairline under
+     it, and nothing above it. The lit top edge it carried read as the lid of
+     a box on a black page; a masthead is a rule, not a lid. */
+  border-bottom: var(--line-w) solid var(--line-soft);
+  background: color-mix(in srgb, var(--ground) 84%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(0.6);
+  backdrop-filter: blur(20px) saturate(0.6);
   transition:
     box-shadow var(--dur-base) var(--ease-out),
     border-color var(--dur-base) var(--ease-out),
@@ -94,12 +93,8 @@
 
 /* Scrolled: the bar sits on the page, so it casts onto it. */
 .header[data-scrolled] .bar {
-  background: color-mix(in srgb, var(--ground) 98%, transparent);
-  border-bottom-color: var(--line-strong);
-  box-shadow:
-    inset 0 var(--line-w) 0 var(--line-strong),
-    0 12px 32px -16px rgba(0, 0, 0, 0.75),
-    0 1px 0 rgba(0, 0, 0, 0.4);
+  background: color-mix(in srgb, var(--ground) 94%, transparent);
+  border-bottom-color: var(--line);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -125,9 +120,11 @@
 .brandName {
   font-family: var(--face-display);
   font-optical-sizing: auto;
-  font-size: var(--t-body);
-  font-weight: 500;
-  line-height: 1.1;
+  /* A masthead, not a label: one step up the display face, tracked in. */
+  font-size: 1.3125rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.015em;
   white-space: nowrap;
 }
 
@@ -303,9 +300,12 @@
   padding-inline: var(--sp-4);
   gap: var(--sp-2);
   border: var(--line-w) solid var(--gold-line-strong);
-  border-radius: var(--radius-pill);
+  /* A hairline rectangle, not a pill (2026-09-22): on black a pill reads as a
+     sticker, and the bar's other controls are all rules. */
+  border-radius: var(--radius-1);
   color: var(--ink-hi);
-  font-weight: 600;
+  font-weight: 500;
+  letter-spacing: 0.01em;
   transition:
     border-color var(--dur-fast) var(--ease-out),
     background-color var(--dur-fast) var(--ease-out),

@@ -14,6 +14,7 @@ import {
   rankOf,
 } from "./HomeJourneyPrimitives";
 import styles from "./homepage-journey.module.css";
+import { WordStream } from "./WordStream";
 import narrativeStyles from "./HomeNarrativesSection.module.css";
 import { FAKE_RESISTANCE_GRAMMAR, FAKE_RESISTANCE_INTRO } from "@/lib/fake-resistance-grammar";
 import { homepageBand } from "@/lib/homepage-bands";
@@ -35,7 +36,7 @@ export function HomeNarrativesSection({
   return (
     <section
       id="home-narratives"
-      className={`${styles.section} ${styles.editorial} ${styles.investigations}`}
+      className={`${styles.section} ${styles.editorial}`}
       aria-labelledby="home-narratives-title"
       data-home-section="fakeResistance"
     >
@@ -47,6 +48,10 @@ export function HomeNarrativesSection({
       <p className={styles.sectionIntro}>
         {FAKE_RESISTANCE_INTRO}
       </p>
+      {/* The one band where the noise comes back, and it comes back in the
+          adversarial colour: these are the words the desk is working against,
+          not words it is asserting. */}
+      <WordStream groups={["disinformation", "information"]} tone="ember" seed={2} />
       <div className={styles.narrativeSpread}>
         {section.items.map((item, index) => {
           const status =
@@ -119,16 +124,17 @@ export function HomeNarrativesSection({
                   <span className={styles.verdictMeaning}>{statusMeaning}</span>
                 </p>
               </header>
-              {/* A claim is set at `--journey-aside`, the size of a heading
-                  *inside* a record, and never at `--journey-lead` or
-                  `--journey-story`. A sentence this desk is refuting must not
+              {/* A claim is set as noise (`.claim` composes the global
+                  `noise` role): ember, italic, and capped at `--t-h3`, the
+                  size of a heading *inside* a record, never at a headline
+                  size. A sentence this desk is refuting must not
                   out-typeset the reporting it sits beside: at 390px the claim
                   was the second-largest text on the whole page, beaten only
                   by the band's own `h2`. The cap is in the stylesheet, on
                   `[data-kind="watch"]`, so it holds for every claim rather
                   than for the ones an author remembered. */}
               <h3>
-                <a href={item.href}>{heading}</a>
+                <a href={item.href} className={item.kind === "watch" ? styles.claim : undefined}>{heading}</a>
               </h3>
               {item.media && (
                 <div className={styles.dossierCover}>

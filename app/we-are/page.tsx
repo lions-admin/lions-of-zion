@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionBlock, SectionPage } from "@/components/sections/SectionPage";
-import { Card, CardDescription, CardEyebrow, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { SITE_URL } from "@/lib/site-config";
 import styles from "./page.module.css";
@@ -62,10 +61,10 @@ export default function Page() {
         <p>AI is a core capability here, not a decorative assistant and not a secret. It increases speed, breadth, multilingual reach, comparison, monitoring, pattern detection, evidence organization and update frequency. But capability is not authority. People define the rules under which the systems operate and remain accountable for the platform that publishes the result.</p>
         <div className={styles.pipeline}>
           <ol className={styles.pipelineList}>
-            {SYSTEM_STEPS.map((step, index) => (
+            {SYSTEM_STEPS.map((step) => (
               <li key={step.title} className={styles.pipelineStage}>
                 <span className={styles.pipelineNode} aria-hidden="true"><Icon name={step.icon} size={18} /></span>
-                <div className={styles.pipelineContent}><div className={styles.pipelineHead}><span className={styles.pipelineNumber}>{String(index + 1).padStart(2, "0")}</span><h3>{step.title}</h3></div><p>{step.body}</p></div>
+                <div className={styles.pipelineContent}><div className={styles.pipelineHead}><h3>{step.title}</h3></div><p>{step.body}</p></div>
               </li>
             ))}
           </ol>
@@ -77,7 +76,7 @@ export default function Page() {
       </SectionBlock>
 
       <SectionBlock heading="What the AI is used for">
-        <ul className={styles.roleRoster}>{AI_USES.map((role) => <Card as="li" key={role.title} variant="row"><CardHeader><CardEyebrow>{role.eyebrow}</CardEyebrow></CardHeader><CardTitle>{role.title}</CardTitle><CardDescription>{role.body}</CardDescription></Card>)}</ul>
+        <ul className={styles.roleRoster}>{AI_USES.map((role) => <li key={role.title} className={styles.role}><p className={styles.roleKicker}>{role.eyebrow}</p><h3 className={styles.roleTitle}>{role.title}</h3><p className={styles.roleBody}>{role.body}</p></li>)}</ul>
       </SectionBlock>
 
       <SectionBlock heading="The boundaries people set">

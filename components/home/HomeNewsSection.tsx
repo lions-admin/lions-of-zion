@@ -63,14 +63,37 @@ export function HomeNewsSection({
             data-measure-placement={`news:${rankOf(index)}`}
             data-measure-card
           >
-            <h3>
-              <a href={item.href}>{item.title}</a>
-            </h3>
-            <div className={styles.byline}>
-              <span>{item.category}</span>
-              <HomeTime date={item.date} updatedAt={item.updatedAt} includeTime />
-            </div>
-            <HomeMedia media={item.media} lead={index === 0} />
+            {/* The edition's lead sets its headline over its own picture. A
+                lead without a picture, and every companion, keeps the plain
+                order: headline, byline, picture. */}
+            {index === 0 && item.media ? (
+              <HomeMedia
+                media={item.media}
+                lead
+                overlay={
+                  <>
+                    <h3>
+                      <a href={item.href}>{item.title}</a>
+                    </h3>
+                    <div className={styles.byline}>
+                      <span>{item.category}</span>
+                      <HomeTime date={item.date} updatedAt={item.updatedAt} includeTime />
+                    </div>
+                  </>
+                }
+              />
+            ) : (
+              <>
+                <h3>
+                  <a href={item.href}>{item.title}</a>
+                </h3>
+                <div className={styles.byline}>
+                  <span>{item.category}</span>
+                  <HomeTime date={item.date} updatedAt={item.updatedAt} includeTime />
+                </div>
+                <HomeMedia media={item.media} lead={index === 0} />
+              </>
+            )}
             <div className={styles.newsBody}>
             <p className={styles.summary}>
               <PreviewText

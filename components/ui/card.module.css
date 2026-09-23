@@ -344,3 +344,37 @@
     transform: none;
   }
 }
+
+/* ══ Signal over noise (2026-09-22) ═══════════════════════════════════════
+ * On exact black a filled plate is a grey box, and a grid of them is the
+ * dashboard this site keeps refusing to be. The two editorial compositions —
+ * feature and dossier — become ruled entries: no fill, no frame, a hairline
+ * across the top that brightens when the entry is the reader's target, and
+ * the measure of the column they sit in. `metric`, `note` and `row` keep
+ * their own shapes; they were already rules or already small. */
+.feature,
+.dossier {
+  padding: var(--sp-5) 0 var(--sp-4);
+  background: transparent;
+  border: 0;
+  border-top: var(--line-w) solid var(--line-strong);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.feature.interactive:hover,
+.feature.interactive:focus-within,
+.dossier.interactive:hover,
+.dossier.interactive:focus-within {
+  background: transparent;
+  border-top-color: var(--gold);
+  box-shadow: none;
+  transform: none;
+}
+
+.feature.pointerSurface::before,
+.feature.pointerSurface::after,
+.dossier.pointerSurface::before,
+.dossier.pointerSurface::after {
+  content: none;
+}

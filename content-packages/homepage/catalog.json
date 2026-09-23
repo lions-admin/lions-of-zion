@@ -1,6 +1,6 @@
 {
-  "revision": "be39c915b3df004b19202364a75b95071316310320d8bbecb4569dfdec070bf0",
-  "sourceRevision": "9d068f42123d9f7d5d7077006cb1d5a10ad7207cc5ef31325e09ccdfd115b4d2",
+  "revision": "809f6a799868ab1321779c8efc35ab746f50d2ee14bc1056fcf5eb9292f4b9c7",
+  "sourceRevision": "5dac0c2c769feb63dfff2a7138cb251b3e411157db121617f0be46c3c831cf80",
   "candidates": [
     {
       "key": "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart",
@@ -5539,6 +5539,26 @@
       "id": "elhanan-kalmanson",
       "href": "/our-heroes#elhanan-kalmanson",
       "version": "32d1ac78eb0968e3efdc4d099f21fa7774892bb1adaaffe2522cdaf0c2706992",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:eli-sharabi",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "eli-sharabi",
+      "href": "/our-heroes#eli-sharabi",
+      "version": "19954820fda9ea6850ab4e45484e3e8f59f2c1825c5e92e2c15db0cd0663d623",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:emily-damari",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "emily-damari",
+      "href": "/our-heroes#emily-damari",
+      "version": "6d412e39c651cae54479818cf62e90861bd467c1596129cee72007f26958f733",
       "date": "Aug 25, 2026",
       "mediaId": null
     },

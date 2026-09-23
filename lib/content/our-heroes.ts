@@ -12,7 +12,7 @@ import type { EditorialMediaReference } from '@/server/contracts/editorial-media
  */
 import type { Source } from '@/components/content';
 
-export type HeroRole = 'Fallen' | 'Rescuer' | 'Fighter';
+export type HeroRole = 'Fallen' | 'Rescuer' | 'Fighter' | 'Survivor';
 
 export type HeroProfile = {
   mediaRef?: EditorialMediaReference;
@@ -1417,6 +1417,50 @@ const PROFILES: HeroProfile[] = [
         label: 'Heroic soldier dies after jumping on a grenade to save others',
         kind: 'Ynetnews',
         url: 'https://www.ynetnews.com/magazine/article/hjyj7ldzp',
+      },
+    ],
+  },
+  {
+    id: 'emily-damari',
+    name: 'Emily Damari',
+    role: 'Survivor',
+    meta: 'British-Israeli · 471 days a hostage in Gaza, released January 2025',
+    summary:
+      'Emily Damari, a British-Israeli, was shot in the leg and hand when she was abducted on October 7, 2023, losing two fingers, and was held by Hamas for 471 days — by her account in homes, tunnels and UNRWA facilities, with almost no medical care. She has described correcting her captors that she was a hostage, not a prisoner. On her release on January 19, 2025 she raised her wounded hand in a three-finger wave that became a widely shared image of resilience.',
+    sources: [
+      {
+        id: 'wiki-damari',
+        label: 'Kidnapping of Emily Damari',
+        kind: 'Wikipedia',
+        url: 'https://en.wikipedia.org/wiki/Kidnapping_of_Emily_Damari',
+      },
+      {
+        id: 'jpost-damari',
+        label: 'Former hostage Emily Damari reflects on captivity',
+        kind: 'The Jerusalem Post',
+        url: 'https://www.jpost.com/israel-news/article-869543',
+      },
+    ],
+  },
+  {
+    id: 'eli-sharabi',
+    name: 'Eli Sharabi',
+    role: 'Survivor',
+    meta: 'Kibbutz Be’eri · 491 days a hostage in Gaza, released February 2025',
+    summary:
+      'Eli Sharabi was abducted from Kibbutz Be’eri on October 7, 2023, where his wife, Lianne, and their two teenage daughters were murdered, and was held for 491 days, much of it underground in chains, until his release on February 8, 2025. He learned only after release that his family had been killed and that his brother Yossi had died in captivity. He has since addressed the UN Security Council and written a memoir, Hostage.',
+    sources: [
+      {
+        id: 'wiki-sharabi',
+        label: 'Eli Sharabi',
+        kind: 'Wikipedia',
+        url: 'https://en.wikipedia.org/wiki/Eli_Sharabi',
+      },
+      {
+        id: 'toi-sharabi',
+        label: 'Full text: Freed hostage Eli Sharabi asks UN Security Council, ‘Where was the world?’',
+        kind: 'The Times of Israel',
+        url: 'https://www.timesofisrael.com/full-text-freed-hostage-eli-sharabi-asks-un-security-council-where-was-the-world/',
       },
     ],
   },

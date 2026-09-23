@@ -39,7 +39,7 @@ export async function buildSlotPools(): Promise<SlotPools> {
       key: `archive:hamas-massacre:${e.id}`,
     })),
     'heroes.courage': heroProfiles
-      .filter((h) => h.role === 'Rescuer' || h.role === 'Fighter')
+      .filter((h) => h.role === 'Rescuer' || h.role === 'Fighter' || h.role === 'Survivor')
       .map((h) => ({ key: `hero:${h.id}`, person: h.id })),
     'heroes.fallen': heroProfiles
       .filter((h) => h.role === 'Fallen')

@@ -1,16 +1,16 @@
 {
-  "//": "Budgets for scripts/perf-report.mjs. RAISED TO MAXIMUM ON OWNER INSTRUCTION, 2026-09-03: 50% headroom on every size and double on every count, measured against a passing build. These are deliberately loose. Read them as a coarse tripwire against a catastrophe -- a dependency that doubles the bundle, a stylesheet that escapes into every route -- and NOT as a tight gate: at this headroom a real regression can land and stay green. If you want the gate back, regenerate with `npm run perf:report -- --update-budgets`, which uses 5% instead. Numbers under `runtime` are null until someone runs `npm run perf:runtime -- <origin> --update-budgets` against a server they started; a null budget reports as `uncalibrated` and warns, and is never treated as a pass.",
-  "measuredOn": "2026-09-03",
-  "measuredAgainst": "commit 51dc373, Next.js 16.3.2 Turbopack production build, gzip -9",
+  "//": "Budgets for scripts/perf-report.mjs. RECALIBRATED ON OWNER INSTRUCTION, 2026-09-23: 5% headroom on sizes, +1 on counts, measured against the passing build after the site-wide Signal over noise redesign (`npm run perf:report -- --update-budgets`). This replaces the 2026-09-03 'raised to maximum' budgets (50% headroom), which total CSS had outgrown: source CSS went from 48.5 to 83.9 kB gz (comments stripped) between 95d95031 and the redesign, across many commits; the redesign itself was CSS-neutral. At 5% these are a tight gate again: a real regression fails. Numbers under `runtime` are null until someone runs `npm run perf:runtime -- <origin> --update-budgets` against a server they started; a null budget reports as `uncalibrated` and warns, and is never treated as a pass.",
+  "measuredOn": "2026-09-23",
+  "measuredAgainst": "ai/claude after f75ac08d (Signal over noise, site-wide), Next.js 16.3.4 Turbopack production build, gzip -9",
   "bundle": {
-    "shared_js_gz_kb": 249.3,
-    "reading_route_js_gz_kb": 283.4,
-    "home_js_gz_kb": 310.0,
-    "route_css_gz_kb": 64.3,
-    "font_preload_kb": 579.2,
-    "client_module_files": 140,
-    "client_page_components": 6,
-    "total_css_gz_kb": 90.3
+    "shared_js_gz_kb": 174.2,
+    "reading_route_js_gz_kb": 299.7,
+    "home_js_gz_kb": 289.4,
+    "route_css_gz_kb": 57.6,
+    "font_preload_kb": 552,
+    "client_module_files": 114,
+    "client_page_components": 1,
+    "total_css_gz_kb": 104.4
   },
   "runtime": {
     "home_lcp_ms": null,
@@ -24,6 +24,6 @@
     "archive_inp_ms": null
   },
   "//real_finding": "admin.module.css (23.9 kB), archive.module.css (34.2 kB) and visualizer.module.css (34.6 kB) ride on every public route. That is ~93 kB of source CSS the reading routes never use, and it is worth far more than either tripwire. It is Turbopack's client-CSS bucketing, not an import-graph defect: deep-importing the barrel consumers was tried and moved nothing.",
-  "//headroom": "50% on sizes, 2x on counts (owner instruction). Previously 5% and +1.",
+  "//headroom": "5% on sizes, +1 on counts (owner instruction, 2026-09-23). Was 50% and 2x from 2026-09-03.",
   "//route_css_gz_kb": "Not monotonic in CSS size: deleting ~11 kB of unreachable CSS moved it 38.3 -> 42.8, because Turbopack packs shared CSS into ~120 kB buckets shipped to every route and removing rules moved the bucket boundary. Watch total_css_gz_kb for cleanup work instead."
 }

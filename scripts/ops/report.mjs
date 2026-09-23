@@ -533,9 +533,13 @@ function describeError(error) {
   return cause?.code ?? cause?.errors?.[0]?.code ?? cause?.message ?? (error?.name === "TimeoutError" ? "timeout" : error?.message ?? String(error));
 }
 
-/* A rejected line (400/413/422) would block everything behind it forever;
-   a rejected batch is moved aside so the rest of the spool keeps flowing. */
-const isRejection = (status) => status === 400 || status === 413 || status === 422;
+/* A rejected line (400/404/413/422) would block everything behind it
+   forever; a rejected batch is moved aside so the rest of the spool keeps
+   flowing. 404 is here because the server answers it for a line whose task
+   does not exist ("Task … was not found") — a permanent answer, not a
+   transport failure: on 2026-09-23 one attachment for a task the board never
+   created held 70 lines behind it. */
+const isRejection = (status) => status === 400 || status === 404 || status === 413 || status === 422;
 
 function rejectTo(dir, files, why) {
   ensureDir(dir);

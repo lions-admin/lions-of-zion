@@ -210,6 +210,116 @@ const PROFILES: HeroProfile[] = [
       },
     ],
   },
+  {
+    id: 'awad-darawshe',
+    name: 'Awad Darawshe',
+    role: 'Fallen',
+    meta: '23 · Paramedic, Yossi Ambulances, Iksal',
+    summary:
+      'An Arab citizen of Israel from the village of Iksal, Darawshe was one of the paramedics posted to the medical tent at the Nova festival. When the station’s leader ordered the team to evacuate, he refused to leave the people he was treating, and was shot dead while bandaging a wounded festivalgoer. His ambulance was taken into Gaza. Israel’s Foreign Ministry called him a hero.',
+    sources: [
+      {
+        id: 'toi-darawshe',
+        label: 'Paramedic Awad Darawshe, 23: Killed treating wounded at rave massacre',
+        kind: 'The Times of Israel',
+        url: 'https://www.timesofisrael.com/paramedic-awad-darawshe-23-killed-treating-wounded-at-rave-massacre/',
+      },
+      {
+        id: 'ap-darawshe',
+        label: 'An Arab paramedic who treated Israelis injured by Hamas militants is remembered as a hero',
+        kind: 'Associated Press, via The Hill',
+        url: 'https://thehill.com/homenews/ap/ap-international/ap-an-arab-paramedic-who-treated-israelis-injured-by-hamas-militants-is-remembered-as-a-hero/',
+      },
+    ],
+  },
+  {
+    id: 'elhanan-kalmanson',
+    name: 'Capt. (res.) Elhanan Kalmanson',
+    role: 'Fallen',
+    meta: '41 · Otniel',
+    summary:
+      'When the attack began, Kalmanson set out from Otniel with his brother Menachem and their nephew Itiel Zohar before any call-up reached them, and drove to Kibbutz Be’eri. Over hours of fighting they went house to house and brought out dozens of residents — more than a hundred, by their team’s account. On the morning of October 8, clearing one more house, Kalmanson was ambushed and killed. The group, known as “Team Elhanan”, was awarded the Israel Prize for civilian heroism.',
+    sources: [
+      {
+        id: 'toi-kalmanson',
+        label: 'Cpt. Elhanan Kalmanson, 41: Family man who saved dozens of lives',
+        kind: 'The Times of Israel',
+        url: 'https://www.timesofisrael.com/capt-elhanan-kalmanson-41-family-man-who-saved-dozens-of-lives/',
+      },
+      {
+        id: 'ynet-kalmanson',
+        label: 'Winners of Israel Prize for civic heroism saved dozens in Kibbutz Be’eri on October 7',
+        kind: 'Ynet News',
+        url: 'https://www.ynetnews.com/article/bjbh6bva6',
+      },
+    ],
+  },
+  {
+    id: 'salman-habaka',
+    name: 'Lt. Col. Salman Habaka',
+    role: 'Fallen',
+    meta: '33 · Commander, 53rd Battalion, Yanuh-Jat',
+    summary:
+      'A Druze officer from Yanuh-Jat in the Galilee, Habaka drove south on October 7, took tanks from a base near Tze’elim and brought them into Kibbutz Be’eri, where he was among the first forces to fight their way into the community and free residents held by the attackers. Less than four weeks later, on November 2, he was killed in battle in the northern Gaza Strip — the most senior officer to fall in the ground operation up to that point.',
+    sources: [
+      {
+        id: 'toi-habaka',
+        label: 'Lt. Col. Salman Habaka, 33: Responded to Hamas assault; fell in Gaza',
+        kind: 'The Times of Israel',
+        url: 'https://www.timesofisrael.com/lt-col-salman-habaka-33-responded-to-hamas-assault-fell-in-gaza/',
+      },
+      {
+        id: 'ynet-habaka',
+        label: 'Lt. Col. Salman Habakah, the hero of Be’eri battles, killed in Gaza',
+        kind: 'Ynet News',
+        url: 'https://www.ynetnews.com/article/r1gxjxzmp',
+      },
+    ],
+  },
+  {
+    id: 'karni-gez',
+    name: 'Capt. Karni Gez',
+    role: 'Fighter',
+    meta: 'Company commander, Caracal Battalion',
+    summary:
+      'Stationed at Nitzana on the Egyptian border, some 40 kilometers south of Gaza, Gez led an all-women tank company north when the attack began, leaving one tank to hold the border and splitting the rest between Kibbutz Holit and Kibbutz Sufa. Her crews fought for 17 hours. The IDF credited them with killing some 50 attackers and halting the assault’s push further south — the first combat in modern history by an all-female armored unit.',
+    sources: [
+      {
+        id: 'toi-gez',
+        label: 'Female IDF tank crews ran down dozens of Hamas terrorists on October 7',
+        kind: 'The Times of Israel',
+        url: 'https://www.timesofisrael.com/female-idf-tank-crews-ran-down-dozens-of-hamas-terrorists-on-october-7/',
+      },
+      {
+        id: 'wiki-gez',
+        label: '2023 Israeli female tank crew fight',
+        kind: 'Wikipedia',
+        url: 'https://en.wikipedia.org/wiki/2023_Israeli_female_tank_crew_fight',
+      },
+    ],
+  },
+  {
+    id: 'ben-shimoni',
+    name: 'Ben Shimoni',
+    role: 'Fallen',
+    meta: '31 · Nova music festival, Re’im',
+    summary:
+      'Shimoni got out of the Nova festival by car with four strangers, drove them to Beersheba, and — over their pleas to stay — turned back. He brought out a second group of five and went back again. On his third trip, with Romi Gonen and two others in the car, he ran into an ambush and was killed; Gonen was taken hostage in Gaza. He is credited with saving at least nine people.',
+    sources: [
+      {
+        id: 'toi-shimoni',
+        label: 'Ben Shimoni, 31: Music-loving ‘angel’ who saved 9 from Supernova',
+        kind: 'The Times of Israel',
+        url: 'https://www.timesofisrael.com/ben-shimoni-31-music-loving-angel-who-saved-9-from-supernova/',
+      },
+      {
+        id: 'wiki-shimoni',
+        label: 'Kidnapping of Romi Gonen',
+        kind: 'Wikipedia',
+        url: 'https://en.wikipedia.org/wiki/Kidnapping_of_Romi_Gonen',
+      },
+    ],
+  },
 ];
 
 const EDITION: OurHeroesEdition = {

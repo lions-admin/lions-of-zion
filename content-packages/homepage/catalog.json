@@ -1,6 +1,6 @@
 {
-  "revision": "65ffebc44efbff50ed9aaad20c9197b68411d943ba5e098cf59f195ad52e1659",
-  "sourceRevision": "b5152b07dc65161e000ef5027ada59048875d0530399b7e8586f7cad46f46631",
+  "revision": "f4efe161fb83dbb9adfa0a8d9f0527d26672b42de6543396d46b81bfc25b74be",
+  "sourceRevision": "ea0aff6ec41407be64999e429dddbb51e942881bcc73721e3e7a9bc9a875e5fc",
   "candidates": [
     {
       "key": "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart",
@@ -5303,12 +5303,52 @@
       "mediaId": "aner-shapira"
     },
     {
+      "key": "hero:awad-darawshe",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "awad-darawshe",
+      "href": "/our-heroes#awad-darawshe",
+      "version": "0675ad7d429192356468e88098d80b51b517473cd8b9188c433599d2165067a0",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:ben-shimoni",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "ben-shimoni",
+      "href": "/our-heroes#ben-shimoni",
+      "version": "91415b8218c73526917a0e610bd36b994d191b22c6d3b90e63fa62322d6a83f0",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:elhanan-kalmanson",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "elhanan-kalmanson",
+      "href": "/our-heroes#elhanan-kalmanson",
+      "version": "22c990f1ea6709195d8081b1aa64658a24d33cc26dd0bd42da78c5e7372ecf3a",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
       "key": "hero:inbal-rabin-lieberman",
       "section": "heroes",
       "kind": "hero",
       "id": "inbal-rabin-lieberman",
       "href": "/our-heroes#inbal-rabin-lieberman",
       "version": "bb68ecd11f0f779410eb775f9c629e4c3aeda833ba47609ec5e6b75e1730613a",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:karni-gez",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "karni-gez",
+      "href": "/our-heroes#karni-gez",
+      "version": "10b7a4792120d7860ac35926f0bc0b42b5bcbd0a1c3370e30970ceddb11c6240",
       "date": "Aug 25, 2026",
       "mediaId": null
     },
@@ -5349,6 +5389,16 @@
       "id": "remo-salman-el-hozayel",
       "href": "/our-heroes#remo-salman-el-hozayel",
       "version": "59964d503a43f9cb3ceb49e1c000047d7afecb0e69efa60ec96176414536d784",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:salman-habaka",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "salman-habaka",
+      "href": "/our-heroes#salman-habaka",
+      "version": "bb2d9d44d3f3d5c1adb0f1c3130431b09c19bae3e3e59c7f6d4b784bad8f736c",
       "date": "Aug 25, 2026",
       "mediaId": null
     },

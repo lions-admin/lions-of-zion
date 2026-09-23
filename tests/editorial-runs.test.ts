@@ -90,12 +90,14 @@ describe('durable whole-site editorial runs', () => {
     expect(report).toContain('Publication proceeded without new media.');
     expect(report).toContain('Nothing was refused.');
 
+    /* Relaxed media-rights policy (2026-09-22): only `withdrawn` is refused,
+       and it is refused before any fetch. */
     const unsafe = await prepareEditorialMedia({
       ...externalMedia,
-      rights: { ...externalMedia.rights, surfaces: ['homepage'] },
+      rights: { ...externalMedia.rights, status: 'withdrawn', clearedAt: null, surfaces: [] },
     }, { runId: 'unsafe', candidateKey: 'unsafe', composer: 'test' }, materialize);
     expect(unsafe.media).toBeNull();
-    expect(unsafe.mediaWarning?.message).toMatch(/not cleared for article display/);
+    expect(unsafe.mediaWarning?.message).toMatch(/withdrawn/);
     expect(materialize).toHaveBeenCalledTimes(1);
   });
 
@@ -190,7 +192,7 @@ describe('durable whole-site editorial runs', () => {
     expect(updated.corrections[0].summary).toBe('Added a confirmed development');
     expect(updated.media).toEqual(original.media);
     await expect(publicationService(db).applyEditorial(input.operations[1], { runId: run.id, machineAuthor: 'machine:editorial' },
-      { ...media, contentHash: 'c'.repeat(64), rights: { ...media.rights, status: 'unknown' } }, { label: 'service:editorial' })).rejects.toThrow('cleared');
+      { ...media, contentHash: 'c'.repeat(64), rights: { ...media.rights, status: 'withdrawn', clearedAt: null, surfaces: [] } }, { label: 'service:editorial' })).rejects.toThrow('withdrawn');
   });
 
 

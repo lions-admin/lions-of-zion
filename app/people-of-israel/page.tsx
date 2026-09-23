@@ -143,6 +143,13 @@ const RECORDS_SHOWN = 24;
  *  `#new-records` and `/updates` are already for). */
 const HISTORY_RECORDS_SHOWN = 6;
 
+/** How many Our Heroes profiles the `#courage` band shows. The edition has
+ *  grown past sixty; every one of them as a card would bury the rest of the
+ *  hub, so the band shows the first few and its count and "All of Our Heroes"
+ *  link carry the reader to the full roll at `/our-heroes`. Three rows of the
+ *  three-column grid. */
+const PROFILES_SHOWN = 9;
+
 export default async function Page() {
   const [sectionResults, heroes, history] = await Promise.all([
     Promise.all(PEOPLE_SECTIONS.map(section =>
@@ -200,7 +207,7 @@ export default async function Page() {
             record beyond the picture. */}
         <p className={styles.sectionLede}>The preserved Our Heroes edition, kept at its own address. Every profile is built only from what named, mainstream press has already reported; the full record and its sources are on the profile’s own page.</p>
         <div className={styles.profiles}>
-          {profiles.map((profile, index) => <Profile key={profile.id} profile={profile} featured={index === 0} />)}
+          {profiles.slice(0, PROFILES_SHOWN).map((profile, index) => <Profile key={profile.id} profile={profile} featured={index === 0} />)}
         </div>
       </section>
 

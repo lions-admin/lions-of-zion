@@ -54,8 +54,8 @@ export async function generateMetadata(): Promise<Metadata> {
  * The portrait comes from the same registry and the same key the homepage and
  * `/people-of-israel` already use (`hero:<id>`, the profile's own `mediaRef`
  * winning), so a face cleared for one surface is the face on all of them and
- * nothing here can publish a picture those surfaces would not. Three of the
- * eight profiles have one; the other five are text-led, and the record is a
+ * nothing here can publish a picture those surfaces would not. Most profiles
+ * have none and are text-led, and the record is a
  * single column when there is no picture rather than a column with a hole in
  * it. Nothing moves: a portrait on this page does not scale under the pointer
  * the way a record's picture does on the hub, because these are not

@@ -1,6 +1,6 @@
 {
-  "revision": "f4efe161fb83dbb9adfa0a8d9f0527d26672b42de6543396d46b81bfc25b74be",
-  "sourceRevision": "ea0aff6ec41407be64999e429dddbb51e942881bcc73721e3e7a9bc9a875e5fc",
+  "revision": "be39c915b3df004b19202364a75b95071316310320d8bbecb4569dfdec070bf0",
+  "sourceRevision": "9d068f42123d9f7d5d7077006cb1d5a10ad7207cc5ef31325e09ccdfd115b4d2",
   "candidates": [
     {
       "key": "archive:hamas-massacre:85-year-old-yaffa-adar-being-abducted-into-gaza-in-a-golf-cart",
@@ -5283,6 +5283,56 @@
       "mediaId": "yom-kippur-war"
     },
     {
+      "key": "hero:aaron-bours",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "aaron-bours",
+      "href": "/our-heroes#aaron-bours",
+      "version": "cce8dc272e01ce733ab0edac46477367a3695437b71a193e112ee752bb3ec673",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:adir-shlomo",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "adir-shlomo",
+      "href": "/our-heroes#adir-shlomo",
+      "version": "b5e27b9deca67025be0f7fc59534dd745e058d6cbb1021b2bc3c534383dc3b15",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:agam-naim",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "agam-naim",
+      "href": "/our-heroes#agam-naim",
+      "version": "5063fade190d88006cddd1eb6665f7d1755955a65de1c1947567daea63a16e64",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:alim-abdallah",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "alim-abdallah",
+      "href": "/our-heroes#alim-abdallah",
+      "version": "daa27ec0875fa6071a9917aff90c0c50cce0068ff89f2015a412a911973aceef",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:amer-abu-sabila",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "amer-abu-sabila",
+      "href": "/our-heroes#amer-abu-sabila",
+      "version": "93ba8537b733a99fe846a10065840badbe17fa27af29fd8566fd020e74ebd6a4",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
       "key": "hero:amit-mann",
       "section": "heroes",
       "kind": "hero",
@@ -5303,12 +5353,82 @@
       "mediaId": "aner-shapira"
     },
     {
+      "key": "hero:angelyn-aguirre",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "angelyn-aguirre",
+      "href": "/our-heroes#angelyn-aguirre",
+      "version": "fce6bd586381a2c81b4d77a390a4f7ff30e8521a84e418afa2cf8c1f94b2ef3e",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:anula-ratnayaka",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "anula-ratnayaka",
+      "href": "/our-heroes#anula-ratnayaka",
+      "version": "b58c342a0b20152010144f54f39af1a51e1396aa32ab1e4a37809a254d2a903e",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:arnon-zamora",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "arnon-zamora",
+      "href": "/our-heroes#arnon-zamora",
+      "version": "ed514e6e974ce9a0b58b6668ec60ab83dddca51f24b3a2baec4d0f16f568961d",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:asaf-hamami",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "asaf-hamami",
+      "href": "/our-heroes#asaf-hamami",
+      "version": "ba4ec3b737f321e5eae32bb4370bcabad0fb0dbb7746e2f5cbdf58c5c2384d97",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:avi-buzaglo",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "avi-buzaglo",
+      "href": "/our-heroes#avi-buzaglo",
+      "version": "4335afaf3999ef50874c4840f80c1b129abdbb462628deb69bf761393b62c73c",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:avi-korin",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "avi-korin",
+      "href": "/our-heroes#avi-korin",
+      "version": "fba10ed0f7beb911a218e42ef074de9437f5d57a39b741afff7dbd008d30379a",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
       "key": "hero:awad-darawshe",
       "section": "heroes",
       "kind": "hero",
       "id": "awad-darawshe",
       "href": "/our-heroes#awad-darawshe",
       "version": "0675ad7d429192356468e88098d80b51b517473cd8b9188c433599d2165067a0",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:bar-kupershtein",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "bar-kupershtein",
+      "href": "/our-heroes#bar-kupershtein",
+      "version": "9195466385cf6cf91ef6323a3d937055c75916d5dc6e62ab21921c2a35cf103f",
       "date": "Aug 25, 2026",
       "mediaId": null
     },
@@ -5323,12 +5443,142 @@
       "mediaId": null
     },
     {
+      "key": "hero:bipin-joshi",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "bipin-joshi",
+      "href": "/our-heroes#bipin-joshi",
+      "version": "2f09c4da0353560ce06e01edd37a301da25bb0f573231f9b0939831f70a6c9f2",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:camille-jesalva",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "camille-jesalva",
+      "href": "/our-heroes#camille-jesalva",
+      "version": "79f8e9e2f38d4d6bd7325f7ed48b24effee226abe2a978d6a22b52cbb2c7d81f",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:daniel-rashed",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "daniel-rashed",
+      "href": "/our-heroes#daniel-rashed",
+      "version": "c1196c694304324d4bc6ebf3a4bcf619335316aa042d236235e9a92905900e29",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:daniel-sharabi",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "daniel-sharabi",
+      "href": "/our-heroes#daniel-sharabi",
+      "version": "112c7f0e4ff4b1df6c01e73a242134841853b870dfaa6a5644b7a67d524c4a66",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:debbie-abraham",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "debbie-abraham",
+      "href": "/our-heroes#debbie-abraham",
+      "version": "e7e17eb37a853c5d1c4ab0bbd98151fce5c0f01d1c23dd224cabb604fda06288",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:dolev-yehud",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "dolev-yehud",
+      "href": "/our-heroes#dolev-yehud",
+      "version": "9aed9f388bdb8afac1884f5990d4863b6b7e389281d13477cef10f780f131d44",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:ehsan-daxa",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "ehsan-daxa",
+      "href": "/our-heroes#ehsan-daxa",
+      "version": "fec5701486a4e6414a29bd0640b5095346f1af2079c2d7034062fd771e3a5d3a",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:eitan-oster",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "eitan-oster",
+      "href": "/our-heroes#eitan-oster",
+      "version": "5ff8621f86c1ef0ba5b1e81386867363015b5dd956ee3ecafc226db14e447a31",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:elad-winkelstein",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "elad-winkelstein",
+      "href": "/our-heroes#elad-winkelstein",
+      "version": "e8ce336aecbb37c0be356c75310ae7ead1e2a5f208b5f8fd650abc1097bd69ee",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
       "key": "hero:elhanan-kalmanson",
       "section": "heroes",
       "kind": "hero",
       "id": "elhanan-kalmanson",
       "href": "/our-heroes#elhanan-kalmanson",
-      "version": "22c990f1ea6709195d8081b1aa64658a24d33cc26dd0bd42da78c5e7372ecf3a",
+      "version": "32d1ac78eb0968e3efdc4d099f21fa7774892bb1adaaffe2522cdaf0c2706992",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:gil-taasa",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "gil-taasa",
+      "href": "/our-heroes#gil-taasa",
+      "version": "ec0f7e9586e9490d82d7598fe044a472fb43bc9b4176518c4cdeb11c1a948fab",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:hisham-alkarnawi",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "hisham-alkarnawi",
+      "href": "/our-heroes#hisham-alkarnawi",
+      "version": "1e2d514da4c365a4c921b9414f623464495a8b451501afdc117c1c91cda10603",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:ilan-fiorentino",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "ilan-fiorentino",
+      "href": "/our-heroes#ilan-fiorentino",
+      "version": "52094198f30553536c1d94738068b6b5c3b2cc7f8e31c7070d04a43524ee3e2e",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:ilan-weiss",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "ilan-weiss",
+      "href": "/our-heroes#ilan-weiss",
+      "version": "d677d8a797f418e7a13254293d809ec78ad1212b98f28821dde6883b115c84f5",
       "date": "Aug 25, 2026",
       "mediaId": null
     },
@@ -5343,12 +5593,102 @@
       "mediaId": null
     },
     {
+      "key": "hero:israel-chana",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "israel-chana",
+      "href": "/our-heroes#israel-chana",
+      "version": "d5e9c2873aa8d99fdb2e1bd022543781f7557e4c27bfdcb2de9a1bcd34571a5c",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:itzik-buzukashvili",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "itzik-buzukashvili",
+      "href": "/our-heroes#itzik-buzukashvili",
+      "version": "0c0e4fcf17aa06c460744ab7c9ba9c3e1ec9f5a7f534538f28d609bc0f6bbc78",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:jayar-davidov",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "jayar-davidov",
+      "href": "/our-heroes#jayar-davidov",
+      "version": "1c8ffba4392709861d50a1bb10dd4a318126917cc351f959f70a26b8d09b1d07",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
       "key": "hero:karni-gez",
       "section": "heroes",
       "kind": "hero",
       "id": "karni-gez",
       "href": "/our-heroes#karni-gez",
       "version": "10b7a4792120d7860ac35926f0bc0b42b5bcbd0a1c3370e30970ceddb11c6240",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:lev-kreitman",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "lev-kreitman",
+      "href": "/our-heroes#lev-kreitman",
+      "version": "01c45f52813fa708d6ed6b6377c6e27b57b7b88bfd8846a60b510f34d73e4712",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:liri-albag",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "liri-albag",
+      "href": "/our-heroes#liri-albag",
+      "version": "19ec824fdb3b317dd2793dbf91dc91a626505be1980247127af8206b9dff198d",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:matan-abergil",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "matan-abergil",
+      "href": "/our-heroes#matan-abergil",
+      "version": "e9f6ed3f02d3400b29b609629074c4b5bcebef60d8330ed8cf3bf2c9871b85b8",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:mhamad-el-atrash",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "mhamad-el-atrash",
+      "href": "/our-heroes#mhamad-el-atrash",
+      "version": "dd398e087cafc66904057e4c1befbaf461323ec6fb5a152dcb1e14649d35b70c",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:neria-sharabi",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "neria-sharabi",
+      "href": "/our-heroes#neria-sharabi",
+      "version": "3ebbdeb840a89c8e3dbf99bcfc957b4c3b5e6a73abacbcb1b2d5617154a5dd44",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:nivi-ohana",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "nivi-ohana",
+      "href": "/our-heroes#nivi-ohana",
+      "version": "d51647e333af5632315eace89a76dbaefd3dd4946c3763580590caff4cdd08c8",
       "date": "Aug 25, 2026",
       "mediaId": null
     },
@@ -5361,6 +5701,46 @@
       "version": "e755654b9581b906cae41c86ba156f68527d322773b8fd17a3e047ac4da1592b",
       "date": "Aug 25, 2026",
       "mediaId": "noam-tibon"
+    },
+    {
+      "key": "hero:ofir-libstein",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "ofir-libstein",
+      "href": "/our-heroes#ofir-libstein",
+      "version": "a57825751298d729fc594364fe7f29ab0a1800c034be1627006656f5d69f4444",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:ori-danino",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "ori-danino",
+      "href": "/our-heroes#ori-danino",
+      "version": "2ca03b8be1a3392cce3307c31d546aed0e16db5634e5e7799f6f73cdc711b0d4",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:oz-davidian",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "oz-davidian",
+      "href": "/our-heroes#oz-davidian",
+      "version": "40ec4f4a3d907bc5b8d167e5ca92b7407d07f83cb8aa9fafcb59a4270ed61cbb",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:rachel-edri",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "rachel-edri",
+      "href": "/our-heroes#rachel-edri",
+      "version": "b1557882eb17c01e7024bae60c5d3365f9b3a81219a096a7514d0ec087fa1df5",
+      "date": "Aug 25, 2026",
+      "mediaId": null
     },
     {
       "key": "hero:rami-davidian",
@@ -5393,12 +5773,122 @@
       "mediaId": null
     },
     {
+      "key": "hero:roi-levy",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "roi-levy",
+      "href": "/our-heroes#roi-levy",
+      "version": "e6b5c54346de25de48a3fba7552562731a7543cdfd75c76e010ccd3eb5517c3f",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:ron-shemer",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "ron-shemer",
+      "href": "/our-heroes#ron-shemer",
+      "version": "55e136ae1b0cf279ff315b4da2b69a41b9b0d154efa92db7f3e8fe4e4331cd85",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:saar-margolis",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "saar-margolis",
+      "href": "/our-heroes#saar-margolis",
+      "version": "03cc3d18fd38b3d7fcc2d8ed5d6c0852ac2d1237e2b46b20f79a4e848ce9960f",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:sabitha-baby-and-meera-mohanan",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "sabitha-baby-and-meera-mohanan",
+      "href": "/our-heroes#sabitha-baby-and-meera-mohanan",
+      "version": "cd66366341a92f74931ea19659acb3ef4db4a2d0d74132f762f2dda9f4ed6dfa",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
       "key": "hero:salman-habaka",
       "section": "heroes",
       "kind": "hero",
       "id": "salman-habaka",
       "href": "/our-heroes#salman-habaka",
-      "version": "bb2d9d44d3f3d5c1adb0f1c3130431b09c19bae3e3e59c7f6d4b784bad8f736c",
+      "version": "acc0ba9ef6d88f71ed3e214775f7a25a4dbd5a08938a1c06ee91096141c4526d",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:shira-suslik",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "shira-suslik",
+      "href": "/our-heroes#shira-suslik",
+      "version": "6e34e08e5cae1fabd3a2bc7970f8b96204789974a863a065f6639fb33ad9e5ae",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:tal-eilon",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "tal-eilon",
+      "href": "/our-heroes#tal-eilon",
+      "version": "874fbea6f173c848eef8923f1ebc02ca1f1fc9aa93cfb102ce00f419b600b324",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:tamir-adar",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "tamir-adar",
+      "href": "/our-heroes#tamir-adar",
+      "version": "802da215c0842983802edb6926fb8f50b33431d05441e0b661fa65a0acbedaca",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:yaakov-krasniansky",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "yaakov-krasniansky",
+      "href": "/our-heroes#yaakov-krasniansky",
+      "version": "a4e4fe4f4e8731ce22bca43f3d6723f28aea2bed46f2683ccb0fc52340df4272",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:yaron-shahar",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "yaron-shahar",
+      "href": "/our-heroes#yaron-shahar",
+      "version": "d5ca9117737ea1841c4dccf43f619669663f1409658b96ea452e9c0a97dc0296",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:yonatan-steinberg",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "yonatan-steinberg",
+      "href": "/our-heroes#yonatan-steinberg",
+      "version": "ae0e090d953928d7e53a6266e97b585317e4d6ae069c87b0afac1c921d94494c",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:yossi-tahar",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "yossi-tahar",
+      "href": "/our-heroes#yossi-tahar",
+      "version": "70a5824260da7d1fe4faeacc97b916a7647a6a34c30bb01388ed67bc9013c03a",
       "date": "Aug 25, 2026",
       "mediaId": null
     },
@@ -5409,6 +5899,16 @@
       "id": "youssef-ziadna",
       "href": "/our-heroes#youssef-ziadna",
       "version": "0bdb96105f31f416451c5ca05a9312071e6c9271f33834bb0fe4bf899bad1f31",
+      "date": "Aug 25, 2026",
+      "mediaId": null
+    },
+    {
+      "key": "hero:yuval-castleman",
+      "section": "heroes",
+      "kind": "hero",
+      "id": "yuval-castleman",
+      "href": "/our-heroes#yuval-castleman",
+      "version": "79a229b44183a37c1e94bf96b0ef98e80407392391eba435c8e65916eae356f1",
       "date": "Aug 25, 2026",
       "mediaId": null
     }

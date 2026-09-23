@@ -498,6 +498,13 @@
       "when": 1789420000000,
       "tag": "0070_search_summary",
       "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "7",
+      "when": 1789430000000,
+      "tag": "0071_relax_editorial_media_rights",
+      "breakpoints": true
     }
   ]
 }

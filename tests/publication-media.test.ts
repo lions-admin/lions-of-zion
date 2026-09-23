@@ -97,7 +97,11 @@ describe("publication hero media", () => {
     await expect(store.heroMedia(row.id)).resolves.not.toBeNull();
   });
 
-  it("withholds an asset the rights do not clear for the article surface", async () => {
+  /* Relaxed media-rights policy (owner, 2026-09-22, `docs/editorial-dna.md`):
+     `clearedAt` and `surfaces` are provenance, not display gates, and an
+     `unknown` status may be shown with its provenance. Only `withdrawn` is
+     kept off public surfaces. */
+  it("shows an asset cleared for another surface, since surfaces are provenance", async () => {
     const { db } = await publishedWithHero(cleared({
       contentHash: "b".repeat(64),
       rights: {
@@ -106,15 +110,22 @@ describe("publication hero media", () => {
       },
     }));
     const [listed] = await publicationService(db).listPublic({ limit: 10 });
-    /* Cleared, but not for this surface. The projection's bar is the article
-       bar, so a homepage-only clearance renders nothing on the record page. */
-    expect(listed!.media).toBeNull();
+    expect(listed!.media).not.toBeNull();
   });
 
-  it("keeps an uncleared asset off every public surface", async () => {
+  it("shows an asset whose rights are unknown, with its provenance", async () => {
     const { db } = await publishedWithHero(cleared({
       contentHash: "c".repeat(64),
       rights: { status: "unknown", basis: "No basis established", reference: "n/a", clearedAt: null, surfaces: [] },
+    }));
+    const [listed] = await publicationService(db).listPublic({ limit: 10 });
+    expect(listed!.media).not.toBeNull();
+  });
+
+  it("keeps a withdrawn asset off every public surface", async () => {
+    const { db } = await publishedWithHero(cleared({
+      contentHash: "d".repeat(64),
+      rights: { status: "withdrawn", basis: "Permission withdrawn", reference: "n/a", clearedAt: null, surfaces: [] },
     }));
     const [listed] = await publicationService(db).listPublic({ limit: 10 });
     expect(listed!.media).toBeNull();

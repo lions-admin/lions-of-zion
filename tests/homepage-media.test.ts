@@ -14,10 +14,11 @@ describe('homepage media and editorial integrity',()=>{
   expect(homepageMedia('publication:us-accepts-military-sale-of-helicopters-to-iraq--p5zzh')?.id).toBe('iraq-helicopter-sale-review');
   expect(homepageMedia('archive:october7:we-were-barricaded-for-hours-my-father-62-years-old-fought-terrorists-to-rescue')?.id).toBe('barricaded-safe-room');
  });
- it('exposes publication artwork to article pages only when that surface is cleared',()=>{
+ it('exposes publication artwork to article pages unless it is withdrawn or unsafe',()=>{
   expect(editorialMediaForSurface('publication:israel-ministry-of-defense-activities-regional-r-lref0','article')?.id).toBe('regional-defense-brief');
   expect(editorialMediaForSurface('publication:us-accepts-military-sale-of-helicopters-to-iraq--p5zzh','article')?.id).toBe('iraq-helicopter-sale-review');
-  expect(editorialMediaForSurface('case:case_02_manosphere_far_right','article')).toBeNull();
+  /* Surfaces are provenance, not a gate (relaxed policy, 2026-09-22). */
+  expect(editorialMediaForSurface('case:case_02_manosphere_far_right','article')?.id).toBe('manosphere-cluster-editorial');
  });
  it('does not carry a finding across a changed source version',()=>{expect(homepageExcerpt('publication:israel-ministry-of-defense-recent-announcements--m781m','whyItMatters','corrected')).toBeUndefined();expect(homepageExcerpt('missing','finding','1')).toBeUndefined();});
 });

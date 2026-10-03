@@ -1,0 +1,407 @@
+{
+  "contractVersion": "external-briefing-v1",
+  "runId": "grok-x-2026-10-03-054500",
+  "localDate": "2026-10-03",
+  "composer": "Grok scheduled X narrative report",
+  "publishers": [
+    {
+      "key": "idf",
+      "name": "Israel Defense Forces",
+      "homepageUrl": "https://www.idf.il/",
+      "language": "en",
+      "country": "IL",
+      "official": true
+    },
+    {
+      "key": "reuters",
+      "name": "Reuters",
+      "homepageUrl": "https://www.reuters.com/",
+      "language": "en",
+      "country": "GB",
+      "official": false
+    },
+    {
+      "key": "israel-com",
+      "name": "Israel.com",
+      "homepageUrl": "https://www.israel.com/",
+      "language": "en",
+      "country": "IL",
+      "official": false
+    },
+    {
+      "key": "bbc",
+      "name": "BBC News",
+      "homepageUrl": "https://www.bbc.com/news",
+      "language": "en",
+      "country": "GB",
+      "official": false
+    }
+  ],
+  "citations": [
+    {
+      "key": "idf-hamaida",
+      "publisherKey": "idf",
+      "title": "ELIMINATED: Tamer Hamaida, a Hamas sniper, in Khan Yunis strike",
+      "url": "https://x.com/IDF/status/2105986013579391084",
+      "canonicalUrl": "https://x.com/IDF/status/2105986013579391084",
+      "publishedAt": "2026-10-02T11:39:27+00:00",
+      "language": "en",
+      "excerpt": "ELIMINATED: Tamer Hamaida, a Hamas sniper who advanced attacks against Israeli civilians and IDF troops throughout the war and worked to restore terror capabilities in violation of the ceasefire. He was targeted and eliminated in a joint IDF and ISA aerial strike in Khan Yunis."
+    },
+    {
+      "key": "reuters-gaza-apartment",
+      "publisherKey": "reuters",
+      "title": "Israeli strike kills five in Gaza, health officials say",
+      "url": "https://www.reuters.com/world/middle-east/israeli-strike-kills-four-people-gaza-medics-say-2026-10-02/",
+      "canonicalUrl": "https://www.reuters.com/world/middle-east/israeli-strike-kills-four-people-gaza-medics-say-2026-10-02/",
+      "publishedAt": "2026-10-02T23:50:00+00:00",
+      "language": "en",
+      "excerpt": "CAIRO, Oct 3 (Reuters) - An Israeli airstrike killed at least five Palestinians in an apartment building in Gaza City early on Saturday, health and civil defense service officials said. There was no immediate comment from the Israeli military. The US brokered a ceasefire in the territory last year but negotiators have not agreed on terms for Hamas to disarm and for Israel to withdraw its troops. Israel, which says Hamas has been rearming and launching attacks in violation of an October ceasefire, has stepped up strikes on the group in recent weeks. Hamas has denied trying to carry out attacks or rebuild its arsenal and accuses Israel of undermining the Gaza peace deal. Gaza health officials have said at least 1,400 Palestinians have been killed by Israeli fire since last October's ceasefire. Israel says four of its soldiers have been killed by militants in Gaza over the same period. Updates death toll and sourcing in headline and paragraph 1. Reporting by Nidal Al Mughrabi; Editing by Edmund Klamann."
+    },
+    {
+      "key": "israel-com-hamaida",
+      "publisherKey": "israel-com",
+      "title": "Israel says airstrike in Khan Younis killed Hamas sniper Tamer Hamaida",
+      "url": "https://www.israel.com/news/israel-says-airstrike-in-khan-younis-killed-hamas-sniper-tamer-hamaida",
+      "canonicalUrl": "https://www.israel.com/news/israel-says-airstrike-in-khan-younis-killed-hamas-sniper-tamer-hamaida",
+      "publishedAt": "2026-10-02T11:45:00+00:00",
+      "language": "en",
+      "excerpt": "The IDF and Shin Bet say a Thursday night strike in southern Gaza killed a Hamas sniper, while Palestinian reports relayed in Israel described him as a Hamas policeman. The Israel Defense Forces (IDF) and the Israel Security Agency, known as the Shin Bet or ISA, said on Friday that a joint airstrike in the Khan Younis area of the southern Gaza Strip had killed Tamer Hamaida, whom they identified as a sniper in Hamas. According to the joint announcement issued by the IDF spokesperson, the strike took place on Thursday, and Hamaida had been planning attacks against Israeli troops. The military said Hamaida had pushed forward sniper and other attacks on soldiers and on Israeli civilians over the course of the war, and had worked to rebuild the group's capabilities. The Times of Israel reported the army's account, describing Hamaida as a sniper operative in the military wing of Hamas and saying the strike was carried out overnight. The Palestinian reports relayed in Israel placed the strike in the southwest of the Khan Younis area, close to the boundary with Rafah. The strike took place during a ceasefire. In its post on X, the IDF said Hamaida had been working to restore what it called terror capabilities in breach of the ceasefire, presenting the strike as a response to that activity. The Hebrew-language Telegram channel Abu Ali Express, relaying Palestinian reports, said an Israeli strike had hit a tent belonging to the a-Zatma family in southwest Khan Younis, killing one person and wounding three. The channel first named the dead man as Abu Hamza a-Zatma, then posted an update identifying him as Tamer Hamaida and describing him as a Hamas policeman. The IDF describes Hamaida as a sniper in Hamas; the Palestinian reports cited by Abu Ali Express describe him as a member of the Hamas police. These accounts are not reconciled in any of the material."
+    },
+    {
+      "key": "bbc-flydubai",
+      "publisherKey": "bbc",
+      "title": "Netanyahu says Flydubai attacker had Islamist radical indoctrination",
+      "url": "https://www.bbc.com/news/articles/crje8edqyej9o",
+      "canonicalUrl": "https://www.bbc.com/news/articles/crje8edqyej9o",
+      "publishedAt": "2026-10-01T15:38:00+00:00",
+      "language": "en",
+      "excerpt": "Israeli Prime Minister Benjamin Netanyahu says investigations suggest the man who stabbed his fellow pilot and tried to take over a flight from Dubai to Tel Aviv had undergone Islamist radical indoctrination. The Flydubai plane plunged more than 17,000ft (5,200m) two hours into its journey on Wednesday, before passengers and crew overpowered the attacker and retook control to land safely. Netanyahu told Fox News that it was looking very likely that the attacker, who he said was an Omani national, was going to down the plane. Meanwhile, the United Arab Emirates (UAE) state news agency reports investigations have begun there to determine whether the incident was linked to any terrorist activity or purpose. Netanyahu told Fox that once the attacker had been subdued and tied up by passengers and crew, he was calling out to the aircrew kill me, kill me, so it's clear he was suicidal - that's not a question. However, he stressed that he did not want to draw any firm conclusions as to motive yet. Both US President Donald Trump and UAE officials have indicated to the media that Iran may be responsible for the incident, without definitively blaming Tehran. Trump told reporters on Thursday that Iran would be hit very hard if it was deemed to have been involved in the attack. The prime minister was also asked earlier on the same network whether there was an indication if Iran was involved, he replied: It's too early to say. Flydubai's flight FZ1073, with more than 170 people on board, took off from Dubai International Airport in the UAE at 03:05 GMT, en route to Ben Gurion Airport. Flydubai has since suspended flights between Dubai and Tel Aviv as it carried out its own investigation into the incident. Israel's Transportation Ministry said the suspension aligns with Netanyahu's directive."
+    }
+  ],
+  "dailyBrief": {
+    "title": "Gaza apartment strike killed five as IDF says Hamas sniper eliminated",
+    "summary": "בלילה שבין שישי לשבת דיווחו גורמי בריאות בעזה על הרוגים בבניין דירות בעיר עזה, בלי תגובה מיידית של צה״ל. בנפרד מסר צה״ל כי חוסל צלף חמאס בחאן יונס. ב-X הופצה טענה לא מאומתת על רצח משפחה קתולית.",
+    "citationKeys": ["idf-hamaida", "reuters-gaza-apartment", "israel-com-hamaida", "bbc-flydubai"],
+    "claims": [
+      {
+        "title": "Health officials say five killed in Gaza City apartment strike",
+        "text": "רויטרס דיווח, מפי גורמי בריאות והגנה אזרחית, כי תקיפה ישראלית הרגה לפחות חמישה פלסטינים בבניין דירות בעיר עזה בשבת המוקדמת, וכי לא נמסרה תגובה מיידית מהצבא הישראלי.",
+        "layer": "source_claim",
+        "assessment": "unresolved",
+        "attributedTo": "Reuters, citing Gaza health and civil defense officials",
+        "uncertainty": "המספר מיוחס לגורמי בריאות בעזה. צה״ל לא אישר ולא הכחיש את התקיפה הזו בזמן פרסום הדיווח.",
+        "citationLinks": [
+          {
+            "citationKey": "reuters-gaza-apartment",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "הכתבה מייחסת את מניין החמישה לגורמי בריאות והגנה אזרחית ומציינת שאין תגובה מיידית של הצבא."
+          }
+        ]
+      },
+      {
+        "title": "IDF says it eliminated Hamas sniper Tamer Hamaida in Khan Yunis",
+        "text": "צה״ל מסר כי תאמר חמיידה, שתואר כצלף חמאס שקידם תקיפות נגד אזרחים וכוחות ופעל לשיקום יכולות בניגוד להפסקת האש, חוסל בתקיפה משותפת של צה״ל ושב״כ בחאן יונס.",
+        "layer": "source_claim",
+        "assessment": "unresolved",
+        "attributedTo": "IDF Spokesperson on X",
+        "uncertainty": "זה דיווח צבאי ישראלי. דיווחים פלסטיניים שהועברו בישראל תיארו את ההרוג כשוטר חמאס, והזיהויים לא יושבו.",
+        "citationLinks": [
+          {
+            "citationKey": "idf-hamaida",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "הפוסט הרשמי של צה״ל הוא המקור הישיר לטענת החיסול ולתיאור התפקיד."
+          },
+          {
+            "citationKey": "israel-com-hamaida",
+            "relation": "contextualizes",
+            "strength": "adequate",
+            "rationale": "Israel.com מצטט את ההודעה ומוסיף תיאור פלסטיני סותר של ההרוג כשוטר."
+          }
+        ]
+      },
+      {
+        "title": "Netanyahu says Flydubai attacker had Islamist radical indoctrination",
+        "text": "לפי BBC, נתניהו אמר שחקירות מרמזות שהטייס המשנה שדקר את הקברניט וניסה להשתלט על טיסה מדובאי לתל אביב עבר אינדוקטרינציה אסלאמיסטית רדיקלית, אך הדגיש שמוקדם למסקנה סופית על המניע ועל מעורבות איראן.",
+        "layer": "source_claim",
+        "assessment": "unresolved",
+        "attributedTo": "Benjamin Netanyahu, via BBC News",
+        "uncertainty": "האמירה היא הערכת ראש הממשלה על בסיס חקירה ראשונית. BBC מציין שהוא עצמו נמנע ממסקנה סופית.",
+        "citationLinks": [
+          {
+            "citationKey": "bbc-flydubai",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "BBC מצטט את דברי נתניהו לפוקס ניוז ואת הסייג שלא למסקנות סופיות."
+          }
+        ]
+      }
+    ],
+    "situation": {
+      "label": "תמונת מצב",
+      "passages": [
+        {
+          "text": "חלון הסריקה הוא מסוף יום חמישי בבוקר עד שבת לפנות בוקר לפי Asia/Jerusalem. שני אירועים נפרדים בעזה עומדים במרכז: דיווח רויטרס על הרוגים בבניין דירות בעיר עזה בלי תגובה צה״לית מיידית, והודעת צה״ל על חיסול צלף חמאס בחאן יונס.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-gaza-apartment", "idf-hamaida"]
+        },
+        {
+          "text": "רויטרס מזכיר שהפסקת אש בתיווך אמריקני נמשכת בלי הסכמה על פירוק חמאס ונסיגת ישראל, ושכל צד מאשים את האחר בהפרה. זה הרקע להסלמת התקיפות הישראליות שעליהן מדווח הסוכנות, לא אישור לזהות ההרוגים בבניין.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-gaza-apartment"]
+        }
+      ]
+    },
+    "keyEvents": {
+      "label": "אירועים מרכזיים",
+      "passages": [
+        {
+          "text": "לפי גורמי בריאות והגנה אזרחית שצוטטו ברויטרס, תקיפה ישראלית הרגה לפחות חמישה פלסטינים בבניין דירות בעיר עזה בשבת המוקדמת. לצבא לא הייתה תגובה מיידית בדיווח הזה, ולכן מספר ההרוגים ונסיבות הפגיעה נשארים לא מאומתים מצד ישראל.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-gaza-apartment"]
+        },
+        {
+          "text": "צה״ל פרסם כי תאמר חמיידה, צלף חמאס לטענתו, חוסל בתקיפה משותפת עם שב״כ בחאן יונס אחרי שקידם תקיפות ושיקום יכולות בניגוד להפסקת האש. Israel.com מוסר שדיווח פלסטיני שהועבר בישראל תיאר אותו כשוטר חמאס.",
+          "claimIndex": 1,
+          "citationKeys": ["idf-hamaida", "israel-com-hamaida"]
+        }
+      ]
+    },
+    "israeliPosition": {
+      "label": "עמדת ישראל",
+      "passages": [
+        {
+          "text": "עמדת צה״ל שפורסמה בחשבון הרשמי היא שתאמר חמיידה היה צלף חמאס שפעל נגד אזרחים וכוחות ושיקם יכולות טרור בניגוד להפסקת האש, ולכן סומן וחוסל עם שב״כ בחאן יונס. אין בפוסט הזה התייחסות לבניין הדירות בעיר עזה.",
+          "claimIndex": 1,
+          "citationKeys": ["idf-hamaida"]
+        },
+        {
+          "text": "לפי BBC, נתניהו אמר שהתוקף בטיסת פליידובאי, עומאני לדבריו, עבר אינדוקטרינציה אסלאמיסטית רדיקלית ושקרוב לוודאי התכוון להפיל את המטוס, אך הוסיף שמוקדם לקבוע אם איראן מעורבת.",
+          "claimIndex": 2,
+          "citationKeys": ["bbc-flydubai"]
+        }
+      ]
+    },
+    "internationalResponses": {
+      "label": "תגובות בינלאומיות",
+      "passages": [
+        {
+          "text": "BBC מדווח שסוכנות הידיעות של האמירויות מסרה שנפתחה בדיקה אם אירוע פליידובאי קשור לפעילות טרור, ושטראמפ ובכירים אמירתים רמזו לאפשרות של אחריות איראנית בלי לקבוע זאת. פליידובאי השעתה טיסות דובאי–תל אביב.",
+          "claimIndex": 2,
+          "citationKeys": ["bbc-flydubai"]
+        }
+      ]
+    },
+    "watchPoints": {
+      "label": "נקודות מעקב",
+      "passages": [
+        {
+          "text": "ב-X הופצה טענה שישראל רצחה אם ובת מהכנסייה הקתולית Holy Family. רויטרס מדווח על חמישה הרוגים בבניין בלי זיהוי דתי ובלי תגובה צה״לית. אין לאשר את שיוך הכנסייה עד שיהיה מקור ראשוני.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-gaza-apartment"]
+        },
+        {
+          "text": "יש להפריד בין חיסול הצלף בחאן יונס, שעליו יש הודעת צה״ל, לבין תקיפת הדירות בעיר עזה, שעליה אין עדיין תגובה צבאית ברויטרס. איחוד שני האירועים לטענת טבח אחת מטעה.",
+          "claimIndex": 1,
+          "citationKeys": ["idf-hamaida", "reuters-gaza-apartment"]
+        }
+      ]
+    },
+    "media": null
+  },
+  "articles": [
+    {
+      "section": "israel_update",
+      "title": "IDF says Hamas sniper Tamer Hamaida killed in Khan Younis strike",
+      "summary": "צה״ל ושב״כ מסרו על חיסול צלף חמאס בחאן יונס. דיווח פלסטיני שהועבר בישראל תיאר אותו כשוטר. זה אירוע נפרד מדיווח רויטרס על בניין דירות בעיר עזה.",
+      "citationKeys": ["idf-hamaida", "israel-com-hamaida", "reuters-gaza-apartment"],
+      "claims": [
+        {
+          "title": "IDF identified the man killed in Khan Younis as Hamas sniper Tamer Hamaida",
+          "text": "בפוסט הרשמי מסר צה״ל כי תאמר חמיידה, צלף חמאס שקידם תקיפות נגד אזרחים וכוחות לאורך המלחמה ופעל לשיקום יכולות בניגוד להפסקת האש, חוסל בתקיפה אווירית משותפת עם שב״כ בחאן יונס.",
+          "layer": "source_claim",
+          "assessment": "unresolved",
+          "attributedTo": "IDF",
+          "uncertainty": "התיאור הוא הודעה צבאית. לא צורפה כאן ראיה פומבית עצמאית לתפקיד.",
+          "citationLinks": [
+            {
+              "citationKey": "idf-hamaida",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "הפוסט הוא ההודעה הרשמית על החיסול ועל ייחוס התפקיד."
+            }
+          ]
+        },
+        {
+          "title": "Palestinian relay described Hamaida as a Hamas policeman",
+          "text": "Israel.com מדווח שערוץ אבו עלי אקספרס, שמצטט דיווחים פלסטיניים, זיהה את ההרוג כתאמר חמיידה ותיאר אותו כשוטר חמאס, אחרי שקודם מסר שם אחר. התיאורים לא יושבו.",
+          "layer": "source_claim",
+          "assessment": "disputed",
+          "attributedTo": "Israel.com, citing Abu Ali Express",
+          "uncertainty": "זה ציטוט של ציטוט. אין אימות עצמאי של כרטיס הארגון.",
+          "citationLinks": [
+            {
+              "citationKey": "israel-com-hamaida",
+              "relation": "supports",
+              "strength": "adequate",
+              "rationale": "הכתבה מביאה את שתי הגרסאות ומציינת שאינן מיושבות."
+            },
+            {
+              "citationKey": "idf-hamaida",
+              "relation": "contradicts",
+              "strength": "adequate",
+              "rationale": "צה״ל מייחס לו תפקיד צלף בזרוע הצבאית, לא שוטר."
+            }
+          ]
+        },
+        {
+          "title": "Gaza City apartment strike is a separate reported incident",
+          "text": "רויטרס דיווח בנפרד על תקיפה בבניין דירות בעיר עזה שבה נהרגו לפחות חמישה, בלי תגובה מיידית של הצבא. אין במקורות שצוטטו כאן זיהוי של ההרוגים האלה עם חמיידה.",
+          "layer": "source_claim",
+          "assessment": "unresolved",
+          "attributedTo": "Reuters",
+          "uncertainty": "ייתכן שמדובר באירועים שונים באותו לילה. אין הודעת צה״ל שמקשרת ביניהם.",
+          "citationLinks": [
+            {
+              "citationKey": "reuters-gaza-apartment",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "רויטרס ממקם את אירוע החמישה בעיר עזה ומציין היעדר תגובה צבאית."
+            },
+            {
+              "citationKey": "idf-hamaida",
+              "relation": "contextualizes",
+              "strength": "contextual",
+              "rationale": "הודעת צה״ל עוסקת בחאן יונס ובשם אחר, ולכן משמשת להפרדה ולא לאישור."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "צה״ל פרסם ביום שישי כי חוסל בחאן יונס תאמר חמיידה, שאותו הגדיר כצלף חמאס שקידם תקיפות נגד אזרחים ישראליים וכוחות צה״ל ופעל לשיקום יכולות בניגוד להפסקת האש. התקיפה תוארה כמשותפת לצה״ל ושב״כ.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-hamaida"]
+        },
+        {
+          "text": "Israel.com, שמסתמך על ההודעה ועל דיווח שהועבר מערוץ פלסטיני, מציין שאותו הרוג תואר גם כשוטר חמאס. הפער בין צלף בזרוע הצבאית לבין שוטר לא יושב במקורות שנקראו, ואין לאחד את הגרסאות.",
+          "claimIndex": 1,
+          "citationKeys": ["israel-com-hamaida", "idf-hamaida"]
+        },
+        {
+          "text": "במקביל דיווח רויטרס על תקיפה בבניין דירות בעיר עזה ועל לפחות חמישה הרוגים לפי גורמי בריאות, בלי תגובה מיידית של הצבא. זה אינו האירוע שעליו פרסם צה״ל את שם חמיידה, ואין לערבב את שני הדיווחים.",
+          "claimIndex": 2,
+          "citationKeys": ["reuters-gaza-apartment", "idf-hamaida"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "Gaza ceasefire strikes",
+      "primaryActor": "IDF",
+      "arena": "Gaza / Hamas",
+      "featuredIsraelStory": true,
+      "narrativeWatch": null,
+      "media": null
+    },
+    {
+      "section": "narrative_watch",
+      "title": "Gaza apartment strike killed five claim does not name a Catholic family",
+      "summary": "פוסטים באנגלית קבעו שישראל רצחה אם ובת מקהילת Holy Family. רויטרס מדווח על חמישה הרוגים בבניין בלי שיוך דתי ובלי תגובת צה״ל. הטענה הספציפית לא אומתה.",
+      "citationKeys": ["reuters-gaza-apartment"],
+      "claims": [
+        {
+          "title": "Viral posts said Israel murdered a Holy Family mother and daughter",
+          "text": "בלילה שבין שישי לשבת כתב חליל סייג שישראל רצחה משפחה קתולית, בעיקר נשים, בהפצצת דירה בעזה. כעבור דקות כתבה קארי פריג׳ן בולר כי נרצחו שתי נשים קתוליות מכנסיית Holy Family, אם ובת. אלה טענות הדוברים, לא ממצא מאומת.",
+          "layer": "source_claim",
+          "assessment": "unresolved",
+          "attributedTo": "Khalil Sayegh and Carrie Prejean Boller on X",
+          "uncertainty": "הפוסטים נצפו בסריקה. אין בהם שם מלא, מסמך כנסייה או תיעוד רפואי. המעורבות הנמוכה יחסית נמדדה דקות אחרי הפרסום.",
+          "citationLinks": [
+            {
+              "citationKey": "reuters-gaza-apartment",
+              "relation": "contextualizes",
+              "strength": "contextual",
+              "rationale": "רויטרס מאשר דיווח על תקיפת בניין דירות בעיר עזה באותו חלון, אבל לא את השיוך הקתולי."
+            }
+          ]
+        },
+        {
+          "title": "Reuters reported five dead and no Israeli military comment",
+          "text": "רויטרס מסר שגורמי בריאות והגנה אזרחית אמרו שלפחות חמישה פלסטינים נהרגו בבניין דירות בעיר עזה, ושלא הייתה תגובה מיידית של הצבא. הכתבה אינה מזהה קורבנות כקתולים, כבני Holy Family, או כאם ובת.",
+          "layer": "source_claim",
+          "assessment": "verified",
+          "attributedTo": "Reuters",
+          "uncertainty": "האימות הוא לתוכן הדיווח, לא למניין ההרוגים עצמו, שנשען על גורמים בעזה.",
+          "citationLinks": [
+            {
+              "citationKey": "reuters-gaza-apartment",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "הכתבה כוללת את מניין החמישה, את מקום האירוע ואת היעדר התגובה הצבאית, בלי שיוך דתי."
+            }
+          ]
+        },
+        {
+          "title": "Holy Family murder wording outruns the wire report",
+          "text": "הקפיצה מ״חמישה הרוגים בבניין לפי גורמי בריאות, בלי תגובת צה״ל״ אל ״המדינה הג׳נוסיידית רצחה אם ובת מ־Holy Family״ מוסיפה כוונה, שיוך קהילתי וזהות שלא מופיעים בדיווח הסוכנות. לכן הניסוח הוויראלי מטעה ביחס למה שאומת.",
+          "layer": "model_inference",
+          "assessment": "misleading",
+          "attributedTo": "Lions of Zion comparison of X posts and Reuters",
+          "uncertainty": "ייתכן שזיהוי קהילתי יופיע אחר כך במקור כנסייתי או רפואי. נכון לזמן האחזור הוא לא נמצא ברויטרס.",
+          "citationLinks": [
+            {
+              "citationKey": "reuters-gaza-apartment",
+              "relation": "contradicts",
+              "strength": "adequate",
+              "rationale": "הכתבה סותרת את הוודאות ואת השיוך הספציפי, גם אם אינה שוללת נפגעים בבניין."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "בחלון הלילה הופיעה באנגלית טענה שישראל רצחה משפחה קתולית בבניין בעזה, ואז גרסה ממוקדת יותר: שתי נשים מכנסיית Holy Family, אם ובת. המפיצים שזוהו בסריקה הם חליל סייג וקארי פריג׳ן בולר, שציטטה אותו ופנתה לבית הלבן.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-gaza-apartment"]
+        },
+        {
+          "text": "רויטרס, שעדכן את הכותרת לחמישה הרוגים, מייחס את המניין לגורמי בריאות והגנה אזרחית בעזה ומציין שאין תגובה מיידית של הצבא. אין בכתבה שם כנסייה, שיוך דתי, או תיאור של אם ובת.",
+          "claimIndex": 1,
+          "citationKeys": ["reuters-gaza-apartment"]
+        },
+        {
+          "text": "כל עוד אין הודעת צה״ל, מסמך של הקהילה הקתולית, או שם מאומת, אין לומר שהמדינה רצחה משפחת Holy Family. מותר לומר שדווח על הרוגים בבניין ושהשיוך הקתולי לא אומת. איחוד עם חיסול הצלף בחאן יונס אינו נתמך.",
+          "claimIndex": 2,
+          "citationKeys": ["reuters-gaza-apartment"]
+        }
+      ],
+      "narrativeTitle": "Israel murdered a Holy Family Catholic mother and daughter in Gaza",
+      "editorialTopic": "Gaza casualty identity claims",
+      "primaryActor": "X posters citing a Gaza apartment strike",
+      "arena": "Gaza / X discourse",
+      "featuredIsraelStory": false,
+      "narrativeWatch": {
+        "exactClaim": "Israel just murdered a Catholic mother and daughter from Holy Family Catholic Church in Gaza by bombing their apartment building.",
+        "propagators": [
+          "Khalil Sayegh (@KhalilJeries)",
+          "Carrie Prejean Boller",
+          "MO Abu Salah"
+        ],
+        "arenas": ["Gaza / X discourse", "US political replies"],
+        "trendDirection": "new",
+        "israeliPosition": "בדיווח רויטרס על תקיפת בניין הדירות בעיר עזה לא הייתה תגובה מיידית של צה״ל. ההודעה הנפרדת על חיסול צלף בחאן יונס אינה מתייחסת לכנסייה או לבניין הזה.",
+        "securityContext": "רויטרס מציין שישראל אומרת שחמאס מתחמש ומפר הפסקת אש, בעוד חמאס מכחיש ותולה את האשמה בישראל. אין במקורות קישור בין הטענה הקתולית לבין יעד צבאי שפורסם.",
+        "supportingCitationKeys": [],
+        "contradictingCitationKeys": ["reuters-gaza-apartment"],
+        "verificationState": "misleading",
+        "knownUnknowns": [
+          "אין שם מלא של ההרוגים בדיווח רויטרס",
+          "אין הודעת צה״ל על בניין הדירות בעיר עזה",
+          "אין אישור כנסייתי שנקרא בסריקה זו לשיוך Holy Family"
+        ]
+      },
+      "media": null
+    }
+  ]
+}

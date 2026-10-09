@@ -1,0 +1,533 @@
+{
+  "contractVersion": "external-briefing-v1",
+  "runId": "grok-x-2026-10-09-054800",
+  "localDate": "2026-10-09",
+  "composer": "Grok scheduled X narrative report",
+  "publishers": [
+    {
+      "key": "idf",
+      "name": "Israel Defense Forces",
+      "homepageUrl": "https://www.idf.il/",
+      "language": "en",
+      "country": "IL",
+      "official": true
+    },
+    {
+      "key": "jpost",
+      "name": "The Jerusalem Post",
+      "homepageUrl": "https://www.jpost.com/",
+      "language": "en",
+      "country": "IL",
+      "official": false
+    },
+    {
+      "key": "israel-com",
+      "name": "Israel.com",
+      "homepageUrl": "https://www.israel.com/",
+      "language": "en",
+      "country": "IL",
+      "official": false
+    },
+    {
+      "key": "reuters",
+      "name": "Reuters",
+      "homepageUrl": "https://www.reuters.com/",
+      "language": "en",
+      "country": "GB",
+      "official": false
+    }
+  ],
+  "citations": [
+    {
+      "key": "jpost-tzapalamus",
+      "publisherKey": "jpost",
+      "title": "IDF officer killed in southern Lebanon, three others injured during operation",
+      "url": "https://www.jpost.com/israel-news/defense-news/article-911108",
+      "canonicalUrl": "https://www.jpost.com/israel-news/defense-news/article-911108",
+      "publishedAt": "2026-10-08T21:21:00+03:00",
+      "language": "en",
+      "excerpt": "Capt. Eliav Haim Tzapalamus, aged 21, from Haifa, died in a combat incident in southern Lebanon, the military announced on Thursday. He was a combat officer in the Combat Engineering Corps, 603rd Battalion, 7th Brigade. Tzapalumus was killed when a Humvee flipped during operational activity in the Litani sector. Three other IDF soldiers were lightly injured in the incident. The three soldiers were evacuated to receive medical treatment at a hospital, and their families have been notified. This is a developing story."
+    },
+    {
+      "key": "israel-com-tzapalamus",
+      "publisherKey": "israel-com",
+      "title": "IDF captain, 21, killed as Humvee overturns near Lebanon's Litani River",
+      "url": "https://www.israel.com/news/idf-captain-21-killed-as-humvee-overturns-near-lebanons-litani-river",
+      "canonicalUrl": "https://www.israel.com/news/idf-captain-21-killed-as-humvee-overturns-near-lebanons-litani-river",
+      "publishedAt": "2026-10-08T21:39:00+03:00",
+      "language": "en",
+      "excerpt": "An Israeli army officer, Captain Eliav Haim Tzapalamus, was killed in southern Lebanon when the Humvee he was in overturned, and three other soldiers were lightly injured in the same incident. The IDF spokesperson announced his name after his family had been informed, and said the three injured soldiers were taken to hospital for treatment and their families notified. Tzapalamus was 21 and came from Haifa. The Jerusalem Post reported that the vehicle rolled over near the Litani River while troops were carrying out an operational mission. The Times of Israel, citing the military, said the deaths and injuries occurred on Thursday and that an investigation into the incident had been opened. According to the IDF announcement as relayed by several Hebrew outlets, Tzapalamus was a combat officer in Battalion 603 of the 7th Brigade. Ynet described Battalion 603 as a combat engineering unit and reported that his funeral would be held the following day at the military cemetery in Haifa. The Times of Israel identified his formation as the 7th Armored Brigade. The reports do not explain why the Humvee overturned, whether terrain, speed, mechanical failure or some other factor was involved. The IDF has said the incident is under investigation, and no findings have been published in the material available."
+    },
+    {
+      "key": "idf-yazji",
+      "publisherKey": "idf",
+      "title": "ELIMINATED: Muhammad Muhsen Nimr Yazji, a Hamas commander involved in holding hostages",
+      "url": "https://x.com/IDF/status/2108228191714214085",
+      "canonicalUrl": "https://x.com/IDF/status/2108228191714214085",
+      "publishedAt": "2026-10-08T16:09:04+00:00",
+      "language": "en",
+      "excerpt": "ELIMINATED: Muhammad Muhsen Nimr Yazji, a commander in the Shati Battalion of Hamas' military wing, who was involved in holding hostages in the Gaza City area, including Emily Damari, Romi Gonen, and Matan Angrest. Additionally, in the Sabra area, Muhammad Fawzi Muhammad Awad Gamal, a terrorist in the Daraj Tuffah Battalion of Hamas' military wing, was eliminated. Recently, the terrorists advanced attacks against Israeli civilians and IDF troops and operated to restore Hamas' capabilities, in systematic violation of the ceasefire. The terrorists were eliminated in order to remove the threat they posed."
+    },
+    {
+      "key": "idf-alam",
+      "publisherKey": "idf",
+      "title": "ELIMINATED: Ibrahim Alam, a Hamas commander who infiltrated Israel on October 7",
+      "url": "https://x.com/IDF/status/2108143326754906118",
+      "canonicalUrl": "https://x.com/IDF/status/2108143326754906118",
+      "publishedAt": "2026-10-08T10:31:51+00:00",
+      "language": "en",
+      "excerpt": "ELIMINATED: Ibrahim Alam, a commander in Hamas' military wing, who infiltrated Israel during the October 7 Massacre and took part in the murder of numerous Israeli civilians and in the abduction of Sergeant Shaked Dahan's body to Hamas captivity. Additionally, Mu'tasem Muhammad Suleiman Salah, a terrorist in Hamas' military wing, was eliminated. Recently, the terrorists advanced attacks against Israeli civilians and IDF troops and operated to restore Hamas' capabilities, in systematic violation of the ceasefire. The terrorists were eliminated in order to remove the threat they posed."
+    },
+    {
+      "key": "reuters-trump-iran",
+      "publisherKey": "reuters",
+      "title": "Trump says US will not attack Iran before midterm elections in November",
+      "url": "https://www.reuters.com/world/trump-us-having-productive-talks-with-iran-will-not-attack-before-us-elections-2026-10-08/",
+      "canonicalUrl": "https://www.reuters.com/world/trump-us-having-productive-talks-with-iran-will-not-attack-before-us-elections-2026-10-08/",
+      "publishedAt": "2026-10-08T16:23:00+00:00",
+      "language": "en",
+      "excerpt": "President Donald Trump said on Thursday that the US will not launch an attack on Iran before November's US midterm congressional elections, asserting that the two countries are having productive talks about ending the six-month-old war. We are having productive discussions with the Islamic Republic of Iran, Trump wrote in a post on Truth Social. We will not be attacking Iran at any time prior to the midterm elections to be held in the United States on November 3rd. The war, which began in February when the US and Israel launched strikes on Iran, has helped drive Trump's domestic approval ratings downward and is weighing heavily on his fellow Republicans as they seek to preserve their narrow legislative majorities in November's election. Iran and the US have exchanged proposals in recent weeks aimed at ending the war and reopening the Strait of Hormuz, a vital global energy shipping route. Trump rejected Tehran's latest offer. Iran's state media reported on Thursday that Tehran would not abandon uranium enrichment or hand over its uranium stockpile, citing the head of the country's Atomic Energy Organization, days after US Vice President JD Vance told Reuters that Iran must make meaningful reductions in its enrichment capacity."
+    },
+    {
+      "key": "reuters-houthis",
+      "publisherKey": "reuters",
+      "title": "Plane damaged at Riyadh airport as Houthis escalate attacks, sources say",
+      "url": "https://www.reuters.com/world/asia-pacific/syria-considers-help-yemen-war-after-saudi-airports-come-under-houthi-fire-2026-10-08/",
+      "canonicalUrl": "https://www.reuters.com/world/asia-pacific/syria-considers-help-yemen-war-after-saudi-airports-come-under-houthi-fire-2026-10-08/",
+      "publishedAt": "2026-10-08T09:11:00+00:00",
+      "language": "en",
+      "excerpt": "Yemen's Iran-aligned Houthis escalated their campaign of strikes against Saudi Arabia on Thursday, trying to shut down the kingdom's airspace and oil facilities with missile fire that has killed three people this week and left a plane badly damaged. The group said it had struck Riyadh airport and warned workers to stay away from energy plants, which would be targeted. Shrapnel from an interception or another projectile hit had left the commercial plane belonging to Saudi state carrier Saudia Airlines heavily damaged after catching fire while parked at an airport terminal on Thursday, three people briefed on the matter said. They said no passengers were believed to have been on the plane at the time but they could not rule out any injuries as a result of the incident. A thick black column of smoke and flames were shown rising from Riyadh airport in video verified by Reuters. Saudi Arabia's government media office, its civil aviation authority and Saudia Airlines did not respond to emailed requests for comment. Lufthansa and Air India said they were suspending flights to Riyadh after Houthi attacks. Separately, Saudi officials said debris from an intercepted missile had hit a kindergarten and medical complex in Riyadh. Those requests have taken on more urgency since Saudi authorities said on Wednesday that three people had been killed this week in strikes on Riyadh airport and Abha airport in the southwest. The Saudi-led coalition fighting in Yemen said it had destroyed two ballistic missiles launched by the group towards Riyadh and another towards Khamis Mushayt."
+    }
+  ],
+  "dailyBrief": {
+    "title": "IDF captain killed in Lebanon as Trump pauses Iran strikes and Houthis hit Saudi airports",
+    "summary": "סרן אליאב חיים צפלמוס נהרג כשהאמר התהפך בדרום לבנון, ושלושה לוחמים נפצעו קל. צה״ל מסר על חיסול מפקדי חמאס, בהם מי שהחזיק חטופים. טראמפ אמר שלא יתקוף את איראן לפני הבחירות, והחות׳ים הסלימו ירי על שדות תעופה בסעודיה.",
+    "citationKeys": ["jpost-tzapalamus", "israel-com-tzapalamus", "idf-yazji", "idf-alam", "reuters-trump-iran", "reuters-houthis"],
+    "claims": [
+      {
+        "title": "Captain Eliav Haim Tzapalamus killed when a Humvee flipped in southern Lebanon",
+        "text": "לפי הג׳רוזלם פוסט, הצבא הודיע שסרן אליאב חיים צפלמוס, בן 21 מחיפה, קצין הנדסה בגדוד 603 בחטיבה 7, נהרג כשהאמר התהפך בפעילות מבצעית בגזרת הליטני. שלושה לוחמים נוספים נפצעו קל ופונו לבית חולים.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "The Jerusalem Post, citing the military announcement",
+        "uncertainty": "הדיווח מייחס את פרטי האירוע לצבא. הסיבה להתהפכות עדיין בחקירה, ואין ממצאים פומביים.",
+        "citationLinks": [
+          {
+            "citationKey": "jpost-tzapalamus",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "הכתבה מוסרת את שם הקצין, הגדוד, החטיבה, התהפכות ההאמר ופציעת שלושה לוחמים."
+          },
+          {
+            "citationKey": "israel-com-tzapalamus",
+            "relation": "partially_supports",
+            "strength": "adequate",
+            "rationale": "Israel.com מצטט את הודעת דובר צה״ל ומוסיף שטיימס אוף ישראל דיווח על פתיחת חקירה."
+          }
+        ]
+      },
+      {
+        "title": "IDF says it eliminated Hamas commanders Yazji and Alam",
+        "text": "צה״ל פרסם כי מוחמד מוחסן נמר יזג׳י, מפקד בגדודי שאטי של הזרוע הצבאית של חמאס שהיה מעורב בהחזקת חטופים בעיר עזה, ובהם אמילי דמארי, רומי גונן ומתן אנגרסט, חוסל. בנפרד מסר הצבא כי אבראהים עלאם, מפקד שחדר לישראל בטבח 7 באוקטובר, חוסל אף הוא, וכי הפעילות נעשתה לנוכח הפרת הפסקת האש.",
+        "layer": "source_claim",
+        "assessment": "unresolved",
+        "attributedTo": "IDF Spokesperson on X",
+        "uncertainty": "אלה הודעות צבאיות ישראליות. בחלון הזה לא נמצא אימות עצמאי פומבי לזהות ההרוגים או לתפקידם.",
+        "citationLinks": [
+          {
+            "citationKey": "idf-yazji",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "הפוסט הרשמי מייחס ליזג׳י החזקת חטופים ומציין חיסול נוסף באזור סברה."
+          },
+          {
+            "citationKey": "idf-alam",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "הפוסט מייחס לעלאם חדירה ב־7 באוקטובר והשתתפות ברצח אזרחים ובחטיפת גופת סמל שקד דהן."
+          }
+        ]
+      },
+      {
+        "title": "Trump says the US will not attack Iran before November 3rd",
+        "text": "רויטרס מדווח שטראמפ כתב בטרות׳ סושיאל שיש דיונים פוריים עם איראן, ושהממשל לא יתקוף את איראן לפני בחירות האמצע בארצות הברית ב־November 3rd. לפי אותה כתבה, איראן מסרה שלא תוותר על העשרת אורניום.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "Reuters, citing Donald Trump on Truth Social",
+        "uncertainty": "האמירה היא התחייבות פוליטית לחלון עד הבחירות, לא הסכם. רויטרס מציין שטראמפ דחה את ההצעה האחרונה של טהראן.",
+        "citationLinks": [
+          {
+            "citationKey": "reuters-trump-iran",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "הכתבה מצטטת את נוסח הפוסט ואת הדיווח האיראני על המשך העשרה."
+          }
+        ]
+      },
+      {
+        "title": "Houthis claim a Riyadh airport strike; Reuters reports interception debris damaged a plane",
+        "text": "רויטרס מדווח שהחות׳ים אמרו שפגעו בשדה התעופה בריאד, בעוד מקורות שמסרו לסוכנות אמרו שרסיסים מיירוט או מפגיעה אחרת הציתו מטוס סעודיה חונה. הרשויות הסעודיות אמרו ששלושה בני אדם נהרגו השבוע בתקיפות על שדות התעופה בריאד ובאבחא.",
+        "layer": "source_claim",
+        "assessment": "disputed",
+        "attributedTo": "Reuters",
+        "uncertainty": "טענת הפגיעה הישירה היא של החות׳ים. תיאור הנזק למטוס מיוחס למקורות, והממשלה הסעודית לא הגיבה לפניות רויטרס.",
+        "citationLinks": [
+          {
+            "citationKey": "reuters-houthis",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "הכתבה מביאה גם את טענת החות׳ים וגם את תיאור הרסיסים, העשן המאומת וההודעה על שלושה הרוגים."
+          }
+        ]
+      }
+    ],
+    "situation": {
+      "label": "תמונת מצב",
+      "passages": [
+        {
+          "text": "חלון הסריקה הוא היממה שקדמה לבוקר יום שישי לפי Asia/Jerusalem. במרכז: הודעת הצבא על נפילת סרן אליאב חיים צפלמוס בדרום לבנון, הודעות צה״ל על חיסול מפקדי חמאס, והסלמה חות׳ית נגד שדות תעופה בסעודיה.",
+          "claimIndex": 0,
+          "citationKeys": ["jpost-tzapalamus", "idf-yazji", "reuters-houthis"]
+        },
+        {
+          "text": "רויטרס מדווח שטראמפ אמר שהממשל לא יתקוף את איראן לפני בחירות האמצע ב־November 3rd, אף שהמלחמה שנפתחה בפברואר נמשכת וטהראן מסרבת לוותר על העשרה. זה הרקע לשיח ב־X, לא אישור להפסקת אש.",
+          "claimIndex": 2,
+          "citationKeys": ["reuters-trump-iran"]
+        }
+      ]
+    },
+    "keyEvents": {
+      "label": "אירועים מרכזיים",
+      "passages": [
+        {
+          "text": "הג׳רוזלם פוסט מסר שהאמר התהפך בגזרת הליטני במהלך פעילות מבצעית, וכי שלושה לוחמים נפצעו קל. Israel.com מוסיף שטיימס אוף ישראל, מפי הצבא, דיווח על פתיחת חקירה, וכי אין עדיין ממצא פומבי לסיבת ההתהפכות.",
+          "claimIndex": 0,
+          "citationKeys": ["jpost-tzapalamus", "israel-com-tzapalamus"]
+        },
+        {
+          "text": "בחשבון הרשמי מסר צה״ל על חיסול מוחמד מוחסן נמר יזג׳י, שתואר כמפקד שהחזיק חטופים ובהם אמילי דמארי, רומי גונן ומתן אנגרסט, ועל חיסול אבראהים עלאם, שתואר כמי שחדר בטבח 7 באוקטובר. שתי ההודעות מייחסות את התקיפות להפרת הפסקת האש.",
+          "claimIndex": 1,
+          "citationKeys": ["idf-yazji", "idf-alam"]
+        }
+      ]
+    },
+    "israeliPosition": {
+      "label": "עמדת ישראל",
+      "passages": [
+        {
+          "text": "עמדת צה״ל שפורסמה בחשבון הרשמי היא שיזג׳י ועלאם קידמו תקיפות נגד אזרחים וכוחות ופעלו לשיקום יכולות חמאס בהפרה שיטתית של הפסקת האש, ולכן חוסלו כדי להסיר את האיום. אין בפוסטים האלה פירוט על תקרית הליטני.",
+          "claimIndex": 1,
+          "citationKeys": ["idf-yazji", "idf-alam"]
+        },
+        {
+          "text": "משרד החוץ פרסם ב־X הודעת אבל על סרן אליאב חיים צפלמוס, קצין בגדוד 603 בחטיבה 7 שנפל בקרב בדרום לבנון. פרטי התהפכות ההאמר והפציעות הקלות מובאים כאן מתוך הג׳רוזלם פוסט, שמייחס אותם להודעת הצבא.",
+          "claimIndex": 0,
+          "citationKeys": ["jpost-tzapalamus"]
+        }
+      ]
+    },
+    "internationalResponses": {
+      "label": "תגובות בינלאומיות",
+      "passages": [
+        {
+          "text": "לפי רויטרס, טראמפ כתב שיש דיונים פוריים עם הרפובליקה האסלאמית של איראן ושהוא לא יתקוף לפני November 3rd. אותה כתבה מוסרת שכלי תקשורת ממלכתיים באיראן אמרו שטהראן לא תנטוש העשרת אורניום ולא תמסור את המלאי.",
+          "claimIndex": 2,
+          "citationKeys": ["reuters-trump-iran"]
+        },
+        {
+          "text": "רויטרס מדווח שלופטהנזה ואייר אינדיה השעו טיסות לריאד אחרי תקיפות החות׳ים, ושהקואליציה הסעודית אמרה שהשמידה שני טילים בליסטיים ששוגרו לעבר ריאד ואחד לעבר ח׳מיס מושייט.",
+          "claimIndex": 3,
+          "citationKeys": ["reuters-houthis"]
+        }
+      ]
+    },
+    "watchPoints": {
+      "label": "נקודות מעקב",
+      "passages": [
+        {
+          "text": "ב־X הופצו סרטונים על פגיעה ישירה בבסיס ח׳מיס מושייט ועל השבתת שדה התעופה בריאד. רויטרס מאמת עשן ועדכון על מטוס סעודיה שניזוק, אבל מייחס את הנזק לרסיסי יירוט או לפגיעה אחרת, לא לאישור פגיעה ישירה.",
+          "claimIndex": 3,
+          "citationKeys": ["reuters-houthis"]
+        },
+        {
+          "text": "טיימס אוף עזה פרסם סרטון על אב הנפרד מבנו שנהרג בתקיפה על בניין מגורים בסברה. צה״ל מסר באותו יום על חיסול מחבל של חמאס באזור סברה. אין בחומר הזה זיהוי משותף, ואין לאחד את שני התיאורים.",
+          "claimIndex": 1,
+          "citationKeys": ["idf-yazji"]
+        }
+      ]
+    },
+    "media": null
+  },
+  "articles": [
+    {
+      "section": "israel_update",
+      "title": "IDF captain Eliav Tzapalamus killed as Humvee overturns near Litani",
+      "summary": "סרן אליאב חיים צפלמוס, בן 21 מחיפה, נהרג כשהאמר התהפך בגזרת הליטני. שלושה לוחמים נפצעו קל. הצבא פתח בחקירה, ואין עדיין ממצא פומבי לסיבה.",
+      "citationKeys": ["jpost-tzapalamus", "israel-com-tzapalamus"],
+      "claims": [
+        {
+          "title": "Military announced the death of Capt. Eliav Haim Tzapalamus",
+          "text": "הג׳רוזלם פוסט דיווח שהצבא הודיע ביום חמישי על נפילת סרן אליאב חיים צפלמוס, בן 21 מחיפה, קצין הנדסה קרבית בגדוד 603 בחטיבה 7, באירוע בדרום לבנון.",
+          "layer": "source_claim",
+          "assessment": "verified",
+          "attributedTo": "The Jerusalem Post, citing the military",
+          "uncertainty": "השם, הגיל והיחידה מיוחסים להודעת הצבא. אין כאן מסמך דובר צה״ל עצמאי מעבר לדיווחים המצטטים אותו.",
+          "citationLinks": [
+            {
+              "citationKey": "jpost-tzapalamus",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "הכתבה נושאת את ההודעה הצבאית על השם, הגיל, הגדוד והחטיבה."
+            }
+          ]
+        },
+        {
+          "title": "Humvee flipped in the Litani sector and three soldiers were lightly injured",
+          "text": "לפי הג׳רוזלם פוסט ההאמר התהפך בפעילות מבצעית בגזרת הליטני, ושלושה לוחמים נפצעו קל ופונו לטיפול. Israel.com מוסר שהחקירה נפתחה ושאין ממצא פומבי לסיבת ההתהפכות.",
+          "layer": "source_claim",
+          "assessment": "verified",
+          "attributedTo": "The Jerusalem Post and Israel.com, citing the IDF",
+          "uncertainty": "האירוע מתועד כתאונה מבצעית, לא כפגיעת אויב. הסיבה עדיין לא פורסמה.",
+          "citationLinks": [
+            {
+              "citationKey": "jpost-tzapalamus",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "הכתבה מתארת את התהפכות ההאמר ואת שלושת הפצועים."
+            },
+            {
+              "citationKey": "israel-com-tzapalamus",
+              "relation": "partially_supports",
+              "strength": "adequate",
+              "rationale": "Israel.com מוסיף שהצבא פתח בחקירה ושאין ממצאים פומביים."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "הג׳רוזלם פוסט דיווח ביום חמישי שסרן אליאב חיים צפלמוס, בן 21 מחיפה, קצין הנדסה בגדוד 603 בחטיבה 7, נהרג כשהאמר שבו נסע התהפך בפעילות מבצעית בגזרת הליטני בדרום לבנון.",
+          "claimIndex": 0,
+          "citationKeys": ["jpost-tzapalamus"]
+        },
+        {
+          "text": "שלושה לוחמים נוספים נפצעו קל, פונו לבית חולים, ומשפחותיהם עודכנו. Israel.com מצטט את דובר צה״ל ומוסיף שטיימס אוף ישראל דיווח על פתיחת חקירה, בלי הסבר אם מדובר בתוואי, במהירות או בכשל.",
+          "claimIndex": 1,
+          "citationKeys": ["jpost-tzapalamus", "israel-com-tzapalamus"]
+        },
+        {
+          "text": "Israel.com מצטט את דובר צה״ל ומוסיף שטיימס אוף ישראל דיווח על פתיחת חקירה, בלי הסבר אם מדובר בתוואי, במהירות או בכשל. אין בחומר שפורסם ממצא פומבי לסיבת ההתהפכות.",
+          "claimIndex": 1,
+          "citationKeys": ["israel-com-tzapalamus"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "נפילת קצין צה״ל בדרום לבנון",
+      "primaryActor": "Capt. Eliav Haim Tzapalamus",
+      "arena": "דרום לבנון",
+      "featuredIsraelStory": true,
+      "narrativeWatch": null,
+      "media": null
+    },
+    {
+      "section": "israel_update",
+      "title": "IDF says Hamas commander Yazji eliminated after holding hostages",
+      "summary": "צה״ל מסר על חיסול מוחמד מוחסן נמר יזג׳י, מפקד שהחזיק חטופים, ועל חיסול אבראהים עלאם, מפקד שחדר ב־7 באוקטובר. ההודעות מייחסות את התקיפות להפרת הפסקת האש.",
+      "citationKeys": ["idf-yazji", "idf-alam"],
+      "claims": [
+        {
+          "title": "IDF says Yazji held hostages including Emily Damari, Romi Gonen and Matan Angrest",
+          "text": "בפוסט הרשמי מסר צה״ל כי מוחמד מוחסן נמר יזג׳י, מפקד בגדודי שאטי, היה מעורב בהחזקת חטופים בעיר עזה, ובהם אמילי דמארי, רומי גונן ומתן אנגרסט, וכי חוסל.",
+          "layer": "source_claim",
+          "assessment": "unresolved",
+          "attributedTo": "IDF",
+          "uncertainty": "הייחוס הוא הודעת צה״ל. לא צורפה בפוסט ראיה פומבית עצמאית לתפקיד.",
+          "citationLinks": [
+            {
+              "citationKey": "idf-yazji",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "הפוסט הוא המקור הישיר לשם, לתפקיד ולשמות החטופים."
+            }
+          ]
+        },
+        {
+          "title": "IDF says Alam infiltrated Israel during the October 7 Massacre",
+          "text": "צה״ל מסר כי אבראהים עלאם, מפקד בזרוע הצבאית של חמאס, חדר לישראל בטבח 7 באוקטובר, השתתף ברצח אזרחים ובחטיפת גופת סמל שקד דהן, וחוסל לאחר שקידם תקיפות בניגוד להפסקת האש.",
+          "layer": "source_claim",
+          "assessment": "unresolved",
+          "attributedTo": "IDF",
+          "uncertainty": "גם זו הודעה צבאית. אין בחלון אימות עצמאי לזהות או לנסיבות החיסול.",
+          "citationLinks": [
+            {
+              "citationKey": "idf-alam",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "הפוסט מייחס את החדירה, הרצח והחטיפה ואת עילת החיסול."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "צה״ל פרסם כי מוחמד מוחסן נמר יזג׳י, מפקד בגדודי שאטי של הזרוע הצבאית של חמאס, חוסל אחרי שהיה מעורב בהחזקת חטופים בעיר עזה, ובהם אמילי דמארי, רומי גונן ומתן אנגרסט.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-yazji"]
+        },
+        {
+          "text": "באותה הודעה נמסר על חיסול מוחמד פאוזי מוחמד עווד גמאל, שתואר כמחבל בגדודי א־דרג׳ תופאח, באזור סברה. הצבא אמר שהשניים קידמו תקיפות ושיקום יכולות בהפרה שיטתית של הפסקת האש.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-yazji"]
+        },
+        {
+          "text": "בהודעה נפרדת מסר צה״ל על חיסול אבראהים עלאם, מפקד שחדר לישראל בטבח 7 באוקטובר והשתתף ברצח אזרחים ובחטיפת גופת סמל שקד דהן. גם כאן העילה שפורסמה היא הסרת איום והפרת הפסקת האש.",
+          "claimIndex": 1,
+          "citationKeys": ["idf-alam"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "חיסולי מפקדי חמאס",
+      "primaryActor": "IDF",
+      "arena": "רצועת עזה",
+      "featuredIsraelStory": false,
+      "narrativeWatch": null,
+      "media": null
+    },
+    {
+      "section": "narrative_watch",
+      "title": "Houthi Riyadh airport strike claim versus Reuters interception account",
+      "summary": "החות׳ים טענו לפגיעה בשדה התעופה בריאד. רויטרס אימת עשן ומטוס סעודיה שניזוק, ומייחס את הנזק לרסיסי יירוט או לפגיעה אחרת. טענת הפגיעה הישירה נשארת שנויה במחלוקת.",
+      "citationKeys": ["reuters-houthis"],
+      "claims": [
+        {
+          "title": "Houthis said they struck Riyadh airport",
+          "text": "רויטרס מדווח שהחות׳ים אמרו שפגעו בשדה התעופה בריאד והזהירו עובדים להתרחק ממתקני אנרגיה. זו טענת הארגון, לא ממצא עצמאי.",
+          "layer": "source_claim",
+          "assessment": "disputed",
+          "attributedTo": "Reuters, citing the Houthis",
+          "uncertainty": "הטענה מיוחסת לחות׳ים. רויטרס לא מאשר פגיעה ישירה במטרה.",
+          "citationLinks": [
+            {
+              "citationKey": "reuters-houthis",
+              "relation": "supports",
+              "strength": "adequate",
+              "rationale": "הכתבה מצטטת את טענת הקבוצה שפגעה בשדה התעופה."
+            }
+          ]
+        },
+        {
+          "title": "Reuters sources attribute the damaged Saudia plane to interception debris",
+          "text": "שלושה מקורות שמסרו לרויטרס אמרו שרסיסים מיירוט או מפגיעה אחרת הציתו מטוס סעודיה חונה בטרמינל. לא היו נוסעים במטוס, לפי אותם מקורות, אך לא נשללו פציעות. הרשויות הסעודיות אמרו ששלושה בני אדם נהרגו השבוע בריאד ובאבחא.",
+          "layer": "source_claim",
+          "assessment": "disputed",
+          "attributedTo": "Reuters",
+          "uncertainty": "תיאור המטוס מיוחס למקורות. משרד הממשלה, רשות התעופה וסעודיה לא הגיבו לפניות הסוכנות.",
+          "citationLinks": [
+            {
+              "citationKey": "reuters-houthis",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "הכתבה מפרטת את הרסיסים, העשן שאומת בווידאו, ואת הודעת הרשויות על שלושה הרוגים."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "ב־X הופצו בלילה צילומי לוויין וכתוביות על פגיעה ישירה במחסה מוקשח בבסיס ח׳מיס מושייט ועל השבתת שדה התעופה בריאד. רויטרס מדווח שהחות׳ים אכן טענו לפגיעה בריאד, אבל לא מאשר את נוסח הפגיעה הישירה.",
+          "claimIndex": 0,
+          "citationKeys": ["reuters-houthis"]
+        },
+        {
+          "text": "לפי מקורות שמסרו לרויטרס, רסיסים מיירוט או מפגיעה אחרת השאירו מטוס סעודיה פגוע קשות אחרי שעלה באש כשחנה בטרמינל. סוכנות אימתה סרטון של עמוד עשן שחור. לופטהנזה ואייר אינדיה השעו טיסות לריאד.",
+          "claimIndex": 1,
+          "citationKeys": ["reuters-houthis"]
+        },
+        {
+          "text": "הרשויות הסעודיות אמרו ביום רביעי ששלושה בני אדם נהרגו השבוע בתקיפות על שדות התעופה בריאד ואבחא. הקואליציה אמרה שהשמידה שני טילים בליסטיים לעבר ריאד ואחד לעבר ח׳מיס מושייט. זה לא אישור לטענת החות׳ים על פגיעה מוצלחת במטרה.",
+          "claimIndex": 1,
+          "citationKeys": ["reuters-houthis"]
+        }
+      ],
+      "narrativeTitle": "Houthi direct-hit claim on Saudi airports",
+      "editorialTopic": "תקיפות חות׳ים על סעודיה",
+      "primaryActor": "Houthis",
+      "arena": "סעודיה ותימן",
+      "featuredIsraelStory": false,
+      "narrativeWatch": {
+        "exactClaim": "Houthi Riyadh airport strike claim versus a Reuters interception account of debris damaging a Saudia plane",
+        "propagators": ["Houthi military statements via Reuters", "X accounts posting satellite-hit captions"],
+        "arenas": ["סעודיה", "X"],
+        "trendDirection": "rising",
+        "israeliPosition": null,
+        "securityContext": "ההסלמה היא גלישה של המלחמה בין ארה״ב לאיראן, לפי רויטרס, ואינה אירוע ישראלי ישיר בחלון הזה.",
+        "supportingCitationKeys": ["reuters-houthis"],
+        "contradictingCitationKeys": ["reuters-houthis"],
+        "verificationState": "disputed",
+        "knownUnknowns": ["האם הרסיסים הגיעו מיירוט או מפגיעה ישירה", "מספר הפצועים המדויק בריאד ביום חמישי", "אם צילומי הלוויין ב־X מראים את אותה תקיפה"]
+      },
+      "media": null
+    },
+    {
+      "section": "narrative_watch",
+      "title": "Gaza genocide libel recirculated on the massacre anniversary",
+      "summary": "ביום השנה לטבח הופצה שוב הטענה שישראל מבצעת רצח עם בעזה, בלי ראיה חדשה בחלון הסריקה. זו מסגרת תעמולה כשהיא מוצגת כעובדה סגורה, לא דיווח או ביקורת.",
+      "citationKeys": [],
+      "claims": [
+        {
+          "title": "Anniversary posts restated a genocide finding without new evidence in this pass",
+          "text": "בחלון הסריקה הופיעו פוסטים ומאמרי רקע שמכנים את המערכה בעזה רצח עם, לצד דחיות שכינו את המסגרת עלילת רצח עם. לא נמצא בפס הזה ממצא חדש, פסק דין או נתון ראשוני שמכריע את המחלוקת.",
+          "layer": "editorial_conclusion",
+          "assessment": "unsupported",
+          "attributedTo": "Lions of Zion editorial analysis",
+          "uncertainty": "המסקנה מבוססת על מדגם פוסטים, לא על סריקת כל השיח. היעדר ראיה חדשה בחלון אינו הכרעה משפטית לכאן או לכאן.",
+          "citationLinks": []
+        },
+        {
+          "title": "Hostage-execution blame was asserted without the underlying article in this pass",
+          "text": "פוסטים האשימו כתבה בהטלת האחריות להוצאת חטופים להורג על צה״ל, משום שכוחות חיפשו בקרבת מנהרה. הכתבה עצמה לא נשלפה בחלון, ולכן הטענה נגדה וגם הטענה שבתוכה אינן ניתנות לאימות כאן.",
+          "layer": "editorial_conclusion",
+          "assessment": "unsupported",
+          "attributedTo": "Lions of Zion editorial analysis",
+          "uncertainty": "נראה רק את תגובת הנגד, לא את הטקסט המקורי. אין להציג את התגובה כהפרכה של כתבה שלא נקראה.",
+          "citationLinks": []
+        }
+      ],
+      "passages": [
+        {
+          "text": "ביום השנה לטבח הופיעו במקביל האדרה של המתקפה, דחייה של פשעי המלחמה שנעשו בשמה, ושימוש חוזר במסגרת רצח עם. המסגרת הוצגה כעובדה סגורה בלי ממצא חדש בחלון הזה, וזו ההבחנה בין ביקורת לבין טענה שאינה נסמכת.",
+          "claimIndex": 0,
+          "citationKeys": []
+        },
+        {
+          "text": "בנפרד הופצה טענה שכתבה תולה בצה״ל את הוצאתם להורג של חטופים בידי חמאס. בפס הזה נשלפה רק התגובה הכועסת, לא הכתבה. אי אפשר לאמת או להפריך את הייחוס בלי המקור.",
+          "claimIndex": 1,
+          "citationKeys": []
+        },
+        {
+          "text": "מענה עובדתי קצר צריך להפריד בין טבח שמיוחס לחמאס גם בהודעות צה״ל על מפקדים שחדרו באותו יום, לבין מחלוקת על חוקיות המערכה מאז. אין לטעון מספר הרוגים שלא מופיע במקור שצוטט.",
+          "claimIndex": 0,
+          "citationKeys": []
+        }
+      ],
+      "narrativeTitle": "Gaza genocide libel on the massacre anniversary",
+      "editorialTopic": "עלילת רצח עם ביום השנה",
+      "primaryActor": "X discourse",
+      "arena": "X ויום השנה ל־7 באוקטובר",
+      "featuredIsraelStory": false,
+      "narrativeWatch": {
+        "exactClaim": "Gaza genocide libel recirculated on the massacre anniversary without a new finding in this monitoring window",
+        "propagators": ["anniversary commentary on X", "posts reacting to a hostage-execution article"],
+        "arenas": ["X", "יום השנה לטבח"],
+        "trendDirection": "rising",
+        "israeliPosition": "צה״ל מייחס לחמאס את טבח 7 באוקטובר ואת החזקת החטופים, בהודעות החיסול שפורסמו בחלון.",
+        "securityContext": null,
+        "supportingCitationKeys": [],
+        "contradictingCitationKeys": [],
+        "verificationState": "unsupported",
+        "knownUnknowns": ["נוסח הכתבה על הוצאת החטופים להורג", "אם יש פסק דין חדש בחלון שלא נדגם"]
+      },
+      "media": null
+    }
+  ]
+}

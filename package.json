@@ -68,7 +68,7 @@
   "dependencies": {
     "@ai-sdk/openai": "^3.0.107",
     "@ai-sdk/xai": "^3.0.128",
-    "@modelcontextprotocol/server": "^2.0.0",
+    "@modelcontextprotocol/server": "^2.3.1",
     "@neondatabase/auth": "0.5.0-beta",
     "@neondatabase/serverless": "^1.1.0",
     "@shadcn/react": "^0.3.1",

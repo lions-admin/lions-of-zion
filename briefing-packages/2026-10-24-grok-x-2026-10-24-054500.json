@@ -1,0 +1,349 @@
+{
+  "contractVersion": "external-briefing-v1",
+  "runId": "grok-x-2026-10-24-054500",
+  "localDate": "2026-10-24",
+  "composer": "Grok scheduled X narrative report",
+  "publishers": [
+    {
+      "key": "idf",
+      "name": "Israel Defense Forces",
+      "homepageUrl": "https://www.idf.il/",
+      "language": "en",
+      "country": "IL",
+      "official": true
+    },
+    {
+      "key": "timesofisrael",
+      "name": "The Times of Israel",
+      "homepageUrl": "https://www.timesofisrael.com/",
+      "language": "en",
+      "country": "IL",
+      "official": false
+    },
+    {
+      "key": "ap",
+      "name": "Associated Press",
+      "homepageUrl": "https://apnews.com/",
+      "language": "en",
+      "country": "US",
+      "official": false
+    },
+    {
+      "key": "aljazeera",
+      "name": "Al Jazeera English",
+      "homepageUrl": "https://www.aljazeera.com/",
+      "language": "en",
+      "country": "QA",
+      "official": false
+    }
+  ],
+  "citations": [
+    {
+      "key": "idf-hebron-op",
+      "publisherKey": "idf",
+      "title": "IDF launches targeted counterterrorism operation in Hebron area after shooting attack",
+      "url": "https://x.com/IDF/status/2113741929074528638",
+      "canonicalUrl": null,
+      "publishedAt": "2026-10-23T21:18:41Z",
+      "excerpt": "⭕ In response to the shooting attack in which 2 IDF soldiers fell and several others were wounded, the IDF along with other security forces launched a targeted & limited counterterrorism operation in the Hebron area, from which the terrorists had emerged. Troops have begun conducting precise searches throughout the area to locate and dismantle terrorist infrastructure and weapons, while questioning suspects. Residents living in the area where forces are operating will be able to leave through 3 designated exit points, following questioning and security screening. Individuals who raise suspicion during the screening process will be referred to security forces for further questioning.",
+      "language": "en"
+    },
+    {
+      "key": "toi-hebron-attack",
+      "publisherKey": "timesofisrael",
+      "title": "2 soldiers killed in West Bank shooting; IDF believes Palestinian gunmen planned larger attack",
+      "url": "https://www.timesofisrael.com/5-injured-2-critically-in-west-bank-shooting-idf-believes-gunmen-planned-larger-attack/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-10-23T11:30:00Z",
+      "excerpt": "Two Palestinian gunmen, Mohammad Jaaba and Firas Jaaba, both 27-year-old residents of Hebron, opened fire at a temporary military checkpoint near the southern West Bank city of Hebron on October 23, 2026. The attack killed two Israeli soldiers and wounded three others in a gunfight that lasted over 20 minutes, before troops killed both attackers. The slain soldiers were Staff Sgt. Ron Yonatan Roytman, 23, from Ashkelon, a squad commander in the 775th “Ari” Battalion of the Home Front Command’s Search and Rescue Brigade, and Sgt. Yuval Shai Svilem, 20, from Hod Hasharon, also serving in the same battalion. They were conducting routine checks on Palestinian vehicles leaving Hebron when the gunmen arrived by car around 7:30 a.m., exited on a side street, and opened fire using an assault rifle and pistol while taking cover behind buildings. The Israel Defense Forces (IDF) reported that a preliminary probe indicated the gunmen had planned a larger attack against Israeli civilians on Route 35 but, unable to reach the highway, targeted the checkpoint instead. A large quantity of ammunition was found in their vehicle, intended for the larger-scale operation. IDF Chief of Staff Lt. Gen. Eyal Zamir stated during an assessment, “This was a serious attack. The troops’ swift action prevented an even more serious attack and further harm to civilians and security forces.” Prime Minister Benjamin Netanyahu ordered preparations for a full West Bank lockdown and stated that forces would pursue Hamas terrorists everywhere.",
+      "language": "en"
+    },
+    {
+      "key": "ap-hebron-attack",
+      "publisherKey": "ap",
+      "title": "Israeli military says 2 soldiers were killed in the West Bank attack that also left 2 gunmen dead",
+      "url": "https://apnews.com/article/israel-shooting-west-bank-election-f6646718072b4ff6929cff43297edd05",
+      "canonicalUrl": null,
+      "publishedAt": "2026-10-23T12:50:00-07:00",
+      "excerpt": "Two Israeli soldiers were killed in an attack in the occupied West Bank on Friday morning that also left two suspected gunmen dead, the military said, violence that is likely to heighten political tensions and security concerns ahead of Israel’s parliamentary election next week. The army said two soldiers, Staff Sgt. Ron Yonatan Roytman, 23, and Sgt. Yuval Shai Svilem, 20, were killed and three others were lightly wounded during an attack by Palestinian gunmen. The attack took place near the Yehuda Junction outside the West Bank city of Hebron. The army said it had prevented a “terror attack against Israeli civilians” and that the two suspects, both Palestinians from Hebron, were armed with an M16 rifle and a handgun. It said the men arrived at an Israeli military position in the morning, triggering an exchange of fire lasting approximately 20 minutes, after which the gunmen were killed by Israeli troops. During a visit to the site of the attack on Friday, the prime minister said Israel would retaliate with a sweeping anti-terror operation in the Hebron neighborhood where the gunmen had resided. “We will evacuate the residents, we will go house by house, we will also remove the weapons there, and all the terror infrastructure will be dealt with and destroyed,” Netanyahu said.",
+      "language": "en"
+    },
+    {
+      "key": "aljazeera-gaza",
+      "publisherKey": "aljazeera",
+      "title": "Israeli attacks in Gaza kill four, including a young girl",
+      "url": "https://www.aljazeera.com/news/2026/10/22/israeli-attacks-in-gaza-kill-four-including-a-young-girl",
+      "canonicalUrl": null,
+      "publishedAt": "2026-10-22T16:06:00Z",
+      "excerpt": "Israeli attacks across Gaza have killed four Palestinians, including a young girl, in the past 24 hours as the Israeli military continues to seize more territory inside the enclave. The deaths on Thursday included a young girl who was killed by Israeli gunfire in northern Gaza near the Jabalia refugee camp, the Palestinian news agency Wafa reported. Al Jazeera’s Hani Mahmoud, reporting from Gaza City, said a strike on a vehicle in Gaza City’s Tal al-Hawa neighbourhood killed one person and seriously injured another. A separate strike killed a man on a bicycle in the southern city of Khan Younis. Meanwhile, the Gaza Health Ministry reported that a fourth person had died on Thursday of wounds sustained earlier in an Israeli strike. At least 1,538 Palestinians have been killed and 5,498 injured since the “ceasefire” took effect in October last year, according to the Gaza Health Ministry. Israel has killed more than 74,400 Palestinians in Gaza since October 2023. This comes amid warnings from a rights group that Gaza could face another famine as Israeli restrictions on incoming goods leave residents struggling to obtain food.",
+      "language": "en"
+    }
+  ],
+  "dailyBrief": {
+    "title": "Two IDF soldiers killed in Hebron shooting; counterterrorism operation launched in West Bank",
+    "summary": "Palestinian gunmen killed two IDF soldiers near Hebron on 23 October in a prolonged gunfight; IDF killed the attackers and launched targeted operations while Netanyahu ordered Hebron closure and preparations for broader West Bank measures ahead of elections.",
+    "citationKeys": [
+      "idf-hebron-op",
+      "toi-hebron-attack",
+      "ap-hebron-attack"
+    ],
+    "claims": [
+      {
+        "title": "Two IDF soldiers killed and two gunmen eliminated in Hebron area attack",
+        "text": "On 23 October 2026, two Palestinian gunmen from Hebron opened fire at a temporary IDF checkpoint near Yehuda Junction, killing Staff Sgt. Ron Yonatan Roytman, 23, and Sgt. Yuval Shai Svilem, 20, and wounding three others before being killed after a 20-minute exchange of fire.",
+        "layer": "observed_fact",
+        "assessment": "verified",
+        "attributedTo": null,
+        "uncertainty": null,
+        "citationLinks": [
+          {
+            "citationKey": "toi-hebron-attack",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Detailed reporting of names, location, duration and outcome corroborated by multiple sources."
+          },
+          {
+            "citationKey": "ap-hebron-attack",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "AP confirms the two soldiers killed and two gunmen dead."
+          }
+        ]
+      },
+      {
+        "title": "IDF launched targeted counterterrorism operation in Hebron",
+        "text": "In response, the IDF with other security forces launched a targeted and limited counterterrorism operation in the Hebron area to locate and dismantle terrorist infrastructure and weapons, with residents able to leave via designated exit points after screening.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "IDF",
+        "uncertainty": null,
+        "citationLinks": [
+          {
+            "citationKey": "idf-hebron-op",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Official IDF announcement of the operation details."
+          }
+        ]
+      },
+      {
+        "title": "Netanyahu ordered Hebron sealed and preparations for full West Bank closure",
+        "text": "Prime Minister Netanyahu ordered an immediate cordon on Hebron and preparations for a full lockdown on Judea and Samaria, stating forces would pursue Hamas terrorists with no safe haven and that the neighborhood would be cleared house by house.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "Prime Minister Benjamin Netanyahu",
+        "uncertainty": null,
+        "citationLinks": [
+          {
+            "citationKey": "ap-hebron-attack",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Reports Netanyahu's statements at the site and instructions to security forces."
+          },
+          {
+            "citationKey": "toi-hebron-attack",
+            "relation": "supports",
+            "strength": "adequate",
+            "rationale": "Details Netanyahu's orders and video statements."
+          }
+        ]
+      }
+    ],
+    "situation": {
+      "label": "Situation",
+      "passages": [
+        {
+          "text": "A shooting attack by two Palestinian gunmen near Hebron in the West Bank killed two IDF soldiers and wounded others on the morning of 23 October, prompting an immediate IDF response that eliminated the attackers and initiated targeted counterterrorism operations in the area from which they emerged.",
+          "claimIndex": 0,
+          "citationKeys": [
+            "toi-hebron-attack",
+            "idf-hebron-op"
+          ]
+        }
+      ]
+    },
+    "keyEvents": {
+      "label": "Key Events",
+      "passages": [
+        {
+          "text": "The gunmen, identified as Mohammad Jaaba and Firas Jaaba, arrived by car, engaged troops at a temporary checkpoint with an assault rifle and handgun for over 20 minutes, and were killed; large quantities of ammunition were found in their vehicle, which the IDF assessed indicated plans for a larger attack on civilians.",
+          "claimIndex": 0,
+          "citationKeys": [
+            "toi-hebron-attack"
+          ]
+        },
+        {
+          "text": "Netanyahu visited the site and directed the sealing of Hebron along with preparations for a broader West Bank closure, while the IDF began precise searches and screening procedures for residents in the operational area.",
+          "claimIndex": 2,
+          "citationKeys": [
+            "ap-hebron-attack",
+            "idf-hebron-op"
+          ]
+        }
+      ]
+    },
+    "israeliPosition": {
+      "label": "Israeli Position",
+      "passages": [
+        {
+          "text": "Israeli officials described the incident as a serious terror attack prevented from becoming larger by the swift action of troops, and stated that operations would continue to dismantle infrastructure and pursue those responsible with no safe haven.",
+          "claimIndex": 1,
+          "citationKeys": [
+            "idf-hebron-op",
+            "toi-hebron-attack"
+          ]
+        }
+      ]
+    },
+    "internationalResponses": null,
+    "watchPoints": {
+      "label": "Watch Points",
+      "passages": [
+        {
+          "text": "Monitor the scale and duration of the Hebron area operation and any broader West Bank measures ahead of the 27 October elections, as well as any claims of responsibility or further incidents.",
+          "claimIndex": 2,
+          "citationKeys": [
+            "ap-hebron-attack"
+          ]
+        }
+      ]
+    },
+    "media": null
+  },
+  "articles": [
+    {
+      "section": "israel_update",
+      "title": "IDF launches Hebron counterterrorism operation after two soldiers killed in shooting",
+      "summary": "Following the killing of two soldiers by Palestinian gunmen near Hebron, the IDF initiated targeted searches and screening in the area while Netanyahu ordered closures.",
+      "citationKeys": [
+        "idf-hebron-op",
+        "toi-hebron-attack",
+        "ap-hebron-attack"
+      ],
+      "claims": [
+        {
+          "title": "Attack details and IDF response confirmed",
+          "text": "The IDF confirmed two soldiers fell in the shooting and launched a limited counterterrorism operation in Hebron to dismantle infrastructure, with designated exit points for residents after screening.",
+          "layer": "source_claim",
+          "assessment": "verified",
+          "attributedTo": "IDF",
+          "uncertainty": null,
+          "citationLinks": [
+            {
+              "citationKey": "idf-hebron-op",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Direct official statement."
+            },
+            {
+              "citationKey": "toi-hebron-attack",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Corroborating details on casualties and probe."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "Israeli forces responded to the 23 October shooting near Hebron by launching precise searches for terrorist infrastructure and weapons in the area from which the gunmen emerged, allowing residents to exit through three designated points after security screening.",
+          "claimIndex": 0,
+          "citationKeys": [
+            "idf-hebron-op"
+          ]
+        },
+        {
+          "text": "The incident involved a prolonged gunfight in which Staff Sgt. Ron Yonatan Roytman and Sgt. Yuval Shai Svilem were killed, with the IDF assessing that the attackers had intended a larger assault on civilians based on ammunition found in their vehicle.",
+          "claimIndex": 0,
+          "citationKeys": [
+            "toi-hebron-attack",
+            "ap-hebron-attack"
+          ]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "West Bank security operations",
+      "primaryActor": "IDF",
+      "arena": "Hebron, Judea and Samaria",
+      "featuredIsraelStory": true,
+      "narrativeWatch": null,
+      "media": null
+    },
+    {
+      "section": "narrative_watch",
+      "title": "Killing occupation soldiers not terrorism and collective punishment claims after Hebron shooting",
+      "summary": "Some accounts question whether killing occupation soldiers constitutes terrorism and amplify narratives of collective punishment in the West Bank response.",
+      "citationKeys": [
+        "toi-hebron-attack",
+        "aljazeera-gaza"
+      ],
+      "claims": [
+        {
+          "title": "Questioning of terror designation for the attack",
+          "text": "Accounts such as Ali Abunimah challenged the characterization of the shooting that killed two soldiers as terrorism, asking how killing occupation soldiers can be terrorism.",
+          "layer": "source_claim",
+          "assessment": "disputed",
+          "attributedTo": "Ali Abunimah and similar accounts",
+          "uncertainty": "Individual posts; not a coordinated campaign with evidence of state control.",
+          "citationLinks": [
+            {
+              "citationKey": "toi-hebron-attack",
+              "relation": "contextualizes",
+              "strength": "contextual",
+              "rationale": "Provides the factual basis of the attack that is being reframed."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "Following the Hebron area shooting that killed two IDF soldiers, some online commentary questioned the application of the terrorism label to attacks on soldiers, contrasting it with official Israeli descriptions of a terror attack prevented from targeting civilians.",
+          "claimIndex": 0,
+          "citationKeys": [
+            "toi-hebron-attack"
+          ]
+        },
+        {
+          "text": "Broader narratives continue to highlight reported Palestinian casualties in Gaza from ongoing strikes, often without equivalent emphasis on the context of ceasefire violations or specific targeting of militants as stated by the IDF.",
+          "claimIndex": 0,
+          "citationKeys": [
+            "aljazeera-gaza"
+          ]
+        }
+      ],
+      "narrativeTitle": "Hebron attack as resistance not terrorism",
+      "editorialTopic": "Narrative framing of West Bank violence",
+      "primaryActor": "Online commentators",
+      "arena": "X/Twitter and critical media",
+      "featuredIsraelStory": false,
+      "narrativeWatch": {
+        "exactClaim": "Killing Israeli occupation soldiers in the West Bank cannot be considered terrorism and the subsequent operations constitute collective punishment.",
+        "propagators": [
+          "Ali Abunimah",
+          "various critical accounts",
+          "Al Jazeera reporting on Gaza"
+        ],
+        "arenas": [
+          "X/Twitter",
+          "Critical media outlets"
+        ],
+        "trendDirection": "rising",
+        "israeliPosition": "IDF and Netanyahu described it as a terror attack in which troops prevented a larger assault on civilians and launched targeted operations against infrastructure.",
+        "securityContext": "Heightened alert ahead of 27 October elections; ongoing low-level operations in Gaza and West Bank.",
+        "supportingCitationKeys": [
+          "aljazeera-gaza"
+        ],
+        "contradictingCitationKeys": [
+          "toi-hebron-attack",
+          "idf-hebron-op"
+        ],
+        "verificationState": "disputed",
+        "knownUnknowns": [
+          "Whether the gunmen acted alone or under direction",
+          "Full extent of operations and any civilian impacts"
+        ]
+      },
+      "media": null
+    }
+  ]
+}

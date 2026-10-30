@@ -1,1 +1,331 @@
-see below
+{
+  "contractVersion": "external-briefing-v1",
+  "runId": "grok-x-2026-10-30-054000",
+  "localDate": "2026-10-30",
+  "composer": "Grok scheduled geopolitical brief",
+  "publishers": [
+    {
+      "key": "toi",
+      "name": "The Times of Israel",
+      "homepageUrl": "https://www.timesofisrael.com",
+      "language": "en",
+      "country": "IL",
+      "official": false
+    },
+    {
+      "key": "cec",
+      "name": "Central Elections Committee",
+      "homepageUrl": "https://www.bechirot.gov.il",
+      "language": "he",
+      "country": "IL",
+      "official": true
+    },
+    {
+      "key": "bbc",
+      "name": "BBC News",
+      "homepageUrl": "https://www.bbc.com",
+      "language": "en",
+      "country": "GB",
+      "official": false
+    },
+    {
+      "key": "aljazeera",
+      "name": "Al Jazeera",
+      "homepageUrl": "https://www.aljazeera.com",
+      "language": "en",
+      "country": "QA",
+      "official": false
+    }
+  ],
+  "citations": [
+    {
+      "key": "cec-results",
+      "publisherKey": "cec",
+      "title": "Final 2026 Knesset election results as published by Central Elections Committee",
+      "url": "https://www.bechirot.gov.il",
+      "publishedAt": "2026-10-30T01:28:00+03:00",
+      "excerpt": "The Central Elections Committee published the final results of the 2026 national election. Official turnout was 77.9% with 5,716,665 votes cast. Seat distribution: Likud 27, Yashar 21, B’Yachad 12, Joint List 11, Democrats 8, Ra’am 8, Yisrael Beytenu 7, United Torah Judaism 7, Otzma Yehudit 7, Shas 6, Religious Zionism 6. Pro-Netanyahu bloc 53 seats, anti-Netanyahu bloc 48, Arab parties 19. The committee reiterated that investigation into alleged foreign influence will not affect the final results. Reports of widespread voter fraud are entirely unfounded. The elections were conducted lawfully and the integrity of the process was safeguarded.",
+      "language": "he"
+    },
+    {
+      "key": "toi-results",
+      "publisherKey": "toi",
+      "title": "With all votes counted, Netanyahu’s bloc has 53 seats, Eisenkot’s 48, Arab parties 19",
+      "url": "https://www.timesofisrael.com/with-all-votes-counted-netanyahus-bloc-at-53-seats-eisenkots-48-arab-parties-19/",
+      "publishedAt": "2026-10-30T01:28:00+03:00",
+      "excerpt": "The Central Elections Committee (CEC) published the final results of the 2026 national election in the early hours of Friday morning. The full official results are slated to be presented to President Isaac Herzog on Wednesday, after the CEC completes any final inquiries into errors or complaints. Following that, Herzog will meet with each party leader as they issue their recommendation for the person they believe should form the next government. The final voter turnout was 77.9% of eligible voters — the highest figure in decades — with 5,716,665 votes cast. The final results give Likud 27 seats, Yashar 21, B’Yachad 12, the Joint List 11, The Democrats 8, Ra’am 8, Yisrael Beytenu 7, United Torah Judaism 7, Otzma Yehudit 7, Shas 6 and Religious Zionism 6. Yoaz Hendel’s Reservists-Economic party fell below the 3.25% electoral threshold with 2.63% of the vote, along with Ofer Winter’s People of Israel, which had collected just 1.7% of the vote. These results leave the pro-Netanyahu bloc with 53 seats, the anti-Netanyahu bloc with 48 and the Arab factions with 19. The parties in the pro-Netanyahu bloc, which comprise the current government, held 68 seats in the outgoing Knesset, marking a significant drop. The Arab-led parties — the Joint List and Ra’am — won an all-time high of 19 seats, an all-time high and almost double their current 10 seats. This would be more than enough to tip the anti-Netanyahu bloc into a comfortable majority, if all Zionist bloc members except The Democrats hadn’t ruled out cooperating with Ra’am or the Joint List. In its statement early Friday morning, the CEC reiterated comments made by acting director Dean Livne earlier Thursday, rejecting claims of widespread voter fraud amid reports of a possible Qatari campaign to influence the vote. “Reports published throughout the day are entirely unfounded,” Livne said, noting that the investigation “will not affect the final results submitted to the president, nor does it concern any particular sector of the population.”",
+      "language": "en"
+    },
+    {
+      "key": "toi-probe",
+      "publisherKey": "toi",
+      "title": "Election committee chief instructs Shin Bet to probe suspicion of foreign influence on vote",
+      "url": "https://www.timesofisrael.com/election-committee-chief-instructs-shin-bet-to-probe-suspicion-of-foreign-influence-on-vote/",
+      "publishedAt": "2026-10-29T13:33:00+03:00",
+      "excerpt": "In a political bombshell, it was revealed Thursday that Central Elections Committee chair Justice Noam Sohlberg has asked the Shin Bet to investigate “serious suspicions” of foreign interference in Tuesday’s election, with Hebrew media reporting suspicions that Qatar had sent significant funds to Israel to influence the Arab vote. “Serious suspicions have been brought to my attention regarding improper influence on the elections — exerted through funding provided by foreign entities acting against Israeli interests,” Sohlberg wrote in a letter to Zini dated Wednesday. “While I cannot attest to the substance of these suspicions, it is my view that — given they involve foreign entities — there is an obligation to investigate them thoroughly,” he said. Several outlets, including Channel 12 and Ynet, reported that the information was given to Sohlberg by the Shin Bet. “This is an investigation opened in the past two weeks based on solid intelligence information,” an unnamed security official told Kan news. Near-final election results on Thursday showed the bloc supporting Prime Minister Benjamin Netanyahu winning 53 seats in the 120-seat Knesset, with the Zionist opposition at 48, and Arab parties at an unprecedented 19. The revelation of Sohlberg’s letter led to immediate allegations by coalition parties that the election had been “stolen.” Opposition leaders called for a thorough investigation, but warned against any political attempt to use the claim to illegitimately influence the election results, so long as the suspicions have not been substantiated. Acting CEC director general Dean Livne rejected on Thursday afternoon allegations of widespread voter fraud as baseless, reiterating that the vote was conducted lawfully and that to the best of the committee’s knowledge, there was no evidence of systematic irregularities. “The Knesset elections were conducted lawfully. The integrity of the elections at polling stations was rigorously safeguarded, and to the best of our knowledge, there is no basis for allegations of systematic violations of election integrity,” Livne wrote.",
+      "language": "en"
+    },
+    {
+      "key": "bbc-opposition",
+      "publisherKey": "bbc",
+      "title": "Israeli opposition accuses Netanyahu of trying to 'delegitimise' election",
+      "url": "https://www.bbc.com/news/articles/ckdd8qdl9e0eo",
+      "publishedAt": "2026-10-29T22:21:00+00:00",
+      "excerpt": "The main Israeli opposition leader Gadi Eisenkot and Arab-led party leaders have denounced Prime Minister Benjamin Netanyahu for alleging foreign interference following the election which saw his coalition lose its majority. Netanyahu's Likud accused Israel's Arab-led parties of \"stealing\" the election. Home security agency Shin Bet is investigating whether they received illegal funding from Qatar and Turkey. Qatar's foreign ministry denied the \"ridiculous and dangerous\" allegations and accused Israeli politicians of conducting a disinformation campaign against Doha. Final results confirmed that neither Netanyahu's bloc nor the Jewish opposition had won a majority in parliament. The two Arab party lists - The Joint List and the Ra'am - defied expectations to win a record 19 seats in the 120-seat Knesset following a surge in turnout among Arab voters. That positions them as potential kingmakers, with Netanyahu's bloc winning 53 seats and his rival Gadi Eisenkot's bloc securing 48. On Thursday Likud alleged that voters had been \"bribed\" to vote for Arab parties, after the head of the Central Elections Committee (CEC) asked the Shin Bet security service to investigate \"serious suspicions\" of foreign interference. Qatar's Foreign Ministry \"categorically\" denied the claims. Netanyahu and his Likud Party framed the allegations as a \"political earthquake\" and an \"an attack on democracy\", aimed at removing their right-wing government. But the Shin Bet later clarified that their investigation did not implicate an entire community who had voted legally, while acting CEC Director General Dean Livne said there was \"no basis for allegations of systematic violations of election integrity.\"",
+      "language": "en"
+    },
+    {
+      "key": "aj-qatar",
+      "publisherKey": "aljazeera",
+      "title": "Israel’s anti-Qatar campaign bleeds into elections",
+      "url": "https://www.aljazeera.com/news/2026/10/29/israels-anti-qatar-campaign-bleeds-into-elections",
+      "publishedAt": "2026-10-29T17:35:00+03:00",
+      "excerpt": "As Israel awaits the final results of its highly contested elections , some political figures have sought to drag Qatar into the fray with claims of voting interference – an accusation Doha rejects. Israeli Prime Minister Benjamin Netanyahu’s Likud party and media outlets associated with it have, without evidence, accused Qatar of sending money to Arab parties in Israel for get-out-the-vote drives. Qatar’s Ministry of Foreign Affairs spokesman on Thursday categorically denied the allegations of interference or funding of any activities aimed at influencing the election results. “We reject the accusations made by certain Israeli politicians and their contacts in the media, who have launched yet another disinformation campaign aiming to drag Qatar into Israeli political disputes following this week’s elections,” Majed al-Ansari said in a post on X. Despite the latest claims, Dean Livine, the acting director for Israel’s Central Elections Committee, has rejected allegations of foreign interference in the elections. “The Knesset elections were conducted lawfully. The integrity of the elections at polling stations was rigorously safeguarded,” he wrote in a letter to an MP and fellow committee member. He reiterated that Qatar has “no involvement” in Israel’s political or electoral competition. “These are internal Israeli matters in which we do not interfere, and we will not accept any attempt to draw Qatar into its domestic political disputes.”",
+      "language": "en"
+    }
+  ],
+  "dailyBrief": {
+    "title": "Israeli election results leave no majority as foreign influence probe begins",
+    "summary": "Final count shows Netanyahu bloc with 53 seats, opposition 48, Arab parties record 19. CEC ordered Shin Bet probe into alleged foreign funding of Arab vote; officials say no impact on results and no systematic fraud.",
+    "citationKeys": ["cec-results", "toi-results", "toi-probe", "bbc-opposition"],
+    "claims": [
+      {
+        "title": "Final seat distribution after full count",
+        "text": "With all votes counted, Netanyahu’s pro-bloc holds 53 seats, Eisenkot’s anti-Netanyahu bloc 48, and Arab parties (Joint List 11 + Ra’am 8) a record 19. Turnout was 77.9% with over 5.7 million votes. Neither major bloc reaches 61.",
+        "layer": "observed_fact",
+        "assessment": "verified",
+        "citationLinks": [
+          {
+            "citationKey": "toi-results",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Direct report of CEC final results published early Friday."
+          },
+          {
+            "citationKey": "cec-results",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Official CEC publication of the seat totals."
+          }
+        ]
+      },
+      {
+        "title": "Shin Bet probe into foreign influence suspicions",
+        "text": "CEC chair Justice Noam Sohlberg instructed Shin Bet to investigate serious suspicions of foreign entities funding efforts to influence the election, reported as possible Qatari funds for Arab turnout. Probe does not affect final results.",
+        "layer": "source_claim",
+        "assessment": "unresolved",
+        "attributedTo": "Central Elections Committee / Justice Sohlberg",
+        "citationLinks": [
+          {
+            "citationKey": "toi-probe",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Letter and reporting on the instruction to Shin Bet."
+          }
+        ]
+      },
+      {
+        "title": "Official rejection of systematic fraud claims",
+        "text": "Acting CEC director Dean Livne stated elections were conducted lawfully, integrity safeguarded, and there is no basis for allegations of systematic violations. Investigation will not change results submitted to the president.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "Central Elections Committee acting director",
+        "citationLinks": [
+          {
+            "citationKey": "toi-results",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Direct quote from Livne in the results article."
+          },
+          {
+            "citationKey": "cec-results",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Official confirmation that probe does not affect results."
+          }
+        ]
+      }
+    ],
+    "situation": {
+      "label": "Situation",
+      "passages": [
+        {
+          "text": "Israel’s 2026 Knesset election produced a hung parliament. After the complete count, including double-envelope ballots, the pro-Netanyahu bloc secured 53 seats, the opposition bloc led by Gadi Eisenkot 48 seats, and the two Arab lists a combined record 19 seats. Turnout reached 77.9 percent.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-results", "cec-results"]
+        }
+      ]
+    },
+    "keyEvents": {
+      "label": "Key Events",
+      "passages": [
+        {
+          "text": "Central Elections Committee chair Justice Noam Sohlberg asked the Shin Bet to investigate suspicions of foreign funding aimed at influencing the vote, widely reported as possible Qatari support for Arab get-out-the-vote efforts. Coalition figures labeled the situation “Ra’amgate” and claimed the election was stolen.",
+          "claimIndex": 1,
+          "citationKeys": ["toi-probe"]
+        },
+        {
+          "text": "Acting CEC director Dean Livne publicly rejected claims of systematic fraud or interference that would affect results, stating the elections were conducted lawfully and the probe will not change the numbers presented to the president.",
+          "claimIndex": 2,
+          "citationKeys": ["toi-results", "cec-results"]
+        }
+      ]
+    },
+    "israeliPosition": {
+      "label": "Israeli Position",
+      "passages": [
+        {
+          "text": "The Central Elections Committee has confirmed the final seat totals and stated that ongoing inquiries into possible foreign influence do not alter the published results or the integrity of the polling process.",
+          "claimIndex": 2,
+          "citationKeys": ["cec-results", "toi-results"]
+        }
+      ]
+    },
+    "internationalResponses": {
+      "label": "International Responses",
+      "passages": [
+        {
+          "text": "Qatar’s Foreign Ministry categorically denied any interference or funding of activities intended to influence the Israeli election, calling the allegations a disinformation campaign. Opposition leader Gadi Eisenkot accused Netanyahu of attempting to delegitimise the results.",
+          "claimIndex": 1,
+          "citationKeys": ["bbc-opposition", "aj-qatar"]
+        }
+      ]
+    },
+    "watchPoints": {
+      "label": "Watch Points",
+      "passages": [
+        {
+          "text": "President Herzog will receive official results and begin consultations. Coalition arithmetic remains blocked without Arab parties, which most Zionist parties have ruled out. The Shin Bet probe’s findings, due within a week, will shape the political narrative around legitimacy.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-results", "toi-probe"]
+        }
+      ]
+    }
+  },
+  "articles": [
+    {
+      "section": "israel_update",
+      "title": "Final 2026 Knesset results: Netanyahu bloc 53, opposition 48, Arab parties 19",
+      "summary": "Complete count confirms hung parliament. Likud remains largest party with 27 seats. Arab lists reach record 19 seats. CEC says fraud claims unfounded and probe will not change results.",
+      "citationKeys": ["toi-results", "cec-results"],
+      "claims": [
+        {
+          "title": "Seat totals after full count",
+          "text": "Likud 27, Yashar 21, B’Yachad 12, Joint List 11, Democrats 8, Ra’am 8, and others as listed, producing 53–48–19 bloc split.",
+          "layer": "observed_fact",
+          "assessment": "verified",
+          "citationLinks": [
+            {
+              "citationKey": "toi-results",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "CEC figures reported by Times of Israel."
+            },
+            {
+              "citationKey": "cec-results",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Official CEC numbers."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "The Central Elections Committee published the final results of the 2026 national election early Friday. Turnout stood at 77.9 percent with 5,716,665 votes cast. Likud took 27 seats, Yashar 21, B’Yachad 12, the Joint List 11, Ra’am 8, the Democrats 8, and the remaining parties filled the rest, leaving the pro-Netanyahu bloc at 53, the opposition at 48 and the Arab parties at 19.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-results", "cec-results"]
+        },
+        {
+          "text": "Acting director Dean Livne reiterated that reports of widespread fraud are unfounded and that the investigation into possible foreign influence will not affect the final results submitted to the president.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-results", "cec-results"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "Israeli election results 2026",
+      "primaryActor": "Central Elections Committee",
+      "arena": "Israeli domestic politics",
+      "featuredIsraelStory": true,
+      "narrativeWatch": null
+    },
+    {
+      "section": "narrative_watch",
+      "title": "Claims of stolen election and Qatari funding of Arab vote",
+      "summary": "Likud and Netanyahu allies assert foreign interference “stole” the election via Qatari funds for Arab parties. CEC ordered a probe but officials state no systematic fraud and results stand. Qatar and opposition reject the allegations as baseless and political.",
+      "citationKeys": ["toi-probe", "bbc-opposition", "aj-qatar"],
+      "claims": [
+        {
+          "title": "Allegation of foreign-funded stolen election",
+          "text": "Likud described the situation as “Ra’amgate,” an earthquake in which foreign entities (reported as Qatar) tried to buy the election for Arab parties in order to Islamize Israel and defeat the right.",
+          "layer": "source_claim",
+          "assessment": "unresolved",
+          "attributedTo": "Likud party",
+          "citationLinks": [
+            {
+              "citationKey": "toi-probe",
+              "relation": "supports",
+              "strength": "adequate",
+              "rationale": "Reports of Likud statements following the probe order."
+            }
+          ]
+        },
+        {
+          "title": "Official and external denials",
+          "text": "CEC acting director, Shin Bet context, Qatar’s Foreign Ministry and opposition leaders all reject claims of systematic fraud or interference that would invalidate the vote. Qatar called the charges ridiculous and a disinformation campaign.",
+          "layer": "source_claim",
+          "assessment": "verified",
+          "citationLinks": [
+            {
+              "citationKey": "toi-probe",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Livne letter and statements."
+            },
+            {
+              "citationKey": "bbc-opposition",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Opposition and Qatar denials."
+            },
+            {
+              "citationKey": "aj-qatar",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Qatar MFA spokesman statement."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "Following the order for a Shin Bet investigation into possible foreign funding, Likud issued statements warning of an attempted foreign takeover of the Knesset and Islamization of Israel, labeling the affair “Ra’amgate” and asserting that Arab parties stole the election with cash and foreign money.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-probe"]
+        },
+        {
+          "text": "Qatar’s Foreign Ministry spokesman Majed al-Ansari categorically denied any interference or funding of election-related activities, accusing Israeli politicians of a disinformation campaign. Acting CEC director Livne and opposition figures stated there is no evidence of systematic violations and that the probe does not change the results.",
+          "claimIndex": 1,
+          "citationKeys": ["bbc-opposition", "aj-qatar", "toi-probe"]
+        }
+      ],
+      "narrativeTitle": "Stolen election via Qatari funding of Arab parties",
+      "editorialTopic": "Election integrity allegations",
+      "primaryActor": "Likud / Netanyahu allies",
+      "arena": "Israeli elections and foreign influence claims",
+      "featuredIsraelStory": false,
+      "narrativeWatch": {
+        "exactClaim": "Foreign entities, primarily Qatar, funded Arab parties and voters to steal the 2026 Israeli election from the right-wing bloc.",
+        "propagators": ["Likud", "Benjamin Netanyahu", "coalition allies"],
+        "arenas": ["Israeli domestic politics", "Arab-Israeli relations", "Qatar"],
+        "trendDirection": "rising",
+        "israeliPosition": "CEC ordered investigation but affirmed results stand and no systematic fraud occurred.",
+        "securityContext": "Shin Bet probe based on intelligence of possible foreign funding channels resembling past terror financing routes.",
+        "supportingCitationKeys": ["toi-probe"],
+        "contradictingCitationKeys": ["toi-results", "bbc-opposition", "aj-qatar"],
+        "verificationState": "unresolved",
+        "knownUnknowns": ["Exact sums and recipients if any", "Whether any illegal activity affected seat totals", "Full Shin Bet findings"]
+      }
+    }
+  ]
+}

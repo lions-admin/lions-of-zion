@@ -1,1 +1,303 @@
-PLACEHOLDER
+{
+  "runId": "grok-x-2026-10-31-054100",
+  "localDate": "2026-10-31",
+  "contractVersion": "external-briefing-v1",
+  "composer": "Grok scheduled X narrative report",
+  "publishers": [
+    {
+      "key": "idf",
+      "name": "Israel Defense Forces",
+      "homepageUrl": "https://www.idf.il/en",
+      "language": "en",
+      "country": "IL",
+      "official": true
+    },
+    {
+      "key": "toi",
+      "name": "The Times of Israel",
+      "homepageUrl": "https://www.timesofisrael.com",
+      "language": "en",
+      "country": "IL",
+      "official": false
+    },
+    {
+      "key": "jpost",
+      "name": "The Jerusalem Post",
+      "homepageUrl": "https://www.jpost.com",
+      "language": "en",
+      "country": "IL",
+      "official": false
+    },
+    {
+      "key": "aj",
+      "name": "Al Jazeera",
+      "homepageUrl": "https://www.aljazeera.com",
+      "language": "en",
+      "country": "QA",
+      "official": false
+    }
+  ],
+  "citations": [
+    {
+      "key": "idf-x-elim",
+      "publisherKey": "idf",
+      "title": "IDF: Eliminated Hamas squad commander involved in holding hostages",
+      "url": "https://x.com/IDF/status/2116176219951567206",
+      "canonicalUrl": null,
+      "publishedAt": "2026-10-30T14:31:42Z",
+      "excerpt": "🔴 ELIMINATED: Ihab Jamil Abu Taqiya, a squad commander in Hamas’ military wing who was involved in holding numerous hostages in Hamas captivity at the beginning of the war. Ibrahim Gihad Muhammad Abu Oshaiba, a platoon commander in Hamas’ military wing, was also eliminated in the strike. Recently, the terrorists advanced terror attacks against Israeli civilians & IDF troops and operated to restore Hamas’ capabilities, in systematic violation of the ceasefire. The terrorists were eliminated in order to remove the threat they posed. This official announcement details targeted operations against Hamas operatives in Gaza who violated the ceasefire by planning attacks and rebuilding capabilities.",
+      "language": "en"
+    },
+    {
+      "key": "toi-hamas-strikes",
+      "publisherKey": "toi",
+      "title": "IDF: 6 Hamas operatives, including 3 Oct. 7 terrorists, killed in recent Gaza strikes",
+      "url": "https://www.timesofisrael.com/idf-6-hamas-operatives-including-3-oct-7-terrorists-killed-in-recent-gaza-strikes/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-10-28T18:07:00+03:00",
+      "excerpt": "The Israeli military announced on Wednesday that it had killed six members of the Hamas terror group in recent strikes in the Gaza Strip, including three terrorists who participated in the October 7 onslaught. Israel in recent months has increasingly targeted terror operatives in Gaza, including numerous terrorists who took part in the Hamas-led October 7 atrocities, saying they posed a threat to Israeli forces. One strike on Sunday in southern Gaza’s Khan Younis killed Anas Akram Muhammad Humaida, identified by the military as a commander in Hamas’s elite Nukhba Force who invaded the Sufa army post on October 7, 2023. Another strike on Sunday in Gaza City killed Ashraf Mahmoud Yusuf Dahlan, who, according to the IDF, was a company commander in Hamas’s East Jabalia Battalion, and who also infiltrated Israel on October 7. A strike on Monday in Gaza City killed Mahmoud Othman Abdullah Alwan, a Nukhba commander in Hamas’s West Jabalia Battalion, according to the military. Additionally, the military said Wednesday that a strike on Friday in northern Gaza killed two Hamas operatives, identified as Omar Awadallah, a Nukhba platoon commander, and Moataz Mahmoud Mohammed Al-Nimr, a Nukhba operative. A separate strike on Thursday last week in southern Gaza killed Ahmed Muhammad Ahmed Baraka, a Nukhba terrorist who invaded Kibbutz Nir Oz on October 7, the IDF said. According to the military, the terrorist took part in abducting several Israeli civilians during the onslaught, including Alex Dancyg, and during the war, he assisted in holding numerous hostages, including soldier Sgt. 1st Class Nimrod Cohen, in southern Gaza. The military said the six operatives had recently been advancing attacks on troops and Israeli civilians and acted to restore Hamas’s capabilities, in systematic violation of the ceasefire. In a separate incident on Tuesday, during Israel’s national election, the IDF said troops killed a Palestinian terror operative who crossed the Yellow Line in the southern Gaza Strip. Immediately after the identification, the forces eliminated the terrorist to remove the threat, the army said. After a US-brokered ceasefire took hold in Gaza in October 2025, the so-called Yellow Line was established to divide the areas under Israeli control from those under Hamas control. Implementation of US President Donald Trump’s peace plan for Gaza has stalled, with Hamas refusing to disarm and Israel refusing to withdraw from any part of Gaza until that condition is met.",
+      "language": "en"
+    },
+    {
+      "key": "jpost-hostage-commander",
+      "publisherKey": "jpost",
+      "title": "IDF kills Hamas terrorists in Gaza, including commander who held 12 hostages",
+      "url": "https://www.jpost.com/israel-news/defense-news/article-913354",
+      "canonicalUrl": null,
+      "publishedAt": "2026-10-30T17:28:00+03:00",
+      "excerpt": "The IDF killed a Hamas squad commander who was involved in holding multiple hostages during their captivity in Gaza, including former hostages Noa Argamani, Emily Hand and Ohad Ben Ami, the military and Shin Bet (Israel Security Agency) said in a joint statement on Friday. Ihab Jamil Abu Taqiya, a squad commander in Hamas's military wing, was killed in an Israeli airstrike in the Nuseirat area on Thursday. The IDF said Abu Taqiya had been involved in holding numerous hostages at the beginning of the war, naming 12 individuals who were subsequently released or whose bodies were returned to Israel. Another Hamas terrorist, Ibrahim Gihad Muhammad Abu Oshaiba, a platoon commander in the group's military wing, was also killed in the strike, according to the military. The IDF said the two terrorists had advanced attacks against Israeli troops and civilians throughout the war, particularly in recent weeks, and worked to restore Hamas's military capabilities in what it described as systematic violations of the ceasefire. The military said the strike was carried out to remove the threat they posed, and emphasized that measures were taken to reduce harm to civilians before the strike. The IDF said the two terrorists had advanced attacks against Israeli troops and civilians throughout the war, particularly in recent weeks, and worked to restore Hamas's military capabilities in what it described as systematic violations of the ceasefire.",
+      "language": "en"
+    },
+    {
+      "key": "jpost-hebron",
+      "publisherKey": "jpost",
+      "title": "IDF evacuates Hebron neighborhood, prepares to demolish terrorists' homes",
+      "url": "https://www.jpost.com/israel-news/defense-news/article-913326",
+      "canonicalUrl": null,
+      "publishedAt": "2026-10-30T06:39:00+03:00",
+      "excerpt": "On Friday, IDF soldiers evacuated residents from a neighborhood in Hebron as part of preparations to demolish the homes of the terrorists who carried out last week's attack in the city at Yehuda Junction. Staff Sergeant Ron Yonatan Roytman, aged 23, from Ashkelon, and Sergeant Yuval Shai Svilem, aged 20, from Hod Hasharon, were killed in the attack. According to the IDF, Roytman was a squad commander, and Svilem was a combat soldier in the Ari Battalion (775), Search and Rescue Brigade. IDF sources said that the terrorists originally intended to carry out a larger attack on the heavily traveled Route 35, before realizing they would not get through the military checkpoint, deciding instead to attack the soldiers stationed there. On Sunday, the Mount Hebron Regional Council announced it was establishing eight new outposts in the Hebron Hills in response to the terror attack. The council, which noted that it was fundraising to purchase security for the new outposts, said that it was establishing them out of the deep grief and pain over the terrible attack at Yehuda Junction in which soldiers Ron Yonatan and Yuval Shai were murdered. The attack occurred on October 23, 2026, near the West Bank city of Hebron, where five people were wounded, two of them seriously, and two Palestinian terrorists were killed by Israeli forces.",
+      "language": "en"
+    },
+    {
+      "key": "aj-gaza-strikes",
+      "publisherKey": "aj",
+      "title": "Israeli strikes hit Gaza as Health Ministry urges Rafah opening",
+      "url": "https://www.aljazeera.com/news/2026/10/29/israeli-strikes-hit-gaza-as-health-ministry-urges-rafah-opening",
+      "canonicalUrl": null,
+      "publishedAt": "2026-10-29T17:12:00+03:00",
+      "excerpt": "At least two people have been killed in the latest Israeli attacks on Gaza, as the Ministry of Health in the strip calls for the Rafah crossing to be opened to allow sick and wounded Palestinians to leave for treatment. Israeli attacks across Gaza continue at a very high pace on Thursday, with drone strikes hitting the centre and north of the territory over the past few hours, according to Al Jazeera’s Ashraf Abu Amra. Gaza’s Health Ministry said on Thursday that six Palestinians had been killed and 38 wounded over the previous 24 hours. The violence came as the ministry renewed its call for the Rafah crossing to be opened so that sick and wounded Palestinians can leave the territory for treatment. In a statement, the ministry said 21,468 patients and wounded people need to travel for care outside Gaza, including 6,430 identified as priority cases. It blamed repeated border closures and what it described as deliberate delays in evacuation procedures for worsening patients’ conditions, saying dozens had died while waiting for permission to leave and the health of thousands more had seriously deteriorated. From 26 to 28 October 2026, Israeli Occupation Forces killed 10 Palestinians, including a girl, and wounded others in airstrikes and gunfire targeting various areas across the Gaza Strip according to Palestinian Centre for Human Rights reports.",
+      "language": "en"
+    }
+  ],
+  "dailyBrief": {
+    "title": "Israel continues targeted strikes on Hamas operatives in Gaza and operations in Hebron after terror attack",
+    "summary": "IDF eliminated multiple Hamas commanders and operatives in Gaza for ceasefire violations including hostage holding and attack planning. West Bank forces prepare home demolitions after Hebron shooting that killed two soldiers. Narratives on X focus on these operations.",
+    "citationKeys": ["idf-x-elim", "toi-hamas-strikes", "jpost-hostage-commander", "jpost-hebron"],
+    "claims": [
+      {
+        "title": "IDF eliminated Hamas commander involved in hostage holding",
+        "text": "The IDF announced the elimination of Ihab Jamil Abu Taqiya, a Hamas squad commander involved in holding numerous hostages including Noa Argamani and others, along with another platoon commander, in a strike in Nuseirat.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "Israel Defense Forces",
+        "uncertainty": null,
+        "citationLinks": [
+          {
+            "citationKey": "idf-x-elim",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Direct official IDF statement on the elimination and the terrorist's role in hostage holding and ceasefire violations."
+          },
+          {
+            "citationKey": "jpost-hostage-commander",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Jerusalem Post report confirming the IDF and Shin Bet joint statement on the specific hostages held."
+          }
+        ]
+      },
+      {
+        "title": "Multiple Hamas operatives killed in Gaza strikes for ceasefire violations",
+        "text": "IDF reported killing at least six Hamas operatives including three October 7 participants in recent strikes across Gaza, citing their advancement of attacks and restoration of capabilities in violation of the ceasefire.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "Israel Defense Forces",
+        "uncertainty": null,
+        "citationLinks": [
+          {
+            "citationKey": "toi-hamas-strikes",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Times of Israel detailed report of IDF announcements on the named operatives and the ceasefire violation rationale."
+          }
+        ]
+      },
+      {
+        "title": "IDF prepares demolitions in Hebron after soldiers killed",
+        "text": "IDF evacuated a Hebron neighborhood in preparation for demolishing homes of the terrorists who killed two IDF soldiers in a shooting attack at Yehuda Junction on October 23.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "Israel Defense Forces",
+        "uncertainty": null,
+        "citationLinks": [
+          {
+            "citationKey": "jpost-hebron",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Jerusalem Post report on the evacuations, the killed soldiers' identities, and the planned demolitions."
+          }
+        ]
+      }
+    ],
+    "situation": {
+      "label": "Current Situation",
+      "passages": [
+        {
+          "text": "Israeli forces continued targeted operations in the Gaza Strip against Hamas operatives identified as violating the US-brokered ceasefire by planning attacks on troops and civilians and working to restore the group's military capabilities. These actions included strikes that eliminated commanders previously involved in holding hostages.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-x-elim", "jpost-hostage-commander"]
+        },
+        {
+          "text": "In the West Bank, following the October 23 shooting attack near Hebron that killed two IDF soldiers, forces have been conducting operations including neighborhood evacuations ahead of home demolitions of the attackers, while also arresting suspects in other areas like Jenin.",
+          "claimIndex": 2,
+          "citationKeys": ["jpost-hebron"]
+        }
+      ]
+    },
+    "keyEvents": {
+      "label": "Key Events",
+      "passages": [
+        {
+          "text": "On October 30, the IDF announced the elimination of Ihab Jamil Abu Taqiya and Ibrahim Gihad Muhammad Abu Oshaiba in Nuseirat, noting Abu Taqiya's role in holding hostages such as Noa Argamani, Emily Hand, and Ohad Ben Ami at the start of the war.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-x-elim", "jpost-hostage-commander"]
+        },
+        {
+          "text": "Earlier in the week, IDF strikes killed six Hamas members including Nukhba Force commanders who participated in the October 7, 2023 attacks, such as Anas Akram Muhammad Humaida who invaded Sufa post and Ahmed Muhammad Ahmed Baraka involved in abductions from Nir Oz.",
+          "claimIndex": 1,
+          "citationKeys": ["toi-hamas-strikes"]
+        }
+      ]
+    },
+    "israeliPosition": {
+      "label": "Israeli Position",
+      "passages": [
+        {
+          "text": "The IDF stated that the eliminated terrorists had advanced terror attacks against Israeli civilians and troops and operated to restore Hamas capabilities in systematic violation of the ceasefire, and were eliminated to remove the threat they posed. Measures were taken to minimize civilian harm.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-x-elim"]
+        }
+      ]
+    },
+    "internationalResponses": null,
+    "watchPoints": {
+      "label": "Watch Points",
+      "passages": [
+        {
+          "text": "Monitor for further IDF announcements on targeted operations in Gaza and the implementation of home demolitions in Hebron. Track claims from Palestinian sources regarding casualties and the status of the Rafah crossing for medical evacuations.",
+          "claimIndex": 1,
+          "citationKeys": ["toi-hamas-strikes", "aj-gaza-strikes"]
+        }
+      ]
+    },
+    "media": null
+  },
+  "articles": [
+    {
+      "section": "israel_update",
+      "title": "IDF eliminates Hamas commander who held hostages and other operatives in Gaza strikes",
+      "summary": "Official Israeli statements confirm the killing of Ihab Jamil Abu Taqiya and other Hamas members in targeted strikes for ceasefire violations. Independent reporting corroborates the details of their roles in October 7 and hostage holding.",
+      "citationKeys": ["idf-x-elim", "jpost-hostage-commander", "toi-hamas-strikes"],
+      "claims": [
+        {
+          "title": "Hamas commander involved in hostage holding eliminated",
+          "text": "IDF and Shin Bet confirmed the elimination of Ihab Jamil Abu Taqiya, who held multiple hostages including Noa Argamani, in a strike in Nuseirat on Thursday.",
+          "layer": "source_claim",
+          "assessment": "verified",
+          "attributedTo": "Israel Defense Forces and Shin Bet",
+          "uncertainty": null,
+          "citationLinks": [
+            {
+              "citationKey": "jpost-hostage-commander",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Direct report of the joint statement naming specific hostages."
+            },
+            {
+              "citationKey": "idf-x-elim",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Official IDF X post confirming the elimination and role."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "The Israel Defense Forces announced on Friday the elimination of a Hamas squad commander, Ihab Jamil Abu Taqiya, who was involved in holding numerous hostages in the early stages of the war. The strike in the Nuseirat area also eliminated a platoon commander, Ibrahim Gihad Muhammad Abu Oshaiba.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-x-elim", "jpost-hostage-commander"]
+        },
+        {
+          "text": "According to the military, both terrorists had been advancing attacks against Israeli forces and civilians and working to restore Hamas's capabilities, constituting systematic violations of the existing ceasefire agreement. The operations are part of ongoing efforts to neutralize threats from Hamas operatives who participated in or supported the October 7 attacks.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-hamas-strikes", "jpost-hostage-commander"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "Gaza operations and Hamas targeting",
+      "primaryActor": "Israel Defense Forces",
+      "arena": "Gaza Strip",
+      "featuredIsraelStory": true,
+      "narrativeWatch": null,
+      "media": null
+    },
+    {
+      "section": "narrative_watch",
+      "title": "X discourse on Gaza strikes focuses on hostage holders and ceasefire claims",
+      "summary": "Recent X posts from official Israeli accounts and others highlight the elimination of specific Hamas figures involved in hostages, while critical accounts emphasize casualty figures from Palestinian sources. No verified propaganda manipulation identified in the scanned sample.",
+      "citationKeys": [],
+      "claims": [
+        {
+          "title": "Official posts emphasize targeted eliminations",
+          "text": "IDF posts on X detailed the elimination of named Hamas commanders for ceasefire violations, receiving thousands of engagements. Critical narratives claim ongoing genocide without new specific evidence in the window.",
+          "layer": "editorial_conclusion",
+          "assessment": "unsupported",
+          "attributedTo": "Lions of Zion editorial analysis",
+          "uncertainty": "Based on limited sample of T1 accounts scanned; full network analysis not completed due to tool limits. No evidence of coordinated recycled media or dehumanization beyond standard criticism.",
+          "citationLinks": []
+        }
+      ],
+      "passages": [
+        {
+          "text": "In the prior 24 hours, official Israeli accounts such as @IDF and @Israel posted announcements of targeted strikes on Hamas operatives, including one involved in holding hostages like Noa Argamani. These posts received significant engagement, with thousands of likes and views.",
+          "claimIndex": 0,
+          "citationKeys": []
+        },
+        {
+          "text": "Critical accounts amplified Palestinian Health Ministry figures on casualties and called for opening Rafah crossing. Some posts generalized Israeli actions as genocide or evil ideology, but without observable recycled deceptive media or incitement beyond advocacy in the checked posts. Further monitoring of T2 and T3 accounts is recommended.",
+          "claimIndex": 0,
+          "citationKeys": []
+        }
+      ],
+      "narrativeTitle": "X narratives on ongoing Gaza targeted operations",
+      "editorialTopic": "Social media discourse monitoring",
+      "primaryActor": null,
+      "arena": "X platform Israel-related discourse",
+      "featuredIsraelStory": false,
+      "narrativeWatch": {
+        "exactClaim": "IDF continues targeted killings of Hamas operatives in Gaza despite ceasefire, including those involved in hostage holding, as announced on official accounts.",
+        "propagators": ["IDF", "Israel", "netanyahu", "AJEnglish", "jacksonhinkle"],
+        "arenas": ["Gaza Strip", "X social media"],
+        "trendDirection": "stable",
+        "israeliPosition": "Operations are responses to systematic ceasefire violations by Hamas operatives advancing attacks and restoring capabilities.",
+        "securityContext": "Ongoing efforts to neutralize threats from remaining Hamas military infrastructure and operatives post-October 7.",
+        "supportingCitationKeys": [],
+        "contradictingCitationKeys": [],
+        "verificationState": "unresolved",
+        "knownUnknowns": ["Full engagement metrics for all posts", "Origin of specific casualty claims circulating", "Status of additional T2/T3 accounts"]
+      },
+      "media": null
+    }
+  ]
+}

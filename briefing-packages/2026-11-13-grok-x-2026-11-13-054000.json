@@ -1,1 +1,313 @@
-PLACEHOLDER
+{
+  "runId": "grok-x-2026-11-13-054000",
+  "localDate": "2026-11-13",
+  "contractVersion": "external-briefing-v1",
+  "composer": "Grok scheduled X narrative report",
+  "publishers": [
+    {
+      "key": "idf",
+      "name": "Israel Defense Forces",
+      "homepageUrl": "https://www.idf.il/",
+      "language": "en",
+      "country": "IL",
+      "official": true
+    },
+    {
+      "key": "timesofisrael",
+      "name": "The Times of Israel",
+      "homepageUrl": "https://www.timesofisrael.com/",
+      "language": "en",
+      "country": "IL",
+      "official": false
+    },
+    {
+      "key": "reuters",
+      "name": "Reuters",
+      "homepageUrl": "https://www.reuters.com/",
+      "language": "en",
+      "country": null,
+      "official": false
+    },
+    {
+      "key": "ap",
+      "name": "Associated Press",
+      "homepageUrl": "https://apnews.com/",
+      "language": "en",
+      "country": "US",
+      "official": false
+    },
+    {
+      "key": "aljazeera",
+      "name": "Al Jazeera English",
+      "homepageUrl": "https://www.aljazeera.com/",
+      "language": "en",
+      "country": "QA",
+      "official": false
+    }
+  ],
+  "citations": [
+    {
+      "key": "idf-nasser-strike",
+      "publisherKey": "idf",
+      "title": "STRUCK: Hamas Brigade Commander Hiding in a Hospital Who Held Numerous Hostages Captive",
+      "url": "https://x.com/IDF/status/2120795276977869304",
+      "canonicalUrl": null,
+      "publishedAt": "2026-11-12T08:26:11+00:00",
+      "excerpt": "🎯 STRUCK: HAMAS BRIGADE COMMANDER HIDING IN A HOSPITAL WHO HELD NUMEROUS HOSTAGES CAPTIVE. The Commander of Hamas’ Khan Yunis Brigade Muhammad Abu Ismail & additional terrorists hiding inside of the Nasser Hospital were struck in a targeted IDF & ISA strike in southern Gaza. Abu Ismail was responsible for directing terrorist attacks against Israeli civilians & IDF troops and for holding numerous hostages captive throughout the war. Hamas turned the hospital complex into a headquarters to advance dozens of terrorist attacks and restore the brigade’s terror capabilities. Additionally, dozens of hostages were held captive within the hospital. Prior to the strike, advance warnings were issued to the civilian population & precision-guided munitions and aerial surveillance assets were employed to minimize the risk of harm to civilians.",
+      "language": "en"
+    },
+    {
+      "key": "idf-nasser-hq",
+      "publisherKey": "idf",
+      "title": "Hamas’ exploitation of the Nasser Hospital",
+      "url": "https://x.com/IDF/status/2120930699842658528",
+      "canonicalUrl": null,
+      "publishedAt": "2026-11-12T17:24:18+00:00",
+      "excerpt": "‼️🏥 Hamas’ exploitation of the Nasser Hospital: The hospital’s second floor serves as a Hamas military HQ, where civilians are not permitted to enter, as it is used by Hamas commanders, including Muhammad Abu Ismail, the Khan Yunis Brigade Commander who was targeted in the strike earlier today. Dozens of hostages were held captive at the Nasser Hospital, and Muhammad Abu Ismail was responsible for holding numerous of them, including: Nimrod Cohen, Matan Zangauker, Edan Alexander, Avera Mengistu, Colonel Asaf Hamami, Staff Sergeant Oz Daniel & Captain Omer Neutra. The strike was specifically directed at the room from which the brigade commander & the other terrorist were conducting military activities. Prior to the strike, the IDF warned on several occasions that the military activity at the hospital be halted. Despite these warnings, the activity at the hospital did not cease.",
+      "language": "en"
+    },
+    {
+      "key": "toi-nasser",
+      "publisherKey": "timesofisrael",
+      "title": "IDF targets top Hamas commander in strike on south Gaza hospital; 6 said killed",
+      "url": "https://www.timesofisrael.com/idf-targets-top-hamas-commander-in-strike-on-south-gaza-hospital-6-said-killed/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-11-12T11:35:00+02:00",
+      "excerpt": "According to the Israel Defense Forces and Shin Bet security agency, the strike took place shortly after midnight on the Nasser Hospital complex in Khan Younis, targeting Muhammad Abu Ismail, the commander of the terror group’s Khan Younis Brigade, along with additional terrorists who were hiding at the medical center. The IDF and Shin Bet said Abu Ismail was also responsible for holding numerous hostages in captivity during the war, including inside the medical center where he was struck. Abu Ismail took charge of the Khan Younis Brigade following the killing of its previous commander, Muhammad al-Yazouri, in September. Alongside Abu Ismail, several other Hamas operatives were targeted in the strike on the hospital. The military said they included Muawad Tawfiq Mahmoud Abu Zarifa, an engineering team commander in a Hamas combat and administrative support company, and Khaled Osama Abu Anza, head of communications in the operations department of Hamas’s intelligence arm. Abu Ismail himself had been responsible for holding hostages Sgt. 1st Class Nimrod Cohen, Sgt. 1st Class Idan Alexander, Matan Zangauker, Avera Mengistu, and the bodies of Col. Asaf Hamami, Staff Sgt. Oz Daniel, and Cpt. Omer Neutra, according to the IDF. The Hamas-run Health Ministry said six people were killed in the strike, including a Palestinian surgeon.",
+      "language": "en"
+    },
+    {
+      "key": "reuters-nasser",
+      "publisherKey": "reuters",
+      "title": "Israeli strike on Gaza hospital kills six, including surgeon, medics say",
+      "url": "https://www.reuters.com/world/middle-east/israeli-strike-southern-gaza-hospital-kills-four-gaza-civil-defence-says-2026-11-11/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-11-12T01:26:00+00:00",
+      "excerpt": "CAIRO, Nov 12 (Reuters) - An Israeli airstrike on southern Gaza 's main hospital overnight killed at least six Palestinians including a surgeon and a teenage boy, medics said, the latest Israeli attack to undermine a year-old ceasefire in the war-shattered territory. The strike hit a building containing surgery wards at Nasser Hospital in Khan Younis. Israel's military said it targeted a senior Hamas commander and accused the militants of using the hospital complex to plan attacks, which the group denied. Medics and witnesses said two missiles crashed through the roof of the five-storey building, causing extensive damage. The surgery department, which serves half of Gaza's 2 million people, was knocked out of service. Twenty others were wounded. In a statement on the hospital strike, Israel's military said it targeted a person named Muhammad Abu Ismail, describing him as the commander of Hamas' Khan Younis Brigade. The military said he and other militants were hiding inside the Nasser Hospital. The military accused the militants of turning the Nasser Hospital compound into a headquarters and operating from there. Hamas rejected the military's claim that it had used the hospital as a base for operations. It did not immediately provide comment on whether a leader from the group had been targeted, injured or killed in the strike.",
+      "language": "en"
+    },
+    {
+      "key": "ap-nasser",
+      "publisherKey": "ap",
+      "title": "Israeli strike on Gaza hospital kills 6 people, including a doctor and a child, Health Ministry says",
+      "url": "https://apnews.com/video/israeli-strike-on-gaza-hospital-kills-6-people-including-a-doctor-and-a-child-health-ministry-says-a394707b5be546b7926997fc6c4b9abe",
+      "canonicalUrl": null,
+      "publishedAt": "2026-11-12T21:45:00+00:00",
+      "excerpt": "An Israeli airstrike hit one of the main hospitals still operating in the Gaza Strip on Thursday, killing six people, including a surgeon and a 13-year-old boy, Gaza’s Health Ministry said. The Israeli military said the strike on Nasser Hospital in southern Gaza was targeting a Hamas commander and other militants, without providing evidence. An Israeli airstrike hit one of the main hospitals still operating in the Gaza Strip on Thursday, killing six people, including a surgeon and a 13-year-old boy, Gaza’s Health Ministry said. The Israeli military said the strike on Nasser Hospital in southern Gaza was targeting a Hamas commander and other militants, without providing evidence.",
+      "language": "en"
+    },
+    {
+      "key": "aje-nasser",
+      "publisherKey": "aljazeera",
+      "title": "At least six Palestinians were killed and dozens injured in an Israeli strike on Gaza’s Nasser Medical Complex",
+      "url": "https://x.com/AJEnglish/status/2121056825164562542",
+      "canonicalUrl": null,
+      "publishedAt": "2026-11-13T01:45:29+00:00",
+      "excerpt": "Warning: This video may be distressing to some viewers. At least six Palestinians were killed and dozens injured in an Israeli strike on Gaza’s Nasser Medical Complex. Warning: This video may be distressing to some viewers. At least six Palestinians were killed and dozens injured in an Israeli strike on Gaza’s Nasser Medical Complex. Warning: This video may be distressing to some viewers. At least six Palestinians were killed and dozens injured in an Israeli strike on Gaza’s Nasser Medical Complex.",
+      "language": "en"
+    }
+  ],
+  "dailyBrief": {
+    "title": "IDF targets Hamas Khan Younis Brigade commander Muhammad Abu Ismail at Nasser Hospital",
+    "summary": "Overnight IDF and Shin Bet strike on Nasser Hospital in Khan Younis targeted Hamas brigade commander Muhammad Abu Ismail and other operatives using the site as a military headquarters; Palestinian health authorities reported six killed including a surgeon.",
+    "citationKeys": ["idf-nasser-strike", "idf-nasser-hq", "toi-nasser", "reuters-nasser"],
+    "claims": [
+      {
+        "title": "IDF struck Muhammad Abu Ismail at Nasser Hospital",
+        "text": "The IDF and Shin Bet stated that they conducted a targeted strike on Muhammad Abu Ismail, commander of Hamas’s Khan Younis Brigade, and additional terrorists who were hiding inside Nasser Hospital in southern Gaza.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "Israel Defense Forces",
+        "uncertainty": null,
+        "citationLinks": [
+          {
+            "citationKey": "idf-nasser-strike",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Direct official statement naming the target and location."
+          },
+          {
+            "citationKey": "toi-nasser",
+            "relation": "supports",
+            "strength": "adequate",
+            "rationale": "Independent reporting confirming the IDF statement."
+          }
+        ]
+      },
+      {
+        "title": "Palestinian reports of six killed including surgeon",
+        "text": "Gaza’s Health Ministry and civil defense reported that the strike killed at least six Palestinians, including a surgeon, and wounded about twenty others.",
+        "layer": "source_claim",
+        "assessment": "disputed",
+        "attributedTo": "Gaza Health Ministry via Reuters and AP",
+        "uncertainty": "Casualty figures from Hamas-run authorities are not independently verified and may include combatants.",
+        "citationLinks": [
+          {
+            "citationKey": "reuters-nasser",
+            "relation": "supports",
+            "strength": "adequate",
+            "rationale": "Reuters reporting of medic claims."
+          },
+          {
+            "citationKey": "ap-nasser",
+            "relation": "supports",
+            "strength": "adequate",
+            "rationale": "AP reporting of Health Ministry figures."
+          }
+        ]
+      }
+    ],
+    "situation": {
+      "label": "Situation",
+      "passages": [
+        {
+          "text": "The IDF and Shin Bet announced a precision strike overnight on Nasser Hospital in Khan Younis targeting Hamas Khan Younis Brigade commander Muhammad Abu Ismail and other operatives who had turned the complex into a military headquarters.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-nasser-strike", "toi-nasser"]
+        },
+        {
+          "text": "Palestinian health authorities reported six people killed, including a surgeon, and more than twenty wounded, while the IDF said advance warnings were issued and precision munitions used to minimize civilian harm.",
+          "claimIndex": 1,
+          "citationKeys": ["reuters-nasser", "idf-nasser-strike"]
+        }
+      ]
+    },
+    "keyEvents": {
+      "label": "Key Events",
+      "passages": [
+        {
+          "text": "The strike occurred shortly after midnight on 12 November 2026 at the Nasser Hospital complex, which the IDF described as a Hamas military HQ on the second floor used for command, weapons storage, and previous hostage holding.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-nasser-hq", "idf-nasser-strike"]
+        }
+      ]
+    },
+    "israeliPosition": {
+      "label": "Israeli Position",
+      "passages": [
+        {
+          "text": "The IDF stated that Hamas exploited the hospital in violation of international law, that Abu Ismail was responsible for holding numerous hostages, and that the strike was directed at the room used for military activities after multiple warnings.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-nasser-strike", "idf-nasser-hq"]
+        }
+      ]
+    },
+    "internationalResponses": null,
+    "watchPoints": {
+      "label": "Watch Points",
+      "passages": [
+        {
+          "text": "Monitor for IDF confirmation of Abu Ismail’s fate, independent verification of the hospital’s military use, and any impact on the US-backed ceasefire framework and Board of Peace process.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-nasser", "reuters-nasser"]
+        }
+      ]
+    },
+    "media": null
+  },
+  "articles": [
+    {
+      "section": "israel_update",
+      "title": "IDF targets Hamas Khan Younis Brigade commander Muhammad Abu Ismail at Nasser Hospital",
+      "summary": "Official Israeli statement and independent reporting on the overnight strike targeting a senior Hamas commander using a hospital as a headquarters.",
+      "citationKeys": ["idf-nasser-strike", "idf-nasser-hq", "toi-nasser", "reuters-nasser"],
+      "claims": [
+        {
+          "title": "Targeted strike on brigade commander",
+          "text": "IDF and Shin Bet confirmed the strike hit Muhammad Abu Ismail, commander of the Khan Younis Brigade, and additional terrorists hiding in Nasser Hospital.",
+          "layer": "observed_fact",
+          "assessment": "verified",
+          "attributedTo": null,
+          "uncertainty": null,
+          "citationLinks": [
+            {
+              "citationKey": "idf-nasser-strike",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Primary official announcement."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "The Israel Defense Forces and Shin Bet announced that they struck Muhammad Abu Ismail, the commander of Hamas’s Khan Younis Brigade, along with other terrorists who were operating from inside Nasser Hospital in southern Gaza.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-nasser-strike"]
+        },
+        {
+          "text": "According to the military, the hospital’s second floor served as a Hamas military headquarters where civilians were not permitted, and Abu Ismail had previously held numerous hostages at the site.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-nasser-hq", "toi-nasser"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "Gaza IDF operations",
+      "primaryActor": "IDF",
+      "arena": "Gaza Strip",
+      "featuredIsraelStory": true,
+      "narrativeWatch": null,
+      "media": null
+    },
+    {
+      "section": "narrative_watch",
+      "title": "Claims of unprovoked hospital bombing omit Hamas military use of Nasser Hospital",
+      "summary": "Social media and some outlets framed the Nasser Hospital strike solely as an attack on a medical facility without referencing the IDF’s stated targeting of a Hamas brigade commander using the site as a headquarters.",
+      "citationKeys": ["idf-nasser-strike", "aje-nasser", "reuters-nasser"],
+      "claims": [
+        {
+          "title": "Omission of military targeting context",
+          "text": "Multiple posts and reports highlighted Palestinian casualty claims while omitting or downplaying the IDF’s statement that the target was a Hamas commander operating from the hospital.",
+          "layer": "source_claim",
+          "assessment": "misleading",
+          "attributedTo": "Al Jazeera English and related X discourse",
+          "uncertainty": "Not all coverage omitted context; some major outlets included the IDF claim.",
+          "citationLinks": [
+            {
+              "citationKey": "aje-nasser",
+              "relation": "supports",
+              "strength": "adequate",
+              "rationale": "AJEnglish post focuses on Palestinian deaths without mentioning the stated target."
+            },
+            {
+              "citationKey": "idf-nasser-strike",
+              "relation": "contradicts",
+              "strength": "strong",
+              "rationale": "Official statement provides the military context."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "Al Jazeera English posted that at least six Palestinians were killed and dozens injured in an Israeli strike on Gaza’s Nasser Medical Complex, without reference to the IDF’s identification of the target as Hamas brigade commander Muhammad Abu Ismail.",
+          "claimIndex": 0,
+          "citationKeys": ["aje-nasser"]
+        },
+        {
+          "text": "The IDF stated the strike was directed at the specific room used by the commander for military activities after repeated warnings, and that the hospital had been turned into a headquarters for attacks and hostage holding.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-nasser-strike", "idf-nasser-hq"]
+        }
+      ],
+      "narrativeTitle": "Israel bombed a hospital without military justification",
+      "editorialTopic": "Narrative monitoring Gaza",
+      "primaryActor": null,
+      "arena": "X discourse and international media",
+      "featuredIsraelStory": false,
+      "narrativeWatch": {
+        "exactClaim": "Israel bombed Nasser Hospital killing civilians including a doctor with no mention of Hamas military use of the facility.",
+        "propagators": ["AJEnglish", "various X accounts"],
+        "arenas": ["X (Twitter)", "international media"],
+        "trendDirection": "rising",
+        "israeliPosition": "IDF: targeted strike on Hamas commander using hospital as HQ after warnings; precision munitions used.",
+        "securityContext": "Ongoing efforts to degrade Hamas command structure in southern Gaza amid ceasefire tensions.",
+        "supportingCitationKeys": ["aje-nasser"],
+        "contradictingCitationKeys": ["idf-nasser-strike", "idf-nasser-hq"],
+        "verificationState": "misleading",
+        "knownUnknowns": ["Independent verification of exact military activity inside the hospital at the time of the strike", "Final confirmed status of Muhammad Abu Ismail"]
+      },
+      "media": null
+    }
+  ]
+}

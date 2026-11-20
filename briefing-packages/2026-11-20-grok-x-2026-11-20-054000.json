@@ -1,1 +1,255 @@
-PLACEHOLDER
+{
+  "contractVersion": "external-briefing-v1",
+  "runId": "grok-x-2026-11-20-054000",
+  "localDate": "2026-11-20",
+  "composer": "Grok scheduled X narrative report",
+  "publishers": [
+    {
+      "key": "idf",
+      "name": "Israel Defense Forces",
+      "homepageUrl": "https://www.idf.il/",
+      "language": "en",
+      "country": "IL",
+      "official": true
+    },
+    {
+      "key": "toi",
+      "name": "The Times of Israel",
+      "homepageUrl": "https://www.timesofisrael.com/",
+      "language": "en",
+      "country": "IL",
+      "official": false
+    },
+    {
+      "key": "reuters",
+      "name": "Reuters",
+      "homepageUrl": "https://www.reuters.com/",
+      "language": "en",
+      "country": null,
+      "official": false
+    }
+  ],
+  "citations": [
+    {
+      "key": "toi-yellowline",
+      "publisherKey": "toi",
+      "title": "IDF ends one-day tunnel demolition operation inside Hamas-controlled part of Gaza",
+      "url": "https://www.timesofisrael.com/idf-ends-one-day-tunnel-demolition-operation-inside-hamas-controlled-part-of-gaza/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-11-19T21:20:00+02:00",
+      "excerpt": "The Israeli military on Thursday morning completed a rare ground operation beyond the so-called Yellow Line in the central Gaza Strip that divides the territory between Israeli and Hamas control, a day after it began, saying it had demolished a section of a Hamas tunnel that the terror group was attempting to restore. Palestinian civilians, who were ordered to stay away amid the raid, returned to the area to check their belongings and assess the damage after the military pulled back its forces. The Israel Defense Forces said that during the day-long operation, troops demolished a section of a Hamas tunnel that the terror group was attempting to restore adjacent to the Yellow Line. Reservists from the Harel Brigade, troops from the 607th Combat Engineering Battalion, and the elite Yahalom Combat Engineering Unit crossed the Yellow Line as part of a targeted operation against the tunnel, which the military said posed an immediate and direct threat to forces. The army said the tunnel had crossed into the Israeli side of the Yellow Line and was connected to Hamas activity hubs in central Gaza, enabling the terror group’s operatives to launch attacks on Israeli troops. The IDF destroyed a section of the underground infrastructure to remove the threat, after identifying attempts by the Hamas terror group to restore it in violation of the ceasefire agreement, the army added.",
+      "language": "en"
+    },
+    {
+      "key": "idf-yellowline-x",
+      "publisherKey": "idf",
+      "title": "IDF: DISMANTLED Hamas underground terrorist infrastructure that crossed the Yellow Line",
+      "url": "https://x.com/IDF/status/2123471034590663034",
+      "canonicalUrl": null,
+      "publishedAt": "2026-11-19T17:38:41+00:00",
+      "excerpt": "DISMANTLED: A section of Hamas’ underground terrorist infrastructure that crossed the Yellow Line & posed an immediate and direct threat to IDF troops operating in the area. It connected Hamas activity hubs in central Gaza to the Yellow Line & was intended to enable Hamas terrorists to carry out attacks against Israeli civilians & IDF troops. The IDF and ISA dismantled an underground terror infrastructure site that posed a threat to IDF troops in the Gaza Strip. Over the past several days, IDF troops, acting on ISA intelligence, conducted a targeted operation to dismantle a section of Hamas underground terrorist infrastructure near the Yellow Line that posed an immediate and direct threat to IDF troops operating in the area. Hezbollah continues to exploit various areas in Lebanon for terrorist activity, weapons smuggling & the movement of terrorists, in violation of the ceasefire agreement.",
+      "language": "en"
+    },
+    {
+      "key": "toi-hezbollah",
+      "publisherKey": "toi",
+      "title": "IDF says it targeted Hezbollah missile site in Lebanon strikes",
+      "url": "https://www.timesofisrael.com/liveblog_entry/idf-says-it-targeted-hezbollah-missile-site-in-lebanon-strikes/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-11-19T20:20:00+02:00",
+      "excerpt": "The IDF confirms carrying out airstrikes in eastern Lebanon’s Beqaa Valley a short while ago, saying it struck an underground Hezbollah site used by the terror group for the production of missiles and the storage of weapons. The subterranean missile manufacturing site located near the town of Janta has been struck by the IDF numerous times before. The military says that the IDF recently identified Hezbollah operatives arriving at the site and, therefore, this evening struck the entrances to prevent its rehabilitation. The Hezbollah terror organization continues to exploit various areas in Lebanon for terror activity, weapons smuggling, and the movement of terrorists, in violation of the ceasefire agreement signed with Lebanon and to harm Israeli civilians and IDF soldiers, the military says. The IDF adds that it will not allow Hezbollah to restore its capabilities and will continue to act to remove threats while remaining committed to the ceasefire agreement reached with Lebanon in June.",
+      "language": "en"
+    }
+  ],
+  "dailyBrief": {
+    "title": "IDF completes targeted Yellow Line tunnel demolition in central Gaza and strikes Hezbollah site in Lebanon",
+    "summary": "On November 19, 2026, the IDF completed a one-day ground operation beyond the Yellow Line in central Gaza to demolish a Hamas tunnel section that had crossed the line and posed a threat, then withdrew and reopened Salah al-Din Road. Separately, the IDF struck entrances to a former Hezbollah missile production site in Lebanon's Beqaa Valley after detecting renewed activity.",
+    "citationKeys": ["toi-yellowline", "idf-yellowline-x", "toi-hezbollah"],
+    "claims": [
+      {
+        "title": "IDF completed targeted operation beyond Yellow Line against Hamas tunnel",
+        "text": "The IDF completed a one-day targeted ground operation beyond the Yellow Line in central Gaza near Nuseirat and Bureij, demolishing a section of Hamas underground infrastructure that had crossed the line and posed an immediate threat to troops, then withdrew and reopened the main road.",
+        "layer": "observed_fact",
+        "assessment": "verified",
+        "attributedTo": null,
+        "uncertainty": null,
+        "citationLinks": [
+          {
+            "citationKey": "toi-yellowline",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Times of Israel reports the completion of the operation based on IDF statements."
+          },
+          {
+            "citationKey": "idf-yellowline-x",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Official IDF account describes the dismantling of the infrastructure that crossed the Yellow Line."
+          }
+        ]
+      },
+      {
+        "title": "IDF struck Hezbollah missile site entrances in Beqaa",
+        "text": "The IDF conducted airstrikes on the entrances to a former Hezbollah missile production and weapons storage site near Janta in Lebanon's Beqaa Valley after identifying recent activity by Hezbollah operatives, to prevent restoration, in violation of the ceasefire according to the military.",
+        "layer": "observed_fact",
+        "assessment": "verified",
+        "attributedTo": null,
+        "uncertainty": null,
+        "citationLinks": [
+          {
+            "citationKey": "toi-hezbollah",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Times of Israel liveblog quotes the IDF confirmation of the strikes and rationale."
+          }
+        ]
+      }
+    ],
+    "situation": {
+      "label": "Current situation",
+      "passages": [
+        {
+          "text": "The IDF completed a rare one-day ground operation beyond the Yellow Line in central Gaza to demolish a Hamas tunnel section that had crossed into the Israeli-controlled side and posed a direct threat, then withdrew forces and reopened Salah al-Din Road.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-yellowline", "idf-yellowline-x"]
+        }
+      ]
+    },
+    "keyEvents": {
+      "label": "Key events",
+      "passages": [
+        {
+          "text": "Reservists and engineering units crossed the Yellow Line to destroy the tunnel section after identifying Hamas attempts to restore it, according to the IDF and Times of Israel reporting.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-yellowline"]
+        },
+        {
+          "text": "Separately, the IDF struck the entrances of a long-targeted Hezbollah missile site in the Janta area of the Beqaa Valley after spotting renewed operative activity.",
+          "claimIndex": 1,
+          "citationKeys": ["toi-hezbollah"]
+        }
+      ]
+    },
+    "israeliPosition": {
+      "label": "Israeli position",
+      "passages": [
+        {
+          "text": "The IDF stated the Gaza tunnel operation was a targeted response to an immediate threat from Hamas infrastructure that violated the ceasefire by crossing the Yellow Line, and the Lebanon strike prevented Hezbollah from restoring capabilities in violation of the agreement.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-yellowline-x", "toi-hezbollah"]
+        }
+      ]
+    },
+    "internationalResponses": null,
+    "watchPoints": {
+      "label": "Watch points",
+      "passages": [
+        {
+          "text": "Monitor claims framing the targeted Yellow Line operation as a broader ceasefire violation without noting the tunnel threat or completion and withdrawal, and track any further Hezbollah activity near previously struck sites.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-yellowline"]
+        }
+      ]
+    },
+    "media": null
+  },
+  "articles": [
+    {
+      "section": "israel_update",
+      "title": "IDF completes one-day tunnel demolition beyond Yellow Line in central Gaza",
+      "summary": "The Israeli military finished a targeted operation on November 19 to demolish a Hamas tunnel section that crossed the Yellow Line near Nuseirat, then withdrew and reopened the main road. Palestinian residents began returning to check damage.",
+      "citationKeys": ["toi-yellowline", "idf-yellowline-x"],
+      "claims": [
+        {
+          "title": "Operation completed and forces withdrawn",
+          "text": "The IDF completed the one-day operation beyond the Yellow Line, demolished the threatening tunnel section, and reopened Salah al-Din Road, as reported by Times of Israel and confirmed in IDF statements.",
+          "layer": "observed_fact",
+          "assessment": "verified",
+          "attributedTo": null,
+          "uncertainty": null,
+          "citationLinks": [
+            {
+              "citationKey": "toi-yellowline",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Detailed reporting on completion and withdrawal."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "The Israeli military completed a rare ground operation beyond the Yellow Line in central Gaza, demolishing a section of Hamas underground infrastructure that had crossed the line and posed an immediate threat to troops.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-yellowline"]
+        },
+        {
+          "text": "Forces from engineering units and reservists participated; after the demolition the IDF withdrew and COGAT announced the reopening of the main north-south road.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-yellowline", "idf-yellowline-x"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "Gaza operations",
+      "primaryActor": "IDF",
+      "arena": "Central Gaza Strip",
+      "featuredIsraelStory": true,
+      "narrativeWatch": null,
+      "media": null
+    },
+    {
+      "section": "narrative_watch",
+      "title": "Framing of Yellow Line operation as ceasefire violation",
+      "summary": "Some accounts described the IDF's targeted tunnel demolition beyond the Yellow Line as a flagrant ceasefire violation or major incursion, while official and independent reporting emphasized the tunnel threat, completion of the operation, and withdrawal.",
+      "citationKeys": ["toi-yellowline", "idf-yellowline-x"],
+      "claims": [
+        {
+          "title": "Narrative omits tunnel threat and operation end",
+          "text": "Claims on X that the operation was a unilateral ceasefire violation or permanent advance often omitted the IDF's stated rationale of a crossing tunnel posing an immediate threat and the subsequent withdrawal and road reopening.",
+          "layer": "model_inference",
+          "assessment": "misleading",
+          "attributedTo": null,
+          "uncertainty": "Specific individual posts vary; pattern observed in multiple shares of the story.",
+          "citationLinks": [
+            {
+              "citationKey": "toi-yellowline",
+              "relation": "contextualizes",
+              "strength": "adequate",
+              "rationale": "Provides the full operational context including threat, completion and withdrawal that some narratives omit."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "Official IDF statements and Times of Israel reporting describe a completed, targeted demolition of a tunnel that had crossed the Yellow Line, followed by withdrawal and road reopening.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-yellowline", "idf-yellowline-x"]
+        },
+        {
+          "text": "Some circulating descriptions on social media emphasized displacement and framed the temporary operation as a broader violation without the stated military rationale.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-yellowline"]
+        }
+      ],
+      "narrativeTitle": "Yellow Line operation as ceasefire violation",
+      "editorialTopic": "Narrative monitoring",
+      "primaryActor": null,
+      "arena": "X discourse on Gaza",
+      "featuredIsraelStory": false,
+      "narrativeWatch": {
+        "exactClaim": "Israeli tanks crossed the Yellow Line into Hamas-controlled Gaza in a flagrant ceasefire violation causing mass displacement.",
+        "propagators": ["various X accounts sharing the story"],
+        "arenas": ["X", "social media"],
+        "trendDirection": "rising",
+        "israeliPosition": "The operation was targeted against a tunnel that crossed the line and posed an immediate threat; forces withdrew after demolition and the road was reopened.",
+        "securityContext": "The tunnel connected Hamas activity hubs and had crossed into the Israeli side of the demarcation line.",
+        "supportingCitationKeys": [],
+        "contradictingCitationKeys": ["toi-yellowline", "idf-yellowline-x"],
+        "verificationState": "misleading",
+        "knownUnknowns": ["Exact number of civilians temporarily displaced is reported by some outlets as around 6,000 but not independently verified in primary sources here."]
+      },
+      "media": null
+    }
+  ]
+}

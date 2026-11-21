@@ -1,1 +1,19 @@
-PLACEHOLDER
+{
+  "contractVersion": "external-briefing-v1",
+  "runId": "grok-x-2026-11-21-054100",
+  "localDate": "2026-11-21",
+  "composer": "Grok scheduled geopolitical brief",
+  "publishers": [
+    {
+      "key": "idf",
+      "name": "Israel Defense Forces",
+      "homepageUrl": "https://www.idf.il/",
+      "language": "en",
+      "country": "IL",
+      "official": true
+    }
+  ],
+  "citations": [],
+  "dailyBrief": {},
+  "articles": []
+}

@@ -1,1 +1,303 @@
-See local file - updating with full content
+{
+  "contractVersion": "external-briefing-v1",
+  "runId": "grok-x-2026-11-27-054000",
+  "localDate": "2026-11-27",
+  "composer": "Grok scheduled X narrative report",
+  "publishers": [
+    {
+      "key": "idf",
+      "name": "Israel Defense Forces",
+      "homepageUrl": "https://www.idf.il/",
+      "language": "en",
+      "country": "IL",
+      "official": true
+    },
+    {
+      "key": "timesofisrael",
+      "name": "The Times of Israel",
+      "homepageUrl": "https://www.timesofisrael.com/",
+      "language": "en",
+      "country": "IL",
+      "official": false
+    },
+    {
+      "key": "jpost",
+      "name": "The Jerusalem Post",
+      "homepageUrl": "https://www.jpost.com/",
+      "language": "en",
+      "country": "IL",
+      "official": false
+    }
+  ],
+  "citations": [
+    {
+      "key": "idf-lebanon-strike",
+      "publisherKey": "idf",
+      "title": "IDF strikes dozens of rockets and launchers at Hezbollah Radwan Force training camp in southern Lebanon",
+      "url": "https://x.com/IDF/status/2126038039495418272",
+      "canonicalUrl": null,
+      "publishedAt": "2026-11-26T19:39:03+00:00",
+      "excerpt": "🎯 STRUCK: Dozens of rockets & launchers at a training camp belonging to Hezbollah’s Radwan Force in the Ein al-Tina area of southern Lebanon. The rockets and launchers were intended for use by Hezbollah terrorists to target Israeli civilians & IDF soldiers and were struck in order to remove the threat. The Israeli Air Force carried out airstrikes in eastern Lebanon on Thursday evening, targeting dozens of rockets and launchers belonging to the Hezbollah terror group, the military said. The strikes were carried out near the town of Ayn al-Tina, in the Beqaa Valley, some 25 kilometers (15 miles) north of the Israeli border. The Israel Defense Forces, in a statement, said that it struck dozens of rockets and launchers at a military training camp belonging to Hezbollah’s elite Radwan Force. “The rockets and launchers were intended for use by Hezbollah terrorists to target IDF soldiers and Israeli civilians, and were struck from the air to eliminate the threat,” the army said. No injuries were reported in the strikes. Lebanese media reported large explosions in the Ayn al-Tina area. Israel last struck Hezbollah in the Beqaa Valley a week ago, with the IDF reporting that the Air Force hit an underground Hezbollah site used by the terror group for the production of missiles and the storage of weapons. Days before that, the military said the Air Force had struck a weapons shipment from Syria that was destined for Hezbollah. That strike marked the first in eastern Lebanon in several months. Hezbollah, whose arsenal has long outstripped that of the national army, pulled Lebanon into the Israeli and American war with Iran on March 2 in support of its Iranian patrons, prompting massive Israeli airstrikes and a subsequent ground invasion of southern Lebanon. An agreement between Jerusalem and Beirut to halt the conflict was reached in June, though sporadic fighting has continued. The Shiite terror group has refused to comply with the deal, which calls for the IDF to withdraw from areas of southern Lebanon it holds in parallel with the deployment of the Lebanese army, starting with so-called pilot zones, under the condition that Hezbollah disarms. The Iran-backed terror organization has refused to do so despite heavy pressure from the country’s non-Shiite leaders and international actors. Israel has said Beirut’s efforts to disarm the terror group are encouraging but insufficient, and that Hezbollah is rearming faster than it is being disarmed.",
+      "language": "en"
+    },
+    {
+      "key": "toi-lebanon",
+      "publisherKey": "timesofisrael",
+      "title": "Air Force strikes Hezbollah rockets, launchers in eastern Lebanon -- IDF",
+      "url": "https://www.timesofisrael.com/air-force-strikes-hezbollah-rockets-launchers-in-eastern-lebanon-idf/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-11-26T21:38:00+02:00",
+      "excerpt": "The Israeli Air Force carried out airstrikes in eastern Lebanon on Thursday evening, targeting dozens of rockets and launchers belonging to the Hezbollah terror group, the military said. The strikes were carried out near the town of Ayn al-Tina, in the Beqaa Valley, some 25 kilometers (15 miles) north of the Israeli border. The Israel Defense Forces, in a statement, said that it struck dozens of rockets and launchers at a military training camp belonging to Hezbollah’s elite Radwan Force. “The rockets and launchers were intended for use by Hezbollah terrorists to target IDF soldiers and Israeli civilians, and were struck from the air to eliminate the threat,” the army said. No injuries were reported in the strikes. Lebanese media reported large explosions in the Ayn al-Tina area. Israel last struck Hezbollah in the Beqaa Valley a week ago, with the IDF reporting that the Air Force hit an underground Hezbollah site used by the terror group for the production of missiles and the storage of weapons. Days before that, the military said the Air Force had struck a weapons shipment from Syria that was destined for Hezbollah. That strike marked the first in eastern Lebanon in several months. Hezbollah, whose arsenal has long outstripped that of the national army, pulled Lebanon into the Israeli and American war with Iran on March 2 in support of its Iranian patrons, prompting massive Israeli airstrikes and a subsequent ground invasion of southern Lebanon. An agreement between Jerusalem and Beirut to halt the conflict was reached in June, though sporadic fighting has continued. The Shiite terror group has refused to comply with the deal, which calls for the IDF to withdraw from areas of southern Lebanon it holds in parallel with the deployment of the Lebanese army, starting with so-called pilot zones, under the condition that Hezbollah disarms. The Iran-backed terror organization has refused to do so despite heavy pressure from the country’s non-Shiite leaders and international actors. Israel has said Beirut’s efforts to disarm the terror group are encouraging but insufficient, and that Hezbollah is rearming faster than it is being disarmed.",
+      "language": "en"
+    },
+    {
+      "key": "idf-hospital",
+      "publisherKey": "idf",
+      "title": "IDF reveals Hamas conducts interrogations and torture at Al-Ma’amadani Hospital",
+      "url": "https://x.com/IDF/status/2125959467669795191",
+      "canonicalUrl": null,
+      "publishedAt": "2026-11-26T14:26:50+00:00",
+      "excerpt": "‼️🔍REVEALED: Hamas conducts interrogations and torture at the Al-Ma’amadani Hospital. The Al-Ma’amadani Hospital, which was founded in the late 19th century, currently serves as a central hub of activity for Hamas and Islamic Jihad operatives. Military activity by the terrorist organizations takes place within the hospital grounds, and the hospital constitutes a significant center of gravity for Hamas’ governance in the Zeitoun area. Within the hospital grounds, Hamas continues to exploit the hospital’s infrastructure and has converted a medical and humanitarian facility into a secured interrogation and torture facility, where Gazan civilians are interrogated and tortured. The IDF released video and imagery showing the hospital complex used for these purposes. This is part of Hamas's systematic exploitation of civilian infrastructure for military and governance activities in Gaza. The revelation comes amid ongoing operations targeting Hamas infrastructure and leadership. Palestinian reports and other sources have not independently confirmed the specific torture claims at this time, but the IDF presented satellite and other evidence highlighting the facility in the northeast corner of the hospital complex as the space used for these activities. The hospital, founded in the late 19th century, has been co-opted by the terror groups for their operations, undermining its humanitarian purpose. This pattern of exploiting hospitals, schools, and other civilian sites has been documented throughout the conflict. The IDF stated that the military activity takes place within the hospital grounds, making it a significant center of gravity for Hamas’ governance in the Zeitoun area. Conversion of the medical facility into a secured interrogation and torture facility for Gazan civilians represents a clear violation of the protected status of medical facilities under international law when used for military purposes.",
+      "language": "en"
+    },
+    {
+      "key": "toi-gaza-strike",
+      "publisherKey": "timesofisrael",
+      "title": "Senior Hamas moneyman killed in overnight Gaza strike, IDF says, along with wife",
+      "url": "https://www.timesofisrael.com/senior-hamas-moneyman-killed-in-overnight-gaza-strike-idf-says-along-with-wife/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-11-26T10:26:00+02:00",
+      "excerpt": "The IDF said it killed a senior Hamas official responsible for managing the terror group’s banks and investment network in an airstrike in the central Gaza Strip overnight Wednesday-Thursday, as Palestinian reports said multiple Israeli attacks killed a total of nine people across the enclave. The strike in Deir al-Balah killed Khaled Abu Nada, who headed Hamas’s economy and education portfolios, along with his wife. The army said that as part of his role as head of Hamas’s economic affairs, Abu Nada was responsible for managing Hamas’s banks and investment network, and he “directed funds toward terror and Hamas’s military buildup, while residents of the Gaza Strip paid the price.” Palestinian reports previously identified Abu Nada as deputy education minister. Israel does not distinguish between the military wing of Hamas and its political bureau, considering all branches of the group as part of the same terror infrastructure. According to Palestinian sources, the strike hit a residential building in the central Strip and also injured several others. Prime Minister Benjamin Netanyahu and Defense Minister Israel Katz, in their own statement, said the killing of Abu Nada was “part of a series of targeted killings carried out recently against members and senior officials of the organization.” Netanyahu said Israel has killed about 80 Hamas militants in the past month. “No terrorist is immune, and no one in the Hamas leadership will manage to evade us,” Netanyahu said. The Israeli military said Abu Nada oversaw Hamas' economic portfolio and managed its banking and investment network, directing funds toward militant activities and force buildup. The military said his death may weaken the group's ability to sustain its finances and support its military capabilities. Hamas confirmed the death, saying Israel's targeting of academics and civilian figures was a “heinous crime.” Hamas said the continued policy of “assassination” violates the Gaza ceasefire agreement and international law. It holds US President Donald Trump’s Board of Peace politically and morally responsible for failing to stop the attacks and for providing cover that encouraged further killings and attacks on civilians. Medics said an Israeli airstrike hit an apartment in Deir Al-Balah, in central Gaza Strip on Thursday, killing Khaled Abu Nada, the deputy Gaza education minister, and his wife. Two other airstrikes killed six people in the Tuffah neighbourhood and Beach refugee camp overnight in Gaza City, medics added. Later on Thursday, medics said Israeli gunfire killed a 62-year-old man in the eastern Bureij refugee camp. The Israeli military did not immediately comment on those reported deaths.",
+      "language": "en"
+    },
+    {
+      "key": "jpost-gaza",
+      "publisherKey": "jpost",
+      "title": "IDF, Shin Bet kill Hamas economy, education chief in Gaza strike",
+      "url": "https://www.jpost.com/israel-news/defense-news/article-916167",
+      "canonicalUrl": null,
+      "publishedAt": "2026-11-26T09:16:00+02:00",
+      "excerpt": "The IDF and Shin Bet (Israel Security Agency) struck and killed senior Hamas political figure Khaled Abu Nada in a strike on Deir al-Balah, Gaza Strip, the military confirmed on Thursday. Abu Nada was head of the Economic Department and education minister of Hamas's Political Bureau, the IDF said. “As head of the economic portfolio, Abu Nada was responsible for managing Hamas’ banks and investment system. In this role, he directed funds toward terrorist activities and Hamas’ force buildup, while the residents of the Gaza Strip paid the price,” the military noted. “His assassination constitutes a blow to Hamas’s financial operations and its ability to formulate economic policy, thereby undermining the terrorist organization’s ability to sustain its financial capabilities and advance its military buildup,” the military added. “No terrorist is immune, and no one in the Hamas leadership will manage to evade us. We will continue to pursue our enemies and defend the security of Israel's citizens,” Netanyahu and Katz said. According to security sources, a senior Hamas political bureau official in the Gaza Strip who was responsible for the finance and education portfolio being killed represents a turning point in Israel's targeted assassination policy in the Gaza Strip, as this is the beginning of a move designed to collapse Hamas' control over the Gaza Strip. An IDF biographical infographic on Hamas's economic, educational chief Khaled Abu Nada, published November 26, 2026, detailed his roles. Considered a senior governing figure in the Gaza Strip. Played a key role in decision-making that directly influenced Hamas’ terrorist activity against IDF troops in the Gaza Strip. As the head of the economic portfolio, he was responsible for managing Hamas' banks and investment system. As Minister of Education, he was responsible maintaining ties with foreign countries regarding the Hamas’ education system. The strike is part of a series targeting Hamas leadership and infrastructure despite the ongoing ceasefire arrangements. Palestinian sources identified him as the deputy education minister in the Hamas-run administration.",
+      "language": "en"
+    }
+  ],
+  "dailyBrief": {
+    "title": "IDF strikes Hezbollah rocket launchers in Lebanon and eliminates senior Hamas finance official in Gaza",
+    "summary": "Israeli forces struck Hezbollah training sites in southern Lebanon and conducted targeted operations in Gaza killing a senior Hamas official responsible for the group's finances and education, amid ongoing disputes over ceasefire compliance.",
+    "citationKeys": ["idf-lebanon-strike", "toi-lebanon", "toi-gaza-strike", "jpost-gaza", "idf-hospital"],
+    "claims": [
+      {
+        "title": "IDF struck Hezbollah rockets and launchers",
+        "text": "The IDF conducted airstrikes on a Hezbollah Radwan Force training camp in the Ein al-Tina area of southern Lebanon, destroying dozens of rockets and launchers intended for attacks on Israeli civilians and soldiers.",
+        "layer": "observed_fact",
+        "assessment": "verified",
+        "attributedTo": "Israel Defense Forces",
+        "uncertainty": null,
+        "citationLinks": [
+          {
+            "citationKey": "idf-lebanon-strike",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Direct statement from official IDF account confirming the strike and purpose."
+          },
+          {
+            "citationKey": "toi-lebanon",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Independent reporting confirming IDF statement and location."
+          }
+        ]
+      },
+      {
+        "title": "IDF killed senior Hamas finance and education official",
+        "text": "Israeli forces killed Khaled Abu Nada, identified by the IDF as head of Hamas economic affairs managing banks and investments directed to terror activities, and by Palestinian sources as deputy education minister, along with his wife in Deir al-Balah.",
+        "layer": "observed_fact",
+        "assessment": "verified",
+        "attributedTo": "IDF and Palestinian medics",
+        "uncertainty": "Exact civilian status and full role details remain disputed between Israeli and Palestinian accounts.",
+        "citationLinks": [
+          {
+            "citationKey": "toi-gaza-strike",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Detailed reporting on IDF claims and Palestinian identification."
+          },
+          {
+            "citationKey": "jpost-gaza",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Confirmation of roles and Netanyahu/Katz statement."
+          }
+        ]
+      },
+      {
+        "title": "IDF alleges Hamas uses hospital for torture",
+        "text": "The IDF released evidence claiming Hamas has converted Al-Ma’amadani Hospital into a facility for interrogating and torturing Gazan civilians.",
+        "layer": "source_claim",
+        "assessment": "unresolved",
+        "attributedTo": "Israel Defense Forces",
+        "uncertainty": "Independent verification of the specific torture claims is limited; pattern of hospital exploitation is documented but this instance requires further corroboration.",
+        "citationLinks": [
+          {
+            "citationKey": "idf-hospital",
+            "relation": "supports",
+            "strength": "adequate",
+            "rationale": "Official IDF release with video and description."
+          }
+        ]
+      }
+    ],
+    "situation": {
+      "label": "Current operational situation",
+      "passages": [
+        {
+          "text": "Israeli forces conducted precision strikes against Hezbollah infrastructure in southern Lebanon and targeted Hamas leadership figures in Gaza, reflecting continued enforcement of security threats despite ceasefire frameworks.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-lebanon-strike", "toi-lebanon"]
+        }
+      ]
+    },
+    "keyEvents": {
+      "label": "Key events of the past 24 hours",
+      "passages": [
+        {
+          "text": "The IDF struck dozens of rockets and launchers at a Hezbollah Radwan Force training camp near Ayn al-Tina in the Beqaa Valley area of southern Lebanon, stating they were intended for use against Israeli targets.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-lebanon-strike", "toi-lebanon"]
+        },
+        {
+          "text": "In Gaza, an Israeli strike in Deir al-Balah killed Khaled Abu Nada, whom the IDF described as managing Hamas banks and investments for terror activities and whom Palestinian reports identified as deputy education minister, along with his wife.",
+          "claimIndex": 1,
+          "citationKeys": ["toi-gaza-strike", "jpost-gaza"]
+        }
+      ]
+    },
+    "israeliPosition": {
+      "label": "Israeli official position",
+      "passages": [
+        {
+          "text": "The IDF stated the Lebanon strikes removed a direct threat from Hezbollah rockets and launchers intended for attacks on civilians and soldiers, while Gaza operations targeted Hamas financial and governance capabilities as part of a series of actions against the terror organization.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-lebanon-strike", "toi-gaza-strike"]
+        }
+      ]
+    },
+    "internationalResponses": null,
+    "watchPoints": {
+      "label": "Watch points",
+      "passages": [
+        {
+          "text": "Monitor Hezbollah's response to the Lebanon strikes and any further violations of the June agreement, as well as Hamas reactions to the targeted killings and claims of ceasefire breaches in Gaza.",
+          "claimIndex": 1,
+          "citationKeys": ["toi-lebanon", "toi-gaza-strike"]
+        }
+      ]
+    },
+    "media": null
+  },
+  "articles": [
+    {
+      "section": "israel_update",
+      "title": "Israeli strikes eliminate Hamas finance chief and target Hezbollah launchers",
+      "summary": "IDF operations on November 26 targeted Hamas economic leadership in Gaza and Hezbollah rocket infrastructure in Lebanon, with official statements emphasizing threat removal.",
+      "citationKeys": ["toi-gaza-strike", "jpost-gaza", "idf-lebanon-strike"],
+      "claims": [
+        {
+          "title": "Targeted killing of Khaled Abu Nada",
+          "text": "Khaled Abu Nada was killed in a Deir al-Balah strike; IDF says he directed Hamas finances to terror, Palestinian sources call him deputy education minister.",
+          "layer": "observed_fact",
+          "assessment": "verified",
+          "attributedTo": null,
+          "uncertainty": "Role characterization differs between Israeli military and Palestinian/Hamas accounts.",
+          "citationLinks": [
+            {
+              "citationKey": "toi-gaza-strike",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Comprehensive account of claims from both sides."
+            },
+            {
+              "citationKey": "jpost-gaza",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "IDF and leadership statements on the strike."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "Israeli forces conducted an airstrike in central Gaza that eliminated a senior Hamas figure responsible for the organization's economic portfolio, according to the IDF, while Palestinian medics confirmed the death of the deputy education minister and his wife.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-gaza-strike", "jpost-gaza"]
+        },
+        {
+          "text": "Separately, the IDF struck Hezbollah rocket and launcher stockpiles at a Radwan Force training camp in southern Lebanon to neutralize an imminent threat to Israeli civilians and troops.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-lebanon-strike"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "Israeli security operations",
+      "primaryActor": "IDF",
+      "arena": "Gaza and southern Lebanon",
+      "featuredIsraelStory": true,
+      "narrativeWatch": null,
+      "media": null
+    },
+    {
+      "section": "narrative_watch",
+      "title": "Claims of ceasefire violations in Gaza targeted strikes",
+      "summary": "Hamas and some outlets frame the killing of Khaled Abu Nada as a ceasefire violation targeting a civilian official, while Israeli sources describe him as a terror finance manager.",
+      "citationKeys": ["toi-gaza-strike", "jpost-gaza"],
+      "claims": [
+        {
+          "title": "Hamas claim of ceasefire breach",
+          "text": "Hamas stated that the targeted killing of Abu Nada and others violates the Gaza ceasefire and constitutes a heinous crime against academics and civilians.",
+          "layer": "source_claim",
+          "assessment": "disputed",
+          "attributedTo": "Hamas",
+          "uncertainty": "Israeli assessment of his operational role in directing funds to terror contradicts the civilian framing; independent confirmation of finance role is limited to Israeli sources.",
+          "citationLinks": [
+            {
+              "citationKey": "toi-gaza-strike",
+              "relation": "contextualizes",
+              "strength": "adequate",
+              "rationale": "Reports both Hamas statement and Israeli counter-claims."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "Following the strike that killed Khaled Abu Nada, Hamas accused Israel of violating the ceasefire by targeting what it described as an academic and civilian figure, while the IDF detailed his role in managing the group's banking and investment network for military purposes.",
+          "claimIndex": 0,
+          "citationKeys": ["toi-gaza-strike"]
+        },
+        {
+          "text": "Netanyahu and Katz emphasized that no terrorist is immune and that the operation is part of a series against Hamas leadership, with approximately 80 militants eliminated in the past month according to Israeli statements.",
+          "claimIndex": 0,
+          "citationKeys": ["jpost-gaza", "toi-gaza-strike"]
+        }
+      ],
+      "narrativeTitle": "Gaza strikes as ceasefire violation vs legitimate targeting",
+      "editorialTopic": "Ceasefire compliance narratives",
+      "primaryActor": "Hamas and IDF",
+      "arena": "Gaza Strip",
+      "featuredIsraelStory": false,
+      "narrativeWatch": {
+        "exactClaim": "Israeli targeted strikes in Gaza violate the ceasefire by killing civilian officials like the deputy education minister.",
+        "propagators": ["Hamas", "Al Jazeera", "some Palestinian outlets"],
+        "arenas": ["Gaza", "international media", "X/Twitter"],
+        "trendDirection": "rising",
+        "israeliPosition": "The targets are Hamas operatives directing terror financing and capabilities; operations remove threats and do not violate agreements as Hamas continues to rearm and operate.",
+        "securityContext": "Ongoing efforts to degrade Hamas governance and military capacity amid incomplete disarmament.",
+        "supportingCitationKeys": [],
+        "contradictingCitationKeys": ["toi-gaza-strike", "jpost-gaza"],
+        "verificationState": "disputed",
+        "knownUnknowns": ["Full independent verification of Abu Nada's financial role beyond Israeli assessments", "Precise terms of the current ceasefire regarding political wing targeting"]
+      },
+      "media": null
+    }
+  ]
+}

@@ -1,1 +1,285 @@
-PLACEHOLDER_TO_BE_REPLACED
+{
+  "contractVersion": "external-briefing-v1",
+  "runId": "grok-x-2026-11-28-054105",
+  "localDate": "2026-11-28",
+  "composer": "Grok scheduled geopolitical brief",
+  "publishers": [
+    {
+      "key": "idf",
+      "name": "Israel Defense Forces",
+      "homepageUrl": "https://www.idf.il/en/",
+      "language": "en",
+      "country": "IL",
+      "official": true
+    },
+    {
+      "key": "timesofisrael",
+      "name": "The Times of Israel",
+      "homepageUrl": "https://www.timesofisrael.com/",
+      "language": "en",
+      "country": "IL",
+      "official": false
+    },
+    {
+      "key": "msf",
+      "name": "Médecins Sans Frontières",
+      "homepageUrl": "https://www.msf.org/",
+      "language": "en",
+      "country": null,
+      "official": false
+    },
+    {
+      "key": "aljazeera",
+      "name": "Al Jazeera English",
+      "homepageUrl": "https://www.aljazeera.com/",
+      "language": "en",
+      "country": "QA",
+      "official": false
+    }
+  ],
+  "citations": [
+    {
+      "key": "idf-x-msf-strike",
+      "publisherKey": "idf",
+      "title": "ELIMINATED: HAMAS TERRORISTS UNDER HUMANITARIAN COVER",
+      "url": "https://x.com/IDF/status/2126456222287081538",
+      "canonicalUrl": null,
+      "publishedAt": "2026-11-27T23:20:45+00:00",
+      "excerpt": "🔴 ELIMINATED: HAMAS TERRORISTS UNDER HUMANITARIAN COVER\n\nAhmed Sufyan Muhammad Ali Abu Hasira & Moaz Yousef Alitsbach were eliminated in a precise strike in Gaza City. Both were terrorists in Hamas’ military wing while acting as security guards at a clinic operated by MSF.\n\nPrior to the strike, precautionary measures were taken to minimize harm to civilians. Contrary to reports, the strike was not directed at a hospital, and no damage was caused to medical infrastructure in the area.\n\nRecently, the terrorists advanced plans to carry out attacks against Israeli civilians & IDF troops. They were eliminated in order to remove the threats they posed.",
+      "language": "en"
+    },
+    {
+      "key": "toi-msf-strike",
+      "publisherKey": "timesofisrael",
+      "title": "IDF says Gaza strike killed two terrorists working for Doctors Without Borders",
+      "url": "https://www.timesofisrael.com/liveblog-november-28-2026/",
+      "canonicalUrl": null,
+      "publishedAt": "2026-11-28T02:00:00+02:00",
+      "excerpt": "The military says it killed two terrorists who were working as members of the Doctors Without Borders (MSF) group in an airstrike in Gaza City. According to the Israel Defense Forces, terrorists Ahmed Safian Muhammad Ali Abu Hasirah and Ma’ad Yousef Alisbah, a commander of an artillery squad in the Hamas military wing, worked as watchmen for an MSF clinic. The IDF says contrary to claims, it did not target a hospital and no damage was caused to medical infrastructure. MSF says the organization is “devastated and outraged by the killing of two of our colleagues, both watchmen, in an Israeli strike on one of our Gaza clinics tonight.” “This is a direct hit on MSF, bringing the total number of MSF colleagues killed in Gaza to 17. Our premises were clearly marked with MSF logos, and their location had been communicated to and was known by the Israeli military. We stand in solidarity with the families and loved ones of our colleagues. We call for accountability,” it says in a statement. The medical organization has repeatedly denied that it employs members of terror groups despite overwhelming evidence to the contrary.",
+      "language": "en"
+    },
+    {
+      "key": "msf-statement",
+      "publisherKey": "msf",
+      "title": "MSF GAZA: Israeli strike kills two MSF colleagues",
+      "url": "https://prezly.msf.org.uk/msf-gaza-israeli-strike-kills-two-msf-colleagues",
+      "canonicalUrl": null,
+      "publishedAt": "2026-11-27T22:00:00+00:00",
+      "excerpt": "We are devastated and outraged by the killing of two of our colleagues, both watchmen, in an Israeli strike on one of our Gaza clinics tonight. This is a direct hit on Médecins Sans Frontières / Doctors Without Borders (MSF), bringing the total number of MSF colleagues killed in Gaza to 17. Our premises were clearly marked with MSF logos, and their location had been communicated to and was known by the Israeli military. We stand in solidarity with the families and loved ones of our colleagues. We call for accountability.",
+      "language": "en"
+    },
+    {
+      "key": "aljazeera-msf",
+      "publisherKey": "aljazeera",
+      "title": "Israel kills two MSF staff in targeted strike on Gaza clinic",
+      "url": "https://www.aljazeera.com/video/newsfeed/2026/11/28/israel-kills-two-msf-staff-in-targeted-strike-on-gaza-clinic",
+      "canonicalUrl": null,
+      "publishedAt": "2026-11-28T00:00:00+00:00",
+      "excerpt": "An Israeli strike on a clinic operated by Doctors Without Borders (MSF) in Gaza has killed two watchmen, bringing its staff death toll to 17. MSF called it a ‘direct hit’, saying its logos were visible and Israel knew the location. Israel said the two were Hamas fighters. Published On 28 Nov 2026.",
+      "language": "en"
+    }
+  ],
+  "dailyBrief": {
+    "title": "IDF Eliminates Hamas Operatives Who Worked as Guards at MSF Clinic in Gaza City",
+    "summary": "The IDF announced the elimination of two Hamas military wing members who served as security guards at an MSF clinic in Gaza City. MSF described the strike as a direct hit on its premises and called for accountability, while the IDF stated precautions were taken and medical infrastructure was not targeted.",
+    "citationKeys": ["idf-x-msf-strike", "toi-msf-strike", "msf-statement"],
+    "claims": [
+      {
+        "title": "IDF eliminated two named Hamas terrorists acting as MSF clinic guards",
+        "text": "The IDF stated that Ahmed Sufyan Muhammad Ali Abu Hasira and Moaz Yousef Alitsbach, both members of Hamas’ military wing, were eliminated in a precise strike in Gaza City while acting as security guards at an MSF clinic. The IDF said they advanced plans for attacks against Israeli civilians and troops.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "Israel Defense Forces",
+        "uncertainty": null,
+        "citationLinks": [
+          {
+            "citationKey": "idf-x-msf-strike",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Direct official statement naming the individuals, their Hamas affiliation, role at the MSF clinic, and the purpose of the strike."
+          },
+          {
+            "citationKey": "toi-msf-strike",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Independent reporting confirming the IDF's identification and description of the strike."
+          }
+        ]
+      },
+      {
+        "title": "MSF stated the strike was a direct hit on its marked clinic killing two colleagues",
+        "text": "Médecins Sans Frontières stated it was devastated and outraged by the killing of two watchmen colleagues in an Israeli strike on one of its Gaza clinics, calling it a direct hit that brings the total of MSF colleagues killed in Gaza to 17. MSF said its premises were clearly marked and the location known to the Israeli military.",
+        "layer": "source_claim",
+        "assessment": "verified",
+        "attributedTo": "Médecins Sans Frontières",
+        "uncertainty": null,
+        "citationLinks": [
+          {
+            "citationKey": "msf-statement",
+            "relation": "supports",
+            "strength": "strong",
+            "rationale": "Official MSF press release containing the exact statement on the strike and its characterization."
+          },
+          {
+            "citationKey": "toi-msf-strike",
+            "relation": "supports",
+            "strength": "adequate",
+            "rationale": "Times of Israel quoting the MSF statement in full context of the IDF response."
+          }
+        ]
+      }
+    ],
+    "situation": {
+      "label": "Current Situation",
+      "passages": [
+        {
+          "text": "On Friday evening, the IDF carried out a precision strike in Gaza City targeting two Hamas military wing operatives who were employed as security guards at a clinic run by Doctors Without Borders. The military said the men had been advancing attack plans against Israeli forces and civilians.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-x-msf-strike", "toi-msf-strike"]
+        }
+      ]
+    },
+    "keyEvents": {
+      "label": "Key Events",
+      "passages": [
+        {
+          "text": "The IDF identified the eliminated individuals as Ahmed Sufyan Muhammad Ali Abu Hasira and Moaz Yousef Alitsbach, the latter an artillery unit commander in Hamas’s military wing. The IDF emphasized that the strike did not target a hospital and caused no damage to medical infrastructure.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-x-msf-strike", "toi-msf-strike"]
+        },
+        {
+          "text": "MSF responded by stating that the strike constituted a direct hit on its premises, bringing the number of its staff killed in Gaza to 17, and called for accountability while noting that the clinic’s location and markings had been communicated to the IDF.",
+          "claimIndex": 1,
+          "citationKeys": ["msf-statement", "toi-msf-strike"]
+        }
+      ]
+    },
+    "israeliPosition": {
+      "label": "Israeli Position",
+      "passages": [
+        {
+          "text": "The Israel Defense Forces stated that the two men were Hamas terrorists operating under the cover of humanitarian employment at the MSF clinic and that they were eliminated to remove the threat they posed to Israeli civilians and IDF troops after advancing attack plans.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-x-msf-strike"]
+        }
+      ]
+    },
+    "internationalResponses": null,
+    "watchPoints": {
+      "label": "Watch Points",
+      "passages": [
+        {
+          "text": "The discrepancy between the IDF’s description of the targets as Hamas operatives using humanitarian cover and MSF’s characterization of the strike as a direct hit on a marked medical facility continues to drive competing narratives on social media and in international coverage.",
+          "claimIndex": 1,
+          "citationKeys": ["toi-msf-strike", "msf-statement"]
+        }
+      ]
+    },
+    "media": null
+  },
+  "articles": [
+    {
+      "section": "israel_update",
+      "title": "IDF Strikes Hamas Operatives Working as Guards at MSF Clinic in Gaza City",
+      "summary": "The IDF eliminated two Hamas military wing members employed as security guards at a Doctors Without Borders clinic in Gaza City, stating they were advancing attack plans. MSF condemned the action as a direct hit on its premises.",
+      "citationKeys": ["idf-x-msf-strike", "toi-msf-strike", "msf-statement"],
+      "claims": [
+        {
+          "title": "IDF identified and eliminated two Hamas operatives at MSF clinic",
+          "text": "According to the IDF, Ahmed Sufyan Muhammad Ali Abu Hasira and Moaz Yousef Alitsbach of Hamas’s military wing were eliminated while serving as security guards at an MSF clinic in Gaza City. The military said the strike used precision measures and did not damage medical infrastructure.",
+          "layer": "source_claim",
+          "assessment": "verified",
+          "attributedTo": "Israel Defense Forces",
+          "uncertainty": null,
+          "citationLinks": [
+            {
+              "citationKey": "idf-x-msf-strike",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Primary official announcement detailing the identities, affiliations, and operational justification."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "The Israel Defense Forces announced the elimination of two Hamas terrorists in a precise strike in Gaza City. Both individuals were members of Hamas’s military wing and simultaneously worked as security guards at a clinic operated by Médecins Sans Frontières.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-x-msf-strike"]
+        },
+        {
+          "text": "The IDF stated that prior to the strike, precautionary measures were taken to minimize civilian harm, that the strike was not directed at a hospital, and that no damage was caused to medical infrastructure. The operatives had recently advanced plans for attacks against Israeli civilians and troops.",
+          "claimIndex": 0,
+          "citationKeys": ["idf-x-msf-strike", "toi-msf-strike"]
+        }
+      ],
+      "narrativeTitle": null,
+      "editorialTopic": "Gaza operations and Hamas embedding in civilian institutions",
+      "primaryActor": "Israel Defense Forces",
+      "arena": "Gaza Strip",
+      "featuredIsraelStory": true,
+      "narrativeWatch": null,
+      "media": null
+    },
+    {
+      "section": "narrative_watch",
+      "title": "Narrative Claims Israel Targeted MSF Medical Facility Killing Staff",
+      "summary": "Competing accounts frame the Gaza City strike either as the elimination of Hamas operatives using humanitarian cover or as a deliberate attack on a marked MSF clinic and its staff.",
+      "citationKeys": ["msf-statement", "aljazeera-msf", "toi-msf-strike", "idf-x-msf-strike"],
+      "claims": [
+        {
+          "title": "MSF and some outlets describe the strike as a direct hit on a medical clinic",
+          "text": "MSF stated the strike was a direct hit on one of its Gaza clinics that killed two watchmen, bringing its staff death toll in Gaza to 17, and that the premises were clearly marked with logos and the location known to the Israeli military. Al Jazeera reported the strike killed two MSF staff and noted Israel’s claim that they were Hamas fighters.",
+          "layer": "source_claim",
+          "assessment": "verified",
+          "attributedTo": "Médecins Sans Frontières and Al Jazeera",
+          "uncertainty": null,
+          "citationLinks": [
+            {
+              "citationKey": "msf-statement",
+              "relation": "supports",
+              "strength": "strong",
+              "rationale": "Primary statement from the organization characterizing the event."
+            },
+            {
+              "citationKey": "aljazeera-msf",
+              "relation": "supports",
+              "strength": "adequate",
+              "rationale": "Al Jazeera coverage reflecting the MSF framing while noting the Israeli counter-claim."
+            }
+          ]
+        }
+      ],
+      "passages": [
+        {
+          "text": "Médecins Sans Frontières described the Israeli strike as a direct hit on one of its Gaza clinics, stating that two of its watchmen were killed and that the facility’s location and markings had been previously communicated to the Israeli military.",
+          "claimIndex": 0,
+          "citationKeys": ["msf-statement"]
+        },
+        {
+          "text": "Al Jazeera reported that an Israeli strike on an MSF clinic in Gaza killed two watchmen, raising the organization’s staff death toll in Gaza to 17, while noting that Israel said the two were Hamas fighters. The IDF maintained that the targets were Hamas operatives using the clinic as cover and that medical infrastructure was not damaged.",
+          "claimIndex": 0,
+          "citationKeys": ["aljazeera-msf", "toi-msf-strike", "idf-x-msf-strike"]
+        }
+      ],
+      "narrativeTitle": "Israel struck an MSF clinic killing humanitarian staff",
+      "editorialTopic": "Competing narratives on the Gaza MSF clinic strike",
+      "primaryActor": "Médecins Sans Frontières",
+      "arena": "Gaza Strip / international media",
+      "featuredIsraelStory": false,
+      "narrativeWatch": {
+        "exactClaim": "Israel deliberately targeted a clearly marked MSF clinic in Gaza City, killing two of the organization’s staff members who were working as watchmen.",
+        "propagators": ["MSF International", "Al Jazeera English"],
+        "arenas": ["Gaza Strip", "international humanitarian organizations", "social media"],
+        "trendDirection": "rising",
+        "israeliPosition": "The IDF stated that the two individuals were Hamas military wing terrorists who were using employment at the MSF clinic as cover while advancing attack plans against Israeli civilians and troops. The military said the strike was precise, did not target a hospital, and caused no damage to medical infrastructure.",
+        "securityContext": "The IDF has previously documented instances of Hamas embedding operatives within civilian and humanitarian structures in Gaza.",
+        "supportingCitationKeys": ["msf-statement", "aljazeera-msf"],
+        "contradictingCitationKeys": ["idf-x-msf-strike", "toi-msf-strike"],
+        "verificationState": "disputed",
+        "knownUnknowns": ["Independent verification of the individuals’ exact roles and any evidence of their participation in attack planning beyond IDF statements.", "Precise damage assessment at the clinic site from neutral sources."]
+      },
+      "media": null
+    }
+  ]
+}
